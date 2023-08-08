@@ -49,19 +49,7 @@ public class CustomerInformationDO {
 
     private Siblings siblings;//兄弟姐妹信息
 
-    private String passportImageUrl1;
+    private Url url;//资料列表
 
-    private String passportImageUrl2;
-
-    private String passportImageUrl3;
-
-    private String schoolCoeImageUrl;
-
-    private String afpImageUrl1;
-
-    private String afpImageUrl2;
-
-    private String birthImageUrl;
-
-    private String idCardImageUrl;
+    private String mmdiskPath;//MM存储目录
 }

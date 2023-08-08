@@ -247,7 +247,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
             }
             int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
-            List<VisaOfficialDTO> officialDTOList = visaOfficialService.getVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
+            List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
                     endDate, userName, applicantName, pageNum, pageSize, _sorter);
 
 
@@ -308,7 +308,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 regionList = new ArrayList<>();
                 regionList.add(regionId);
             }
-            List<VisaOfficialDTO> officialList = visaOfficialService.getVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, userName, applicantName, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
@@ -342,10 +342,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                row.createCell(19).setCellValue(visaDTO.isMerged());
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(19).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(20).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
                 i++;
             }
             wb.write(os);

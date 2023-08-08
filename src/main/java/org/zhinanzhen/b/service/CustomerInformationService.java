@@ -24,4 +24,6 @@ public interface CustomerInformationService {
 
     void deleteFile(String url) throws ServiceException;
 
+    //坚果云下载
+    CustomerInformationDO getFileByDav(int applicantId) throws ServiceException;
 }

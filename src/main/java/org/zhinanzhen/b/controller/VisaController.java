@@ -65,6 +65,8 @@ public class VisaController extends BaseCommissionOrderController {
 	MaraService maraService;
 	@Resource
 	VisaService visaService;
+	@Resource
+	VisaOfficialService visaOfficialService;
 
 	@Resource
 	ServiceOrderService serviceOrderService;
@@ -566,6 +568,10 @@ public class VisaController extends BaseCommissionOrderController {
 		if (isChangeState) {
 			visaDto.setState(ReviewKjStateEnum.COMPLETE.toString());
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
+			// 修改文案佣金订单状态
+			VisaOfficialDTO visaOfficialDto = visaOfficialService.getByServiceOrderId(visaDto.getServiceOrderId());
+			if (visaOfficialDto != null && !visaOfficialDto.isMerged())
+				visaOfficialService.updateMerged(visaOfficialDto.getId(), Boolean.TRUE);
 		}
 		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);
@@ -714,13 +720,14 @@ public class VisaController extends BaseCommissionOrderController {
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
 					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
 			}
-
+			
 			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum, pageSize, _sorter);
+					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
+					pageSize, _sorter);
 			list.forEach(v -> {
 				if (v.getServiceOrderId() > 0)
 					try {

@@ -16,7 +16,7 @@ public interface VisaOfficialDao {
 
     int addVisa(VisaOfficialDO visaOfficialDO);
 
-    List<VisaOfficialListDO> get(@Param("officialId")Integer officialId,
+    List<VisaOfficialListDO> list(@Param("officialId")Integer officialId,
                                  @Param("regionIdList")List<Integer> regionIdList,
                                  @Param("id")Integer id,
                                  @Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,
@@ -44,7 +44,7 @@ public interface VisaOfficialDao {
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
 
-    VisaOfficialDO listByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+    VisaOfficialDO getByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
     void update(@Param("id")Integer id,
                 @Param("handling_date")String handling_date,
@@ -55,4 +55,6 @@ public interface VisaOfficialDao {
 
     int updateHandlingDate(@Param("id")Integer id,
                            @Param("handlingDate") Date handlingDate);
+    
+	int updateMerged(@Param("id") Integer id, @Param("isMerged") boolean isMerged);
 }

@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.*;
@@ -22,6 +23,7 @@ import org.zhinanzhen.tb.utils.WebDavUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -54,20 +56,17 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
-        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
-            ServiceException se = new ServiceException("保存失败！客户名字有空格符，请修改后重新保存!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("保存失败！客户姓有空格符，请修改后重新保存!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
         try {
+            String webdav = webdav(customerInformationDO);
+            customerInformationDO.setMmdiskPath(webdav);
             customerInformationDAO.insert(customerInformationDO);
-            webdav(customerInformationDO.getServiceOrderId());
             sendRemind(customerInformationDO.getServiceOrderId());
+            deleteAll(customerInformationDO);
         } catch (Exception e) {
             e.printStackTrace();
             ServiceException se = new ServiceException(e);
@@ -79,7 +78,13 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public CustomerInformationDO get(int id) throws ServiceException {
         try {
-            return customerInformationDAO.getByServiceOrderId(id);
+            CustomerInformationDO customerInformationDO=null;
+             customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+            if (ObjectUtil.isNotNull(customerInformationDO)&&customerInformationDO.getMmdiskPath() != null) {
+                String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"", "");
+                customerInformationDO.setMmdiskPath(mmdiskPath);
+            }
+            return customerInformationDO;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -102,7 +107,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public void delete(int id) throws ServiceException {
         try {
-
             customerInformationDAO.delete(id);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
@@ -130,23 +134,36 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
+            String rFamilyName = familyName.replace(" ", "");
+            String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String dir = "/uploads/customerInformation/"+familyName +"_"+ givenName + "/";
+            String dir = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase() + "/";
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
             LOG.info("上传的文件原名称:" + fileName);
             // 判断文件类型
             String type = fileName.indexOf(".") != -1
                     ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
                     : null;
-            String realPath = StringUtil.merge("/data", dir);
+            String Path =File.separator+"data";
+            if (System.getProperties().getProperty("os.name").contains("Windows")){
+                String userHome = System.getProperties().getProperty("user.home");
+                Path=userHome+Path;
+            }
+            String realPath = StringUtil.merge(Path, dir.replace("/",File.separator));
             // 创建目录
             File folder = new File(realPath);
             if (!folder.isDirectory())
                 folder.mkdirs();
             // 自定义的文件名称
-			String newFileName =name + "_" + familyName + givenName.charAt(0) + "_" + formatdate ;
+            String[] split = givenName.split(" ");
+            StringBuffer mgivenName = new StringBuffer();
+            for (int i = 0; i < split.length; i++) {
+                char charAt = split[i].charAt(0);
+                mgivenName.append(charAt);
+            }
+            String newFileName =name + "_" + rFamilyName + mgivenName + "_" + formatdate ;
             // 设置存放文件的路径
             String path = StringUtil.merge(realPath, newFileName,".", type);
             LOG.info("存放文件的路径:" + path);
@@ -289,13 +306,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return s;
     }
-    private void webdav(int id) throws IOException, ServiceException {
-        CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
-        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
-            ServiceException se = new ServiceException("上传失败！客户名字有空格符，请修改后重新上传!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
+    private String webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -303,15 +314,33 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }try {
             String givenName = customerInformationDO.getMainInformation().getGivenName();
             String familyName = customerInformationDO.getMainInformation().getFamilyName();
+            String rgivenName = givenName.replace(" ", "");
+            String[] split = givenName.split(" ");
+            StringBuffer mgivenName = new StringBuffer();
+            for (int i = 0; i < split.length; i++) {
+                char charAt = split[i].charAt(0);
+                mgivenName.append(charAt);
+            }
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + familyName  + givenName + "_" + formatdate ;
-            String filePath = "/data/uploads/customerInformation/" + familyName +"_"+ givenName  ;
-            List<String> path = getFilePath(filePath);
-            for (String s : path) {
-                WebDavUtils.upload(netDiskPath+"/"+s.substring(s.lastIndexOf("\\")+1), s);
-            }
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate ;
+            //String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
+//            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
+//            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
+//            List<String> path = getFilePath(filePath);
+//            if (path.size()==0){
+//                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
+//                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//                throw se;
+//            }
+            List<String> list = getUrlList(customerInformationDO);
+            WebDavUtils.upload2(netDiskPath,list);
+            String mmdir = netDiskPath.substring(netDiskPath.lastIndexOf("/") + 1);
+            return mmdir;
+            //文件上传
+
+            //WebDavUtils.upload2(netDiskPath, path);
         }catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -344,4 +373,122 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return filePathList;
     }
+
+    public  void deleteAll(CustomerInformationDO customerInformationDO) throws ServiceException {
+        String familyName = customerInformationDO.getMainInformation().getFamilyName();
+        String givenName = customerInformationDO.getMainInformation().getGivenName();
+        String rFamilyName = familyName.replace(" ", "");
+        String rgivenName = givenName.replace(" ", "");
+        LocalDate date = LocalDate.now(); // get the current date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        String formatdate = date.format(formatter);
+        String dir =File.separator+"data";
+        if (System.getProperties().getProperty("os.name").contains("Windows")){
+            String userHome = System.getProperties().getProperty("user.home");
+            dir=userHome+dir;
+        }
+        String fileDir = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase() + "/";
+        List<String> filePath = getFilePath(dir + fileDir);
+        for (String url : filePath) {
+            if (url == null){
+                ServiceException se = new ServiceException("删除路径为空!");
+                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                throw se;
+            }
+            try {
+                Files.delete(Paths.get(url));
+            } catch (Exception e) {
+                ServiceException se = new ServiceException(e);
+                se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+                throw se;
+            }
+        }
+
+    }
+
+    public List<String> getUrlList(CustomerInformationDO customerInformationDO) {
+        List<Object> objectList = new ArrayList<>();
+        objectList.add(customerInformationDO.getUrl().getBirth());
+        objectList.add(customerInformationDO.getUrl().getPassport());
+        objectList.add(customerInformationDO.getUrl().getPhotoId());
+        if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getTpassport())){
+            objectList.add(customerInformationDO.getUrl().getTpassport());
+        }
+        if(ObjectUtil.isNotNull(customerInformationDO.getUrl().getOther())){
+            objectList.add(customerInformationDO.getUrl().getOther());
+        }
+        List<String > list = new ArrayList<>();
+        String dir =File.separator+"data";
+        if (System.getProperties().getProperty("os.name").contains("Windows")){
+            String userHome = System.getProperties().getProperty("user.home");
+            dir=userHome+dir;
+        }
+
+        for (Object object : objectList) {
+            if (null == object) {
+                return null;
+            }
+            try {
+                // 挨个获取对象属性值
+
+                for (Field f : object.getClass().getDeclaredFields()) {
+                    f.setAccessible(true);
+                    // 如果有一个属性值不为null，且值不是空字符串，就返回false
+                    if (f.get(object) != null && StringUtils.isNotBlank(f.get(object).toString())) {
+                        String replace = f.get(object).toString().replace("/", File.separator);
+                        String s = StringUtil.merge(dir, replace);
+                        list.add(s);
+                    }
+                }
+        } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+
+//坚果云下载
+    @Override
+    public CustomerInformationDO getFileByDav(int applicantId) throws ServiceException {
+
+        try{
+            CustomerInformationDO customerInformationDO = customerInformationDAO.getByApplicantId(applicantId);
+            if (ObjectUtil.isNotNull(customerInformationDO)&&ObjectUtil.isNotNull(customerInformationDO.getUrl())){
+                String givenName = customerInformationDO.getMainInformation().getGivenName();
+                String familyName = customerInformationDO.getMainInformation().getFamilyName();
+                String rFamilyName = familyName.replace(" ", "");
+                String rgivenName = givenName.replace(" ", "");
+                String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"","");
+                String outpath = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase()+"/" ;
+                String dir =File.separator+"data";
+                if (System.getProperties().getProperty("os.name").contains("Windows")){
+                    String userHome = System.getProperties().getProperty("user.home");
+                    dir=userHome+dir;
+                }
+                outpath=dir+outpath;
+                List<String> urlList = WebDavUtils.MMdown(mmdiskPath,outpath);
+                //return urlList;
+            }
+            if (ObjectUtil.isNotNull(customerInformationDO)&&customerInformationDO.getMmdiskPath() != null) {
+                String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"", "");
+                customerInformationDO.setMmdiskPath(mmdiskPath);
+                return customerInformationDO;
+            }
+
+            return null;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+
+    }
+
+
+
+
+
+
+
 }

@@ -199,6 +199,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         try {
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
+            LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
@@ -1146,6 +1147,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     }
                 }
             }
+			LOG.info("修改留学服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             serviceOrderDao.updateServiceOrder(serviceOrderDo);
         }
     }
@@ -1312,6 +1314,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         }
                     }
                 }
+                LOG.info("修改留学服务订单(serviceOrderDo=" + serviceOrderDo + ").");
                 serviceOrderDao.updateServiceOrder(serviceOrderDo);
             }
         }
@@ -1367,6 +1370,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                     serviceOrderMailDetail.getServiceOrderUrl()));
                 }
+                LOG.info("修改留学服务订单(serviceOrderDo=" + serviceOrderDo + ").");
                 serviceOrderDao.updateServiceOrder(serviceOrderDo);
             }
         }
