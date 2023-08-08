@@ -4,19 +4,21 @@ package org.zhinanzhen.tb.utils;
 import com.github.sardine.DavResource;
 import com.github.sardine.Sardine;
 import com.github.sardine.SardineFactory;
+import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WebDavUtils {
 //   public static String username = "23508311977@qq.com";
 //    public static String password = "a382y2bychm9by5y";
     public static String username = "jiaheng.xu@zhinanzhen.org";
-    public static String password = "ahv27r25qvyryfxb";
+    public static String password = "anxjg8crwx8u7kpk";
     public static String serviceAddress = "https://dav.jianguoyun.com/dav";
 
     public static Sardine sardine;
@@ -38,6 +40,20 @@ public class WebDavUtils {
 
         // 执行文件上传操作
         sardine.put(getPath(netDiskPath), new File(filePath),"application/x-www-form-urlencoded");
+
+    }
+    public static void upload2(String netDiskPath,List<String> pathList) throws IOException {
+        //判断是否存在目录 不存在则创建
+        String s1 = netDiskPath+"/";
+        String packagePath = s1.substring(0,getPath(s1).lastIndexOf("/"));
+        mkdir(packagePath);
+
+        // 执行文件上传操作
+        for (String s : pathList) {
+            File file = new File(s);
+            sardine.put(getPath(s1 + s.substring(s.lastIndexOf(File.separator)+1)),file,"application/x-www-form-urlencoded");
+        }
+
     }
 
     /**
@@ -49,7 +65,6 @@ public class WebDavUtils {
     public static void down(String netDiskPath, String filePath ) throws IOException{
         InputStream fis = sardine.get(getPath(netDiskPath));
         FileOutputStream fos = new FileOutputStream(filePath);
-
         int len;
         byte[] buffer = new byte[1024];
 
@@ -58,6 +73,31 @@ public class WebDavUtils {
         }
         fis.close();
         fos.close();
+    }
+
+    /**
+     * 下载目录下所有文件
+     * @param netDiskPath 客户姓名缩写
+     * @param filePath 文件地址
+     * @throws IOException
+     */
+    public static List<String> MMdown(String netDiskPath, String filePath) throws IOException{
+        String Dir="https://dav.jianguoyun.com/dav/MMtest/";
+        List<DavResource> davResources = get(Dir+netDiskPath);
+        List<String> urlList =new ArrayList<>();
+        File folder = new File(filePath);
+        if (!folder.isDirectory())
+            folder.mkdirs();
+        for (int i = 1; i < davResources.size(); i++) {
+            String path = davResources.get(i).getDisplayName();
+            String mmFilePath = StringUtil.merge(Dir,netDiskPath+"/"+path);
+            String outpath = StringUtil.merge(filePath, path);
+            String file = outpath.replace("/", File.separator);
+            down(mmFilePath,file);
+            urlList.add(file);
+
+        }
+        return urlList;
     }
 
     /**

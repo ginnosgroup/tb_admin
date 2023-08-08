@@ -217,8 +217,8 @@
 
     <select id="countVisa" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_visa bv, tb_adviser a, b_applicant ap, b_service_order so
-        WHERE a.id = bv.adviser_id AND bv.service_order_id = so.id AND ap.id = so.applicant_id
+        FROM b_visa bv, tb_adviser a, b_service_order so
+        WHERE a.id = bv.adviser_id AND bv.service_order_id = so.id
         <if test='id != null and id > 0'>
             AND bv.id = #{id}
         </if>
@@ -526,11 +526,12 @@
             v.exchange_rate AS exchangeRate,
             v.amount,
             SUM(v.bonus) AS commission,
-            SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount/v.exchange_rate,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount/v.exchange_rate,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
+            IFNULL(sum(IF(v.currency='CNY',v.expect_amount/v.exchange_rate,v.expect_amount)),0.00) AS serviceFee
+            #SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount/v.exchange_rate,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount/v.exchange_rate,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
         FROM b_visa v, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.kj_approval_date < #{endDate} ]]>
+            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.kj_approval_date <= #{endDate} ]]>
         </if>
         <if test='regionId != null and regionId != ""'>
             AND r.id = #{regionId}

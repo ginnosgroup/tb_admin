@@ -38,7 +38,8 @@ public class Application extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		registry.addMapping("/**").allowedOrigins("*");
+		registry.addMapping("/**").allowedOrigins("*").allowCredentials(true)
+				.allowedMethods("GET", "POST", "PUT", "DELETE");
 	}
 
 	@Override

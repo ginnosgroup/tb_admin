@@ -139,8 +139,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
 	@Override
-	public int count(String name, String type, String code, Boolean isFreeze, String keyword) {
-		return schoolInstitutionDAO.count(name, type, code, isFreeze, keyword);
+	public int count(String name, String type, String code, Boolean isCooperative, Boolean isFreeze, String keyword) {
+		return schoolInstitutionDAO.count(name, type, code, isCooperative, isFreeze, keyword);
 	}
 
     @Override

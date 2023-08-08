@@ -44,11 +44,6 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
     @Override
     public int generate(int id) throws ServiceException {
         CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
-        if(customerInformationDO.getMainInformation().getGivenName().contains(" ")){
-            ServiceException se = new ServiceException("生成失败！客户名字有空格符，请修改后重新保存后再生成pdf!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("生成失败！客户姓有空格符，请修改后重新保存后再生成pdf!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -73,20 +68,16 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
         String givenName = customerInformationDO.getMainInformation().getGivenName();
         String familyName = customerInformationDO.getMainInformation().getFamilyName();
-        if(givenName.contains(" ")){
-            ServiceException se = new ServiceException("生成失败！客户名字有空格符，请修改后重新生成!");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
         if(familyName.contains(" ")){
             ServiceException se = new ServiceException("生成失败！客户姓有空格符，请修改后重新生成!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }try {
+            String rgivenName = givenName.replace(" ", "");
             LocalDate date = LocalDate.now(); // get the current date
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + givenName + "_" + familyName + "_" + formatdate + ".pdf";
+            String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + rgivenName + "_" + familyName + "_" + formatdate + ".pdf";
             String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
             WebDavUtils.upload(netDiskPath, filePath);
 
@@ -178,7 +169,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         root.getElementsByTagName("ApplicantMobile").item(0).setTextContent(customerInformationDO.getContactDetails().getMobileOrCellCountryNumber());
         //Email
         root.getElementsByTagName("ApplicantEmail").item(0).setTextContent(customerInformationDO.getContactDetails().getEmail());
-        //todo
+
         //IsAnyCountry
         CitizenshipDetails citizenshipDetails = customerInformationDO.getCitizenshipDetails();
         List<Citizenship> citizenshipList = citizenshipDetails.getCitizenshipList();

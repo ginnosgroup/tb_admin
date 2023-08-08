@@ -42,7 +42,12 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 				adminUserDo.setKjId(kjId);
 			if (regionId != null)
 				adminUserDo.setRegionId(regionId);
-			return adminUserDao.add(adminUserDo);
+			int isAdded = adminUserDao.add(adminUserDo);
+			if (isAdded > 0 && StringUtil.equals(apList, "GW"))
+				sendMail(username, "佣金系统已经开通",
+						StringUtil.merge("登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号:",
+								username, "<br/>登录密码:", password));
+			return isAdded;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
