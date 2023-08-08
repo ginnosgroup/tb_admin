@@ -147,7 +147,7 @@
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId}
     </select>
-    <select id="get" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialListDO">
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialListDO">
         SELECT
         bv.id AS id,
         bv.gmt_create AS gmtCreate,
