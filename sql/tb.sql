@@ -698,7 +698,7 @@ CREATE TABLE `b_commission_order_temp` (
   KEY `index` (`service_order_id`,`verify_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
--- 留学-学校
+-- 留学-学校 (已废弃)
 CREATE TABLE `b_school` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
   `gmt_create` datetime NOT NULL COMMENT '创建时间',
