@@ -342,7 +342,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
-                row.createCell(19).setCellValue(visaDTO.isMerged());
+                row.createCell(19).setCellValue(visaDTO.isMerged() ? "是" : "否");
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
