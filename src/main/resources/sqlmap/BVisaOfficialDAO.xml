@@ -295,7 +295,7 @@
         </if>
 
     </select>
-    <select id="getOne" resultType="org.zhinanzhen.b.dao.pojo.VisaListDO">
+    <select id="getOne" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialListDO">
         SELECT
             bv.id AS id,
             bv.gmt_create AS gmtCreate,
@@ -405,7 +405,7 @@
             official_id AS officialId,
             bank_check AS bankCheck,
             is_checked AS isChecked,
-            bv.is_merged AS isMerged,
+            is_merged AS isMerged,
             remarks,
             refuse_reason AS refuseReason,
             verify_code AS verifyCode,
@@ -457,7 +457,7 @@
             official_id AS officialId,
             bank_check AS bankCheck,
             is_checked AS isChecked,
-            bv.is_merged AS isMerged,
+            is_merged AS isMerged,
             remarks,
             refuse_reason AS refuseReason,
             verify_code AS verifyCode,
