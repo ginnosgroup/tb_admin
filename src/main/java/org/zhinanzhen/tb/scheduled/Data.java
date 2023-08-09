@@ -133,7 +133,8 @@ public class Data extends BaseService {
 
             //计算dataDTOList每一行的total值
             dataDTOList.forEach(dataDTO -> {
-                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
+                //dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
+                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()); // 临时去掉adjustments
             });
 
             //开始计算全地区的顾问total排名    ---->dataDTOList
@@ -158,8 +159,11 @@ public class Data extends BaseService {
                 area.setClaimCommission(new BigDecimal(area.getClaimCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 area.setClaimedCommission(new BigDecimal(area.getClaimedCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 area.setAdjustments(new BigDecimal(area.getAdjustments()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
-                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+//                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
+//                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+				area.setTotal(
+						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()); // 临时去掉adjustments
             });
 
 
