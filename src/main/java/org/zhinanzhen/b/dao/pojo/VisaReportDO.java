@@ -28,5 +28,7 @@ public class VisaReportDO implements Serializable {
 	private double commission;
 	
 	private double serviceFee;
+	
+	private double refunded;
 
 }

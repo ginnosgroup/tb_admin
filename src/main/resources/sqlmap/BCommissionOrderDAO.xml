@@ -962,8 +962,9 @@
         #0)) AS deductionCommission,
         SUM(IF(co.is_settle = false, IF(co.currency='CNY',co.expect_amount/co.expect_amount,co.expect_amount), 0)) AS claimCommission,
         SUM(IF(co.commission_state = 'YZY', IF(co.currency='CNY',co.sure_expect_amount/co.exchange_rate,co.sure_expect_amount), 0)) AS claimedCommission,
-        SUM(IF(co.is_settle, 0 , IFNULL(IF(co.currency='CNY',co.school_payment_amount/co.exchange_rate,co.school_payment_amount) , 0) - IFNULL(IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount) , 0))) AS adjustments
-        FROM b_commission_order co, tb_adviser a, tb_region r
+        SUM(IF(co.is_settle, 0 , IFNULL(IF(co.currency='CNY',co.school_payment_amount/co.exchange_rate,co.school_payment_amount) , 0) - IFNULL(IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount) , 0))) AS adjustments,
+        SUM(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00)) AS refunded
+        FROM tb_adviser a, tb_region r, b_commission_order co LEFT JOIN b_refund rf ON rf.commission_order_id = co.id AND rf.state = 'PAID'
         WHERE a.region_id = r.id AND co.adviser_id = a.id AND co.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date <= #{endDate} ]]>
@@ -998,7 +999,7 @@
                 DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d'),
             </otherwise>
         </choose>
-        adviser_id
+        co.adviser_id
         ORDER BY co.kj_approval_date DESC;
     </select>
 

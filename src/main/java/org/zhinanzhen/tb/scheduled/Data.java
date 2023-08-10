@@ -68,7 +68,7 @@ public class Data extends BaseService {
                     }
                 }
                 if(flag == false){
-                    DataDTO dto = new DataDTO(visaReport.getDate(),visaReport.getRegionId(),visaReport.getArea(),visaReport.getAdviserId(),visaReport.getConsultant(),visaReport.getServiceFee());
+                    DataDTO dto = new DataDTO(visaReport.getDate(),visaReport.getRegionId(),visaReport.getArea(),visaReport.getAdviserId(),visaReport.getConsultant(),visaReport.getServiceFee(),visaReport.getRefunded());
                     _dataDTOList.add(dto);
                 }
             });
@@ -117,6 +117,7 @@ public class Data extends BaseService {
                 double claimedCommission = 0;
                 double adjustments = 0;
                 int regionId = 0;
+                double refunded = 0;
                 for( int index = 0 ;index < dataDTOList.size(); index++){
                     if(dataDTOList.get(index).getArea().equals(area)){
                         serviceFee = serviceFee +dataDTOList.get(index).getServiceFee();
@@ -126,15 +127,16 @@ public class Data extends BaseService {
                         adjustments = adjustments +dataDTOList.get(index).getAdjustments();
                         date = dataDTOList.get(index).getDate();
                         regionId = dataDTOList.get(index).getRegionId();
+                        refunded = dataDTOList.get(index).getRefunded();
                     }
                 }
-                areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments));
+                areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments,refunded));
             });
 
             //计算dataDTOList每一行的total值
             dataDTOList.forEach(dataDTO -> {
                 //dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
-                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()); // 临时去掉adjustments
+                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()-dataDTO.getRefunded()); // 临时去掉adjustments＆减去refunded
             });
 
             //开始计算全地区的顾问total排名    ---->dataDTOList
@@ -162,8 +164,8 @@ public class Data extends BaseService {
 //                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
 //                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 				area.setTotal(
-						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission())
-								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()); // 临时去掉adjustments
+						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission() - area.getRefunded())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()); // 临时去掉adjustments＆减去refunded
             });
 
 
