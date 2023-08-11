@@ -891,7 +891,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         // setGST DeductGst
         if (subagencyDo != null && "AU".equals(subagencyDo.getCountry())) {
             co.setGst(expectAmount / 11);
-            System.out.println(co.getId() + "GST=预收业绩[" + expectAmount + "]/11=" + expectAmount);
+            System.out.println(co.getId() + "GST=预收业绩[" + expectAmount + "]/11=" + co.getGst());
             co.setDeductGst(expectAmount - co.getGst());
             System.out.println(co.getId() + "(澳洲)DeductGST=预收业绩[" + expectAmount + "]-GST[" + co.getGst() + "]="
                     + co.getDeductGst());
