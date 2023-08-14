@@ -107,7 +107,6 @@ public class Data extends BaseService {
 					_dataDTOList.add(dto);
 				}
 			});
-System.out.println("-----_dataDTOList:" + _dataDTOList);
 
             HashSet<Integer> adviserIdSet = new HashSet();
             HashSet areaset = new HashSet();
@@ -164,7 +163,6 @@ System.out.println("-----_dataDTOList:" + _dataDTOList);
                         regionId = dataDTOList.get(index).getRegionId();
                         refunded = dataDTOList.get(index).getRefunded();
 //						refunded = getRefunded(refundReportList, dataDTOList.get(index), null);
-//System.out.println("DataDebug-getRefunded(refundReportList, dataDTOList.get(index), null):" + getRefunded(refundReportList, dataDTOList.get(index), null));
                     }
                 }
                 areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments,refunded));
@@ -173,7 +171,6 @@ System.out.println("-----_dataDTOList:" + _dataDTOList);
             //计算dataDTOList每一行的total值
             dataDTOList.forEach(dataDTO -> {
                 //dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
-//System.out.println("DataDebug-getRefunded(refundReportList, dataDTO, null):" + getRefunded(refundReportList, dataDTO, null));
                 dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()-dataDTO.getRefunded()); // 临时去掉adjustments＆减去refunded
             });
 
@@ -192,7 +189,6 @@ System.out.println("-----_dataDTOList:" + _dataDTOList);
                 }
             });
 
-System.out.println("-----areaDataList:" + areaDataList);
             //计算areaDataList每一行的total值
             areaDataList.forEach(area->{
                 area.setServiceFee(new BigDecimal(area.getServiceFee()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
@@ -202,11 +198,9 @@ System.out.println("-----areaDataList:" + areaDataList);
                 area.setAdjustments(new BigDecimal(area.getAdjustments()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 //                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
 //                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-//System.out.println("DataDebug-getRefunded(refundReportList, area, null):" + getRefunded(refundReportList, area, null));
 				area.setTotal(
 						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission() - area.getRefunded())
 								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()); // 临时去掉adjustments＆减去refunded
-System.out.println("-----DataDebug-area.getTotal():" + area.getTotal());
             });
 
 
