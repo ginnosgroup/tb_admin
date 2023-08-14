@@ -206,13 +206,12 @@ System.out.println("DataDebug-area.getTotal():" + area.getTotal());
     
 	private Double getRefunded(List<RefoundReportDTO> refundReportList, DataDTO data, VisaReportDTO visaReport) {
 		for (RefoundReportDTO refundReport : refundReportList) {
-System.out.println("!ObjectUtil.orIsNull(data, refundReport):"+!ObjectUtil.orIsNull(data, refundReport));
-			if (!ObjectUtil.orIsNull(data, refundReport) & StringUtil.equals(refundReport.getDate(), data.getDate())
+			if (!ObjectUtil.orIsNull(data, refundReport) && StringUtil.equals(refundReport.getDate(), data.getDate())
 					&& StringUtil.equals(refundReport.getRegionId() + "", data.getRegionId() + "")
 					&& StringUtil.equals(refundReport.getAdviserId() + "", data.getAdviserId() + ""))
 				return refundReport.getRefunded();
 			if (!ObjectUtil.orIsNull(visaReport, refundReport)
-					& StringUtil.equals(refundReport.getDate(), visaReport.getDate())
+					&& StringUtil.equals(refundReport.getDate(), visaReport.getDate())
 					&& StringUtil.equals(refundReport.getRegionId() + "", visaReport.getRegionId() + "")
 					&& StringUtil.equals(refundReport.getAdviserId() + "", visaReport.getAdviserId() + ""))
 				return refundReport.getRefunded();
