@@ -15,6 +15,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import javax.annotation.Resource;
@@ -205,11 +206,15 @@ System.out.println("DataDebug-area.getTotal():" + area.getTotal());
     
 	private Double getRefunded(List<RefoundReportDTO> refundReportList, DataDTO data, VisaReportDTO visaReport) {
 		for (RefoundReportDTO refundReport : refundReportList) {
-			if (data != null & refundReport != null & StringUtil.equals(refundReport.getDate(), data.getDate())
+System.out.println("refundReport:"+refundReport);
+System.out.println("data:"+data);
+System.out.println("visaReport:"+visaReport);
+System.out.println("refundReport.getDate():"+refundReport.getDate());
+			if (!ObjectUtil.orIsNull(data, refundReport) & StringUtil.equals(refundReport.getDate(), data.getDate())
 					&& StringUtil.equals(refundReport.getRegionId() + "", data.getRegionId() + "")
 					&& StringUtil.equals(refundReport.getAdviserId() + "", data.getAdviserId() + ""))
 				return refundReport.getRefunded();
-			if (visaReport != null & refundReport != null
+			if (!ObjectUtil.orIsNull(visaReport, refundReport)
 					& StringUtil.equals(refundReport.getDate(), visaReport.getDate())
 					&& StringUtil.equals(refundReport.getRegionId() + "", visaReport.getRegionId() + "")
 					&& StringUtil.equals(refundReport.getAdviserId() + "", visaReport.getAdviserId() + ""))
