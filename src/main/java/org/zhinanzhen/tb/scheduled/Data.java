@@ -94,9 +94,8 @@ public class Data extends BaseService {
 			refundReportList.forEach(refundReport -> {
 				boolean flag = false;
 				for (int index = 0; index < _dataDTOList.size(); index++) {
-System.out.println("----------refundReport:"+refundReport);
-System.out.println("----------_dataDTOList.get(index):"+_dataDTOList.get(index));
-					if (refundReport.getDate().equals(_dataDTOList.get(index).getDate())
+					if (refundReport.getDate() != null
+							&& refundReport.getDate().equals(_dataDTOList.get(index).getDate())
 							&& refundReport.getAdviserId() == _dataDTOList.get(index).getAdviserId()) {
 						flag = true;
 					}
