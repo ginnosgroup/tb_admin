@@ -57,7 +57,7 @@ public class DataDTO {
     }
 
     public DataDTO(String date, int regionId, String area, int adviserId, String consultant, double serviceFee,double deductionCommission,
-                   double claimCommission, double claimedCommission, double adjustments) {
+                   double claimCommission, double claimedCommission, double adjustments, double refunded) {
         this.date = date;
         this.area = area;
         this.adviserId = adviserId;
@@ -68,6 +68,7 @@ public class DataDTO {
         this.adjustments = adjustments;
         this.serviceFee = serviceFee;
         this.regionId = regionId;
+        this.refunded = refunded;
     }
 
     public DataDTO() {
