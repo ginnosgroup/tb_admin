@@ -428,8 +428,8 @@
             r.name AS area,
             a.id AS adviserId,
             a.name AS consultant,
-            SUM(IF(rf.state = 'COMPLETE', IFNULL(rf.amount , 0.00), 0.00)) AS refunding,
-            SUM(IF(rf.state = 'PAID', IFNULL(rf.amount , 0.00), 0.00)) AS refunded
+            SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
+            SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
         FROM b_refund rf, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -463,6 +463,70 @@
             </when>
             <otherwise>
                 DATE_FORMAT(rf.gmt_create, '%Y-%m-%d'),
+            </otherwise>
+        </choose>
+        adviser_id
+        ORDER BY rf.gmt_create DESC;
+    </select>
+    
+    <select id="listRefundReport2" resultType="org.zhinanzhen.b.dao.pojo.RefoundReportDO">
+        SELECT
+            <choose>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(rf.completed_date, '%Y-%m') AS date,
+                </when>
+                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                    DATE_FORMAT(rf.completed_date, '%Y-%m-%d') AS date,
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                    DATE_FORMAT(rf.completed_date, '%Y-%m') AS date,
+                </when>
+                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                    DATE_FORMAT(rf.completed_date, '%Y') AS date,
+                </when>
+                <otherwise>
+                    DATE_FORMAT(rf.completed_date, '%Y-%m-%d') AS date,
+                </otherwise>
+            </choose>
+            r.id AS regionId,
+            r.name AS area,
+            a.id AS adviserId,
+            a.name AS consultant,
+            SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
+            SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
+        FROM b_refund rf, tb_adviser a, tb_region r
+        WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND rf.gmt_create > #{startDate} AND rf.gmt_create < #{endDate} ]]>
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND r.id = #{regionId}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND a.id = #{adviserId}
+        </if>
+        <if test="adviserIdList != null">
+            AND a.id IN
+            <foreach collection="adviserIdList" index="index" open="(" close=")" separator="," item="aid">
+                #{aid}
+            </foreach>
+        </if>
+        GROUP BY
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(rf.completed_date, '%Y-%m'),
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(rf.completed_date, '%Y-%m-%d'),
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(rf.completed_date, '%Y-%m'),
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(rf.completed_date, '%Y'),
+            </when>
+            <otherwise>
+                DATE_FORMAT(rf.completed_date, '%Y-%m-%d'),
             </otherwise>
         </choose>
         adviser_id

@@ -27,5 +27,8 @@ public interface RefundService {
 
 	List<RefoundReportDTO> listRefundReport(String startDate, String endDate, String dateType, String dateMethod,
 			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
+	
+	List<RefoundReportDTO> listRefundReport2(String startDate, String endDate, String dateType, String dateMethod,
+			Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
 
 }

@@ -26,7 +26,5 @@ public class CommissionOrderReportDO implements Serializable {
 	private double claimedCommission;
 
 	private double adjustments;
-	
-	private double refunded;
 
 }

@@ -185,6 +185,26 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		}
 	}
 	
+	@Override
+	public List<RefoundReportDTO> listRefundReport2(String startDate, String endDate, String dateType,
+												   String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
+		List<RefoundReportDTO> refoundReportDtoList = new ArrayList<>();
+		List<RefoundReportDO> refoundReportDoList = new ArrayList<>();
+		try {
+			refoundReportDoList = refundDao.listRefundReport2(startDate,
+					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId, adviserIdList);
+			if (refoundReportDoList == null)
+				return null;
+			refoundReportDoList.forEach(refoundReportDO -> refoundReportDtoList
+					.add(mapper.map(refoundReportDO, RefoundReportDTO.class)));
+			return refoundReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+	
 	private void buildAttr(RefundDTO refundDto) {
 		if (refundDto != null && "OVST".equalsIgnoreCase(refundDto.getType())) {
 			if (refundDto.getCourseId() > 0) {

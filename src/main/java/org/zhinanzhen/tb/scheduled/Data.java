@@ -3,15 +3,19 @@ package org.zhinanzhen.tb.scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.CommissionOrderService;
+import org.zhinanzhen.b.service.RefundService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.impl.CommissionOrderServiceImpl;
 import org.zhinanzhen.b.service.impl.VisaServiceImpl;
 import org.zhinanzhen.b.service.pojo.CommissionOrderReportDTO;
 import org.zhinanzhen.b.service.pojo.DataDTO;
+import org.zhinanzhen.b.service.pojo.RefoundReportDTO;
 import org.zhinanzhen.b.service.pojo.VisaReportDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
+
+import com.ikasoa.core.utils.StringUtil;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -32,6 +36,9 @@ public class Data extends BaseService {
 
     @Autowired
     private  VisaService visaService ;
+    
+    @Autowired
+    private RefundService refundService;
 
     public  List<DataDTO> dataReport(String startDate,String endDate,String opt,String dateMethod){
         try {
@@ -42,6 +49,7 @@ public class Data extends BaseService {
 
             List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A",dateMethod == null?"M":"Y",0,0,null);
             List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
+            List<RefoundReportDTO> refundReportList = refundService.listRefundReport2(startDate, endDate, "A", dateMethod == null?"M":"Y", 0, 0, null);
 
             if (commissionOrderReportDtoList != null) {
                 commissionOrderReportDtoList.forEach(commissionOrderReportDto -> _dataDTOList
@@ -68,8 +76,10 @@ public class Data extends BaseService {
                     }
                 }
                 if(flag == false){
-                    DataDTO dto = new DataDTO(visaReport.getDate(),visaReport.getRegionId(),visaReport.getArea(),visaReport.getAdviserId(),visaReport.getConsultant(),visaReport.getServiceFee(),visaReport.getRefunded());
-                    _dataDTOList.add(dto);
+					DataDTO dto = new DataDTO(visaReport.getDate(), visaReport.getRegionId(), visaReport.getArea(),
+							visaReport.getAdviserId(), visaReport.getConsultant(), visaReport.getServiceFee(),
+							getRefunded(refundReportList, null, visaReport));
+					_dataDTOList.add(dto);
                 }
             });
 
@@ -127,7 +137,7 @@ public class Data extends BaseService {
                         adjustments = adjustments +dataDTOList.get(index).getAdjustments();
                         date = dataDTOList.get(index).getDate();
                         regionId = dataDTOList.get(index).getRegionId();
-                        refunded = dataDTOList.get(index).getRefunded();
+						refunded = getRefunded(refundReportList, dataDTOList.get(index), null);
                     }
                 }
                 areaDataList.add(new DataDTO(date,regionId, (String) area,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments,refunded));
@@ -136,7 +146,7 @@ public class Data extends BaseService {
             //计算dataDTOList每一行的total值
             dataDTOList.forEach(dataDTO -> {
                 //dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
-                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()-dataDTO.getRefunded()); // 临时去掉adjustments＆减去refunded
+                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()-getRefunded(refundReportList, dataDTO, null)); // 临时去掉adjustments＆减去refunded
             });
 
             //开始计算全地区的顾问total排名    ---->dataDTOList
@@ -164,7 +174,7 @@ public class Data extends BaseService {
 //                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
 //                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 				area.setTotal(
-						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission() - area.getRefunded())
+						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission() - getRefunded(refundReportList, area, null))
 								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()); // 临时去掉adjustments＆减去refunded
             });
 
@@ -188,5 +198,19 @@ public class Data extends BaseService {
 
         return  null;
     }
+    
+	private Double getRefunded(List<RefoundReportDTO> refundReportList, DataDTO data, VisaReportDTO visaReport) {
+		for (RefoundReportDTO refundReport : refundReportList) {
+			if (data != null & StringUtil.equals(refundReport.getDate(), data.getDate())
+					&& StringUtil.equals(refundReport.getRegionId() + "", data.getRegionId() + "")
+					&& StringUtil.equals(refundReport.getAdviserId() + "", data.getAdviserId() + ""))
+				return refundReport.getRefunded();
+			if (visaReport != null & StringUtil.equals(refundReport.getDate(), visaReport.getDate())
+					&& StringUtil.equals(refundReport.getRegionId() + "", visaReport.getRegionId() + "")
+					&& StringUtil.equals(refundReport.getAdviserId() + "", visaReport.getAdviserId() + ""))
+				return refundReport.getRefunded();
+		}
+		return 0.00;
+	}
 
 }
