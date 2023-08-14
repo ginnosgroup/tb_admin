@@ -25,6 +25,7 @@ public interface VisaOfficialDao {
                                  @Param("endDate")String endDate,
                                  @Param("userName")String userName,
                                  @Param("applicantName")String applicantName,
+                                 @Param("isMerged") Boolean isMerged,
                                  @Param("offset")Integer offset,
                                  @Param("pageSize")Integer pageSize,
                                  @Param("orderBy") String orderBy);
@@ -38,7 +39,8 @@ public interface VisaOfficialDao {
               @Param("startDate")String startDate,
               @Param("endDate")String endDate,
               @Param("userName")String userName,
-              @Param("applicantName")String applicantName);
+              @Param("applicantName")String applicantName,
+              @Param("isMerged") Boolean isMerged);
     VisaListDO getOne(@Param("id")Integer id
     );
 

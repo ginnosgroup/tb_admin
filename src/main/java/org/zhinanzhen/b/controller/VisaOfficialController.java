@@ -214,6 +214,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "officialId", required = false) Integer officialId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
+            @RequestParam(value = "isMerged", required = false) String isMerged,
             @RequestParam(value = "pageNum") Integer pageNum,
             @RequestParam(value = "pageSize") Integer pageSize,
             @RequestParam(value = "sorter", required = false) String sorter, HttpServletResponse response,
@@ -246,9 +247,14 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
                     return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
             }
-            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
+            Boolean merged = null;
+            if(StringUtil.equals(isMerged, "true"))
+            	merged = true;
+            if(StringUtil.equals(isMerged, "false"))
+            	merged = false;
+            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName, merged);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
-                    endDate, userName, applicantName, pageNum, pageSize, _sorter);
+                    endDate, userName, applicantName, merged, pageNum, pageSize, _sorter);
 
 
             return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
@@ -309,7 +315,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 regionList.add(regionId);
             }
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                    startDate, endDate, userName, applicantName, null, null, null);
+                    startDate, endDate, userName, applicantName, null, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
