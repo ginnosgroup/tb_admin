@@ -108,6 +108,7 @@ System.out.println("refundReport.regionId="+refundReport.getRegionId()+",refundR
 					_dataDTOList.add(dto);
 				}
 			});
+System.out.println("-----_dataDTOList:" + _dataDTOList);
 
             HashSet<Integer> adviserIdSet = new HashSet();
             HashSet areaset = new HashSet();
@@ -140,9 +141,6 @@ System.out.println("refundReport.regionId="+refundReport.getRegionId()+",refundR
                 }
                 dataDTOList.add(new DataDTO(null,regionId,area,adviserId,consultant,serviceFee,deductionCommission,claimCommission,claimedCommission,adjustments));
             });
-
-
-
 
             //每一个area的数据
             areaset.forEach(area -> {
@@ -193,6 +191,7 @@ System.out.println("refundReport.regionId="+refundReport.getRegionId()+",refundR
                 }
             });
 
+System.out.println("areaDataList:" + areaDataList);
             //计算areaDataList每一行的total值
             areaDataList.forEach(area->{
                 area.setServiceFee(new BigDecimal(area.getServiceFee()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
