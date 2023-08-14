@@ -90,6 +90,22 @@ public class Data extends BaseService {
 					}
 				});
 			});
+            
+			refundReportList.forEach(refundReport -> {
+				boolean flag = false;
+				for (int index = 0; index < _dataDTOList.size(); index++) {
+					if (refundReport.getDate().equals(_dataDTOList.get(index).getDate())
+							&& refundReport.getAdviserId() == _dataDTOList.get(index).getAdviserId()) {
+						flag = true;
+					}
+				}
+				if (flag == false) {
+					DataDTO dto = new DataDTO(refundReport.getDate(), refundReport.getRegionId(),
+							refundReport.getArea(), refundReport.getAdviserId(), refundReport.getConsultant(), 0,
+							refundReport.getRefunded());
+					_dataDTOList.add(dto);
+				}
+			});
 
             HashSet<Integer> adviserIdSet = new HashSet();
             HashSet areaset = new HashSet();
