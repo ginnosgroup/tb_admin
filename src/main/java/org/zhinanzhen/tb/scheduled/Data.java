@@ -92,7 +92,7 @@ public class Data extends BaseService {
 			});
             
 			refundReportList.forEach(refundReport -> {
-System.out.println("refundReport.regionId="+refundReport.getRegionId(+",refundReport.adviserId=" +refundReport.getAdviserId())+",refundReport.refunded=" +refundReport.getRefunded());
+System.out.println("refundReport.regionId="+refundReport.getRegionId()+",refundReport.adviserId=" +refundReport.getAdviserId()+",refundReport.refunded=" +refundReport.getRefunded());
 				boolean flag = false;
 				for (int index = 0; index < _dataDTOList.size(); index++) {
 					if (refundReport.getDate() != null
