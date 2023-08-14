@@ -33,6 +33,21 @@
         ;
     </select>
     
+    <select id="getThisMonthRefundAmount" resultType="java.lang.Double">
+        select IFNULL(sum(IF(r.currency_type='CNY',r.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),r.amount)),0.00) FROM b_refund r, tb_adviser tba  where DATE_FORMAT(r.completed_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        AND r.state = 'PAID' AND tba.id = r.adviser_id
+        <if test='adviserId != null'>
+            AND r.adviser_id = #{adviserId}
+        </if>
+        <if test='regionIdList != null'>
+            AND tba.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
+    
     <select id="getVisaUnassignedBonusAmount" resultType="java.lang.Double">
         SELECT IFNULL(sum(IF(currency='CNY',bonus/exchange_rate,bonus)),0.00) FROM b_visa WHERE state!='CLOSE' AND bonus_date IS NULL;
     </select>
