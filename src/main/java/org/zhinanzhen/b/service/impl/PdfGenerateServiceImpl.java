@@ -400,8 +400,8 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }
 
         //Sibling
-        Siblings siblings = customerInformationDO.getSiblings();
-        if (siblings.getIsHave()==2){
+        Siblings siblings = customerInformationDO.getSiblings();        
+        if (siblings.getIsHave()==0){
             root.getElementsByTagName("Sibling").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
         }else {
             root.getElementsByTagName("Sibling").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
