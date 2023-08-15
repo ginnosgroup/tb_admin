@@ -1339,7 +1339,7 @@ CREATE TABLE `b_visa_official` (
   `payment_voucher_image_url_5` varchar(128) DEFAULT NULL COMMENT '支付凭证图片地址5',
   `bank_check` varchar(32) DEFAULT NULL COMMENT '银行对账',
   `is_checked` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否对账成功',
-`is_merged` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否合账成功',
+  `is_merged` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否合账成功',
   `sure_expect_amount` decimal(8,2) DEFAULT NULL COMMENT '确认预收业绩',
   `kj_approval_date` datetime DEFAULT NULL COMMENT '财务审核时间',
   `invoice_number` varchar(128) DEFAULT NULL COMMENT 'InvoiceNo.',
@@ -1387,6 +1387,21 @@ CREATE TABLE `b_customer_information` (
 `postal_address_list` varchar(1000) DEFAULT NULL COMMENT '邮件地址信息',
 `health_questions` varchar(2000) DEFAULT NULL COMMENT '健康信息',
 `character_issues` varchar(5000) DEFAULT NULL COMMENT '性格信息',
+`applicant_id` int DEFAULT NULL COMMENT '申请人编号',
+`passport_image_url_1` varchar(128) DEFAULT NULL COMMENT '护照图片地址1',
+`passport_image_url_2` varchar(128) DEFAULT NULL COMMENT '护照图片地址2',
+`passport_image_url_3` varchar(128) DEFAULT NULL COMMENT '护照图片地址3',
+`schoolcoe_image_url` varchar(128) DEFAULT NULL COMMENT '学校COE地址',
+`afp_image_url_1` varchar(128) DEFAULT NULL COMMENT 'AFP无犯罪证明图片地址1',
+`afp_image_url_2` varchar(128) DEFAULT NULL COMMENT 'AFP无犯罪证明图片地址2',
+`birth_image_url` varchar(128) DEFAULT NULL COMMENT '出生公证或户口本公证图片地址',
+`idcard_image_url` varchar(128) DEFAULT NULL COMMENT '身份证图片地址',
+`parents` varchar(1000) DEFAULT NULL COMMENT '父母信息',
+`siblings` varchar(1000) DEFAULT NULL COMMENT '兄弟姐妹信息',
+`url` text DEFAULT NULL COMMENT '',
+`mmdisk_path` varchar(128) DEFAULT NULL COMMENT 'MM文件目录',
 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
+
+
 
