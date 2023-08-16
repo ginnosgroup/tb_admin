@@ -221,7 +221,7 @@ public class DashboardController extends BaseController {
 						_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
 						_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
 						_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
-						_dto.setRefunded(dto.getRefunded() + _dto.getRefunded());
+						_dto.setRefunded(roundHalfUp(dto.getRefunded() + _dto.getRefunded()));
 						_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
 					}
 				}
@@ -239,7 +239,7 @@ public class DashboardController extends BaseController {
 				_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
 				_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
 				_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
-				_dto.setRefunded(dto.getRefunded() + _dto.getRefunded());
+				_dto.setRefunded(roundHalfUp(dto.getRefunded() + _dto.getRefunded()));
 				_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
 			});
 			return new DashboardResponse(0,"全澳-上周业绩组成",_dto, startDate, endDate);
@@ -312,6 +312,7 @@ public class DashboardController extends BaseController {
 						_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
 						_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
 						_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
+						_dto.setRefunded(roundHalfUp(dto.getRefunded() + _dto.getRefunded()));
 						_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
 					}
 				}
@@ -329,6 +330,7 @@ public class DashboardController extends BaseController {
 				_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
 				_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
 				_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
+				_dto.setRefunded(roundHalfUp(dto.getRefunded() + _dto.getRefunded()));
 				_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
 			});
 			return new DashboardResponse(0, "全澳-本月业绩组成", _dto, startDate, endDate);
@@ -383,14 +385,19 @@ public class DashboardController extends BaseController {
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0,7));
 		dataListThisMonth.forEach(dataDTO -> {
-			//thisMonthData.setDate(dataDTO.getDate());
+			// thisMonthData.setDate(dataDTO.getDate());
 			thisMonthData.setServiceFee(new BigDecimal(thisMonthData.getServiceFee() + dataDTO.getServiceFee())
 					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setClaimedCommission(new BigDecimal(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setClaimCommission(new BigDecimal(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setDeductionCommission(new BigDecimal(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
+			thisMonthData.setClaimedCommission(
+					new BigDecimal(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			thisMonthData.setClaimCommission(
+					new BigDecimal(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			thisMonthData.setDeductionCommission(
+					new BigDecimal(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			thisMonthData.setRefunded(new BigDecimal(thisMonthData.getRefunded() + dataDTO.getRefunded())
 					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
 		});
@@ -403,11 +410,16 @@ public class DashboardController extends BaseController {
 			lastMonthData.setDate(dataDTO.getDate());
 			lastMonthData.setServiceFee(new BigDecimal(lastMonthData.getServiceFee() + dataDTO.getServiceFee())
 					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setClaimedCommission(new BigDecimal(lastMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setClaimCommission(new BigDecimal(lastMonthData.getClaimCommission() + dataDTO.getClaimCommission())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setDeductionCommission(new BigDecimal(lastMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
+			lastMonthData.setClaimedCommission(
+					new BigDecimal(lastMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			lastMonthData.setClaimCommission(
+					new BigDecimal(lastMonthData.getClaimCommission() + dataDTO.getClaimCommission())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			lastMonthData.setDeductionCommission(
+					new BigDecimal(lastMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
+							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			lastMonthData.setRefunded(new BigDecimal(lastMonthData.getRefunded() + dataDTO.getRefunded())
 					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			lastMonthData.setTotal(roundHalfUp(lastMonthData.getTotal() + dataDTO.getTotal()));
 		});
@@ -438,6 +450,7 @@ public class DashboardController extends BaseController {
 			thisMonthData.setClaimedCommission(roundHalfUp(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
 			thisMonthData.setClaimCommission(roundHalfUp(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission()));
 			thisMonthData.setDeductionCommission(roundHalfUp(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission()));
+			thisMonthData.setRefunded(roundHalfUp(thisMonthData.getRefunded() + dataDTO.getRefunded()));
 			thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
 		});
 		String lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
@@ -451,6 +464,7 @@ public class DashboardController extends BaseController {
 			lastYearThisMonthData.setClaimedCommission(roundHalfUp(lastYearThisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
 			lastYearThisMonthData.setClaimCommission(roundHalfUp(lastYearThisMonthData.getClaimCommission() + dataDTO.getClaimCommission()));
 			lastYearThisMonthData.setDeductionCommission(roundHalfUp(lastYearThisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission()));
+			lastYearThisMonthData.setRefunded(roundHalfUp(lastYearThisMonthData.getRefunded() + dataDTO.getRefunded()));
 			lastYearThisMonthData.setTotal(roundHalfUp(lastYearThisMonthData.getTotal() + dataDTO.getTotal()));
 		});
 		//dashboardService.thisMonthRingRatio();
