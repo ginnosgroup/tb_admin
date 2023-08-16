@@ -169,7 +169,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LOG.info("存放文件的路径:" + path);
             // 转存文件到指定的路径
             file.transferTo(new File(path));
-            return StringUtil.merge("/statics", dir, newFileName,".", type);
+            return StringUtil.merge(dir, newFileName,".", type);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
