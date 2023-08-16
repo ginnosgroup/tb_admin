@@ -460,7 +460,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 String rFamilyName = familyName.replace(" ", "");
                 String rgivenName = givenName.replace(" ", "");
                 String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"","");
-                String outpath = "/statics/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase()+"/" ;
+                String outpath = "/uploads/customerInformation/"+rFamilyName.toUpperCase() +"_"+ rgivenName.toUpperCase()+"/" ;
                 String dir =File.separator+"data";
                 if (System.getProperties().getProperty("os.name").contains("Windows")){
                     String userHome = System.getProperties().getProperty("user.home");
