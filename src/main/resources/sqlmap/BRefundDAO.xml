@@ -497,7 +497,7 @@
         FROM b_refund rf, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND rf.gmt_create > #{startDate} AND rf.gmt_create < #{endDate} ]]>
+            <![CDATA[ AND rf.completed_date > #{startDate} AND rf.completed_date < #{endDate} ]]>
         </if>
         <if test='regionId != null and regionId != ""'>
             AND r.id = #{regionId}
