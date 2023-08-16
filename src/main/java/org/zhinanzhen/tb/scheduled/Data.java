@@ -196,6 +196,7 @@ public class Data extends BaseService {
                 area.setClaimCommission(new BigDecimal(area.getClaimCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 area.setClaimedCommission(new BigDecimal(area.getClaimedCommission()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 area.setAdjustments(new BigDecimal(area.getAdjustments()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                area.setRefunded(new BigDecimal(area.getRefunded()).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 //                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
 //                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 				area.setTotal(
