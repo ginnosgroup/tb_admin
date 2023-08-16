@@ -239,6 +239,7 @@ public class DashboardController extends BaseController {
 				_dto.setDeductionCommission(roundHalfUp(dto.getDeductionCommission() + _dto.getDeductionCommission()));
 				_dto.setClaimCommission(roundHalfUp(dto.getClaimCommission() + _dto.getClaimCommission()));
 				_dto.setClaimedCommission(roundHalfUp(dto.getClaimedCommission() + _dto.getClaimedCommission()));
+				_dto.setRefunded(dto.getRefunded() + _dto.getRefunded());
 				_dto.setTotal(roundHalfUp(dto.getTotal() + _dto.getTotal()));
 			});
 			return new DashboardResponse(0,"全澳-上周业绩组成",_dto, startDate, endDate);
