@@ -1801,6 +1801,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	public Response<Integer> deleteCommissionOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			LOG.info(StringUtil.merge("删除留学佣金订单:", commissionOrderService.getCommissionOrderById(id)));
 			return new Response<Integer>(0, commissionOrderService.deleteCommissionOrder(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);

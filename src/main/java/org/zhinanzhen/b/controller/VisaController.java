@@ -1107,6 +1107,7 @@ public class VisaController extends BaseCommissionOrderController {
 	public Response<Integer> deleteVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			LOG.info(StringUtil.merge("删除签证佣金订单:", visaService.getVisaById(id)));
 			return new Response<Integer>(0, visaService.deleteVisaById(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);

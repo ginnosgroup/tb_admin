@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.StringUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +38,8 @@ import java.util.Map;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/schoolInstitution")
 public class SchoolInstitutionController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SchoolInstitutionController.class);
 
     @Resource
     private SchoolInstitutionService schoolInstitutionService;
@@ -197,6 +202,7 @@ public class SchoolInstitutionController extends BaseController {
         if (adminUserLoginInfo == null ||
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
             return new Response(1,"No permission !");
+        LOG.info(StringUtil.merge("删除学校:", schoolInstitutionService.getSchoolInstitutionById(id)));
         if (schoolInstitutionService.delete(id))
             return new Response(0,id + "删除成功");
         else

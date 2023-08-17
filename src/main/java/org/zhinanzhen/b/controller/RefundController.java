@@ -386,6 +386,7 @@ public class RefundController extends BaseController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response<Integer>(1, "仅限超级管理员和会计能删除退款单.", 0);
+			LOG.info(StringUtil.merge("删除退款订单:", refundService.getRefundById(id)));
 			return new Response<Integer>(0, refundService.deleteRefundById(id));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);

@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +31,8 @@ import com.ikasoa.core.utils.StringUtil;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/applicant")
 public class ApplicantController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(ApplicantController.class);
 
 	@Resource
 	ApplicantService applicantService;
@@ -195,6 +199,7 @@ public class ApplicantController extends BaseController {
 			super.setGetHeader(response);
 			if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
 				return new Response<Integer>(1);
+			LOG.info(StringUtil.merge("删除申请人:", applicantService.getById(id)));
 			int i = applicantService.deleteById(id);
 			if (i == -1)
 				return new Response<Integer>(1, "该申请人已创建服务订单，删除失败！", 0);

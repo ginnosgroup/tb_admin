@@ -1,6 +1,9 @@
 package org.zhinanzhen.b.controller;
 
 import com.ikasoa.core.utils.StringUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.service.SchoolInstitutionLocationService;
@@ -22,6 +25,8 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping(value = "/schoolInstitutionLocation")
 public class SchoolInstitutionLocationController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SchoolInstitutionLocationController.class);
 
     @Resource
     private SchoolInstitutionLocationService schoolInstitutionLocationService;
@@ -95,6 +100,7 @@ public class SchoolInstitutionLocationController extends BaseController {
         if (adminUserLoginInfo == null ||
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))//除顾问的其他角色可以修改
             return new Response(1,"No permission !");
+        LOG.info(StringUtil.merge("删除校区:", schoolInstitutionLocationService.getById(id)));
         if (schoolInstitutionLocationService.delete(id))
             return new Response(0,"success");
         else
