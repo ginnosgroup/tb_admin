@@ -558,8 +558,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (sorter.getAdviserName() != null)
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
-        List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, theDateTo00_00_00(startDate),
-                theDateTo23_59_59(endDate), userName, applicantName, isMerged, offset, pageSize, orderBy);
+		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
+				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
+				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, offset,
+				pageSize, orderBy);
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
         if (list == null || list.size() == 0) {
             return null;
