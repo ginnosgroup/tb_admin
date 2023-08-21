@@ -346,10 +346,25 @@ public class UserServiceImpl extends BaseService implements UserService {
 		boolean isNameChange = name != null && !name.equalsIgnoreCase(_userDo.getName()); // 客户名称变化
 		boolean isBirthdayChange = birthday != null && _userDo.getBirthday() != null
 				&& !sdf.format(birthday).equals(sdf.format(_userDo.getBirthday())); // 客户生日变化
-		boolean isVisaExpirationDate = visaExpirationDate != null && _userDo.getVisaExpirationDate() != null
+		boolean isVisaExpirationDateChange = visaExpirationDate != null && _userDo.getVisaExpirationDate() != null
 				&& !sdf.format(visaExpirationDate).equals(sdf.format(_userDo.getVisaExpirationDate())); // 客户签证到期时间变化
 		// 如果客户信息变化,则发送邮件给文案和mara
-		if (isNameChange || isBirthdayChange || isVisaExpirationDate) {
+		if (isNameChange || isBirthdayChange || isVisaExpirationDateChange) {
+			String changedName = "";
+			String changedInfo = "";
+			if (isNameChange) {
+				changedName += " [姓名] ";
+				changedInfo += StringUtil.merge("[姓名] 变更前: ", _userDo.getName(), " 变更后: ", name, "<br/>");
+			}
+			if (isBirthdayChange) {
+				changedName += " [生日] ";
+				changedInfo += StringUtil.merge("[生日] 变更前: ", _userDo.getBirthday(), " 变更后: ", birthday, "<br/>");
+			}
+			if (isVisaExpirationDateChange) {
+				changedName += " [签证到期日期] ";
+				changedInfo += StringUtil.merge("[签证到期日期] 变更前: ", _userDo.getVisaExpirationDate(), " 变更后: ",
+						visaExpirationDate, "<br/>");
+			}
 			List<String> stateList = new ArrayList<>();
 			stateList.add("PENDING");
 			stateList.add("OREVIEW");
@@ -364,12 +379,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				if (officialDo != null)
 					sendMail(officialDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
-							"您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
+							"您的订单的客户信息", changedName, "已变更。<br>", changedInfo, "服务订单号:", serviceOrderDo.getId()));
 				if ("VISA".equals(serviceOrderDo.getType())) {
 					MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
 					if (officialDo != null)
 						sendMail(maraDo.getEmail(), "客户信息变更提醒", StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>",
-								"您的订单的客户信息已变更。<br>服务订单号:", serviceOrderDo.getId()));
+								"您的订单的客户信息", changedName, "已变更。<br>", changedInfo, "服务订单号:", serviceOrderDo.getId()));
 				}
 			}
 		}
