@@ -48,13 +48,33 @@ public class Data extends BaseService {
             List<DataDTO> _dataDTOList = new ArrayList<DataDTO>();
             //List<DataDTO> areaRankDataList = new ArrayList<DataDTO>();//area排名的数据
 
-            List<CommissionOrderReportDTO> commissionOrderReportDtoList= commissionOrderService.listCommissionOrderReport(startDate,endDate,"A",dateMethod == null?"M":"Y",0,0,null);
+            List<CommissionOrderReportDTO> commissionOrderReportDtoList = commissionOrderService.listCommissionOrderReport(startDate,endDate,"A",dateMethod == null?"M":"Y",0,0,null);
+            List<CommissionOrderReportDTO> commissionOrderReportDtoList2 = commissionOrderService.listCommissionOrderReport(startDate,endDate,"P",dateMethod == null?"M":"Y",0,0,null);
             List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
             List<RefoundReportDTO> refundReportList = refundService.listRefundReport2(startDate, endDate, "A", dateMethod == null?"M":"Y", 0, 0, null);
             
             if (commissionOrderReportDtoList != null) {
-                commissionOrderReportDtoList.forEach(commissionOrderReportDto -> _dataDTOList
-                        .add(mapper.map(commissionOrderReportDto, DataDTO.class)));
+				commissionOrderReportDtoList.forEach(
+						commissionOrderReportDto -> _dataDTOList.add(new DataDTO(commissionOrderReportDto.getDate(),
+								commissionOrderReportDto.getRegionId(), commissionOrderReportDto.getArea(),
+								commissionOrderReportDto.getAdviserId(), commissionOrderReportDto.getConsultant(), 0.00,
+								commissionOrderReportDto.getDeductionCommission(),
+								commissionOrderReportDto.getClaimCommission(), 0.00, 0.00, 0.00)));
+			}
+            
+            if (commissionOrderReportDtoList2 != null) {
+				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList2) {
+					for (DataDTO data : _dataDTOList) {
+						if (StringUtil.equals(data.getDate(), commissionOrderReportDto.getDate())
+								&& data.getRefunded() == commissionOrderReportDto.getRegionId()
+								&& data.getAdviserId() == commissionOrderReportDto.getAdviserId()) {
+							if (data.getClaimedCommission() <= 0)
+								data.setClaimedCommission(commissionOrderReportDto.getClaimedCommission());
+							if (data.getAdjustments() <= 0)
+								data.setAdjustments(commissionOrderReportDto.getAdjustments());
+						}
+					}
+				}
             }
 
             //赋值ServiceFee
@@ -69,12 +89,13 @@ public class Data extends BaseService {
 
             //将全部数据汇聚起来,VisaReportList和commissionOrderReportDtoList里面汇聚在 dataDTOList
             VisaReportList.forEach(visaReport ->{
-                boolean flag = false;
-                for(int index = 0 ;index < commissionOrderReportDtoList.size() ; index ++){
-                    if (visaReport.getDate().equals(commissionOrderReportDtoList.get(index).getDate()) && visaReport.getAdviserId() == commissionOrderReportDtoList.get(index).getAdviserId()){
-                        flag = true;
-                    }
-                }
+				boolean flag = false;
+				for (int index = 0; index < _dataDTOList.size(); index++) {
+					if (visaReport.getDate().equals(_dataDTOList.get(index).getDate())
+							&& visaReport.getAdviserId() == _dataDTOList.get(index).getAdviserId()) {
+						flag = true;
+					}
+				}
                 if(flag == false){
 					DataDTO dto = new DataDTO(visaReport.getDate(), visaReport.getRegionId(), visaReport.getArea(),
 							visaReport.getAdviserId(), visaReport.getConsultant(), visaReport.getServiceFee(), 0);
@@ -82,6 +103,7 @@ public class Data extends BaseService {
                 }
             });
             
+            // refund
             _dataDTOList.forEach(result -> {
 				refundReportList.forEach(refundReport -> {
 					if (result.getDate() != null && result.getDate().equals(refundReport.getDate())
