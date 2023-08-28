@@ -47,7 +47,7 @@ public class CustomerInformationController extends BaseController {
 
     @GetMapping("/getByApplicantId")
     public Response<CustomerInformationDO> getByApplicantId(@RequestParam(value = "applicantId") int applicantId, HttpServletRequest request,
-                                               HttpServletResponse response) {
+                                                            HttpServletResponse response) {
         try {
             CustomerInformationDO customerInformationDO = customerInformationService.getByApplicantId(applicantId);
             return new Response(0, "获取成功", customerInformationDO);
@@ -58,9 +58,7 @@ public class CustomerInformationController extends BaseController {
     }
 
     @PostMapping("/add")
-    public Response<Integer> add(@RequestBody String json,
-                                 HttpServletRequest request,
-                                 HttpServletResponse response) {
+    public Response<Integer> add(@RequestBody String json, HttpServletRequest request, HttpServletResponse response) {
 
 //    AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 //    if (adminUserLoginInfo == null ){
@@ -86,9 +84,9 @@ public class CustomerInformationController extends BaseController {
     public Response<Integer> update(@RequestBody String json, HttpServletRequest request) {
 
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo == null) {
-            return new Response(1, "No permission !");
-        }
+//        if (adminUserLoginInfo == null) {
+//            return new Response(1, "No permission !");
+//        }
         try {
             CustomerInformationDO customerInformationDO = JSONObject.parseObject(json, CustomerInformationDO.class);
             customerInformationService.update(customerInformationDO);
@@ -150,8 +148,8 @@ public class CustomerInformationController extends BaseController {
     @RequestMapping(value = "/getMMFile", method = RequestMethod.GET)
     @ResponseBody
     public Response<CustomerInformationDO> deleteFile(@RequestParam ("applicantId") int applicantId,
-                                        HttpServletRequest request,
-                                        HttpServletResponse response) throws IOException {
+                                                      HttpServletRequest request,
+                                                      HttpServletResponse response) throws IOException {
         super.setPostHeader(response);
         try {
             CustomerInformationDO customerInformationDO = customerInformationService.getFileByDav(applicantId);

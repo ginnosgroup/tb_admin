@@ -19,8 +19,7 @@ public class PdfGenerateController extends BaseController{
 
     @RequestMapping(value = "/generate", method = RequestMethod.POST)
     @ResponseBody
-    public Response generate(@RequestParam(value = "id" ) Integer id,
-     HttpServletResponse response){
+    public Response generate(@RequestParam(value = "id" ) Integer id, HttpServletResponse response){
         try {
             super.setPostHeader(response);
 
