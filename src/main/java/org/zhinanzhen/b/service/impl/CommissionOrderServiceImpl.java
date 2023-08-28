@@ -661,6 +661,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             throw se;
         }
         try {
+        	// TODO:sulei 这里有bug待修复
             return commissionOrderDao.deleteCommissionOrderById(id);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);

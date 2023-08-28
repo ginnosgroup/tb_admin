@@ -839,11 +839,11 @@
             </when>
             <when test=" type!=null and type!='' and type == 'VISA' ">
                 so.service_package_id AS servicePackageId,
-                CONCAT(bs.`code`, ' - ', bs.`name`) AS code,
-                service_id AS serviceId
+                <![CDATA[ CONCAT(bs.`code`, ' - ', bs.`name`, IF(bsa.name <> '', CONCAT(' - ', bsa.name), '')) AS code, ]]>
+                so.service_id AS serviceId
                 FROM
                 tb_adviser a,
-                b_service_order so,
+                b_service_order so LEFT join b_service_assess bsa on so.service_id=bsa.service_id,
                 tb_region tr,
                 b_service bs
             </when>
@@ -864,7 +864,7 @@
                 AND school_id = bsc.id
             </when>
             <when test=" type!=null and type!='' and type == 'VISA' ">
-                AND service_id = bs.id
+                AND so.service_id = bs.id
             </when>
         </choose>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
@@ -878,9 +878,10 @@
             </when>
             <when test=" type!=null and type!='' and type == 'VISA' ">
                 GROUP BY
-                service_id,
+                so.service_id,
                 so.service_package_id,
-                tr.`name`
+                tr.`name`,
+                bsa.`name`
             </when>
         </choose>
     </select>
