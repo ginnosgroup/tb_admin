@@ -33,13 +33,19 @@ public class CustomerInformationDO {
 
     private List<IdentificationNumber> identificationNumberList;//护照,旅行证件详细信息
 
+    private WorkIntroduction workIntroduction; // todo 新增工作介绍
+
     private List<Education> educationList;//教育信息
 
     private List<LanguageSkills> languageSkills;//语言能力
 
     private Addresses addresses;//地址信息
 
-    private List<PostalAddress> postalAddressList;//邮件地址列表
+    private TravelToAustralia travelToAustralia; // todo 新增Travel to Australia
+
+    private TravelToOtherCountries travelToOtherCountrie; // todo 新增travelToOtherCountries
+
+    private List<PostalAddress> postalAddressList;//邮件地址列表 0
 
     private HealthQuestions healthQuestions;//健康信息
 

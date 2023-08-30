@@ -78,8 +78,9 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Override
     public CustomerInformationDO get(int id) throws ServiceException {
         try {
-            CustomerInformationDO customerInformationDO=null;
-             customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+//            CustomerInformationDO customerInformationDO=null;
+//             customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
+            CustomerInformationDO customerInformationDO = customerInformationDAO.getByServiceOrderId(id);
             if (ObjectUtil.isNotNull(customerInformationDO)&&customerInformationDO.getMmdiskPath() != null) {
                 String mmdiskPath = customerInformationDO.getMmdiskPath().replace("\"", "");
                 customerInformationDO.setMmdiskPath(mmdiskPath);
@@ -169,7 +170,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             LOG.info("存放文件的路径:" + path);
             // 转存文件到指定的路径
             file.transferTo(new File(path));
-            return StringUtil.merge("/statics", dir, newFileName,".", type);
+            return StringUtil.merge(dir, newFileName,".", type);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -220,38 +221,38 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 serviceOrderDo.getInformation());
         ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
 
-		sendMail(official.getEmail(), "你有一条新的客户资料更新请及时处理。", StringUtil.merge("订单号:", id, "<br/>", "服务类型:", type,
-				"/申请人名称:",
-				ObjectUtil.isNotNull(applicantDto) ? applicantDto.getFirstname() + " " + applicantDto.getSurname()
-						: "unknown",
-				"/类型:",
-				ObjectUtil.isNotNull(applicantDto) && ObjectUtil.isNotNull(service)
-						? service.getName() + "(" + service.getCode() + ")"
-						: "unknown",
-				"/顾问:", adviserDao.getAdviserById(serviceOrderDo.getAdviserId()).getName(), "/文案:",
-				officialDAO.getOfficialById(serviceOrderDo.getOfficialId()).getName(), "<br/>", "属性:",
-				getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
-				"<br/>在线资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-				serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
-				serviceOrderDo.getGmtCreate(),
-				"<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?" + id
-						+ "'>服务订单详情</a>")
+        sendMail(official.getEmail(), "你有一条新的客户资料更新请及时处理。", StringUtil.merge("订单号:", id, "<br/>", "服务类型:", type,
+                "/申请人名称:",
+                ObjectUtil.isNotNull(applicantDto) ? applicantDto.getFirstname() + " " + applicantDto.getSurname()
+                        : "unknown",
+                "/类型:",
+                ObjectUtil.isNotNull(applicantDto) && ObjectUtil.isNotNull(service)
+                        ? service.getName() + "(" + service.getCode() + ")"
+                        : "unknown",
+                "/顾问:", adviserDao.getAdviserById(serviceOrderDo.getAdviserId()).getName(), "/文案:",
+                officialDAO.getOfficialById(serviceOrderDo.getOfficialId()).getName(), "<br/>", "属性:",
+                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
+                "<br/>在线资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
+                serviceOrderDo.getGmtCreate(),
+                "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?" + id
+                        + "'>服务订单详情</a>")
         );
-		
-		if (ObjectUtil.isNotNull(applicantDto)) {
-			sendMail(adviser.getEmail(),
-					StringUtil.merge("申请人", applicantDto.getFirstname(), " ", applicantDto.getSurname(),
-							"完成资料postal提醒"),
-					StringUtil.merge("亲爱的", adviser.getName(), ":<br/>", "您的服务订单ID", id, ",申请人:",
-							applicantDto.getFirstname(), " ", applicantDto.getSurname(),
-							" 资料已经填写完毕,请在服务订单-查看-申请人Tab 内查看．"));
-			sendMail(official.getEmail(),
-					StringUtil.merge("申请人", applicantDto.getFirstname(), " ", applicantDto.getSurname(),
-							"完成资料postal提醒"),
-					StringUtil.merge("亲爱的", official.getName(), ":<br/>", "您的服务订单ID", id, ",申请人:",
-							applicantDto.getFirstname(), " ", applicantDto.getSurname(),
-							" 资料已经填写完毕,请在服务订单-查看-申请人Tab 内查看．"));
-		}
+
+        if (ObjectUtil.isNotNull(applicantDto)) {
+            sendMail(adviser.getEmail(),
+                    StringUtil.merge("申请人", applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+                            "完成资料postal提醒"),
+                    StringUtil.merge("亲爱的", adviser.getName(), ":<br/>", "您的服务订单ID", id, ",申请人:",
+                            applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+                            " 资料已经填写完毕,请在服务订单-查看-申请人Tab 内查看．"));
+            sendMail(official.getEmail(),
+                    StringUtil.merge("申请人", applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+                            "完成资料postal提醒"),
+                    StringUtil.merge("亲爱的", official.getName(), ":<br/>", "您的服务订单ID", id, ",申请人:",
+                            applicantDto.getFirstname(), " ", applicantDto.getSurname(),
+                            " 资料已经填写完毕,请在服务订单-查看-申请人Tab 内查看．"));
+        }
     }
 
     private String getPeopleTypeStr(String peopleType) {
@@ -430,7 +431,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             }
             try {
                 // 挨个获取对象属性值
-
                 for (Field f : object.getClass().getDeclaredFields()) {
                     f.setAccessible(true);
                     // 如果有一个属性值不为null，且值不是空字符串，就返回false
@@ -440,7 +440,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                         list.add(s);
                     }
                 }
-        } catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -448,7 +448,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     }
 
 
-//坚果云下载
+    //坚果云下载
     @Override
     public CustomerInformationDO getFileByDav(int applicantId) throws ServiceException {
 

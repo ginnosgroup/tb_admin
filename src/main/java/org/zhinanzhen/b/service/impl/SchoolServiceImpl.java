@@ -1,11 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
+import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,23 +9,21 @@ import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionState
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.SchoolService;
-import org.zhinanzhen.b.service.pojo.CommissionOrderListDTO;
-import org.zhinanzhen.b.service.pojo.SchoolAttachmentsDTO;
-import org.zhinanzhen.b.service.pojo.SchoolDTO;
-import org.zhinanzhen.b.service.pojo.SchoolSettingDTO;
-import org.zhinanzhen.b.service.pojo.SubjectSettingDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
-import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.StringUtil;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service("SchoolService")
 public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Resource
 	private SchoolDAO schoolDao;
-	
+
 	@Resource
 	private SchoolAttachmentsDAO schoolAttachmentsDao;
 
@@ -185,7 +179,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Override
 	public int updateSchoolAttachments(String name, String contractFile1, String contractFile2, String contractFile3,
-			String remarks) throws ServiceException {
+									   String remarks) throws ServiceException {
 		try {
 			if (schoolDao.list2(name, null).size() == 0) {
 				ServiceException se = new ServiceException(StringUtil.merge("学校'", name, "'不存在!"));
