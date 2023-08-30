@@ -827,6 +827,8 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
             if (StringUtil.isNotEmpty(applicantId))
                 serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
+			if (serviceOrderDto.getApplicantId() <= 0)
+				return new Response<Integer>(1, "请选择申请人.", 0);
             if (StringUtil.isNotEmpty(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
@@ -861,7 +863,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setNutCloud(nutCloud);
             if (StringUtil.isNotEmpty(serviceAssessId)) {
                 if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
-                    return new Response(1, "当前服务编号不是评估(" + serviceId + ") .", 0);
+                    return new Response<Integer>(1, "当前服务编号不是评估(" + serviceId + ") .", 0);
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
             } else
                 serviceOrderDto.setServiceAssessId(null);
