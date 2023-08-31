@@ -654,21 +654,30 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
     }
 
     @Override
-    public int deleteCommissionOrder(int id) throws ServiceException {
-        if (id <= 0) {
-            ServiceException se = new ServiceException("id error !");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
-        try {
-        	// TODO:sulei 这里有bug待修复
-            return commissionOrderDao.deleteCommissionOrderById(id);
-        } catch (Exception e) {
-            ServiceException se = new ServiceException(e);
-            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-            throw se;
-        }
-    }
+    @Transactional(rollbackFor = ServiceException.class)
+	public int deleteCommissionOrder(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			CommissionOrderListDO currentCommissionOrderListDo = commissionOrderDao.getCommissionOrderById(id);
+			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+					.listCommissionOrderByServiceOrderId(currentCommissionOrderListDo.getServiceOrderId());
+			for (CommissionOrderDO commissionOrderDo : commissionOrderList) {
+				commissionOrderDo.setInstallment(commissionOrderDo.getInstallment() - 1);
+				if (commissionOrderDo.getInstallmentNum() > currentCommissionOrderListDo.getInstallmentNum())
+					commissionOrderDo.setInstallmentNum(commissionOrderDo.getInstallmentNum() - 1);
+				commissionOrderDao.updateCommissionOrder(commissionOrderDo);
+			}
+			return commissionOrderDao.deleteCommissionOrderById(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
 
     @Override
     public void sendRefuseEmail(int id) {
