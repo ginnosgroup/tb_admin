@@ -1957,6 +1957,19 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 //			}
             serviceOrderDto.setCIds(cIds);
 //			serviceOrderDto.setVisaDOList(visaList);
+
+            if (serviceOrderDto.getApplicantId() > 0) {
+                ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
+                if (applicantDo != null) {
+                    ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
+                    applicantDto = buildApplicant(applicantDto, serviceOrderDto.getId(), serviceOrderDto.getNutCloud(),
+                            serviceOrderDto.getInformation());
+//                    serviceOrderDto.setApplicantId(applicantDto.getId());
+                    serviceOrderDto.setApplicant(applicantDto);
+                }
+            }
+
+
             serviceOrderDTOList.add(serviceOrderDto);
             // 查询职业名称
             ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
