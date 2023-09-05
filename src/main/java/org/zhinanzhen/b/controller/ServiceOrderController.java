@@ -689,28 +689,30 @@ public class ServiceOrderController extends BaseController {
                     institutionTradingName);
             if (res != null && res.getCode() == 0) {
                 List<ServiceOrderDTO> cList = new ArrayList<>();
-                if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
-                        || "NSV".equalsIgnoreCase(serviceOrderDto.getType()))
-                    cList = serviceOrderService.listServiceOrder(receiveTypeId, null, null, null, null, null, null,
-                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, id, id,
-                            false, 0, 100, null, null, null, null, null);
-                cList.forEach(cServiceOrderDto -> {
-                    if ("VISA".equalsIgnoreCase(cServiceOrderDto.getType())) {
-                        Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType,
-                                peopleRemarks, serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId,
-                                isPay, receiveTypeId, receiveDate, receivable, discount, received, installment,
-                                paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
-                                paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-                                invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
-                                invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
-                                perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
-                                null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
-                                isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-                                schoolInstitutionLocationId, institutionTradingName);
-                        if (cRes.getCode() > 0)
-                            res.setMessage(res.getMessage() + ";" + cRes.getMessage());
-                    }
-                });
+				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType()))
+					cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+							null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+							null, id, 0, false, 0, 100, null, null, null, null, null);
+				else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType()))
+					cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+							null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+							null, 0, id, false, 0, 100, null, null, null, null, null);
+				cList.forEach(cServiceOrderDto -> {
+					Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType, peopleRemarks,
+							serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
+							receiveTypeId, receiveDate, receivable, discount, received, installment,
+							paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
+							paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
+							invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
+							invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
+							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
+							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
+							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
+							schoolInstitutionLocationId, institutionTradingName);
+					if (cRes.getCode() > 0)
+						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
+				});
             }
             return res;
         } catch (ServiceException e) {

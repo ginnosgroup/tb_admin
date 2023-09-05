@@ -1147,7 +1147,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     }
                 }
             }
-			LOG.info("修改留学服务订单(serviceOrderDo=" + serviceOrderDo + ").");
+			LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             serviceOrderDao.updateServiceOrder(serviceOrderDo);
         }
     }
