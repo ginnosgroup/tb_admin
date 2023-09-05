@@ -677,6 +677,8 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
+			if (serviceOrderDto.getApplicantId() <= 0)
+				return new Response<Integer>(1, "请选择申请人.", 0);
             Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
                     schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
                     receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
@@ -829,8 +831,6 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
             if (StringUtil.isNotEmpty(applicantId))
                 serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
-			if (serviceOrderDto.getApplicantId() <= 0)
-				return new Response<Integer>(1, "请选择申请人.", 0);
             if (StringUtil.isNotEmpty(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
