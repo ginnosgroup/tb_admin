@@ -677,8 +677,6 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
-			if (serviceOrderDto.getApplicantId() <= 0)
-				return new Response<Integer>(1, "请选择申请人.", 0);
             Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
                     schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
                     receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
@@ -690,7 +688,7 @@ public class ServiceOrderController extends BaseController {
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName);
             if (res != null && res.getCode() == 0) {
-                List<ServiceOrderDTO> cList = new ArrayList<>();
+				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
 						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType()))
 					cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
