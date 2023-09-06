@@ -105,6 +105,8 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Override
     public Map<String, Object> getUserInfo(String token, String code) {
+    	if(ObjectUtil.isNull(token))
+        	return MapUtil.newHashMap();
         JSONObject json =  WXWorkAPI.sendGet(WXWorkAPI.USERINFO.replace("ACCESS_TOKEN",token).replace("CODE",code));
         if(ObjectUtil.isNull(json))
         	return MapUtil.newHashMap();
@@ -114,6 +116,8 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Override
     public Map<String, Object> getexternalContactList(String token, String userId, String cursor, int limit) {
+    	if(ObjectUtil.isNull(token))
+        	return MapUtil.newHashMap();
         JSONObject json =  WXWorkAPI.sendPostBody(WXWorkAPI.EXTERNAL_CONTACT_LIST.replace("ACCESS_TOKEN",token),userId, cursor ,limit);
         if(ObjectUtil.isNull(json))
         	return MapUtil.newHashMap();
@@ -220,6 +224,8 @@ public class WXWorkServiceImpl implements WXWorkService {
         //HttpSession session=attr.getRequest().getSession(true);
         //String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
 
+        if(ObjectUtil.isNull(token))
+        	return Boolean.FALSE;
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
         if(ObjectUtil.isNull(json))
         	return Boolean.FALSE;
@@ -317,6 +323,8 @@ public class WXWorkServiceImpl implements WXWorkService {
             parm.put("userlist",userList);
             parm.put("chatid","ZNZ"+serviceOrderDO.getId());
         }
+        if(ObjectUtil.isNull(token))
+        	return;
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);
         if(ObjectUtil.isNull(json))
         	return;
@@ -332,8 +340,10 @@ public class WXWorkServiceImpl implements WXWorkService {
             content.put("content","这里是订单编号为:" + chatDO.getServiceOrderId() + "的群聊,请顾问拉客户进群，进群后接下来请文案对接资料。");
             msgParm.put("text",content);
             msgParm.put("safe",0);
-            JSONObject sendFirstMsgResultJson =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),msgParm);
-            System.out.println(chatDO.getChatId() + "发送第一条消息返回信息:" + sendFirstMsgResultJson);
+            if(ObjectUtil.isNotNull(token)) {
+                JSONObject sendFirstMsgResultJson =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),msgParm);
+                System.out.println(chatDO.getChatId() + "发送第一条消息返回信息:" + sendFirstMsgResultJson);
+            }
         }
     }
 
