@@ -9,6 +9,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.tb.controller.BaseController;
 
+import com.ikasoa.core.utils.ObjectUtil;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
@@ -51,23 +53,27 @@ public class WXWorkAOP {
         setToken();
     }
 
-    private void setToken(){
-        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-        HttpSession session=attr.getRequest().getSession(true);
-        if (session.getAttribute("corpToken" + BaseController.VERSION) == null) {
-            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
-            if ((int)tokenMap.get("errcode") != 0)
-                throw  new RuntimeException( tokenMap.get("errmsg").toString());
-            session.setAttribute("corpToken" + BaseController.VERSION,tokenMap.get("access_token"));
-            session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
-        }
-        if (session.getAttribute("customerToken" + BaseController.VERSION) == null) {
-            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
-            if ((int)tokenMap.get("errcode") != 0)
-                throw  new RuntimeException( tokenMap.get("errmsg").toString());
-            session.setAttribute("customerToken" + BaseController.VERSION,tokenMap.get("access_token"));
-            session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
-        }
+	private void setToken() {
+		ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+		HttpSession session = attr.getRequest().getSession(true);
+		if (session.getAttribute("corpToken" + BaseController.VERSION) == null) {
+			Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
+			if (ObjectUtil.isNotNull(tokenMap)) {
+				if ((int) tokenMap.get("errcode") != 0)
+					throw new RuntimeException(tokenMap.get("errmsg").toString());
+				session.setAttribute("corpToken" + BaseController.VERSION, tokenMap.get("access_token"));
+				session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
+			}
+		}
+		if (session.getAttribute("customerToken" + BaseController.VERSION) == null) {
+			Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
+			if (ObjectUtil.isNotNull(tokenMap)) {
+				if ((int) tokenMap.get("errcode") != 0)
+					throw new RuntimeException(tokenMap.get("errmsg").toString());
+				session.setAttribute("customerToken" + BaseController.VERSION, tokenMap.get("access_token"));
+				session.setMaxInactiveInterval((Integer) tokenMap.get("expires_in"));
+			}
+		}
     }
 
 }
