@@ -186,7 +186,7 @@ public class WXWorkAPI {
     
     // added by sulei
     public static boolean sendWecomRotMsg(String content) {
-		String msg = StringUtil.merge("{'msgtype': 'text', 'text': {'content': '", content, "'}}");
+		String msg = StringUtil.merge("{\"msgtype\": \"text', \"text\": {\"content\": \"", content, "\"}}");
 		try {
 			HttpClient client = new HttpClient();
 			client.getHttpConnectionManager().getParams().setConnectionTimeout(5 * 1000);

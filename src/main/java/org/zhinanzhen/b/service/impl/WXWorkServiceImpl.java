@@ -2,6 +2,8 @@ package org.zhinanzhen.b.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.dozer.DozerBeanMapper;
@@ -95,6 +97,8 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     public  Map<String, Object> getToken(String SECRET) {
         JSONObject json =  WXWorkAPI.sendGet(WXWorkAPI.ACCESS_TOKEN.replace("ID",WXWorkAPI.CORPID).replace("SECRET",SECRET));
+        if(ObjectUtil.isNull(json))
+        	return MapUtil.newHashMap();
         Map<String, Object> access_tokenMap = JSON.parseObject(JSON.toJSONString(json), Map.class);
         return access_tokenMap;
     }
@@ -102,6 +106,8 @@ public class WXWorkServiceImpl implements WXWorkService {
     @Override
     public Map<String, Object> getUserInfo(String token, String code) {
         JSONObject json =  WXWorkAPI.sendGet(WXWorkAPI.USERINFO.replace("ACCESS_TOKEN",token).replace("CODE",code));
+        if(ObjectUtil.isNull(json))
+        	return MapUtil.newHashMap();
         Map<String, Object> infoMap = JSON.parseObject(JSON.toJSONString(json), Map.class);
         return infoMap;
     }
@@ -109,6 +115,8 @@ public class WXWorkServiceImpl implements WXWorkService {
     @Override
     public Map<String, Object> getexternalContactList(String token, String userId, String cursor, int limit) {
         JSONObject json =  WXWorkAPI.sendPostBody(WXWorkAPI.EXTERNAL_CONTACT_LIST.replace("ACCESS_TOKEN",token),userId, cursor ,limit);
+        if(ObjectUtil.isNull(json))
+        	return MapUtil.newHashMap();
         Map<String, Object> infoMap = JSON.parseObject(JSON.toJSONString(json), Map.class);
         return infoMap;
     }
@@ -213,6 +221,8 @@ public class WXWorkServiceImpl implements WXWorkService {
         //String token = (String) session.getAttribute("corpToken" + BaseController.VERSION); // TODO:小包  不要在Service层依赖Session，有时间把这几行代码移到Controller层
 
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.SENDMESSAGE.replace("ACCESS_TOKEN",token),parm);
+        if(ObjectUtil.isNull(json))
+        	return Boolean.FALSE;
         Map<String,Object> resultMap = json.getInnerMap();//getInnerMap()方法得到Map结构
         if ((int)resultMap.get("errcode") == 0){
             return true;
@@ -308,6 +318,8 @@ public class WXWorkServiceImpl implements WXWorkService {
             parm.put("chatid","ZNZ"+serviceOrderDO.getId());
         }
         JSONObject json =  WXWorkAPI.sendPostBody_Map(WXWorkAPI.CREATECHAT.replace("ACCESS_TOKEN",token),parm);
+        if(ObjectUtil.isNull(json))
+        	return;
         System.out.println(parm.get("chatid") + "群聊创建返回信息：" + json);
         Map<String,Object> result = JSON.parseObject(JSON.toJSONString(json), Map.class);
         if ((int)result.get("errcode") == 0){	//群聊创建成功之后，发送第一条消息
