@@ -58,7 +58,7 @@ public class WXWorkAOP {
 		HttpSession session = attr.getRequest().getSession(true);
 		if (session.getAttribute("corpToken" + BaseController.VERSION) == null) {
 			Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CORP);
-			if (ObjectUtil.isNotNull(tokenMap)) {
+			if (tokenMap != null && tokenMap.containsKey("errcode")) {
 				if ((int) tokenMap.get("errcode") != 0)
 					throw new RuntimeException(tokenMap.get("errmsg").toString());
 				session.setAttribute("corpToken" + BaseController.VERSION, tokenMap.get("access_token"));
@@ -67,7 +67,7 @@ public class WXWorkAOP {
 		}
 		if (session.getAttribute("customerToken" + BaseController.VERSION) == null) {
 			Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
-			if (ObjectUtil.isNotNull(tokenMap)) {
+			if (tokenMap != null && tokenMap.containsKey("errcode")) {
 				if ((int) tokenMap.get("errcode") != 0)
 					throw new RuntimeException(tokenMap.get("errmsg").toString());
 				session.setAttribute("customerToken" + BaseController.VERSION, tokenMap.get("access_token"));
