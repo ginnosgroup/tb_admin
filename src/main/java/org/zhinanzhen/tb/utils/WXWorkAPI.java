@@ -1,6 +1,14 @@
 package org.zhinanzhen.tb.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.utils.StringUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -19,6 +27,7 @@ import java.util.Map;
  * Description:
  * Version: V1.0
  */
+@Slf4j
 public class WXWorkAPI {
 
     //群聊id
@@ -59,6 +68,8 @@ public class WXWorkAPI {
 
     //获取客户列表，List里面只有客户的userid
     public final static String CUSTOMERLIST = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=ACCESS_TOKEN&userid=USERID";
+    
+    private static final String WECOM_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=1afa665e-642b-4098-b4d3-4f553efe06bf";
 
     //发送GET请求
     public static JSONObject sendGet(String url) {
@@ -172,5 +183,23 @@ public class WXWorkAPI {
         }
         return  jsonss;
     }
+    
+    // added by sulei
+    public static boolean sendWecomRotMsg(String content) {
+		String msg = StringUtil.merge("{'msgtype': 'text', 'text': {'content': '", content, "'}}");
+		try {
+			HttpClient client = new HttpClient();
+			client.getHttpConnectionManager().getParams().setConnectionTimeout(5 * 1000);
+			client.getHttpConnectionManager().getParams().setSoTimeout(2 * 60 * 1000);
+			client.getParams().setContentCharset("UTF-8");
+			PostMethod postMethod = new PostMethod(WECOM_WEBHOOK);
+			postMethod.setRequestHeader("Content-Type", "applicantion/json");
+			postMethod.setRequestEntity(new StringRequestEntity(msg, "applicantion/json", "UTF-8"));
+			return client.executeMethod(postMethod) == HttpStatus.SC_OK;
+		} catch (Exception e) {
+			log.error("发送企业微信机器人信息失败:", e.getMessage());
+			return false;
+		}
+	}
 
 }
