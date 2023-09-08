@@ -948,8 +948,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 		String dataStr = "";
 		if (ObjectUtil.isNotNull(schoolSettingNewDo.getStartDate())
 				&& ObjectUtil.isNotNull(schoolSettingNewDo.getEndDate()))
-			dataStr += "开始/截至时间:" + schoolSettingNewDo.getStartDate().toString() + "-"
-					+ schoolSettingNewDo.getEndDate().toString() + "; ";
+			dataStr += "开始/截至时间:" + formatter.format(schoolSettingNewDo.getStartDate()) + "-"
+					+ formatter.format(schoolSettingNewDo.getEndDate()) + "; ";
 		String fj = "附加规则:";
 		if (schoolSettingNewDo.isFirstRegister())
 			fj += "首次注册费:$" + schoolSettingNewDo.getRegisterFee() + "; ";
