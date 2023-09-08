@@ -284,9 +284,10 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                     schoolSetting7(co, schoolSettingNewDO);
             }
             // 发送通知信息
-			WXWorkAPI.sendWecomRotMsg(
-					StringUtil.merge("各位顾问:\n学校", getTradingNamesById(schoolSettingNewDTO.getProviderId()),
-							"更新了commission规则．\n规则为：", getSchoolSettingString(schoolSettingNewDo)));
+			if (StringUtil.isEmpty(schoolSettingNewDTO.getCourseLevel()))
+				WXWorkAPI.sendWecomRotMsg(
+						StringUtil.merge("各位顾问:\n学校", getTradingNamesById(schoolSettingNewDTO.getProviderId()),
+								"更新了commission规则．\n规则为：", getSchoolSettingString(schoolSettingNewDo)));
 			return 1;
         }else
             return -1;
@@ -963,24 +964,24 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 			String text = "";
 			if (StringUtil.isNotEmpty(schoolSettingNewDo.getParameters())) {
 				String[] parameters = schoolSettingNewDo.getParameters().split("[|]");
-				if (StringUtil.isNotEmpty(parameters[0]))
+				if (parameters.length > 0 && StringUtil.isNotEmpty(parameters[0]))
 					text += "成本占原价比例:" + parameters[0] + "%";
-				if (StringUtil.isNotEmpty(parameters[1])) {
+				if (parameters.length > 1 && StringUtil.isNotEmpty(parameters[1])) {
 					String[] rule1 = parameters[1].split("/");
 					if (!StringUtil.orIsEmpty(rule1[0], rule1[1], rule1[2]))
 						text += ",从" + rule1[1] + "人到" + rule1[2] + "人每人补贴:$" + rule1[0];
 				}
-				if (StringUtil.isNotEmpty(parameters[2])) {
+				if (parameters.length > 2 && StringUtil.isNotEmpty(parameters[2])) {
 					String[] rule2 = parameters[2].split("/");
 					if (!StringUtil.orIsEmpty(rule2[0], rule2[1], rule2[2]))
 						text += ",从" + rule2[1] + "人到" + rule2[2] + "人每人补贴:$" + rule2[0];
 				}
-				if (StringUtil.isNotEmpty(parameters[3])) {
+				if (parameters.length > 3 && StringUtil.isNotEmpty(parameters[3])) {
 					String[] rule3 = parameters[3].split("/");
 					if (!StringUtil.orIsEmpty(rule3[0], rule3[1], rule3[2]))
 						text += ",从" + rule3[1] + "人到" + rule3[2] + "人每人补贴:$" + rule3[0];
 				}
-				if (StringUtil.isNotEmpty(parameters[4])) {
+				if (parameters.length > 4 && StringUtil.isNotEmpty(parameters[4])) {
 					String[] rule4 = parameters[4].split("/");
 					if (!StringUtil.orIsEmpty(rule4[0], rule4[1], rule4[2]))
 						text += ",从" + rule4[1] + "人到" + rule4[2] + "人每人补贴:$" + rule4[0];
@@ -992,22 +993,22 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 			String text = "";
 			if (StringUtil.isNotEmpty(schoolSettingNewDo.getParameters())) {
 				String[] parameters = schoolSettingNewDo.getParameters().split("[|]");
-				if (StringUtil.isNotEmpty(parameters[1])) {
+				if (parameters.length > 1 && StringUtil.isNotEmpty(parameters[1])) {
 					String[] rule1 = parameters[1].split("/");
 					if (!StringUtil.orIsEmpty(rule1[0], rule1[1]))
 						text += "总数达到" + rule1[1] + "人成本比例" + rule1[0] + "%";
 				}
-				if (StringUtil.isNotEmpty(parameters[2])) {
+				if (parameters.length > 2 && StringUtil.isNotEmpty(parameters[2])) {
 					String[] rule2 = parameters[2].split("/");
 					if (!StringUtil.orIsEmpty(rule2[0], rule2[1]))
 						text += ",总数达到" + rule2[1] + "人成本比例" + rule2[0] + "%";
 				}
-				if (StringUtil.isNotEmpty(parameters[3])) {
+				if (parameters.length > 3 && StringUtil.isNotEmpty(parameters[3])) {
 					String[] rule3 = parameters[3].split("/");
 					if (!StringUtil.orIsEmpty(rule3[0], rule3[1]))
 						text += ",总数达到" + rule3[1] + "人成本比例" + rule3[0] + "%";
 				}
-				if (StringUtil.isNotEmpty(parameters[4])) {
+				if (parameters.length > 4 && StringUtil.isNotEmpty(parameters[4])) {
 					String[] rule4 = parameters[4].split("/");
 					if (!StringUtil.orIsEmpty(rule4[0], rule4[1]))
 						text += ",总数达到" + rule4[1] + "人成本比例" + rule4[0] + "%";
