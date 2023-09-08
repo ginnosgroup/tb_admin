@@ -157,8 +157,19 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             SchoolInstitutionDO schoolInstitutionDo = mapper.map(schoolInstitutionDto,SchoolInstitutionDO.class);
 			SchoolInstitutionDO _schoolInstitutionDo = schoolInstitutionDAO
 					.getSchoolInstitutionById(schoolInstitutionDo.getId());
-System.out.println("=====_schoolInstitutionDo:"+_schoolInstitutionDo);
             if (schoolInstitutionDAO.update(schoolInstitutionDo)){
+				// 发送通知信息
+				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()
+						&& !_schoolInstitutionDo.isCooperative()) {
+					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
+							.list(schoolInstitutionDto.getId(), false);
+					String settingString = "";
+					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
+						settingString += getSchoolSettingString(schoolSettingNewDo);
+					WXWorkAPI.sendWecomRotMsg(
+							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
+									"'", "更新了commission规则．\n规则为：", settingString));
+				}
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
                 SchoolInstitutionLocationDAO institutionLocationMapper = session.getMapper(SchoolInstitutionLocationDAO.class);
@@ -171,22 +182,8 @@ System.out.println("=====_schoolInstitutionDo:"+_schoolInstitutionDo);
                     institutionLocation.setProviderId(schoolInstitutionDo.getId());
                     institutionLocationMapper.add(institutionLocation);
                 }
-				// 发送通知信息
-System.out.println("=====schoolInstitutionDto:" + schoolInstitutionDto);
-				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()
-						&& !_schoolInstitutionDo.isCooperative()) {
-					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
-							.list(schoolInstitutionDto.getId(), false);
-System.out.println("=====schoolSettingNewList:" + schoolSettingNewList);
-					String settingString = "";
-					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
-						settingString += getSchoolSettingString(schoolSettingNewDo);
-					WXWorkAPI.sendWecomRotMsg(
-							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
-									"'", "更新了commission规则．\n规则为：", settingString));
                 session.commit();
                 session.clearCache();
-				}
                 return true;
             }
             return false;
@@ -208,6 +205,17 @@ System.out.println("=====schoolSettingNewList:" + schoolSettingNewList);
         try {
             SchoolInstitutionDO schoolInstitutionDo = mapper.map(schoolInstitutionDto,SchoolInstitutionDO.class);
             if (schoolInstitutionDAO.add(schoolInstitutionDo) > 0){
+            	// 发送通知信息
+				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()) {
+					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
+							.list(schoolInstitutionDto.getId(), false);
+					String settingString = "";
+					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
+						settingString += getSchoolSettingString(schoolSettingNewDo);
+					WXWorkAPI.sendWecomRotMsg(
+							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
+									"'", "更新了commission规则．\n规则为：", settingString));
+				}
             	schoolInstitutionDto.setId(schoolInstitutionDo.getId());
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
@@ -221,17 +229,6 @@ System.out.println("=====schoolSettingNewList:" + schoolSettingNewList);
                     institutionLocation.setProviderId(schoolInstitutionDo.getId());
                     institutionLocationMapper.add(institutionLocation);
                 }
-				// 发送通知信息
-				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()) {
-					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
-							.list(schoolInstitutionDto.getId(), false);
-					String settingString = "";
-					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
-						settingString += getSchoolSettingString(schoolSettingNewDo);
-					WXWorkAPI.sendWecomRotMsg(
-							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
-									"'", "更新了commission规则．\n规则为：", settingString));
-				}
                 session.commit();
                 session.clearCache();
                 return schoolInstitutionDto.getId();
