@@ -955,9 +955,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 					+ formatter.format(schoolSettingNewDo.getEndDate()) + "; ";
 		String fj = "附加规则:";
 		if (schoolSettingNewDo.isFirstRegister())
-			fj += "首次注册费:$" + schoolSettingNewDo.getRegisterFee() + "; ";
+			fj += "首次注册费:$" + schoolSettingNewDo.getRegisterFee() + ", ";
 		if (schoolSettingNewDo.isFirstBook())
-			fj += "首次书本费:$" + schoolSettingNewDo.getBookFee() + "; ";
+			fj += "首次书本费:$" + schoolSettingNewDo.getBookFee() + ", ";
 		if (schoolSettingNewDo.getType() == 1)
 			return StringUtil.merge(dataStr, "固定比例:", schoolSettingNewDo.getParameters(), "%; ", fj, "; ");
 		if (schoolSettingNewDo.getType() == 2) {
