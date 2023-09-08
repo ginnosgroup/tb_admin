@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -16,6 +17,7 @@ import org.zhinanzhen.b.service.SchoolInstitutionService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -153,6 +155,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         }
         try {
             SchoolInstitutionDO schoolInstitutionDo = mapper.map(schoolInstitutionDto,SchoolInstitutionDO.class);
+			SchoolInstitutionDO _schoolInstitutionDo = schoolInstitutionDAO
+					.getSchoolInstitutionById(schoolInstitutionDo.getId());
             if (schoolInstitutionDAO.update(schoolInstitutionDo)){
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
@@ -168,6 +172,19 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 }
                 session.commit();
                 session.clearCache();
+				// 发送通知信息
+				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()
+						&& !_schoolInstitutionDo.isCooperative()) {
+					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
+							.list(schoolInstitutionDto.getId(), false);
+					String settingString = "";
+					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList) {
+						settingString += getSchoolSettingString(schoolSettingNewDo);
+					}
+					WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n系统新增合作院校，学校\"",
+							schoolInstitutionDto.getInstitutionTradingName(), "\"",
+							schoolInstitutionDto.getInstitutionName(), "更新了commission规则．\n规则为：", settingString));
+				}
                 return true;
             }
             return false;
@@ -204,6 +221,18 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 }
                 session.commit();
                 session.clearCache();
+                // 发送通知信息
+				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()) {
+					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
+							.list(schoolInstitutionDto.getId(), false);
+					String settingString = "";
+					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList) {
+						settingString += getSchoolSettingString(schoolSettingNewDo);
+					}
+					WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n系统新增合作院校，学校\"",
+							schoolInstitutionDto.getInstitutionTradingName(), "\"",
+							schoolInstitutionDto.getInstitutionName(), "更新了commission规则．\n规则为：", settingString));
+				}
                 return schoolInstitutionDto.getId();
             }
             return 0;
@@ -228,6 +257,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         String courseLevel = schoolSettingNewDTO.getCourseLevel();
         Integer courseId = schoolSettingNewDTO.getCourseId();
         int level = schoolSettingNewDTO.getLevel();
+        SchoolSettingNewDO schoolSettingNewDo = mapper.map(schoolSettingNewDTO,SchoolSettingNewDO.class);
         if (schoolSettingNewDAO.add(mapper.map(schoolSettingNewDTO,SchoolSettingNewDO.class)) > 0){
             /*
             if (schoolSettingNewDTO.getType() == 1)
@@ -253,7 +283,13 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 if (schoolSettingNewDTO.getType() == 7)
                     schoolSetting7(co, schoolSettingNewDO);
             }
-            return 1;
+            // 发送通知信息
+            SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDAO.getSchoolInstitutionById(schoolSettingNewDTO.getProviderId());
+			if (ObjectUtil.isNotNull(schoolInstitutionDo))
+				WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n学校\"",
+						schoolInstitutionDo.getInstitutionTradingName(), "\"", schoolInstitutionDo.getInstitutionName(),
+						"更新了commission规则．\n规则为：", getSchoolSettingString(schoolSettingNewDo)));
+			return 1;
         }else
             return -1;
     }
@@ -449,6 +485,13 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             SchoolInstitutionCommentDO commentDO = mapper.map(commentDTO,SchoolInstitutionCommentDO.class);
             if (schoolInstitutionCommentDAO.addComment(commentDO) > 0){
                 commentDTO.setId(commentDO.getId());
+                // 发送通知信息
+				SchoolInstitutionDO schoolInstitutionDo = schoolInstitutionDAO
+						.getSchoolInstitutionById(commentDTO.getSchoolInstitutionId());
+				if (ObjectUtil.isNotNull(schoolInstitutionDo))
+					WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n学校\"",
+							schoolInstitutionDo.getInstitutionTradingName(), "\"",
+							schoolInstitutionDo.getInstitutionName(), "有新的评论．\n评论内容为：", commentDTO.getContent()));
                 return commentDO.getId();
             }
             return 0;
@@ -905,4 +948,80 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             System.out.println(co.getId() + "月奖=DeductGST[" + co.getDeductGst() + "]*0.1=" + co.getBonus());
         }
     }
+    
+	private String getSchoolSettingString(SchoolSettingNewDO schoolSettingNewDo) {
+		if (ObjectUtil.isNull(schoolSettingNewDo))
+			return "";
+		String dataStr = "";
+		if (ObjectUtil.isNotNull(schoolSettingNewDo.getStartDate())
+				&& ObjectUtil.isNotNull(schoolSettingNewDo.getEndDate()))
+			dataStr += "开始/截至时间:" + schoolSettingNewDo.getStartDate().toString() + "-"
+					+ schoolSettingNewDo.getEndDate().toString() + "; ";
+		String fj = "附加规则:";
+		if (schoolSettingNewDo.isFirstRegister())
+			fj += "首次注册费:$" + schoolSettingNewDo.getRegisterFee() + "; ";
+		if (schoolSettingNewDo.isFirstBook())
+			fj += "首次书本费:$" + schoolSettingNewDo.getBookFee() + "; ";
+		if (schoolSettingNewDo.getType() == 1)
+			return StringUtil.merge(dataStr, "固定比例:", schoolSettingNewDo.getParameters(), "%; ", fj);
+		if (schoolSettingNewDo.getType() == 2) {
+			String text = "";
+			if (StringUtil.isNotEmpty(schoolSettingNewDo.getParameters())) {
+				String[] parameters = schoolSettingNewDo.getParameters().split("[|]");
+				if (StringUtil.isNotEmpty(parameters[0]))
+					text += "成本占原价比例:" + parameters[0] + "%";
+				if (StringUtil.isNotEmpty(parameters[1])) {
+					String[] rule1 = parameters[1].split("/");
+					if (!StringUtil.orIsEmpty(rule1[0], rule1[1], rule1[2]))
+						text += ",从" + rule1[1] + "人到" + rule1[2] + "人每人补贴:$" + rule1[0];
+				}
+				if (StringUtil.isNotEmpty(parameters[2])) {
+					String[] rule2 = parameters[2].split("/");
+					if (!StringUtil.orIsEmpty(rule2[0], rule2[1], rule2[2]))
+						text += ",从" + rule2[1] + "人到" + rule2[2] + "人每人补贴:$" + rule2[0];
+				}
+				if (StringUtil.isNotEmpty(parameters[3])) {
+					String[] rule3 = parameters[3].split("/");
+					if (!StringUtil.orIsEmpty(rule3[0], rule3[1], rule3[2]))
+						text += ",从" + rule3[1] + "人到" + rule3[2] + "人每人补贴:$" + rule3[0];
+				}
+				if (StringUtil.isNotEmpty(parameters[4])) {
+					String[] rule4 = parameters[4].split("/");
+					if (!StringUtil.orIsEmpty(rule4[0], rule4[1], rule4[2]))
+						text += ",从" + rule4[1] + "人到" + rule4[2] + "人每人补贴:$" + rule4[0];
+				}
+			}
+			return StringUtil.merge(dataStr, text, fj);
+		}
+		if (schoolSettingNewDo.getType() == 4) {
+			String text = "";
+			if (StringUtil.isNotEmpty(schoolSettingNewDo.getParameters())) {
+				String[] parameters = schoolSettingNewDo.getParameters().split("[|]");
+				if (StringUtil.isNotEmpty(parameters[1])) {
+					String[] rule1 = parameters[1].split("/");
+					if (!StringUtil.orIsEmpty(rule1[0], rule1[1]))
+						text += "总数达到" + rule1[1] + "人成本比例" + rule1[0] + "%";
+				}
+				if (StringUtil.isNotEmpty(parameters[2])) {
+					String[] rule2 = parameters[2].split("/");
+					if (!StringUtil.orIsEmpty(rule2[0], rule2[1]))
+						text += ",总数达到" + rule2[1] + "人成本比例" + rule2[0] + "%";
+				}
+				if (StringUtil.isNotEmpty(parameters[3])) {
+					String[] rule3 = parameters[3].split("/");
+					if (!StringUtil.orIsEmpty(rule3[0], rule3[1]))
+						text += ",总数达到" + rule3[1] + "人成本比例" + rule3[0] + "%";
+				}
+				if (StringUtil.isNotEmpty(parameters[4])) {
+					String[] rule4 = parameters[4].split("/");
+					if (!StringUtil.orIsEmpty(rule4[0], rule4[1]))
+						text += ",总数达到" + rule4[1] + "人成本比例" + rule4[0] + "%";
+				}
+			}
+			return StringUtil.merge(dataStr, text, fj);
+		}
+		if (schoolSettingNewDo.getType() == 7)
+			return StringUtil.merge(dataStr, "固定底价:", schoolSettingNewDo.getParameters(), "; ", fj);
+		return "";
+	}
 }
