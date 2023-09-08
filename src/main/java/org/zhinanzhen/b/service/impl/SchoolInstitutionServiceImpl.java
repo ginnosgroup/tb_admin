@@ -171,21 +171,21 @@ System.out.println("=====_schoolInstitutionDo:"+_schoolInstitutionDo);
                     institutionLocation.setProviderId(schoolInstitutionDo.getId());
                     institutionLocationMapper.add(institutionLocation);
                 }
-                session.commit();
-                session.clearCache();
 				// 发送通知信息
-System.out.println("=====schoolInstitutionDto:"+schoolInstitutionDto);
+System.out.println("=====schoolInstitutionDto:" + schoolInstitutionDto);
 				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()
 						&& !_schoolInstitutionDo.isCooperative()) {
 					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
 							.list(schoolInstitutionDto.getId(), false);
-System.out.println("=====schoolSettingNewList:"+schoolSettingNewList);
+System.out.println("=====schoolSettingNewList:" + schoolSettingNewList);
 					String settingString = "";
 					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
 						settingString += getSchoolSettingString(schoolSettingNewDo);
 					WXWorkAPI.sendWecomRotMsg(
 							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
 									"'", "更新了commission规则．\n规则为：", settingString));
+                session.commit();
+                session.clearCache();
 				}
                 return true;
             }
@@ -221,9 +221,7 @@ System.out.println("=====schoolSettingNewList:"+schoolSettingNewList);
                     institutionLocation.setProviderId(schoolInstitutionDo.getId());
                     institutionLocationMapper.add(institutionLocation);
                 }
-                session.commit();
-                session.clearCache();
-                // 发送通知信息
+				// 发送通知信息
 				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()) {
 					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
 							.list(schoolInstitutionDto.getId(), false);
@@ -234,6 +232,8 @@ System.out.println("=====schoolSettingNewList:"+schoolSettingNewList);
 							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
 									"'", "更新了commission规则．\n规则为：", settingString));
 				}
+                session.commit();
+                session.clearCache();
                 return schoolInstitutionDto.getId();
             }
             return 0;
