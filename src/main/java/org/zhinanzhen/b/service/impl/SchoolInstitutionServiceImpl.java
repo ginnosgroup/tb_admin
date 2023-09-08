@@ -167,8 +167,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
 						settingString += getSchoolSettingString(schoolSettingNewDo);
 					WXWorkAPI.sendWecomRotMsg(
-							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
-									"'", "更新了commission规则．\n规则为：", settingString));
+							StringUtil.merge("各位顾问:\n系统新增合作院校，学校", getTradingNamesById(schoolInstitutionDto.getId()),
+									"更新了commission规则．\n规则为：", settingString));
 				}
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
@@ -213,8 +213,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
 						settingString += getSchoolSettingString(schoolSettingNewDo);
 					WXWorkAPI.sendWecomRotMsg(
-							StringUtil.merge("各位顾问:\n系统新增合作院校，学校'", getTradingNamesById(schoolInstitutionDto.getId()),
-									"'", "更新了commission规则．\n规则为：", settingString));
+							StringUtil.merge("各位顾问:\n系统新增合作院校，学校", getTradingNamesById(schoolInstitutionDto.getId()),
+									"更新了commission规则．\n规则为：", settingString));
 				}
             	schoolInstitutionDto.setId(schoolInstitutionDo.getId());
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
@@ -283,7 +283,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             }
             // 发送通知信息
 			WXWorkAPI.sendWecomRotMsg(
-					StringUtil.merge("各位顾问:\n学校'", getTradingNamesById(schoolSettingNewDTO.getProviderId()), "'",
+					StringUtil.merge("各位顾问:\n学校", getTradingNamesById(schoolSettingNewDTO.getProviderId()),
 							"更新了commission规则．\n规则为：", getSchoolSettingString(schoolSettingNewDo)));
 			return 1;
         }else
@@ -483,7 +483,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 commentDTO.setId(commentDO.getId());
 				// 发送通知信息
 				WXWorkAPI.sendWecomRotMsg(
-						StringUtil.merge("各位顾问:\n学校'", getTradingNamesById(commentDTO.getSchoolInstitutionId()), "'",
+						StringUtil.merge("各位顾问:\n学校", getTradingNamesById(commentDTO.getSchoolInstitutionId()),
 								"有新的评论．\n评论内容为：", commentDTO.getContent()));
                 return commentDO.getId();
             }
