@@ -162,13 +162,12 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()
 						&& !_schoolInstitutionDo.isCooperative()) {
 					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
-							.list(schoolInstitutionDto.getId(), false);
+							.list(schoolInstitutionDto.getId(), null);
 					String settingString = "";
 					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
 						settingString += getSchoolSettingString(schoolSettingNewDo);
-					WXWorkAPI.sendWecomRotMsg(
-							StringUtil.merge("各位顾问:\n系统新增合作院校，学校", getTradingNamesById(schoolInstitutionDto.getId()),
-									"更新了commission规则．\n规则为：", settingString));
+					WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n系统新增合作院校，学校",
+							getTradingNamesById(schoolInstitutionDto.getId()), "．\ncommission规则为：", settingString));
 				}
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
                 SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
@@ -212,9 +211,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 					String settingString = "";
 					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
 						settingString += getSchoolSettingString(schoolSettingNewDo);
-					WXWorkAPI.sendWecomRotMsg(
-							StringUtil.merge("各位顾问:\n系统新增合作院校，学校", getTradingNamesById(schoolInstitutionDto.getId()),
-									"更新了commission规则．\n规则为：", settingString));
+					WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n系统新增合作院校，学校",
+							getTradingNamesById(schoolInstitutionDto.getId()), "．\ncommission规则为：", settingString));
 				}
             	schoolInstitutionDto.setId(schoolInstitutionDo.getId());
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
