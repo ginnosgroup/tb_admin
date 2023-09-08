@@ -986,7 +986,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 						text += ",从" + rule4[1] + "人到" + rule4[2] + "人每人补贴:$" + rule4[0];
 				}
 			}
-			return StringUtil.merge(dataStr, text, fj);
+			return StringUtil.merge(dataStr, text, "; ", fj);
 		}
 		if (schoolSettingNewDo.getType() == 4) {
 			String text = "";
@@ -1013,7 +1013,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 						text += ",总数达到" + rule4[1] + "人成本比例" + rule4[0] + "%";
 				}
 			}
-			return StringUtil.merge(dataStr, text, fj);
+			return StringUtil.merge(dataStr, text, "; ", fj);
 		}
 		if (schoolSettingNewDo.getType() == 7)
 			return StringUtil.merge(dataStr, "固定底价:", schoolSettingNewDo.getParameters(), "; ", fj);
