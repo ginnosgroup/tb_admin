@@ -71,7 +71,7 @@ public class WXWorkAPI {
     public final static String CUSTOMERLIST = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=ACCESS_TOKEN&userid=USERID";
     
     @Value("${wecom.webhook}")
-    private static final String WECOM_WEBHOOK;
+    private static String WECOM_WEBHOOK;
 
     //发送GET请求
     public static JSONObject sendGet(String url) {
