@@ -156,6 +156,12 @@
             <artifactId>org-apache-commons-httpclient</artifactId>
             <version>RELEASE190</version>
         </dependency>
+        <!--    腾讯云识别护照    -->
+        <dependency>
+            <groupId>com.tencentcloudapi</groupId>
+            <artifactId>tencentcloud-sdk-java-ocr</artifactId>
+            <version>3.1.830</version>
+        </dependency>
     </dependencies>
 </project>
 

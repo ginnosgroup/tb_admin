@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
+import org.zhinanzhen.b.dao.pojo.IdentifyingInformationDO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import java.io.IOException;
@@ -26,4 +27,8 @@ public interface CustomerInformationService {
 
     //坚果云下载
     CustomerInformationDO getFileByDav(int applicantId) throws ServiceException;
+
+    // 识别护照并返回个人信息
+    IdentifyingInformationDO identifyingInformation(String familyName,String givenName,String name, MultipartFile file) throws ServiceException, IOException;;
+
 }

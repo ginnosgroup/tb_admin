@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
+import org.zhinanzhen.b.dao.pojo.IdentifyingInformationDO;
 import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -158,6 +159,37 @@ public class CustomerInformationController extends BaseController {
         }
         catch (ServiceException e) {
             return new Response<CustomerInformationDO>(1, e.getMessage(),null);
+        }
+
+    }
+
+
+    /**
+     * 识别护照并返回个人信息
+     * @param file
+     * @param familyName
+     * @param givenName
+     * @param name
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/identifyingInformation", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<IdentifyingInformationDO> identifyingInformation(@RequestParam MultipartFile file, @RequestParam("familyName") String familyName,
+                                                                     @RequestParam("givenName") String givenName,
+                                                                     @RequestParam ("name") String name,
+                                                                     HttpServletRequest request,
+                                                                     HttpServletResponse response) {
+        super.setPostHeader(response);
+        try {
+            IdentifyingInformationDO identifyingInformationDO = customerInformationService.identifyingInformation(familyName,givenName,name, file);
+            return new Response<IdentifyingInformationDO>(0,"success",identifyingInformationDO);
+        }
+        catch (ServiceException e) {
+            return new Response<IdentifyingInformationDO>(1, e.getMessage(),null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
     }
