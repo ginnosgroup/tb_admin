@@ -116,10 +116,8 @@ public class Scheduled {
     //String lastSaturdayDate = "2020-09-19";
     //String endDate = "2020-09-25";
     
-    //@org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 ? * MON")
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 ? * WED")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 ? * MON")
 	public void everyWeekMonday() {
-System.out.println("机器人定时任务");
 		List<SchoolInstitutionCountDO> schoolWeekList = schoolInstitutionDao.countSchoolWeek();
 		List<SchoolInstitutionCountDO> courseWeekList = schoolInstitutionDao.countCourseWeek();
 		String schoolWeekStr = "";
