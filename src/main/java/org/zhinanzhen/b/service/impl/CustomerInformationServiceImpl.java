@@ -1,9 +1,17 @@
 package org.zhinanzhen.b.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import com.tencentcloudapi.common.Credential;
+import com.tencentcloudapi.common.profile.ClientProfile;
+import com.tencentcloudapi.common.profile.HttpProfile;
+import com.tencentcloudapi.ocr.v20181119.OcrClient;
+import com.tencentcloudapi.ocr.v20181119.models.PassportOCRRequest;
+import com.tencentcloudapi.ocr.v20181119.models.PassportOCRResponse;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.*;
@@ -12,12 +20,15 @@ import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderApplicantDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
+import org.zhinanzhen.b.dao.pojo.IdentifyingInformationDO;
+import org.zhinanzhen.b.dao.pojo.customer.MainInformation;
 import org.zhinanzhen.b.service.CustomerInformationService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.Base64Util;
 import org.zhinanzhen.tb.utils.WebDavUtils;
 
 import javax.annotation.Resource;
@@ -53,6 +64,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     @Resource
     private AdviserDAO adviserDao;
+
+    @Value("${tencent.SecretId}")
+    private String secretId;
+
+    @Value("${tencent.SecretKey}")
+    private String secretKey;
 
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
@@ -485,10 +502,53 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     }
 
-
-
-
-
+    @Override
+    public IdentifyingInformationDO identifyingInformation(String familyName, String givenName, String name, MultipartFile file) throws ServiceException, IOException {
+        if (file == null) {
+            ServiceException se = new ServiceException("上传文件为空!");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        byte[] bytes = file.getBytes();
+        try {
+            String imageBase = Base64Util.encodeBase64(bytes);
+            Credential credential = new Credential(secretId, secretKey);
+            // 实例化一个http选项，可选的，没有特殊需求可以跳过
+            HttpProfile httpProfile = new HttpProfile();
+            httpProfile.setEndpoint("ocr.tencentcloudapi.com");
+            // 实例化一个client选项，可选的，没有特殊需求可以跳过
+            ClientProfile clientProfile = new ClientProfile();
+            clientProfile.setHttpProfile(httpProfile);
+            // 实例化要请求产品的client对象,clientProfile是可选的
+            OcrClient client = new OcrClient(credential, "ap-beijing", clientProfile);
+            // 实例化一个请求对象,每个接口都会对应一个request对象
+            PassportOCRRequest req = new PassportOCRRequest();
+            req.setImageBase64(imageBase);
+            // 返回的resp是一个PassportOCRResponse的实例，与请求对象对应
+            PassportOCRResponse resp = client.PassportOCR(req);
+            // 输出json格式的字符串回包
+            String s1 = PassportOCRResponse.toJsonString(resp);
+            JSONObject jsonObject = JSONObject.parseObject(s1);
+            IdentifyingInformationDO identifyingInformationDO1 = new IdentifyingInformationDO();
+            identifyingInformationDO1.setGender(jsonObject.getString("Sex"));
+            identifyingInformationDO1.setGivenName(jsonObject.getString("FirstName"));
+            identifyingInformationDO1.setFamilyName(jsonObject.getString("FamilyName"));
+            String birthDate = jsonObject.getString("BirthDate");
+            String year = birthDate.substring(0, 4);
+            String month = birthDate.substring(4, 6);
+            String day = birthDate.substring(6, 8);
+            String birthTime = day + "/" + month + "/" + year;
+            identifyingInformationDO1.setDateOfBirth(birthTime);
+            identifyingInformationDO1.setBirthLocation(jsonObject.getString("BirthPlace"));
+            identifyingInformationDO1.setBirthCountry(jsonObject.getString("Nationality"));
+            identifyingInformationDO1.setStateOrProvince(jsonObject.getString("BirthPlace"));
+            String uploadUrl = this.upload(familyName, givenName, name, file);
+            identifyingInformationDO1.setUrl(uploadUrl);
+            return identifyingInformationDO1;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 }
