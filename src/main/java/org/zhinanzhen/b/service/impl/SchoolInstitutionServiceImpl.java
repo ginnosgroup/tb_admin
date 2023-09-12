@@ -258,7 +258,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         Integer courseId = schoolSettingNewDTO.getCourseId();
         int level = schoolSettingNewDTO.getLevel();
         SchoolSettingNewDO schoolSettingNewDo = mapper.map(schoolSettingNewDTO,SchoolSettingNewDO.class);
-        if (schoolSettingNewDAO.add(mapper.map(schoolSettingNewDTO,SchoolSettingNewDO.class)) > 0){
+ System.out.println("new school setting : " + schoolSettingNewDo);
+        if (schoolSettingNewDAO.add(schoolSettingNewDo) > 0){
             /*
             if (schoolSettingNewDTO.getType() == 1)
                 schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate, Parameters );
