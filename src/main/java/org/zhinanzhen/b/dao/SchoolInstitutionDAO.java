@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.SchoolInstitutionCountDO;
 import org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO;
 import java.util.List;
 
@@ -29,4 +30,8 @@ public interface SchoolInstitutionDAO {
     boolean delete(@Param("id") int id);
 
     SchoolInstitutionDO getTradingNameById(@Param("id") Integer id);
+    
+    List<SchoolInstitutionCountDO> countCourseWeek();
+    
+    List<SchoolInstitutionCountDO> countSchoolWeek();
 }
