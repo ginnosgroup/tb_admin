@@ -118,18 +118,25 @@ public class Scheduled {
     
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 8 ? * MON")
 	public void everyWeekMonday() {
-		List<SchoolInstitutionCountDO> schoolWeekList = schoolInstitutionDao.countSchoolWeek();
+		List<SchoolInstitutionCountDO> schoolWeekList = schoolInstitutionDao.countSchoolWeek(10);
+		List<SchoolInstitutionCountDO> _schoolWeekList = schoolInstitutionDao.countSchoolWeek(999);
 		List<SchoolInstitutionCountDO> courseWeekList = schoolInstitutionDao.countCourseWeek();
 		String schoolWeekStr = "";
-		for (SchoolInstitutionCountDO schoolInstitutionCountDo : schoolWeekList)
-			schoolWeekStr += StringUtil.merge(">", schoolInstitutionCountDo.getName(), ":",
-					schoolInstitutionCountDo.getCount());
+		if (schoolWeekList.size() > 0) {
+			schoolWeekStr = "Top10申请学校列表:\n";
+			for (SchoolInstitutionCountDO schoolInstitutionCountDo : schoolWeekList)
+				schoolWeekStr += StringUtil.merge(">", schoolInstitutionCountDo.getName(), ":",
+						schoolInstitutionCountDo.getCount());
+		}
 		String courseWeekStr = "";
-		for (SchoolInstitutionCountDO schoolInstitutionCountDo : courseWeekList)
-			courseWeekStr += StringUtil.merge(">", schoolInstitutionCountDo.getCourseName(), "(",
-					schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount());
-		WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单10个。仅供参考。\nTop10申请学校列表:\n", schoolWeekStr,
-				"\nTop10申请专业列表:\n", courseWeekStr));
+		if (courseWeekList.size() > 0) {
+			courseWeekStr = "Top10申请专业列表:\n";
+			for (SchoolInstitutionCountDO schoolInstitutionCountDo : courseWeekList)
+				courseWeekStr += StringUtil.merge(">", schoolInstitutionCountDo.getCourseName(), "(",
+						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount());
+		}
+		WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n",
+				schoolWeekStr, "\n", courseWeekStr));
 	}
 
     //本月1号-本周五   上周六-本周五

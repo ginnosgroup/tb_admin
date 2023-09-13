@@ -170,9 +170,9 @@
         from (
             select sc.id as course_id, sc.course_name, si.institution_trading_name as school_name, si.institution_name as institution_name, si.id as school_id, so.id as service_order_id
             from b_service_order so, b_school_institution si, b_school_course sc
-            where so.type='OVST' and so.course_id=sc.id and sc.provider_id=si.id and WEEK(so.gmt_create, 1)=WEEK(DATE_SUB(CURDATE(), INTERVAL 1 WEEK), 1)
+            where so.type='OVST' and so.course_id=sc.id and sc.provider_id=si.id and YEARWEEK(so.gmt_create) = YEARWEEK(CURDATE()) - 1
         ) t
-        group by t.course_id,t.school_id order by count(t.service_order_id) desc limit 10;
+        group by t.course_id,t.school_id order by count(t.service_order_id) desc limit #{limit};
     </select>
     
     <select id="countSchoolWeek" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionCountDO">
@@ -180,7 +180,7 @@
         from (
             select sc.id as course_id, sc.course_name, si.institution_trading_name as school_name, si.institution_name as institution_name, si.id as school_id, so.id as service_order_id
             from b_service_order so, b_school_institution si, b_school_course sc
-            where so.type='OVST' and so.course_id=sc.id and sc.provider_id=si.id and WEEK(so.gmt_create, 1)=WEEK(DATE_SUB(CURDATE(), INTERVAL 1 WEEK), 1)
+            where so.type='OVST' and so.course_id=sc.id and sc.provider_id=si.id and YEARWEEK(so.gmt_create) = YEARWEEK(CURDATE()) - 1
         ) t
         group by t.school_id order by count(t.service_order_id) desc limit 10;
     </select>

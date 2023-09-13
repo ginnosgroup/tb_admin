@@ -33,5 +33,5 @@ public interface SchoolInstitutionDAO {
     
     List<SchoolInstitutionCountDO> countCourseWeek();
     
-    List<SchoolInstitutionCountDO> countSchoolWeek();
+    List<SchoolInstitutionCountDO> countSchoolWeek(@Param("limit") int limit);
 }
