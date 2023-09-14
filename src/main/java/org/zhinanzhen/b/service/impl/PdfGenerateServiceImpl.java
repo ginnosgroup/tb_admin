@@ -79,8 +79,8 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             String formatdate = date.format(formatter);
             String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + rgivenName + "_" + familyName + "_" + formatdate + ".pdf";
-            //String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
-            String filePath = "C:/Users/yjt/Desktop/pdfout/" + id + ".pdf";
+            String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
+//            String filePath = "C:/Users/yjt/Desktop/pdfout/" + id + ".pdf";
             WebDavUtils.upload(netDiskPath, filePath);
 
         }
