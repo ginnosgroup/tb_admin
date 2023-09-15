@@ -530,17 +530,40 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String s1 = PassportOCRResponse.toJsonString(resp);
             JSONObject jsonObject = JSONObject.parseObject(s1);
             IdentifyingInformationDO identifyingInformationDO1 = new IdentifyingInformationDO();
+            // 性别
             identifyingInformationDO1.setGender(jsonObject.getString("Sex"));
+            // 名字拼音
             identifyingInformationDO1.setGivenName(jsonObject.getString("FirstName"));
+            // 姓拼音
             identifyingInformationDO1.setFamilyName(jsonObject.getString("FamilyName"));
+            // 生日
             String birthDate = jsonObject.getString("BirthDate");
             String year = birthDate.substring(0, 4);
             String month = birthDate.substring(4, 6);
             String day = birthDate.substring(6, 8);
             String birthTime = day + "/" + month + "/" + year;
             identifyingInformationDO1.setDateOfBirth(birthTime);
+            // 签发日期
+            String issueDate = jsonObject.getString("IssueDate");
+            String issueYear = issueDate.substring(0, 4);
+            String issueMonth = issueDate.substring(4, 6);
+            String issueDay = issueDate.substring(6, 8);
+            String issueTime = issueDay + "/" + issueMonth + "/" + issueYear;
+            identifyingInformationDO1.setIssueDate(issueTime);
+            // 有效期
+            String expiryDate = jsonObject.getString("ExpiryDate");
+            String expiryYear = expiryDate.substring(0, 4);
+            String expiryMonth = expiryDate.substring(4, 6);
+            String expiryDay = expiryDate.substring(6, 8);
+            String expiryTime = expiryDay + "/" + expiryMonth + "/" + expiryYear;
+            identifyingInformationDO1.setExpiryDate(expiryTime);
+            // 签发地点
+            identifyingInformationDO1.setIssuePlace(jsonObject.getString("IssuePlace"));
+            // 出生地
             identifyingInformationDO1.setBirthLocation(jsonObject.getString("BirthPlace"));
+            // 出生国家
             identifyingInformationDO1.setBirthCountry(jsonObject.getString("Nationality"));
+            // 省份
             identifyingInformationDO1.setStateOrProvince(jsonObject.getString("BirthPlace"));
             String uploadUrl = this.upload(familyName, givenName, name, file);
             identifyingInformationDO1.setUrl(uploadUrl);
