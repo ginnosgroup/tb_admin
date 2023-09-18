@@ -42,4 +42,6 @@ public class IdentifyingInformationDO {
         private String issueDate; // 签发日期
 
         private String issuePlace; // 签发地点
+
+        private String passportNumber;
 }

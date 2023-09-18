@@ -530,6 +530,8 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             String s1 = PassportOCRResponse.toJsonString(resp);
             JSONObject jsonObject = JSONObject.parseObject(s1);
             IdentifyingInformationDO identifyingInformationDO1 = new IdentifyingInformationDO();
+            // 护照号码
+            identifyingInformationDO1.setPassportNumber(jsonObject.getString("PassportNo"));
             // 性别
             identifyingInformationDO1.setGender(jsonObject.getString("Sex"));
             // 名字拼音
