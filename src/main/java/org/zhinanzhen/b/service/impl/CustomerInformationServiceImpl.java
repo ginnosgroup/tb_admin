@@ -540,25 +540,31 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             identifyingInformationDO1.setFamilyName(jsonObject.getString("FamilyName"));
             // 生日
             String birthDate = jsonObject.getString("BirthDate");
-            String year = birthDate.substring(0, 4);
-            String month = birthDate.substring(4, 6);
-            String day = birthDate.substring(6, 8);
-            String birthTime = day + "/" + month + "/" + year;
-            identifyingInformationDO1.setDateOfBirth(birthTime);
+            if (StringUtils.isNotBlank(birthDate)) {
+                String year = birthDate.substring(0, 4);
+                String month = birthDate.substring(4, 6);
+                String day = birthDate.substring(6, 8);
+                String birthTime = day + "/" + month + "/" + year;
+                identifyingInformationDO1.setDateOfBirth(birthTime);
+            }
             // 签发日期
             String issueDate = jsonObject.getString("IssueDate");
-            String issueYear = issueDate.substring(0, 4);
-            String issueMonth = issueDate.substring(4, 6);
-            String issueDay = issueDate.substring(6, 8);
-            String issueTime = issueDay + "/" + issueMonth + "/" + issueYear;
-            identifyingInformationDO1.setIssueDate(issueTime);
+            if (StringUtils.isNotBlank(issueDate)) {
+                String issueYear = issueDate.substring(0, 4);
+                String issueMonth = issueDate.substring(4, 6);
+                String issueDay = issueDate.substring(6, 8);
+                String issueTime = issueDay + "/" + issueMonth + "/" + issueYear;
+                identifyingInformationDO1.setIssueDate(issueTime);
+            }
             // 有效期
             String expiryDate = jsonObject.getString("ExpiryDate");
-            String expiryYear = expiryDate.substring(0, 4);
-            String expiryMonth = expiryDate.substring(4, 6);
-            String expiryDay = expiryDate.substring(6, 8);
-            String expiryTime = expiryDay + "/" + expiryMonth + "/" + expiryYear;
-            identifyingInformationDO1.setExpiryDate(expiryTime);
+            if (StringUtils.isNotBlank(expiryDate)) {
+                String expiryYear = expiryDate.substring(0, 4);
+                String expiryMonth = expiryDate.substring(4, 6);
+                String expiryDay = expiryDate.substring(6, 8);
+                String expiryTime = expiryDay + "/" + expiryMonth + "/" + expiryYear;
+                identifyingInformationDO1.setExpiryDate(expiryTime);
+            }
             // 签发地点
             identifyingInformationDO1.setIssuePlace(jsonObject.getString("IssuePlace"));
             // 出生地
@@ -571,6 +577,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             identifyingInformationDO1.setUrl(uploadUrl);
             return identifyingInformationDO1;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
