@@ -162,6 +162,33 @@
             <artifactId>tencentcloud-sdk-java-ocr</artifactId>
             <version>3.1.830</version>
         </dependency>
+
+        <!-- 阿里护照识别 -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>ocr_api20210707</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea-openapi</artifactId>
+            <version>0.2.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea-console</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea-util</artifactId>
+            <version>0.2.20</version>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>darabonba-stream</artifactId>
+            <version>0.0.1</version>
+        </dependency>
     </dependencies>
 </project>
 

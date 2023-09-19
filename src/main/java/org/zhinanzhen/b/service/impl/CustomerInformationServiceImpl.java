@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.darabonba.stream.Client;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -34,6 +35,7 @@ import org.zhinanzhen.tb.utils.WebDavUtils;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -70,6 +72,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
     @Value("${tencent.SecretKey}")
     private String secretKey;
+
+    @Value("${alibaba.SecretId}")
+    private String alibabaSecretId;
+
+    @Value("${alibaba.SecretKey}")
+    private String alibabaSecretKey;
 
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
@@ -509,78 +517,150 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
-        byte[] bytes = file.getBytes();
         try {
-            String imageBase = Base64Util.encodeBase64(bytes);
-            Credential credential = new Credential(secretId, secretKey);
-            // 实例化一个http选项，可选的，没有特殊需求可以跳过
-            HttpProfile httpProfile = new HttpProfile();
-            httpProfile.setEndpoint("ocr.tencentcloudapi.com");
-            // 实例化一个client选项，可选的，没有特殊需求可以跳过
-            ClientProfile clientProfile = new ClientProfile();
-            clientProfile.setHttpProfile(httpProfile);
-            // 实例化要请求产品的client对象,clientProfile是可选的
-            OcrClient client = new OcrClient(credential, "ap-beijing", clientProfile);
-            // 实例化一个请求对象,每个接口都会对应一个request对象
-            PassportOCRRequest req = new PassportOCRRequest();
-            req.setImageBase64(imageBase);
-            // 返回的resp是一个PassportOCRResponse的实例，与请求对象对应
-            PassportOCRResponse resp = client.PassportOCR(req);
-            // 输出json格式的字符串回包
-            String s1 = PassportOCRResponse.toJsonString(resp);
-            JSONObject jsonObject = JSONObject.parseObject(s1);
-            IdentifyingInformationDO identifyingInformationDO1 = new IdentifyingInformationDO();
+            IdentifyingInformationDO identifyingInformationDO = new IdentifyingInformationDO();
+            byte[] bytes = file.getBytes();
+            com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
+                    // 必填，您的 AccessKey ID
+                    .setAccessKeyId(alibabaSecretId)
+                    // 必填，您的 AccessKey Secret
+                    .setAccessKeySecret(alibabaSecretKey);
+            // Endpoint 请参考 https://api.aliyun.com/product/ocr-api
+            config.endpoint = "ocr-api.cn-hangzhou.aliyuncs.com";
+            com.aliyun.ocr_api20210707.Client client = new com.aliyun.ocr_api20210707.Client(config);
+            InputStream bodyStream = Client.readFromBytes(bytes);
+            com.aliyun.ocr_api20210707.models.RecognizeChinesePassportRequest recognizeChinesePassportRequest = new com.aliyun.ocr_api20210707.models.RecognizeChinesePassportRequest()
+                    .setBody(bodyStream);
+            com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
+            com.aliyun.ocr_api20210707.models.RecognizeChinesePassportResponse resp = client.recognizeChinesePassportWithOptions(recognizeChinesePassportRequest, runtime);
+            String data = resp.getBody().getData();
+            JSONObject jsonObject = JSONObject.parseObject(data);
+            JSONObject dataTmp = JSONObject.parseObject(jsonObject.getString("data"));
+            // 英文姓名
+            String nameEn = dataTmp.getString("nameEn");
+            String[] split = nameEn.split(",");
+            // 英文姓
+            identifyingInformationDO.setFamilyName(split[0]);
+            // 英文名
+            identifyingInformationDO.setGivenName(split[1]);
             // 护照号码
-            identifyingInformationDO1.setPassportNumber(jsonObject.getString("PassportNo"));
+            identifyingInformationDO.setPassportNumber(dataTmp.getString("passportNumber"));
             // 性别
-            identifyingInformationDO1.setGender(jsonObject.getString("Sex"));
-            // 名字拼音
-            identifyingInformationDO1.setGivenName(jsonObject.getString("FirstName"));
-            // 姓拼音
-            identifyingInformationDO1.setFamilyName(jsonObject.getString("FamilyName"));
+            identifyingInformationDO.setGender(dataTmp.getString("sex").split("/")[1]);
+            // 签发地点
+            identifyingInformationDO.setIssuePlace(dataTmp.getString("issuePlace").split("/")[1]);
+            // 出生地
+            identifyingInformationDO.setBirthLocation(dataTmp.getString("birthPlace").split("/")[1]);
+            // 出生国家
+            identifyingInformationDO.setBirthCountry(dataTmp.getString("countryCode"));
+            // 省份
+            identifyingInformationDO.setStateOrProvince(dataTmp.getString("birthPlace").split("/")[1]);
             // 生日
-            String birthDate = jsonObject.getString("BirthDate");
+            String birthDate = dataTmp.getString("birthDate");
             if (StringUtils.isNotBlank(birthDate)) {
-                String year = birthDate.substring(0, 4);
-                String month = birthDate.substring(4, 6);
-                String day = birthDate.substring(6, 8);
-                String birthTime = day + "/" + month + "/" + year;
-                identifyingInformationDO1.setDateOfBirth(birthTime);
+                String[] birthDateSplit = birthDate.split("\\.");
+                identifyingInformationDO.setDateOfBirth(birthDateSplit[2] + "/" + birthDateSplit[1] + "/" + birthDateSplit[0]);
             }
             // 签发日期
-            String issueDate = jsonObject.getString("IssueDate");
+            String issueDate = dataTmp.getString("issueDate");
             if (StringUtils.isNotBlank(issueDate)) {
-                String issueYear = issueDate.substring(0, 4);
-                String issueMonth = issueDate.substring(4, 6);
-                String issueDay = issueDate.substring(6, 8);
-                String issueTime = issueDay + "/" + issueMonth + "/" + issueYear;
-                identifyingInformationDO1.setIssueDate(issueTime);
+                String[] issueDateSplit = issueDate.split("\\.");
+                identifyingInformationDO.setIssueDate(issueDateSplit[2] + "/" + issueDateSplit[1] + "/" + issueDateSplit[0]);
             }
-            // 有效期
-            String expiryDate = jsonObject.getString("ExpiryDate");
-            if (StringUtils.isNotBlank(expiryDate)) {
-                String expiryYear = expiryDate.substring(0, 4);
-                String expiryMonth = expiryDate.substring(4, 6);
-                String expiryDay = expiryDate.substring(6, 8);
-                String expiryTime = expiryDay + "/" + expiryMonth + "/" + expiryYear;
-                identifyingInformationDO1.setExpiryDate(expiryTime);
+            // 到期日期
+            String validToDate = dataTmp.getString("validToDate");
+            if (StringUtils.isNotBlank(validToDate)) {
+                String[] validToDateSplit = validToDate.split("\\.");
+                identifyingInformationDO.setExpiryDate(validToDateSplit[2] + "/" + validToDateSplit[1] + "/" + validToDateSplit[0]);
             }
-            // 签发地点
-            identifyingInformationDO1.setIssuePlace(jsonObject.getString("IssuePlace"));
-            // 出生地
-            identifyingInformationDO1.setBirthLocation(jsonObject.getString("BirthPlace"));
-            // 出生国家
-            identifyingInformationDO1.setBirthCountry(jsonObject.getString("Nationality"));
-            // 省份
-            identifyingInformationDO1.setStateOrProvince(jsonObject.getString("BirthPlace"));
             String uploadUrl = this.upload(familyName, givenName, name, file);
-            identifyingInformationDO1.setUrl(uploadUrl);
-            return identifyingInformationDO1;
+            identifyingInformationDO.setUrl(uploadUrl);
+            return identifyingInformationDO;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
+
+//    @Override
+//    public IdentifyingInformationDO identifyingInformation(String familyName, String givenName, String name, MultipartFile file) throws ServiceException, IOException {
+//        if (file == null) {
+//            ServiceException se = new ServiceException("上传文件为空!");
+//            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+//            throw se;
+//        }
+//        byte[] bytes = file.getBytes();
+//        try {
+//            String imageBase = Base64Util.encodeBase64(bytes);
+//            Credential credential = new Credential(secretId, secretKey);
+//            // 实例化一个http选项，可选的，没有特殊需求可以跳过
+//            HttpProfile httpProfile = new HttpProfile();
+//            httpProfile.setEndpoint("ocr.tencentcloudapi.com");
+//            // 实例化一个client选项，可选的，没有特殊需求可以跳过
+//            ClientProfile clientProfile = new ClientProfile();
+//            clientProfile.setHttpProfile(httpProfile);
+//            // 实例化要请求产品的client对象,clientProfile是可选的
+//            OcrClient client = new OcrClient(credential, "ap-beijing", clientProfile);
+//            // 实例化一个请求对象,每个接口都会对应一个request对象
+//            PassportOCRRequest req = new PassportOCRRequest();
+//            req.setImageBase64(imageBase);
+//            // 返回的resp是一个PassportOCRResponse的实例，与请求对象对应
+//            PassportOCRResponse resp = client.PassportOCR(req);
+//            // 输出json格式的字符串回包
+//            String s1 = PassportOCRResponse.toJsonString(resp);
+//            JSONObject jsonObject = JSONObject.parseObject(s1);
+//            IdentifyingInformationDO identifyingInformationDO1 = new IdentifyingInformationDO();
+//            // 护照号码
+//            identifyingInformationDO1.setPassportNumber(jsonObject.getString("PassportNo"));
+//            // 性别
+//            identifyingInformationDO1.setGender(jsonObject.getString("Sex"));
+//            // 名字拼音
+//            identifyingInformationDO1.setGivenName(jsonObject.getString("FirstName"));
+//            // 姓拼音
+//            identifyingInformationDO1.setFamilyName(jsonObject.getString("FamilyName"));
+//            // 生日
+//            String birthDate = jsonObject.getString("BirthDate");
+//            if (StringUtils.isNotBlank(birthDate)) {
+//                String year = birthDate.substring(0, 4);
+//                String month = birthDate.substring(4, 6);
+//                String day = birthDate.substring(6, 8);
+//                String birthTime = day + "/" + month + "/" + year;
+//                identifyingInformationDO1.setDateOfBirth(birthTime);
+//            }
+//            // 签发日期
+//            String issueDate = jsonObject.getString("IssueDate");
+//            if (StringUtils.isNotBlank(issueDate)) {
+//                String issueYear = issueDate.substring(0, 4);
+//                String issueMonth = issueDate.substring(4, 6);
+//                String issueDay = issueDate.substring(6, 8);
+//                String issueTime = issueDay + "/" + issueMonth + "/" + issueYear;
+//                identifyingInformationDO1.setIssueDate(issueTime);
+//            }
+//            // 有效期
+//            String expiryDate = jsonObject.getString("ExpiryDate");
+//            if (StringUtils.isNotBlank(expiryDate)) {
+//                String expiryYear = expiryDate.substring(0, 4);
+//                String expiryMonth = expiryDate.substring(4, 6);
+//                String expiryDay = expiryDate.substring(6, 8);
+//                String expiryTime = expiryDay + "/" + expiryMonth + "/" + expiryYear;
+//                identifyingInformationDO1.setExpiryDate(expiryTime);
+//            }
+//            // 签发地点
+//            identifyingInformationDO1.setIssuePlace(jsonObject.getString("IssuePlace"));
+//            // 出生地
+//            identifyingInformationDO1.setBirthLocation(jsonObject.getString("BirthPlace"));
+//            // 出生国家
+//            identifyingInformationDO1.setBirthCountry(jsonObject.getString("Nationality"));
+//            // 省份
+//            identifyingInformationDO1.setStateOrProvince(jsonObject.getString("BirthPlace"));
+//            String uploadUrl = this.upload(familyName, givenName, name, file);
+//            identifyingInformationDO1.setUrl(uploadUrl);
+//            return identifyingInformationDO1;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 
 }
