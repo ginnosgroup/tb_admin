@@ -121,7 +121,7 @@ public class InvoiceController  extends BaseController {
     //查询一个invoice
     @RequestMapping(value = "/selectInvoiecByNo", method = RequestMethod.GET)
     @ResponseBody
-    public Response selectInvoiecByNo(
+    public Response selectInvoiecByNo( //invoice拼错了!
             @RequestParam(value = "invoiceNo", required = true) String invoiceNo,
             @RequestParam(value = "invoiceIds", required = true) String invoiceIds,
             @RequestParam(value = "marketing", required = false) String marketing,
@@ -466,6 +466,15 @@ public class InvoiceController  extends BaseController {
             return new Response(1, "系统错误！");
         }
     }
-
+    
+    @RequestMapping(value = "/confirm", method = RequestMethod.GET)
+    @ResponseBody
+	public Response confirm(@RequestParam(value = "invoiceNo", required = true) String invoiceNo) {
+		try {
+			return new Response(0, null, commissionOrderService.confirmByInvoiceNo(invoiceNo));
+		} catch (ServiceException e) {
+			return new Response(1, e.getMessage());
+		}
+	}
 
 }

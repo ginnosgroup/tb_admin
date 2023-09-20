@@ -63,4 +63,5 @@ public interface InvoiceService {
     String updateSFInvoice(Map paramMap);
 
     String updateSCInvoice(Map paramMap) throws ServiceException;
+    
 }

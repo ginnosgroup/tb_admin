@@ -1707,4 +1707,13 @@
             co.invoice_create AS invoiceCreate
             FROM b_commission_order co WHERE co.service_order_id=#{id, jdbcType=INTEGER} AND co.installment_num=#{installmentNum, jdbcType=INTEGER}
     </select>
+    <update id="confirm" parameterType="java.lang.Integer">
+        UPDATE b_commission_order
+        SET
+            gmt_modify = now(),
+            school_payment_date = now(),
+            school_payment_amount = expect_amount,
+            commission_state = 'YZY'
+        WHERE id=#{id, jdbcType=INTEGER} AND commission_state != 'YZY'
+    </update>
 </mapper>

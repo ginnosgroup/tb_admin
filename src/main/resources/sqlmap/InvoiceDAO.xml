@@ -510,4 +510,19 @@
         </if>
         WHERE invoice_no = #{invoiceNumber} AND id = 1;
     </update>
+    
+    <select id="getServicefeeIdsByInvoiceNo" resultType="string">
+        select
+        order_id AS orderId
+        from `b_invoice_servicefee`
+        where invoice_no = #{invoiceNo} ;
+    </select>
+    
+    <select id="getSchoolIdsByInvoiceNo" resultType="string">
+        select
+        order_id AS orderId
+        from `b_invoice_school`
+        where invoice_no = #{invoiceNo} ;
+    </select>
+    
 </mapper>
