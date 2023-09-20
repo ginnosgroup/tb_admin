@@ -102,7 +102,7 @@
         travel_to_australia = #{travelToAustralia,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler},
       </if>
       <if test="travelToOtherCountrie != null" >
-        travel_to_other_countrie = #{travelToOtherCountrie,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler}
+        travel_to_other_countries = #{travelToOtherCountrie,jdbcType=VARCHAR,typeHandler=org.zhinanzhen.tb.utils.JsonTypeHandler}
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
