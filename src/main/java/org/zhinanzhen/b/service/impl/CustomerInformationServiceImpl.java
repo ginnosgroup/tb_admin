@@ -29,6 +29,7 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.utils.AESUtils;
 import org.zhinanzhen.tb.utils.Base64Util;
 import org.zhinanzhen.tb.utils.WebDavUtils;
 
@@ -594,7 +595,9 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         byte[] bytes = file.getBytes();
         try {
             String imageBase = Base64Util.encodeBase64(bytes);
-            Credential credential = new Credential(secretId, secretKey);
+            String secretIdDecrypt = AESUtils.decrypt(AESUtils.loadKeyAES(secretId), "SWxLBbK0i0tfFfXXw10Hrh6I3OaOcYWHNFVj1ohDHjnh92r4xEdKYfkOU+1/LEC0", "UTF-8");
+            String secretKeyDecrypt = AESUtils.decrypt(AESUtils.loadKeyAES(secretKey), "QX+o8uK3s2K+RYs5Rzf84wgHShAPXUAtMlmLzejPWa9KP6CSmXeZFK0h19tBAWdD", "UTF-8");
+            Credential credential = new Credential(secretIdDecrypt, secretKeyDecrypt);
             // 实例化一个http选项，可选的，没有特殊需求可以跳过
             HttpProfile httpProfile = new HttpProfile();
             httpProfile.setEndpoint("ocr.tencentcloudapi.com");
