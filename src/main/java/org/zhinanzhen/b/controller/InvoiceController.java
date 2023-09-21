@@ -480,7 +480,7 @@ public class InvoiceController  extends BaseController {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-				LOG.info("发票确认.(username=" + adminUserLoginInfo.getUsername() + ",invoiceNo=" + invoiceNo);
+				LOG.info("发票确认.(username=" + adminUserLoginInfo.getUsername() + ",invoiceNo=" + invoiceNo + ")");
 				return new Response<Integer>(0, null, commissionOrderService.confirmByInvoiceNo(invoiceNo));
 			} else
 				return new Response<Integer>(1, "仅限会计操作！");
