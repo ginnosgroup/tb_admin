@@ -74,12 +74,6 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Value("${tencent.SecretKey}")
     private String secretKey;
 
-    @Value("${alibaba.SecretId}")
-    private String alibabaSecretId;
-
-    @Value("${alibaba.SecretKey}")
-    private String alibabaSecretKey;
-
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
