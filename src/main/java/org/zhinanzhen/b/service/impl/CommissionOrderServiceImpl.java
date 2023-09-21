@@ -1002,7 +1002,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 			throw se;
 		}
 		int i = 0;
-		String orderIds = invoiceDAO.getServicefeeIdsByInvoiceNo(invoiceNo);
+		String orderIds = invoiceDAO.getSchoolIdsByInvoiceNo(invoiceNo);
 		if (StringUtil.isEmpty(orderIds)) {
 			ServiceException se = new ServiceException("orderIds is null !");
 			se.setCode(ErrorCodeEnum.DATA_ERROR.code());

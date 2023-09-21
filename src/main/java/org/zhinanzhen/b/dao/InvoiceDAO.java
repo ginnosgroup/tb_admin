@@ -120,7 +120,5 @@ public interface InvoiceDAO {
      */
     int updateScDescCommissionOrderByInvoiceNo(@Param("invoiceNumber") String invoiceNumber, @Param("commissionOrderId") int commissionOrderId);
     
-    String getServicefeeIdsByInvoiceNo(@Param("invoiceNo") String invoiceNo);
-    
     String getSchoolIdsByInvoiceNo(@Param("invoiceNo") String invoiceNo);
 }
