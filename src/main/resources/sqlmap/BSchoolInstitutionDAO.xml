@@ -172,7 +172,7 @@
             from b_service_order so, b_school_institution si, b_school_course sc
             where so.type='OVST' and so.course_id=sc.id and sc.provider_id=si.id and YEARWEEK(so.gmt_create) = YEARWEEK(CURDATE()) - 1
         ) t
-        group by t.course_id,t.school_id order by count(t.service_order_id) desc limit #{limit};
+        group by t.course_id,t.school_id order by count(t.service_order_id) desc limit 10;
     </select>
     
     <select id="countSchoolWeek" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionCountDO">
@@ -182,7 +182,7 @@
             from b_service_order so, b_school_institution si, b_school_course sc
             where so.type='OVST' and so.course_id=sc.id and sc.provider_id=si.id and YEARWEEK(so.gmt_create) = YEARWEEK(CURDATE()) - 1
         ) t
-        group by t.school_id order by count(t.service_order_id) desc limit 10;
+        group by t.school_id order by count(t.service_order_id) desc limit #{limit};
     </select>
     
 </mapper>
