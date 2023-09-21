@@ -1714,6 +1714,6 @@
             school_payment_date = now(),
             school_payment_amount = expect_amount,
             commission_state = 'YZY'
-        WHERE id=#{id, jdbcType=INTEGER} AND commission_state != 'YZY'
+        WHERE id = #{id, jdbcType=INTEGER} AND commission_state = 'DZY'
     </update>
 </mapper>
