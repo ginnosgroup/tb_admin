@@ -185,9 +185,10 @@ public class WXWorkAPI {
     }
     
     // added by sulei
-    public static boolean sendWecomRotMsg(String content) {
-    	log.info("发送企业微信机器人信息:" + content);
-		String msg = StringUtil.merge("{\"msgtype\": \"markdown', \"markdown\": {\"content\": \"", content, "\"}}");
+	public static boolean sendWecomRotMsg(String content) {
+		if (StringUtil.isEmpty(content))
+			return false;
+		log.info("企业微信机器人发送信息:" + content);
 		try {
 			HttpClient client = new HttpClient();
 			client.getHttpConnectionManager().getParams().setConnectionTimeout(5 * 1000);
@@ -195,10 +196,15 @@ public class WXWorkAPI {
 			client.getParams().setContentCharset("UTF-8");
 			PostMethod postMethod = new PostMethod(WECOM_WEBHOOK);
 			postMethod.setRequestHeader("Content-Type", "applicantion/json");
-			postMethod.setRequestEntity(new StringRequestEntity(msg, "applicantion/json", "UTF-8"));
-			return client.executeMethod(postMethod) == HttpStatus.SC_OK;
+			postMethod.setRequestEntity(new StringRequestEntity(
+					StringUtil.merge("{\"msgtype\": \"markdown', \"markdown\": {\"content\": \"",
+							content.replace("\n", " "), "\"}}"),
+					"applicantion/json", "UTF-8"));
+			int code = client.executeMethod(postMethod);
+			log.info("企业微信机器人信息状态:" + code);
+			return code == HttpStatus.SC_OK;
 		} catch (Exception e) {
-			log.error("发送企业微信机器人信息失败:", e.getMessage());
+			log.error("企业微信机器人信息发送失败:", e.getMessage());
 			return false;
 		}
 	}
