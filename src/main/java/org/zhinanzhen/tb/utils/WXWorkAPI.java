@@ -186,6 +186,7 @@ public class WXWorkAPI {
     
     // added by sulei
     public static boolean sendWecomRotMsg(String content) {
+    	log.info("发送企业微信机器人信息:", content);
 		String msg = StringUtil.merge("{\"msgtype\": \"markdown', \"markdown\": {\"content\": \"", content, "\"}}");
 		try {
 			HttpClient client = new HttpClient();

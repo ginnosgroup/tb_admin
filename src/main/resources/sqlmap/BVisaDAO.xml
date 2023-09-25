@@ -217,7 +217,7 @@
 
     <select id="countVisa" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_visa bv, tb_adviser a, b_service_order so
+        FROM b_visa bv, tb_adviser a, b_service_order so LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE a.id = bv.adviser_id AND bv.service_order_id = so.id
         <if test='id != null and id > 0'>
             AND bv.id = #{id}
