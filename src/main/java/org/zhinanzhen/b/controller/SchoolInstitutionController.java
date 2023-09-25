@@ -167,7 +167,7 @@ public class SchoolInstitutionController extends BaseController {
         if (schoolInstitutionService.update(schoolInstitutionDto))
             return new Response(0,schoolInstitutionDto);
         else
-            return new Response(1,"修改失败");
+            return new Response(1,"修改失败.");
 
     }
 
@@ -183,14 +183,14 @@ public class SchoolInstitutionController extends BaseController {
         List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDto.getName(),
                 null, null,null,null,0,9999,null,null);
         if (listSchoolInstitutionDTO.size() > 0 )
-            return new Response<Integer>(1,"学校名字已经存在");
+            return new Response<Integer>(1,"学校名字已经存在.");
         if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDto.getCode()) != null)
             return new Response<Integer>(1,"编码已经存在!");
         if (schoolInstitutionService.add(schoolInstitutionDto) > 0 ){
-            return  new Response<Integer>(0,"成功",schoolInstitutionDto.getId());
+            return  new Response<Integer>(0,"成功.",schoolInstitutionDto.getId());
         }
         else
-            return  new Response<Integer>(1,"失败");
+            return  new Response<Integer>(1,"失败.");
 
     }
 
@@ -204,9 +204,9 @@ public class SchoolInstitutionController extends BaseController {
             return new Response(1,"No permission !");
         LOG.info(StringUtil.merge("删除学校:", schoolInstitutionService.getSchoolInstitutionById(id)));
         if (schoolInstitutionService.delete(id))
-            return new Response(0,id + "删除成功");
+            return new Response(0,id + "删除成功.");
         else
-            return new Response(1,"删除失败");
+            return new Response(1,"删除失败.");
     }
 
     /**
@@ -252,7 +252,7 @@ public class SchoolInstitutionController extends BaseController {
             schoolSettingNewDTO.setCourseId(null);
         } else if (schoolSettingNewDTO.getLevel() == 3){
             if (schoolSettingNewDTO.getCourseId() == null)
-                return new Response(1, "设置专业级别RATE,Course Id 不能为空");
+                return new Response(1, "设置专业级别RATE,Course Id 不能为空.");
             if (schoolCourseService.schoolCourseById(schoolSettingNewDTO.getCourseId()) == null)
                 return new Response(1, "不存在此专业或者此专业被冻结：" + schoolSettingNewDTO.getCourseId());
             //if (schoolInstitutionService.getSchoolSettingNewById(schoolSettingNewDTO.getId()) == null)
@@ -511,8 +511,8 @@ public class SchoolInstitutionController extends BaseController {
         }else
             commentDTO.setToUserName(null);
         if (schoolInstitutionService.addComment(commentDTO) > 0)
-            return new Response(0,"添加成功",commentDTO.getId());
-        return new Response(1,"添加失败", 0);
+            return new Response(0,"添加成功.",commentDTO.getId());
+        return new Response(1,"添加失败.", 0);
     }
 
     @GetMapping(value = "/listComment")
@@ -531,12 +531,12 @@ public class SchoolInstitutionController extends BaseController {
         super.setGetHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null)
-            return new Response(1,"没有登录");
+            return new Response(1,"没有登录.");
         SchoolInstitutionCommentDTO commentDTO = schoolInstitutionService.getCommentById(id);
         if (commentDTO.getUserName().equals(adminUserLoginInfo.getUsername()))
             if (schoolInstitutionService.deleteComment(id) > 0)
                 return new Response(0,id);
-        return new Response(1,"删除评论失败");
+        return new Response(1,"删除评论失败.");
     }
 
 
@@ -550,7 +550,7 @@ public class SchoolInstitutionController extends BaseController {
      */
     private Response lookschoolSettingLevel(SchoolSettingNewDTO schoolSettingNewDTO){
         if (schoolInstitutionService.getSchoolInstitutionById(schoolSettingNewDTO.getProviderId()) == null)
-            return new Response(1, "学校不存在");
+            return new Response(1, "学校不存在.");
         if (schoolSettingNewDTO.getLevel() < 0 || schoolSettingNewDTO.getLevel() > 3)
             return new Response(1, "Level 错误");
         if (schoolSettingNewDTO.getLevel() == 1) {  //1级是学校级别(全部)
