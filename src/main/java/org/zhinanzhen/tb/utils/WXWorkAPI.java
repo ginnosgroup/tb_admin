@@ -190,8 +190,6 @@ public class WXWorkAPI {
 			log.error("企业微信机器人信息发送失败:信息为空！");
 			return false;
 		}
-		content = content.replace("\n", " ").replace("\"", "'");
-		//log.info("企业微信机器人发送信息:" + content);
 		String json = StringUtil.merge("{\"msgtype\": \"markdown', \"markdown\": {\"content\": \"", content, "\"}}");
 		log.info("企业微信机器人发送信息:" + json);
 		try {
