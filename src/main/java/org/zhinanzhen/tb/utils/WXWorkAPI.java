@@ -186,8 +186,10 @@ public class WXWorkAPI {
     
     // added by sulei
 	public static boolean sendWecomRotMsg(String content) {
-		if (StringUtil.isEmpty(content))
+		if (StringUtil.isEmpty(content)) {
+			log.error("企业微信机器人信息发送失败:信息为空！");
 			return false;
+		}
 		log.info("企业微信机器人发送信息:" + content);
 		try {
 			HttpClient client = new HttpClient();
