@@ -36,4 +36,12 @@ public class IdentifyingInformationDO {
         private int isHasNewRelationship;//新关系
 
         private int isLive;//保持关系/订婚
+
+        private String expiryDate; // 有效期
+
+        private String issueDate; // 签发日期
+
+        private String issuePlace; // 签发地点
+
+        private String passportNumber;
 }

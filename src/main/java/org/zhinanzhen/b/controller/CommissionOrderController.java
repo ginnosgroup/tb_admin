@@ -644,7 +644,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			else
 				return new Response<CommissionOrderDTO>(1, "只有会计和超级管理员能修改会计审核日期.", null);
 			if (commissionOrderService.updateCommissionOrder(commissionOrderDto) > 0) {
-				LOG.info("修改留学订单提交审核日期.(id=" + id + ",kjApprovalDate=" + kjApprovalDate);
+				LOG.info("修改留学订单提交审核日期.(username=" + adminUserLoginInfo.getUsername() + ",id=" + id + ",kjApprovalDate="
+						+ kjApprovalDate);
 				return new Response<CommissionOrderDTO>(0, "", commissionOrderDto);
 			} else
 				return new Response<CommissionOrderDTO>(1, "修改失败.", null);

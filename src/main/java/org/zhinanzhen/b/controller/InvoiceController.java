@@ -3,10 +3,14 @@ package org.zhinanzhen.b.controller;
 import com.ikasoa.core.utils.StringUtil;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.CommissionOrderService;
 import org.zhinanzhen.b.service.InvoiceService;
@@ -35,6 +39,8 @@ import java.util.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/invoice")
 public class InvoiceController  extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(InvoiceController.class);
 
     private Mapper mapper = new DozerBeanMapper();
 
@@ -121,7 +127,7 @@ public class InvoiceController  extends BaseController {
     //查询一个invoice
     @RequestMapping(value = "/selectInvoiecByNo", method = RequestMethod.GET)
     @ResponseBody
-    public Response selectInvoiecByNo(
+    public Response selectInvoiecByNo( //invoice拼错了!
             @RequestParam(value = "invoiceNo", required = true) String invoiceNo,
             @RequestParam(value = "invoiceIds", required = true) String invoiceIds,
             @RequestParam(value = "marketing", required = false) String marketing,
@@ -466,6 +472,21 @@ public class InvoiceController  extends BaseController {
             return new Response(1, "系统错误！");
         }
     }
-
+    
+	@RequestMapping(value = "/confirm", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Integer> confirm(@RequestParam(value = "invoiceNo", required = true) String invoiceNo,
+			HttpServletRequest request) {
+		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+				LOG.info("发票确认.(username=" + adminUserLoginInfo.getUsername() + ",invoiceNo=" + invoiceNo + ")");
+				return new Response<Integer>(0, null, commissionOrderService.confirmByInvoiceNo(invoiceNo));
+			} else
+				return new Response<Integer>(1, "仅限会计操作！");
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage());
+		}
+	}
 
 }

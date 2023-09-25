@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -990,5 +992,27 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             throw se;
         }
     }
+    
+    @Override
+    @Transactional(rollbackFor = ServiceException.class)
+	public int confirmByInvoiceNo(String invoiceNo) throws ServiceException {
+		if (StringUtil.isEmpty(invoiceNo)) {
+			ServiceException se = new ServiceException("invoiceNo is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		int i = 0;
+		String orderIds = invoiceDAO.getSchoolIdsByInvoiceNo(invoiceNo);
+		if (StringUtil.isEmpty(orderIds)) {
+			ServiceException se = new ServiceException("orderIds is null !");
+			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw se;
+		}
+		String[] idArray = orderIds.split(",");
+		for (String orderId : idArray)
+			i += commissionOrderDao.confirm(Integer.parseInt(orderId));
+		return i;
+
+	}
 }
 

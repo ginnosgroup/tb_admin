@@ -45,5 +45,5 @@ public interface VisaService {
 	void sendRefuseEmail(VisaDTO visaDto);
 	List<VisaDTO> getCommissionOrder(Integer officialId, Integer regionId,Integer id,String startHandlingDate,String endHandlingDate, String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDate,String userName,String applicantName,Integer pageNum, Integer pageSize);
 	int count(Integer officialId,Integer regionId, Integer id,String startHandlingDate,String endHandlingDate,  String commissionState, String startSubmitIbDate, String endSubmitIbDate, String startDate, String endDateuserName,String userName,String applicantName) throws ServiceException;
-
+	
 }

@@ -105,5 +105,7 @@ public interface CommissionOrderDAO {
 	CommissionInfoDO getCommissionStateById(@Param("id") Integer serviceOrderId,
 								  @Param("installmentNum") Integer installmentNum);
 	int updateState(int id);
+	
+	int confirm(int id);
 
 }

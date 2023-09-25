@@ -79,8 +79,8 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             String formatdate = date.format(formatter);
             String netDiskPath = "https://dav.jianguoyun.com/dav/MMfiledata/" + rgivenName + "_" + familyName + "_" + formatdate + ".pdf";
-            //String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
-            String filePath = "C:/Users/yjt/Desktop/pdfout/" + id + ".pdf";
+            String filePath = "/data/uploads/PdfGenerate/pdfout/" + id + ".pdf";
+//            String filePath = "C:/Users/yjt/Desktop/pdfout/" + id + ".pdf";
             WebDavUtils.upload(netDiskPath, filePath);
 
         }
@@ -352,52 +352,50 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }else {
             root.getElementsByTagName("Parents").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
             List<ParentsInformation> parentsInformationList = parents.getParentsInformationList();
+            if (parentsInformationList != null && parentsInformationList.size() > 0) {
+                int parentSize = parentsInformationList.size();
+                if (parentSize - 2 > 0) {
+                    for (int i = 2; i < parentSize; i++) {
+                        Node paPaDetails = root.getElementsByTagName("PAPaDetails").item(0).cloneNode(true);
+                        //familyname
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
+                        //given
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getGivenName());
+                        //relationship
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getRelationship());
+                        //birthdate
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getDateOfBirth());
+                        //Gender
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getGender());
+                        //birthTown
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getBirthLocation());
+                        //state
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getStateOrProvince());
+                        //birthCountry
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
 
-            int parentSize = parentsInformationList.size();
-            if (parentSize-2>0){
-                for (int i = 2; i < parentSize; i++) {
-                    Node paPaDetails = root.getElementsByTagName("PAPaDetails").item(0).cloneNode(true);
+                        root.getElementsByTagName("Parents").item(0).getChildNodes().item(3).appendChild(paPaDetails);
+                    }
+                }
+                for (int i = 0; i < 2; i++) {
                     //familyname
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
                     //given
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getGivenName());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getGivenName());
                     //relationship
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getRelationship());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getRelationship());
                     //birthdate
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getDateOfBirth());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getDateOfBirth());
                     //Gender
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getGender());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getGender());
                     //birthTown
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getBirthLocation());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getBirthLocation());
                     //state
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getStateOrProvince());
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getStateOrProvince());
                     //birthCountry
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
-
-                    root.getElementsByTagName("Parents").item(0).getChildNodes().item(3).appendChild(paPaDetails);
+                    root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
                 }
             }
-            for (int i = 0; i < 2; i++) {
-                //familyname
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getFamilyName());
-                //given
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getGivenName());
-                //relationship
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getRelationship());
-                //birthdate
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getDateOfBirth());
-                //Gender
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getGender());
-                //birthTown
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(parentsInformationList.get(i).getBirthLocation());
-                //state
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(parentsInformationList.get(i).getStateOrProvince());
-                //birthCountry
-                root.getElementsByTagName("PAPaDetails").item(i).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(parentsInformationList.get(i).getBirthCountry());
-
-
-            }
-
 
         }
 
@@ -408,30 +406,32 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
         }else {
             root.getElementsByTagName("Sibling").item(0).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
             List<SiblingsInformation> siblingsInformationList = siblings.getSiblingsInformationList();
-            int siblingSize = siblingsInformationList.size();
-            if (siblingSize-1>0){
-                for (int i = 1; i < siblingSize; i++) {
-                    Node paPaDetails = root.getElementsByTagName("PASibDetails").item(0).cloneNode(true);
-                    //familyname
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getFamilyName());
-                    //given
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getGivenName());
-                    //relationship
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getRelationship());
-                    //birthdate
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getDateOfBirth());
-                    //Gender
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getGender());
-                    //birthTown
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getBirthLocation());
-                    //state
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getStateOrProvince());
-                    //birthCountry
-                    paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getBirthCountry());
-                    //添加
-                    root.getElementsByTagName("Sibling").item(0).getChildNodes().item(3).appendChild(paPaDetails);
+            if (siblingsInformationList != null && siblingsInformationList.size() > 0) {
+                int siblingSize = siblingsInformationList.size();
+                if (siblingSize - 1 > 0) {
+                    for (int i = 1; i < siblingSize; i++) {
+                        Node paPaDetails = root.getElementsByTagName("PASibDetails").item(0).cloneNode(true);
+                        //familyname
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getFamilyName());
+                        //given
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getGivenName());
+                        //relationship
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getRelationship());
+                        //birthdate
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getDateOfBirth());
+                        //Gender
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getGender());
+                        //birthTown
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).setTextContent(siblingsInformationList.get(i).getBirthLocation());
+                        //state
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(i).getStateOrProvince());
+                        //birthCountry
+                        paPaDetails.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(i).getBirthCountry());
+                        //添加
+                        root.getElementsByTagName("Sibling").item(0).getChildNodes().item(3).appendChild(paPaDetails);
+                    }
                 }
-            }
+
             //familyname
             root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(siblingsInformationList.get(0).getFamilyName());
             //given
@@ -448,7 +448,7 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
             root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(siblingsInformationList.get(0).getStateOrProvince());
             //birthCountry
             root.getElementsByTagName("PASibDetails").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(3).setTextContent(siblingsInformationList.get(0).getBirthCountry());
-
+            }
         }
 
 
@@ -1579,96 +1579,96 @@ public class PdfGenerateServiceImpl extends BaseService implements PdfGenerateSe
 
         }
 
-        // Employment 工作信息
-        WorkIntroduction workIntroduction = customerInformationDO.getWorkIntroduction();
-        if (workIntroduction.getIsWorkIntroduction() == 2) {
-            root.getElementsByTagName("Employment").item(0).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
-        } else {
-            root.getElementsByTagName("Employment").item(0).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
-            List<EmploymentDetails> workIntroductionList = workIntroduction.getWorkIntroductionList();
-            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getDateFrom());
-            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getDateTo());
-            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getStatus());
-            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getPosition());
-            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(3).setTextContent(workIntroductionList.get(0).getCountry());
-            if (workIntroductionList.size() > 1) {
-                for (int i = 1; i < workIntroductionList.size(); i++) {
-                    Node employmentDetail = root.getElementsByTagName("EmploymentDetail").item(0).cloneNode(true);
-                    // Date From
-                    employmentDetail.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getDateFrom());
-                    // To
-                    employmentDetail.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getDateTo());
-                    // status
-                    employmentDetail.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getStatus());
-                    // Position
-                    employmentDetail.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getPosition());
-                    // country
-                    employmentDetail.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(3).setTextContent(workIntroductionList.get(i).getCountry());
-                    //添加
-                    root.getElementsByTagName("Employment").item(0).getChildNodes().item(3).appendChild(employmentDetail);
-                }
-            }
-//            ausTravel.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
-//            ausTravel.getChildNodes().item(9).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
-//            ausTravel.getChildNodes().item(11).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
-        }
-
-        // travel to australia --> AusTravel
-        Node ausTravel = root.getElementsByTagName("AusTravel").item(0);
-        TravelToAustralia travelToAustralia = customerInformationDO.getTravelToAustralia();
-        if (travelToAustralia.getIsIncluded() == 2) {
-            ausTravel.getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
-        } else {
-            ausTravel.getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
-            List<currentStayDetails> currentStayDetailsList = travelToAustralia.getCurrentStayDetailsList();
-            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentStayDetailsList.get(0).getApplicants());
-            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(currentStayDetailsList.get(0).getArrivalDate());
-            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(currentStayDetailsList.get(0).getDepartureDate());
-            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(currentStayDetailsList.get(0).getArrivalCity());
-            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(9).setTextContent(currentStayDetailsList.get(0).getVisaUsed());
-            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(11).setTextContent(currentStayDetailsList.get(0).getReason());
-            if (currentStayDetailsList.size() > 1) {
-                for (int i = 1; i < currentStayDetailsList.size(); i++) {
-                    Node employmentDetail = ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).cloneNode(true);
-                    employmentDetail.getChildNodes().item(1).setTextContent(currentStayDetailsList.get(i).getApplicants());
-                    employmentDetail.getChildNodes().item(3).setTextContent(currentStayDetailsList.get(i).getArrivalDate());
-                    employmentDetail.getChildNodes().item(5).setTextContent(currentStayDetailsList.get(i).getDepartureDate());
-                    employmentDetail.getChildNodes().item(7).setTextContent(currentStayDetailsList.get(i).getArrivalCity());
-                    employmentDetail.getChildNodes().item(9).setTextContent(currentStayDetailsList.get(i).getVisaUsed());
-                    employmentDetail.getChildNodes().item(11).setTextContent(currentStayDetailsList.get(i).getReason());
-                    ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).appendChild(employmentDetail);
-                }
-            }
-        }
-
-        // Travel to Australia --> PRInstructions
-        TravelToOtherCountries travelToOtherCountrie = customerInformationDO.getTravelToOtherCountrie();
-        Node visasAndVisits = root.getElementsByTagName("VisasAndVisits").item(0);
-        if (travelToOtherCountrie.getIsTravelToOtherCountries() == 2) {
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(5).getChildNodes().item(1).setTextContent("2");
-        } else {
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(5).getChildNodes().item(1).setTextContent("1");
-            List<previousStayDetails> previousStayDetailsList = travelToOtherCountrie.getPreviousStayDetailsList();
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(previousStayDetailsList.get(0).getApplicants());
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(previousStayDetailsList.get(0).getCountry());
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(previousStayDetailsList.get(0).getLegalStatus());
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(previousStayDetailsList.get(0).getDepartureDate());
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(9).setTextContent(previousStayDetailsList.get(0).getArrivalDate());
-            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(11).setTextContent(previousStayDetailsList.get(0).getReason());
-            if (previousStayDetailsList.size() > 1) {
-                Node persons = visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1);
-                for (int i = 1; i < previousStayDetailsList.size(); i++) {
-                    Node node = persons.getChildNodes().item(3).cloneNode(true);
-                    node.getChildNodes().item(1).setTextContent(previousStayDetailsList.get(i).getApplicants());
-                    node.getChildNodes().item(3).setTextContent(previousStayDetailsList.get(i).getCountry());
-                    node.getChildNodes().item(5).setTextContent(previousStayDetailsList.get(i).getLegalStatus());
-                    node.getChildNodes().item(7).setTextContent(previousStayDetailsList.get(i).getDepartureDate());
-                    node.getChildNodes().item(9).setTextContent(previousStayDetailsList.get(i).getArrivalDate());
-                    node.getChildNodes().item(11).setTextContent(previousStayDetailsList.get(i).getReason());
-                    persons.appendChild(node);
-                }
-            }
-        }
+//        // Employment 工作信息
+//        WorkIntroduction workIntroduction = customerInformationDO.getWorkIntroduction();
+//        if (workIntroduction.getIsWorkIntroduction() == 2) {
+//            root.getElementsByTagName("Employment").item(0).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
+//        } else {
+//            root.getElementsByTagName("Employment").item(0).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
+//            List<EmploymentDetails> workIntroductionList = workIntroduction.getWorkIntroductionList();
+//            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getDateFrom());
+//            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getDateTo());
+//            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getStatus());
+//            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(0).getPosition());
+//            root.getElementsByTagName("EmploymentDetail").item(0).getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(3).setTextContent(workIntroductionList.get(0).getCountry());
+//            if (workIntroductionList.size() > 1) {
+//                for (int i = 1; i < workIntroductionList.size(); i++) {
+//                    Node employmentDetail = root.getElementsByTagName("EmploymentDetail").item(0).cloneNode(true);
+//                    // Date From
+//                    employmentDetail.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getDateFrom());
+//                    // To
+//                    employmentDetail.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getDateTo());
+//                    // status
+//                    employmentDetail.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(5).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getStatus());
+//                    // Position
+//                    employmentDetail.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).setTextContent(workIntroductionList.get(i).getPosition());
+//                    // country
+//                    employmentDetail.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(3).setTextContent(workIntroductionList.get(i).getCountry());
+//                    //添加
+//                    root.getElementsByTagName("Employment").item(0).getChildNodes().item(3).appendChild(employmentDetail);
+//                }
+//            }
+////            ausTravel.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+////            ausTravel.getChildNodes().item(9).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+////            ausTravel.getChildNodes().item(11).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).setTextContent("2");
+//        }
+//
+//        // travel to australia --> AusTravel
+//        Node ausTravel = root.getElementsByTagName("AusTravel").item(0);
+//        TravelToAustralia travelToAustralia = customerInformationDO.getTravelToAustralia();
+//        if (travelToAustralia.getIsIncluded() == 2) {
+//            ausTravel.getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("2");
+//        } else {
+//            ausTravel.getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent("1");
+//            List<currentStayDetails> currentStayDetailsList = travelToAustralia.getCurrentStayDetailsList();
+//            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(currentStayDetailsList.get(0).getApplicants());
+//            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(currentStayDetailsList.get(0).getArrivalDate());
+//            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(currentStayDetailsList.get(0).getDepartureDate());
+//            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(currentStayDetailsList.get(0).getArrivalCity());
+//            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(9).setTextContent(currentStayDetailsList.get(0).getVisaUsed());
+//            ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(11).setTextContent(currentStayDetailsList.get(0).getReason());
+//            if (currentStayDetailsList.size() > 1) {
+//                for (int i = 1; i < currentStayDetailsList.size(); i++) {
+//                    Node employmentDetail = ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(3).cloneNode(true);
+//                    employmentDetail.getChildNodes().item(1).setTextContent(currentStayDetailsList.get(i).getApplicants());
+//                    employmentDetail.getChildNodes().item(3).setTextContent(currentStayDetailsList.get(i).getArrivalDate());
+//                    employmentDetail.getChildNodes().item(5).setTextContent(currentStayDetailsList.get(i).getDepartureDate());
+//                    employmentDetail.getChildNodes().item(7).setTextContent(currentStayDetailsList.get(i).getArrivalCity());
+//                    employmentDetail.getChildNodes().item(9).setTextContent(currentStayDetailsList.get(i).getVisaUsed());
+//                    employmentDetail.getChildNodes().item(11).setTextContent(currentStayDetailsList.get(i).getReason());
+//                    ausTravel.getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(3).getChildNodes().item(1).appendChild(employmentDetail);
+//                }
+//            }
+//        }
+//
+//        // Travel to Australia --> PRInstructions
+//        TravelToOtherCountries travelToOtherCountrie = customerInformationDO.getTravelToOtherCountrie();
+//        Node visasAndVisits = root.getElementsByTagName("VisasAndVisits").item(0);
+//        if (travelToOtherCountrie.getIsTravelToOtherCountries() == 2) {
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(5).getChildNodes().item(1).setTextContent("2");
+//        } else {
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(1).getChildNodes().item(5).getChildNodes().item(5).getChildNodes().item(1).setTextContent("1");
+//            List<previousStayDetails> previousStayDetailsList = travelToOtherCountrie.getPreviousStayDetailsList();
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(1).setTextContent(previousStayDetailsList.get(0).getApplicants());
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(3).setTextContent(previousStayDetailsList.get(0).getCountry());
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(5).setTextContent(previousStayDetailsList.get(0).getLegalStatus());
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(7).setTextContent(previousStayDetailsList.get(0).getDepartureDate());
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(9).setTextContent(previousStayDetailsList.get(0).getArrivalDate());
+//            visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(11).setTextContent(previousStayDetailsList.get(0).getReason());
+//            if (previousStayDetailsList.size() > 1) {
+//                Node persons = visasAndVisits.getChildNodes().item(5).getChildNodes().item(3).getChildNodes().item(1).getChildNodes().item(1).getChildNodes().item(1);
+//                for (int i = 1; i < previousStayDetailsList.size(); i++) {
+//                    Node node = persons.getChildNodes().item(3).cloneNode(true);
+//                    node.getChildNodes().item(1).setTextContent(previousStayDetailsList.get(i).getApplicants());
+//                    node.getChildNodes().item(3).setTextContent(previousStayDetailsList.get(i).getCountry());
+//                    node.getChildNodes().item(5).setTextContent(previousStayDetailsList.get(i).getLegalStatus());
+//                    node.getChildNodes().item(7).setTextContent(previousStayDetailsList.get(i).getDepartureDate());
+//                    node.getChildNodes().item(9).setTextContent(previousStayDetailsList.get(i).getArrivalDate());
+//                    node.getChildNodes().item(11).setTextContent(previousStayDetailsList.get(i).getReason());
+//                    persons.appendChild(node);
+//                }
+//            }
+//        }
 
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         //DOMSource source = new DOMSource(doc);

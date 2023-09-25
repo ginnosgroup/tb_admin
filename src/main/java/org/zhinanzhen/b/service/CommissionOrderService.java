@@ -70,5 +70,7 @@ public interface CommissionOrderService {
 	int updateCommissionOrderTemp(CommissionOrderTempDTO tempDTO) throws ServiceException;
 
 	CommissionOrderTempDTO getCommissionOrderTempById(int id) throws ServiceException;
+	
+	int confirmByInvoiceNo(String invoiceNo) throws ServiceException;
 
 }
