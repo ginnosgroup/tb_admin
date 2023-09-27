@@ -344,7 +344,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(12).setCellValue(visaDTO.getOfficialName());
                 row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
                 row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
-                row.createCell(15).setCellValue(visaDTO.getTotalAmountAUD());
+                row.createCell(15).setCellValue(visaDTO.getTotalAmountCNY());
                 row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
