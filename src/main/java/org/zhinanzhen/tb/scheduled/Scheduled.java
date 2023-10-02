@@ -125,18 +125,18 @@ public class Scheduled {
 		if (schoolWeekList.size() > 0) {
 			schoolWeekStr = "Top10申请学校列表:\n";
 			for (SchoolInstitutionCountDO schoolInstitutionCountDo : schoolWeekList)
-				schoolWeekStr += StringUtil.merge(">", schoolInstitutionCountDo.getName(), ":",
-						schoolInstitutionCountDo.getCount());
+				schoolWeekStr += StringUtil.merge(schoolInstitutionCountDo.getName(), ":",
+						schoolInstitutionCountDo.getCount(), "\n");
 		}
 		String courseWeekStr = "";
 		if (courseWeekList.size() > 0) {
 			courseWeekStr = "Top10申请专业列表:\n";
 			for (SchoolInstitutionCountDO schoolInstitutionCountDo : courseWeekList)
-				courseWeekStr += StringUtil.merge(">", schoolInstitutionCountDo.getCourseName(), "(",
-						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount());
+				courseWeekStr += StringUtil.merge(schoolInstitutionCountDo.getCourseName(), "(",
+						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount(), "\n");
 		}
-		WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n",
-				schoolWeekStr, "\n", courseWeekStr));
+		WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n\n",
+				schoolWeekStr, "\n\n", courseWeekStr));
 	}
 
     //本月1号-本周五   上周六-本周五
