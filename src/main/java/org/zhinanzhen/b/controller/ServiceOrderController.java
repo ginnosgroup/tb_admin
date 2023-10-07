@@ -2011,8 +2011,15 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(13, i, so.getOfficial().getName(), cellFormat));
 
                 if (so.getService() != null) {
+                    String servicepakageName = "";
+                    String tmp = "";
+                    if (so.getServicePackage() != null) {
+                        String servicePackagetype = so.getServicePackage().getType();
+                        servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+                        tmp = "-";
+                    }
                     sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
-                    sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
+                    sheet.addCell(new Label(15, i, so.getService().getCode() + tmp + servicepakageName, cellFormat));
                     if (so.getServiceAssessDO() != null)
                         sheet.addCell(new Label(14, i,
                                 so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), cellFormat));
@@ -2970,13 +2977,41 @@ public class ServiceOrderController extends BaseController {
     }
 
     private String getTypeStrOfServicePackageDTO(String type) {
-        if ("EOI".equalsIgnoreCase(type))
-            return "EOI";
-        else if ("CA".equalsIgnoreCase(type))
-            return "职业评估";
-        else if ("VA".equalsIgnoreCase(type))
-            return "签证申请";
-        else
-            return "";
+        String servicepakageName;
+        switch (type) {
+            case "CA":
+                servicepakageName = "职业评估";
+                break;
+            case "EOI":
+                servicepakageName = "EOI";
+                break;
+            case "SA":
+                servicepakageName = "学校申请";
+                break;
+            case "VA":
+                servicepakageName = "签证申请";
+                break;
+            case "ZD":
+                servicepakageName = "州担";
+                break;
+            case "MAT":
+                servicepakageName = "Matrix";
+                break;
+            case "SBO":
+                servicepakageName = "SBO";
+                break;
+            case "TM":
+                servicepakageName = "提名";
+                break;
+            case "DB":
+                servicepakageName = "担保";
+                break;
+            case "ROI":
+                servicepakageName = "ROI";
+                break;
+            default:
+                servicepakageName = null;
+        }
+        return servicepakageName;
     }
 }
