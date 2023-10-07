@@ -66,7 +66,7 @@ public class Data extends BaseService {
 				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList2) {
 					for (DataDTO data : _dataDTOList) {
 						if (StringUtil.equals(data.getDate(), commissionOrderReportDto.getDate())
-								&& data.getRefunded() == commissionOrderReportDto.getRegionId()
+								&& data.getRegionId() == commissionOrderReportDto.getRegionId()
 								&& data.getAdviserId() == commissionOrderReportDto.getAdviserId()) {
 							if (data.getClaimedCommission() <= 0)
 								data.setClaimedCommission(commissionOrderReportDto.getClaimedCommission());
