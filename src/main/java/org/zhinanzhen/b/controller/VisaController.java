@@ -570,8 +570,10 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setCommissionState(CommissionStateEnum.YJY.toString());
 			// 修改文案佣金订单状态
 			VisaOfficialDTO visaOfficialDto = visaOfficialService.getByServiceOrderId(visaDto.getServiceOrderId());
-			if (visaOfficialDto != null && !visaOfficialDto.isMerged())
+			if (visaOfficialDto != null && !visaOfficialDto.isMerged()) {
+				LOG.info(StringUtil.merge("文案佣金订单(", visaOfficialDto.getId(), ")合账."));
 				visaOfficialService.updateMerged(visaOfficialDto.getId(), Boolean.TRUE);
+			}
 		}
 		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);

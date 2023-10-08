@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.ErrorCodeEnum;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderExportDTO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.*;
@@ -45,6 +47,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -1883,6 +1887,7 @@ public class ServiceOrderController extends BaseController {
         List<String> excludeTypeList = null;
         String excludeState = null;
         List<String> stateList = null;
+        System.out.println("是这个接口---------------------------");
         if (state != null && !"".equals(state))
             stateList = new ArrayList<>(Arrays.asList(state.split(",")));
         List<String> reviewStateList = null;
@@ -2006,8 +2011,15 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(13, i, so.getOfficial().getName(), cellFormat));
 
                 if (so.getService() != null) {
+                    String servicepakageName = "";
+                    String tmp = "";
+                    if (so.getServicePackage() != null) {
+                        String servicePackagetype = so.getServicePackage().getType();
+                        servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+                        tmp = "-";
+                    }
                     sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
-                    sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
+                    sheet.addCell(new Label(15, i, so.getService().getCode() + tmp + servicepakageName, cellFormat));
                     if (so.getServiceAssessDO() != null)
                         sheet.addCell(new Label(14, i,
                                 so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), cellFormat));
@@ -2767,6 +2779,185 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/exportList", method = RequestMethod.GET)
+    @ResponseBody
+    public void exportList(@RequestParam(value = "id", required = false) Integer id,
+                                                @RequestParam(value = "type", required = false) String type,
+                                                @RequestParam(value = "state", required = false) String state,
+                                                @RequestParam(value = "auditingState", required = false) String auditingState,
+                                                @RequestParam(value = "reviewState", required = false) String reviewState,
+                                                @RequestParam(value = "urgentState", required = false) String urgentState,
+                                                @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+                                                @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+                                                @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+                                                @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+                                                @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+                                                @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
+                                                @RequestParam(value = "regionId", required = false) Integer regionId,
+                                                @RequestParam(value = "userId", required = false) Integer userId,
+                                                @RequestParam(value = "userName", required = false) String userName,
+                                                @RequestParam(value = "applicantName", required = false) String applicantName,
+                                                @RequestParam(value = "maraId", required = false) Integer maraId,
+                                                @RequestParam(value = "adviserId", required = false) Integer adviserId,
+                                                @RequestParam(value = "officialId", required = false) Integer officialId,
+                                                @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
+                                                @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+                                                @RequestParam(value = "serviceId", required = false) Integer serviceId,
+                                                @RequestParam(value = "schoolId", required = false) Integer schoolId,
+                                                @RequestParam(value = "isSettle", required = false) Boolean isSettle,
+                                                @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+                                                @RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+                                                HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            // 设置响应头
+            response.setContentType("application/vnd.ms-excel");
+            response.setCharacterEncoding("utf-8");
+            // 设置防止中文名乱码
+            Date date = new Date();
+            SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+            String formattedDateTmp = sd.format(date); // 将Date类对象转换为指定格式的字符串
+            String filename = URLEncoder.encode("ServiceOrderExport-" + formattedDateTmp, "UTF-8");
+            // 文件下载方式(附件下载还是在当前浏览器打开)
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-disposition", "attachment;filename=" +
+                    filename + ".xlsx");
+            // 查询要导出的数据
+            ListResponse<List<ServiceOrderDTO>> listListResponse = this.listServiceOrder(id, type, state, auditingState, reviewState, urgentState, startMaraApprovalDate, endMaraApprovalDate,
+                    startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, regionId, userId,
+                    userName, applicantName, maraId, adviserId, officialId, officialTagId, isNotApproved, serviceId, schoolId, isSettle,
+                    pageNum, pageSize, sorter, request, response);
+            if (listListResponse.getMessage().equals("No permission !")) {
+                throw new RuntimeException("当前用户未登录");
+            }
+            List<ServiceOrderDTO> data = listListResponse.getData();
+            // 新建表格数据容器
+            List<ServiceOrderExportDTO> serviceOrderExportDTOS = new ArrayList<>();
+            data.forEach(e->{
+                ServiceOrderExportDTO serviceOrderExportDTO = new ServiceOrderExportDTO();
+                serviceOrderExportDTO.setId(e.getId());
+                if (ObjectUtil.isNotNull(e.getFinishDate())) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+                    String formattedDate = sdf.format(e.getFinishDate()); // 将Date类对象转换为指定格式的字符串
+                    serviceOrderExportDTO.setFinishDate(formattedDate);
+                }
+                if (ObjectUtil.isNotNull(e.getOfficialApprovalDate())) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+                    String formattedDate = sdf.format(e.getOfficialApprovalDate()); // 将Date类对象转换为指定格式的字符串
+                    serviceOrderExportDTO.setOfficialApprovalDate(formattedDate);
+                }
+                if (ObjectUtil.isNotNull(e.getReadcommittedDate())) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+                    String formattedDate = sdf.format(e.getReadcommittedDate()); // 将Date类对象转换为指定格式的字符串
+                    serviceOrderExportDTO.setReadcommittedDate(formattedDate);
+                }
+                if (ObjectUtil.isNotNull(e.getUser())) {
+                    if (StringUtils.isNotBlank(e.getUser().getName())) {
+                        serviceOrderExportDTO.setUserName(e.getUser().getName());
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getApplicant())) {
+                    if (StringUtils.isNotBlank(e.getApplicant().getSurname())) {
+                        serviceOrderExportDTO.setApplicantName(e.getApplicant().getSurname());
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getApplicant())) {
+                    if (ObjectUtil.isNotNull(e.getApplicant().getBirthday())) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+                        String formattedDate = sdf.format(e.getApplicant().getBirthday()); // 将Date类对象转换为指定格式的字符串
+                        serviceOrderExportDTO.setApplicantBirthday(formattedDate);
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getUser())) {
+                    if (StringUtils.isNotBlank(e.getUser().getPhone())) {
+                        serviceOrderExportDTO.setPhone(e.getUser().getPhone());
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getAdviser())) {
+                    if (StringUtils.isNotBlank(e.getAdviser().getName())) {
+                        serviceOrderExportDTO.setAdviserName(e.getAdviser().getName());
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getOfficial())) {
+                    if (StringUtils.isNotBlank(e.getOfficial().getName())) {
+                        serviceOrderExportDTO.setOfficialName(e.getOfficial().getName());
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getMara())) {
+                    if (StringUtils.isNotBlank(e.getMara().getName())) {
+                        serviceOrderExportDTO.setMaraName(e.getMara().getName());
+                    }
+                }
+                if (ObjectUtil.isNotNull(e.getService())) {
+                    if (StringUtils.isNotBlank(e.getService().getName()) && StringUtils.isNotBlank(e.getService().getCode())) {
+                        serviceOrderExportDTO.setServiceCodeAndName(e.getService().getName() + "-" + e.getService().getCode());
+                    }
+                }
+                if (StringUtils.isNotBlank(e.getState())) {
+                    String s = convertOrderStatus(e.getState());
+                    if (s.equals("无状态")) {
+                        System.out.println("无状态的数据为-------------" + e.getId());
+                    }
+                    serviceOrderExportDTO.setState(s);
+                }
+                serviceOrderExportDTOS.add(serviceOrderExportDTO);
+            });
+            // 写入数据到excel
+            EasyExcel.write(response.getOutputStream(), ServiceOrderExportDTO.class)
+                    .sheet("用户信息")
+                    .doWrite(serviceOrderExportDTOS);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 转换订单状态
+    private String convertOrderStatus(String state) {
+        String stateName = null;
+        switch (state) {
+            case "PENDING":
+                stateName = "待提交审核";
+                break;
+            case "REVIEW":
+                stateName = "资料待审核";
+                break;
+            case "OREVIEW":
+                stateName = "资料审核中";
+                break;
+            case "APPLY":
+                stateName = "服务申请中";
+                break;
+            case "COMPLETE":
+                stateName = "服务申请完成";
+                break;
+            case "FINISH":
+                stateName = "完成-支付成功";
+                break;
+            case "CLOSE":
+                stateName = "关闭";
+                break;
+            case "RECEIVED":
+                stateName = "已收款凭证已提交";
+                break;
+            case "PAID":
+                stateName = "COE已下";
+                break;
+            case "WAIT":
+                stateName = "已提交Mara审核";
+                break;
+            case "APPLY_FAILED":
+                stateName = "学校拒绝，申请失败";
+                break;
+            case "COMPLETE_FD":
+                stateName = "财务转账完成";
+                break;
+            default:
+                stateName = "无状态";
+        }
+        return stateName;
+    }
+
+
     private void updateVisaServiceForAD(ServiceOrderDTO serviceOrderDto, int serviceId) throws ServiceException {
         if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
             List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
@@ -2786,13 +2977,41 @@ public class ServiceOrderController extends BaseController {
     }
 
     private String getTypeStrOfServicePackageDTO(String type) {
-        if ("EOI".equalsIgnoreCase(type))
-            return "EOI";
-        else if ("CA".equalsIgnoreCase(type))
-            return "职业评估";
-        else if ("VA".equalsIgnoreCase(type))
-            return "签证申请";
-        else
-            return "";
+        String servicepakageName;
+        switch (type) {
+            case "CA":
+                servicepakageName = "职业评估";
+                break;
+            case "EOI":
+                servicepakageName = "EOI";
+                break;
+            case "SA":
+                servicepakageName = "学校申请";
+                break;
+            case "VA":
+                servicepakageName = "签证申请";
+                break;
+            case "ZD":
+                servicepakageName = "州担";
+                break;
+            case "MAT":
+                servicepakageName = "Matrix";
+                break;
+            case "SBO":
+                servicepakageName = "SBO";
+                break;
+            case "TM":
+                servicepakageName = "提名";
+                break;
+            case "DB":
+                servicepakageName = "担保";
+                break;
+            case "ROI":
+                servicepakageName = "ROI";
+                break;
+            default:
+                servicepakageName = null;
+        }
+        return servicepakageName;
     }
 }
