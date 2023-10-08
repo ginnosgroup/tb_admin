@@ -470,7 +470,7 @@ public class DashboardController extends BaseController {
 		resultList.add(thisMonthData);
 		resultList.add(lastYearThisMonthData);
 		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
-				DateClass.lastMonth(Calendar.getInstance()));
+				DateClass.thisMonth(Calendar.getInstance()));
 	}
 
 	/**
