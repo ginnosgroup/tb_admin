@@ -49,10 +49,13 @@ public class DateClass {
         lastSaturday(Calendar.getInstance());
         thisMonthFirstDay(Calendar.getInstance());
         thisMonthFriday(Calendar.getInstance());
-
+        
+        thisMonth(Calendar.getInstance());
+        lastMonth(Calendar.getInstance());
+        
         lastMonthFirstDay(Calendar.getInstance());
         lastMonthLastDay(Calendar.getInstance());
-        System.out.println("当前时间"+sdf.format(Calendar.getInstance().getTime()));
+        System.out.println(thisMonth(Calendar.getInstance()));
 
     }
 
@@ -75,10 +78,19 @@ public class DateClass {
         // 当前日期
         instance.add(Calendar.DATE, -1);
 
-        System.out.println(sdf.format(instance.getTime()));
-
         return sdf.format(instance.getTime());
     }
+    
+	public static String thisMonth(Calendar instance) {
+		return instance.get(Calendar.MONTH) + 1 + "";
+	}
+
+	public static String lastMonth(Calendar instance) {
+		int m = instance.get(Calendar.MONTH);
+		if (m == 0)
+			m = 12;
+		return m + "";
+	}
 
     //本月1号
     public static String thisMonthFirstDay(Calendar instance) {
@@ -86,8 +98,6 @@ public class DateClass {
         // 当前日期
         instance.add(Calendar.MONTH, 0);
         instance.set(Calendar.DAY_OF_MONTH, 1);
-
-        System.out.println(sdf.format(instance.getTime()));
 
         return sdf.format(instance.getTime());
     }
@@ -97,7 +107,6 @@ public class DateClass {
         Calendar instance = Calendar.getInstance();
         instance.set(Calendar.DAY_OF_WEEK,7);
         instance.add(Calendar.DAY_OF_MONTH, -14);
-        System.out.println(sdf.format(instance.getTime()));
         return sdf.format(instance.getTime());
     }
 
@@ -106,7 +115,6 @@ public class DateClass {
         Calendar instance = Calendar.getInstance();
         instance.set(Calendar.DAY_OF_WEEK,6);
         instance.add(Calendar.DAY_OF_MONTH, -7);
-        System.out.println(sdf.format(instance.getTime()));
         return sdf.format(instance.getTime());
     }
 
@@ -121,7 +129,6 @@ public class DateClass {
         //calendar.add(Calendar.MONTH, - 1);
         calendar.add(Calendar.YEAR, - 1);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
-        System.out.println("去年上月第一天"+sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime());
     }
 
@@ -131,7 +138,6 @@ public class DateClass {
         //calendar.set(Calendar.MONTH, month-1);
         calendar.add(Calendar.YEAR, -1);
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        System.out.println("去年同月最后一天"+sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime());
     }
 
@@ -139,7 +145,6 @@ public class DateClass {
         Calendar calendar=Calendar.getInstance();
         calendar.set(Calendar.MONTH,0);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
-        System.out.println("今年第一天"+sdf.format(calendar.getTime()));
         return sdf.format(calendar.getTime());
     }
 

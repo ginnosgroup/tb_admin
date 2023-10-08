@@ -426,9 +426,8 @@ public class DashboardController extends BaseController {
 		//dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastMonthData);
-		return new DashboardResponse(0,"success", resultList,
-				StringUtil.toInt(thisMonthFirstDay.substring(5,7)) > 10 ? thisMonthFirstDay.substring(5,7) : thisMonthFirstDay.substring(6,7),
-				StringUtil.toInt(lastMonthFirstDay.substring(5,7)) > 10 ? lastMonthFirstDay.substring(5,7) : lastMonthFirstDay.substring(6,7));
+		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
+				DateClass.lastMonth(Calendar.getInstance()));
 	}
 
 	/**
@@ -470,10 +469,8 @@ public class DashboardController extends BaseController {
 		//dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastYearThisMonthData);
-		return new DashboardResponse(0,"success", resultList,
-				StringUtil.toInt(thisMonthFirstDay.substring(5,7)) > 10 ? thisMonthFirstDay.substring(5,7) : thisMonthFirstDay.substring(6,7),
-				StringUtil.toInt(lastYearThisMonthFirstDay.substring(5,7)) > 10 ?
-						lastYearThisMonthFirstDay.substring(5,7) : lastYearThisMonthFirstDay.substring(6,7));
+		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
+				DateClass.lastMonth(Calendar.getInstance()));
 	}
 
 	/**
