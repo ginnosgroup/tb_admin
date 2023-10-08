@@ -793,8 +793,8 @@ public class VisaController extends BaseCommissionOrderController {
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {
 				Cell[] cells = sheet.getRow(i);
-System.out.println(i+" - cells.length: "+cells.length);
-System.out.println("cells0: "+cells[0]);
+                if(cells.length == 0)
+                	continue;
 				String _id = cells[0].getContents();
 				String _bonus = cells[15].getContents();
 				String _bonusDate = cells[16].getContents();
