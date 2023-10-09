@@ -135,8 +135,9 @@ public class Scheduled {
 				courseWeekStr += StringUtil.merge(schoolInstitutionCountDo.getCourseName(), "(",
 						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount(), "\n");
 		}
-		WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n\n",
-				schoolWeekStr, "\n\n", courseWeekStr));
+		if (_schoolWeekList.size() > 0)
+			WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n\n",
+					schoolWeekStr, "\n\n", courseWeekStr));
 	}
 
     //本月1号-本周五   上周六-本周五
