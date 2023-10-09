@@ -124,16 +124,20 @@ public class Scheduled {
 		String schoolWeekStr = "";
 		if (schoolWeekList.size() > 0) {
 			schoolWeekStr = "Top10申请学校列表:\n";
-			for (SchoolInstitutionCountDO schoolInstitutionCountDo : schoolWeekList)
-				schoolWeekStr += StringUtil.merge(schoolInstitutionCountDo.getName(), ":",
+			for(int i = 1; i <= schoolWeekList.size(); i ++) {
+				SchoolInstitutionCountDO schoolInstitutionCountDo = schoolWeekList.get(i);
+				schoolWeekStr += StringUtil.merge(i, ".", schoolInstitutionCountDo.getName(), ":",
 						schoolInstitutionCountDo.getCount(), "\n");
+			}
 		}
 		String courseWeekStr = "";
 		if (courseWeekList.size() > 0) {
 			courseWeekStr = "Top10申请专业列表:\n";
-			for (SchoolInstitutionCountDO schoolInstitutionCountDo : courseWeekList)
-				courseWeekStr += StringUtil.merge(schoolInstitutionCountDo.getCourseName(), "(",
+			for (int i = 1; i <= courseWeekList.size(); i++) {
+				SchoolInstitutionCountDO schoolInstitutionCountDo = courseWeekList.get(i);
+				courseWeekStr += StringUtil.merge(i, ".", schoolInstitutionCountDo.getCourseName(), "(",
 						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount(), "\n");
+			}
 		}
 		if (_schoolWeekList.size() > 0)
 			WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n\n",
