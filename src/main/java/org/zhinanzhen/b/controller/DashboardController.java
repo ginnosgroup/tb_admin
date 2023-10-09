@@ -376,30 +376,53 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRingRatio")
 	@ResponseBody
-	public DashboardResponse thisMonthRingRatio(HttpServletRequest request, HttpServletResponse response){
+	public DashboardResponse thisMonthRingRatio(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
+		
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if(adminUserLoginInfo == null)
+			return  new DashboardResponse(1,"请登录.",null);
+		List<Integer> regionIdList = new ArrayList<>();
+		if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				regionIdList.add(adminUserLoginInfo.getRegionId());
+				List<RegionDTO> _regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());// 顾问管理员返回本地区业绩组成
+				for (RegionDTO region : _regionList)
+					regionIdList.add(region.getId());
+			} else
+				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
+		} else if (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0)
+				regionIdList.add(adminUserLoginInfo.getRegionId());
+			else
+				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
+		}
+		
 		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String today = DateClass.today();
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay,today,"R",null);
 		List<DataDTO> resultList = new ArrayList<>();
+		
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0,7));
 		dataListThisMonth.forEach(dataDTO -> {
-			// thisMonthData.setDate(dataDTO.getDate());
-			thisMonthData.setServiceFee(new BigDecimal(thisMonthData.getServiceFee() + dataDTO.getServiceFee())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setClaimedCommission(
-					new BigDecimal(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
-							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setClaimCommission(
-					new BigDecimal(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission())
-							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setDeductionCommission(
-					new BigDecimal(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
-							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setRefunded(new BigDecimal(thisMonthData.getRefunded() + dataDTO.getRefunded())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
+			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
+				// thisMonthData.setDate(dataDTO.getDate());
+				thisMonthData.setServiceFee(new BigDecimal(thisMonthData.getServiceFee() + dataDTO.getServiceFee())
+						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				thisMonthData.setClaimedCommission(
+						new BigDecimal(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				thisMonthData.setClaimCommission(
+						new BigDecimal(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				thisMonthData.setDeductionCommission(
+						new BigDecimal(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				thisMonthData.setRefunded(new BigDecimal(thisMonthData.getRefunded() + dataDTO.getRefunded())
+						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
+			}
 		});
 		String lastMonthFirstDay = DateClass.lastMonthFirstDay(Calendar.getInstance());
 		String lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
@@ -407,21 +430,23 @@ public class DashboardController extends BaseController {
 		DataDTO lastMonthData = new DataDTO();
 		lastMonthData.setDate(lastMonthEndDay.substring(0,7));
 		dataListLastMonth.forEach(dataDTO -> {
-			lastMonthData.setDate(dataDTO.getDate());
-			lastMonthData.setServiceFee(new BigDecimal(lastMonthData.getServiceFee() + dataDTO.getServiceFee())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setClaimedCommission(
-					new BigDecimal(lastMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
-							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setClaimCommission(
-					new BigDecimal(lastMonthData.getClaimCommission() + dataDTO.getClaimCommission())
-							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setDeductionCommission(
-					new BigDecimal(lastMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
-							.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setRefunded(new BigDecimal(lastMonthData.getRefunded() + dataDTO.getRefunded())
-					.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			lastMonthData.setTotal(roundHalfUp(lastMonthData.getTotal() + dataDTO.getTotal()));
+			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
+				lastMonthData.setDate(dataDTO.getDate());
+				lastMonthData.setServiceFee(new BigDecimal(lastMonthData.getServiceFee() + dataDTO.getServiceFee())
+						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				lastMonthData.setClaimedCommission(
+						new BigDecimal(lastMonthData.getClaimedCommission() + dataDTO.getClaimedCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				lastMonthData.setClaimCommission(
+						new BigDecimal(lastMonthData.getClaimCommission() + dataDTO.getClaimCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				lastMonthData.setDeductionCommission(
+						new BigDecimal(lastMonthData.getDeductionCommission() + dataDTO.getDeductionCommission())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				lastMonthData.setRefunded(new BigDecimal(lastMonthData.getRefunded() + dataDTO.getRefunded())
+						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				lastMonthData.setTotal(roundHalfUp(lastMonthData.getTotal() + dataDTO.getTotal()));
+			}
 		});
 		//dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
@@ -435,36 +460,68 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceYearOnYear")
 	@ResponseBody
-	public DashboardResponse thisMonthYearOnYear(HttpServletRequest request, HttpServletResponse response){
+	public DashboardResponse thisMonthYearOnYear(HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		super.setGetHeader(response);
+		
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if(adminUserLoginInfo == null)
+			return  new DashboardResponse(1,"请登录.",null);
+		List<Integer> regionIdList = new ArrayList<>();
+		if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				regionIdList.add(adminUserLoginInfo.getRegionId());
+				List<RegionDTO> _regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());// 顾问管理员返回本地区业绩组成
+				for (RegionDTO region : _regionList)
+					regionIdList.add(region.getId());
+			} else
+				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
+		} else if (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0)
+				regionIdList.add(adminUserLoginInfo.getRegionId());
+			else
+				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
+		}
+		
 		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String today = DateClass.today();
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay,today,"R",null);
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
-		thisMonthData.setDate(today.substring(0,7));
+		thisMonthData.setDate(today.substring(0, 7));
 		dataListThisMonth.forEach(dataDTO -> {
-			thisMonthData.setDate(dataDTO.getDate());
-			thisMonthData.setServiceFee(roundHalfUp(thisMonthData.getServiceFee() + dataDTO.getServiceFee()));
-			thisMonthData.setClaimedCommission(roundHalfUp(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
-			thisMonthData.setClaimCommission(roundHalfUp(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission()));
-			thisMonthData.setDeductionCommission(roundHalfUp(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission()));
-			thisMonthData.setRefunded(roundHalfUp(thisMonthData.getRefunded() + dataDTO.getRefunded()));
-			thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
+			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
+				thisMonthData.setDate(dataDTO.getDate());
+				thisMonthData.setServiceFee(roundHalfUp(thisMonthData.getServiceFee() + dataDTO.getServiceFee()));
+				thisMonthData.setClaimedCommission(
+						roundHalfUp(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
+				thisMonthData.setClaimCommission(
+						roundHalfUp(thisMonthData.getClaimCommission() + dataDTO.getClaimCommission()));
+				thisMonthData.setDeductionCommission(
+						roundHalfUp(thisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission()));
+				thisMonthData.setRefunded(roundHalfUp(thisMonthData.getRefunded() + dataDTO.getRefunded()));
+				thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
+			}
 		});
 		String lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
 		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
 		List<DataDTO> dataListLastMonth = data.dataReport(lastYearThisMonthFirstDay,lastYearThisMonthLastDay,"R",null);
 		DataDTO lastYearThisMonthData = new DataDTO();
-		lastYearThisMonthData.setDate(lastYearThisMonthLastDay.substring(0,7));
+		lastYearThisMonthData.setDate(lastYearThisMonthLastDay.substring(0, 7));
 		dataListLastMonth.forEach(dataDTO -> {
-			lastYearThisMonthData.setDate(dataDTO.getDate());
-			lastYearThisMonthData.setServiceFee(roundHalfUp(lastYearThisMonthData.getServiceFee() + dataDTO.getServiceFee()));
-			lastYearThisMonthData.setClaimedCommission(roundHalfUp(lastYearThisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
-			lastYearThisMonthData.setClaimCommission(roundHalfUp(lastYearThisMonthData.getClaimCommission() + dataDTO.getClaimCommission()));
-			lastYearThisMonthData.setDeductionCommission(roundHalfUp(lastYearThisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission()));
-			lastYearThisMonthData.setRefunded(roundHalfUp(lastYearThisMonthData.getRefunded() + dataDTO.getRefunded()));
-			lastYearThisMonthData.setTotal(roundHalfUp(lastYearThisMonthData.getTotal() + dataDTO.getTotal()));
+			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
+				lastYearThisMonthData.setDate(dataDTO.getDate());
+				lastYearThisMonthData
+						.setServiceFee(roundHalfUp(lastYearThisMonthData.getServiceFee() + dataDTO.getServiceFee()));
+				lastYearThisMonthData.setClaimedCommission(
+						roundHalfUp(lastYearThisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
+				lastYearThisMonthData.setClaimCommission(
+						roundHalfUp(lastYearThisMonthData.getClaimCommission() + dataDTO.getClaimCommission()));
+				lastYearThisMonthData.setDeductionCommission(
+						roundHalfUp(lastYearThisMonthData.getDeductionCommission() + dataDTO.getDeductionCommission()));
+				lastYearThisMonthData
+						.setRefunded(roundHalfUp(lastYearThisMonthData.getRefunded() + dataDTO.getRefunded()));
+				lastYearThisMonthData.setTotal(roundHalfUp(lastYearThisMonthData.getTotal() + dataDTO.getTotal()));
+			}
 		});
 		//dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
