@@ -389,13 +389,11 @@ public class DashboardController extends BaseController {
 				List<RegionDTO> _regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());// 顾问管理员返回本地区业绩组成
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
-			} else
-				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
-		} else if (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0)
-				regionIdList.add(adminUserLoginInfo.getRegionId());
-			else
-				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
+			} else {
+				AdviserDTO adviserDTO = adviserService.getAdviserById(adminUserLoginInfo.getAdviserId());
+				if (adviserDTO != null)
+					regionIdList.add(adviserDTO.getRegionId());
+			}
 		}
 		
 		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
@@ -473,13 +471,11 @@ public class DashboardController extends BaseController {
 				List<RegionDTO> _regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());// 顾问管理员返回本地区业绩组成
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
-			} else
-				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
-		} else if (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0)
-				regionIdList.add(adminUserLoginInfo.getRegionId());
-			else
-				return new DashboardResponse(1, "地区数据异常,请联系管理员.", null);
+			} else {
+				AdviserDTO adviserDTO = adviserService.getAdviserById(adminUserLoginInfo.getAdviserId());
+				if (adviserDTO != null)
+					regionIdList.add(adviserDTO.getRegionId());
+			}
 		}
 		
 		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
