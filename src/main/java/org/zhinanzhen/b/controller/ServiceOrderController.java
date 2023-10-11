@@ -2065,6 +2065,8 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(16, i, "COE已下", cellFormat));
                 else if (so.getState().equalsIgnoreCase("CLOSE"))
                     sheet.addCell(new Label(16, i, "已关闭", cellFormat));
+                else if (so.getState().equalsIgnoreCase("WAIT"))
+                    sheet.addCell(new Label(16, i, "已提交MARA审核", cellFormat));
                 /*
                  * //旧系统状态废除 if (so.getReview() != null) { if
                  * (so.getState().equalsIgnoreCase("PENDING")) sheet.addCell(new Label(15, i,
