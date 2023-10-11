@@ -194,10 +194,13 @@ public class WXWorkServiceImpl implements WXWorkService {
                 } else {
                     if (serviceOrderDO.getCourseId() > 0){
                         SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDO.getCourseId());
-                        if (schoolInstitutionInfo != null)
-                            msg = msg
-                                    + "[ 留学 - " + schoolInstitutionInfo.getInstitutionTradingName() + "      专业 : "
-                                    + schoolInstitutionInfo.getSchoolCourseDO().getCourseName() +  " ] . \n";
+                        if (schoolInstitutionInfo != null) {
+							String name = schoolInstitutionInfo.getInstitutionTradingName();
+							if (StringUtil.isNotEmpty(name))
+								name = name.split(";")[0];
+							msg = msg + "[ 留学 - " + name + "      专业 : "
+									+ schoolInstitutionInfo.getSchoolCourseDO().getCourseName() + " ] . \n";
+                        } 
                     }
                 }
             }
