@@ -196,7 +196,7 @@ public class WXWorkServiceImpl implements WXWorkService {
                         SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDO.getCourseId());
                         if (schoolInstitutionInfo != null)
                             msg = msg
-                                    + "[ 留学 - " + schoolInstitutionInfo.getInstitutionName() + "      专业 : "
+                                    + "[ 留学 - " + schoolInstitutionInfo.getInstitutionTradingName() + "      专业 : "
                                     + schoolInstitutionInfo.getSchoolCourseDO().getCourseName() +  " ] . \n";
                     }
                 }
