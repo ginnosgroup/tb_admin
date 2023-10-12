@@ -73,8 +73,8 @@ public class ServiceOrderApplicantServiceImpl extends BaseService implements Ser
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
-		if (serviceOrderApplicantDto.getId() <= 0 || serviceOrderApplicantDto.getApplicantId() <= 0
-				|| serviceOrderApplicantDto.getServiceOrderId() <= 0)
+		if (serviceOrderApplicantDto.getId() <= 0 || (serviceOrderApplicantDto.getApplicantId() <= 0
+				&& serviceOrderApplicantDto.getServiceOrderId() <= 0))
 			return 0;
 		try {
 			int i = serviceOrderApplicantDao
