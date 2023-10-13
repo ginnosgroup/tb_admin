@@ -487,6 +487,9 @@
         <if test="isSettle != null">
             AND so.is_settle = #{isSettle}
         </if>
+        <if test="servicePackageId">
+            AND so.service_package_id = #{servicePackageId}
+        </if>
         ;
     </select>
 
@@ -668,6 +671,9 @@
         </if>
         <if test="isSettle != null">
             AND so.is_settle = #{isSettle}
+        </if>
+        <if test="servicePackageId">
+            AND so.service_package_id = #{servicePackageId}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};

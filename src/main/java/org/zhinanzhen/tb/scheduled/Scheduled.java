@@ -17,7 +17,6 @@ import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.WXWorkService;
-import org.zhinanzhen.b.service.impl.ExchangeRateServiceImpl;
 import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -39,8 +38,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import javax.annotation.Resource;
 
 /**
  * Created with IntelliJ IDEA.
@@ -189,7 +186,7 @@ public class Scheduled {
 			try {
 				serviceOrderDTOS = serviceOrderService.listServiceOrder(null, null, null, null, null, null, null, null,
 						null, lastSaturdayDate, endDate, null, null, null, null, null, null, null, null, null, null, 0,
-						0, false, 0, 9999, null, null, null, false, null);
+						0, false, 0, 9999, null, null, null, null, false, null);
                 for (Iterator iterator = serviceOrderDTOS.iterator() ; iterator.hasNext() ; ){
                     ServiceOrderDTO so = (ServiceOrderDTO) iterator.next();
                     if (so.getParentId() > 0){

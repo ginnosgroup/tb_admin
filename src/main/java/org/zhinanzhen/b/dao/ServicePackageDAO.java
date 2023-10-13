@@ -22,4 +22,6 @@ public interface ServicePackageDAO {
 
 	int delete(int id);
 
+	ServicePackageDO getEOIServiceCode(int servicePackageId);
+
 }
