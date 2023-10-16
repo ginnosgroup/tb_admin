@@ -139,6 +139,7 @@ public class Scheduled {
 						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount(), "\n");
 			}
 		}
+		LOG.info(StringUtil.merge("_schoolWeekList.size=", _schoolWeekList.size()));
 		if (_schoolWeekList.size() > 0)
 			WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问：上周新增学校服务订单", _schoolWeekList.size(), "个。仅供参考。\n\n",
 					schoolWeekStr, "\n\n", courseWeekStr));
