@@ -1,7 +1,14 @@
 package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
+import org.zhinanzhen.b.service.pojo.ServiceDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import java.util.List;
 
@@ -32,6 +39,7 @@ public interface ServiceOrderDAO {
                           @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
                           @Param("parentId") Integer parentId, @Param("applicantParentId") Integer applicantParentId,
                           @Param("isNotApproved") Boolean isNotApproved, @Param("serviceId") Integer serviceId,
+                          @Param("servicePackageId") Integer servicePackageId,
                           @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle);
 
     List<ServiceOrderDO> listServiceOrder(@Param("type") String type,
@@ -50,6 +58,7 @@ public interface ServiceOrderDAO {
                                           @Param("officialId") Integer officialId, @Param("officialTagId") Integer officialTagId,
                                           @Param("parentId") Integer parentId, @Param("applicantParentId") Integer applicantParentId,
                                           @Param("isNotApproved") Boolean isNotApproved, @Param("serviceId") Integer serviceId,
+                                          @Param("servicePackageId") Integer servicePackageId,
                                           @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle,
                                           @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy);
 
@@ -103,4 +112,5 @@ public interface ServiceOrderDAO {
                      @Param("id") Integer id);
     //获取多个申请人列表
     List<ApplicantListDO> ApplicantListByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
 }
