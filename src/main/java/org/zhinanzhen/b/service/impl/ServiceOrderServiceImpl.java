@@ -384,14 +384,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
                                  String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
                                  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
-                                 Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId,
+                                 Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
                                  Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
         return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
                 reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                 theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                 theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
-                officialTagId, parentId, applicantParentId, isNotApproved, serviceId, schoolId, isPay, isSettle);
+                officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle);
     }
 
     @Override
@@ -401,7 +401,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                   String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate,
                                                   List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
                                                   Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
-                                                  boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer schoolId,
+                                                  boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
                                                   Boolean isPay, Boolean isSettle) throws ServiceException {
         List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
         List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
@@ -421,7 +421,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                     theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                    parentId, applicantParentId, isNotApproved, serviceId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
+                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
             if (serviceOrderDoList == null)
                 return null;
         } catch (Exception e) {
@@ -664,13 +664,26 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         // 查询服务
         ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
-        if (serviceDo != null)
+        if (serviceDo != null) {
+            if ("EOI".equals(serviceDo.getCode())) {
+                ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(serviceOrderDto.getServicePackageId());
+                if (ObjectUtil.isNotNull(servicePackageDo)) {
+                    serviceDo.setCode(servicePackageDo.getType());
+                }
+            }
             serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+        }
         // 查询服务包类型
         if (serviceOrderDto.getServicePackageId() > 0) {
-            ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-            if (servicePackageDo != null)
-                serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+//            if ("EOI".equals(serviceOrderDto.getService().getCode())) {
+//
+//                if (servicePackageDo != null)
+//                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+//            } else {
+                ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+                if (servicePackageDo != null)
+                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+//            }
         }
         // 查询收款方式
         ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());

@@ -72,6 +72,31 @@
             num
         FROM b_service_package WHERE id = #{id, jdbcType=INTEGER};
     </select>
+
+    <select id="getEOIServiceCode" resultMap="ServicePackageMap" parameterType="integer">
+        SELECT
+            a.id,
+            a.gmt_create AS GmtCreate,
+            a.type,
+            a.service_id AS serviceId,
+            a.num,
+            b.code
+        FROM
+            b_service b
+        LEFT JOIN
+            b_service_package a
+        ON
+            b.id = a.service_id
+        WHERE
+            a.id = #{id, jdbcType=INTEGER};
+    </select>
+
+    <resultMap id="ServicePackageMap" type="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
+        <result column="id" property="id"/>
+        <result column="code" property="type"/>
+        <result column="serviceId" property="serviceId"/>
+        <result column="num" property="num"/>
+    </resultMap>
 	
 	<update id="delete" parameterType="java.lang.Integer">
         UPDATE b_service_package 
