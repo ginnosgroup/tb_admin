@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.ServicePackageTypeEnum;
 import org.zhinanzhen.b.service.ServiceService;
@@ -135,4 +136,14 @@ public class ServicePackageController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/getByType", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<ServicePackageDTO>> getByType(@RequestParam(value = "type") String type, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<ServicePackageDTO>>(0, servicePackageService.getByType(type));
+		} catch (ServiceException e) {
+			return new Response<List<ServicePackageDTO>>(1, e.getMessage(), null);
+		}
+	}
 }
