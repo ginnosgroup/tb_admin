@@ -1016,26 +1016,29 @@ public class VisaController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
 					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
 					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
-					sheet.addCell(new Label(6, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
 					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(8, i, visaDto.getCurrency(), cellFormat));
-					sheet.addCell(new Label(9, i, visaDto.getExchangeRate() + "", cellFormat));
-					sheet.addCell(new Label(10, i, visaDto.getAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(11, i, visaDto.getGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(12, i, visaDto.getDeductGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(13, i, visaDto.getExpectAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(14, i, visaDto.getExpectAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(15, i, visaDto.getBonus() + "", cellFormat));
+					sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
+					sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
+					sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(14, i, visaDto.getGstAUD() + "", cellFormat));
+					sheet.addCell(new Label(15, i, visaDto.getDeductGstAUD() + "", cellFormat));
+					sheet.addCell(new Label(16, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(17, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(18, i, visaDto.getBonus() + "", cellFormat));
 					if (visaDto.getBonusDate() != null)
-						sheet.addCell(new Label(16, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-					sheet.addCell(new Label(17, i, visaDto.getBankCheck(), cellFormat));
-					sheet.addCell(new Label(18, i, visaDto.isChecked() + "", cellFormat));
-					sheet.addCell(new Label(19, i, visaDto.getAdviserName(), cellFormat));
+						sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+					sheet.addCell(new Label(20, i, visaDto.getBankCheck(), cellFormat));
+					sheet.addCell(new Label(21, i, visaDto.isChecked() + "", cellFormat));
+					sheet.addCell(new Label(22, i, visaDto.getAdviserName(), cellFormat));
 					if (visaDto.getState() != null)
-						sheet.addCell(new Label(20, i, getStateStr(visaDto.getState()), cellFormat));
+						sheet.addCell(new Label(23, i, getStateStr(visaDto.getState()), cellFormat));
 					if (visaDto.getKjApprovalDate() != null)
-						sheet.addCell(new Label(21, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-					sheet.addCell(new Label(22, i, visaDto.getRemarks(), cellFormat));
+						sheet.addCell(new Label(24, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+					sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
 					i++;
 				}
 				wbe.write();
