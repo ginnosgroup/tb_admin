@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -18,5 +19,6 @@ public interface ServicePackageService {
 	ServicePackageDTO getById(int id) throws ServiceException;
 
 	int delete(int id) throws ServiceException;
-
+	// 根据type获取服务包相关信息
+	List<ServicePackageDTO> getByType(String type) throws ServiceException;
 }

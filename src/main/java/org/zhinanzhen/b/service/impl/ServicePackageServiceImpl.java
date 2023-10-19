@@ -145,4 +145,25 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 		}
 	}
 
+    @Override
+    public List<ServicePackageDTO> getByType(String type) throws ServiceException {
+		if (type == null) {
+			ServiceException se = new ServiceException("type is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		List<ServicePackageDTO> servicePackageDto = null;
+		try {
+			servicePackageDto = servicePackageDao.getByType(type);
+			if (servicePackageDto == null)
+				return null;
+//			servicePackageDto = mapper.map(servicePackageDo, ServicePackageDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+		return servicePackageDto;
+    }
+
 }

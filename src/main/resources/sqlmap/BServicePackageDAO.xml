@@ -91,6 +91,31 @@
             a.id = #{id, jdbcType=INTEGER};
     </select>
 
+    <select id="getByType" resultMap="getServicePackgeByType" parameterType="string">
+        SELECT
+            a.id,
+            a.gmt_create AS GmtCreate,
+            a.type,
+            a.service_id AS serviceId,
+            a.num,
+            b.`name`,
+            b.code
+        FROM
+            b_service b
+            LEFT JOIN b_service_package a ON b.id = a.service_id
+        WHERE
+            a.type = #{type,jdbcType=VARCHAR}
+    </select>
+
+    <resultMap id="getServicePackgeByType" type="org.zhinanzhen.b.service.pojo.ServicePackageDTO">
+        <result column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="serviceId" property="serviceId"/>
+        <result column="code" property="serviceCode"/>
+        <result column="name" property="serviceName"/>
+        <result column="num" property="num"/>
+    </resultMap>
+
     <resultMap id="ServicePackageMap" type="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
         <result column="id" property="id"/>
         <result column="code" property="type"/>
