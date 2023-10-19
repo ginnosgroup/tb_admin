@@ -1376,8 +1376,8 @@ public class ServiceOrderController extends BaseController {
                 throw se;
             }
             if (!"OVST".equals(serviceOrderDto.getType()) && serviceOrderDto.isPay()
-                    && serviceOrderDto.getPaymentVoucherImageUrl1() == null
-                    && serviceOrderDto.getPaymentVoucherImageUrl2() == null) {
+                    && StringUtil.isEmpty(serviceOrderDto.getPaymentVoucherImageUrl1())
+                    && StringUtil.isEmpty(serviceOrderDto.getPaymentVoucherImageUrl2())) {
                 ServiceException se = new ServiceException("支付凭证不能为空!");
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                 throw se;
