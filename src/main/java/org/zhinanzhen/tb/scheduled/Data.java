@@ -192,8 +192,7 @@ public class Data extends BaseService {
 
             //计算dataDTOList每一行的total值
             dataDTOList.forEach(dataDTO -> {
-                //dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments());
-                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()-dataDTO.getRefunded()); // 临时去掉adjustments＆减去refunded
+                dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments()-dataDTO.getRefunded());
             });
 
             //开始计算全地区的顾问total排名    ---->dataDTOList
