@@ -679,15 +679,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         // 查询服务包类型
         if (serviceOrderDto.getServicePackageId() > 0) {
-//            if ("EOI".equals(serviceOrderDto.getService().getCode())) {
-//
-//                if (servicePackageDo != null)
-//                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
-//            } else {
+            ServicePackageDO servicePackageDAOById = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+            if ("EOI".equals(servicePackageDAOById.getType())) {
+                ServicePackageDTO servicePackageDTO = servicePackageDao.getEOIService(serviceOrderDto.getServicePackageId());
+                if (ObjectUtil.isNotNull(servicePackageDTO)) {
+                    serviceOrderDto.setServicePackage(servicePackageDTO);
+                }
+            } else {
                 ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
                 if (servicePackageDo != null)
                     serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
-//            }
+            }
         }
         // 查询收款方式
         ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());

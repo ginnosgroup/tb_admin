@@ -107,6 +107,31 @@
             a.type = #{type,jdbcType=VARCHAR}
     </select>
 
+<!--    <select id="getEOIService" resultMap="getServicePackgeForEOI" parameterType="integer">-->
+    <select id="getEOIService" resultType="org.zhinanzhen.b.service.pojo.ServicePackageDTO" parameterType="integer">
+        SELECT
+            b.id,
+            b.type,
+            b.num,
+            a.`name` AS serviceName,
+            a.id AS serviceId,
+            a.`code` AS serviceCode
+        FROM
+            b_service_package b
+                LEFT JOIN b_service a ON b.service_id = a.id
+        WHERE
+            b.id = #{servicePackageId,jdbcType=INTEGER}
+    </select>
+
+<!--    <resultMap id="getServicePackgeForEOI" type="org.zhinanzhen.b.service.pojo.ServicePackageDTO">-->
+<!--        <result column="" property=""/>-->
+<!--        <result column="" property=""/>-->
+<!--        <result column="" property=""/>-->
+<!--        <result column="" property=""/>-->
+<!--        <result column="" property=""/>-->
+<!--        <result column="" property=""/>-->
+<!--    </resultMap>-->
+
     <resultMap id="getServicePackgeByType" type="org.zhinanzhen.b.service.pojo.ServicePackageDTO">
         <result column="id" property="id"/>
         <result column="type" property="type"/>

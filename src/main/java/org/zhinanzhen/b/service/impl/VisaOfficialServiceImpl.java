@@ -587,11 +587,19 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
             if (serviceAssessDO != null)
                 serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-            // 查询服务包类型
+            // 查询服务包类型  todo 添加EOI服务包
             if (serviceOrderDto.getServicePackageId() > 0) {
-                ServicePackageDO servicePackageDo = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
-                if (servicePackageDo != null)
-                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+                ServicePackageDO servicePackageDAOById = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
+                if ("EOI".equals(servicePackageDAOById.getType())) {
+                    ServicePackageDTO servicePackageDTO = servicePackageDAO.getEOIService(serviceOrderDto.getServicePackageId());
+                    if (ObjectUtil.isNotNull(servicePackageDTO)) {
+                        serviceOrderDto.setServicePackage(servicePackageDTO);
+                    }
+                } else {
+                    ServicePackageDO servicePackageDo = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
+                    if (servicePackageDo != null)
+                        serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+                }
             }
             visaOfficialDto.setServiceOrder(serviceOrderDto);
             ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId());

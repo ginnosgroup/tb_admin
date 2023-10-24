@@ -1,9 +1,6 @@
 package org.zhinanzhen.b.controller;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,6 +14,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -57,6 +56,7 @@ import jxl.write.WritableSheet;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visa")
+@Slf4j
 public class VisaController extends BaseCommissionOrderController {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(VisaController.class);
@@ -772,7 +772,6 @@ public class VisaController extends BaseCommissionOrderController {
 					serviceException.printStackTrace();
 				}
 			});
-
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
