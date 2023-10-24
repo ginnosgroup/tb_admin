@@ -151,6 +151,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         try {
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
+            ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
+            if ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServicePackageId() == 0) {
+                serviceOrderDo.setApplicantId(0);
+            }
             if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
                 serviceOrderDto.setId(serviceOrderDo.getId());
                 return serviceOrderDto.getId();
