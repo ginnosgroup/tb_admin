@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.RNodeFactory;
+import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.RefundService;
+import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
@@ -54,6 +56,9 @@ public class RefundController extends BaseController {
 
 	@Resource
 	RefundService refundService;
+	
+	@Resource
+	ExchangeRateService exchangeRateService;
 
 	@Resource
 	RNodeFactory rNodeFactory;
@@ -101,6 +106,11 @@ public class RefundController extends BaseController {
 				return new Response<Integer>(1, "退款金额不能大于实付金额.", 0);
 			if (refundDto.getAdviserId() <= 0 && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))
 				refundDto.setAdviserId(getAdviserId(request));
+			if (refundDto.getExchangeRate() == 0) {
+				ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
+				if (ObjectUtil.isNotNull(exchangeRateDto))
+					refundDto.setExchangeRate(exchangeRateDto.getRate());
+			}
 			if (refundService.addRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());
 			} else {

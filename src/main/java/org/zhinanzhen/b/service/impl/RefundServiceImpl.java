@@ -229,6 +229,14 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			refundDto.setServiceName(StringUtil.merge(serviceDO.getName(),  "-" , serviceDO.getCode()));
 			refundDto.setKjApprovalDate(visaDO.getKjApprovalDate());
 		}
+		if ("AUD".equalsIgnoreCase(refundDto.getCurrencyType()) && refundDto.getExchangeRate() > 0) {
+			refundDto.setAmountAUD(refundDto.getAmount());
+			refundDto.setAmountCNY(roundHalfUp2(refundDto.getAmount() * refundDto.getExchangeRate()));
+		}
+		if ("CNY".equalsIgnoreCase(refundDto.getCurrencyType()) && refundDto.getExchangeRate() > 0) {
+			refundDto.setAmountAUD(roundHalfUp2(refundDto.getAmount() / refundDto.getExchangeRate()));
+			refundDto.setAmountCNY(refundDto.getAmount());
+		}
 	}
 
 }

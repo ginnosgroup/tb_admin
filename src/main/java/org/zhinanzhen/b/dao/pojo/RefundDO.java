@@ -71,6 +71,8 @@ public class RefundDO implements Serializable {
 	private String refundDetail;
 
 	private String currencyType;
+	
+	private double exchangeRate;
 
 	private String accountName;
 

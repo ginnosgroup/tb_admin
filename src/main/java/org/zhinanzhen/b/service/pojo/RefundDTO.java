@@ -38,5 +38,13 @@ public class RefundDTO extends RefundDO {
 	@Getter
 	@Setter
 	private Date kjApprovalDate;
+	
+	@Getter
+	@Setter
+	private double amountAUD;
+	
+	@Getter
+	@Setter
+	private double amountCNY;
 
 }
