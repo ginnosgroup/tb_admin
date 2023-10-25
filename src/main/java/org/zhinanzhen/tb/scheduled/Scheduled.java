@@ -121,18 +121,18 @@ public class Scheduled {
 		String schoolWeekStr = "";
 		if (schoolWeekList.size() > 0) {
 			schoolWeekStr = "Top10申请学校列表:\n";
-			for(int i = 1; i <= schoolWeekList.size(); i ++) {
+			for (int i = 0; i < schoolWeekList.size(); i++) {
 				SchoolInstitutionCountDO schoolInstitutionCountDo = schoolWeekList.get(i);
-				schoolWeekStr += StringUtil.merge(i, ".", schoolInstitutionCountDo.getName(), ":",
+				schoolWeekStr += StringUtil.merge(i + 1, ".", schoolInstitutionCountDo.getName(), ":",
 						schoolInstitutionCountDo.getCount(), "\n");
 			}
 		}
 		String courseWeekStr = "";
 		if (courseWeekList.size() > 0) {
 			courseWeekStr = "Top10申请专业列表:\n";
-			for (int i = 1; i <= courseWeekList.size(); i++) {
+			for (int i = 0; i < courseWeekList.size(); i++) {
 				SchoolInstitutionCountDO schoolInstitutionCountDo = courseWeekList.get(i);
-				courseWeekStr += StringUtil.merge(i, ".", schoolInstitutionCountDo.getCourseName(), "(",
+				courseWeekStr += StringUtil.merge(i + 1, ".", schoolInstitutionCountDo.getCourseName(), "(",
 						schoolInstitutionCountDo.getName(), "):", schoolInstitutionCountDo.getCount(), "\n");
 			}
 		}
