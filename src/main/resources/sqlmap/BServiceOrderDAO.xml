@@ -1251,4 +1251,14 @@ WHERE
 	OR id = #{serviceOrderId}
     </select>
 
+    <select id="getDeriveOrder" resultType="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
+        SELECT
+            id,
+            service_package_id AS servicePackageId
+        FROM
+            b_service_order
+        WHERE
+            parent_id = #{id,jdbcType=INTEGER}
+    </select>
+
 </mapper>

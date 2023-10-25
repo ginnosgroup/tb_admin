@@ -591,6 +591,20 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (serviceOrderDto.getServicePackageId() > 0) {
                 ServicePackageDO servicePackageDAOById = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
                 if ("EOI".equals(servicePackageDAOById.getType())) {
+
+                    // 主订单配置EOI子订单code集合
+                    if (serviceOrderDto.getServicePackageId() == 0) {
+                        StringBuilder eoiList = new StringBuilder();
+                        List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
+                        if (deriveOrder != null && deriveOrder.size() > 0) {
+                            for (ServiceOrderDTO e : deriveOrder) {
+                                ServicePackageDTO eoiService = servicePackageDAO.getEOIService(e.getServicePackageId());
+                                eoiList.append(eoiService.getServiceCode()).append(",");
+                            }
+                        }
+                        serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+                    }
+
                     ServicePackageDTO servicePackageDTO = servicePackageDAO.getEOIService(serviceOrderDto.getServicePackageId());
                     if (ObjectUtil.isNotNull(servicePackageDTO)) {
                         serviceOrderDto.setServicePackage(servicePackageDTO);
@@ -601,6 +615,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
                 }
             }
+
+
             visaOfficialDto.setServiceOrder(serviceOrderDto);
             ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId());
             if(servicePackagePriceDO!=null) {

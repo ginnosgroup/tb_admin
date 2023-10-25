@@ -670,6 +670,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
         if (serviceDo != null) {
             if ("EOI".equals(serviceDo.getCode())) {
+                if (serviceOrderDto.getServicePackageId() == 0) {
+                    StringBuilder eoiList = new StringBuilder();
+                    List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
+                    if (deriveOrder != null && deriveOrder.size() > 0) {
+                        for (ServiceOrderDTO e : deriveOrder) {
+                            ServicePackageDTO eoiService = servicePackageDao.getEOIService(e.getServicePackageId());
+                            eoiList.append(eoiService.getServiceCode()).append(",");
+                        }
+                    }
+                    serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+                }
                 ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(serviceOrderDto.getServicePackageId());
                 if (ObjectUtil.isNotNull(servicePackageDo)) {
                     serviceDo.setCode(servicePackageDo.getType());

@@ -40,6 +40,8 @@ public class ServiceOrderDTO {
 	
 	private int applicantParentId;
 
+	private String eoiList;
+
 	private int servicePackageId;
 
 	private ServicePackageDTO servicePackage;
