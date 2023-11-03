@@ -5,6 +5,7 @@ import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
@@ -679,7 +680,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             eoiList.append(eoiService.getServiceCode()).append(",");
                         }
                     }
-                    serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+                    if (StringUtils.isNotBlank(String.valueOf(eoiList))) {
+                        serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+                    }
                 }
                 ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(serviceOrderDto.getServicePackageId());
                 if (ObjectUtil.isNotNull(servicePackageDo)) {
