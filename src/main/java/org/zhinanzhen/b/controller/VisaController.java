@@ -823,6 +823,8 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (BiffException | IOException | ParseException e) {
 			return new Response<Integer>(1, "上传失败:" + e.getMessage(), 0);
 		}
+		if (StringUtil.isNotEmpty(message))
+			LOG.warn(message);
 		return new Response<Integer>(0, message, n);
 	}
 

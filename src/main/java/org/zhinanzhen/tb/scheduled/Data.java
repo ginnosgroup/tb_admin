@@ -221,8 +221,8 @@ public class Data extends BaseService {
 //                area.setTotal(new BigDecimal(area.getServiceFee()+area.getClaimCommission()+area.getDeductionCommission()+area.getAdjustments())
 //                        .setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
 				area.setTotal(
-						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission() - area.getRefunded())
-								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()); // 临时去掉adjustments＆减去refunded
+						new BigDecimal(area.getServiceFee() + area.getClaimCommission() + area.getDeductionCommission() + area.getAdjustments() - area.getRefunded())
+								.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
             });
 
 
