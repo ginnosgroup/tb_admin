@@ -105,6 +105,10 @@
             LEFT JOIN b_service_package a ON b.id = a.service_id
         WHERE
             a.type = #{type,jdbcType=VARCHAR}
+        AND
+            a.is_delete = 0
+        AND
+            b.code != '190'
     </select>
 
 <!--    <select id="getEOIService" resultMap="getServicePackgeForEOI" parameterType="integer">-->

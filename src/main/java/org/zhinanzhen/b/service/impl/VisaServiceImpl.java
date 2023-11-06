@@ -1,17 +1,19 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Synchronized;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
+import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -23,9 +25,11 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
@@ -90,6 +94,14 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	@Resource
 	private CustomerInformationDAO customerInformationDAO;
 
+	@Resource
+	private ServicePackageDAO servicePackageDAO;
+
+	@Resource
+	private  VisaOfficialDao visaOfficialDao;
+
+	@Resource
+	private VisaOfficialService visaOfficialService;
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -106,6 +118,25 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			if (visaDao.addVisa(visaDo) > 0) {
 				visaDto.setId(visaDo.getId());
+//				// EOI创建子订单的文案佣金订单
+//				ServiceOrderDO mainServiceOrder = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
+//				if (ObjectUtil.isNotNull(mainServiceOrder) && "EOI".equals(serviceDao.getServiceById(mainServiceOrder.getServiceId()).getCode())) {
+//					List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(mainServiceOrder.getId());
+//					if (deriveOrder != null && deriveOrder.size() > 0) {
+//						deriveOrder.forEach(e->{
+//							visaDo.setServiceOrderId(e.getId());
+//							VisaOfficialDTO visaDTO = BuildVisaDTO(visaDo, e);
+//							try {
+//								VisaOfficialDTO byServiceOrderId1 = visaOfficialService.getByServiceOrderId(e.getId());
+//								if (ObjectUtil.isNull(byServiceOrderId1)) {
+//									int i = visaOfficialService.addVisa(visaDTO);
+//								}
+//							} catch (ServiceException ex) {
+//								throw new RuntimeException(ex);
+//							}
+//						});
+//					}
+//				}
 				return visaDo.getId();
 			} else {
 				return 0;
@@ -115,6 +146,118 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	private VisaOfficialDTO BuildVisaDTO(VisaDO visaDo, ServiceOrderDTO serviceOrderDto) {
+		int userId = visaDo.getUserId();
+		Date handlingDateTmp = visaDo.getHandlingDate();
+		long handlingDate = handlingDateTmp.getTime();
+		int receiveTypeId = visaDo.getReceiveTypeId();
+		Date receiveDateTmp = visaDo.getReceiveDate();
+		long receiveDate = receiveDateTmp.getTime();
+		int serviceId = visaDo.getServiceId();
+		int serviceOrderId = visaDo.getServiceOrderId();
+		int installment = visaDo.getInstallment();
+		String paymentVoucherImageUrl1 = visaDo.getPaymentVoucherImageUrl1();
+		String paymentVoucherImageUrl2 = visaDo.getPaymentVoucherImageUrl2();
+		String paymentVoucherImageUrl3 = visaDo.getPaymentVoucherImageUrl3();
+		String paymentVoucherImageUrl4 = visaDo.getPaymentVoucherImageUrl4();
+		String paymentVoucherImageUrl5 = visaDo.getPaymentVoucherImageUrl5();
+		String visaVoucherImageUrl = visaDo.getVisaVoucherImageUrl();
+		double receivable = visaDo.getReceivable();
+		double received = visaDo.getReceived();
+		double perAmount = visaDo.getPerAmount();
+		double amount = visaDo.getAmount();
+		String currency = visaDo.getCurrency();
+		double exchangeRate = visaDo.getExchangeRate();
+		String invoiceNumber = visaDo.getInvoiceNumber();
+		int adviserId = visaDo.getAdviserId();
+		int maraId = visaDo.getMaraId();
+		int officialId = visaDo.getOfficialId();
+		String remarks = visaDo.getRemarks();
+		String verifyCode = visaDo.getVerifyCode();
+
+		VisaOfficialDTO visaDto = new VisaOfficialDTO();
+		double _receivable = 0.00;
+		if (StringUtil.isNotEmpty(String.valueOf(receivable)))
+			_receivable = Double.parseDouble(String.valueOf(receivable));
+		double _received = 0.00;
+		if (StringUtil.isNotEmpty(String.valueOf(received)))
+			_received = Double.parseDouble(String.valueOf(received));
+		visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.PENDING.toString());
+		if (StringUtil.isNotEmpty(String.valueOf(userId)))
+			visaDto.setUserId(Integer.parseInt(String.valueOf(userId)));
+		visaDto.setCode(UUID.randomUUID().toString());
+		if (StringUtil.isNotEmpty(String.valueOf(handlingDate)))
+			visaDto.setHandlingDate(new Date(Long.parseLong(String.valueOf(handlingDate))));
+		if (receiveTypeId != 0)
+			visaDto.setReceiveTypeId(Integer.parseInt(String.valueOf(receiveTypeId)));
+		if (StringUtil.isNotEmpty(String.valueOf(receiveDate)))
+			visaDto.setReceiveDate(new Date(Long.parseLong(String.valueOf(receiveDate))));
+		if (StringUtil.isNotEmpty(String.valueOf(serviceId)))
+			visaDto.setServiceId(Integer.parseInt(String.valueOf(serviceId)));
+		if (String.valueOf(serviceOrderId) != null && serviceOrderId > 0)
+			visaDto.setServiceOrderId(serviceOrderId);
+		if (String.valueOf(installment) != null)
+			visaDto.setInstallment(installment);
+		if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+			visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+		else
+			visaDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+		if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+			visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+		else
+			visaDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+		if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+			visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+		else
+			visaDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+		if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+			visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+		else
+			visaDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+		if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+			visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+		else
+			visaDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+		if (StringUtil.isNotEmpty(visaVoucherImageUrl))
+			visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
+		else
+			visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
+		if (StringUtil.isNotEmpty(String.valueOf(perAmount)))
+			visaDto.setPerAmount(Double.parseDouble(String.valueOf(perAmount)));
+		if (StringUtil.isNotEmpty(String.valueOf(amount)))
+			visaDto.setAmount(Double.parseDouble(String.valueOf(amount)));
+		if (visaDto.getPerAmount() < visaDto.getAmount())
+			return null;
+		if (StringUtil.isNotEmpty(currency))
+			visaDto.setCurrency(currency);
+		if (StringUtil.isNotEmpty(String.valueOf(exchangeRate)))
+			visaDto.setExchangeRate(Double.parseDouble(String.valueOf(exchangeRate)));
+		visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
+		if (StringUtil.isNotEmpty(invoiceNumber))
+			visaDto.setInvoiceNumber(invoiceNumber);
+		if (StringUtil.isNotEmpty(String.valueOf(adviserId))) {
+			visaDto.setAdviserId(StringUtil.toInt(String.valueOf(adviserId)));
+		}
+		if (StringUtil.isNotEmpty(String.valueOf(maraId)))
+			visaDto.setMaraId(StringUtil.toInt(String.valueOf(maraId)));
+		if (StringUtil.isNotEmpty(String.valueOf(officialId))) {
+			visaDto.setOfficialId(StringUtil.toInt(String.valueOf(officialId)));
+		}
+		if (StringUtil.isNotEmpty(remarks))
+			visaDto.setRemarks(remarks);
+		double commission = visaDto.getAmount();
+		visaDto.setGst(commission / 11);
+		visaDto.setDeductGst(commission - visaDto.getGst());
+		visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+		visaDto.setExpectAmount(commission);
+
+		visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+		if (StringUtil.isNotEmpty(verifyCode))// 只给第一笔赋值verifyCode
+			visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+		visaDto.setKjApprovalDate(new Date());
+		return visaDto;
 	}
 
 	@Override

@@ -242,6 +242,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             Double rate = 0.00;
             VisaOfficialDO visaOfficialDO = mapper.map(visaOfficialDTO, VisaOfficialDO.class);
             ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
+            ServiceOrderDO serviceParentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
+            boolean pay = false;
+            if (ObjectUtil.isNotNull(serviceParentOrder)) {
+                pay = serviceParentOrder.isPay();
+            }
             List<ServiceOrderDO> list = new ArrayList<>();
             list = serviceOrderDao.listByParentId(serviceOrderDO.getId());
             List<Integer> monthlist = new ArrayList<Integer>() {
@@ -345,14 +350,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
             }
             //打包服务计算
-            else if (serviceOrderDO.getServicePackageId() != 0) {
+            else if (serviceOrderDO.getServicePackageId() != 0 && pay) {
                 ServicePackageDO packageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
                 //eoi计算
                 if (packageDO.getType().equals("EOI")) {
                     VisaDO visaDO = new VisaDO();
+                    RefundDO refund = new RefundDO();
                     CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
                     visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
-                    RefundDO refund = refundDAO.getRefundByVisaId(visaDO.getId());
+                    if (ObjectUtil.isNotNull(visaDO)) {
+                        refund = refundDAO.getRefundByVisaId(visaDO.getId());
+                    }
                     if (refund == null) {
                         commissionAmountDTO.setRefund(0.00);
                     } else {
@@ -380,6 +388,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     if (commissionAmountDTO.getRuler() == 0) {
+                        if (ObjectUtil.isNull(visaDO)) {
+                            visaDO = new VisaDO();
+                            visaDO.setAmount(0);
+                        }
                         commissionAmountDTO.setPredictCommissionAmount((visaDO.getAmount() - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince())/1.1);
                         if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                             commissionAmountDTO.setPredictCommissionAmount(0.00);

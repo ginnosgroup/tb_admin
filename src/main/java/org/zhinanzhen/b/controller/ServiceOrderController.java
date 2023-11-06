@@ -445,6 +445,9 @@ public class ServiceOrderController extends BaseController {
                                 msg += "服务包不存在(" + id + "),请检查参数. ";
                                 continue;
                             }
+                            if ("true".equals(isPay)) {
+                                serviceOrderDto.setPay(true);
+                            }
                             serviceOrderDto.setServicePackageId(id);
                             ServicePackageDTO servicePackageDto = servicePackageService.getById(id);
                             if (servicePackageDto == null)
@@ -452,7 +455,7 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setServiceAssessId(
                                     "CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
                             serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
-                            serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
+//                            serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
                             serviceOrderDto.setVerifyCode(null); // 独立技术移民子订单都没有对账Code
                             if (StringUtil.isNotEmpty(maraId))
                                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
@@ -2578,6 +2581,7 @@ public class ServiceOrderController extends BaseController {
                 return new Response<ServiceOrderDTO>(0, id + "", null);
             }
         } catch (ServiceException e) {
+            System.out.println("---------------------------1");
             return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
         }
     }

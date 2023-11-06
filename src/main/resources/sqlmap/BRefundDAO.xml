@@ -301,7 +301,7 @@
             refund_detail_id AS refundDetailId,
             refund_detail AS refundDetail,
             currency_type AS currencyType,
-            exchange_rate AS exchangeRate,
+--             exchange_rate AS exchangeRate,
             account_name AS accountName,
             bank_name AS bankName,
             bsb,

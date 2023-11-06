@@ -1254,7 +1254,8 @@ WHERE
     <select id="getDeriveOrder" resultType="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         SELECT
             id,
-            service_package_id AS servicePackageId
+            service_package_id AS servicePackageId,
+            parent_id AS parentId
         FROM
             b_service_order
         WHERE
