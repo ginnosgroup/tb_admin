@@ -350,7 +350,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
             }
             //打包服务计算
-            else if (serviceOrderDO.getServicePackageId() != 0 && pay) {
+            else if (serviceOrderDO.getServicePackageId() != 0) {
                 ServicePackageDO packageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
                 //eoi计算
                 if (packageDO.getType().equals("EOI")) {
@@ -360,6 +360,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
                     if (ObjectUtil.isNotNull(visaDO)) {
                         refund = refundDAO.getRefundByVisaId(visaDO.getId());
+                    } else {
+                        return -1;
                     }
                     if (refund == null) {
                         commissionAmountDTO.setRefund(0.00);

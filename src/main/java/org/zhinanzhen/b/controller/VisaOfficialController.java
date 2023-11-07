@@ -181,6 +181,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
             if (visaOfficialService.addVisa(visaDto) > 0)
                 visaOfficialDTOList.add(visaDto);
+            else
+                return new Response<>(-1,"主订单未支付");
             _perAmount += visaDto.getPerAmount();
             _amount += visaDto.getAmount();
 
