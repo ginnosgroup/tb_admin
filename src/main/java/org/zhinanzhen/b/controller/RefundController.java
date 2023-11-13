@@ -29,6 +29,7 @@ import org.zhinanzhen.b.service.pojo.RefundDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.ObjectUtil;
@@ -59,6 +60,9 @@ public class RefundController extends BaseController {
 	
 	@Resource
 	ExchangeRateService exchangeRateService;
+	
+	@Resource
+	RegionService regionService;
 
 	@Resource
 	RNodeFactory rNodeFactory;
@@ -107,9 +111,15 @@ public class RefundController extends BaseController {
 			if (refundDto.getAdviserId() <= 0 && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))
 				refundDto.setAdviserId(getAdviserId(request));
 			if (refundDto.getExchangeRate() == 0) {
-				ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
-				if (ObjectUtil.isNotNull(exchangeRateDto))
-					refundDto.setExchangeRate(exchangeRateDto.getRate());
+				if (regionService.isCNByAdviserId(refundDto.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
+					double qRate = exchangeRateService.getQuarterExchangeRate();
+					LOG.info(StringUtil.merge("为退款订单(", refundDto.getId(), ")设置季度固定汇率:", qRate));
+					refundDto.setExchangeRate(qRate);
+				} else {
+					ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
+					if (ObjectUtil.isNotNull(exchangeRateDto))
+						refundDto.setExchangeRate(exchangeRateDto.getRate());
+				}
 			}
 			if (refundService.addRefund(refundDto) > 0) {
 				return new Response<Integer>(0, refundDto.getId());

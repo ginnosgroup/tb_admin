@@ -70,6 +70,9 @@ public class DownExcelController extends BaseController {
 
 	@Resource
 	RefundService refundService;
+	
+	@Resource
+	RegionService regionService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -556,7 +559,7 @@ public class DownExcelController extends BaseController {
 	}
 
 	public HSSFWorkbook  exportDataToExcel(Map.Entry<String, List<CommissionReport>> entry, Integer regionId,  String startDate, String endDate) throws IOException, ServiceException {
-		boolean isCn = isCN(regionId);
+		boolean isCn = regionService.isCN(regionId);
 
 			int i = 1;
 			List<CommissionReport> commissionReportList = entry.getValue();

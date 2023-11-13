@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.EverydayExchangeRateDAO;
 import org.zhinanzhen.b.dao.pojo.EverydayExchangeRateDO;
@@ -20,6 +21,9 @@ public class ExchangeRateServiceImpl extends BaseService implements ExchangeRate
 
 	@Resource
 	private EverydayExchangeRateDAO everydayExchangeRateDao;
+	
+	@Value("${defaultExchangeRate}")
+    private double quarterExchangeRate;
 
 	@Override
 	public ExchangeRateDTO getExchangeRate() throws ServiceException {
@@ -28,6 +32,11 @@ public class ExchangeRateServiceImpl extends BaseService implements ExchangeRate
 			return new ExchangeRateDTO(everydayExchangeRateDo.getZnzExchangeRate(),
 					everydayExchangeRateDo.getUpdateTime());
 		return null;
+	}
+	
+	@Override
+	public double getQuarterExchangeRate() throws ServiceException {
+		return quarterExchangeRate;
 	}
 
 	@Override

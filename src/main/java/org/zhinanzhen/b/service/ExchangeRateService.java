@@ -9,6 +9,8 @@ public interface ExchangeRateService {
 
 	ExchangeRateDTO getExchangeRate() throws ServiceException;
 	
+	double getQuarterExchangeRate() throws ServiceException;
+	
 	List<ExchangeRateDTO> listExchangeRate() throws ServiceException;
 
 }

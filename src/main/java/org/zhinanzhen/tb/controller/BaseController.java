@@ -350,11 +350,6 @@ public class BaseController {
 		return weibanTokenJsonObject.get("access_token").toString();
 	}
 	
-	protected boolean isCN(Integer regionId) {
-		return ObjectUtil.isNotNull(regionId)
-				&& (regionId == 52000 || regionId == 1000025 || regionId == 1000030 || regionId == 1000032);
-	}
-	
 	protected boolean syncWeibanData(AdminUserLoginInfo loginInfo) throws ServiceException {
 		// 同步企业微信客户数据
 		if (loginInfo.getApList() != null && loginInfo.getApList().contains("GW")

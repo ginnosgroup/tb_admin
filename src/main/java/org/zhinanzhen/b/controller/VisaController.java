@@ -392,7 +392,7 @@ public class VisaController extends BaseCommissionOrderController {
 				else
 					visaDto.setSureExpectAmount(sureExpectAmount);
 			}
-			Double rate = getRate();
+			Double rate = getRate("签证", visaDto.getId(), regionService.isCNByAdviserId(visaDto.getAdviserId()));
 			if (rate != null && rate > 0)
 				visaDto.setExchangeRate(rate);
 			if (StringUtil.isNotEmpty(currency))
@@ -913,7 +913,7 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 			});
 
-			if (isCN(regionId)) {
+			if (regionService.isCN(regionId)) {
 
 				OutputStream os = response.getOutputStream();
 				jxl.Workbook wb;

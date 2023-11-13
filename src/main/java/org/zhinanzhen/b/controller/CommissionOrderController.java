@@ -516,7 +516,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setCurrency(currency);
 			if (StringUtil.isNotEmpty(exchangeRate))
 				commissionOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
-			Double rate = getRate();
+			Double rate = getRate("留学", commissionOrderDto.getId(),
+					regionService.isCNByAdviserId(commissionOrderDto.getAdviserId()));
 			if (rate != null && rate > 0)
 				commissionOrderDto.setExchangeRate(rate);
 			if (StringUtil.isNotEmpty(invoiceNumber))
@@ -1203,7 +1204,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				throw new Exception("查询佣金订单数据错误!");
 			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
-			if (isCN(regionId)) {
+			if (regionService.isCN(regionId)) {
 				
 				os = response.getOutputStream();
 				try {

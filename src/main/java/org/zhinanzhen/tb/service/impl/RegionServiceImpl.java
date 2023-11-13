@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 @Service("regionService")
@@ -18,6 +21,9 @@ public class RegionServiceImpl extends BaseService implements RegionService {
 
 	@Resource
 	private RegionDAO regionDao;
+	
+	@Resource
+	private AdviserDAO adviserDao;
 
 	@Override
 	public List<RegionDTO> listAllRegion() throws ServiceException {
@@ -155,5 +161,22 @@ public class RegionServiceImpl extends BaseService implements RegionService {
 			}
 		}
 		return regionDao.update(name, id, weight);
+	}
+
+	@Override
+	public boolean isCN(int id) throws ServiceException {
+		return ObjectUtil.isNotNull(id)
+				&& (id == 52000 || id == 1000025 || id == 1000030 || id == 1000032);
+	}
+
+	@Override
+	public boolean isCNByAdviserId(int adviserId) throws ServiceException {
+		AdviserDO adviserDo = adviserDao.getAdviserById(adviserId);
+		if (ObjectUtil.isNull(adviserDo)) {
+			ServiceException se = new ServiceException("this adviser not found! adviserId = " + adviserId);
+			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw se;
+		}
+		return isCN(adviserDo.getRegionId());
 	}
 }

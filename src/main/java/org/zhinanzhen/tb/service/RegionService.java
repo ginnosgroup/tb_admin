@@ -32,5 +32,9 @@ public interface RegionService {
 	 * @throws ServiceException
 	 */
 	public boolean updateRegion(int id,String name,int weight) throws ServiceException;
+	
+	public boolean isCN(int id) throws ServiceException;
+	
+	public boolean isCNByAdviserId(int adviserId) throws ServiceException;
 
 }

@@ -10,18 +10,25 @@ import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
 
+import lombok.extern.slf4j.Slf4j;
+
 // 文案审核
 @Component
+@Slf4j
 public class ServiceOrderReviewNode extends SODecisionNode {
 	
 	@Resource
 	ExchangeRateService exchangeRateService;
+	
+	@Resource
+	RegionService regionService;
 
 	// 顾问,文案
 	
@@ -64,9 +71,15 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			}
 			// 提交审核时更新汇率
 			if (exchangeRateService != null) {
-				ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
-				if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
-					serviceOrderDto.setExchangeRate(rate.getRate());
+				if (regionService.isCNByAdviserId(serviceOrderDto.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
+					double qRate = exchangeRateService.getQuarterExchangeRate();
+					log.info(StringUtil.merge("为服务订单(", serviceOrderDto.getId(), ")设置季度固定汇率:", qRate));
+					serviceOrderDto.setExchangeRate(qRate);
+				} else {
+					ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
+					if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
+						serviceOrderDto.setExchangeRate(rate.getRate());
+				}
 			}
 		} catch (ServiceException e) {
 			context.putParameter("response", new Response<ServiceOrderDTO>(1, "服务订单执行异常:" + e.getMessage(), null));

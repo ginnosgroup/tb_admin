@@ -39,6 +39,7 @@ import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
 import org.zhinanzhen.tb.service.AdviserService;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
@@ -60,6 +61,9 @@ public class AdminUserController extends BaseController {
 
 	@Resource
 	private WXWorkService wxWorkService;
+	
+	@Resource
+	RegionService regionService;
 	
 	@Autowired
     private RestTemplate restTemplate;
@@ -137,7 +141,7 @@ public class AdminUserController extends BaseController {
 			if (loginInfo.getAdviserId() != null) {
 				AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
 				if (adviserDto != null)
-					loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
+					loginInfo.setCountry(regionService.isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 			}
 //			if (!syncWeibanData(loginInfo))
 //				return new Response<Boolean>(0, "同步微伴数据异常!", true); // 就算同步异常也不能影响登录
