@@ -1,7 +1,10 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -163,7 +166,11 @@ public class ServicePackageServiceImpl extends BaseService implements ServicePac
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
-		return servicePackageDto;
+		return servicePackageDto.stream().collect(
+				Collectors.collectingAndThen(
+						Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(ServicePackageDTO::getServiceCode))), ArrayList::new
+				)
+		);
     }
 
 }
