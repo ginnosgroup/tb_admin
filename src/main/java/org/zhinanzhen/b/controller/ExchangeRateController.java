@@ -20,7 +20,6 @@ import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.controller.BaseController.AdminUserLoginInfo;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
