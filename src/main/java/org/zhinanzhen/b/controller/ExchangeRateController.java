@@ -9,6 +9,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +20,12 @@ import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.controller.BaseController.AdminUserLoginInfo;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
+
+import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,15 +34,26 @@ import lombok.Data;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/exchangeRate")
 public class ExchangeRateController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(ExchangeRateController.class);
 
 	@Resource
 	ExchangeRateService exchangeRateService;
+	
+	@Resource
+	RegionService regionService;
 
 	@RequestMapping(value = "/getDailyCNYExchangeRate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<ExchangeRateData> getDailyExchangeRate(HttpServletRequest request, HttpServletResponse response) {
 		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
+			if (regionService.isCN(adminUserLoginInfo.getRegionId())) { // 如果是中国地区则使用季度固定汇率
+				double qRate = exchangeRateService.getQuarterExchangeRate();
+				LOG.info(StringUtil.merge("查询季度固定汇率:", qRate));
+				exchangeRateDto = new ExchangeRateDTO(qRate, new Date());
+			}
 			if (exchangeRateDto == null)
 				return new Response<ExchangeRateData>(0, null, new ExchangeRateData(4.58,
 						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-07-11 10:33:00"), new Date())); // 如果获取汇率失败就用默认汇率
