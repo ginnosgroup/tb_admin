@@ -2,6 +2,8 @@ package org.zhinanzhen.b.controller;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
@@ -9,8 +11,11 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.ObjectUtil;
+import com.ikasoa.core.utils.StringUtil;
 
 public class BaseCommissionOrderController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(BaseCommissionOrderController.class);
 
 	@Resource
 	protected ServiceOrderService serviceOrderService;
@@ -67,14 +72,20 @@ public class BaseCommissionOrderController extends BaseController {
 		return "";
 	}
 	
-	protected Double getRate() throws ServiceException {
+	protected Double getRate(String name, int id, boolean isCN) throws ServiceException {
 		// 提交审核时更新汇率
-		if (exchangeRateService != null) {
-			ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
-			if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
-				return rate.getRate();
+		if (isCN) {
+			double qRate = exchangeRateService.getQuarterExchangeRate();
+			LOG.info(StringUtil.merge("为", name, "佣金订单(", id, ")设置季度固定汇率:", qRate));
+			return qRate;
+		} else {
+			if (exchangeRateService != null) {
+				ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
+				if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
+					return rate.getRate();
+			}
+			return null;
 		}
-		return null;
 	}
 
 }

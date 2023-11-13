@@ -13,6 +13,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.AdviserService;
+import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
@@ -24,6 +25,9 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 
 	@Resource
 	AdviserService adviserService;
+
+	@Resource
+	RegionService regionService;
 
 	@Override
 	public String signIn(String code, Connection<?> connection, NativeWebRequest request) {
@@ -47,7 +51,7 @@ public class ScanSignInAdapter extends BaseController implements SignInAdapter {
 					if (loginInfo.getAdviserId() != null) {
 						AdviserDTO adviserDto = adviserService.getAdviserById(loginInfo.getAdviserId());
 						if (adviserDto != null)
-							loginInfo.setCountry(isCN(adviserDto.getRegionId()) ? "CN" : "AU");
+							loginInfo.setCountry(regionService.isCN(adviserDto.getRegionId()) ? "CN" : "AU");
 					}
 					// 同步企业微信数据
 //					Thread thread = new Thread(new Runnable() {
