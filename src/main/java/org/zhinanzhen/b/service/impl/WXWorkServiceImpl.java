@@ -15,6 +15,7 @@ import org.zhinanzhen.b.service.ServicePackageTypeEnum;
 import org.zhinanzhen.b.service.WXWorkService;
 import org.zhinanzhen.b.service.pojo.ChatDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -165,8 +166,13 @@ public class WXWorkServiceImpl implements WXWorkService {
                     msg = msg
                             + "[ " + serviceDO.getName() + "-" + serviceDO.getCode();
                 ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
-                if (servicePackageDO != null)
+                ServicePackageDTO eoiService = servicePackageDAO.getEOIService(serviceOrderDO.getServicePackageId());
+                if (ObjectUtil.isNotNull(eoiService)) {
+                    msg = msg + "-" + eoiService.getServiceCode() + "]";
+                } else if (servicePackageDO != null) {
+//                if (servicePackageDO != null)
                     msg = msg + "-" + ServicePackageTypeEnum.getServicePackageTypeComment(servicePackageDO.getType());
+                }
                     //switch (servicePackageDO.getType()) {
                     //    case "CA":
                     //        msg = msg + "-" + "职业评估";
@@ -185,6 +191,7 @@ public class WXWorkServiceImpl implements WXWorkService {
                 if (serviceAssessDO != null)
                     msg = msg + "-" + serviceAssessDO.getName();
                 msg = msg + " ] . \n";
+                System.out.println(msg);
             }
             if (serviceOrderDO.getType().equalsIgnoreCase("OVST")){
                 SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
