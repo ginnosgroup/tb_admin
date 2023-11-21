@@ -24,11 +24,12 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 	private DashboardDAO dashboardDAO;
 
 	@Override
-	public double getThisMonthExpectAmount(Integer adviserId, List<Integer> regionIdList) throws ServiceException {
+	public double getThisMonthExpectAmount(Integer adviserId, List<Integer> regionIdList, Double rate)
+			throws ServiceException {
 		Double visaExpectAmountSBBTM = dashboardDAO.getThisMonthVisaExpectAmount(adviserId, regionIdList);
 		Double bCommissionOrderExpectAmountSBBTM = dashboardDAO.getThisMonthbCommissionOrderExpectAmountSBBTM(adviserId,
 				regionIdList);
-		Double thisMonthRefundAmount = dashboardDAO.getThisMonthRefundAmount(adviserId, regionIdList);
+		Double thisMonthRefundAmount = dashboardDAO.getThisMonthRefundAmount(adviserId, regionIdList, rate);
 
 		return (visaExpectAmountSBBTM == null ? 0.00 : visaExpectAmountSBBTM)
 				+ (bCommissionOrderExpectAmountSBBTM == null ? 0.00 : bCommissionOrderExpectAmountSBBTM)

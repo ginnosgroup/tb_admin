@@ -12,9 +12,9 @@ public interface DashboardDAO {
 
 	public Double getThisMonthbCommissionOrderExpectAmountSBBTM(@Param("adviserId") Integer adviserId,
 			@Param("regionIdList") List<Integer> regionIdList);
-	
+
 	public Double getThisMonthRefundAmount(@Param("adviserId") Integer adviserId,
-			@Param("regionIdList") List<Integer> regionIdList);
+			@Param("regionIdList") List<Integer> regionIdList, @Param("rate") Double rate);
 
 	Double getVisaUnassignedBonusAmount();
 

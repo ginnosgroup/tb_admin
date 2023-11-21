@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DashboardService {
 
-	double getThisMonthExpectAmount(Integer adviserId, List<Integer> regionIdList) throws ServiceException;
+	double getThisMonthExpectAmount(Integer adviserId, List<Integer> regionIdList, Double rate) throws ServiceException;
 
 	double getVisaUnassignedBonusAmount() throws ServiceException;
 
