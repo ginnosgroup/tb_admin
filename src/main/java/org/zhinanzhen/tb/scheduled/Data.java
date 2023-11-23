@@ -53,8 +53,8 @@ public class Data extends BaseService {
             List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
             List<RefoundReportDTO> refundReportList = refundService.listRefundReport2(startDate, endDate, "A", dateMethod == null?"M":"Y", 0, 0, null);
             
-			if (commissionOrderReportDtoList != null) {
-				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList) {
+			if (commissionOrderReportDtoList2 != null) {
+				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList2) {
 					if (commissionOrderReportDto.getClaimedCommission() <= 0) // 确认预收业绩等于学校支付金额
 						commissionOrderReportDto.setClaimedCommission(commissionOrderReportDto.getAdjustments());
 					_dataDTOList.add(new DataDTO(commissionOrderReportDto.getDate(),
@@ -65,8 +65,8 @@ public class Data extends BaseService {
 				}
 			}
             
-            if (commissionOrderReportDtoList2 != null) {
-				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList2) {
+            if (commissionOrderReportDtoList != null) {
+				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList) {
 					if (commissionOrderReportDto.getClaimedCommission() <= 0) // 确认预收业绩等于学校支付金额
 						commissionOrderReportDto.setClaimedCommission(commissionOrderReportDto.getAdjustments());
 					for (DataDTO data : _dataDTOList) {
