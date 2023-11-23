@@ -83,9 +83,7 @@ public class Data extends BaseService {
 						_dataDTOList.add(new DataDTO(commissionOrderReportDto.getDate(),
 								commissionOrderReportDto.getRegionId(), commissionOrderReportDto.getArea(),
 								commissionOrderReportDto.getAdviserId(), commissionOrderReportDto.getConsultant(), 0.00,
-								commissionOrderReportDto.getDeductionCommission(),
-								commissionOrderReportDto.getClaimCommission(),
-								commissionOrderReportDto.getClaimedCommission(),
+								0.00, 0.00, commissionOrderReportDto.getClaimedCommission(),
 								commissionOrderReportDto.getAdjustments(), 0.00));
 					}
 				}
