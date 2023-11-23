@@ -966,7 +966,14 @@
         FROM tb_adviser a, tb_region r, b_commission_order co LEFT JOIN b_refund rf ON rf.commission_order_id = co.id AND rf.state = 'PAID'
         WHERE a.region_id = r.id AND co.adviser_id = a.id AND co.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date <= #{endDate} ]]>
+            <choose>
+                <when test='dateType != null and dateType == "P"'>
+                    <![CDATA[ AND co.school_payment_date > #{startDate} AND co.school_payment_date <= #{endDate} ]]>
+                </when>
+                <otherwise>
+                    <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date <= #{endDate} ]]>
+                </otherwise>
+            </choose>
         </if>
         <if test='regionId != null and regionId != ""'>
             AND r.id = #{regionId}
