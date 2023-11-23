@@ -53,10 +53,8 @@ public class Data extends BaseService {
             List<VisaReportDTO> VisaReportList = visaService.listVisaReport(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
             List<RefoundReportDTO> refundReportList = refundService.listRefundReport2(startDate, endDate, "A", dateMethod == null?"M":"Y", 0, 0, null);
             
-			if (commissionOrderReportDtoList2 != null) {
-				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList2) {
-					if (commissionOrderReportDto.getClaimedCommission() <= 0) // 确认预收业绩等于学校支付金额
-						commissionOrderReportDto.setClaimedCommission(commissionOrderReportDto.getAdjustments());
+			if (commissionOrderReportDtoList != null) {
+				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList) {
 					_dataDTOList.add(new DataDTO(commissionOrderReportDto.getDate(),
 							commissionOrderReportDto.getRegionId(), commissionOrderReportDto.getArea(),
 							commissionOrderReportDto.getAdviserId(), commissionOrderReportDto.getConsultant(), 0.00,
@@ -64,11 +62,12 @@ public class Data extends BaseService {
 							commissionOrderReportDto.getClaimCommission(), 0.00, 0.00, 0.00));
 				}
 			}
-            
-            if (commissionOrderReportDtoList != null) {
-				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList) {
+
+			if (commissionOrderReportDtoList2 != null) {
+				for (CommissionOrderReportDTO commissionOrderReportDto : commissionOrderReportDtoList2) {
 					if (commissionOrderReportDto.getClaimedCommission() <= 0) // 确认预收业绩等于学校支付金额
 						commissionOrderReportDto.setClaimedCommission(commissionOrderReportDto.getAdjustments());
+					boolean isMatched = false;
 					for (DataDTO data : _dataDTOList) {
 						if (StringUtil.equals(data.getDate(), commissionOrderReportDto.getDate())
 								&& data.getRegionId() == commissionOrderReportDto.getRegionId()
@@ -77,10 +76,20 @@ public class Data extends BaseService {
 								data.setClaimedCommission(commissionOrderReportDto.getClaimedCommission());
 							if (data.getAdjustments() <= 0)
 								data.setAdjustments(commissionOrderReportDto.getAdjustments());
+							isMatched = true;
 						}
 					}
+					if (!isMatched) {
+						_dataDTOList.add(new DataDTO(commissionOrderReportDto.getDate(),
+								commissionOrderReportDto.getRegionId(), commissionOrderReportDto.getArea(),
+								commissionOrderReportDto.getAdviserId(), commissionOrderReportDto.getConsultant(), 0.00,
+								commissionOrderReportDto.getDeductionCommission(),
+								commissionOrderReportDto.getClaimCommission(),
+								commissionOrderReportDto.getClaimedCommission(),
+								commissionOrderReportDto.getAdjustments(), 0.00));
+					}
 				}
-            }
+			}
 
             //赋值ServiceFee
             _dataDTOList.forEach(result -> {
