@@ -2537,9 +2537,6 @@ public class ServiceOrderController extends BaseController {
             context.putParameter("stateMark", stateMark);
             context.putParameter("ap", adminUserLoginInfo.getApList());
             context.putParameter("adminUserId", adminUserLoginInfo.getId());
-            if ("PENDING".equals(state)) {
-                context.putParameter("isSubmitted", 0);
-            }
 
             LOG.info("Flow API Log : " + context.toString());
             LOG.info("serviceOrderDto : " + serviceOrderDto);

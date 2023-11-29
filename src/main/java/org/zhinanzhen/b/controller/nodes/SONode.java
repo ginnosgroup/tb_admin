@@ -69,9 +69,6 @@ public abstract class SONode extends AbstractNode {
 				serviceOrderDto.setStateMark2(context.getParameter("stateMark2").toString());
 				log.info("写入stateMark2:" + serviceOrderDto.getStateMark2());
 			}
-			if (context.getParameter("isSubmitted") != null) {
-				serviceOrderDto.setSubmitted(false);
-			}
 			if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0)
 				log.info("保存流程状态成功:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
 			else
