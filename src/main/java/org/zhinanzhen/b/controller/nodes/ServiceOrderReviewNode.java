@@ -98,13 +98,13 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				int serviceId = serviceOrderDto.getServiceId();
 				String officialIdStr = officialDto.getId() + "";
 				List<String> blackList = bOfficialReviewPermissions.get(serviceId);
-				if(blackList.contains(officialIdStr)) {
+				if(ObjectUtil.isNotNull(blackList) && blackList.contains(officialIdStr)) {
 					context.putParameter("response", new Response<ServiceOrderDTO>(1,
 							StringUtil.merge("文案", officialDto.getName(), "不接该服务,请选择其他文案."), serviceOrderDto));
 					return null;
 				}
 				List<String> whiteList = wOfficialReviewPermissions.get(serviceId);
-				if(!whiteList.contains(officialIdStr)) {
+				if(ObjectUtil.isNull(whiteList) || !whiteList.contains(officialIdStr)) {
 					context.putParameter("response", new Response<ServiceOrderDTO>(1,
 							StringUtil.merge("该服务属疑难,请选择其他资深文案."), serviceOrderDto));
 					return null;
