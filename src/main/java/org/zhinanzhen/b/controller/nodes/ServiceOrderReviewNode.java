@@ -1,7 +1,12 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.OfficialController.OfficialWorkStateEnum;
 import org.zhinanzhen.b.service.ExchangeRateService;
@@ -13,6 +18,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
@@ -30,7 +36,25 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	@Resource
 	RegionService regionService;
 
-	// 顾问,文案
+	// 文案审核黑名单
+	private static Map<Integer, List<String>> bOfficialReviewPermissions = buildPermissions(
+			"7:1000003,1000005,1000010,1000012;9:1000003,1000005,1000010,1000012;10:1000003,1000005,1000010,1000012;11:1000003,1000005,1000010,1000012;14:1000003,1000005,1000010,1000012;19:1000003,1000005,1000010,1000012;1000106:1000003,1000005,1000010,1000012;1000125:1000003,1000005,1000010,1000012;1000127:1000003,1000005,1000010,1000012");
+
+	// 文案审核白名单
+	private static Map<Integer, List<String>> wOfficialReviewPermissions = buildPermissions(
+			"22:1000003,1000005;26:1000003,1000005;1000020:1000003,1000005;1000026:1000003;1000039:1000003,1000005;1000040:1000003,1000005;1000041:1000003,1000005;1000068:1000003,1000005;1000104:1000003,1000005");
+
+	private static Map<Integer, List<String>> buildPermissions(String value) {
+		Map<Integer, List<String>> map = MapUtil.newHashMap();
+		String[] _s1 = value.split(";");
+		for (String s1 : _s1) {
+			String[] _s2 = s1.split(":");
+			if (_s2.length != 2)
+				continue;
+			map.put(Integer.parseInt(_s2[0]), Arrays.asList(_s2[1].split(",")));
+		}
+		return map;
+	}
 	
 	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService) {
 		super.serviceOrderService = serviceOrderService;
@@ -61,13 +85,30 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
 				return null;
 			}
-			// 判断文案状态
 			OfficialDTO officialDto = serviceOrderDto.getOfficial();
+			// 判断文案状态
 			if (ObjectUtil.isNotNull(officialDto)
 					&& OfficialWorkStateEnum.BUSY.name().equalsIgnoreCase(officialDto.getWorkState())) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "你选择的文案已经设置为忙碌状态,请重新选择.", serviceOrderDto));
 				return null;
+			}
+			// 判断文案服务项目匹配
+			if (ObjectUtil.isNotNull(officialDto)) {
+				int serviceId = serviceOrderDto.getServiceId();
+				String officialIdStr = officialDto.getId() + "";
+				List<String> blackList = bOfficialReviewPermissions.get(serviceId);
+				if(blackList.contains(officialIdStr)) {
+					context.putParameter("response", new Response<ServiceOrderDTO>(1,
+							StringUtil.merge("文案", officialDto.getName(), "不接该服务,请选择其他文案."), serviceOrderDto));
+					return null;
+				}
+				List<String> whiteList = wOfficialReviewPermissions.get(serviceId);
+				if(!whiteList.contains(officialIdStr)) {
+					context.putParameter("response", new Response<ServiceOrderDTO>(1,
+							StringUtil.merge("该服务属疑难,请选择其他资深文案."), serviceOrderDto));
+					return null;
+				}
 			}
 			// 提交审核时更新汇率
 			if (exchangeRateService != null) {
