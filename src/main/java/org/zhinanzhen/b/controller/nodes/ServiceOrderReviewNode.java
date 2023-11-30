@@ -99,14 +99,18 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				String officialIdStr = officialDto.getId() + "";
 				List<String> blackList = bOfficialReviewPermissions.get(serviceId);
 				if (ObjectUtil.isNotNull(blackList) && blackList.contains(officialIdStr)) {
-					context.putParameter("response", new Response<ServiceOrderDTO>(1,
-							StringUtil.merge("您选择的文案", officialDto.getName(), "暂时不能为该项目提供支持,请更换文案."), serviceOrderDto));
+					context.putParameter("response",
+							new Response<ServiceOrderDTO>(1,
+									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
+									serviceOrderDto));
 					return null;
 				}
 				List<String> whiteList = wOfficialReviewPermissions.get(serviceId);
 				if (ObjectUtil.isNull(whiteList) || !whiteList.contains(officialIdStr)) {
-					context.putParameter("response", new Response<ServiceOrderDTO>(1,
-							StringUtil.merge("您选择的文案", officialDto.getName(), "暂时不能为该项目提供支持,请更换文案.."), serviceOrderDto));
+					context.putParameter("response",
+							new Response<ServiceOrderDTO>(1,
+									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
+									serviceOrderDto));
 					return null;
 				}
 			}
