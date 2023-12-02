@@ -106,7 +106,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 					return null;
 				}
 				List<String> whiteList = wOfficialReviewPermissions.get(serviceId);
-				if (ObjectUtil.isNull(whiteList) || !whiteList.contains(officialIdStr)) {
+				if (ObjectUtil.isNotNull(whiteList) && !whiteList.contains(officialIdStr)) {
 					context.putParameter("response",
 							new Response<ServiceOrderDTO>(1,
 									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
