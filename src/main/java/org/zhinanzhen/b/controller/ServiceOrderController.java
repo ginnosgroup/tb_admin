@@ -2553,35 +2553,33 @@ public class ServiceOrderController extends BaseController {
 
             context = workflowStarter.process(workflow, context);
 
-            // 发送消息到群聊PENGDING--->REVIEW
-            if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
-                    && "REVIEW".equalsIgnoreCase(state)) {// 咨询不发群聊消息
-                String token = token(request, "corp");
-                LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token);
-                if (wxWorkService.sendMsg(serviceOrderDto.getId(), token)) {
-                    LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
-                }
-
-                if ("VISA".equals(serviceOrderDto.getType())) {// 签证创建群聊
-                    if (serviceOrderDto.getParentId() > 0) {
-                        if (wxWorkService.ChatDOByServiceOrderId(serviceOrderDto.getParentId()) == null) {
-                            // wxWorkService.createChat(id,token);//SIV，按照主订单创建
-                        }
-                    } else if (wxWorkService.ChatDOByServiceOrderId(id) == null) {
-                        // wxWorkService.createChat(id,token);//普通VISA，直接创建
-                    }
-                }
-            }
-
             if (context.getParameter("response") != null)
                 return (Response<ServiceOrderDTO>) context.getParameter("response");
-            else {
-                if (!"ZX".equals(serviceOrderDto.getType()) || ObjectUtil.isNotNull(serviceOrderDto.getOfficial()))// 咨询服务不用发邮件提醒
-                    serviceOrderService.sendRemind(id, state); // 发送提醒邮件
-                return new Response<ServiceOrderDTO>(0, id + "", null);
-            }
+			else {
+				// 发送消息到群聊PENGDING--->REVIEW
+				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
+						&& "REVIEW".equalsIgnoreCase(state)) {// 咨询不发群聊消息
+					String token = token(request, "corp");
+					LOG.info("发送群聊订单:" + serviceOrderDto.getId() + " . ACCESS_TOKEN: " + token);
+					if (wxWorkService.sendMsg(serviceOrderDto.getId(), token)) {
+						LOG.info(serviceOrderDto.getId() + " 订单群聊消息发送成功 . ACCESS_TOKEN:" + token);
+					}
+
+					if ("VISA".equals(serviceOrderDto.getType())) {// 签证创建群聊
+						if (serviceOrderDto.getParentId() > 0) {
+							if (wxWorkService.ChatDOByServiceOrderId(serviceOrderDto.getParentId()) == null) {
+								// wxWorkService.createChat(id,token);//SIV，按照主订单创建
+							}
+						} else if (wxWorkService.ChatDOByServiceOrderId(id) == null) {
+							// wxWorkService.createChat(id,token);//普通VISA，直接创建
+						}
+					}
+				}
+				if (!"ZX".equals(serviceOrderDto.getType()) || ObjectUtil.isNotNull(serviceOrderDto.getOfficial()))// 咨询服务不用发邮件提醒
+					serviceOrderService.sendRemind(id, state); // 发送提醒邮件
+				return new Response<ServiceOrderDTO>(0, id + "", null);
+			}
         } catch (ServiceException e) {
-            System.out.println("---------------------------1");
             return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
         }
     }
