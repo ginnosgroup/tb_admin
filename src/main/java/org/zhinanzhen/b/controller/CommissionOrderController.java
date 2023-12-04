@@ -88,6 +88,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	
 	@Resource
 	private AdviserService adviserService;
+	
+	@Resource
+	private KjService kjService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -1147,6 +1150,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		Integer newOfficialId = getOfficialId(request);
 		if (newOfficialId != null)
 			officialId = newOfficialId;
+		Integer kjId = getKjId(request);
 
 		List<String> commissionStateList = null;
 		if (StringUtil.isNotEmpty(commissionState))
@@ -1211,8 +1215,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				throw new Exception("查询佣金订单数据错误!");
 			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
-			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
-			if (ObjectUtil.isNotNull(adviserDto) && regionService.isCN(adviserDto.getRegionId())) {
+			int _regionId = 0;
+			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0) {
+				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
+			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
+				_regionId = kjService.getKjById(kjId).getRegionId();
+			if (regionService.isCN(_regionId)) {
 				os = response.getOutputStream();
 				try {
 					is = this.getClass().getResourceAsStream("/CommissionOrderTemplateCNY.xls");

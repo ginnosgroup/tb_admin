@@ -35,13 +35,16 @@ import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Cell;
@@ -85,6 +88,12 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	ServicePackagePriceService servicePackagePriceService;
+	
+	@Resource
+	private AdviserService adviserService;
+	
+	@Resource
+	private KjService kjService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -871,6 +880,7 @@ public class VisaController extends BaseCommissionOrderController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
+		Integer kjId = getKjId(request);
 
 		try {
 
@@ -913,7 +923,12 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 			});
 
-			if (regionService.isCN(regionId)) {
+			int _regionId = 0;
+			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0) {
+				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
+			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
+				_regionId = kjService.getKjById(kjId).getRegionId();
+			if (regionService.isCN(_regionId)) {
 
 				OutputStream os = response.getOutputStream();
 				jxl.Workbook wb;
