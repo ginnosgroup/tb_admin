@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import jxl.Cell;
 import jxl.Sheet;
@@ -24,9 +25,11 @@ import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 import javax.annotation.Resource;
@@ -79,8 +82,12 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@Resource
 	MailRemindService mailRemindService;
+	
 	@Resource
 	ServicePackagePriceService servicePackagePriceService;
+	
+	@Resource
+	private AdviserService adviserService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -1204,8 +1211,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				throw new Exception("查询佣金订单数据错误!");
 			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
-			if (regionService.isCN(regionId)) {
-				
+			AdviserDTO adviserDto = adviserService.getAdviserById(adviserId);
+			if (ObjectUtil.isNotNull(adviserDto) && regionService.isCN(adviserDto.getRegionId())) {
 				os = response.getOutputStream();
 				try {
 					is = this.getClass().getResourceAsStream("/CommissionOrderTemplateCNY.xls");
