@@ -1216,7 +1216,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
 			int _regionId = 0;
-			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0) {
+			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0)
 				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
 			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
 				_regionId = kjService.getKjById(kjId).getRegionId();
