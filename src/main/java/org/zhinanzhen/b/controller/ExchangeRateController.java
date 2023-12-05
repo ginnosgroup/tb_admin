@@ -48,7 +48,8 @@ public class ExchangeRateController extends BaseController {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
-			if (regionService.isCNByAdviserId(adminUserLoginInfo.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
+			if (ObjectUtil.isNotNull(adminUserLoginInfo.getAdviserId())
+					&& regionService.isCNByAdviserId(adminUserLoginInfo.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
 				double qRate = exchangeRateService.getQuarterExchangeRate();
 				LOG.info(StringUtil.merge("查询季度固定汇率:", qRate));
 				exchangeRateDto = new ExchangeRateDTO(qRate, new Date());
