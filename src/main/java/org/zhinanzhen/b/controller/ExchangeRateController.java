@@ -48,15 +48,15 @@ public class ExchangeRateController extends BaseController {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
-			if (ObjectUtil.isNotNull(adminUserLoginInfo.getAdviserId())
+			if (ObjectUtil.isNotNull(adminUserLoginInfo) && ObjectUtil.isNotNull(adminUserLoginInfo.getAdviserId())
 					&& regionService.isCNByAdviserId(adminUserLoginInfo.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
 				double qRate = exchangeRateService.getQuarterExchangeRate();
-				LOG.info(StringUtil.merge("查询季度固定汇率:", qRate));
+				LOG.debug(StringUtil.merge("查询季度固定汇率:", qRate));
 				exchangeRateDto = new ExchangeRateDTO(qRate, new Date());
 			}
 			if (exchangeRateDto == null)
-				return new Response<ExchangeRateData>(0, null, new ExchangeRateData(4.58,
-						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2022-07-11 10:33:00"), new Date())); // 如果获取汇率失败就用默认汇率
+				return new Response<ExchangeRateData>(0, null, new ExchangeRateData(4.7,
+						new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2023-12-05 15:30:00"), new Date())); // 如果获取汇率失败就用默认汇率
 			return new Response<ExchangeRateData>(0, null,
 					new ExchangeRateData(exchangeRateDto.getRate(), exchangeRateDto.getUpdateDate(), new Date()));
 		} catch (ServiceException | ParseException e) {
