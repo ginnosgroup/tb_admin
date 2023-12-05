@@ -238,7 +238,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             return 0;
         }catch (Exception e){
             e.printStackTrace();
-            throw new ServiceException(e);
+            return 0;
         }
     }
 
