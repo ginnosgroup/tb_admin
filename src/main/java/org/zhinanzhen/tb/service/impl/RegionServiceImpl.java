@@ -166,7 +166,7 @@ public class RegionServiceImpl extends BaseService implements RegionService {
 	@Override
 	public boolean isCN(int id) throws ServiceException {
 		return ObjectUtil.isNotNull(id)
-				&& (id == 52000 || id == 1000025 || id == 1000030 || id == 1000032);
+				&& (id == 52000 || id == 1000025 || id == 1000030 || id == 1000032 || id == 1000033 || id == 1000034);
 	}
 
 	@Override
