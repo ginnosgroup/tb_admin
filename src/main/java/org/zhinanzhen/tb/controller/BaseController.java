@@ -443,8 +443,8 @@ public class BaseController {
 					paramMap2.put("accessToken", getWeibanToken());
 					paramMap2.put("id", qywxExternalUserDto.getExternalUserid());
 					paramMap2.put("unionid", qywxExternalUserDto.getUnionId());
-					LOG.info("URL2 : " + url2);
-					LOG.info("Params2 : " + paramMap2);
+					//LOG.info("URL2 : " + url2);
+					//LOG.info("Params2 : " + paramMap2);
 					JSONObject weibanUserJsonObject = restTemplate.getForObject(url2, JSONObject.class, paramMap2);
 					if ((int) weibanUserJsonObject.get("errcode") != 0) {
 						LOG.warn("调用微伴API异常!");
@@ -455,7 +455,7 @@ public class BaseController {
 						JSONObject externalUserJsonObject = weibanUserJsonObject.getJSONObject("external_user");
 						if (externalUserJsonObject.containsKey("follow_staffs")) {
 							JSONArray followStaffs = externalUserJsonObject.getJSONArray("follow_staffs");
-							LOG.info(StringUtil.merge("followStaffs : ", followStaffs));
+							//LOG.info(StringUtil.merge("followStaffs : ", followStaffs));
 							for (int j = 0; j < followStaffs.size(); j++) {
 								JSONObject staffJsonObject = followStaffs.getJSONObject(j);
 								if (ObjectUtil.isNotNull(staffJsonObject)) {
