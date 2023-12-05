@@ -207,16 +207,16 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             SchoolInstitutionDO schoolInstitutionDo = mapper.map(schoolInstitutionDto,SchoolInstitutionDO.class);
             if (schoolInstitutionDAO.add(schoolInstitutionDo) > 0){
             	// 发送通知信息
-				if (ObjectUtil.isNotNull(schoolInstitutionDto) && schoolInstitutionDto.isCooperative()) {
+				if (ObjectUtil.isNotNull(schoolInstitutionDo) && schoolInstitutionDo.isCooperative()) {
 					List<SchoolSettingNewDO> schoolSettingNewList = schoolSettingNewDAO
-							.list(schoolInstitutionDto.getId(), false);
+							.list(schoolInstitutionDo.getId(), false);
 					String settingString = "";
 					for (SchoolSettingNewDO schoolSettingNewDo : schoolSettingNewList)
 						settingString += getSchoolSettingString(schoolSettingNewDo);
 					if (StringUtil.isNotEmpty(settingString))
 						settingString = StringUtil.merge("commission规则为：", settingString);
 					WXWorkAPI.sendWecomRotMsg(StringUtil.merge("各位顾问:\n系统新增合作院校，学校",
-							getTradingNamesById(schoolInstitutionDto.getId()), "．\n", settingString));
+							getTradingNamesById(schoolInstitutionDo.getId()), "．\n", settingString));
 				}
             	schoolInstitutionDto.setId(schoolInstitutionDo.getId());
                 List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS =  schoolInstitutionDto.getSchoolInstitutionLocationDTOS();
