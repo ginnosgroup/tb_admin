@@ -245,7 +245,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             ServiceOrderDO serviceParentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
             boolean pay = false;
             if (ObjectUtil.isNotNull(serviceParentOrder)) {
-                pay = serviceParentOrder.isPay();
+                pay = !serviceParentOrder.isPay();
+            }
+            if (!serviceOrderDO.isPay() || serviceOrderDO.getReceivable() == 0) {
+                pay = !serviceOrderDO.isPay();
             }
             List<ServiceOrderDO> list = new ArrayList<>();
             list = serviceOrderDao.listByParentId(serviceOrderDO.getId());
@@ -360,9 +363,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
                     if (ObjectUtil.isNotNull(visaDO) && pay) {
                         refund = refundDAO.getRefundByVisaId(visaDO.getId());
-                    } else {
-                        return -1;
                     }
+//                    else {
+//                        return -1;
+//                    }
                     if (refund == null) {
                         commissionAmountDTO.setRefund(0.00);
                     } else {
@@ -534,11 +538,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount()/ exchangeRate);
                 visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission()/ exchangeRate);
             }
-//            if (!pay) {
-//                visaOfficialDO.setPredictCommissionAmount(0);
-//                visaOfficialDO.setCommissionAmount(0.00);
-//                visaOfficialDO.setPredictCommission(0.00);
-//            }
+            if (pay) {
+                visaOfficialDO.setPredictCommissionAmount(0);
+                visaOfficialDO.setCommissionAmount(0.00);
+                visaOfficialDO.setPredictCommission(0.00);
+            }
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
