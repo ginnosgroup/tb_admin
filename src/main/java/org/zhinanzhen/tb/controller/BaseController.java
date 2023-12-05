@@ -341,6 +341,7 @@ public class BaseController {
 		HashMap<String, String> uriVariablesMap = new HashMap<>();
 		uriVariablesMap.put("corp_id", weibanCropId);
 		uriVariablesMap.put("secret", weibanSecret);
+		LOG.info("uriVariablesMap : " + uriVariablesMap);
 		JSONObject weibanTokenJsonObject = restTemplate.postForObject(url, uriVariablesMap, JSONObject.class);
 		if ((int) weibanTokenJsonObject.get("errcode") != 0) {
 			ServiceException se = new ServiceException(weibanTokenJsonObject.get("errmsg").toString());
