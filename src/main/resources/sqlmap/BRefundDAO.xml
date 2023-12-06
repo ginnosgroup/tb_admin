@@ -501,7 +501,7 @@
             SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
             SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
         FROM b_refund rf, tb_adviser a, tb_region r
-        WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE') AND rf.visa_id IS NULL AND rf.visa_id IS NULL AND rf.commission_order_id IS NULL
+        WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE') AND rf.visa_id IS NULL AND rf.visa_id IS NOT NULL AND rf.commission_order_id IS NOT NULL
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND rf.completed_date > #{startDate} AND rf.completed_date < #{endDate} ]]>
         </if>
