@@ -203,7 +203,7 @@ public class Data extends BaseService {
             });
 
             //计算dataDTOList每一行的total值
-			LOG.info(StringUtil.merge("dataDTOList_", startDate, "-", endDate, "_", opt, "_", dateMethod, " : ",
+			LOG.debug(StringUtil.merge("dataDTOList_", startDate, "-", endDate, "_", opt, "_", dateMethod, " : ",
 					dataDTOList));
             dataDTOList.forEach(dataDTO -> {
                 dataDTO.setTotal(dataDTO.getServiceFee()+dataDTO.getClaimCommission()+dataDTO.getDeductionCommission()+dataDTO.getAdjustments()-dataDTO.getRefunded());
