@@ -35,7 +35,7 @@
     
     <select id="getThisMonthRefundAmount" resultType="java.lang.Double">
         select IFNULL(sum(IF(r.currency_type='CNY',r.amount/#{rate},r.amount)),0.00) FROM b_refund r, tb_adviser tba  where DATE_FORMAT(r.completed_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
-        AND r.state = 'PAID' AND tba.id = r.adviser_id
+        AND r.state = 'PAID' AND tba.id = r.adviser_id AND (r.visa_id IS NOT NULL OR r.commission_order_id IS NOT NULL)
         <if test='adviserId != null'>
             AND r.adviser_id = #{adviserId}
         </if>
