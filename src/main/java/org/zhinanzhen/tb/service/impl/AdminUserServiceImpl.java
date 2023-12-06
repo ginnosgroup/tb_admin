@@ -43,10 +43,18 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			if (regionId != null)
 				adminUserDo.setRegionId(regionId);
 			int isAdded = adminUserDao.add(adminUserDo);
-			if (isAdded > 0 && StringUtil.equals(apList, "GW"))
-				sendMail(username, "佣金系统已经开通",
-						StringUtil.merge("登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号:",
-								username, "<br/>登录密码:", password));
+			if (isAdded > 0) {
+				if (StringUtil.equals(apList, "GW"))
+					sendMail(username, "佣金系统帐号已经开通",
+							StringUtil.merge("登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号:",
+									username, "<br/>登录密码:", password));
+				if (StringUtil.equals(apList, "WA"))
+					sendMail(username, "佣金系统帐号已经开通", StringUtil.merge(
+							"Hi 文案老师: <br/>您的佣金系统帐号已经开通．<br/>登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号是你的企业邮箱，登录密码:",
+							password,
+							"<br/>如何使用文案佣金系统请看下方培训视频．<br/>https://doc.weixin.qq.com/doc/w3_AEYAdQbUANwhAaFBC7wTRKX09hE0E"));
+			}
+				
 			return isAdded;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
