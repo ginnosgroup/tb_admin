@@ -22,7 +22,7 @@ public interface ServiceOrderDAO {
 
     int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
 
-    int updateService(@Param("id")Integer id,@Param("serviceId") Integer serviceId);
+    int updateService(@Param("id")Integer id,@Param("serviceId") Integer serviceId, @Param("serviceAssessId") Integer serviceAssessId);
 
     int countServiceOrder(@Param("type") String type, @Param("excludeTypeList") List<String> excludeTypeList,
                           @Param("excludeState") String excludeState, @Param("stateList") List<String> stateList,

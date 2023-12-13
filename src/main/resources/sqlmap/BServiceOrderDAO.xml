@@ -390,6 +390,9 @@
     <update id="updateService">
         UPDATE b_service_order
         SET gmt_modify = now(), service_id = #{serviceId}
+        <if test='serviceAssessId != null and serviceAssessId > 0'>
+            , service_assess_id = #{serviceAssessId}
+        </if>
         WHERE id = #{id};
     </update>
 

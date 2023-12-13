@@ -369,17 +369,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     }
 
     @Override
-    public int updateServiceOrderService(int id, int serviceId) throws ServiceException {
-        if (id <= 0) {
-            ServiceException se = new ServiceException("id is null !");
-            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-            throw se;
-        }
-        try {
-            return serviceOrderDao.updateService(id, serviceId);
-        } catch (Exception e) {
-            ServiceException se = new ServiceException(e);
-            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+	public int updateServiceOrderService(int id, int serviceId, int serviceAssessId) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id is null !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return serviceOrderDao.updateService(id, serviceId, serviceAssessId);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
     }

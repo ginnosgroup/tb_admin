@@ -2744,6 +2744,10 @@ public class ServiceOrderController extends BaseController {
             if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("OREVIEW")
                     || orderDto.getState().equals("PENDING")) {
                 if (serviceOrderDto.getServiceId() > 0) { // 修改服务项目
+					if (StringUtil.isEmpty(serviceOrderDto.getServiceAssessId())
+							|| serviceOrderDto.getServiceId() != 24)
+						serviceOrderDto.setServiceAssessId("0"); // 如果不是职业评估，则不修改职业
+					final int assessId = Integer.parseInt(serviceOrderDto.getServiceAssessId());
                     if (orderDto.getApplicantParentId() == 0) { // 修改子服务订单
                         List<ServiceOrderDTO> orderList = serviceOrderService
                                 .listServiceOrderByApplicantParentId(serviceOrderDto.getId());
@@ -2755,19 +2759,19 @@ public class ServiceOrderController extends BaseController {
                                             StringUtil.merge("修改失败,子订单不存在资料待审核或资料审核中状态.(ID:", _cso.getId(), ")"), null);
                                 }
                             }
-                            orderList.forEach(cso -> {
-                                try {
-                                    serviceOrderService.updateServiceOrderService(cso.getId(),
-                                            serviceOrderDto.getServiceId());
-                                    updateVisaServiceForAD(cso, serviceOrderDto.getServiceId());
-                                } catch (ServiceException e) {
-                                    LOG.error(StringUtil.merge("子服务订单(", cso.getId(), ")服务项目修改失败:", e.getMessage()));
-                                }
-                            });
+							orderList.forEach(cso -> {
+								try {
+									serviceOrderService.updateServiceOrderService(cso.getId(),
+											serviceOrderDto.getServiceId(), assessId);
+									updateVisaServiceForAD(cso, serviceOrderDto.getServiceId());
+								} catch (ServiceException e) {
+									LOG.error(StringUtil.merge("子服务订单(", cso.getId(), ")服务项目修改失败:", e.getMessage()));
+								}
+							});
                         }
                     }
-                    serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(),
-                            serviceOrderDto.getServiceId());
+					serviceOrderService.updateServiceOrderService(serviceOrderDto.getId(),
+							serviceOrderDto.getServiceId(), assessId);
                     updateVisaServiceForAD(orderDto, serviceOrderDto.getServiceId()); // 修改佣金订单
                     return new Response<>(0, "修改成功", null);
                 } else if (serviceOrderDto.getSubagencyId() > 0) { // 修改Subagency
