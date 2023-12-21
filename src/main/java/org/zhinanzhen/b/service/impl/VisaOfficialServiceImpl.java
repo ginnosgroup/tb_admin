@@ -425,6 +425,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
                         if (serviceOrderDO.getReceivable() == serviceOrderDO.getReceived()) {
                             visaDO = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getParentId());
+                            if (visaDO == null) {
+                                System.out.println("visaDo为空------------------------");
+                            }
                         } else {
                             return -1;
                         }
