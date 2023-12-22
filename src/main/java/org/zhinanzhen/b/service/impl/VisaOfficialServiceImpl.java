@@ -275,6 +275,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             //无付费服务订单结算规则
             if ((serviceOrderDO.getParentId()==0&&!serviceOrderDO.isPay())&&(ObjectUtil.isNotNull(servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()))&&servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler()==1)){
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
+                pay = isaBoolean(servicePackagePriceDO, pay);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
                 commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
@@ -319,6 +320,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     commissionAmountDTO.setThirdPrince(0.00);
                     commissionAmountDTO.setRuler(0);
                 } else {
+                    pay = isaBoolean(servicePackagePriceDO, pay);
                     commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                     commissionAmountDTO.setRuler(servicePackagePriceDO.getRuler());
                 }
@@ -389,6 +391,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         commissionAmountDTO.setThirdPrince(0.00);
                         commissionAmountDTO.setRuler(0);
                     } else {
+                        pay = isaBoolean(servicePackagePriceDO, pay);
                         commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                         commissionAmountDTO.setRuler(servicePackagePriceDO.getRuler());
                     }
@@ -451,6 +454,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             commissionAmountDTO.setThirdPrince(0.00);
                             commissionAmountDTO.setRuler(0);
                         } else {
+                            pay = isaBoolean(servicePackagePriceDO, pay);
                             commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                             commissionAmountDTO.setRuler(servicePackagePriceDO.getRuler());
                         }
@@ -507,6 +511,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             commissionAmountDTO.setThirdPrince(0.00);
                             commissionAmountDTO.setRuler(0);
                         } else {
+                            pay = isaBoolean(servicePackagePriceDO, pay);
                             commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                             commissionAmountDTO.setRuler(servicePackagePriceDO.getRuler());
                         }
@@ -561,6 +566,14 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+    }
+
+    // 文案佣金订单是否直接计算固定金额
+    private static boolean isaBoolean(ServicePackagePriceDO servicePackagePriceDO, boolean pay) {
+        if (servicePackagePriceDO.getRuler() == 1) {
+            pay = false;
+        }
+        return pay;
     }
 
     @Override
