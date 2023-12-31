@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.zhinanzhen.b.service.pojo.AdviserCommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserServiceOrderDTO;
@@ -17,5 +18,7 @@ public interface AdviserDataService {
 	List<AdviserCommissionOrderDTO> listCommissionOrder(Integer adviserId) throws ServiceException;
 
 	List<AdviserUserDTO> listUser(Integer adviserId) throws ServiceException;
+	
+	Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, Integer userId) throws ServiceException;
 
 }

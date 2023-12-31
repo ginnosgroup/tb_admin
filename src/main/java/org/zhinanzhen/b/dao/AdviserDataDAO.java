@@ -17,5 +17,26 @@ public interface AdviserDataDAO {
 	List<AdviserCommissionOrderDO> listCommissionOrder(@Param("adviserId") Integer adviserId);
 
 	List<AdviserUserDO> listUser(@Param("adviserId") Integer adviserId);
+	
+	int userDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userId") Integer userId);
+
+	int userAdviserDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userId") Integer userId);
+
+	int applicantDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userId") Integer userId);
+
+	int serviceOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
+
+	int visaDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userId") Integer userId);
+
+	int commissionOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
+			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
+
+	int refundDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userId") Integer userId);
 
 }

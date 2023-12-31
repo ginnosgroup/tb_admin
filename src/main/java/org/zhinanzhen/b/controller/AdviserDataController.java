@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,11 @@ import org.zhinanzhen.b.service.pojo.AdviserServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserUserDTO;
 import org.zhinanzhen.b.service.pojo.AdviserVisaDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.ServiceException;
+
+import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Workbook;
 import jxl.WorkbookSettings;
@@ -171,6 +177,19 @@ public class AdviserDataController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
+		}
+	}
+	
+	@RequestMapping(value = "/adviserDataMigration", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Map<String, Integer>> adviserDataMigration(@RequestParam(value = "newAdviserId", required = true) Integer newAdviserId, @RequestParam(value = "adviserId", required = true) Integer adviserId, @RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			return new Response<Map<String, Integer>>(0,
+					adviserDataService.adviserDataMigration(newAdviserId, adviserId, userId));
+		} catch (ServiceException e) {
+			return new Response<Map<String, Integer>>(1, StringUtil.merge("迁移失败:", e.getMessage()),
+					MapUtil.newHashMap());
 		}
 	}
 

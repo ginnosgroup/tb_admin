@@ -2,10 +2,12 @@ package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.AdviserDataDAO;
 import org.zhinanzhen.b.dao.pojo.AdviserCommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.AdviserServiceOrderDO;
@@ -20,6 +22,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.MapUtil;
 
 @Service("AdviserDataService")
 public class AdviserDataServiceImpl extends BaseService implements AdviserDataService {
@@ -107,6 +110,19 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 			adviserUserDtoList.add(adviserUserDto);
 		}
 		return adviserUserDtoList;
+	}
+
+	@Override
+	@Transactional(rollbackFor = ServiceException.class)
+	public Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, Integer userId)
+			throws ServiceException {
+		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId);
+		return MapUtil.buildHashMap("ud", adviserDataDao.userDataMigration(newAdviserId, adviserId, userId), "uad",
+				adviserDataDao.userAdviserDataMigration(newAdviserId, adviserId, userId), "ad",
+				adviserDataDao.applicantDataMigration(newAdviserId, adviserId, userId), "sod",
+				adviserDataDao.serviceOrderDataMigration(newAdviserId, adviserId, userId), "vd",
+				adviserDataDao.visaDataMigration(newAdviserId, adviserId, userId), "cod",
+				adviserDataDao.commissionOrderDataMigration(newAdviserId, adviserId, userId));
 	}
 
 }

@@ -97,5 +97,60 @@
         from tb_user_adviser ua, tb_user u left join b_applicant a on a.user_id=u.id
         where ua.user_id=u.id and ua.adviser_id=#{adviserId};
     </select>
+    
+    <update id="userDataMigration">
+        update tb_user set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
+        <if test='userId != null and userId > 0'>
+            AND id = #{userId}
+        </if>
+        ;
+    </update>
+    
+    <update id="userAdviserDataMigration">
+        update tb_user_adviser set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
+        ;
+    </update>
+    
+    <update id="applicantDataMigration">
+        update b_applicant set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>;
+    </update>
+    
+    <update id="serviceOrderDataMigration">
+        update b_service_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and state not in ('COMPLETE', 'CLOSE') and (type != 'OVST' or is_submitted = 1)
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
+        ;
+    </update>
+    
+    <update id="visaDataMigration">
+        update b_visa set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
+        ;
+    </update>
+    
+    <update id="commissionOrderDataMigration">
+        update b_commission_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
+        ;
+    </update>
+    
+    <update id="refundDataMigration">
+        update b_refund set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
+        <if test='userId != null and userId > 0'>
+            AND user_id = #{userId}
+        </if>
+        ;
+    </update>
 
 </mapper>
