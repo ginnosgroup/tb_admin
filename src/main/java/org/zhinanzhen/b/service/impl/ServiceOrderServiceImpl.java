@@ -725,9 +725,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     if (applicantDo != null)
                         applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
                 });
-//				applicantDoList.forEach(applicantDo -> {
-//					applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
-//				});
+				if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
+					applicantDtoList.add(serviceOrderDto.getApplicant());
                 userDto.setApplicantList(applicantDtoList);
             }
             serviceOrderDto.setUser(userDto);
