@@ -269,6 +269,10 @@ public class Scheduled {
                     SendEmailUtil.send("lorrain.pan@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
+                if (area.getArea().equals("CIS")){
+                    SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+                    SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+                }
             }
         }
 
@@ -345,6 +349,10 @@ public class Scheduled {
                 }
                 if (area.getArea() .equals("Hobart")){
                     SendEmailUtil.send("lorrain.pan@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+                    SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+                }
+                if (area.getArea().equals("CIS")){
+                    SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                 }
 
@@ -651,7 +659,7 @@ public class Scheduled {
 	}
 
     public enum regionEnum{
-        Sydney, Canberra, 攻坚部, Melbourne, Brisbane, Adelaide, Hobart ;
+        Sydney, Canberra, 攻坚部, Melbourne, Brisbane, Adelaide, Hobart, CIS ;
 
         public static regionEnum get(String name){
             for (regionEnum e : regionEnum.values())

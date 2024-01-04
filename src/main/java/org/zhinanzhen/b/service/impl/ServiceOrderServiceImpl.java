@@ -720,7 +720,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 //				List<ApplicantDO> applicantDoList = applicantDao.list(0, null, serviceOrderDto.getUserId(),
 //						serviceOrderDto.getAdviserId(), 0, 999);
                 List<ApplicantDTO> applicantDtoList = new ArrayList<>();
-                serviceOrderApplicantList.forEach(serviceOrderApplicant -> { //TODO:sulei  serviceOrderApplicantList有可能为空，需根治
+                serviceOrderApplicantList.forEach(serviceOrderApplicant -> {
                     ApplicantDO applicantDo = applicantDao.getById(serviceOrderApplicant.getApplicantId());
                     if (applicantDo != null)
                         applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
