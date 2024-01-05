@@ -461,7 +461,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
                 commissionOrderListDto.setApplicantId(commissionOrderListDo.getApplicantId());
             }
         }
-        if (commissionOrderListDo.getSchoolId() > 0) {
+        if (commissionOrderListDo.getSchoolId() > 0) { // 旧学校库，已废弃
             SchoolDO schoolDo = schoolDao.getSchoolById(commissionOrderListDo.getSchoolId());
             if (schoolDo != null)
                 commissionOrderListDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
@@ -520,12 +520,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         if (commissionOrderListDo.getCourseId() > 0) {
             SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO
                     .getSchoolInstitutionInfoByCourseId(commissionOrderListDo.getCourseId());
-            commissionOrderListDto.setSchoolInstitutionListDTO(schoolInstitutionInfo);
             if (commissionOrderListDo.getSchoolInstitutionLocationId() > 0 && schoolInstitutionInfo != null) {
                 SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO
                         .getById(commissionOrderListDo.getSchoolInstitutionLocationId());
                 schoolInstitutionInfo.setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
             }
+            commissionOrderListDto.setSchoolInstitutionListDTO(schoolInstitutionInfo);
         }
 
         // 是否退款
