@@ -1892,7 +1892,6 @@ public class ServiceOrderController extends BaseController {
         List<String> excludeTypeList = null;
         String excludeState = null;
         List<String> stateList = null;
-        System.out.println("是这个接口---------------------------");
         if (state != null && !"".equals(state))
             stateList = new ArrayList<>(Arrays.asList(state.split(",")));
         List<String> reviewStateList = null;
@@ -2068,9 +2067,12 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(16, i, "财务转账完成", cellFormat));
                 else if (so.getState().equalsIgnoreCase("PAID"))
                     sheet.addCell(new Label(16, i, "COE已下", cellFormat));
-                else if (so.getState().equalsIgnoreCase("CLOSE"))
-                    sheet.addCell(new Label(16, i, "已关闭", cellFormat));
-                else if (so.getState().equalsIgnoreCase("WAIT"))
+                else if (so.getState().equalsIgnoreCase("CLOSE")) {
+					String str = "已关闭";
+					if (StringUtil.isNotEmpty(so.getClosedReason()))
+						StringUtil.merge(str, "(", so.getClosedReason(), ")");
+                    sheet.addCell(new Label(16, i, str, cellFormat));
+                } else if (so.getState().equalsIgnoreCase("WAIT"))
                     sheet.addCell(new Label(16, i, "已提交MARA审核", cellFormat));
                 /*
                  * //旧系统状态废除 if (so.getReview() != null) { if
