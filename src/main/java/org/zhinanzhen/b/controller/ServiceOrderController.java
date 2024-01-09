@@ -2070,8 +2070,8 @@ public class ServiceOrderController extends BaseController {
                 else if (so.getState().equalsIgnoreCase("CLOSE")) {
 					String str = "已关闭";
 					if (StringUtil.isNotEmpty(so.getClosedReason()))
-						StringUtil.merge(str, "(", so.getClosedReason(), ")");
-                    sheet.addCell(new Label(16, i, str, cellFormat));
+						str = StringUtil.merge(str, "(", so.getClosedReason(), ")");
+					sheet.addCell(new Label(16, i, str, cellFormat));
                 } else if (so.getState().equalsIgnoreCase("WAIT"))
                     sheet.addCell(new Label(16, i, "已提交MARA审核", cellFormat));
                 /*
