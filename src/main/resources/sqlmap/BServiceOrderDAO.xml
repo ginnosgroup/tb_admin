@@ -435,6 +435,9 @@
         <if test='startReadcommittedDate != null and startReadcommittedDate != "" and endReadcommittedDate != null and endReadcommittedDate != ""'>
             <![CDATA[ AND so.readcommitted_date > #{startReadcommittedDate} AND so.readcommitted_date < #{endReadcommittedDate} ]]>
         </if>
+        <if test='startFinishDate != null and startFinishDate != "" and endFinishDate != null and endFinishDate != ""'>
+            <![CDATA[ AND so.finish_date > #{startFinishDate} AND so.finish_date < #{endFinishDate} ]]>
+        </if>
         <if test='regionIdList != null'>
             AND a.region_id IN
             <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
@@ -619,6 +622,9 @@
         </if>
         <if test='startReadcommittedDate != null and startReadcommittedDate != "" and endReadcommittedDate != null and endReadcommittedDate != ""'>
             <![CDATA[ AND so.readcommitted_date > #{startReadcommittedDate} AND so.readcommitted_date < #{endReadcommittedDate} ]]>
+        </if>
+        <if test='startFinishDate != null and startFinishDate != "" and endFinishDate != null and endFinishDate != ""'>
+            <![CDATA[ AND so.finish_date > #{startFinishDate} AND so.finish_date < #{endFinishDate} ]]>
         </if>
         <if test='regionIdList != null'>
             AND a.region_id IN
@@ -1244,25 +1250,42 @@
 
     <select id="ApplicantListByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.ApplicantListDO">
         SELECT
-	id,
-	applicant_id AS applicantId,
-	applicant_parent_id AS applicantParentId
-FROM
-	b_service_order
-WHERE
-	applicant_parent_id = #{serviceOrderId}
-	OR id = #{serviceOrderId}
-    </select>
-
-    <select id="getDeriveOrder" resultType="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
-        SELECT
             id,
-            service_package_id AS servicePackageId,
-            parent_id AS parentId
+            applicant_id AS applicantId,
+            applicant_parent_id AS applicantParentId,
+            service_package_id AS servicePackageId
         FROM
             b_service_order
         WHERE
-            parent_id = #{id,jdbcType=INTEGER}
+            applicant_parent_id = #{serviceOrderId}
+        OR
+            id = #{serviceOrderId}
     </select>
 
+    <select id="getDeriveOrder" resultMap="ServicePackage">
+        SELECT
+            bso.id AS bsoId,
+            bso.service_package_id AS servicePackageId,
+            bso.parent_id AS parentId,
+            bsp.id AS bspId,
+            bsp.type AS bspType,
+            bsp.service_id AS bspServiceId
+        FROM
+            b_service_order bso, b_service_package bsp
+        WHERE
+            bso.service_package_id = bsp.id
+        AND
+            bso.parent_id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
+        <id column="bsoId" property="id"></id>
+        <result column="servicePackageId" property="servicePackageId"></result>
+        <result column="parentId" property="parentId"></result>
+        <association property="servicePackage" javaType="org.zhinanzhen.b.service.pojo.ServicePackageDTO">
+            <id column="bspId" property="id"></id>
+            <result column="bspType" property="type"></result>
+            <result column="bspServiceId" property="serviceId"></result>
+        </association>
+    </resultMap>
 </mapper>

@@ -29,6 +29,7 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service("ServiceOrderService")
@@ -389,7 +390,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     public int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
                                  String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
                                  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-                                 String startReadcommittedDate, String endReadcommittedDate, List<Integer> regionIdList, Integer userId,
+                                 String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate, List<Integer> regionIdList, Integer userId,
                                  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
                                  Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
                                  Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
@@ -397,7 +398,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                 theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-                theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
+                theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                 officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle);
     }
 
@@ -405,7 +406,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     public List<ServiceOrderDTO> listServiceOrder(String type, List<String> excludeTypeList, String excludeState,
                                                   List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
                                                   String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-                                                  String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate,
+                                                  String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate,
                                                   List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
                                                   Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
                                                   boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
@@ -427,7 +428,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-                    theDateTo23_59_59(endReadcommittedDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
+                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
             if (serviceOrderDoList == null)
                 return null;
@@ -872,6 +873,24 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setCreateVisaOffice(true);
         } else
             serviceOrderDto.setCreateVisaOffice(false);
+//        if (serviceOrderDO.getParentId() != 0) {
+//            List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
+//            if (deriveOrder != null && deriveOrder.size() == 2) {
+//                AtomicInteger count = new AtomicInteger();
+//                deriveOrder.forEach(e->{
+//                    ServicePackageDO servicePackageDO = servicePackageDao.getById(e.getServicePackageId());
+//                    if ("ROI".equals(servicePackageDO.getType())) {
+//                        count.getAndIncrement();
+//                    }
+//                    if ("VISA".equals(serviceOrderDO.getType())) {
+//                        count.getAndIncrement();
+//                    }
+//                    if (count.get() == 2) {
+//                        serviceOrderDto.setCreateVisaOffice(true);
+//                    }
+//                });
+//            }
+//        }
         //判断是否提交mm资料
         if (customerInformationDAO.getByServiceOrderId(serviceOrderDO.getId()) != null) {
             serviceOrderDto.setSubmitMM(true);
