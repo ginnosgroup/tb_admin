@@ -1278,8 +1278,8 @@ public class ServiceOrderController extends BaseController {
                     isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, isSettle);
             List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
                     excludeState, stateList, auditingState, reviewStateList, urgentState, startMaraApprovalDate,
-                    endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, startFinishDate, endFinishDate,
-                    endReadcommittedDate, regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
+                    endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
+                    endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                     officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter,
                     serviceId, servicePackageId, schoolId, null, isSettle);
 
