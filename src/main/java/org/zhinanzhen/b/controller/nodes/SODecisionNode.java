@@ -78,7 +78,8 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				serviceOrderDto.setStateMark2(context.getParameter("stateMark2").toString());
 				log.info("写入stateMark2:" + serviceOrderDto.getStateMark2());
 			}
-			if ("APPLY,COMPLETE,PAID".contains(getName())){
+			if (StringUtil.equals(getName(), "APPLY") || StringUtil.equals(getName(), "COMPLETE")
+					|| StringUtil.equals(getName(), "PAID") || StringUtil.equals(getName(), "APPLY_FAILED")) {
 				if (serviceOrderDto.getReadcommittedDate() == null)
 					serviceOrderDto.setReadcommittedDate(new Date());
 			}
