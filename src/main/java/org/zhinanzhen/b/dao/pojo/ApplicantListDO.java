@@ -4,9 +4,11 @@ import lombok.Data;
 
 @Data
 public class ApplicantListDO {
-    private int id;
+    private Integer id;
 
-    private int applicantId;
+    private Integer applicantId;
 
-    private int applicantParentId;
+    private Integer applicantParentId;
+
+    private Integer servicePackageId;
 }

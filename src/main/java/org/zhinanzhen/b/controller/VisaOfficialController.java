@@ -179,10 +179,15 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
             visaDto.setKjApprovalDate(new Date());
 
-            if (visaOfficialService.addVisa(visaDto) > 0)
+            if (visaOfficialService.addVisa(visaDto) > 0) {
                 visaOfficialDTOList.add(visaDto);
-            else
+            }
+            else if (visaOfficialService.addVisa(visaDto) == -2) {
+//                throw new ServiceException("当前打包签证中同时包含EOI和ROI，在EOI进行结算");
+                return new Response<>(-1,"当前打包签证中同时包含EOI和ROI，在EOI进行结算");
+            } else {
                 return new Response<>(-1,"服务订单暂未付款完成");
+            }
             _perAmount += visaDto.getPerAmount();
             _amount += visaDto.getAmount();
 

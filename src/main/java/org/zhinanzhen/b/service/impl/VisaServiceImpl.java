@@ -4,6 +4,7 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Synchronized;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
@@ -26,10 +27,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
@@ -137,6 +135,16 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 //						});
 //					}
 //				}
+				// 分期付款订单订单总应收款修改
+				ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
+				List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getId());
+				if (visaDo.getInstallment() == 2 && !CollectionUtils.isEmpty(deriveOrder)) {
+					deriveOrder.forEach(e->{
+						e.setPerAmount(e.getReceivable());
+						ServiceOrderDO serviceOrderDO = mapper.map(e, ServiceOrderDO.class);
+						serviceOrderDao.updateServiceOrder(serviceOrderDO);
+					});
+				}
 				return visaDo.getId();
 			} else {
 				return 0;
