@@ -873,6 +873,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setCreateVisaOffice(true);
         } else
             serviceOrderDto.setCreateVisaOffice(false);
+        ServiceOrderDO parentServiceOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
+        if (ObjectUtil.isNotNull(parentServiceOrder)) {
+            if ("SIV".equals(parentServiceOrder.getType())) {
+                String type = servicePackageDao.getById(serviceOrderDto.getServicePackageId()).getType();
+                if ("ROI".equals(type) || "EOI".equals(type) || "VA".equals(type)) {
+                    serviceOrderDto.setCreateVisaOffice(true);
+                } else {
+                    serviceOrderDto.setCreateVisaOffice(false);
+                }
+            }
+        }
 //        if (serviceOrderDO.getParentId() != 0) {
 //            List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
 //            if (deriveOrder != null && deriveOrder.size() == 2) {

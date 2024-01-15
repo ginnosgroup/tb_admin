@@ -1264,24 +1264,177 @@
 
     <select id="getDeriveOrder" resultMap="ServicePackage">
         SELECT
-            bso.id AS bsoId,
-            bso.service_package_id AS servicePackageId,
-            bso.parent_id AS parentId,
+            so.id AS id,
+            so.gmt_create AS gmtCreate,
+            so.gmt_modify AS gmtModify,
+            so.code AS code,
+            so.finish_date AS finishDate,
+            so.type AS type,
+            so.people_number AS peopleNumber,
+            so.people_type AS peopleType,
+            so.people_remarks AS peopleRemarks,
+            so.service_id AS serviceId,
+            so.parent_id AS parentId,
+            so.applicant_parent_id AS applicantParentId,
+            so.service_package_id AS servicePackageId,
+            so.school_id AS schoolId,
+            so.course_id AS courseId,
+            so.school_institution_location_id AS schoolInstitutionLocationId,
+            so.institution_trading_name AS institutionTradingName,
+            so.state AS state,
+            so.state_mark AS stateMark,
+            so.state_mark2 AS stateMark2,
+            so.urgent_state AS urgentState,
+            so.mara_approval_date AS maraApprovalDate,
+            so.submit_mara_approval_date AS submitMaraApprovalDate,
+            so.official_approval_date AS officialApprovalDate,
+            so.is_settle AS isSettle,
+            so.is_deposit_user AS isDepositUser,
+            so.is_submitted AS isSubmitted,
+            so.subagency_id AS subagencyId,
+            so.is_pay AS isPay,
+            so.receive_type_id AS receiveTypeId,
+            so.receive_date AS receiveDate,
+            so.receivable AS receivable,
+            so.discount AS discount,
+            so.received AS received,
+            so.installment AS installment,
+            so.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            so.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            so.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            so.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            so.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            so.coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+            so.coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+            so.coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+            so.coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+            so.coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
+            so.visa_voucher_image_url AS visaVoucherImageUrl,
+            so.invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+            so.invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+            so.invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+            so.invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+            so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
+            so.kj_payment_image_url1 AS kjPaymentImageUrl1,
+            so.kj_payment_image_url2 AS kjPaymentImageUrl2,
+            so.low_price_image_url AS lowPriceImageUrl,
+            so.per_amount AS perAmount,
+            so.amount AS amount,
+            so.expect_amount AS expectAmount,
+            so.currency,
+            so.exchange_rate AS exchangeRate,
+            so.gst AS gst,
+            so.deduct_gst AS deductGst,
+            so.bonus AS bonus,
+            so.user_id AS userId,
+            so.applicant_id AS applicantId,
+            so.mara_id AS maraId,
+            so.adviser_id AS adviserId,
+            so.adviser_id_2 AS adviserId2,
+            so.official_id AS officialId,
+            so.remarks AS remarks,
+            so.refuse_reason AS refuseReason,
+            so.closed_reason AS closedReason,
+            so.information AS information ,
+            so.is_history AS isHistory,
+            so.nut_cloud AS nutCloud,
+            so.service_assess_id AS serviceAssessId ,
+            so.real_people_number AS realPeopleNumber ,
+            so.verify_code AS verifyCode ,
+            so.readcommitted_date AS readcommittedDate,
+            so.ref_no AS refNo,
             bsp.id AS bspId,
             bsp.type AS bspType,
             bsp.service_id AS bspServiceId
         FROM
-            b_service_order bso, b_service_package bsp
+            b_service_order so, b_service_package bsp
         WHERE
-            bso.service_package_id = bsp.id
+            so.service_package_id = bsp.id
         AND
-            bso.parent_id = #{id,jdbcType=INTEGER}
+            so.parent_id = #{id,jdbcType=INTEGER}
     </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
-        <id column="bsoId" property="id"></id>
-        <result column="servicePackageId" property="servicePackageId"></result>
+        <id column="id" property="id"></id>
+        <result column="gmtCreate" property="gmtCreate"></result>
+        <result column="gmtModify" property="gmtModify"></result>
+        <result column="code" property="code"></result>
+        <result column="finishDate" property="finishDate"></result>
+        <result column="type" property="type"></result>
+        <result column="peopleNumber" property="peopleNumber"></result>
+        <result column="peopleType" property="peopleType"></result>
+        <result column="peopleRemarks" property="peopleRemarks"></result>
+        <result column="serviceId" property="serviceId"></result>
         <result column="parentId" property="parentId"></result>
+        <result column="applicantParentId" property="applicantParentId"></result>
+        <result column="servicePackageId" property="servicePackageId"></result>
+        <result column="schoolId" property="schoolId"></result>
+        <result column="courseId" property="courseId"></result>
+        <result column="schoolInstitutionLocationId" property="schoolInstitutionLocationId"></result>
+        <result column="institutionTradingName" property="institutionTradingName"></result>
+        <result column="state" property="state"></result>
+        <result column="stateMark" property="stateMark"></result>
+        <result column="stateMark2" property="stateMark2"></result>
+        <result column="urgentState" property="urgentState"></result>
+        <result column="maraApprovalDate" property="maraApprovalDate"></result>
+        <result column="submitMaraApprovalDate" property="submitMaraApprovalDate"></result>
+        <result column="officialApprovalDate" property="officialApprovalDate"></result>
+        <result column="isSettle" property="isSettle"></result>
+        <result column="isDepositUser" property="isDepositUser"></result>
+        <result column="isSubmitted" property="isSubmitted"></result>
+        <result column="subagencyId" property="subagencyId"></result>
+        <result column="isPay" property="isPay"></result>
+        <result column="receiveTypeId" property="receiveTypeId"></result>
+        <result column="receiveDate" property="receiveDate"></result>
+        <result column="receivable" property="receivable"></result>
+        <result column="discount" property="discount"></result>
+        <result column="received" property="received"></result>
+        <result column="installment" property="installment"></result>
+        <result column="paymentVoucherImageUrl1" property="paymentVoucherImageUrl1"></result>
+        <result column="paymentVoucherImageUrl2" property="paymentVoucherImageUrl2"></result>
+        <result column="paymentVoucherImageUrl3" property="paymentVoucherImageUrl3"></result>
+        <result column="paymentVoucherImageUrl4" property="paymentVoucherImageUrl4"></result>
+        <result column="paymentVoucherImageUrl5" property="paymentVoucherImageUrl5"></result>
+        <result column="coePaymentVoucherImageUrl1" property="coePaymentVoucherImageUrl1"></result>
+        <result column="coePaymentVoucherImageUrl2" property="coePaymentVoucherImageUrl2"></result>
+        <result column="coePaymentVoucherImageUrl3" property="coePaymentVoucherImageUrl3"></result>
+        <result column="coePaymentVoucherImageUrl4" property="coePaymentVoucherImageUrl4"></result>
+        <result column="coePaymentVoucherImageUrl5" property="coePaymentVoucherImageUrl5"></result>
+        <result column="visaVoucherImageUrl" property="visaVoucherImageUrl"></result>
+        <result column="invoiceVoucherImageUrl1" property="invoiceVoucherImageUrl1"></result>
+        <result column="invoiceVoucherImageUrl2" property="invoiceVoucherImageUrl2"></result>
+        <result column="invoiceVoucherImageUrl3" property="invoiceVoucherImageUrl3"></result>
+        <result column="invoiceVoucherImageUrl4" property="invoiceVoucherImageUrl4"></result>
+        <result column="invoiceVoucherImageUrl5" property="invoiceVoucherImageUrl5"></result>
+        <result column="kjPaymentImageUrl1" property="kjPaymentImageUrl1"></result>
+        <result column="kjPaymentImageUrl2" property="kjPaymentImageUrl2"></result>
+        <result column="lowPriceImageUrl" property="lowPriceImageUrl"></result>
+        <result column="perAmount" property="perAmount"></result>
+        <result column="amount" property="amount"></result>
+        <result column="expectAmount" property="expectAmount"></result>
+        <result column="currency" property="currency"></result>
+        <result column="exchangeRate" property="exchangeRate"></result>
+        <result column="gst" property="gst"></result>
+        <result column="deductGst" property="deductGst"></result>
+        <result column="bonus" property="bonus"></result>
+        <result column="userId" property="userId"></result>
+        <result column="applicantId" property="applicantId"></result>
+        <result column="maraId" property="maraId"></result>
+        <result column="adviserId" property="adviserId"></result>
+        <result column="adviserId2" property="adviserId2"></result>
+        <result column="officialId" property="officialId"></result>
+        <result column="remarks" property="remarks"></result>
+        <result column="refuseReason" property="refuseReason"></result>
+        <result column="closedReason" property="closedReason"></result>
+        <result column="information" property="information"></result>
+        <result column="isHistory" property="isHistory"></result>
+        <result column="nutCloud" property="nutCloud"></result>
+        <result column="serviceAssessId" property="serviceAssessId"></result>
+        <result column="realPeopleNumber" property="realPeopleNumber"></result>
+        <result column="verifyCode" property="verifyCode"></result>
+        <result column="readcommittedDate" property="readcommittedDate"></result>
+        <result column="refNo" property="refNo"></result>
+        <result column="visaVoucherImageUrl" property="visaVoucherImageUrl"></result>
         <association property="servicePackage" javaType="org.zhinanzhen.b.service.pojo.ServicePackageDTO">
             <id column="bspId" property="id"></id>
             <result column="bspType" property="type"></result>
