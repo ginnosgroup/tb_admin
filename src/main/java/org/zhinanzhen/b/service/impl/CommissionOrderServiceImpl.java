@@ -348,8 +348,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
     private List<CommissionInfoDTO> buildCommissionInfoDto(List<CommissionInfoDO> commissionInfoDO) {
         List<CommissionInfoDTO> commissionInfoDTOList = new ArrayList<>();
         CommissionInfoDTO commissionInfoDTO = new CommissionInfoDTO();
-        int installment = commissionInfoDO.get(0).getInstallment();
-        for (int i = 0; i < installment; i++) {
+        for (int i = 0; i < commissionInfoDO.size(); i++) {
             commissionInfoDTO = new CommissionInfoDTO();
             DecimalFormat df = new DecimalFormat("0.00");
             commissionInfoDTO.setServiceOrderId(commissionInfoDO.get(i).getServiceOrderId());
