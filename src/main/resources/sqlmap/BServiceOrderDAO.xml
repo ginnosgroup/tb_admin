@@ -1260,6 +1260,7 @@
             applicant_parent_id = #{serviceOrderId}
         OR
             id = #{serviceOrderId}
+        GROUP BY applicant_id;
     </select>
 
     <select id="getDeriveOrder" resultMap="ServicePackage">
