@@ -61,14 +61,15 @@
             gmt_create AS GmtCreate,
             name,
             code,
-            role
+            role,
+            is_zx AS isZx
         FROM b_service
         <where>
             <if test='name != null and name != ""'>
                 AND name = #{name}
             </if>
             <if test="isZx == true">
-                AND is_zx = #{isZx}
+                AND is_delete = 0 AND is_zx = #{isZx}
             </if>
             <if test="isZx == false">
                 AND is_delete = 0 AND is_zx = FALSE
