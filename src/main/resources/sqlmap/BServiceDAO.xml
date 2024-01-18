@@ -69,10 +69,10 @@
                 AND name = #{name}
             </if>
             <if test="isZx == true">
-                AND is_delete = 0 AND is_zx = 1
+                AND is_zx = #{isZx}
             </if>
             <if test="isZx == false">
-                AND is_delete = 0 AND is_zx = 0
+                AND is_delete = 0 AND is_zx = FALSE
             </if>
         </where>
         ORDER BY code
