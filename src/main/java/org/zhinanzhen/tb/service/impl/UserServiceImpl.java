@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.service.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -90,7 +91,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		UserDO userDo = new UserDO();
 		userDo.setName(name);
-		userDo.setAuthNickname(authNickname);
+		String authNicknameUTF8 = new String(authNickname.getBytes(), StandardCharsets.UTF_8);
+		userDo.setAuthNickname(authNicknameUTF8);
 		userDo.setAuthType("BROKERAGE");
 		userDo.setAuthOpenid("");
 		userDo.setBirthday(birthday);
