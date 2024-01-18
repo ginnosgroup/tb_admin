@@ -473,11 +473,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				String parameters = schoolSettingDO.getParameters();
 				if (type == 1 || type == 2) {
 					String[] _parameters = parameters.split("[|]");
-					return "0." + _parameters[0];
+					return Double.parseDouble(_parameters[0]) * 0.01 + "";
 				}
 				if (type == 4) {
 					String[] _parameters = parameters.split("[|]");
-					return "0." + _parameters[1].split("/")[0];
+					return Double.parseDouble(_parameters[1].split("/")[0]) * 0.01 + "";
 				}
 				if (type == 7) {
 					return parameters;
@@ -492,11 +492,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					String parameters = schoolSettingNewDO.getParameters();
 					if (type == 1 || type == 2) {
 						String[] _parameters = parameters.split("[|]");
-						return "0." + _parameters[0];
+						return Double.parseDouble(_parameters[0]) * 0.01 + "";
 					}
 					if (type == 4) {
 						String[] _parameters = parameters.split("[|]");
-						return "0." + _parameters[1].split("/")[0];
+						return Double.parseDouble(_parameters[1].split("/")[0]) * 0.01 + "";
 					}
 					if (type == 7) {
 						return parameters;
