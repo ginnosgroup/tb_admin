@@ -927,9 +927,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     }
 
     @Override
-    public int finish(int id) throws ServiceException {
-        return serviceOrderDao.finishServiceOrder(id);
-    }
+	public int finish(int id) throws ServiceException {
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
+		if (serviceOrderDo.getFinishDate() == null)
+			return serviceOrderDao.finishServiceOrder(id);
+		else {// 如果完成时间已存在则不更新
+			LOG.warn(StringUtil.merge("服务订单(", id, ")完成时间修改失败:完成时间已存在(", serviceOrderDo.getFinishDate(), ")."));
+			return 0;
+		}
+	}
 
     @Override
     public int Readcommitted(int id) throws ServiceException {
