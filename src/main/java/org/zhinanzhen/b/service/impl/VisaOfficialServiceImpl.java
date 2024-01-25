@@ -795,9 +795,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         if (serviceOrderDO.getParentId() == 0 && serviceOrderDO.getApplicantParentId() == 0) {
             visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getId());
             visaDO1 = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getId());
-            if (visaDO1 == null)
+            if (visaDO1 == null) {
+                if (visaDO == null) {
+                    return commissionAmountDTO;
+                }
                 amount = visaDO.getAmount();
-            else {
+            } else {
                 amount = visaDO.getAmount();
                 amount += visaDO1.getAmount();
             }
