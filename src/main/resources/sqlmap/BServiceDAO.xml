@@ -117,7 +117,8 @@
             name,
             code,
             role,
-            is_zx AS isZx
+            is_zx AS isZx,
+            is_delete AS isDelete
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
