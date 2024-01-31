@@ -97,6 +97,44 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 		}
 		return serviceDtoList;
 	}
+	
+	@Override
+	public int countAllService(String name) throws ServiceException {
+		return serviceDao.countAllService(name);
+	}
+
+	@Override
+	public List<ServiceDTO> listAllService(String name, int pageNum, int pageSize) throws ServiceException {
+		if (pageNum < 0)
+			pageNum = DEFAULT_PAGE_NUM;
+		if (pageSize < 0)
+			pageSize = DEFAULT_PAGE_SIZE;
+		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
+		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
+		try {
+			serviceDoList = serviceDao.listAllService(name, pageNum * pageSize, pageSize);
+			if (serviceDoList == null)
+				return null;
+			for (ServiceDO serviceDo : serviceDoList) {
+				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
+				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
+						0, 0, 999);
+				if (servicePackagePriceDoList != null) {
+					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
+						servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+					});
+					serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
+				}
+				serviceDtoList.add(serviceDto);
+			}
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+		return serviceDtoList;
+	}
 
 	@Override
 	public ServiceDTO getServiceById(int id) throws ServiceException {

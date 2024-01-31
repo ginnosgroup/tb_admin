@@ -16,6 +16,11 @@ public interface ServiceDAO {
 
 	public List<ServiceDO> listService(@Param("name") String name, @Param("isZx") boolean isZx,
 			@Param("offset") int offset, @Param("rows") int rows);
+	
+	public int countAllService(@Param("name") String name);
+
+	public List<ServiceDO> listAllService(@Param("name") String name, @Param("offset") int offset,
+			@Param("rows") int rows);
 
 	public ServiceDO getServiceById(int id);
 

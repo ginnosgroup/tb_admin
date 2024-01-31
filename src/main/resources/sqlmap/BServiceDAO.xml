@@ -62,7 +62,8 @@
             name,
             code,
             role,
-            is_zx AS isZx
+            is_zx AS isZx,
+            is_delete AS isDelete
         FROM b_service
         <where>
             <if test='name != null and name != ""'>
@@ -73,6 +74,36 @@
             </if>
             <if test="isZx == false">
                 AND is_delete = 0 AND is_zx = FALSE
+            </if>
+        </where>
+        ORDER BY code
+        LIMIT #{offset}, #{rows};
+    </select>
+    
+    <select id="countAllService" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_service
+        <where>
+            <if test='name != null and name != ""'>
+                AND name = #{name}
+            </if>
+        </where>
+        ;
+    </select>
+    
+    <select id="listAllService" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            name,
+            code,
+            role,
+            is_zx AS isZx,
+            is_delete AS isDelete
+        FROM b_service
+        <where>
+            <if test='name != null and name != ""'>
+                AND name = #{name}
             </if>
         </where>
         ORDER BY code

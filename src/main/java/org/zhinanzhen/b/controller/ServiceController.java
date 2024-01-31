@@ -87,6 +87,20 @@ public class ServiceController extends BaseController {
 		}
 	}
 	
+	@RequestMapping(value = "/listAll", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<ServiceDTO>> listAllService(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new ListResponse<List<ServiceDTO>>(true, pageSize, serviceService.countAllService(name),
+					serviceService.listAllService(name, pageNum, pageSize), "");
+		} catch (ServiceException e) {
+			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());
+		}
+	}
+	
 //	@RequestMapping(value = "/list", method = RequestMethod.GET)
 //	@ResponseBody
 //	public Response<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,

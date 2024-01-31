@@ -16,6 +16,8 @@ public class ServiceDTO {
 	private String role;
 
 	private boolean isZx;
+	
+	private boolean isDelete;
 
 	private List<ServicePackagePriceDTO> ServicePackagePirceList;
 }

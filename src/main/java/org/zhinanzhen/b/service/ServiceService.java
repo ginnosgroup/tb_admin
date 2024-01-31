@@ -15,6 +15,10 @@ public interface ServiceService {
 
 	public List<ServiceDTO> listService(String name, boolean isZx, int pageNum, int pageSize) throws ServiceException;
 
+	public int countAllService(String name) throws ServiceException;
+
+	public List<ServiceDTO> listAllService(String name, int pageNum, int pageSize) throws ServiceException;
+
 	public ServiceDTO getServiceById(int id) throws ServiceException;
 
 	public int deleteServiceById(int id, boolean isZx) throws ServiceException;
