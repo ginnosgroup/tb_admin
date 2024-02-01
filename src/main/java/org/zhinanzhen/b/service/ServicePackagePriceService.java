@@ -17,7 +17,7 @@ public interface ServicePackagePriceService {
 
 //	List<ServicePackagePriceDTO> listServicePackagePrice(int serviceId, int regionId, int pageNum, int pageSize)
 //			throws ServiceException;
-	ServicePackagePriceDTO listServicePackagePrice(int serviceId, int regionId, int pageNum, int pageSize)
+	List<ServicePackagePriceDTO> listServicePackagePrice(int serviceId, int regionId, int pageNum, int pageSize)
 			throws ServiceException;
 
 	ServicePackagePriceDTO getServicePackagePriceById(int id) throws ServiceException;

@@ -190,17 +190,17 @@ public class ServicePackagePriceController extends BaseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public ListResponse<ServicePackagePriceDTO> list(
+    public ListResponse<List<ServicePackagePriceDTO>> list(
             @RequestParam(value = "serviceId") Integer serviceId,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
             HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new ListResponse<ServicePackagePriceDTO>(true, pageSize,
+            return new ListResponse<List<ServicePackagePriceDTO>>(true, pageSize,
                     servicePackagePriceService.countServicePackagePrice(serviceId, 0),
                     servicePackagePriceService.listServicePackagePrice(serviceId, 0, pageNum, pageSize), "");
         } catch (ServiceException e) {
-            return new ListResponse<ServicePackagePriceDTO>(false, pageSize, 0, null, e.getMessage());
+            return new ListResponse<List<ServicePackagePriceDTO>>(false, pageSize, 0, null, e.getMessage());
         }
     }
 

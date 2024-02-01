@@ -19,7 +19,7 @@ public interface ServicePackagePriceDAO {
 	List<ServicePackagePriceDO> list(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
 			@Param("offset") int offset, @Param("rows") int rows);
 
-	ServicePackagePriceDO listDt(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
+	List<ServicePackagePriceDO> listDt(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
 			@Param("offset") int offset, @Param("rows") int rows);
 
 	ServicePackagePriceDO getById(int id);

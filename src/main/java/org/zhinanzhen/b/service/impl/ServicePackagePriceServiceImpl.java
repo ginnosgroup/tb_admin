@@ -107,19 +107,26 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 //		return servicePackagePriceDtoList;
 //	}
 	@Override
-	public ServicePackagePriceDTO listServicePackagePrice(int serviceId, int regionId,
+	public List<ServicePackagePriceDTO> listServicePackagePrice(int serviceId, int regionId,
 																int pageNum, int pageSize) throws ServiceException {
-		ServicePackagePriceDTO servicePackagePriceDtoList = new ServicePackagePriceDTO();
-		ServicePackagePriceDO servicePackagePriceDoList = new ServicePackagePriceDO();
+		List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+		List<ServicePackagePriceDO> servicePackagePriceDoList = new ArrayList<>();
 		try {
 			servicePackagePriceDoList = servicePackagePriceDao.listDt(serviceId, regionId,
 					pageNum * pageSize, pageSize);
 			if (servicePackagePriceDoList == null)
 				return null;
-			String rulerV2 = servicePackagePriceDoList.getRulerV2();
-			List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
-			servicePackagePriceDtoList = mapper.map(servicePackagePriceDoList, ServicePackagePriceDTO.class);
-			servicePackagePriceDtoList.setServicePackagePriceV2DTO(servicePackagePriceV2DTOS);
+			servicePackagePriceDoList.forEach(e->{
+				String rulerV2 = e.getRulerV2();
+				List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+				ServicePackagePriceDTO servicePackagePriceDTO = mapper.map(e, ServicePackagePriceDTO.class);
+				servicePackagePriceDTO.setServicePackagePriceV2DTO(servicePackagePriceV2DTOS);
+				servicePackagePriceDtoList.add(servicePackagePriceDTO);
+			});
+//			String rulerV2 = servicePackagePriceDoList.getRulerV2();
+//			List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+//			servicePackagePriceDtoList = mapper.map(servicePackagePriceDoList, ServicePackagePriceDTO.class);
+//			servicePackagePriceDtoList.setServicePackagePriceV2DTO(servicePackagePriceV2DTOS);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
