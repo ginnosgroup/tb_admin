@@ -7,7 +7,7 @@ import org.zhinanzhen.tb.dao.pojo.RegionDO;
 
 public interface RegionDAO {
 
-    public RegionDO getRegionById(int id);
+    public RegionDO getRegionById(Integer id);
 
     public List<RegionDO> listAllRegion();
 

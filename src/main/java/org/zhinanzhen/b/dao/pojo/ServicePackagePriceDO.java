@@ -34,5 +34,5 @@ public class ServicePackagePriceDO implements Serializable {
 
 	private double amount;
 
-
+    private String rulerV2;
 }

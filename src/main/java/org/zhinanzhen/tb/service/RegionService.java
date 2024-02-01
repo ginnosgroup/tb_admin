@@ -2,6 +2,7 @@ package org.zhinanzhen.tb.service;
 
 import java.util.List;
 
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 
 public interface RegionService {
@@ -36,5 +37,7 @@ public interface RegionService {
 	public boolean isCN(int id) throws ServiceException;
 	
 	public boolean isCNByAdviserId(int adviserId) throws ServiceException;
+
+	public RegionDO getRegionById(Integer regionId);
 
 }

@@ -15,7 +15,8 @@
                 cost_prince,
                 third_prince,
                 ruler,
-                amount)
+                amount,
+                ruler_V2)
             VALUES (
                 now(),
                 now(),
@@ -26,7 +27,8 @@
                 #{costPrince},
                 #{thirdPrince},
                 #{ruler},
-                #{amount})
+                #{amount},
+                #{rulerV2})
                 ;
     </insert>
     
@@ -57,6 +59,9 @@
         <if test='amount != null and amount > 0'>
             , amount = #{amount}
         </if>
+        <if test='rulerV2 != null'>
+            , ruler_V2 = #{rulerV2}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -69,7 +74,7 @@
         ;
     </select>
     
-    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+    <select id="listDt" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
             spp.id AS id,
             spp.min_price AS minPrice,
@@ -80,15 +85,37 @@
             spp.third_prince AS thirdPrince,
             spp.ruler AS ruler,
             spp.amount AS amount,
-            r.name AS regionName
-        FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id
+            spp.ruler_V2 as rulerV2
+        FROM b_service_package_price spp
         WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}
-        <if test='regionId != null and regionId > 0'>
-            AND spp.region_id = #{regionId}
-        </if>
         ORDER BY spp.gmt_create ASC
         LIMIT #{offset}, #{rows};
     </select>
+
+
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        SELECT
+        spp.id AS id,
+        spp.min_price AS minPrice,
+        spp.max_price AS maxPrice,
+        spp.service_id AS serviceId,
+        spp.region_id AS regionId,
+        spp.cost_prince AS costPrince,
+        spp.third_prince AS thirdPrince,
+        spp.ruler AS ruler,
+        spp.amount AS amount,
+        spp.ruler_V2 as rulerV2,
+                    r.name AS regionName
+        FROM b_service_package_price spp
+                    left join tb_region r on spp.region_id=r.id
+        WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}
+                <if test='regionId != null and regionId > 0'>
+                    AND spp.region_id = #{regionId}
+                </if>
+        ORDER BY spp.gmt_create ASC
+        LIMIT #{offset}, #{rows};
+    </select>
+
     
     <select id="getById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
         SELECT
@@ -123,7 +150,8 @@
 	        cost_prince as costPrince,
 	        third_prince as thirdPrince,
 	        ruler,
-	        amount
+	        amount,
+            ruler_V2 as rulerV2
         FROM
 	        b_service_package_price
         WHERE
