@@ -927,7 +927,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         if (collect.get(regionById.getId()) != null) {
             servicePackagePriceV2DTO = collect.get(regionById.getId());
         } else {
-            servicePackagePriceV2DTO = collect.get(1000001);
+            // 省
+            RegionDO regionById1 = regionDAO.getRegionById(regionById.getParentId());
+            // 国
+            RegionDO regionById2 = regionDAO.getRegionById(regionById1.getParentId());
+            servicePackagePriceV2DTO = collect.get(regionById2.getId());
         }
         return servicePackagePriceV2DTO;
     }

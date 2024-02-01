@@ -9,12 +9,15 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSONArray;
+import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceV2DTO;
+import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -40,6 +43,9 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 
 	@Resource
 	private ServiceOrderOfficialRemarksDAO serviceOrderOfficialRemarksDAO;
+
+	@Resource
+	private RegionDAO regionDAO;
 
 	@Override
 	public int addServicePackagePrice(ServicePackagePriceDTO servicePackagePriceDto) throws ServiceException {
@@ -79,7 +85,7 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 		return servicePackagePriceDao.update(servicePackagePriceDto.getId(), servicePackagePriceDto.getMinPrice(),
 				servicePackagePriceDto.getMaxPrice(), servicePackagePriceDto.getServiceId(),
 				servicePackagePriceDto.getRegionId(),servicePackagePriceDto.getCostPrince(),servicePackagePriceDto.getThirdPrince(),
-				servicePackagePriceDto.getRuler(),servicePackagePriceDto.getAmount(), null) > 0
+				servicePackagePriceDto.getRuler(),servicePackagePriceDto.getAmount(), servicePackagePriceDto.getRulerV2()) > 0
 						? servicePackagePriceDto.getId(): 0;}
 
 	@Override
@@ -119,6 +125,10 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 			servicePackagePriceDoList.forEach(e->{
 				String rulerV2 = e.getRulerV2();
 				List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+				servicePackagePriceV2DTOS.forEach(a->{
+					RegionDO regionById = regionDAO.getRegionById(a.getCity());
+					a.setParentId(regionById.getParentId());
+				});
 				ServicePackagePriceDTO servicePackagePriceDTO = mapper.map(e, ServicePackagePriceDTO.class);
 				servicePackagePriceDTO.setServicePackagePriceV2DTO(servicePackagePriceV2DTOS);
 				servicePackagePriceDtoList.add(servicePackagePriceDTO);
@@ -162,32 +172,36 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 	}
 
 	@Override
-	public void deleteById(Integer serviceId, ServicePackagePriceV2DTO servicePackagePriceV2DTO) throws ServiceException {
+	public int deleteById(Integer serviceId, ServicePackagePriceV2DTO servicePackagePriceV2DTO) throws ServiceException {
 		if (serviceId <= 0) {
 			ServiceException se = new ServiceException("serviceId error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
 		ServicePackagePriceDO byServiceId = servicePackagePriceDao.getByServiceId(serviceId);
-		String rulerV2 = byServiceId.getRulerV2();
-		List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
-		Map<String, List<String>> collect = servicePackagePriceV2DTOS.stream().
-				collect(Collectors.groupingBy(ServicePackagePriceV2DTO::getCountry,
-						Collectors.mapping(ServicePackagePriceV2DTO::getCountry, Collectors.toList())));
-		if (collect.get(servicePackagePriceV2DTO.getCountry()).size() == 1) {
-			throw new ServiceException("当前国家只有一条规则，不允许删除");
-		}
-		List<ServicePackagePriceV2DTO> servicePackagePriceV2DTONew = new ArrayList<>();
-		servicePackagePriceV2DTOS.forEach(e->{
-			if (!e.getCity().equals(servicePackagePriceV2DTO.getCity())) {
-				servicePackagePriceV2DTONew.add(e);
+		if (ObjectUtil.isNotNull(servicePackagePriceV2DTO)) {
+			String rulerV2 = byServiceId.getRulerV2();
+			List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+			Map<String, List<String>> collect = servicePackagePriceV2DTOS.stream().
+					collect(Collectors.groupingBy(ServicePackagePriceV2DTO::getCountry,
+							Collectors.mapping(ServicePackagePriceV2DTO::getCountry, Collectors.toList())));
+			if (collect.get(servicePackagePriceV2DTO.getCountry()).size() == 1) {
+				throw new ServiceException("当前国家只有一条规则，不允许删除");
 			}
-		});
-		String jsonString = JSONArray.toJSONString(servicePackagePriceV2DTONew);
-		byServiceId.setRulerV2(jsonString);
-		servicePackagePriceDao.update(byServiceId.getId(), byServiceId.getMinPrice(), byServiceId.getMaxPrice(),
-				byServiceId.getServiceId(), byServiceId.getRegionId(), byServiceId.getCostPrince(), byServiceId.getThirdPrince(),
-				byServiceId.getRuler(), byServiceId.getAmount(), byServiceId.getRulerV2());
+			List<ServicePackagePriceV2DTO> servicePackagePriceV2DTONew = new ArrayList<>();
+			servicePackagePriceV2DTOS.forEach(e->{
+				if (!e.getCity().equals(servicePackagePriceV2DTO.getCity())) {
+					servicePackagePriceV2DTONew.add(e);
+				}
+			});
+			String jsonString = JSONArray.toJSONString(servicePackagePriceV2DTONew);
+			byServiceId.setRulerV2(jsonString);
+			return servicePackagePriceDao.update(byServiceId.getId(), byServiceId.getMinPrice(), byServiceId.getMaxPrice(),
+					byServiceId.getServiceId(), byServiceId.getRegionId(), byServiceId.getCostPrince(), byServiceId.getThirdPrince(),
+					byServiceId.getRuler(), byServiceId.getAmount(), byServiceId.getRulerV2());
+		}
+		return servicePackagePriceDao.delete(serviceId);
+
 	}
 
 }

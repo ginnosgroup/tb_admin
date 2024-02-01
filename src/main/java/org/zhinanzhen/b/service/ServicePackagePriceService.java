@@ -24,6 +24,6 @@ public interface ServicePackagePriceService {
 
 	ServicePackagePriceDO getServicePackagePriceByServiceId(int id) throws ServiceException ;
 
-	void deleteById(Integer serviceId, ServicePackagePriceV2DTO servicePackagePriceV2DTO) throws ServiceException;
+	int deleteById(Integer serviceId, ServicePackagePriceV2DTO servicePackagePriceV2DTO) throws ServiceException;
 
 }

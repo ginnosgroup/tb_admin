@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,11 +78,14 @@ public class ServicePackagePriceController extends BaseController {
             String msg = "";
             String ids = "";
             boolean isFail = false;
-
+            boolean isAdd = true;
+            Set<Integer> collectLib = new HashSet<>();
+            Set<Integer> collectAdd = new HashSet<>();
             if (ObjectUtil.isNotNull(servicePackagePriceByServiceId)) {
                 List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOSLib = JSONArray.parseArray(servicePackagePriceByServiceId.getRulerV2(), ServicePackagePriceV2DTO.class);
-                Set<Integer> collectLib = servicePackagePriceV2DTOSLib.stream().map(ServicePackagePriceV2DTO::getCity).collect(Collectors.toSet());
-                Set<Integer> collectAdd = servicePackagePriceV2DTOAdd.stream().map(ServicePackagePriceV2DTO::getCity).collect(Collectors.toSet());
+                collectLib = servicePackagePriceV2DTOSLib.stream().map(ServicePackagePriceV2DTO::getCity).collect(Collectors.toSet());
+                collectAdd = servicePackagePriceV2DTOAdd.stream().map(ServicePackagePriceV2DTO::getCity).collect(Collectors.toSet());
+                // 取已添加的地区规则和要添加的地区规则的交集判断是否已经添加
                 collectLib.retainAll(collectAdd);
                 if (!collectLib.isEmpty()) {
                     StringBuilder repetitionRegion = new StringBuilder();
@@ -91,6 +95,10 @@ public class ServicePackagePriceController extends BaseController {
                     }
                     throw new ServiceException("当前地区[" + repetitionRegion + "]规则已添加，无法重复添加");
                 }
+                isAdd = false;
+                servicePackagePriceV2DTOSLib.addAll(servicePackagePriceV2DTOAdd);
+                String jsonString = JSONArray.toJSONString(servicePackagePriceV2DTOSLib);
+                servicePackagePriceByServiceId.setRulerV2(jsonString);
             }
 //            for (String regionIdStr : regionIds) {
 //                if (StringUtil.isEmpty(regionIdStr))
@@ -102,25 +110,44 @@ public class ServicePackagePriceController extends BaseController {
 //                    isFail = true;
 //                    continue;
 //                }
-                ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
-                servicePackagePriceDto.setMinPrice(minPrice);
-                servicePackagePriceDto.setMaxPrice(maxPrice);
-                servicePackagePriceDto.setServiceId(serviceId);
+            ServicePackagePriceDTO servicePackagePriceDto = new ServicePackagePriceDTO();
+                if (isAdd) {
+                    servicePackagePriceDto.setMinPrice(minPrice);
+                    servicePackagePriceDto.setMaxPrice(maxPrice);
+                    servicePackagePriceDto.setServiceId(serviceId);
 //                servicePackagePriceDto.setRegionId(Integer.parseInt(regionIdStr.trim()));
-                servicePackagePriceDto.setCostPrince(costPrince);
-                servicePackagePriceDto.setThirdPrince(thirdPrince);
-                servicePackagePriceDto.setRuler(ruler);
-                servicePackagePriceDto.setRulerV2(rulerV2);
-                if (amount != null) {
-                    servicePackagePriceDto.setAmount(amount);
-                } else servicePackagePriceDto.setAmount(0.00);
-                if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
-                    msg += "(地区ID:" + regionId + ")创建成功!; ";
-                    ids += servicePackagePriceDto.getId() + ",";
+                    servicePackagePriceDto.setCostPrince(costPrince);
+                    servicePackagePriceDto.setThirdPrince(thirdPrince);
+                    servicePackagePriceDto.setRuler(ruler);
+                    servicePackagePriceDto.setRulerV2(rulerV2);
+                    if (amount != null) {
+                        servicePackagePriceDto.setAmount(amount);
+                    } else servicePackagePriceDto.setAmount(0.00);
+                    if (servicePackagePriceService.addServicePackagePrice(servicePackagePriceDto) > 0) {
+                        msg += "(地区ID:" + regionId + ")创建成功!; ";
+                        ids += servicePackagePriceDto.getId() + ",";
+                    } else {
+                        msg += "(地区ID:" + regionId + ")创建失败!; ";
+                        isFail = true;
+                    }
                 } else {
-                    msg += "(地区ID:" + regionId + ")创建失败!; ";
-                    isFail = true;
+                    servicePackagePriceDto.setId(servicePackagePriceByServiceId.getId());
+                    servicePackagePriceDto.setMinPrice(servicePackagePriceByServiceId.getMinPrice());
+                    servicePackagePriceDto.setMaxPrice(servicePackagePriceByServiceId.getMaxPrice());
+                    servicePackagePriceDto.setServiceId(servicePackagePriceByServiceId.getServiceId());
+                    servicePackagePriceDto.setCostPrince(servicePackagePriceByServiceId.getCostPrince());
+                    servicePackagePriceDto.setThirdPrince(servicePackagePriceByServiceId.getThirdPrince());
+                    servicePackagePriceDto.setRuler(servicePackagePriceByServiceId.getRuler());
+                    servicePackagePriceDto.setRulerV2(servicePackagePriceByServiceId.getRulerV2());
+                    if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
+                        msg += "(地区ID:" + collectAdd + ")添加成功!; ";
+                        ids += servicePackagePriceDto.getId() + ",";
+                    } else {
+                        msg += "(地区ID:" + collectAdd + ")添加失败!; ";
+                        isFail = true;
+                    }
                 }
+
 //            }
             if (isFail)
                 return new Response<String>(1, "[服务包价格创建失败] " + msg, null);
@@ -142,6 +169,7 @@ public class ServicePackagePriceController extends BaseController {
                                    @RequestParam(value = "thirdPrince") Double thirdPrince,
                                    @RequestParam(value = "ruler") Integer ruler,
                                    @RequestParam(value = "amount") Double amount,
+                                   @RequestParam(value = "rulerV2") String rulerV2,
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -171,6 +199,8 @@ public class ServicePackagePriceController extends BaseController {
                 if (amount != null && ruler == 1)
                     servicePackagePriceDto.setAmount(amount);
                 else servicePackagePriceDto.setAmount(0.00);
+                if (rulerV2 != null)
+                    servicePackagePriceDto.setRulerV2(rulerV2);
                 if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
                     msg += "(地区ID:" + regionId + ")修改成功!; ";
                     ids += servicePackagePriceDto.getId() + ",";
@@ -223,8 +253,8 @@ public class ServicePackagePriceController extends BaseController {
         try {
             super.setGetHeader(response);
             ServicePackagePriceV2DTO servicePackagePriceV2DTO = JSONObject.parseObject(rulerV2, ServicePackagePriceV2DTO.class);
-            servicePackagePriceService.deleteById(serviceId, servicePackagePriceV2DTO);
-            return new Response<Integer>(0);
+            int i = servicePackagePriceService.deleteById(serviceId, servicePackagePriceV2DTO);
+            return new Response<Integer>(i, "删除成功", 0);
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), 0);
         }

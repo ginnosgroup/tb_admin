@@ -14,6 +14,8 @@ public class ServicePackagePriceV2DTO {
     // 国家
     private String country;
 
+    private Integer parentId;
+
     // 城市
     private Integer city;
 

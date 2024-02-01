@@ -134,7 +134,7 @@
         FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE spp.id = #{id, jdbcType=INTEGER};
     </select>
     
-    <select id="delete" parameterType="java.lang.Integer">
+    <select id="delete"  parameterType="java.lang.Integer" resultType="java.lang.Integer">
         DELETE FROM b_service_package_price WHERE id = #{id, jdbcType=INTEGER};
     </select>
     
