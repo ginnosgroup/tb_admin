@@ -2,6 +2,8 @@ package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ServicePackagePriceDTO {
 
@@ -24,5 +26,9 @@ public class ServicePackagePriceDTO {
 	private Integer ruler;
 
 	private double amount;
+
+	private String rulerV2;
+
+	private List<ServicePackagePriceV2DTO> servicePackagePriceV2DTO;
 
 }

@@ -5,6 +5,7 @@ import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ServiceOrderService {
@@ -85,4 +86,6 @@ public interface ServiceOrderService {
 	List<ServiceOrderDTO> listServiceOrderByApplicantParentId(Integer applicantParentId)throws ServiceException;
 
 	void updateOfficial(Integer serviceOrderId,  Integer officialId,Integer newOfficialId)throws ServiceException;
+
+
 }

@@ -11,16 +11,20 @@ public interface ServicePackagePriceDAO {
 
 	int update(@Param("id") int id, @Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice,
 			@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
-			   @Param("costPrince") Double costPrince,@Param("thirdPrince") Double thirdPrince,@Param("ruler") Integer ruler, @Param("amount") Double amount);
+			   @Param("costPrince") Double costPrince,@Param("thirdPrince") Double thirdPrince,@Param("ruler") Integer ruler,
+			   @Param("amount") Double amount, @Param("rulerV2")String rulerV2);
 
 	int count(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId);
 
 	List<ServicePackagePriceDO> list(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
 			@Param("offset") int offset, @Param("rows") int rows);
 
+	List<ServicePackagePriceDO> listDt(@Param("serviceId") Integer serviceId, @Param("regionId") Integer regionId,
+			@Param("offset") int offset, @Param("rows") int rows);
+
 	ServicePackagePriceDO getById(int id);
 
 	ServicePackagePriceDO getByServiceId(int serviceId);
 
-	void delete(int id);
+	int delete(int id);
 }

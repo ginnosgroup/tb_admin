@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackagePriceV2DTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface ServicePackagePriceService {
@@ -14,6 +15,8 @@ public interface ServicePackagePriceService {
 
 	int countServicePackagePrice(int serviceId, int regionId) throws ServiceException;
 
+//	List<ServicePackagePriceDTO> listServicePackagePrice(int serviceId, int regionId, int pageNum, int pageSize)
+//			throws ServiceException;
 	List<ServicePackagePriceDTO> listServicePackagePrice(int serviceId, int regionId, int pageNum, int pageSize)
 			throws ServiceException;
 
@@ -21,6 +24,6 @@ public interface ServicePackagePriceService {
 
 	ServicePackagePriceDO getServicePackagePriceByServiceId(int id) throws ServiceException ;
 
-	void deleteById(int id) throws ServiceException;
+	int deleteById(Integer serviceId, ServicePackagePriceV2DTO servicePackagePriceV2DTO) throws ServiceException;
 
 }

@@ -179,4 +179,9 @@ public class RegionServiceImpl extends BaseService implements RegionService {
 		}
 		return isCN(adviserDo.getRegionId());
 	}
+
+	@Override
+	public RegionDO getRegionById(Integer regionId) {
+		return regionDao.getRegionById(regionId);
+	}
 }
