@@ -1218,8 +1218,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			int _regionId = 0;
 			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0)
 				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
-			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
-				_regionId = kjService.getKjById(kjId).getRegionId();
+//			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
+//				_regionId = kjService.getKjById(kjId).getRegionId();
 			if (regionService.isCN(_regionId)) {
 				os = response.getOutputStream();
 				try {
