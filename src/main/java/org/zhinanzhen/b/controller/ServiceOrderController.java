@@ -678,7 +678,10 @@ public class ServiceOrderController extends BaseController {
         try {
             serviceOrderDto = serviceOrderService.getServiceOrderById(id);
             if (serviceOrderDto == null)
-                return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+			if (officialId != null && !StringUtil.equals(officialId, serviceOrderDto.getOfficialId() + ""))
+				LOG.warn("文案ID不一致，可能有修改! (id:" + id + ",officialId:" + officialId + ",soOfficialId:"
+						+ serviceOrderDto.getOfficialId() + ")");
             List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
             if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
