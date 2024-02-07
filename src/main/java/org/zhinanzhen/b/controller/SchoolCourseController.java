@@ -78,12 +78,14 @@ public class SchoolCourseController extends BaseController {
             res.setMessage("专业编码或专业名字不能为空!");
             return res;
         }
-        if (schoolCourseService.list(null,null, null,
-                null, schoolCourseDTO.getCourseCode(), 0,1).size() > 0){
-            res.setCode(1);
-            res.setMessage("专业编码已经存在!" + schoolCourseDTO.getCourseCode());
-            return res;
-        }
+		List<SchoolCourseDTO> courseList = schoolCourseService.list(null, null, null, null,
+				schoolCourseDTO.getCourseCode(), 0, 1);
+		if (courseList.size() > 0) {
+			res.setCode(1);
+			res.setMessage(StringUtil.merge("专业编码(", schoolCourseDTO.getCourseCode(), ")已经存在!所属学校编码为",
+					courseList.get(0).getProviderCode(), "."));
+			return res;
+		}
         if (schoolCourseService.add(schoolCourseDTO) > 0){ ;
             res.setData(schoolCourseDTO);
             return res;
