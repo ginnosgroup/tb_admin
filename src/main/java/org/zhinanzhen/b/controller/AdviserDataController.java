@@ -15,16 +15,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
 import org.zhinanzhen.b.service.AdviserDataService;
+import org.zhinanzhen.b.service.ServiceAssessService;
+import org.zhinanzhen.b.service.SchoolInstitutionService;
+import org.zhinanzhen.b.service.SchoolCourseService;
 import org.zhinanzhen.b.service.pojo.AdviserCommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserUserDTO;
 import org.zhinanzhen.b.service.pojo.AdviserVisaDTO;
+import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
+import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.MapUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
 import jxl.Workbook;
@@ -40,6 +47,15 @@ public class AdviserDataController extends BaseController {
 
 	@Resource
 	AdviserDataService adviserDataService;
+	
+	@Resource
+	ServiceAssessService serviceAssessService;
+	
+	@Resource
+	SchoolInstitutionService schoolInstitutionService;
+	
+	@Resource
+	SchoolCourseService schoolCourseService;
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
@@ -96,7 +112,24 @@ public class AdviserDataController extends BaseController {
 				sheet0.addCell(new Label(9, i, so.getReceiveTypeName(), cellFormat));
 				sheet0.addCell(new Label(10, i, so.getServiceOrderReceiveDate(), cellFormat));
 				sheet0.addCell(new Label(11, i, so.getServiceCode(), cellFormat));
-				sheet0.addCell(new Label(12, i, so.getInstitutionTradingName(), cellFormat));
+				if (StringUtil.isNotEmpty(so.getServiceAssessId())) {
+					ServiceAssessDO serviceAssessDo = serviceAssessService.seleteAssessById(so.getServiceAssessId());
+					if (ObjectUtil.isNotNull(serviceAssessDo))
+						sheet0.addCell(new Label(11, i,
+								StringUtil.merge(so.getServiceCode(), " - ", serviceAssessDo.getName()), cellFormat));
+				}
+				if (StringUtil.isNotEmpty(so.getInstitutionTradingName()))
+					sheet0.addCell(new Label(12, i, so.getInstitutionTradingName(), cellFormat));
+				else if (StringUtil.isNotEmpty(so.getCourseId())) {
+					SchoolCourseDTO schoolCourseDto = schoolCourseService
+							.schoolCourseById(Integer.parseInt(so.getCourseId()));
+					if (ObjectUtil.isNotNull(schoolCourseDto)) {
+						SchoolInstitutionDTO schoolInstitutionDto = schoolInstitutionService
+								.getSchoolInstitutionById(schoolCourseDto.getProviderId());
+						if (ObjectUtil.isNotNull(schoolInstitutionDto))
+							sheet0.addCell(new Label(12, i, schoolInstitutionDto.getInstitutionName(), cellFormat));
+					}
+				}
 				sheet0.addCell(new Label(13, i, so.getServiceOrderState(), cellFormat));
 				sheet0.addCell(new Label(14, i, so.getIsSettle(), cellFormat));
 				sheet0.addCell(new Label(15, i, so.getPerAmount(), cellFormat));

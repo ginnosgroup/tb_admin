@@ -29,7 +29,11 @@ public class AdviserServiceOrderDO {
 	
 	private String serviceCode;
 	
+	private String serviceAssessId;
+	
 	private String institutionTradingName;
+	
+	private String courseId;
 
 	private String serviceOrderState;
 
