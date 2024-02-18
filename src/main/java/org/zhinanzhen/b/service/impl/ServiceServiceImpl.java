@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONObject;
+import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
@@ -13,6 +15,7 @@ import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackagePriceDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackagePriceV2DTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 

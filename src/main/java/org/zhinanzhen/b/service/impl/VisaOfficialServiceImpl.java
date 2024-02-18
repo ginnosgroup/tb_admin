@@ -286,6 +286,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     this.add("864");
                     this.add("835");
                     this.add("838");
+                    this.add("820境内");
                 }
             };
             //无付费服务订单结算规则
@@ -314,6 +315,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getId());
                 } else {
                     visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
+                }
+                if (ObjectUtil.isNotNull(visaOfficialDao.getByServiceOrderId(visaOfficialDTO.getServiceOrderId()))) {
+                    visaDO = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getId());
                 }
                 RefundDO refund = refundDAO.getRefundByVisaId(visaDO.getId());
                 if (refund == null) {
@@ -923,7 +927,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         RegionDO regionById = regionDAO.getRegionById(officialById.getRegionId());
         String rulerV2 = servicePackagePriceDO.getRulerV2();
         List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
-        Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOS.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getCity, each -> each));
+        Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOS.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getAreaId, each -> each));
         if (collect.get(regionById.getId()) != null) {
             servicePackagePriceV2DTO = collect.get(regionById.getId());
         } else {

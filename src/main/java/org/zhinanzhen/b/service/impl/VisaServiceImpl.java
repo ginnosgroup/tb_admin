@@ -297,6 +297,11 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			LOG.info("修改签证订单(visaDo=" + visaDo + ").");
 			int i = visaDao.updateVisa(visaDo);
+			if ("YJY".equals(visaDo.getCommissionState())) {
+				ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
+				serviceOrderById.setAmount(serviceOrderById.getReceivable());
+				serviceOrderDao.updateServiceOrder(serviceOrderById);
+			}
 			if (i > 0) {
 				// 给文案发送尾款支付提醒邮件
 				boolean canRimd = false;

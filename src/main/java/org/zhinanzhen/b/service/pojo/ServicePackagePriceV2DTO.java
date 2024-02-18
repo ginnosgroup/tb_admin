@@ -17,7 +17,7 @@ public class ServicePackagePriceV2DTO {
     private Integer parentId;
 
     // 城市
-    private Integer city;
+    private Integer areaId;
 
     // 固定金额
     private Double amount;

@@ -83,8 +83,8 @@ public class ServicePackagePriceController extends BaseController {
             Set<Integer> collectAdd = new HashSet<>();
             if (ObjectUtil.isNotNull(servicePackagePriceByServiceId)) {
                 List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOSLib = JSONArray.parseArray(servicePackagePriceByServiceId.getRulerV2(), ServicePackagePriceV2DTO.class);
-                collectLib = servicePackagePriceV2DTOSLib.stream().map(ServicePackagePriceV2DTO::getCity).collect(Collectors.toSet());
-                collectAdd = servicePackagePriceV2DTOAdd.stream().map(ServicePackagePriceV2DTO::getCity).collect(Collectors.toSet());
+                collectLib = servicePackagePriceV2DTOSLib.stream().map(ServicePackagePriceV2DTO::getAreaId).collect(Collectors.toSet());
+                collectAdd = servicePackagePriceV2DTOAdd.stream().map(ServicePackagePriceV2DTO::getAreaId).collect(Collectors.toSet());
                 // 取已添加的地区规则和要添加的地区规则的交集判断是否已经添加
                 collectLib.retainAll(collectAdd);
                 if (!collectLib.isEmpty()) {

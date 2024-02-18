@@ -126,7 +126,7 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 				String rulerV2 = e.getRulerV2();
 				List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
 				servicePackagePriceV2DTOS.forEach(a->{
-					RegionDO regionById = regionDAO.getRegionById(a.getCity());
+					RegionDO regionById = regionDAO.getRegionById(a.getAreaId());
 					a.setParentId(regionById.getParentId());
 				});
 				ServicePackagePriceDTO servicePackagePriceDTO = mapper.map(e, ServicePackagePriceDTO.class);
@@ -190,7 +190,7 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 			}
 			List<ServicePackagePriceV2DTO> servicePackagePriceV2DTONew = new ArrayList<>();
 			servicePackagePriceV2DTOS.forEach(e->{
-				if (!e.getCity().equals(servicePackagePriceV2DTO.getCity())) {
+				if (!e.getAreaId().equals(servicePackagePriceV2DTO.getAreaId())) {
 					servicePackagePriceV2DTONew.add(e);
 				}
 			});
