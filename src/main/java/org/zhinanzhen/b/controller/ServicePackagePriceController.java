@@ -90,8 +90,10 @@ public class ServicePackagePriceController extends BaseController {
                 if (!collectLib.isEmpty()) {
                     StringBuilder repetitionRegion = new StringBuilder();
                     for (Integer i : collectLib) {
-                        RegionDO regionById = regionService.getRegionById(i);
-                        repetitionRegion.append(regionById.getName());
+                        if (i != null) {
+                            RegionDO regionById = regionService.getRegionById(i);
+                            repetitionRegion.append(regionById.getName());
+                        }
                     }
                     throw new ServiceException("当前地区[" + repetitionRegion + "]规则已添加，无法重复添加");
                 }
