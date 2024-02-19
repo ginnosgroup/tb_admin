@@ -130,7 +130,10 @@ public class AdviserDataController extends BaseController {
 							sheet0.addCell(new Label(12, i, schoolInstitutionDto.getInstitutionName(), cellFormat));
 					}
 				}
-				sheet0.addCell(new Label(13, i, so.getServiceOrderState(), cellFormat));
+				if (StringUtil.equals("独立技术移民", so.getType()) && so.isSubmitted())
+					sheet0.addCell(new Label(13, i, "已提交佣金表", cellFormat));
+				else
+					sheet0.addCell(new Label(13, i, so.getServiceOrderState(), cellFormat));
 				sheet0.addCell(new Label(14, i, so.getIsSettle(), cellFormat));
 				sheet0.addCell(new Label(15, i, so.getPerAmount(), cellFormat));
 				sheet0.addCell(new Label(16, i, so.getAmount(), cellFormat));
