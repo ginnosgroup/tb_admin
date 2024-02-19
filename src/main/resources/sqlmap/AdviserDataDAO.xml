@@ -19,6 +19,7 @@
           s.code as serviceCode,
           s.name as serviceName,
           so.service_assess_id as serviceAssessId,
+          so.service_package_id as servicePackageId,
           so.institution_trading_name as institutionTradingName,
           so.course_id as courseId,
           so.is_submitted as isSubmitted,

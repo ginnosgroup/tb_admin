@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
 import org.zhinanzhen.b.service.AdviserDataService;
 import org.zhinanzhen.b.service.ServiceAssessService;
+import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.SchoolInstitutionService;
 import org.zhinanzhen.b.service.SchoolCourseService;
 import org.zhinanzhen.b.service.pojo.AdviserCommissionOrderDTO;
@@ -26,6 +27,7 @@ import org.zhinanzhen.b.service.pojo.AdviserUserDTO;
 import org.zhinanzhen.b.service.pojo.AdviserVisaDTO;
 import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
+import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -50,6 +52,9 @@ public class AdviserDataController extends BaseController {
 	
 	@Resource
 	ServiceAssessService serviceAssessService;
+	
+	@Resource
+	ServicePackageService servicePackageService;
 	
 	@Resource
 	SchoolInstitutionService schoolInstitutionService;
@@ -104,6 +109,8 @@ public class AdviserDataController extends BaseController {
 				sheet0.addCell(new Label(1, i, so.getGmtCreate(), cellFormat));
 				if (StringUtil.equals("签证", so.getType()) && StringUtil.isNotEmpty(so.getServiceName()))
 					sheet0.addCell(new Label(2, i, so.getServiceName(), cellFormat));
+				else
+					sheet0.addCell(new Label(2, i, so.getType(), cellFormat));
 				sheet0.addCell(new Label(3, i, so.getUserName(), cellFormat));
 				sheet0.addCell(new Label(4, i, so.getApplicantName(), cellFormat));
 				sheet0.addCell(new Label(5, i, so.getMaraName(), cellFormat));
@@ -112,7 +119,32 @@ public class AdviserDataController extends BaseController {
 				sheet0.addCell(new Label(8, i, so.getExchangeRate() + "", cellFormat));
 				sheet0.addCell(new Label(9, i, so.getReceiveTypeName(), cellFormat));
 				sheet0.addCell(new Label(10, i, so.getServiceOrderReceiveDate(), cellFormat));
-				sheet0.addCell(new Label(11, i, so.getServiceCode(), cellFormat));
+				if (so.getServicePackageId() > 0) {
+					ServicePackageDTO servicePackageDto = servicePackageService.getById(so.getServicePackageId());
+					String str = " - ";
+					if ("CA".equals(servicePackageDto.getType()))
+						str += "职业评估";
+					if ("EOI".equals(servicePackageDto.getType()))
+						str += "EOI";
+					if ("SA".equals(servicePackageDto.getType()))
+						str += "学校申请";
+					if ("VA".equals(servicePackageDto.getType()))
+						str += "签证申请";
+					if ("ZD".equals(servicePackageDto.getType()))
+						str += "州担";
+					if ("MAT".equals(servicePackageDto.getType()))
+						str += "Matrix";
+					if ("ROI".equals(servicePackageDto.getType()))
+						str += "ROI";
+					if ("SBO".equals(servicePackageDto.getType()))
+						str += "SBO";
+					if ("TM".equals(servicePackageDto.getType()))
+						str += "提名";
+					if ("DB".equals(servicePackageDto.getType()))
+						str += "担保";
+					sheet0.addCell(new Label(11, i, so.getServiceCode() + str, cellFormat));
+				} else
+					sheet0.addCell(new Label(11, i, so.getServiceCode(), cellFormat));
 				if (StringUtil.isNotEmpty(so.getServiceAssessId())) {
 					ServiceAssessDO serviceAssessDo = serviceAssessService.seleteAssessById(so.getServiceAssessId());
 					if (ObjectUtil.isNotNull(serviceAssessDo))

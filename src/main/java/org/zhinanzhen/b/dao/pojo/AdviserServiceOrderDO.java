@@ -33,6 +33,8 @@ public class AdviserServiceOrderDO {
 	
 	private String serviceAssessId;
 	
+	private int servicePackageId;
+	
 	private String institutionTradingName;
 	
 	private String courseId;
