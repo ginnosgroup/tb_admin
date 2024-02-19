@@ -37,7 +37,9 @@ public class AdviserServiceOrderDO {
 	
 	private String institutionTradingName;
 	
-	private String courseId;
+	private int courseId;
+	
+	private int schoolId;
 	
 	private boolean isSubmitted;
 

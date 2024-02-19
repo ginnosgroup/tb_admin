@@ -20,12 +20,14 @@ import org.zhinanzhen.b.service.AdviserDataService;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServicePackageService;
 import org.zhinanzhen.b.service.SchoolInstitutionService;
+import org.zhinanzhen.b.service.SchoolService;
 import org.zhinanzhen.b.service.SchoolCourseService;
 import org.zhinanzhen.b.service.pojo.AdviserCommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserUserDTO;
 import org.zhinanzhen.b.service.pojo.AdviserVisaDTO;
 import org.zhinanzhen.b.service.pojo.SchoolCourseDTO;
+import org.zhinanzhen.b.service.pojo.SchoolDTO;
 import org.zhinanzhen.b.service.pojo.SchoolInstitutionDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -61,6 +63,9 @@ public class AdviserDataController extends BaseController {
 	
 	@Resource
 	SchoolCourseService schoolCourseService;
+	
+	@Resource
+	SchoolService schoolService;
 
 	@RequestMapping(value = "/down", method = RequestMethod.GET)
 	@ResponseBody
@@ -153,15 +158,18 @@ public class AdviserDataController extends BaseController {
 				}
 				if (StringUtil.isNotEmpty(so.getInstitutionTradingName()))
 					sheet0.addCell(new Label(12, i, so.getInstitutionTradingName(), cellFormat));
-				else if (StringUtil.isNotEmpty(so.getCourseId())) {
-					SchoolCourseDTO schoolCourseDto = schoolCourseService
-							.schoolCourseById(Integer.parseInt(so.getCourseId()));
+				else if (so.getCourseId() > 0) { // 新学校库
+					SchoolCourseDTO schoolCourseDto = schoolCourseService.schoolCourseById(so.getCourseId());
 					if (ObjectUtil.isNotNull(schoolCourseDto)) {
 						SchoolInstitutionDTO schoolInstitutionDto = schoolInstitutionService
 								.getSchoolInstitutionById(schoolCourseDto.getProviderId());
 						if (ObjectUtil.isNotNull(schoolInstitutionDto))
 							sheet0.addCell(new Label(12, i, schoolInstitutionDto.getInstitutionName(), cellFormat));
 					}
+				} else if (so.getSchoolId() > 0) { // 旧学校库
+					SchoolDTO schoolDto = schoolService.getSchoolById(so.getSchoolId());
+					if (ObjectUtil.isNotNull(schoolDto))
+						sheet0.addCell(new Label(12, i, schoolDto.getName(), cellFormat));
 				}
 				if (StringUtil.equals("独立技术移民", so.getType()) && so.isSubmitted())
 					sheet0.addCell(new Label(13, i, "已提交佣金表", cellFormat));
