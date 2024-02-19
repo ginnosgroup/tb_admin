@@ -17,6 +17,7 @@
           rt.name as receiveTypeName,
           so.receive_date as serviceOrderReceiveDate,
           s.code as serviceCode,
+          s.name as serviceName,
           so.service_assess_id as serviceAssessId,
           so.institution_trading_name as institutionTradingName,
           so.course_id as courseId,

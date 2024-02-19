@@ -102,7 +102,8 @@ public class AdviserDataController extends BaseController {
 			for (AdviserServiceOrderDTO so : serviceOrderList) {
 				sheet0.addCell(new Label(0, i, so.getId() + "", cellFormat));
 				sheet0.addCell(new Label(1, i, so.getGmtCreate(), cellFormat));
-				sheet0.addCell(new Label(2, i, so.getType(), cellFormat));
+				if (StringUtil.equals("签证", so.getType()) && StringUtil.isNotEmpty(so.getServiceName()))
+					sheet0.addCell(new Label(2, i, so.getServiceName(), cellFormat));
 				sheet0.addCell(new Label(3, i, so.getUserName(), cellFormat));
 				sheet0.addCell(new Label(4, i, so.getApplicantName(), cellFormat));
 				sheet0.addCell(new Label(5, i, so.getMaraName(), cellFormat));

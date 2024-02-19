@@ -29,6 +29,8 @@ public class AdviserServiceOrderDO {
 	
 	private String serviceCode;
 	
+	private String serviceName;
+	
 	private String serviceAssessId;
 	
 	private String institutionTradingName;
