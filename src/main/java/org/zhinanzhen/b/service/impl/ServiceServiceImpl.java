@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,9 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 				if (servicePackagePriceDoList != null) {
 					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
+						String rulerV2 = servicePackagePriceDo.getRulerV2();
+						List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+						servicePackagePriceDo.setServicePackagePriceV2DTO(servicePackagePriceV2DTOS);
 						servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
 					});
 					serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);

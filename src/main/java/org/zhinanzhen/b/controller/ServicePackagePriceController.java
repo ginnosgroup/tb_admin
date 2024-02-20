@@ -95,7 +95,8 @@ public class ServicePackagePriceController extends BaseController {
                             repetitionRegion.append(regionById.getName());
                         }
                     }
-                    throw new ServiceException("当前地区[" + repetitionRegion + "]规则已添加，无法重复添加");
+                    msg += "当前地区[" + repetitionRegion + "]规则已添加，无法重复添加";
+                    return new Response<String>(1, msg, null);
                 }
                 isAdd = false;
                 servicePackagePriceV2DTOSLib.addAll(servicePackagePriceV2DTOAdd);

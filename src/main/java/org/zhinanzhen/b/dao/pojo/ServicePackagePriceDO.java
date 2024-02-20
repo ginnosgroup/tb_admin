@@ -2,8 +2,10 @@ package org.zhinanzhen.b.dao.pojo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
+import org.zhinanzhen.b.service.pojo.ServicePackagePriceV2DTO;
 
 @Data
 public class ServicePackagePriceDO implements Serializable {
@@ -35,4 +37,6 @@ public class ServicePackagePriceDO implements Serializable {
 	private double amount;
 
     private String rulerV2;
+
+    private List<ServicePackagePriceV2DTO> servicePackagePriceV2DTO;
 }
