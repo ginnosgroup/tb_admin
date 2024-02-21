@@ -16,11 +16,7 @@ import com.ikasoa.core.utils.ObjectUtil;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.reflection.ArrayUtil;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.ServicePackageService;
@@ -92,10 +88,11 @@ public class ServicePackagePriceController extends BaseController {
                     for (Integer i : collectLib) {
                         if (i != null) {
                             RegionDO regionById = regionService.getRegionById(i);
-                            repetitionRegion.append(regionById.getName());
+                            repetitionRegion.append(regionById.getName()).append(",");
                         }
                     }
-                    msg += "当前地区[" + repetitionRegion + "]规则已添加，无法重复添加";
+                    String substring = repetitionRegion.substring(0, repetitionRegion.length());
+                    msg += "当前地区[" + substring + "]规则已添加，无法重复添加";
                     return new Response<String>(1, msg, null);
                 }
                 isAdd = false;
@@ -170,10 +167,11 @@ public class ServicePackagePriceController extends BaseController {
                                    @RequestParam(value = "regionId", required = false) String regionId,
                                    @RequestParam(value = "costPrince") Double costPrince,
                                    @RequestParam(value = "thirdPrince") Double thirdPrince,
-                                   @RequestParam(value = "ruler") Integer ruler,
-                                   @RequestParam(value = "amount") Double amount,
+                                   @RequestParam(value = "ruler1") Integer ruler1,
+//                                   @RequestParam(value = "amount") Double amount,
                                    @RequestParam(value = "rulerV2") String rulerV2,
-                                   HttpServletRequest request, HttpServletResponse response) {
+                                   HttpServletRequest request, HttpServletResponse response
+    ) {
         try {
             super.setPostHeader(response);
             if (serviceId != null && serviceId > 0 && serviceService.getServiceById(serviceId) == null)
@@ -197,10 +195,10 @@ public class ServicePackagePriceController extends BaseController {
                     servicePackagePriceDto.setCostPrince(costPrince);
                 if (thirdPrince != null)
                     servicePackagePriceDto.setThirdPrince(thirdPrince);
-                if (ruler != null && ruler >= 0)
-                    servicePackagePriceDto.setRuler(ruler);
-                if (amount != null && ruler == 1)
-                    servicePackagePriceDto.setAmount(amount);
+                if (ruler1 != null && ruler1 >= 0)
+                    servicePackagePriceDto.setRuler(ruler1);
+//                if (amount != null && ruler1 == 1)
+//                    servicePackagePriceDto.setAmount(amount);
                 else servicePackagePriceDto.setAmount(0.00);
                 if (rulerV2 != null)
                     servicePackagePriceDto.setRulerV2(rulerV2);
