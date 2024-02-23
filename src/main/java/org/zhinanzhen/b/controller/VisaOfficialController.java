@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.VisaOfficialService;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -243,10 +244,17 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 return new ListResponse<>(false, pageSize, 0, null, "No permission !");
             if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
-                List<RegionDTO> regionList = regionService.listRegion(officialService.getOfficialById(newOfficialId).getRegionId());
-                regionIdList = ListUtil.buildArrayList(officialService.getOfficialById(newOfficialId).getRegionId());
+                int regionIdCurrent = officialService.getOfficialById(newOfficialId).getRegionId();
+                List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
+                regionIdList = ListUtil.buildArrayList(regionIdCurrent);
                 for (RegionDTO region : regionList)
                     regionIdList.add(region.getId());
+                if (officialId != null) {
+                    OfficialDTO officialById = officialService.getOfficialById(officialId);
+                    if (officialById.getRegionId() != regionIdCurrent) {
+                        return new ListResponse<>(false, pageSize, 0, null, "该文案管理员不能查询该地区，请核验地区");
+                    }
+                }
             } else {
                 // 更改当前文案编号
                 if (newOfficialId != null)
