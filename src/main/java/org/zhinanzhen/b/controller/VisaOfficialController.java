@@ -252,7 +252,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 if (officialId != null) {
                     OfficialDTO officialById = officialService.getOfficialById(officialId);
                     if (officialById.getRegionId() != regionIdCurrent) {
-                        return new ListResponse<>(false, pageSize, 0, null, "该文案管理员不能查询该地区，请核验地区");
+                        String s = "该文案管理员不能查询该地区，请核验地区";
+                        return new ListResponse<>(true, pageSize, 0, null, "500");
                     }
                 }
             } else {

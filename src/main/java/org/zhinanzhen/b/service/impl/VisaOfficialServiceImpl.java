@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -24,6 +25,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service("VisaOfficialService")
@@ -632,7 +634,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCommissionAmount(0.00);
                 visaOfficialDO.setPredictCommission(0.00);
             }
-            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
+            // 判断地区计算预估佣金为澳币或者人民币
+            RegionDO regionById = regionDAO.getRegionById(officialDAO.getOfficialById(visaOfficialDO.getOfficialId()).getRegionId());
+            String s = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
+            if (StringUtil.isNotEmpty(s)) {
+                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
+            }
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
@@ -928,16 +935,32 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         RegionDO regionById = regionDAO.getRegionById(officialById.getRegionId());
         String rulerV2 = servicePackagePriceDO.getRulerV2();
         List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
-        Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOS.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getAreaId, each -> each));
-        if (collect.get(regionById.getId()) != null) {
-            servicePackagePriceV2DTO = collect.get(regionById.getId());
-        } else {
-            // 省
-            RegionDO regionById1 = regionDAO.getRegionById(regionById.getParentId());
-            // 国
-            RegionDO regionById2 = regionDAO.getRegionById(regionById1.getParentId());
-            servicePackagePriceV2DTO = collect.get(regionById2.getId());
+        for (ServicePackagePriceV2DTO e : servicePackagePriceV2DTOS) {
+            if (e.getAreaId().equals(regionById.getId())) {
+                servicePackagePriceV2DTO = e;
+            }
         }
+        if (servicePackagePriceV2DTO.getAreaId() == null && servicePackagePriceV2DTO.getRuler() == null) {
+            Map<String, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOS.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getCountry, each -> each));
+            String s = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
+            if (StringUtil.isNotEmpty(s)) {
+                servicePackagePriceV2DTO = collect.get("China");
+            } else {
+                servicePackagePriceV2DTO = collect.get("Australia");
+            }
+        }
+
+//
+//        Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOS.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getAreaId, each -> each));
+//        if (collect.get(regionById.getId()) != null) {
+//            servicePackagePriceV2DTO.set(collect.get(regionById.getId()));
+//        } else {
+//            // 省
+//            RegionDO regionById1 = regionDAO.getRegionById(regionById.getParentId());
+//            // 国
+//            RegionDO regionById2 = regionDAO.getRegionById(regionById1.getParentId());
+//            servicePackagePriceV2DTO.set(collect.get(regionById2.getId()));
+//        }
         return servicePackagePriceV2DTO;
     }
 }
