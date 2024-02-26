@@ -635,11 +635,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setPredictCommission(0.00);
             }
             // 判断地区计算预估佣金为澳币或者人民币
-            RegionDO regionById = regionDAO.getRegionById(officialDAO.getOfficialById(visaOfficialDO.getOfficialId()).getRegionId());
-            String s = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
-            if (StringUtil.isNotEmpty(s)) {
-                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
-            }
+//            RegionDO regionById = regionDAO.getRegionById(officialDAO.getOfficialById(visaOfficialDO.getOfficialId()).getRegionId());
+//            String s = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
+//            if (StringUtil.isNotEmpty(s)) {
+//                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
+//            }
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
