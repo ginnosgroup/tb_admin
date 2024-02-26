@@ -1353,7 +1353,8 @@ public class ServiceOrderController extends BaseController {
     public Response<Integer> finish(@RequestParam(value = "id") int id, HttpServletRequest request,
                                     HttpServletResponse response) {
         super.setPostHeader(response);
-        try {
+		try {
+			LOG.warn(StringUtil.merge("订单", id, "更新办理完成时间."));
             return serviceOrderService.getServiceOrderById(id) != null
                     ? new Response<Integer>(0, serviceOrderService.finish(id))
                     : null;
