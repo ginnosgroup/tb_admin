@@ -65,6 +65,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         this.add("835");
                         this.add("838");
                         this.add("820境内");
+                        this.add("489");
                     }
                 };
                 if (arrayList.contains(serviceOrderDto.getService().getCode())) {

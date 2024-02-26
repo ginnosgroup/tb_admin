@@ -287,6 +287,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     this.add("835");
                     this.add("838");
                     this.add("820境内");
+                    this.add("489");
                 }
             };
             //无付费服务订单结算规则
@@ -631,7 +632,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCommissionAmount(0.00);
                 visaOfficialDO.setPredictCommission(0.00);
             }
-            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
+//            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
