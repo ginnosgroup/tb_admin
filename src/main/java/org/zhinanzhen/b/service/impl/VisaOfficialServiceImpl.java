@@ -632,7 +632,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCommissionAmount(0.00);
                 visaOfficialDO.setPredictCommission(0.00);
             }
-//            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
+            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
