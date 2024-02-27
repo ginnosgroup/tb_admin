@@ -248,8 +248,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         for (ApplicantListDO applicantListDO : applicantListDOS) {
              i =i+ visaOfficialDao.countVisaByServiceOrderId(applicantListDO.getId());
         }
-        if (applicantParentId!=0 && "SIV".equals(serviceOrderDao.getServiceOrderById(applicantParentId).getType())) {
+        if (applicantParentId !=0 && "SIV".equals(serviceOrderDao.getServiceOrderById(applicantParentId).getType())) {
             i = -1;
+        }
+        if (applicantParentId !=0 && "NSV".equals(serviceOrderDao.getServiceOrderById(applicantParentId).getType())) {
+            i = -2;
         }
         if (i > 0 ) {
             return 0;
@@ -563,7 +566,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
                     }
                     //雇主提名
-                    if (packageDO.getType().equals("TM")) {
+                    if (i == -2) {
                         if (serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId()).isPay()) {
                             VisaDO visaDO = new VisaDO();
                             CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
@@ -598,11 +601,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             }
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             if (commissionAmountDTO.getRuler() == 0) {
-                                commissionAmountDTO.setPredictCommissionAmount((visaDO.getAmount() - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince())/1.1);
+                                commissionAmountDTO.setPredictCommissionAmount((visaDO.getAmount() - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince())/1.1 * 0.5);
                                 if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                                     commissionAmountDTO.setPredictCommissionAmount(0.00);
                                 commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-                                commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100));
+                                commissionAmountDTO.setCommission(commissionAmountDTO.getPredictCommissionAmount() * (rate / 100) * 0.5);
                                 String calculation = new String();
                                 calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + grade.getGrade() + "," + rate + "%" + "," + dateFormat.format(grade.getGmtModify());
                                 commissionAmountDTO.setCalculation(calculation);

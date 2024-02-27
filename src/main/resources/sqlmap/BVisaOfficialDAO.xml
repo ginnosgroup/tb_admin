@@ -237,7 +237,7 @@
             and tu.name LIKE '%${userName}%'
         </if>
         <if test='applicantName!=null and applicantName!=""'>
-            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ' ', ba.surname) LIKE '%${applicantName}%')
+            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ba.surname) LIKE '%${applicantName}%')
         </if>
         <if test='isMerged != null'>
             AND bv.is_merged = #{isMerged}
