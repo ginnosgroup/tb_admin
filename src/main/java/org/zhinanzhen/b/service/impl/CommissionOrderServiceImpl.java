@@ -536,12 +536,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         if ("AUD".equalsIgnoreCase(commissionOrderListDo.getCurrency())) {
             commissionOrderListDto.setAmountAUD(commissionOrderListDto.getAmount());
             commissionOrderListDto.setAmountCNY(roundHalfUp2(commissionOrderListDto.getAmount() * exchangeRate));
-            commissionOrderListDto.setPerAmountAUD(commissionOrderListDto.getPerAmount());
-            commissionOrderListDto.setPerAmountCNY(roundHalfUp2(commissionOrderListDto.getPerAmount() * exchangeRate));
-            commissionOrderListDto.setTotalAmountAUD(commissionOrderListDto.getAmountAUD());
-            commissionOrderListDto
-                    .setTotalAmountCNY(roundHalfUp2(commissionOrderListDto.getAmountAUD() * exchangeRate));
-            commissionOrderListDto.setTotalPerAmountAUD(commissionOrderListDto.getTotalPerAmount());
+			commissionOrderListDto.setPerAmountAUD(commissionOrderListDto.getPerAmount());
+			commissionOrderListDto.setPerAmountCNY(roundHalfUp2(commissionOrderListDto.getPerAmount() * exchangeRate));
+			commissionOrderListDto.setTotalAmountAUD(commissionOrderListDto.getTotalAmount());
+			commissionOrderListDto
+					.setTotalAmountCNY(roundHalfUp2(commissionOrderListDto.getTotalAmount() * exchangeRate));
+			commissionOrderListDto.setTotalPerAmountAUD(commissionOrderListDto.getTotalPerAmount());
             commissionOrderListDto
                     .setTotalPerAmountCNY(roundHalfUp2(commissionOrderListDto.getTotalPerAmount() * exchangeRate));
             commissionOrderListDto.setExpectAmountAUD(commissionOrderListDto.getExpectAmount());
@@ -559,10 +559,11 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             commissionOrderListDto.setAmountAUD(roundHalfUp2(commissionOrderListDto.getAmount() / exchangeRate));
             commissionOrderListDto.setAmountCNY(commissionOrderListDto.getAmount());
             commissionOrderListDto.setPerAmountAUD(roundHalfUp2(commissionOrderListDto.getPerAmount() / exchangeRate));
-            commissionOrderListDto.setPerAmountCNY(commissionOrderListDto.getPerAmount());
-            commissionOrderListDto.setTotalAmountAUD(roundHalfUp2(commissionOrderListDto.getAmount() / exchangeRate));
-            commissionOrderListDto.setTotalAmountCNY(commissionOrderListDto.getAmount());
-            commissionOrderListDto
+			commissionOrderListDto.setPerAmountCNY(commissionOrderListDto.getPerAmount());
+			commissionOrderListDto
+					.setTotalAmountAUD(roundHalfUp2(commissionOrderListDto.getTotalAmount() / exchangeRate));
+			commissionOrderListDto.setTotalAmountCNY(commissionOrderListDto.getTotalAmount());
+			commissionOrderListDto
                     .setTotalPerAmountAUD(roundHalfUp2(commissionOrderListDto.getTotalPerAmount() / exchangeRate));
             commissionOrderListDto.setTotalPerAmountCNY(commissionOrderListDto.getTotalPerAmount());
 //            commissionOrderListDto

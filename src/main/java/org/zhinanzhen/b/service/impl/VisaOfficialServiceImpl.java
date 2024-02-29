@@ -183,8 +183,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             visaOfficialDto.setAmountCNY(roundHalfUp2(visaOfficialDto.getAmount() * exchangeRate));
             visaOfficialDto.setPerAmountAUD(visaOfficialDto.getPerAmount());
             visaOfficialDto.setPerAmountCNY(roundHalfUp2(visaOfficialDto.getPerAmount() * exchangeRate));
-            visaOfficialDto.setTotalAmountAUD(visaOfficialDto.getAmountAUD());
-            visaOfficialDto.setTotalAmountCNY(roundHalfUp2(visaOfficialDto.getAmountAUD() * exchangeRate));
+            visaOfficialDto.setTotalAmountAUD(visaOfficialDto.getTotalAmount());
+            visaOfficialDto.setTotalAmountCNY(roundHalfUp2(visaOfficialDto.getTotalAmount() * exchangeRate));
             visaOfficialDto.setTotalPerAmountAUD(visaOfficialDto.getTotalPerAmount());
             visaOfficialDto.setTotalPerAmountCNY(roundHalfUp2(visaOfficialDto.getTotalPerAmount() * exchangeRate));
             visaOfficialDto.setExpectAmountAUD(visaOfficialDto.getExpectAmount());
@@ -201,8 +201,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             visaOfficialDto.setAmountCNY(visaOfficialDto.getAmount());
             visaOfficialDto.setPerAmountAUD(roundHalfUp2(visaOfficialDto.getPerAmount() / exchangeRate));
             visaOfficialDto.setPerAmountCNY(visaOfficialDto.getPerAmount());
-            visaOfficialDto.setTotalAmountAUD(roundHalfUp2(visaOfficialDto.getAmount() / exchangeRate));
-            visaOfficialDto.setTotalAmountCNY(visaOfficialDto.getAmount());
+            visaOfficialDto.setTotalAmountAUD(roundHalfUp2(visaOfficialDto.getTotalAmount() / exchangeRate));
+            visaOfficialDto.setTotalAmountCNY(visaOfficialDto.getTotalAmount());
             visaOfficialDto.setTotalPerAmountAUD(roundHalfUp2(visaOfficialDto.getTotalPerAmount() / exchangeRate));
             visaOfficialDto.setTotalPerAmountCNY(visaOfficialDto.getTotalPerAmount());
             visaOfficialDto.setExpectAmountAUD(roundHalfUp2(visaOfficialDto.getExpectAmount() / exchangeRate));

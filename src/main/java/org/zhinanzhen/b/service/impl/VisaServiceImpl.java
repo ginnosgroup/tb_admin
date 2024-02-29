@@ -632,8 +632,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setAmountCNY(roundHalfUp2(visaDto.getAmount() * exchangeRate));
 			visaDto.setPerAmountAUD(visaDto.getPerAmount());
 			visaDto.setPerAmountCNY(roundHalfUp2(visaDto.getPerAmount() * exchangeRate));
-			visaDto.setTotalAmountAUD(visaDto.getAmountAUD());
-			visaDto.setTotalAmountCNY(roundHalfUp2(visaDto.getAmountAUD() * exchangeRate));
+			visaDto.setTotalAmountAUD(visaDto.getTotalAmount());
+			visaDto.setTotalAmountCNY(roundHalfUp2(visaDto.getTotalAmount() * exchangeRate));
 			visaDto.setTotalPerAmountAUD(visaDto.getTotalPerAmount());
 			visaDto.setTotalPerAmountCNY(roundHalfUp2(visaDto.getTotalPerAmount() * exchangeRate));
 			visaDto.setExpectAmountAUD(visaDto.getExpectAmount());
