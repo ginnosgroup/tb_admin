@@ -86,6 +86,7 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
 						0, 0, 999);
 				if (servicePackagePriceDoList != null) {
+					LOG.info("--------------------------组装servicePackagePriceDtoList");
 					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
 						String rulerV2 = servicePackagePriceDo.getRulerV2();
