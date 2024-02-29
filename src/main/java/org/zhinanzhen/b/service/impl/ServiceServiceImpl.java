@@ -77,11 +77,13 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 			pageSize = DEFAULT_PAGE_SIZE;
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
+		LOG.info("222222222222222222222222222222222");
 		try {
 			serviceDoList = serviceDao.listService(name, isZx, pageNum * pageSize, pageSize);
 			if (serviceDoList == null)
 				return null;
 			for (ServiceDO serviceDo : serviceDoList) {
+				LOG.info("3333333333333333333333333333333333333333");
 				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
 				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
 						0, 0, 999);
@@ -106,6 +108,7 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
+		LOG.info("44444444444444444444444444444444444444");
 		return serviceDtoList;
 	}
 	
