@@ -17,4 +17,5 @@ public interface VisaOfficialService {
     void update(Integer id,String handling_date,Double commissionAmount,String state) throws ServiceException;
     
 	void updateMerged(Integer id, Boolean isMerged) throws ServiceException;
+
 }

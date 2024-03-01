@@ -425,5 +425,4 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         return new Response<Integer>(0, message, n);
     }
 
-
 }

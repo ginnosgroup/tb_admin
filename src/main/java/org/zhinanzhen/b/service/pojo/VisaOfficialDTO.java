@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.pojo;
 import lombok.Data;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -191,6 +192,9 @@ public class VisaOfficialDTO {
 
     private MaraDTO maraDTO;
 
+    private Integer officialRegion;
+
+    private Double predictCommissionCNY;
 
 
 

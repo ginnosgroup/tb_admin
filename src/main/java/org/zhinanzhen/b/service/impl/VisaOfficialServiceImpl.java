@@ -625,6 +625,14 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                 }
             }
+            // 判断文案所属国家
+            RegionDO regionById = regionDAO.getRegionById(officialDAO.getOfficialById(visaOfficialDO.getOfficialId()).getRegionId());
+            String s = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
+            if (StringUtil.isNotEmpty(s)) {
+                visaOfficialDO.setOfficialRegion(1);
+            } else {
+                visaOfficialDO.setOfficialRegion(0);
+            }
             //汇率
             double exchangeRate = serviceOrderDO.getExchangeRate();
             if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
@@ -637,12 +645,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setCommissionAmount(0.00);
                 visaOfficialDO.setPredictCommission(0.00);
             }
-            // 判断地区计算预估佣金为澳币或者人民币
-//            RegionDO regionById = regionDAO.getRegionById(officialDAO.getOfficialById(visaOfficialDO.getOfficialId()).getRegionId());
-//            String s = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
-//            if (StringUtil.isNotEmpty(s)) {
-//                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * exchangeRate);
-//            }
+            // 计算预估佣金人民币
+            visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * exchangeRate);
             if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
                 visaOfficialDTO.setId(visaOfficialDO.getId());
                 visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
@@ -801,6 +805,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 	public void updateMerged(Integer id, Boolean isMerged) throws ServiceException {
         visaOfficialDao.updateMerged(id, isMerged);
     }
+
 
     //计算
     private CommissionAmountDTO calculationCommissionAmount(int serviceOrderId, String type) throws ServiceException {
