@@ -912,6 +912,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             } else {
                 ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugd(serviceOrderDO.getOfficialId(), servicePackagePriceDO);
                 commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
+                servicePackagePriceDO.setAmount(servicePackagePriceV2DTO.getAmount());
                 commissionAmountDTO.setRuler(servicePackagePriceV2DTO.getRuler());
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
