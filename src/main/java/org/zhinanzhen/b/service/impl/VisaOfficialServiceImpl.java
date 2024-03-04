@@ -910,6 +910,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 commissionAmountDTO.setThirdPrince(0.00);
                 commissionAmountDTO.setRuler(0);
             } else {
+                LOG.info("--------------------------------------------设置计算模式");
                 ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugd(serviceOrderDO.getOfficialId(), servicePackagePriceDO);
                 commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                 servicePackagePriceDO.setAmount(servicePackagePriceV2DTO.getAmount());
