@@ -130,6 +130,7 @@
             spp.third_prince AS thirdPrince,
             spp.ruler AS ruler,
             spp.amount AS amount,
+            spp.ruler_V2 AS rulerV2,
             r.name AS regionName
         FROM b_service_package_price spp left join tb_region r on spp.region_id=r.id WHERE spp.id = #{id, jdbcType=INTEGER};
     </select>
