@@ -88,15 +88,15 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 		String rulerV2Add = servicePackagePriceDto.getRulerV2();
 		List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOSLib = JSONArray.parseArray(rulerV2Lib, ServicePackagePriceV2DTO.class);
 		List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOSAdd = JSONArray.parseArray(rulerV2Add, ServicePackagePriceV2DTO.class);
-		Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOSAdd.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getAreaId, e -> e));
+//		Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOSAdd.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getAreaId, e -> e));
+		List<ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOSAdd.stream().distinct().collect(Collectors.toList());
 		List<ServicePackagePriceV2DTO> objects = new ArrayList<>();
 		for (ServicePackagePriceV2DTO a : servicePackagePriceV2DTOSLib) {
-			if (ObjectUtil.isNotNull(collect.get(a.getAreaId()))) {
-				return -1;
+			if ("Australia".equals(a.getCountry()) || "China".equals(a.getCountry())) {
+				objects.add(a);
 			}
-			objects.add(a);
 		}
-		objects.addAll(servicePackagePriceV2DTOSAdd);
+		objects.addAll(collect);
 		servicePackagePriceDto.setRulerV2(JSONObject.toJSONString(objects));
 
 		return servicePackagePriceDao.update(servicePackagePriceDto.getId(), servicePackagePriceDto.getMinPrice(),
