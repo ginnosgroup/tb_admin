@@ -342,13 +342,15 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                     throw se;
                 }
-                if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
-                    rate = grade.getRate() + 3;
-                } else {
-                    rate = grade.getRate();
+                rate = grade.getRate();
+                if (StringUtil.isEmpty(regionName)) {
+                    if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                        rate = grade.getRate() + 3;
+                    } else {
+                        rate = grade.getRate();
+                    }
                 }
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
-
                 if (servicePackagePriceDO == null) {
                     commissionAmountDTO.setThirdPrince(0.00);
                     commissionAmountDTO.setRuler(0);
@@ -481,10 +483,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                             throw se;
                         }
-                        if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
-                            rate = grade.getRate() + 3;
-                        } else {
-                            rate = grade.getRate();
+                        rate = grade.getRate();
+                        if (StringUtil.isEmpty(regionName)) {
+                            if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                                rate = grade.getRate() + 3;
+                            } else {
+                                rate = grade.getRate();
+                            }
                         }
                         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                         if (servicePackagePriceDO == null) {
@@ -548,10 +553,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                 se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                                 throw se;
                             }
-                            if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
-                                rate = grade.getRate() + 3;
-                            } else {
-                                rate = grade.getRate();
+                            rate = grade.getRate();
+                            if (StringUtil.isEmpty(regionName)) {
+                                if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                                    rate = grade.getRate() + 3;
+                                } else {
+                                    rate = grade.getRate();
+                                }
                             }
                             ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                             if (servicePackagePriceDO == null) {
@@ -609,10 +617,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                 se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                                 throw se;
                             }
-                            if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
-                                rate = grade.getRate() + 3;
-                            } else {
-                                rate = grade.getRate();
+                            rate = grade.getRate();
+                            if (StringUtil.isEmpty(regionName)) {
+                                if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                                    rate = grade.getRate() + 3;
+                                } else {
+                                    rate = grade.getRate();
+                                }
                             }
                             ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
                             if (servicePackagePriceDO == null) {
@@ -663,11 +674,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
             //汇率
             double exchangeRate = serviceOrderDO.getExchangeRate();
-            if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
-                visaOfficialDO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount()/exchangeRate);
-                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount()/ exchangeRate);
-                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission()/ exchangeRate);
-            }
+//            if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
+//                visaOfficialDO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount()/exchangeRate);
+//                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount()/ exchangeRate);
+//                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission()/ exchangeRate);
+//            }
             if (pay) {
                 visaOfficialDO.setPredictCommissionAmount(0);
                 visaOfficialDO.setCommissionAmount(0.00);
@@ -933,10 +944,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
                 throw se;
             }
-            if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
-                rate = grade.getRate() + 3;
-            } else {
-                rate = grade.getRate();
+            rate = grade.getRate();
+            if (StringUtil.isEmpty(regionName)) {
+                if (monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+                    rate = grade.getRate() + 3;
+                } else {
+                    rate = grade.getRate();
+                }
             }
             ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
             if (servicePackagePriceDO == null) {
