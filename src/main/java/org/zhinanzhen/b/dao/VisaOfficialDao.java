@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialListDO;
@@ -59,4 +60,5 @@ public interface VisaOfficialDao {
                            @Param("handlingDate") Date handlingDate);
     
 	int updateMerged(@Param("id") Integer id, @Param("isMerged") boolean isMerged);
+
 }

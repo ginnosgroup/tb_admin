@@ -85,12 +85,22 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
 				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
 						0, 0, 999);
+				if (servicePackagePriceDoList == null) {
+				}
 				if (servicePackagePriceDoList != null) {
+					LOG.info("--------------------------组装servicePackagePriceDtoList");
 					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
 						String rulerV2 = servicePackagePriceDo.getRulerV2();
 						List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
-						servicePackagePriceDo.setServicePackagePriceV2DTO(servicePackagePriceV2DTOS);
+						List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOTmp = new ArrayList<>();
+						for (ServicePackagePriceV2DTO a : servicePackagePriceV2DTOS) {
+							if ("Australia".equals(a.getCountry()) || "China".equals(a.getCountry())) {
+								continue;
+							}
+							servicePackagePriceV2DTOTmp.add(a);
+						}
+						servicePackagePriceDo.setServicePackagePriceV2DTO(servicePackagePriceV2DTOTmp);
 						servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
 					});
 					serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);

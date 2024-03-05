@@ -52,7 +52,9 @@
             commissionAmount,
             calculation,
             predict_commissionAmount,
-            verify_code)
+            verify_code,
+            official_region,
+            predict_commission_CNY)
         VALUES (
                    now(),
                    now(),
@@ -101,7 +103,9 @@
                    #{commissionAmount},
                    #{calculation},
                    #{predictCommissionAmount},
-                   #{verifyCode});
+                   #{verifyCode},
+               #{officialRegion},
+                #{predictCommissionCNY});
     </insert>
     <update id="update">
         UPDATE b_visa_official
@@ -195,6 +199,8 @@
         bv.bank_date AS bankDate,
         bv.is_close AS isClose,
         bv.invoice_create AS invoiceCreate,
+        bv.predict_commission_CNY AS predictCommissionCNY,
+        bv.official_region AS officialRegion,
         tu.name AS userName,
         tu.birthday AS birthday,
         tu.phone AS phone,
@@ -237,7 +243,7 @@
             and tu.name LIKE '%${userName}%'
         </if>
         <if test='applicantName!=null and applicantName!=""'>
-            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ' ', ba.surname) LIKE '%${applicantName}%')
+            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ba.surname) LIKE '%${applicantName}%')
         </if>
         <if test='isMerged != null'>
             AND bv.is_merged = #{isMerged}
@@ -599,6 +605,12 @@
         </if>
         <if test='installmentNum != null'>
             , installment_num = #{installmentNum}
+        </if>
+        <if test='officialRegion != null'>
+            , official_region = #{officialRegion}
+        </if>
+        <if test='predictCommissionCNY != null'>
+            , predict_commission_CNY = #{predictCommissionCNY}
         </if>
         WHERE id = #{id};
     </update>

@@ -6,6 +6,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/service")
+@Log4j
 public class ServiceController extends BaseController {
 
 	@Resource
@@ -78,6 +81,7 @@ public class ServiceController extends BaseController {
 			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			log.info("111111111111111111111111111111111");
 			return new ListResponse<List<ServiceDTO>>(true, pageSize,
 					serviceService.countService(name, isZx != null && "true".equalsIgnoreCase(isZx)),
 					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), pageNum, pageSize),

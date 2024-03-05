@@ -300,6 +300,8 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			if ("YJY".equals(visaDo.getCommissionState())) {
 				ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
 				serviceOrderById.setAmount(serviceOrderById.getReceivable());
+				serviceOrderById.setPerAmount(serviceOrderById.getReceivable());
+				serviceOrderById.setExpectAmount(serviceOrderById.getReceivable());
 				serviceOrderDao.updateServiceOrder(serviceOrderById);
 			}
 			if (i > 0) {

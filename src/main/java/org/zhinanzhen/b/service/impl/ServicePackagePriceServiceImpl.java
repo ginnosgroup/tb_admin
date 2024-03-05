@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
@@ -82,6 +83,22 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		ServicePackagePriceDO byId = servicePackagePriceDao.getById(servicePackagePriceDto.getId());
+		String rulerV2Lib = byId.getRulerV2();
+		String rulerV2Add = servicePackagePriceDto.getRulerV2();
+		List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOSLib = JSONArray.parseArray(rulerV2Lib, ServicePackagePriceV2DTO.class);
+		List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOSAdd = JSONArray.parseArray(rulerV2Add, ServicePackagePriceV2DTO.class);
+//		Map<Integer, ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOSAdd.stream().collect(Collectors.toMap(ServicePackagePriceV2DTO::getAreaId, e -> e));
+		List<ServicePackagePriceV2DTO> collect = servicePackagePriceV2DTOSAdd.stream().distinct().collect(Collectors.toList());
+		List<ServicePackagePriceV2DTO> objects = new ArrayList<>();
+		for (ServicePackagePriceV2DTO a : servicePackagePriceV2DTOSLib) {
+			if ("Australia".equals(a.getCountry()) || "China".equals(a.getCountry())) {
+				objects.add(a);
+			}
+		}
+		objects.addAll(collect);
+		servicePackagePriceDto.setRulerV2(JSONObject.toJSONString(objects));
+
 		return servicePackagePriceDao.update(servicePackagePriceDto.getId(), servicePackagePriceDto.getMinPrice(),
 				servicePackagePriceDto.getMaxPrice(), servicePackagePriceDto.getServiceId(),
 				servicePackagePriceDto.getRegionId(),servicePackagePriceDto.getCostPrince(),servicePackagePriceDto.getThirdPrince(),

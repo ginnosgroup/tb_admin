@@ -123,4 +123,8 @@ public class VisaOfficialDO {
 
     private double predictCommissionAmount;//计入佣金提点金额(预估)
 
+    private Integer officialRegion; // 文案所属国家
+
+    private Double predictCommissionCNY; // 预估佣金人民币
+
 }

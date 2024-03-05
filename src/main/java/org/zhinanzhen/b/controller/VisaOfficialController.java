@@ -268,9 +268,13 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             	merged = true;
             if(StringUtil.equals(isMerged, "false"))
             	merged = false;
-            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName, merged);
+            String name = applicantName;
+            if (StringUtil.isNotEmpty(applicantName)) {
+                name = applicantName.replaceAll("\\s", "");
+            }
+            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
-                    endDate, userName, applicantName, merged, pageNum, pageSize, _sorter);
+                    endDate, userName, name, merged, pageNum, pageSize, _sorter);
 
 
             return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
@@ -420,6 +424,5 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         }
         return new Response<Integer>(0, message, n);
     }
-
 
 }
