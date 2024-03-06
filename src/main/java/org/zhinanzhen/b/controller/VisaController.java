@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -225,6 +226,12 @@ public class VisaController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(remarks))
 				visaDto.setRemarks(remarks);
 			double commission = visaDto.getAmount();
+			if ("CNY".equals(currency)) {
+				BigDecimal bigDecimal = BigDecimal.valueOf(commission);
+				BigDecimal bigDecimalExc = new BigDecimal(exchangeRate);
+				BigDecimal divide = bigDecimal.divide(bigDecimalExc, 4, RoundingMode.HALF_UP);
+				commission = divide.doubleValue();
+			}
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
