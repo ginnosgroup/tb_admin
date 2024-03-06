@@ -674,11 +674,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
             //汇率
             double exchangeRate = serviceOrderDO.getExchangeRate();
-//            if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
-//                visaOfficialDO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount()/exchangeRate);
-//                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount()/ exchangeRate);
-//                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission()/ exchangeRate);
-//            }
+            if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
+                visaOfficialDO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount()/exchangeRate);
+                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount()/ exchangeRate);
+                visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission()/ exchangeRate);
+            }
             if (pay) {
                 visaOfficialDO.setPredictCommissionAmount(0);
                 visaOfficialDO.setCommissionAmount(0.00);
