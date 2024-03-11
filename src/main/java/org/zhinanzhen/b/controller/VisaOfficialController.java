@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.ikasoa.core.utils.ListUtil;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import jxl.Cell;
 import jxl.Sheet;
@@ -335,15 +336,23 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "officialId", required = false) Integer officialId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
-            HttpServletResponse response) {
+            HttpServletResponse response, HttpServletRequest request) {
         try {
             List<Integer> regionList = null;
             if (regionId != null) {
                 regionList = new ArrayList<>();
                 regionList.add(regionId);
             }
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if ("WA".equals(adminUserLoginInfo.getApList())) {
+                officialId = adminUserLoginInfo.getOfficialId();
+            }
+            String name = applicantName;
+            if (StringUtil.isNotEmpty(applicantName)) {
+                name = applicantName.replaceAll("\\s", "");
+            }
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                    startDate, endDate, userName, applicantName, null, null, null, null);
+                    startDate, endDate, userName, name, null, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
@@ -355,6 +364,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
             HSSFWorkbook wb = new HSSFWorkbook(is);
             HSSFSheet sheet = wb.getSheetAt(0);
+            String servicePackageType = "";
             for (VisaOfficialDTO visaDTO : officialList) {
                 HSSFRow row = sheet.createRow(i);
                 row.createCell(0).setCellValue(visaDTO.getId());
@@ -367,7 +377,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(7).setCellValue(visaDTO.getCurrency());
                 row.createCell(8).setCellValue(visaDTO.getExchangeRate());
                 row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
-                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode()));
+                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage())) {
+                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                }
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 row.createCell(11).setCellValue(visaDTO.getAdviserName());
                 row.createCell(12).setCellValue(visaDTO.getOfficialName());
                 row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
