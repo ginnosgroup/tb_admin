@@ -531,7 +531,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
                     }
                     //签证服务计算
-                    if (packageDO.getType().equals("VA")) {
+                    if (packageDO.getType().equals("VA") && i != -2) {
                         if (serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId()).isPay()) {
                             VisaDO visaDO = new VisaDO();
                             CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
@@ -603,7 +603,18 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         if (serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId()).isPay()) {
                             VisaDO visaDO = new VisaDO();
                             CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
+                            ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
+//                            if ("TM".equals(servicePackageDO.getType())) {
+//                                visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
+//                            }
+//                            if ("VA".equals(servicePackageDO.getType())) {
+//                                visaDO = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getParentId());
+//                            }
                             visaDO = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDO.getParentId());
+                            VisaDO secondVisa = visaDAO.getSecondVisaByServiceOrderId(serviceOrderDO.getParentId());
+                            if (ObjectUtil.isNotNull(secondVisa)) {
+                                visaDO.setAmount(visaDO.getAmount() + secondVisa.getAmount());
+                            }
                             RefundDO refund = refundDAO.getRefundByVisaId(visaDO.getId());
                             if (refund == null) {
                                 commissionAmountDTO.setRefund(0.00);
@@ -637,7 +648,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             }
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             if (commissionAmountDTO.getRuler() == 0) {
-                                commissionAmountDTO.setPredictCommissionAmount((visaDO.getAmount() - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince())/1.1 * 0.5);
+                                commissionAmountDTO.setPredictCommissionAmount((visaDO.getAmount() - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince()) / 1.1 * 0.5);
                                 if (commissionAmountDTO.getPredictCommissionAmount() <= 0)
                                     commissionAmountDTO.setPredictCommissionAmount(0.00);
                                 commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
