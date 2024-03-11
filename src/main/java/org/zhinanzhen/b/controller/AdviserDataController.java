@@ -240,12 +240,14 @@ public class AdviserDataController extends BaseController {
 			for (AdviserUserDTO u : userList) {
 				sheet3.addCell(new Label(0, l, u.getId() + "", cellFormat));
 				sheet3.addCell(new Label(1, l, u.getName(), cellFormat));
-				sheet3.addCell(new Label(2, l, u.getApplicantId() + "", cellFormat));
-				sheet3.addCell(new Label(3, l, u.getApplicantName(), cellFormat));
-				sheet3.addCell(new Label(4, l, u.getBirthday(), cellFormat));
-				sheet3.addCell(new Label(5, l, u.getPhone(), cellFormat));
-				sheet3.addCell(new Label(6, l, u.getEmail(), cellFormat));
-				sheet3.addCell(new Label(7, l, u.getIsCreater(), cellFormat));
+				sheet3.addCell(new Label(2, l, u.getNickname(), cellFormat));
+				sheet3.addCell(new Label(3, l, u.getWeichatUsername(), cellFormat));
+				sheet3.addCell(new Label(4, l, u.getApplicantId() + "", cellFormat));
+				sheet3.addCell(new Label(5, l, u.getApplicantName(), cellFormat));
+				sheet3.addCell(new Label(6, l, u.getBirthday(), cellFormat));
+				sheet3.addCell(new Label(7, l, u.getPhone(), cellFormat));
+				sheet3.addCell(new Label(8, l, u.getEmail(), cellFormat));
+				sheet3.addCell(new Label(9, l, u.getIsCreater(), cellFormat));
 				l++;
 			}
 			wbe.write();

@@ -9,6 +9,10 @@ public class AdviserUserDO {
 
 	private String name;
 	
+	private String nickname;
+	
+	private String weichatUsername;
+	
 	private int applicantId;
 	
 	private String applicantName;

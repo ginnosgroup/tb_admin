@@ -94,6 +94,8 @@
         select
           u.id as id,
           u.name as name,
+          u.auth_nickname as nickname,
+          u.wechat_username as weichatUsername,
           a.id as applicantId,
           concat(a.firstname, ' ', a.surname) as applicantName,
           IF(u.birthday='1970-01-01 00:00:00','unknown',IF(u.birthday='1970-01-01 08:00:00','unknown',u.birthday)) as birthday,
