@@ -299,6 +299,15 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			int i = visaDao.updateVisa(visaDo);
 			if ("YJY".equals(visaDo.getCommissionState())) {
 				ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
+				List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getId());
+				if (deriveOrder != null && deriveOrder.size() > 0) {
+					deriveOrder.forEach(e->{
+						e.setReceived(e.getReceivable());
+						ServiceOrderDO map = mapper.map(e, ServiceOrderDO.class);
+						serviceOrderDao.updateServiceOrder(map);
+					});
+				}
+				serviceOrderById.setReceived(serviceOrderById.getReceivable());
 				serviceOrderById.setAmount(serviceOrderById.getReceivable());
 				serviceOrderById.setPerAmount(serviceOrderById.getReceivable());
 				serviceOrderById.setExpectAmount(serviceOrderById.getReceivable());
