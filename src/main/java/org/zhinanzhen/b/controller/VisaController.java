@@ -252,11 +252,18 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setKjApprovalDate(null);
 					visaDto.setReceiveDate(null);
 					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
+					visaDto.setAmount(visaDto.getPerAmount());
+					visaDto.setDiscount(0.00);
+					commission = visaDto.getAmount();
+					visaDto.setGst(commission / 11);
+					visaDto.setDeductGst(commission - visaDto.getGst());
+					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+					visaDto.setExpectAmount(commission);
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
 //					else
-					visaDto.setAmount(visaDto.getPerAmount());
-					visaDto.setDiscount(0.00);
+
+
 				} else {
 					visaDto.setState(ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
 					if (StringUtil.isNotEmpty(verifyCode))// 只给第一笔赋值verifyCode
