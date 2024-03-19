@@ -120,7 +120,7 @@ public interface ServiceOrderDAO {
     // 根据父订单获取子订单
     List<ServiceOrderDTO> getDeriveOrder(@Param("id") int id);
 
-    @Select("SELECT * FROM b_service_order WHERE (parent_id > 0) AND (is_pay = 0) AND (gmt_create BETWEEN '2023-01-01' AND '2023-12-31')")
-    List<ServiceOrderDO> getZiOrder();
+    @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
+    List<ServiceOrderDTO> getZiOrder(int id);
 
 }

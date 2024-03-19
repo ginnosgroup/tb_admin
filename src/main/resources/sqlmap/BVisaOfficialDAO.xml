@@ -478,7 +478,8 @@
             predict_commission AS predictCommission,
             commissionAmount,
             calculation,
-            predict_commissionAmount AS predictCommissionAmount
+            predict_commissionAmount AS predictCommissionAmount,
+            predict_commission_CNY AS predictCommissionCNY
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>

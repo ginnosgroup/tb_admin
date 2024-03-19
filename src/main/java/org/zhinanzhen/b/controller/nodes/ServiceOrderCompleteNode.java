@@ -68,7 +68,9 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         this.add("489");
                     }
                 };
-                if (arrayList.contains(serviceOrderDto.getService().getCode())) {
+                String code = serviceOrderDto.getService().getCode();
+                String serviceType = code.replaceAll("\\D", "");
+                if (arrayList.contains(serviceType)) {
                     VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                     VisaOfficialDO visaOfficialDO1=new VisaOfficialDO();
                     visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderId(serviceOrderDto.getId());

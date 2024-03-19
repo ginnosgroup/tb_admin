@@ -213,6 +213,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "schoolId4", required = false) Integer schoolId4,
                                              @RequestParam(value = "schoolId5", required = false) Integer schoolId5,
                                              @RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
+                                             @RequestParam(value = "servicePackageIdsEOI", required = false) String servicePackageIdsEOI,
                                              @RequestParam(value = "urgentState", required = false) String urgentState,
                                              @RequestParam(value = "isSettle", required = false) String isSettle,
                                              @RequestParam(value = "isDepositUser", required = false) String isDepositUser,
@@ -409,6 +410,14 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
             } else
                 return new Response<Integer>(1, "请选择申请人.", null);
+            if (StringUtil.isNotEmpty(servicePackageIds)) {
+                String[] split = servicePackageIds.split(",");
+                serviceOrderDto.setEOINumber(split.length);
+            }
+            if (StringUtil.isNotEmpty(servicePackageIdsEOI)) {
+                String[] split = servicePackageIdsEOI.split(",");
+                serviceOrderDto.setEOINumber(split.length);
+            }
             if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
@@ -436,14 +445,38 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderDto.setApplicantParentId(serviceOrderId);
                     // 创建子服务订单
                     if (StringUtil.isNotEmpty(servicePackageIds)) {
-                        List<String> servicePackageIdList = Arrays.asList(servicePackageIds.split(","));
+                        List<String> servicePackageIdList = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
+                        List<String> servicePackageIdsEOIList = new ArrayList<>();
+                        if (StringUtil.isNotEmpty(servicePackageIdsEOI)) {
+                            servicePackageIdsEOIList = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+                            for (String s : servicePackageIdList) {
+                                int i = Integer.parseInt(s);
+                                try {
+                                    ServicePackageDTO byId = servicePackageService.getById(i);
+                                    if (!"EOI".equals(byId.getType())) {
+                                        servicePackageIdsEOIList.add(s);
+                                    }
+                                } catch (ServiceException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                            }
+                        } else {
+                            servicePackageIdsEOIList.addAll(servicePackageIdList);
+                        }
                         serviceOrderDto.setParentId(serviceOrderDto.getId());
                         serviceOrderDto.setId(0);
-                        for (String servicePackageId : servicePackageIdList) {
+                        int EOICount = 0;
+                        for (String servicePackageId : servicePackageIdsEOIList) {
                             int id = StringUtil.toInt(servicePackageId);
-                            if (servicePackageService.getById(id) == null) {
+                            ServicePackageDTO servicePackageDTO = servicePackageService.getById(id);
+                            if (servicePackageDTO == null) {
                                 msg += "服务包不存在(" + id + "),请检查参数. ";
                                 continue;
+                            }
+                            serviceOrderDto.setEOINumber(null);
+                            if ("EOI".equals(servicePackageDTO.getType())) {
+                                EOICount++;
+                                serviceOrderDto.setEOINumber(EOICount);
                             }
                             if ("true".equals(isPay)) {
                                 serviceOrderDto.setPay(true);
@@ -2727,13 +2760,14 @@ public class ServiceOrderController extends BaseController {
 
                 Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
                 context = workflowStarter.process(workflow, context);
-                visaOfficialController.add(String.valueOf(serviceOrderDto.getUserId()), null, null, String.valueOf(serviceOrderDto.getReceiveTypeId()), String.valueOf(serviceOrderDto.getReceiveDate().getTime()),
-                        String.valueOf(serviceOrderDto.getServiceId()), id, serviceOrderDto.getInstallment(), serviceOrderDto.getPaymentVoucherImageUrl1(), serviceOrderDto.getPaymentVoucherImageUrl2(),
-                        serviceOrderDto.getPaymentVoucherImageUrl3(), serviceOrderDto.getPaymentVoucherImageUrl4(), serviceOrderDto.getPaymentVoucherImageUrl5(), serviceOrderDto.getVisaVoucherImageUrl(),
-                        String.valueOf(serviceOrderDto.getReceivable()), String.valueOf(serviceOrderDto.getReceived()), String.valueOf(serviceOrderDto.getPerAmount()), String.valueOf(serviceOrderDto.getAmount()), serviceOrderDto.getCurrency(),
-                        String.valueOf(serviceOrderDto.getExchangeRate()), null, String.valueOf(serviceOrderDto.getAdviserId()), String.valueOf(serviceOrderDto.getMaraId()), String.valueOf(serviceOrderDto.getOfficialId()), serviceOrderDto.getRemarks(),
-                        serviceOrderDto.getVerifyCode(), request, response);
-
+                if (!"OVST".equals(serviceOrderDto.getType())) {
+                    visaOfficialController.add(String.valueOf(serviceOrderDto.getUserId()), null, null, String.valueOf(serviceOrderDto.getReceiveTypeId()), serviceOrderDto.getReceiveDate() == null ? null : String.valueOf(serviceOrderDto.getReceiveDate()),
+                            String.valueOf(serviceOrderDto.getServiceId()), id, serviceOrderDto.getInstallment(), serviceOrderDto.getPaymentVoucherImageUrl1(), serviceOrderDto.getPaymentVoucherImageUrl2(),
+                            serviceOrderDto.getPaymentVoucherImageUrl3(), serviceOrderDto.getPaymentVoucherImageUrl4(), serviceOrderDto.getPaymentVoucherImageUrl5(), serviceOrderDto.getVisaVoucherImageUrl(),
+                            String.valueOf(serviceOrderDto.getReceivable()), String.valueOf(serviceOrderDto.getReceived()), String.valueOf(serviceOrderDto.getPerAmount()), String.valueOf(serviceOrderDto.getAmount()), serviceOrderDto.getCurrency(),
+                            String.valueOf(serviceOrderDto.getExchangeRate()), null, String.valueOf(serviceOrderDto.getAdviserId()), String.valueOf(serviceOrderDto.getMaraId()), String.valueOf(serviceOrderDto.getOfficialId()), serviceOrderDto.getRemarks(),
+                            serviceOrderDto.getVerifyCode(), request, response);
+                }
             }
         } catch (ServiceException e) {
             return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);

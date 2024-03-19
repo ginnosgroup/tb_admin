@@ -252,4 +252,5 @@ public class ServiceOrderDTO {
 
 	private boolean isSubmitMM;
 
+	private Integer EOINumber;
 }
