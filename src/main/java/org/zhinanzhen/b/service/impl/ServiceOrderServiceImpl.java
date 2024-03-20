@@ -914,7 +914,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
 //            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
             List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
-            serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + ziOrder.size());
+            List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
+            serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
         }
         return serviceOrderDto;
     }
