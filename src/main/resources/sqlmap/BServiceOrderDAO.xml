@@ -380,6 +380,9 @@
         <if test="refNo != null">
             ,ref_no = #{refNo}
         </if>
+        <if test="EOINumber != null">
+            ,EOI_number = #{EOINumber}
+        </if>
         WHERE id = #{id};
     </update>
 

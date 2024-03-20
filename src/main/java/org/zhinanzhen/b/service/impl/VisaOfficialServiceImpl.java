@@ -1104,20 +1104,20 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 //        }
 //    }
 
-    // 打包订单情况判断-->签证：1  EOI：2  ROI：3
-    private String situationJudgment(ServiceOrderDO serviceOrderDO) {
-        StringBuilder situationInt = new StringBuilder();
-        List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
-        for (ServiceOrderDTO serviceOrderDTO : deriveOrder) {
-            if ("VA".equals(serviceOrderDTO.getServicePackage().getType())) {
-                situationInt.append("VA");}
-            if ("EOI".equals(serviceOrderDTO.getServicePackage().getType())) {
-                situationInt.append("EOI");}
-            if ("ROI".equals(serviceOrderDTO.getServicePackage().getType())) {
-                situationInt.append("ROI");}
-        }
-        return situationInt.toString();
-    }
+//    // 打包订单情况判断-->签证：1  EOI：2  ROI：3
+//    private String situationJudgment(ServiceOrderDO serviceOrderDO) {
+//        StringBuilder situationInt = new StringBuilder();
+//        List<ServiceOrderDO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
+//        for (ServiceOrderDO serviceOrderDTO : deriveOrder) {
+//            if ("VA".equals(serviceOrderDTO.getServicePackage().getType())) {
+//                situationInt.append("VA");}
+//            if ("EOI".equals(serviceOrderDTO.getServicePackage().getType())) {
+//                situationInt.append("EOI");}
+//            if ("ROI".equals(serviceOrderDTO.getServicePackage().getType())) {
+//                situationInt.append("ROI");}
+//        }
+//        return situationInt.toString();
+//    }
 
     // 文案佣金订单是否直接计算固定金额
     private static boolean isaBoolean(ServicePackagePriceDO servicePackagePriceDO, boolean pay) {
