@@ -917,6 +917,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
             serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
         }
+        // 添加父订单EOI绑定标识
+        if ("SIV".equals(serviceOrderDto.getType())) {
+            List<ServicePackageListDO> list = servicePackageDao.list(serviceOrderDto.getServiceId(), 0, 200);
+            list.forEach(e->{
+                if ("EOI".equals(e.getType())) {
+                    List<ChildrenServiceOrderDTO> childrenServiceOrders = serviceOrderDto.getChildrenServiceOrders();
+                    ChildrenServiceOrderDTO childrenServiceOrderDTO = new ChildrenServiceOrderDTO();
+                    childrenServiceOrderDTO.setServicePackageId(e.getId());
+                    childrenServiceOrderDTO.setServicePackageType(e.getType());
+                    childrenServiceOrders.add(childrenServiceOrderDTO);
+                    serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
+                }
+            });
+        }
         return serviceOrderDto;
     }
 
