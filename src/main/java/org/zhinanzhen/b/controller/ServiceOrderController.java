@@ -51,6 +51,8 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -689,6 +691,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "applicantId", required = false) String applicantId,
                                                 @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
                                                 @RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
+                                                @RequestParam(value = "servicePackageIdsEOI", required = false) String servicePackageIdsEOI,
                                                 @RequestParam(value = "maraId", required = false) String maraId,
                                                 @RequestParam(value = "adviserId", required = false) String adviserId,
                                                 @RequestParam(value = "officialId", required = false) String officialId,
@@ -732,14 +735,15 @@ public class ServiceOrderController extends BaseController {
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
-						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType()))
-					cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
-							null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-							null, id, 0, false, 0, 100, null, null, null, null, null, null);
-				else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType()))
-					cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
-							null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-							null, 0, id, false, 0, 100, null, null, null, null, null, null);
+						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())) {
+                    cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                            null, id, 0, false, 0, 100, null, null, null, null, null, null);
+                } else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
+                    cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                            null, 0, id, false, 0, 100, null, null, null, null, null, null);
+                }
 				cList.forEach(cServiceOrderDto -> {
 					Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType, peopleRemarks,
 							serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
@@ -755,6 +759,25 @@ public class ServiceOrderController extends BaseController {
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
+                if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) && StringUtil.isNotEmpty(servicePackageIdsEOI)) {
+                    List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+//                    ServiceOrderDTO serviceOrderDTO = cList.stream().max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
+                    ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
+                    Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
+                    servicePackageIdsEOIs.forEach(e->{
+                        int i = Integer.parseInt(e);
+                        if (ObjectUtil.isNull(collect.get(i))) {
+                            serviceOrderDTO.setServicePackageId(Integer.parseInt(e));
+                            serviceOrderDTO.setState("PENDING");
+                            serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
+                            try {
+                                serviceOrderService.addServiceOrder(serviceOrderDTO);
+                            } catch (ServiceException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    });
+                }
             }
             return res;
         } catch (ServiceException e) {
@@ -871,12 +894,13 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
             if (StringUtil.isNotEmpty(applicantId))
                 serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
-            if (StringUtil.isNotEmpty(maraId))
+            if (StringUtil.isNotEmpty(maraId) && !"0".equals(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
                 serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-            if (StringUtil.isNotEmpty(officialId))
+            if (StringUtil.isNotEmpty(officialId) && !"0".equals(officialId)) {
                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
+            }
             if (StringUtil.isNotEmpty(remarks))
                 serviceOrderDto.setRemarks(remarks);
             if (StringUtil.isNotEmpty(closedReason))
