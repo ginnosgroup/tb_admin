@@ -338,11 +338,28 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     private VisaOfficialDO buildCommission(ServiceOrderDO serviceOrderById, VisaOfficialDTO visaOfficialDTO, boolean pay, int region, String packType, boolean suborder) {
         VisaOfficialDO visaOfficialDO = mapper.map(visaOfficialDTO, VisaOfficialDO.class);
         if (!pay) {
-            visaOfficialDO.setPredictCommission(0.00);
-            visaOfficialDO.setCommissionAmount(0.00);
-            visaOfficialDO.setPredictCommission(0.00);
-            visaOfficialDO.setCalculation(null);
-            visaOfficialDO.setPredictCommissionCNY(0.00);
+            ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+            ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugd(serviceOrderById.getOfficialId(), servicePackagePriceDO);
+            if (ObjectUtil.isNotNull(servicePackagePriceDO) && servicePackagePriceV2DTO.getRuler() == 1) {
+                String calculation = new String();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                calculation = "1" + "|" + servicePackagePriceDO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
+                visaOfficialDO.setCalculation(calculation);
+                visaOfficialDO.setPredictCommission(servicePackagePriceDO.getAmount());
+                visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
+                if (region == 1) {
+                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceDO.getAmount());
+                    visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
+                }
+                visaOfficialDO.setCommissionAmount(0.00);
+                visaOfficialDO.setPredictCommissionAmount(0.00);
+            } else {
+                visaOfficialDO.setPredictCommission(0.00);
+                visaOfficialDO.setCommissionAmount(0.00);
+                visaOfficialDO.setPredictCommission(0.00);
+                visaOfficialDO.setCalculation(null);
+                visaOfficialDO.setPredictCommissionCNY(0.00);
+            }
             return visaOfficialDO;
         }
         CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
@@ -690,7 +707,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 //                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId());
 //                pay = isaBoolean(servicePackagePriceDO, pay);
 //                // todo 结算方式判断
-//                servicePackagePriceV2DTO = closeJugd(visaOfficialDTO.getOfficialId(), servicePackagePriceDO);
+////                servicePackagePriceV2DTO = closeJugd(visaOfficialDTO.getOfficialId(), servicePackagePriceDO);
 //                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //                CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
 //                commissionAmountDTO.setCommission(servicePackagePriceDO.getAmount());
@@ -1103,12 +1120,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 //            throw se;
 //        }
 //    }
-
+//
 //    // 打包订单情况判断-->签证：1  EOI：2  ROI：3
 //    private String situationJudgment(ServiceOrderDO serviceOrderDO) {
 //        StringBuilder situationInt = new StringBuilder();
-//        List<ServiceOrderDO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
-//        for (ServiceOrderDO serviceOrderDTO : deriveOrder) {
+//        List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
+//        for (ServiceOrderDTO serviceOrderDTO : deriveOrder) {
 //            if ("VA".equals(serviceOrderDTO.getServicePackage().getType())) {
 //                situationInt.append("VA");}
 //            if ("EOI".equals(serviceOrderDTO.getServicePackage().getType())) {
