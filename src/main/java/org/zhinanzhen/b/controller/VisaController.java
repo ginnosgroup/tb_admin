@@ -1212,6 +1212,13 @@ public class VisaController extends BaseCommissionOrderController {
 							visaDto.setRefuseReason(refuseReason);
 						visaDto.setState(state);
 						if (visaService.updateVisa(visaDto) > 0) {
+//							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDto.getServiceOrderId());
+							//TODO:sulei 需要更新成上一笔已提交佣金订单的金额．．．
+//							if (visaDto.getPerAmount() > 0)
+//								serviceOrderDto.setPerAmount(serviceOrderDto.getPerAmount() - visaDto.getPerAmount());
+//							if (visaDto.getAmount() > 0)
+//								serviceOrderDto.setAmount(serviceOrderDto.getAmount() - visaDto.getAmount());
+//							serviceOrderService.updateServiceOrder(serviceOrderDto);
 							visaService.sendRefuseEmail(visaDto);
 							return new Response<VisaDTO>(0, visaDto);
 						} else
