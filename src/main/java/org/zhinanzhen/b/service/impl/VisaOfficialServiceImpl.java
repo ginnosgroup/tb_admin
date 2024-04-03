@@ -345,10 +345,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 calculation = "1" + "|" + servicePackagePriceDO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                 visaOfficialDO.setCalculation(calculation);
-                visaOfficialDO.setPredictCommission(servicePackagePriceDO.getAmount());
+                visaOfficialDO.setPredictCommission(servicePackagePriceV2DTO.getAmount());
                 visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
                 if (region == 1) {
-                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceDO.getAmount());
+                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceV2DTO.getAmount());
                     visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
                 }
                 visaOfficialDO.setCommissionAmount(0.00);
