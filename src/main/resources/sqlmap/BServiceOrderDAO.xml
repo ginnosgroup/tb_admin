@@ -1362,6 +1362,13 @@
             so.applicant_parent_id = #{id,jdbcType=INTEGER}
     </select>
 
+    <select id="getTmpServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        select id,state from b_service_order
+                        where readcommitted_date between #{beforeFormat} and #{nowDate}
+                          and (state = 'APPLY' OR state = 'COMPLETE')
+                            and official_id != 0
+    </select>
+
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>
         <result column="gmtCreate" property="gmtCreate"></result>

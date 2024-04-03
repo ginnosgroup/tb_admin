@@ -595,6 +595,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (commissionAmountDTO.getRuler() == 0) {
+//            if ("CNY".equals(serviceOrderById.getCurrency())) {
+//                amount = amount / serviceOrderById.getExchangeRate();
+//            }
             commissionAmountDTO.setPredictCommissionAmount(((amount - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince()) - servicePackagePriceDO.getMaxPrice()) / 1.1);
             if (commissionAmountDTO.getPredictCommissionAmount() <= 0) {
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
