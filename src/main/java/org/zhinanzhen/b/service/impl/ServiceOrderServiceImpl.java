@@ -680,7 +680,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 if (serviceOrderDto.getServicePackageId() == 0) {
                     StringBuilder eoiList = new StringBuilder();
                     List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
-                    if (deriveOrder != null && deriveOrder.size() > 0) {
+                    if (deriveOrder != null && !deriveOrder.isEmpty()) {
                         for (ServiceOrderDTO e : deriveOrder) {
                             ServicePackageDTO eoiService = servicePackageDao.getEOIService(e.getServicePackageId());
                             eoiList.append(eoiService.getServiceCode()).append(",");
@@ -910,6 +910,27 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setSubmitMM(true);
         } else
             serviceOrderDto.setSubmitMM(false);
+        // EOI数量排序
+        if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
+//            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
+            List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
+            List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
+            serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
+        }
+        // 添加父订单EOI绑定标识
+        if ("SIV".equals(serviceOrderDto.getType())) {
+            List<ServicePackageListDO> list = servicePackageDao.list(serviceOrderDto.getServiceId(), 0, 200);
+            list.forEach(e->{
+                if ("EOI".equals(e.getType())) {
+                    List<ChildrenServiceOrderDTO> childrenServiceOrders = serviceOrderDto.getChildrenServiceOrders();
+                    ChildrenServiceOrderDTO childrenServiceOrderDTO = new ChildrenServiceOrderDTO();
+                    childrenServiceOrderDTO.setServicePackageId(e.getId());
+                    childrenServiceOrderDTO.setServicePackageType(e.getType());
+                    childrenServiceOrders.add(childrenServiceOrderDTO);
+                    serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
+                }
+            });
+        }
         return serviceOrderDto;
     }
 
@@ -921,7 +942,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             throw se;
         }
         try {
-            return serviceOrderDao.deleteServiceOrderById(id);
+            ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(id);
+            int i1 = serviceOrderDao.deleteServiceOrderById(id);
+            if (serviceOrderById.getEOINumber() != null) {
+                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
+                List<ServiceOrderDTO> collect = ziOrder.stream().sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)).collect(Collectors.toList());
+                for (int i = 0; i < collect.size(); i++) {
+                    collect.get(i).setEOINumber(i + 1);
+                    ServiceOrderDO map = mapper.map(collect.get(i), ServiceOrderDO.class);
+                    serviceOrderDao.updateServiceOrder(map);
+                }
+            }
+            return i1;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

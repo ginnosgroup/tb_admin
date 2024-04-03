@@ -177,4 +177,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String institutionTradingName;//记录一下培训机构的名字
 
+	private Integer EOINumber;
+
 }

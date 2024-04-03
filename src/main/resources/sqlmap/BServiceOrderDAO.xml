@@ -76,7 +76,8 @@
                 service_assess_id,
                 real_people_number,
                 verify_code,
-                ref_no)
+                ref_no,
+                EOI_number)
             VALUES (
                 now(),
                 now(),
@@ -147,7 +148,8 @@
                 #{serviceAssessId},
                 #{realPeopleNumber},
                 #{verifyCode},
-                #{refNo});
+                #{refNo},
+                #{EOINumber});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -378,6 +380,9 @@
         <if test="refNo != null">
             ,ref_no = #{refNo}
         </if>
+        <if test="EOINumber != null">
+            ,EOI_number = #{EOINumber}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -579,7 +584,8 @@
         so.real_people_number AS realPeopleNumber ,
         so.verify_code AS verifyCode ,
         so.readcommitted_date AS readcommittedDate,
-        so.ref_no AS refNo
+        so.ref_no AS refNo,
+        so.EOI_number AS EOINumber
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
@@ -796,7 +802,8 @@
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
             readcommitted_date AS readcommittedDate,
-            ref_no AS refNo
+            ref_no AS refNo,
+            EOI_number AS EOINumber
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1352,7 +1359,7 @@
         WHERE
             so.service_package_id = bsp.id
         AND
-            so.parent_id = #{id,jdbcType=INTEGER}
+            so.applicant_parent_id = #{id,jdbcType=INTEGER}
     </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">

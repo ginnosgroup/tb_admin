@@ -81,7 +81,6 @@ public class ServiceController extends BaseController {
 			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			log.info("111111111111111111111111111111111");
 			return new ListResponse<List<ServiceDTO>>(true, pageSize,
 					serviceService.countService(name, isZx != null && "true".equalsIgnoreCase(isZx)),
 					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), pageNum, pageSize),
