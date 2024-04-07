@@ -634,8 +634,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
             }
         }
-        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() / EOICount);
-        visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount() / EOICount);
+        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+        visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
         return visaOfficialDO;
     }
