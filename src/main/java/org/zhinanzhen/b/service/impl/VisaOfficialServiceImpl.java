@@ -495,9 +495,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             }
             if (suborder) {
-                // 签证600和820计算
+                // 签证600和870计算
                 ServiceDO serviceById = serviceDao.getServiceById(serviceOrderById.getServiceId());
-                if ("600".equals(serviceById.getCode())) {
+                if ("600".equals(serviceById.getCode()) || "870".equals(serviceById.getCode())) {
                     EOICount = 0;
                     deriveOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
                     for (ServiceOrderDTO a : deriveOrder) {
@@ -598,12 +598,23 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 //            if ("CNY".equals(serviceOrderById.getCurrency())) {
 //                amount = amount / serviceOrderById.getExchangeRate();
 //            }
-            commissionAmountDTO.setPredictCommissionAmount(((amount - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince()) - servicePackagePriceDO.getMaxPrice()) / 1.1);
+            double predictCommissionAmount = 0.00;
+            boolean isSIV = "SIV".equals(serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getType()) && serviceOrderById.getEOINumber() != null;
+            if (isSIV) {
+                predictCommissionAmount = (amount / 1.1 - servicePackagePriceDO.getMaxPrice() * 0.5) + servicePackagePriceDO.getMaxPrice() / EOICount;
+            } else {
+                predictCommissionAmount = amount / 1.1 - servicePackagePriceDO.getCostPrince() - servicePackagePriceDO.getThirdPrince();
+            }
+//            commissionAmountDTO.setPredictCommissionAmount(((amount - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince()) - servicePackagePriceDO.getMaxPrice()) / 1.1);
+            commissionAmountDTO.setPredictCommissionAmount(predictCommissionAmount);
             if (commissionAmountDTO.getPredictCommissionAmount() <= 0) {
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
             }
             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-            commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() + servicePackagePriceDO.getMaxPrice()) * (rate / 100) / EOICount);
+            commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() * (rate / 100)) / EOICount);
+            if (isSIV) {
+                commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() * (rate / 100)));
+            }
             String calculation = new String();
             calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + officialGradeById.getGrade() + "," + rate + "%" + "," + dateFormat.format(officialGradeById.getGmtModify());
             commissionAmountDTO.setCalculation(calculation);
@@ -1241,6 +1252,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 remindDateList.add(remindDo.getRemindDate());
             }
             visaOfficialDto.setRemindDateList(remindDateList);
+            // 计算EOI数量及排序
+            if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
+//            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
+                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
+                List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
+                visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
+            }
             visaOfficialDtoList.add(visaOfficialDto);
         }
         return visaOfficialDtoList;
