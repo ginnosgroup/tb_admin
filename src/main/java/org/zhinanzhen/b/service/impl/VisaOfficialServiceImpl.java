@@ -597,7 +597,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 for (ServiceOrderDTO a : deriveOrder) {
                     deriveOrder.forEach(e->{
-                        VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(e.getId());
+                        VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(a.getId());
                         if (ObjectUtil.isNotNull(byServiceOrderId)) {
                             visaOfficialDOS.add(byServiceOrderId);
                         }
