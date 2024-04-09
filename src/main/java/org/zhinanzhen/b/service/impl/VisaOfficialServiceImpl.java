@@ -603,10 +603,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         }
                     });
                 }
+                ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
                 if (visaOfficialDOS.isEmpty()) {
-                    predictCommissionAmount = (amount / 1.1 - servicePackagePriceDO.getMaxPrice()) + servicePackagePriceDO.getMaxPrice() / EOICount;
+                    predictCommissionAmount = (amount / 1.1 - byServiceId.getMaxPrice()) + byServiceId.getMaxPrice() / EOICount;
                 } else {
-                    predictCommissionAmount = servicePackagePriceDO.getMaxPrice() / EOICount;
+                    predictCommissionAmount = byServiceId.getMaxPrice() / EOICount;
                 }
             } else {
                 predictCommissionAmount = amount / 1.1 - servicePackagePriceDO.getCostPrince() - servicePackagePriceDO.getThirdPrince();
