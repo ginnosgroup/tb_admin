@@ -123,4 +123,6 @@ public interface ServiceOrderDAO {
     @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
     List<ServiceOrderDTO> getZiOrder(int id);
 
+    List<ServiceOrderDO> getTmpServiceOrder(@Param("beforeFormat")String beforeFormat, @Param("nowDate")String nowDate);
+
 }

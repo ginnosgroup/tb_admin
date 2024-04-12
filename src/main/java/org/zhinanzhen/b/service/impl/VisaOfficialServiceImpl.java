@@ -345,10 +345,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 calculation = "1" + "|" + servicePackagePriceDO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
                 visaOfficialDO.setCalculation(calculation);
-                visaOfficialDO.setPredictCommission(servicePackagePriceDO.getAmount());
+                visaOfficialDO.setPredictCommission(servicePackagePriceV2DTO.getAmount());
                 visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
                 if (region == 1) {
-                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceDO.getAmount());
+                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceV2DTO.getAmount());
                     visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
                 }
                 visaOfficialDO.setCommissionAmount(0.00);
@@ -495,9 +495,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             }
             if (suborder) {
-                // 签证600和820计算
+                // 签证600和870计算
                 ServiceDO serviceById = serviceDao.getServiceById(serviceOrderById.getServiceId());
-                if ("600".equals(serviceById.getCode())) {
+                if ("600".equals(serviceById.getCode()) || "870".equals(serviceById.getCode())) {
                     EOICount = 0;
                     deriveOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
                     for (ServiceOrderDTO a : deriveOrder) {
@@ -549,9 +549,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 commissionAmountDTO.setRefund(refund);
             }
         }
-        visaOfficiaCalculate(serviceOrderById, region, commissionAmountDTO, amount, rate, EOICount, officialGradeById, visaOfficialDO);
-        // EOI订单有删除情况的结算
         ServiceOrderDO serviceParentOrderById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
+        visaOfficiaCalculate(serviceOrderById, region, commissionAmountDTO, amount, rate, EOICount, officialGradeById, visaOfficialDO, deriveOrder, serviceParentOrderById);
+        // EOI订单有删除情况的结算
         if (EOICount > 2) {
             List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
             deriveOrder.forEach(e->{
@@ -561,20 +561,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             });
             if (visaOfficialDOS.size() == EOICount - 1 && EOICount < serviceParentOrderById.getEOINumber()) {
-                double commission = 0.00;
-//                double sum = visaOfficialDOS.stream().mapToDouble(VisaOfficialDO::getCommissionAmount).sum() + visaOfficialDO.getCommissionAmount();
-                double sum = visaOfficialDOS.stream().min(Comparator.comparingDouble(VisaOfficialDO::getCommissionAmount)).get().getCommissionAmount() * serviceParentOrderById.getEOINumber();
-                commission = (sum + servicePackagePriceDAO.getById(serviceOrderById.getServicePackageId()).getMaxPrice()) * (rate / 100);
-                double sumTmp = visaOfficialDOS.stream().filter(VisaOfficialDO -> VisaOfficialDO.getServiceOrderId() != serviceOrderById.getId())
-                        .mapToDouble(VisaOfficialDO::getPredictCommission).sum();
-                double sumNew = commission - sumTmp;
-
-//                VisaOfficialDO visaOfficialDO1 = visaOfficialDOS.stream().min(Comparator.comparingDouble(VisaOfficialDO::getPredictCommission)).get();
-//                Double predictCommission1 = visaOfficialDO1.getPredictCommission();
-//                Double predictCommission = visaOfficialDO.getPredictCommission();
-//                double pre = predictCommission - predictCommission1;
-//                visaOfficialDO.setPredictCommission(predictCommission + pre);
-//                visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
+                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+//                double commission = 0.00;
+//                VisaOfficialDO visaOfficialDO1 = visaOfficialDOS.stream().max(Comparator.comparingDouble(VisaOfficialDO::getCommissionAmount)).get();
+                Double predictCommission = visaOfficialDO.getPredictCommission();
+                double sumNew = predictCommission - servicePackagePriceDO.getMaxPrice() / serviceParentOrderById.getEOINumber();
+                sumNew = (predictCommission + sumNew) * (EOICount - 1);
                 visaOfficialDO.setPredictCommission(sumNew);
                 visaOfficialDO.setPredictCommissionCNY(sumNew * visaOfficialDO.getExchangeRate());
             }
@@ -582,7 +574,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         return visaOfficialDO;
     }
 
-    private VisaOfficialDO visaOfficiaCalculate(ServiceOrderDO serviceOrderById, int region, CommissionAmountDTO commissionAmountDTO, double amount, double rate, int EOICount, OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO) {
+    private VisaOfficialDO visaOfficiaCalculate(ServiceOrderDO serviceOrderById, int region, CommissionAmountDTO commissionAmountDTO, double amount, double rate, int EOICount,
+                                                OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO, List<ServiceOrderDTO> deriveOrder, ServiceOrderDO serviceParentOrderById) {
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
         if (servicePackagePriceDO == null) {
             commissionAmountDTO.setThirdPrince(0.00);
@@ -595,12 +588,39 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (commissionAmountDTO.getRuler() == 0) {
-            commissionAmountDTO.setPredictCommissionAmount(((amount - commissionAmountDTO.getRefund() - commissionAmountDTO.getThirdPrince()) - servicePackagePriceDO.getMaxPrice()) / 1.1);
+//            if ("CNY".equals(serviceOrderById.getCurrency())) {
+//                amount = amount / serviceOrderById.getExchangeRate();
+//            }
+            double predictCommissionAmount = 0.00;
+            boolean isSIV = "SIV".equals(serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getType()) && serviceOrderById.getEOINumber() != null;
+            if (isSIV) {
+                List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
+                for (ServiceOrderDTO a : deriveOrder) {
+                    deriveOrder.forEach(e->{
+                        VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(a.getId());
+                        if (ObjectUtil.isNotNull(byServiceOrderId)) {
+                            visaOfficialDOS.add(byServiceOrderId);
+                        }
+                    });
+                }
+                ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
+                if (visaOfficialDOS.isEmpty()) {
+                    predictCommissionAmount = (amount / 1.1 - byServiceId.getMaxPrice()) + byServiceId.getMaxPrice() / EOICount;
+                } else {
+                    predictCommissionAmount = byServiceId.getMaxPrice() / EOICount;
+                }
+            } else {
+                predictCommissionAmount = amount / 1.1 - servicePackagePriceDO.getCostPrince() - servicePackagePriceDO.getThirdPrince();
+            }
+            commissionAmountDTO.setPredictCommissionAmount(predictCommissionAmount);
             if (commissionAmountDTO.getPredictCommissionAmount() <= 0) {
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
             }
             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-            commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() + servicePackagePriceDO.getMaxPrice()) * (rate / 100) / EOICount);
+            commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() * (rate / 100)) / EOICount);
+            if (isSIV) {
+                commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() * (rate / 100)));
+            }
             String calculation = new String();
             calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + officialGradeById.getGrade() + "," + rate + "%" + "," + dateFormat.format(officialGradeById.getGmtModify());
             commissionAmountDTO.setCalculation(calculation);
@@ -620,8 +640,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
             }
         }
-        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() / EOICount);
-        visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount() / EOICount);
+        visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+        visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
         return visaOfficialDO;
     }
@@ -1238,6 +1258,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 remindDateList.add(remindDo.getRemindDate());
             }
             visaOfficialDto.setRemindDateList(remindDateList);
+            // 计算EOI数量及排序
+            if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
+//            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
+                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
+                List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
+                visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
+            }
             visaOfficialDtoList.add(visaOfficialDto);
         }
         return visaOfficialDtoList;

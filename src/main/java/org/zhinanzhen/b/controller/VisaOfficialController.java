@@ -7,6 +7,8 @@ import com.ikasoa.core.utils.StringUtil;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.read.biff.BiffException;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -45,6 +47,7 @@ import java.util.UUID;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/visaOfficial")
+@Log4j
 public class VisaOfficialController extends BaseCommissionOrderController {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Resource
@@ -200,20 +203,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
             _perAmount += visaDto.getPerAmount();
             _amount += visaDto.getAmount();
-
-//            serviceOrderDto.setOfficialApprovalDate(new Date());
-//            serviceOrderDto.setSubmitted(true);
-//            serviceOrderService.updateServiceOrder(serviceOrderDto);
-//            if (serviceOrderDto.getParentId() > 0) {
-//                ServiceOrderDTO _serviceOrderDto = serviceOrderService
-//                        .getServiceOrderById(serviceOrderDto.getParentId());
-//                if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
-//                    _serviceOrderDto.setSubmitted(true);
-//                    serviceOrderService.updateServiceOrder(_serviceOrderDto);
-//                }
-//            }
             return new Response<>(0, "", visaOfficialDTOList);
         } catch (ServiceException e) {
+            log.info("当前错误订单为：" + serviceOrderId);
+            log.info(e.getMessage());
             return new Response<>(e.getCode(), e.getMessage(), null);
         }
     }
@@ -389,11 +382,12 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
-                row.createCell(19).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                row.createCell(19).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
+                row.createCell(20).setCellValue(visaDTO.isMerged() ? "是" : "否");
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(20).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(21).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
                 i++;
             }
             wb.write(os);

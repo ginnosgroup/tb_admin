@@ -942,11 +942,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             throw se;
         }
         try {
+            ServiceOrderDO serviceOrderDO = null;
             ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(id);
+            serviceOrderDO = serviceOrderById;
             int i1 = serviceOrderDao.deleteServiceOrderById(id);
-            if (serviceOrderById.getEOINumber() != null) {
-                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
-                List<ServiceOrderDTO> collect = ziOrder.stream().sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)).collect(Collectors.toList());
+            if (ObjectUtil.isNotNull(serviceOrderDO) && serviceOrderDO.getEOINumber() != null) {
+                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDO.getApplicantParentId());
+//                List<ServiceOrderDTO> collect = ziOrder.stream().sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)).collect(Collectors.toList());
+                List<ServiceOrderDTO> collect = ziOrder.stream()
+                        .filter(order -> order.getEOINumber() != null) // 过滤掉EOINumber为null的对象
+                        .sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)) // 对剩余对象进行排序
+                        .collect(Collectors.toList()); // 收集结果
                 for (int i = 0; i < collect.size(); i++) {
                     collect.get(i).setEOINumber(i + 1);
                     ServiceOrderDO map = mapper.map(collect.get(i), ServiceOrderDO.class);

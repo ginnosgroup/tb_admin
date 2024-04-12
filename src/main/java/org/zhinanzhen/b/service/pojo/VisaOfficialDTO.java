@@ -196,6 +196,7 @@ public class VisaOfficialDTO {
 
     private Double predictCommissionCNY;
 
+    private String sortEOI;
 
 
 }
