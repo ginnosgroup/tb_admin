@@ -19,6 +19,6 @@ public interface AdviserDataService {
 
 	List<AdviserUserDTO> listUser(Integer adviserId) throws ServiceException;
 	
-	Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, Integer userId) throws ServiceException;
+	Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList) throws ServiceException;
 
 }

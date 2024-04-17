@@ -108,55 +108,66 @@
     
     <update id="userDataMigration">
         update tb_user set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
-        <if test='userId != null and userId > 0'>
-            AND id = #{userId}
+        <if test='userIdList != null'>
+            AND id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
         </if>
         ;
     </update>
     
     <update id="userAdviserDataMigration">
         update tb_user_adviser set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
-        <if test='userId != null and userId > 0'>
-            AND user_id = #{userId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
         </if>
         ;
     </update>
     
     <update id="applicantDataMigration">
         update b_applicant set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
-        <if test='userId != null and userId > 0'>
-            AND user_id = #{userId}
-        </if>;
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
     </update>
     
     <update id="serviceOrderDataMigration">
-        update b_service_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and state not in ('COMPLETE', 'CLOSE') and (type != 'OVST' or is_submitted = 1)
-        <if test='userId != null and userId > 0'>
-            AND user_id = #{userId}
+        update b_service_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
         </if>
         ;
     </update>
     
     <update id="visaDataMigration">
         update b_visa set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
-        <if test='userId != null and userId > 0'>
-            AND user_id = #{userId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
         </if>
         ;
     </update>
     
     <update id="commissionOrderDataMigration">
         update b_commission_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
-        <if test='userId != null and userId > 0'>
-            AND user_id = #{userId}
-        </if>
-        ;
-    </update>
-    
-    <update id="refundDataMigration">
-        update b_refund set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
-        <if test='userId != null and userId > 0'>
-            AND user_id = #{userId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
         </if>
         ;
     </update>

@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -261,11 +263,18 @@ public class AdviserDataController extends BaseController {
 	
 	@RequestMapping(value = "/adviserDataMigration", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Map<String, Integer>> adviserDataMigration(@RequestParam(value = "newAdviserId", required = true) Integer newAdviserId, @RequestParam(value = "adviserId", required = true) Integer adviserId, @RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
+	public Response<Map<String, Integer>> adviserDataMigration(@RequestParam(value = "newAdviserId", required = true) Integer newAdviserId, @RequestParam(value = "adviserId", required = true) Integer adviserId, @RequestParam(value = "userIds", required = false) String userIds, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
+			List<Integer> userIdList = ListUtil.newArrayList();
+			if (StringUtil.isNotEmpty(userIds)) {
+				String[] userIdStrs = userIds.split(",");
+				for (String userIdStr : userIdStrs) {
+					userIdList.add(Integer.parseInt(userIdStr.trim()));
+				}
+			}
 			return new Response<Map<String, Integer>>(0,
-					adviserDataService.adviserDataMigration(newAdviserId, adviserId, userId));
+					adviserDataService.adviserDataMigration(newAdviserId, adviserId, userIdList));
 		} catch (ServiceException e) {
 			return new Response<Map<String, Integer>>(1, StringUtil.merge("迁移失败:", e.getMessage()),
 					MapUtil.newHashMap());

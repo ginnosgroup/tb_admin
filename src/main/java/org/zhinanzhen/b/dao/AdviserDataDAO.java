@@ -19,24 +19,21 @@ public interface AdviserDataDAO {
 	List<AdviserUserDO> listUser(@Param("adviserId") Integer adviserId);
 	
 	int userDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
-			@Param("userId") Integer userId);
+			@Param("userIdList") List<Integer> userIdList);
 
 	int userAdviserDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
-			@Param("userId") Integer userId);
+			@Param("userIdList") List<Integer> userIdList);
 
 	int applicantDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
-			@Param("userId") Integer userId);
+			@Param("userIdList") List<Integer> userIdList);
 
 	int serviceOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
-			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
+			@Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
 
 	int visaDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
-			@Param("userId") Integer userId);
+			@Param("userIdList") List<Integer> userIdList);
 
 	int commissionOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
-			@Param("adviserId") Integer adviserId, @Param("userId") Integer userId);
-
-	int refundDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
-			@Param("userId") Integer userId);
+			@Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
 
 }
