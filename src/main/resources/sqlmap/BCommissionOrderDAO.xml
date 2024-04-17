@@ -1656,7 +1656,7 @@
         ORDER BY co.gmt_create DESC;
     </select>
     <update id="updateState" parameterType="java.lang.Integer">
-        UPDATE b_commission_order SET gmt_modify = now(),state='PENDING' WHERE id=#{id, jdbcType=INTEGER}
+        UPDATE b_commission_order SET gmt_modify = now(),state='PENDING',kj_approval_date=NULL WHERE id=#{id, jdbcType=INTEGER}
     </update>
     <select id="getCommissionStateById" parameterType="java.lang.Integer"
             resultType="org.zhinanzhen.b.dao.pojo.CommissionInfoDO">
