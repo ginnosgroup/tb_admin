@@ -261,11 +261,14 @@ public class AdviserDataController extends BaseController {
 		}
 	}
 	
-	@RequestMapping(value = "/adviserDataMigration", method = RequestMethod.GET)
+	@RequestMapping(value = "/adviserDataMigration", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Map<String, Integer>> adviserDataMigration(@RequestParam(value = "newAdviserId", required = true) Integer newAdviserId, @RequestParam(value = "adviserId", required = true) Integer adviserId, @RequestParam(value = "userIds", required = false) String userIds, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+				return new Response(1, "仅限超级管理员操作.", null);
 			List<Integer> userIdList = ListUtil.newArrayList();
 			if (StringUtil.isNotEmpty(userIds)) {
 				String[] userIdStrs = userIds.split(",");
