@@ -270,7 +270,8 @@ public class AdviserDataController extends BaseController {
 			if (StringUtil.isNotEmpty(userIds)) {
 				String[] userIdStrs = userIds.split(",");
 				for (String userIdStr : userIdStrs) {
-					userIdList.add(Integer.parseInt(userIdStr.trim()));
+					if (!"".equals(userIdStr))
+						userIdList.add(Integer.parseInt(userIdStr.trim()));
 				}
 			}
 			return new Response<Map<String, Integer>>(0,
