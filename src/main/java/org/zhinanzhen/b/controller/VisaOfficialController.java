@@ -12,14 +12,20 @@ import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.VisaOfficialService;
+import org.zhinanzhen.b.service.VisaService;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
 import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
@@ -49,7 +55,14 @@ import java.util.UUID;
 @RequestMapping("/visaOfficial")
 @Log4j
 public class VisaOfficialController extends BaseCommissionOrderController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(VisaOfficialController.class);
+	
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    
+    @Resource
+    VisaService visaService;
+    
     @Resource
     VisaOfficialService visaOfficialService;
 
@@ -184,6 +197,13 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             visaDto.setDeductGst(commission - visaDto.getGst());
             visaDto.setBonus(visaDto.getDeductGst() * 0.1);
             visaDto.setExpectAmount(commission);
+
+			VisaDTO _visaDto = visaService.getFirstVisaByServiceOrderId(serviceOrderId);
+			if (_visaDto != null && ReviewKjStateEnum.COMPLETE.toString().equalsIgnoreCase(_visaDto.getState())
+					&& CommissionStateEnum.YJY.toString().equalsIgnoreCase(_visaDto.getCommissionState())) {
+				LOG.info(StringUtil.merge("佣金订单(", _visaDto.getId(), ")对应文案佣金订单合账."));
+				visaDto.setMerged(Boolean.TRUE);
+			}
 
             double _perAmount = 0.00;
             double _amount = 0.00;
