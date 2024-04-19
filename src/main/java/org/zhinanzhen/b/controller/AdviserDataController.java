@@ -10,6 +10,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.b.service.AdviserDataService;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServicePackageService;
@@ -50,6 +53,11 @@ import jxl.write.WritableSheet;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/adviserData")
 public class AdviserDataController extends BaseController {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(AdviserDataController.class);
+	
+	@Resource
+	AdviserService adviserService;
 
 	@Resource
 	AdviserDataService adviserDataService;
@@ -269,6 +277,12 @@ public class AdviserDataController extends BaseController {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 				return new Response(1, "仅限超级管理员操作.", null);
+			if (adviserService.getAdviserById(adviserId) == null)
+				return new Response<Map<String, Integer>>(1, StringUtil.merge("原顾问ID错误或不存在:", adviserId),
+						MapUtil.newHashMap());
+			if (adviserService.getAdviserById(newAdviserId) == null)
+				return new Response<Map<String, Integer>>(1, StringUtil.merge("新顾问ID错误或不存在:", newAdviserId),
+						MapUtil.newHashMap());
 			List<Integer> userIdList = ListUtil.newArrayList();
 			if (StringUtil.isNotEmpty(userIds)) {
 				String[] userIdStrs = userIds.split(",");
@@ -276,7 +290,10 @@ public class AdviserDataController extends BaseController {
 					if (!"".equals(userIdStr))
 						userIdList.add(Integer.parseInt(userIdStr.trim()));
 				}
-			}
+			} else
+				userIdList = null;
+			LOG.info(StringUtil.merge("顾问数据迁移:adviserId=", adviserId, "newAdviserId=", newAdviserId, "userIds=",
+					userIds));
 			return new Response<Map<String, Integer>>(0,
 					adviserDataService.adviserDataMigration(newAdviserId, adviserId, userIdList));
 		} catch (ServiceException e) {
