@@ -125,4 +125,7 @@ public interface ServiceOrderDAO {
 
     List<ServiceOrderDO> getTmpServiceOrder(@Param("beforeFormat")String beforeFormat, @Param("nowDate")String nowDate);
 
+//    @Select("SELECT * FROM b_service_order WHERE readcommitted_date BETWEEN '2024-03-01 00:00:00' AND '2024-04-20 23:59:59' AND type != 'OVST'")
+//    List<ServiceOrderDO> getQuestionOrder();
+
 }

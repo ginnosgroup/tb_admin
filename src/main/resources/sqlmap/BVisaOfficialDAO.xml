@@ -613,6 +613,15 @@
         <if test='predictCommissionCNY != null'>
             , predict_commission_CNY = #{predictCommissionCNY}
         </if>
+        <if test='predictCommissionAmount != null'>
+            , predict_commissionAmount = #{predictCommissionAmount}
+        </if>
+        <if test='commissionAmount != null'>
+            , commissionAmount = #{commissionAmount}
+        </if>
+        <if test='predictCommission != null'>
+            , predict_commission = #{predictCommission}
+        </if>
         WHERE id = #{id};
     </update>
 </mapper>
