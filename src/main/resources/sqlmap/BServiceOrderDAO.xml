@@ -1351,6 +1351,7 @@
             so.verify_code AS verifyCode ,
             so.readcommitted_date AS readcommittedDate,
             so.ref_no AS refNo,
+            so.EOI_number AS EOINumber,
             bsp.id AS bspId,
             bsp.type AS bspType,
             bsp.service_id AS bspServiceId
@@ -1450,6 +1451,7 @@
         <result column="readcommittedDate" property="readcommittedDate"></result>
         <result column="refNo" property="refNo"></result>
         <result column="visaVoucherImageUrl" property="visaVoucherImageUrl"></result>
+        <result column="EOINumber" property="EOINumber"></result>
         <association property="servicePackage" javaType="org.zhinanzhen.b.service.pojo.ServicePackageDTO">
             <id column="bspId" property="id"></id>
             <result column="bspType" property="type"></result>

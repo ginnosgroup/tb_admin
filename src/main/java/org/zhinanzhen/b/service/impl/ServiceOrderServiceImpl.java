@@ -131,6 +131,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     private CustomerInformationDAO customerInformationDAO;
 
     @Resource
+    private VisaOfficialDao visaOfficialDao;
+
+    @Resource
     SONodeFactory soNodeFactory;
 
 
@@ -947,8 +950,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDO = serviceOrderById;
             int i1 = serviceOrderDao.deleteServiceOrderById(id);
             if (ObjectUtil.isNotNull(serviceOrderDO) && serviceOrderDO.getEOINumber() != null) {
-                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDO.getApplicantParentId());
-//                List<ServiceOrderDTO> collect = ziOrder.stream().sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)).collect(Collectors.toList());
+                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getApplicantParentId());
                 List<ServiceOrderDTO> collect = ziOrder.stream()
                         .filter(order -> order.getEOINumber() != null) // 过滤掉EOINumber为null的对象
                         .sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)) // 对剩余对象进行排序
@@ -957,6 +959,37 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     collect.get(i).setEOINumber(i + 1);
                     ServiceOrderDO map = mapper.map(collect.get(i), ServiceOrderDO.class);
                     serviceOrderDao.updateServiceOrder(map);
+                }
+                // 删除订单如果是打包EOI最后一个订单
+                int EOICount = 0;
+                List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
+                ServiceOrderDO serviceOrderParentById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
+                for (ServiceOrderDTO e : collect) {
+                    VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(e.getId());
+                    visaOfficialDOS.add(byServiceOrderId);
+                    if (ObjectUtil.isNotNull(byServiceOrderId)) {
+                        EOICount++;
+                    }
+                }
+                if (EOICount == serviceOrderParentById.getEOINumber() - 1) {
+                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
+                    VisaOfficialDO visaOfficialDO = visaOfficialDOS.stream().max(Comparator.comparing(VisaOfficialDO::getPredictCommission)).get();
+                    visaOfficialDOS.remove(visaOfficialDO);
+                    double pre = 0.00;
+                    for (VisaOfficialDO e : visaOfficialDOS) {
+                        Double predictCommission = e.getPredictCommissionAmount();
+                        pre += (byServiceId.getMaxPrice() / EOICount) - predictCommission;
+                    }
+                    double rate = visaOfficialDO.getPredictCommission() / visaOfficialDO.getPredictCommissionAmount();
+//                    double sum = visaOfficialDOS.stream().mapToDouble(VisaOfficialDO::getPredictCommissionAmount).sum();
+                    double sum = 0.00;
+                    double predictCommissionAmount = visaOfficialDO.getPredictCommissionAmount();
+                    sum = predictCommissionAmount - (byServiceId.getMaxPrice() / serviceOrderParentById.getEOINumber()) + (byServiceId.getMaxPrice() / collect.size()) + pre;
+                    visaOfficialDO.setPredictCommissionAmount(sum);
+                    visaOfficialDO.setCommissionAmount(sum);
+                    visaOfficialDO.setPredictCommission(sum * rate);
+                    visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
+                    visaOfficialDao.updateVisaOfficial(visaOfficialDO);
                 }
             }
             return i1;
