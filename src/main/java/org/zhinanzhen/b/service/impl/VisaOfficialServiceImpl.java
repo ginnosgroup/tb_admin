@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
+import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -98,6 +99,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
     @Resource
     private RegionDAO regionDAO;
+
+    @Resource
+    private ExchangeRateService exchangeRateService;
 
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
@@ -593,22 +597,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     private VisaOfficialDO visaOfficiaCalculate(ServiceOrderDO serviceOrderById, int region, CommissionAmountDTO commissionAmountDTO, double amount, double rate, int EOICount,
-                                                OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO, List<ServiceOrderDTO> deriveOrder, ServiceOrderDO serviceParentOrderById) {
+                                                OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO, List<ServiceOrderDTO> deriveOrder, ServiceOrderDO serviceParentOrderById) throws ServiceException {
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
 
         if (region == 1) {
-            // 创建一个Calendar对象并设置时间为date对象的时间
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(serviceOrderById.getReadcommittedDate());
-
-            // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
-            int month = calendar.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
-            if (month == 3) {
-                visaOfficialDO.setExchangeRate(4.85);
-            }
-            if (month == 4) {
-                visaOfficialDO.setExchangeRate(4.64);
-            }
+            double quarterExchangeRate = exchangeRateService.getQuarterExchangeRate();
+            visaOfficialDO.setExchangeRate(quarterExchangeRate);
         }
         if (servicePackagePriceDO == null) {
             commissionAmountDTO.setThirdPrince(0.00);
