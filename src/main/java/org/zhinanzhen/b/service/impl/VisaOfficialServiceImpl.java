@@ -407,20 +407,20 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         OfficialDO officialById = officialDAO.getOfficialById(serviceOrderById.getOfficialId());
         OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
         rate = officialGradeById.getRate();
-        if (region == 0 && monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
-            rate = rate + 3;
-        }
-//        if (region == 0) {
-//            // 创建一个Calendar对象并设置时间为date对象的时间
-//            Calendar sss = Calendar.getInstance();
-//            sss.setTime(serviceOrderById.getReadcommittedDate());
-//
-//            // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
-//            int month = sss.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
-//            if (month == 1 || month == 2 || month == 3) {
-//                rate = rate + 3;
-//            }
+//        if (region == 0 && monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
+//            rate = rate + 3;
 //        }
+        if (region == 0) {
+            // 创建一个Calendar对象并设置时间为date对象的时间
+            Calendar sss = Calendar.getInstance();
+            sss.setTime(serviceOrderById.getReadcommittedDate());
+
+            // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
+            int month = sss.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
+            if (month == 1 || month == 2 || month == 3) {
+                rate = rate + 3;
+            }
+        }
         // EOI数量判断
         int EOICount = 0;
         List<ServiceOrderDTO> deriveOrder = new ArrayList<>();
@@ -555,14 +555,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         }
         if ("ZX".equals(packType)) {
-            amount = amount * 0.5;
-            refund = refund * 0.5;
+            amount = firstVisaByServiceOrderId.getAmount();
             commissionAmountDTO.setRefund(refund);
             if (installment) {
-                amount = (firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount()) * 0.5;
+                amount = (firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount());
                 RefundDO refundByVisaId = refundDAO.getRefundByVisaId(secondVisaByServiceOrderId.getId());
                 if (ObjectUtil.isNotNull(refundByVisaId)) {
-                    refund = (refund + refundByVisaId.getAmount()) * 0.5;
+                    refund = (refund + refundByVisaId.getAmount());
                 }
                 commissionAmountDTO.setRefund(refund);
             }
