@@ -116,13 +116,15 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 	@Transactional(rollbackFor = ServiceException.class)
 	public Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList)
 			throws ServiceException {
-		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId);
-		return MapUtil.buildHashMap("ud", adviserDataDao.userDataMigration(newAdviserId, adviserId, userIdList), "uad",
+		Map<String, Integer> map = MapUtil.buildHashMap("ud",
+				adviserDataDao.userDataMigration(newAdviserId, adviserId, userIdList), "uad",
 				adviserDataDao.userAdviserDataMigration(newAdviserId, adviserId, userIdList), "ad",
 				adviserDataDao.applicantDataMigration(newAdviserId, adviserId, userIdList), "sod",
 				adviserDataDao.serviceOrderDataMigration(newAdviserId, adviserId, userIdList), "vd",
 				adviserDataDao.visaDataMigration(newAdviserId, adviserId, userIdList), "cod",
 				adviserDataDao.commissionOrderDataMigration(newAdviserId, adviserId, userIdList));
+		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId + "(" + userIdList + "):" + map);
+		return map;
 	}
 
 }
