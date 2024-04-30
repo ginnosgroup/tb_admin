@@ -390,10 +390,14 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(7).setCellValue(visaDTO.getCurrency());
                 row.createCell(8).setCellValue(visaDTO.getExchangeRate());
                 row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
-                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage())) {
+//                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage()) && visaDTO.getServiceOrder().getApplicantParentId() > 0) {
+//                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+//                }
+                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
                     servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
                 }
                 row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                servicePackageType = "";
                 row.createCell(11).setCellValue(visaDTO.getAdviserName());
                 row.createCell(12).setCellValue(visaDTO.getOfficialName());
                 row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
