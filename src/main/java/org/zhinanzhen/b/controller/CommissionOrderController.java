@@ -1644,54 +1644,46 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 										 @RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
 										 @RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
 										 @RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+										 @RequestParam(value = "installmentDueDate13", required = false) String installmentDueDate13,
+										 @RequestParam(value = "installmentDueDate14", required = false) String installmentDueDate14,
+										 @RequestParam(value = "installmentDueDate15", required = false) String installmentDueDate15,
+										 @RequestParam(value = "installmentDueDate16", required = false) String installmentDueDate16,
+										 @RequestParam(value = "installmentDueDate17", required = false) String installmentDueDate17,
+										 @RequestParam(value = "installmentDueDate18", required = false) String installmentDueDate18,
 									  HttpServletRequest request, HttpServletResponse response)
 	{
 		try {
 			super.setPostHeader(response);
 			Integer adviserId = getAdviserId(request);
 			List<CommissionInfoDTO> info = commissionOrderService.getCommissionInfoById(serviceorderid,adviserId);
+			List<Long> installmentDueDates = new ArrayList<>();
+			commissionOrderService.setinstallmentById(serviceorderid,installment);
+			if (installmentDueDate1!=null){installmentDueDates.add(Long.parseLong(installmentDueDate1));}
+			if (installmentDueDate2!=null){installmentDueDates.add(Long.parseLong(installmentDueDate2));}
+			if (installmentDueDate3!=null){installmentDueDates.add(Long.parseLong(installmentDueDate3));}
+			if (installmentDueDate4!=null){installmentDueDates.add(Long.parseLong(installmentDueDate4));}
+			if (installmentDueDate5!=null){installmentDueDates.add(Long.parseLong(installmentDueDate5));}
+			if (installmentDueDate6!=null){installmentDueDates.add(Long.parseLong(installmentDueDate6));}
+			if (installmentDueDate7!=null){installmentDueDates.add(Long.parseLong(installmentDueDate7));}
+			if (installmentDueDate8!=null){installmentDueDates.add(Long.parseLong(installmentDueDate8));}
+			if (installmentDueDate9!=null){installmentDueDates.add(Long.parseLong(installmentDueDate9));}
+			if (installmentDueDate10!=null){installmentDueDates.add(Long.parseLong(installmentDueDate10));}
+			if (installmentDueDate11!=null){installmentDueDates.add(Long.parseLong(installmentDueDate11));}
+			if (installmentDueDate12!=null){installmentDueDates.add(Long.parseLong(installmentDueDate12));}
+			if (installmentDueDate13!=null){installmentDueDates.add(Long.parseLong(installmentDueDate13));}
+			if (installmentDueDate14!=null){installmentDueDates.add(Long.parseLong(installmentDueDate14));}
+			if (installmentDueDate15!=null){installmentDueDates.add(Long.parseLong(installmentDueDate15));}
+			if (installmentDueDate16!=null){installmentDueDates.add(Long.parseLong(installmentDueDate16));}
+			if (installmentDueDate17!=null){installmentDueDates.add(Long.parseLong(installmentDueDate17));}
+			if (installmentDueDate18!=null){installmentDueDates.add(Long.parseLong(installmentDueDate18));}
 			if (info.size()>installment){
 				for (CommissionInfoDTO commissionInfoDTO : info) {
 					if (commissionInfoDTO.getInstallmentNum()>installment && commissionInfoDTO.getState().equals("PENDING")){
 						commissionOrderService.deleteCommissionOrderInfoById(serviceorderid,commissionInfoDTO.getInstallmentNum());
 					}
 				}
-				commissionOrderService.setinstallmentById(serviceorderid,installment);
-				if (installmentDueDate1!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
-				}
-				if (installmentDueDate2!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
-				}
-				if (installmentDueDate3!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
-				}
-				if (installmentDueDate4!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
-				}
-				if (installmentDueDate5!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
-				}
-				if (installmentDueDate6!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
-				}
-				if (installmentDueDate7!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
-				}
-				if (installmentDueDate8!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
-				}
-				if (installmentDueDate9!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
-				}
-				if (installmentDueDate10!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
-				}
-				if (installmentDueDate11!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
-				}
-				if (installmentDueDate12!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
+				for (int i = 0; i < installmentDueDates.size(); i++) {
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,i + 1,new Date(installmentDueDates.get(i)));
 				}
 			}
 			if (info.size()<installment){
@@ -1700,81 +1692,68 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					commissionOrderService.addCommissionInfoById(serviceorderid,info.size()+i+1);
 				}
 				commissionOrderService.setinstallmentById(serviceorderid,installment);
-				if (installmentDueDate1!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
+				for (int i = 0; i < installmentDueDates.size(); i++) {
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,i + 1,new Date(installmentDueDates.get(i)));
 				}
-				if (installmentDueDate2!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
-				}
-				if (installmentDueDate3!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
-				}
-				if (installmentDueDate4!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
-				}
-				if (installmentDueDate5!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
-				}
-				if (installmentDueDate6!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
-				}
-				if (installmentDueDate7!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
-				}
-				if (installmentDueDate8!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
-				}
-				if (installmentDueDate9!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
-				}
-				if (installmentDueDate10!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
-				}
-				if (installmentDueDate11!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
-				}
-				if (installmentDueDate12!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
-				}
-
 			}
 			if (info.size()==installment){
-				if (installmentDueDate1!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
+				for (int i = 0; i < installmentDueDates.size(); i++) {
+					commissionOrderService.setinstallmentDueDateById(serviceorderid,i + 1,new Date(installmentDueDates.get(i)));
 				}
-				if (installmentDueDate2!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
-				}
-				if (installmentDueDate3!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
-				}
-				if (installmentDueDate4!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
-				}
-				if (installmentDueDate5!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
-				}
-				if (installmentDueDate6!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
-				}
-				if (installmentDueDate7!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
-				}
-				if (installmentDueDate8!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
-				}
-				if (installmentDueDate9!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
-				}
-				if (installmentDueDate10!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
-				}
-				if (installmentDueDate11!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
-				}
-				if (installmentDueDate12!=null){
-					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
-				}
+//				if (installmentDueDate1!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,1,new Date(Long.parseLong(installmentDueDate1)));
+//				}
+//				if (installmentDueDate2!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,2,new Date(Long.parseLong(installmentDueDate2)));
+//				}
+//				if (installmentDueDate3!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,3,new Date(Long.parseLong(installmentDueDate3)));
+//				}
+//				if (installmentDueDate4!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,4,new Date(Long.parseLong(installmentDueDate4)));
+//				}
+//				if (installmentDueDate5!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,5,new Date(Long.parseLong(installmentDueDate5)));
+//				}
+//				if (installmentDueDate6!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,6,new Date(Long.parseLong(installmentDueDate6)));
+//				}
+//				if (installmentDueDate7!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,7,new Date(Long.parseLong(installmentDueDate7)));
+//				}
+//				if (installmentDueDate8!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,8,new Date(Long.parseLong(installmentDueDate8)));
+//				}
+//				if (installmentDueDate9!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,9,new Date(Long.parseLong(installmentDueDate9)));
+//				}
+//				if (installmentDueDate10!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,10,new Date(Long.parseLong(installmentDueDate10)));
+//				}
+//				if (installmentDueDate11!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,11,new Date(Long.parseLong(installmentDueDate11)));
+//				}
+//				if (installmentDueDate12!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,12,new Date(Long.parseLong(installmentDueDate12)));
+//				}
+//				if (installmentDueDate13!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,13,new Date(Long.parseLong(installmentDueDate13)));
+//				}
+//				if (installmentDueDate14!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,14,new Date(Long.parseLong(installmentDueDate14)));
+//				}
+//				if (installmentDueDate15!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,15,new Date(Long.parseLong(installmentDueDate15)));
+//				}
+//				if (installmentDueDate16!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,16,new Date(Long.parseLong(installmentDueDate16)));
+//				}
+//				if (installmentDueDate17!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,17,new Date(Long.parseLong(installmentDueDate17)));
+//				}
+//				if (installmentDueDate18!=null){
+//					commissionOrderService.setinstallmentDueDateById(serviceorderid,18,new Date(Long.parseLong(installmentDueDate18)));
+//				}
 			}
 			return new Response<Integer>(0,"修改成功",0);
 		} catch (ServiceException e) {
