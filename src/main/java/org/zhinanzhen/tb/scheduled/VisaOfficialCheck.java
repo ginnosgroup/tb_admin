@@ -7,8 +7,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.VisaOfficialDao;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
@@ -36,6 +38,9 @@ public class VisaOfficialCheck {
     private VisaOfficialDao visaOfficialDao;
 
     @Resource
+    private ServicePackageDAO servicePackageDAO;
+
+    @Resource
     private VisaOfficialService visaOfficialService;
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 3 * * ?")
     public void visaOfficialCheckEverDay() throws ServiceException {
@@ -51,10 +56,18 @@ public class VisaOfficialCheck {
         String nowDate = localDate.format(formatter);
         List<ServiceOrderDO> tmpServiceOrder = serviceOrderDAO.getTmpServiceOrder(beforeFormat, nowDate);
         for (ServiceOrderDO e : tmpServiceOrder) {
+            if (e.getApplicantParentId() != 0 && e.getServicePackageId() != 0) {
+                ServiceOrderDO serviceParentOrderById = serviceOrderDAO.getServiceOrderById(e.getApplicantParentId());
+                if ("SIV".equals(serviceParentOrderById.getType())) {
+                    ServicePackageDO byId = servicePackageDAO.getById(e.getServicePackageId());
+                    if (!"VA".equals(byId.getType()) && !"EOI".equals(byId.getType())) {
+                        continue;
+                    }
+                }
+            }
             VisaOfficialDO visaOfficialDO = visaOfficialDao.getByServiceOrderId(e.getId());
             if (ObjectUtil.isNull(visaOfficialDO)) {
                 ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(e.getId());
-                List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
                 VisaOfficialDTO visaDto = new VisaOfficialDTO();
                 visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.PENDING.toString());
                 visaDto.setUserId(serviceOrderById.getUserId());

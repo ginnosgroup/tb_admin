@@ -2784,7 +2784,7 @@ public class ServiceOrderController extends BaseController {
 
                 Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
                 context = workflowStarter.process(workflow, context);
-                if (!"OVST".equals(serviceOrderDto.getType()) && "APPLY".equals(state) || "COMPLETE".equals(state)) {
+                if (!"OVST".equals(serviceOrderDto.getType()) && ("APPLY".equals(state) || "COMPLETE".equals(state))) {
                     visaOfficialController.add(String.valueOf(serviceOrderDto.getUserId()), null, null, String.valueOf(serviceOrderDto.getReceiveTypeId()), serviceOrderDto.getReceiveDate() == null ? null : String.valueOf(serviceOrderDto.getReceiveDate().getTime()),
                             String.valueOf(serviceOrderDto.getServiceId()), id, serviceOrderDto.getInstallment(), serviceOrderDto.getPaymentVoucherImageUrl1(), serviceOrderDto.getPaymentVoucherImageUrl2(),
                             serviceOrderDto.getPaymentVoucherImageUrl3(), serviceOrderDto.getPaymentVoucherImageUrl4(), serviceOrderDto.getPaymentVoucherImageUrl5(), serviceOrderDto.getVisaVoucherImageUrl(),
