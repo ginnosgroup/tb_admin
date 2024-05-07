@@ -250,26 +250,26 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         try {
             CommissionOrderDO commissionOrderDo = mapper.map(commissionOrderDto, CommissionOrderDO.class);
             // 同步修改同一批佣金订单的顾问和文案
-            if (commissionOrderDo.getAdviserId() > 0 || commissionOrderDo.getOfficialId() > 0) {
-                CommissionOrderListDO commissionOrderListDo = commissionOrderDao.getCommissionOrderById(commissionOrderDo.getId());
-                if (commissionOrderListDo == null) {
-                    ServiceException se = new ServiceException("佣金订单ID:" + commissionOrderDo.getId() + ",数据不正确或不存在!");
-                    se.setCode(ErrorCodeEnum.DATA_ERROR.code());
-                    throw se;
-                }
-                for (CommissionOrderDO _commissionOrderDo : commissionOrderDao
-                        .listCommissionOrderByCode(commissionOrderListDo.getCode())) {
-                    if (_commissionOrderDo.getId() != commissionOrderDo.getId() && (ReviewKjStateEnum.PENDING.toString()
-                            .equalsIgnoreCase(_commissionOrderDo.getState())
-                            || ReviewKjStateEnum.REVIEW.toString().equalsIgnoreCase(_commissionOrderDo.getState())
-                            || ReviewKjStateEnum.WAIT.toString().equalsIgnoreCase(_commissionOrderDo.getState()))) {
-                        _commissionOrderDo.setAdviserId(commissionOrderDo.getAdviserId());
-                        _commissionOrderDo.setOfficialId(commissionOrderDo.getOfficialId());
-                        LOG.info("修改留学佣金订单(_commissionOrderDo=" + _commissionOrderDo + ").");
-                        commissionOrderDao.updateCommissionOrder(_commissionOrderDo);
-                    }
-                }
-            }
+//            if (commissionOrderDo.getAdviserId() > 0 || commissionOrderDo.getOfficialId() > 0) {
+//                CommissionOrderListDO commissionOrderListDo = commissionOrderDao.getCommissionOrderById(commissionOrderDo.getId());
+//                if (commissionOrderListDo == null) {
+//                    ServiceException se = new ServiceException("佣金订单ID:" + commissionOrderDo.getId() + ",数据不正确或不存在!");
+//                    se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+//                    throw se;
+//                }
+//                for (CommissionOrderDO _commissionOrderDo : commissionOrderDao
+//                        .listCommissionOrderByCode(commissionOrderListDo.getCode())) {
+//                    if (_commissionOrderDo.getId() != commissionOrderDo.getId() && (ReviewKjStateEnum.PENDING.toString()
+//                            .equalsIgnoreCase(_commissionOrderDo.getState())
+//                            || ReviewKjStateEnum.REVIEW.toString().equalsIgnoreCase(_commissionOrderDo.getState())
+//                            || ReviewKjStateEnum.WAIT.toString().equalsIgnoreCase(_commissionOrderDo.getState()))) {
+//                        _commissionOrderDo.setAdviserId(commissionOrderDo.getAdviserId());
+//                        _commissionOrderDo.setOfficialId(commissionOrderDo.getOfficialId());
+//                        LOG.info("修改留学佣金订单(_commissionOrderDo=" + _commissionOrderDo + ").");
+//                        commissionOrderDao.updateCommissionOrder(_commissionOrderDo);
+//                    }
+//                }
+//            }
             LOG.info("修改留学佣金订单(commissionOrderDo=" + commissionOrderDo + ").");
             return commissionOrderDao.updateCommissionOrder(commissionOrderDo);
         } catch (Exception e) {
