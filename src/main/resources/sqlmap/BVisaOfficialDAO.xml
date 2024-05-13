@@ -479,7 +479,8 @@
             commissionAmount,
             calculation,
             predict_commissionAmount AS predictCommissionAmount,
-            predict_commission_CNY AS predictCommissionCNY
+            predict_commission_CNY AS predictCommissionCNY,
+            official_region AS officialRegion
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>

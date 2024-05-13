@@ -541,7 +541,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             };
             String code = serviceDao.getServiceById(serviceOrderById.getServiceId()).getCode();
-            String serviceType = code.replaceAll("\\D", "");
+            String serviceType = code.replaceAll("[^\\p{L}\\p{N}\\p{Script=Han}]+", "");
             if (arrayList.contains(serviceType)) {
                 if (installment) {
                     amount = firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount();
