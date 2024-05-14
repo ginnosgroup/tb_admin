@@ -464,4 +464,17 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         return new Response<Integer>(0, message, n);
     }
 
+    @RequestMapping(value = "/monthlyStatement", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> monthlyStatement(HttpServletRequest request,
+                                                      HttpServletResponse response) throws IllegalStateException, IOException {
+        super.setPostHeader(response);
+        try {
+            visaOfficialService.monthlyStatement();
+            return new Response<Integer>(0, "留学订单月结算完成", 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<Integer>(1, "留学订单月结算失败" + e.getMessage(), 0);
+        }
+    }
 }

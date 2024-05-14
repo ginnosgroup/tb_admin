@@ -3,12 +3,7 @@ package org.zhinanzhen.b.dao;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.*;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import java.util.List;
 
@@ -125,7 +120,5 @@ public interface ServiceOrderDAO {
 
     List<ServiceOrderDO> getTmpServiceOrder(@Param("beforeFormat")String beforeFormat, @Param("nowDate")String nowDate);
 
-//    @Select("SELECT * FROM b_service_order WHERE readcommitted_date BETWEEN '2024-03-01 00:00:00' AND '2024-04-20 23:59:59' AND type != 'OVST'")
-//    List<ServiceOrderDO> getQuestionOrder();
 
 }
