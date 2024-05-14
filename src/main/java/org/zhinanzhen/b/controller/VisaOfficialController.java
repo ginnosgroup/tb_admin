@@ -464,7 +464,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         return new Response<Integer>(0, message, n);
     }
 
-    @RequestMapping(value = "/monthlyStatement", method = RequestMethod.POST)
+    @RequestMapping(value = "/monthlyStatement", method = RequestMethod.GET)
     @ResponseBody
     public Response<Integer> monthlyStatement(HttpServletRequest request,
                                                       HttpServletResponse response) throws IllegalStateException, IOException {
