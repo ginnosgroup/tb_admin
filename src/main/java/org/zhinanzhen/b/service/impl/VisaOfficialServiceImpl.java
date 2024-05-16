@@ -1449,7 +1449,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public void monthlyStatement() {
+    public List<VisaOfficialDO> monthlyStatement() {
         // 获取今天的日期
         LocalDate today = LocalDate.now();
 
@@ -1480,13 +1480,14 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 null, null, null, null, null, null
                 , null, null, null, null, null
                 , null, null, null, 0, 9999, null);
+        List<VisaOfficialDO> visaOfficialDOs = new ArrayList<>();
         for (ServiceOrderDO e : serviceOrderDOS) {
             try {
                 if ("PAID".equals(e.getState()) || "COMPLETE".equals(e.getState()) || "CLOSE".equals(e.getState())) {
                     VisaOfficialDO visaOfficialDOTmp = visaOfficialDao.getByServiceOrderId(e.getId());
                     if (ObjectUtil.isNotNull(visaOfficialDOTmp)) {
                         log.info("当前文案佣金订单已创建------------" + e.getId());
-                        continue;
+                        visaOfficialDao.deleteByServiceOrderId(e.getId());
                     }
                     VisaOfficialDO visaOfficialDO = buildVisaOfficialDo(e);
                     SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(e.getSchoolInstitutionLocationId());
@@ -1530,13 +1531,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommissionCNY() / visaOfficialDO.getExchangeRate());
                         }
                     }
+                    visaOfficialDO.setServiceOrderDO(e);
                     visaOfficialDao.addVisa(visaOfficialDO);
+                    visaOfficialDO.setGmtCreate(new Date());
+                    visaOfficialDOs.add(visaOfficialDO);
                 }
             } catch (Exception ex) {
                 log.info("当前生成失败的订单id为---------------------" + e.getId());
                 ex.printStackTrace();
             }
         }
+        return visaOfficialDOs;
     }
 
     private VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) throws ServiceException {

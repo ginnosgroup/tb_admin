@@ -6,7 +6,12 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import jxl.Cell;
 import jxl.Sheet;
+import jxl.Workbook;
+import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
 import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -19,20 +24,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.ApplicantService;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.VisaService;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.VisaDTO;
-import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -74,6 +79,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @Resource
     OfficialService officialService;
+
+    @Resource
+    UserService userService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -470,7 +478,60 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                                                       HttpServletResponse response) throws IllegalStateException, IOException {
         super.setPostHeader(response);
         try {
-            visaOfficialService.monthlyStatement();
+            List<VisaOfficialDO> visaOfficialDOs = visaOfficialService.monthlyStatement();
+            response.reset();// 清空输出流
+            String tableName = "ServiceOrderInformation";
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+            response.setContentType("application/msexcel");
+
+            OutputStream os = response.getOutputStream();
+            jxl.Workbook wb;
+            InputStream is;
+            try {
+                is = this.getClass().getResourceAsStream("/officialVisa_OVST.xls");
+            } catch (Exception e) {
+                throw new Exception("模版不存在");
+            }
+            try {
+                wb = Workbook.getWorkbook(is);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new Exception("模版格式不支持");
+            }
+            WorkbookSettings settings = new WorkbookSettings();
+            settings.setWriteAccess(null);
+            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+            if (wbe == null) {
+                System.out.println("wbe is null !os=" + os + ",wb" + wb);
+            } else {
+                System.out.println("wbe not null !os=" + os + ",wb" + wb);
+            }
+            WritableSheet sheet = wbe.getSheet(0);
+            WritableCellFormat cellFormat = new WritableCellFormat();
+            int i = 1;
+            for (VisaOfficialDO e : visaOfficialDOs) {
+                UserDTO userById = userService.getUserById(e.getUserId());
+                ApplicantDTO applicantDTO = applicantService.getById(e.getServiceOrderDO().getApplicantId());
+                sheet.addCell(new Label(0, i, e.getId() + "", cellFormat));
+                // 创建一个SimpleDateFormat对象来定义日期和时间的格式
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                // 使用SimpleDateFormat的format方法将Date对象格式化为字符串
+                String gmtCreate = sdf.format(e.getGmtCreate()); // 创建日期
+                String kjApprovalDate = sdf.format(e.getKjApprovalDate()); // 提交申请时间
+                String officialApprovalDate = sdf.format(e.getServiceOrderDO().getOfficialApprovalDate()); // 提交审核时间
+                String finishDate = sdf.format(e.getServiceOrderDO().getFinishDate()); // 办理完成时间
+                sheet.addCell(new Label(1, i, gmtCreate, cellFormat));
+                sheet.addCell(new Label(2, i, e.getServiceOrderId() + "", cellFormat));
+                sheet.addCell(new Label(3, i, kjApprovalDate, cellFormat));
+                sheet.addCell(new Label(4, i, finishDate, cellFormat));
+                sheet.addCell(new Label(5, i, officialApprovalDate, cellFormat));
+                sheet.addCell(new Label(6, i, userById.getName(), cellFormat));
+                sheet.addCell(new Label(7, i, applicantDTO.getFirstname() + applicantDTO.getSurname(), cellFormat));
+                i++;
+            }
+            wbe.write();
+            wbe.close();
             return new Response<Integer>(0, "留学订单月结算完成", 1);
         } catch (Exception e) {
             e.printStackTrace();

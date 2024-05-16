@@ -127,4 +127,6 @@ public class VisaOfficialDO {
 
     private Double predictCommissionCNY; // 预估佣金人民币
 
+    private ServiceOrderDO serviceOrderDO;
+
 }

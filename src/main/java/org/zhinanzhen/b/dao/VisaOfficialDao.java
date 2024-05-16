@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.dao;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
@@ -61,4 +62,6 @@ public interface VisaOfficialDao {
     
 	int updateMerged(@Param("id") Integer id, @Param("isMerged") boolean isMerged);
 
+    @Delete("DELETE FROM b_visa_official where service_order_id = #{id}")
+    void deleteByServiceOrderId(int id);
 }

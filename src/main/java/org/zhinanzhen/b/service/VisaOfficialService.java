@@ -19,7 +19,7 @@ public interface VisaOfficialService {
     
 	void updateMerged(Integer id, Boolean isMerged) throws ServiceException;
 
-    void monthlyStatement();
+    List<VisaOfficialDO> monthlyStatement();
 
 //    VisaOfficialDO buildVisa(VisaOfficialDTO visaOfficialDTO) throws ServiceException;
 
