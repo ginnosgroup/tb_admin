@@ -1322,7 +1322,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter) throws ServiceException {
+    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate,String firstSettlementMonth,String lastSettlementMonth,  String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter, String serviceOrderType) throws ServiceException {
 
         if (pageNum != null && pageNum < 0) {
             pageNum = DEFAULT_PAGE_NUM;
@@ -1345,8 +1345,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
 		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
 				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
-				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, offset,
-				pageSize, orderBy);
+				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), theDateTo00_00_00(firstSettlementMonth), theDateTo23_59_59(lastSettlementMonth), userName, applicantName, isMerged, offset,
+				pageSize, orderBy, serviceOrderType);
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
         if (list == null || list.size() == 0) {
             return null;
@@ -1589,7 +1589,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         double _perAmount = 0.00;
         double _amount = 0.00;
         visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
-        visaDto.setKjApprovalDate(new Date());
+        visaDto.setKjApprovalDate(e.getReadcommittedDate());
         return visaDto;
     }
 

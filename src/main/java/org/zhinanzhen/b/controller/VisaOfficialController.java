@@ -304,7 +304,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
             int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
-                    endDate, userName, name, merged, pageNum, pageSize, _sorter);
+                    endDate,null, null, userName, name, merged, pageNum, pageSize, _sorter, null);
 
 
             return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
@@ -373,7 +373,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 name = applicantName.replaceAll("\\s", "");
             }
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                    startDate, endDate, userName, name, null, null, null, null);
+                    startDate, endDate,null, null, userName, name, null, null, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
@@ -474,64 +474,65 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @RequestMapping(value = "/monthlyStatement", method = RequestMethod.GET)
     @ResponseBody
-    public void monthlyStatement(HttpServletRequest request,
+    public Response<Integer> monthlyStatement(HttpServletRequest request,
                                                       HttpServletResponse response) throws IllegalStateException, IOException {
         super.setPostHeader(response);
         try {
             List<VisaOfficialDO> visaOfficialDOs = visaOfficialService.monthlyStatement();
-            response.reset();// 清空输出流
-            String tableName = "ServiceOrderInformation";
-            response.setHeader("Content-disposition",
-                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-            response.setContentType("application/msexcel");
-
-            OutputStream os = response.getOutputStream();
-            jxl.Workbook wb;
-            InputStream is;
-            try {
-                is = this.getClass().getResourceAsStream("/officialVisa_OVST.xls");
-            } catch (Exception e) {
-                throw new Exception("模版不存在");
-            }
-            try {
-                wb = Workbook.getWorkbook(is);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new Exception("模版格式不支持");
-            }
-            WorkbookSettings settings = new WorkbookSettings();
-            settings.setWriteAccess(null);
-            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
-            if (wbe == null) {
-                System.out.println("wbe is null !os=" + os + ",wb" + wb);
-            } else {
-                System.out.println("wbe not null !os=" + os + ",wb" + wb);
-            }
-            WritableSheet sheet = wbe.getSheet(0);
-            WritableCellFormat cellFormat = new WritableCellFormat();
-            int i = 1;
-            for (VisaOfficialDO e : visaOfficialDOs) {
-                UserDTO userById = userService.getUserById(e.getUserId());
-                ApplicantDTO applicantDTO = applicantService.getById(e.getServiceOrderDO().getApplicantId());
-                sheet.addCell(new Label(0, i, e.getId() + "", cellFormat));
-                // 创建一个SimpleDateFormat对象来定义日期和时间的格式
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                // 使用SimpleDateFormat的format方法将Date对象格式化为字符串
-                String gmtCreate = sdf.format(e.getGmtCreate()); // 创建日期
-                String kjApprovalDate = sdf.format(e.getKjApprovalDate()); // 提交申请时间
-                String officialApprovalDate = sdf.format(e.getServiceOrderDO().getOfficialApprovalDate()); // 提交审核时间
-                String finishDate = sdf.format(e.getServiceOrderDO().getFinishDate()); // 办理完成时间
-                sheet.addCell(new Label(1, i, gmtCreate, cellFormat));
-                sheet.addCell(new Label(2, i, e.getServiceOrderId() + "", cellFormat));
-                sheet.addCell(new Label(3, i, kjApprovalDate, cellFormat));
-                sheet.addCell(new Label(4, i, finishDate, cellFormat));
-                sheet.addCell(new Label(5, i, officialApprovalDate, cellFormat));
-                sheet.addCell(new Label(6, i, userById.getName(), cellFormat));
-                sheet.addCell(new Label(7, i, applicantDTO.getFirstname() + applicantDTO.getSurname(), cellFormat));
-                i++;
-            }
-            wbe.write();
-            wbe.close();
+//            response.reset();// 清空输出流
+//            String tableName = "ServiceOrderInformation";
+//            response.setHeader("Content-disposition",
+//                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+//            response.setContentType("application/msexcel");
+//
+//            OutputStream os = response.getOutputStream();
+//            jxl.Workbook wb;
+//            InputStream is;
+//            try {
+//                is = this.getClass().getResourceAsStream("/officialVisa_OVST.xls");
+//            } catch (Exception e) {
+//                throw new Exception("模版不存在");
+//            }
+//            try {
+//                wb = Workbook.getWorkbook(is);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                throw new Exception("模版格式不支持");
+//            }
+//            WorkbookSettings settings = new WorkbookSettings();
+//            settings.setWriteAccess(null);
+//            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+//            if (wbe == null) {
+//                System.out.println("wbe is null !os=" + os + ",wb" + wb);
+//            } else {
+//                System.out.println("wbe not null !os=" + os + ",wb" + wb);
+//            }
+//            WritableSheet sheet = wbe.getSheet(0);
+//            WritableCellFormat cellFormat = new WritableCellFormat();
+//            int i = 1;
+//            for (VisaOfficialDO e : visaOfficialDOs) {
+//                UserDTO userById = userService.getUserById(e.getUserId());
+//                ApplicantDTO applicantDTO = applicantService.getById(e.getServiceOrderDO().getApplicantId());
+//                sheet.addCell(new Label(0, i, e.getId() + "", cellFormat));
+//                // 创建一个SimpleDateFormat对象来定义日期和时间的格式
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//                // 使用SimpleDateFormat的format方法将Date对象格式化为字符串
+//                String gmtCreate = sdf.format(e.getGmtCreate()); // 创建日期
+//                String kjApprovalDate = sdf.format(e.getKjApprovalDate()); // 提交申请时间
+//                String officialApprovalDate = sdf.format(e.getServiceOrderDO().getOfficialApprovalDate()); // 提交审核时间
+//                String finishDate = sdf.format(e.getServiceOrderDO().getFinishDate()); // 办理完成时间
+//                sheet.addCell(new Label(1, i, gmtCreate, cellFormat));
+//                sheet.addCell(new Label(2, i, e.getServiceOrderId() + "", cellFormat));
+//                sheet.addCell(new Label(3, i, kjApprovalDate, cellFormat));
+//                sheet.addCell(new Label(4, i, finishDate, cellFormat));
+//                sheet.addCell(new Label(5, i, officialApprovalDate, cellFormat));
+//                sheet.addCell(new Label(6, i, userById.getName(), cellFormat));
+//                sheet.addCell(new Label(7, i, applicantDTO.getFirstname() + applicantDTO.getSurname(), cellFormat));
+//                i++;
+//            }
+//            wbe.write();
+//            wbe.close();
+            return new Response<Integer>(0, "本次结算订单" + visaOfficialDOs.size() + "条");
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());

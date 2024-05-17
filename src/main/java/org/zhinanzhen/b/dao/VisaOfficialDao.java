@@ -25,12 +25,14 @@ public interface VisaOfficialDao {
                                  @Param("state")String state,
                                  @Param("startDate")String startDate,
                                  @Param("endDate")String endDate,
-                                 @Param("userName")String userName,
+                                  @Param("firstSettlementMonth")String firstSettlementMonth,@Param("lastSettlementMonth")String lastSettlementMonth,
+                                  @Param("userName")String userName,
                                  @Param("applicantName")String applicantName,
                                  @Param("isMerged") Boolean isMerged,
                                  @Param("offset")Integer offset,
                                  @Param("pageSize")Integer pageSize,
-                                 @Param("orderBy") String orderBy);
+                                 @Param("orderBy") String orderBy,
+                                  @Param("serviceOrderType")String serviceOrderType);
 
     int count(@Param("officialId")Integer officialId,
               @Param("regionIdList")List<Integer> regionIdList,
