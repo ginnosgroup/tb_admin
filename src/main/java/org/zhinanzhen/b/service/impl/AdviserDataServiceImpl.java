@@ -127,4 +127,18 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 		return map;
 	}
 
+	@Override
+	public Map<String, Integer> checkAdviserDataMigration(Integer newAdviserId, Integer adviserId,
+			List<Integer> userIdList) throws ServiceException {
+		Map<String, Integer> map = MapUtil.buildHashMap("ud",
+				adviserDataDao.countUserDataMigration(newAdviserId, adviserId, userIdList), "uad",
+				adviserDataDao.countUserAdviserDataMigration(newAdviserId, adviserId, userIdList), "ad",
+				adviserDataDao.countApplicantDataMigration(newAdviserId, adviserId, userIdList), "sod",
+				adviserDataDao.countServiceOrderDataMigration(newAdviserId, adviserId, userIdList), "vd",
+				adviserDataDao.countVisaDataMigration(newAdviserId, adviserId, userIdList), "cod",
+				adviserDataDao.countCommissionOrderDataMigration(newAdviserId, adviserId, userIdList));
+		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId + "(" + userIdList + ")数据统计:" + map);
+		return map;
+	}
+
 }

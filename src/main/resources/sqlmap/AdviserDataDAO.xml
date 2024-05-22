@@ -117,6 +117,17 @@
         ;
     </update>
     
+    <select id="countUserDataMigration" resultType="java.lang.Integer">
+        select count(*) from tb_user where adviser_id=#{adviserId}
+        <if test='userIdList != null'>
+            AND id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
+    
     <update id="userAdviserDataMigration">
         update tb_user_adviser set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
         <if test='userIdList != null'>
@@ -127,6 +138,17 @@
         </if>
         ;
     </update>
+    
+    <select id="countUserAdviserDataMigration" resultType="java.lang.Integer">
+        select count(*) from tb_user_adviser where adviser_id=#{adviserId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
     
     <update id="applicantDataMigration">
         update b_applicant set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
@@ -139,6 +161,17 @@
         ;
     </update>
     
+    <select id="countApplicantDataMigration" resultType="java.lang.Integer">
+        select count(*) from b_applicant where adviser_id=#{adviserId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
+    
     <update id="serviceOrderDataMigration">
         update b_service_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId}
         <if test='userIdList != null'>
@@ -149,6 +182,17 @@
         </if>
         ;
     </update>
+    
+    <select id="countServiceOrderDataMigration" resultType="java.lang.Integer">
+        select count(*) from b_service_order where adviser_id=#{adviserId}
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
     
     <update id="visaDataMigration">
         update b_visa set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
@@ -161,6 +205,17 @@
         ;
     </update>
     
+    <select id="countVisaDataMigration" resultType="java.lang.Integer">
+        select count(*) from b_visa where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
+    
     <update id="commissionOrderDataMigration">
         update b_commission_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='userIdList != null'>
@@ -171,5 +226,16 @@
         </if>
         ;
     </update>
+    
+    <select id="countCommissionOrderDataMigration" resultType="java.lang.Integer">
+        select count(*) from b_commission_order where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
+        <if test='userIdList != null'>
+            AND user_id IN
+            <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
+                #{userIdList}
+            </foreach>
+        </if>
+        ;
+    </select>
 
 </mapper>

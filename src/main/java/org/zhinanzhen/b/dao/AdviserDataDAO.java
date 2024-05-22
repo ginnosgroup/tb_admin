@@ -17,23 +17,41 @@ public interface AdviserDataDAO {
 	List<AdviserCommissionOrderDO> listCommissionOrder(@Param("adviserId") Integer adviserId);
 
 	List<AdviserUserDO> listUser(@Param("adviserId") Integer adviserId);
-	
+
 	int userDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userIdList") List<Integer> userIdList);
+
+	int countUserDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
 			@Param("userIdList") List<Integer> userIdList);
 
 	int userAdviserDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
 			@Param("userIdList") List<Integer> userIdList);
 
+	int countUserAdviserDataMigration(@Param("newAdviserId") Integer newAdviserId,
+			@Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
+
 	int applicantDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
 			@Param("userIdList") List<Integer> userIdList);
 
-	int serviceOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
+	int countApplicantDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userIdList") List<Integer> userIdList);
+
+	int serviceOrderDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userIdList") List<Integer> userIdList);
+
+	int countServiceOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
 			@Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
 
 	int visaDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
 			@Param("userIdList") List<Integer> userIdList);
 
-	int commissionOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
+	int countVisaDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userIdList") List<Integer> userIdList);
+
+	int commissionOrderDataMigration(@Param("newAdviserId") Integer newAdviserId, @Param("adviserId") Integer adviserId,
+			@Param("userIdList") List<Integer> userIdList);
+
+	int countCommissionOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
 			@Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
 
 }

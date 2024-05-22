@@ -301,5 +301,35 @@ public class AdviserDataController extends BaseController {
 					MapUtil.newHashMap());
 		}
 	}
+	
+	@RequestMapping(value = "/checkAdviserDataMigration", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<Map<String, Integer>> checkAdviserDataMigration(@RequestParam(value = "newAdviserId", required = true) Integer newAdviserId, @RequestParam(value = "adviserId", required = true) Integer adviserId, @RequestParam(value = "userIds", required = false) String userIds, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			if (adviserService.getAdviserById(adviserId) == null)
+				return new Response<Map<String, Integer>>(1, StringUtil.merge("原顾问ID错误或不存在:", adviserId),
+						MapUtil.newHashMap());
+			if (adviserService.getAdviserById(newAdviserId) == null)
+				return new Response<Map<String, Integer>>(1, StringUtil.merge("新顾问ID错误或不存在:", newAdviserId),
+						MapUtil.newHashMap());
+			List<Integer> userIdList = ListUtil.newArrayList();
+			if (StringUtil.isNotEmpty(userIds)) {
+				String[] userIdStrs = userIds.split(",");
+				for (String userIdStr : userIdStrs) {
+					if (!"".equals(userIdStr))
+						userIdList.add(Integer.parseInt(userIdStr.trim()));
+				}
+			} else
+				userIdList = null;
+			LOG.info(StringUtil.merge("顾问数据统计:adviserId=", adviserId, "newAdviserId=", newAdviserId, "userIds=",
+					userIds));
+			return new Response<Map<String, Integer>>(0,
+					adviserDataService.checkAdviserDataMigration(newAdviserId, adviserId, userIdList));
+		} catch (ServiceException e) {
+			return new Response<Map<String, Integer>>(1, StringUtil.merge("迁移失败:", e.getMessage()),
+					MapUtil.newHashMap());
+		}
+	}
 
 }

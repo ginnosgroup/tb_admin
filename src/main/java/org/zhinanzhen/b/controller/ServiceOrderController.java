@@ -2811,8 +2811,8 @@ public class ServiceOrderController extends BaseController {
                     && !"AD".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限管理员修改.", 0);
             ServiceOrderDTO orderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getId());
-            if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("OREVIEW")
-                    || orderDto.getState().equals("PENDING")) {
+//            if (orderDto.getState().equals("REVIEW") || orderDto.getState().equals("OREVIEW")
+//                    || orderDto.getState().equals("PENDING")) {
                 if (serviceOrderDto.getServiceId() > 0) { // 修改服务项目
 					if (StringUtil.isEmpty(serviceOrderDto.getServiceAssessId())
 							|| serviceOrderDto.getServiceId() != 24)
@@ -2822,13 +2822,13 @@ public class ServiceOrderController extends BaseController {
                         List<ServiceOrderDTO> orderList = serviceOrderService
                                 .listServiceOrderByApplicantParentId(serviceOrderDto.getId());
                         if (!ListUtil.isEmpty(orderList)) {
-                            for (ServiceOrderDTO _cso : orderList) {
-                                if (!_cso.getState().equals("REVIEW") && !_cso.getState().equals("OREVIEW")
-                                        && !_cso.getState().equals("PENDING")) {
-                                    return new Response<Integer>(1,
-                                            StringUtil.merge("修改失败,子订单不存在资料待审核或资料审核中状态.(ID:", _cso.getId(), ")"), null);
-                                }
-                            }
+//                            for (ServiceOrderDTO _cso : orderList) {
+//                                if (!_cso.getState().equals("REVIEW") && !_cso.getState().equals("OREVIEW")
+//                                        && !_cso.getState().equals("PENDING")) {
+//                                    return new Response<Integer>(1,
+//                                            StringUtil.merge("修改失败,子订单不存在资料待审核或资料审核中状态.(ID:", _cso.getId(), ")"), null);
+//                                }
+//                            }
 							orderList.forEach(cso -> {
 								try {
 									serviceOrderService.updateServiceOrderService(cso.getId(),
@@ -2852,8 +2852,8 @@ public class ServiceOrderController extends BaseController {
                         return new Response<Integer>(1, "修改失败.", null);
                 } else
                     return new Response<Integer>(1, "修改失败,请检查参数.", null);
-            } else
-                return new Response<Integer>(1, "只允许修改未申请月奖订单.", null);
+//            } else
+//                return new Response<Integer>(1, "只允许修改未申请月奖订单.", null);
         } catch (ServiceException e) {
             return new Response<Integer>(1, "异常:" + e.getMessage(), null);
         }
