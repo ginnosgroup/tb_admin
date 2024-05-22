@@ -5,8 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
@@ -24,14 +27,20 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service("VisaOfficialService")
+@Slf4j
 public class VisaOfficialServiceImpl extends BaseService implements VisaOfficialService {
     @Resource
     VisaOfficialDao visaOfficialDao;
@@ -102,6 +111,18 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
     @Resource
     private ExchangeRateService exchangeRateService;
+
+    @Resource
+    private SchoolInstitutionLocationDAO schoolInstitutionLocationDAO;
+
+    @Resource
+    private SchoolInstitutionDAO schoolInstitutionDAO;
+
+    @Resource
+    private SchoolCourseDAO schoolCourseDAO;
+
+    @Resource
+    private ServiceOrderDAO serviceOrderDAO;
 
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
@@ -541,7 +562,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             };
             String code = serviceDao.getServiceById(serviceOrderById.getServiceId()).getCode();
-            String serviceType = code.replaceAll("\\D", "");
+            String serviceType = code.replaceAll("[^\\p{L}\\p{N}\\p{Script=Han}]+", "");
             if (arrayList.contains(serviceType)) {
                 if (installment) {
                     amount = firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount();
@@ -1301,7 +1322,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter) throws ServiceException {
+    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate,String firstSettlementMonth,String lastSettlementMonth,  String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter, String serviceOrderType) throws ServiceException {
 
         if (pageNum != null && pageNum < 0) {
             pageNum = DEFAULT_PAGE_NUM;
@@ -1324,8 +1345,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
 		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
 				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
-				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, offset,
-				pageSize, orderBy);
+				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), theDateTo00_00_00(firstSettlementMonth), theDateTo23_59_59(lastSettlementMonth), userName, applicantName, isMerged, offset,
+				pageSize, orderBy, serviceOrderType);
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
         if (list == null || list.size() == 0) {
             return null;
@@ -1425,6 +1446,151 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Override
 	public void updateMerged(Integer id, Boolean isMerged) throws ServiceException {
         visaOfficialDao.updateMerged(id, isMerged);
+    }
+
+    @Override
+    public List<VisaOfficialDO> monthlyStatement() {
+        // 获取今天的日期
+        LocalDate today = LocalDate.now();
+
+        // 获取本月的第一天，然后减去一个月来获取上个月的第一天
+        LocalDate firstDayOfLastMonth = today.with(TemporalAdjusters.firstDayOfMonth()).minusMonths(1);
+
+        // 获取本月的第一天，然后减去一天来获取上个月的最后一天（因为上个月的最后一天就是本月第一天的前一天）
+        LocalDate lastDayOfLastMonth = today.with(TemporalAdjusters.firstDayOfMonth()).minusDays(1);
+
+        // 创建上个月第一天的开始时间（00:00:00）
+        LocalDateTime startOfLastMonth = LocalDateTime.of(firstDayOfLastMonth, LocalTime.MIDNIGHT);
+
+        // 创建上个月最后一天的结束时间（假设为23:59:59）
+        LocalDateTime endOfLastMonth = LocalDateTime.of(lastDayOfLastMonth, LocalTime.of(23, 59, 59));
+
+        // 定义日期时间格式化器
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+
+        // 格式化并打印上个月的第一天和最后一天的时间
+        String StartOfLastMonth = startOfLastMonth.format(formatter);
+        String EndOfLastMonth = endOfLastMonth.format(formatter);
+        System.out.println("Start of last month: " + startOfLastMonth.format(formatter));
+        System.out.println("End of last month: " + endOfLastMonth.format(formatter));
+        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder("OVST", null, null, null, null,
+                null, null, null, null,
+                null, null, StartOfLastMonth,
+                EndOfLastMonth, null, null, null, null,
+                null, null, null, null, null, null
+                , null, null, null, null, null
+                , null, null, null, 0, 9999, null);
+        List<VisaOfficialDO> visaOfficialDOs = new ArrayList<>();
+        for (ServiceOrderDO e : serviceOrderDOS) {
+            try {
+                if ("PAID".equals(e.getState()) || "COMPLETE".equals(e.getState()) || "CLOSE".equals(e.getState())) {
+                    VisaOfficialDO visaOfficialDOTmp = visaOfficialDao.getByServiceOrderId(e.getId());
+                    if (ObjectUtil.isNotNull(visaOfficialDOTmp)) {
+                        log.info("当前文案佣金订单已创建------------" + e.getId());
+                        visaOfficialDao.deleteByServiceOrderId(e.getId());
+                    }
+                    VisaOfficialDO visaOfficialDO = buildVisaOfficialDo(e);
+                    SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(e.getSchoolInstitutionLocationId());
+                    SchoolInstitutionDO schoolInstitution = schoolInstitutionDAO.getSchoolInstitutionByCode(schoolInstitutionLocationDO.getProviderCode());
+                    if ("Government".equals(schoolInstitution.getInstitutionType())) {
+                        List<String> publicTafeCode = new ArrayList<String>() {
+                            {
+                                this.add("03020E");
+                                this.add("00591E");
+                                this.add("01505M");
+                                this.add("00092B");
+                                this.add("03041M");
+                                this.add("00020G");
+                                this.add("01723A");
+                                this.add("00724G");
+                                this.add("00012G");
+                                this.add("02411J");
+                                this.add("00881F");
+                                this.add("01985A");
+                                this.add("00011G");
+                                this.add("001218G");
+                                this.add("00001K");
+                            }
+                        };
+                        visaOfficialDO.setPredictCommissionCNY(200.00);
+                        visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommissionCNY() / visaOfficialDO.getExchangeRate());
+                        if (publicTafeCode.contains(schoolInstitution.getCode())) {
+                            visaOfficialDO.setPredictCommissionCNY(80.00);
+                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommissionCNY() / visaOfficialDO.getExchangeRate());
+                        }
+                    }
+                    if ("Private".equals(schoolInstitution.getInstitutionType())) {
+                        SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(e.getCourseId());
+                        SchoolCourseDO schoolCourseDO = schoolInstitutionInfo.getSchoolCourseDO();
+                        if ("VET".equals(schoolCourseDO.getCourseSector())) {
+                            visaOfficialDO.setPredictCommissionCNY(20.00);
+                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommissionCNY() / visaOfficialDO.getExchangeRate());
+                        }
+                        if ("Higher Education".equals(schoolCourseDO.getCourseSector())) {
+                            visaOfficialDO.setPredictCommissionCNY(40.00);
+                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommissionCNY() / visaOfficialDO.getExchangeRate());
+                        }
+                    }
+                    visaOfficialDO.setServiceOrderDO(e);
+                    visaOfficialDao.addVisa(visaOfficialDO);
+                    visaOfficialDO.setGmtCreate(new Date());
+                    visaOfficialDOs.add(visaOfficialDO);
+                }
+            } catch (Exception ex) {
+                log.info("当前生成失败的订单id为---------------------" + e.getId());
+                ex.printStackTrace();
+            }
+        }
+        return visaOfficialDOs;
+    }
+
+    private VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) throws ServiceException {
+        VisaOfficialDO visaDto = new VisaOfficialDO();
+        visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.PENDING.toString());
+        visaDto.setUserId(e.getUserId());
+        visaDto.setCode(UUID.randomUUID().toString());
+        visaDto.setHandlingDate(new Date());
+        visaDto.setReceiveTypeId(e.getReceiveTypeId());
+        visaDto.setReceiveDate(e.getReceiveDate());
+        visaDto.setServiceId(e.getServiceId());
+        visaDto.setServiceOrderId(e.getId());
+        visaDto.setInstallment(e.getInstallment());
+        visaDto.setPaymentVoucherImageUrl1(e.getPaymentVoucherImageUrl1());
+        visaDto.setPaymentVoucherImageUrl2(e.getPaymentVoucherImageUrl2());
+        visaDto.setPaymentVoucherImageUrl3(e.getPaymentVoucherImageUrl3());
+        visaDto.setPaymentVoucherImageUrl4(e.getPaymentVoucherImageUrl4());
+        visaDto.setPaymentVoucherImageUrl5(e.getPaymentVoucherImageUrl5());
+        visaDto.setVisaVoucherImageUrl(e.getVisaVoucherImageUrl());
+        visaDto.setPerAmount(e.getPerAmount());
+        visaDto.setAmount(e.getAmount());
+        if (visaDto.getPerAmount() < visaDto.getAmount()) {
+            log.info("本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!");
+        }
+        visaDto.setCurrency(e.getCurrency());
+        visaDto.setExchangeRate(e.getExchangeRate());
+        visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
+        visaDto.setAdviserId(e.getAdviserId());
+        visaDto.setMaraId(e.getMaraId());
+        visaDto.setOfficialId(e.getOfficialId());
+        visaDto.setRemarks(e.getRemarks());
+        double commission = visaDto.getAmount();
+        if ("CNY".equals(e.getCurrency())) {
+            BigDecimal bigDecimal = BigDecimal.valueOf(commission);
+            BigDecimal bigDecimalExc = BigDecimal.valueOf(e.getExchangeRate());
+            BigDecimal divide = bigDecimal.divide(bigDecimalExc, 4, RoundingMode.HALF_UP);
+            commission = divide.doubleValue();
+        }
+        visaDto.setGst(commission / 11);
+        visaDto.setDeductGst(commission - visaDto.getGst());
+        visaDto.setBonus(visaDto.getDeductGst() * 0.1);
+        visaDto.setExpectAmount(commission);
+        visaDto.setExchangeRate(exchangeRateService.getQuarterExchangeRate());
+
+        double _perAmount = 0.00;
+        double _amount = 0.00;
+        visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.REVIEW.toString()); // 第一笔单子直接进入财务审核状态
+        visaDto.setKjApprovalDate(e.getReadcommittedDate());
+        return visaDto;
     }
 
 

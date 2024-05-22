@@ -69,18 +69,22 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                     }
                 };
                 String code = serviceOrderDto.getService().getCode();
-                String serviceType = code.replaceAll("\\D", "");
+                String serviceType = code.replaceAll("[^\\p{L}\\p{N}\\p{Script=Han}]+", "");
                 if (arrayList.contains(serviceType)) {
                     VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
-                    VisaOfficialDO visaOfficialDO1=new VisaOfficialDO();
+                    VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
                     visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderId(serviceOrderDto.getId());
                     visaOfficialDO.setInstallmentNum(2);
                     visaOfficialDO.setInstallment(2);
                     visaOfficialDO.setKjApprovalDate(null);
+                    visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * 0.5);
+                    visaOfficialDO1.setPerAmount(visaOfficialDO.getPerAmount());
                     visaOfficialDO1.setId(visaOfficialDO.getId());
                     visaOfficialDO1.setCommissionState("YJY");
                     visaOfficialDO1.setInstallmentNum(1);
                     visaOfficialDO1.setInstallment(2);
+                    visaOfficialDO1.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount());
+                    visaOfficialDO1.setExchangeRate(visaOfficialDO.getExchangeRate());
                     serviceOrderCompleteNode.visaOfficialDao.addVisa(visaOfficialDO);
                     serviceOrderCompleteNode.visaOfficialDao.updateHandlingDate(visaOfficialDO.getId(),visaOfficialDO.getHandlingDate());
                     serviceOrderCompleteNode.visaOfficialDao.updateVisaOfficial(visaOfficialDO1);

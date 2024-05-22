@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.dao;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
@@ -24,12 +25,14 @@ public interface VisaOfficialDao {
                                  @Param("state")String state,
                                  @Param("startDate")String startDate,
                                  @Param("endDate")String endDate,
-                                 @Param("userName")String userName,
+                                  @Param("firstSettlementMonth")String firstSettlementMonth,@Param("lastSettlementMonth")String lastSettlementMonth,
+                                  @Param("userName")String userName,
                                  @Param("applicantName")String applicantName,
                                  @Param("isMerged") Boolean isMerged,
                                  @Param("offset")Integer offset,
                                  @Param("pageSize")Integer pageSize,
-                                 @Param("orderBy") String orderBy);
+                                 @Param("orderBy") String orderBy,
+                                  @Param("serviceOrderType")String serviceOrderType);
 
     int count(@Param("officialId")Integer officialId,
               @Param("regionIdList")List<Integer> regionIdList,
@@ -61,4 +64,6 @@ public interface VisaOfficialDao {
     
 	int updateMerged(@Param("id") Integer id, @Param("isMerged") boolean isMerged);
 
+    @Delete("DELETE FROM b_visa_official where service_order_id = #{id}")
+    void deleteByServiceOrderId(int id);
 }

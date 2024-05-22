@@ -248,8 +248,14 @@
         <if test='isMerged != null'>
             AND bv.is_merged = #{isMerged}
         </if>
+        <if test='firstSettlementMonth != null and firstSettlementMonth != "" and lastSettlementMonth != null and lastSettlementMonth != ""'>
+            <![CDATA[ AND bv.kj_approval_date > #{firstSettlementMonth} AND bv.kj_approval_date < #{lastSettlementMonth} ]]>
+        </if>
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
+        </if>
+        <if test='serviceOrderType != null and serviceOrderType != ""'>
+            AND so.type = #{serviceOrderType}
         </if>
         ${orderBy}
         <if test="offset !=null and pageSize!=null">
@@ -479,7 +485,8 @@
             commissionAmount,
             calculation,
             predict_commissionAmount AS predictCommissionAmount,
-            predict_commission_CNY AS predictCommissionCNY
+            predict_commission_CNY AS predictCommissionCNY,
+            official_region AS officialRegion
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>
