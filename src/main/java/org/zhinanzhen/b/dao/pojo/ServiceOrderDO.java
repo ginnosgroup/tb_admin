@@ -177,6 +177,9 @@ public class ServiceOrderDO implements Serializable {
 
 	private String institutionTradingName;//记录一下培训机构的名字
 
-	private Integer EOINumber;
+	private Integer EOINumber; // EOI数量
 
+	private Integer bindingOrder; // 免费订单绑定的已支付订单
+
+	private Double distributableAmount; // 订单可分配金额
 }

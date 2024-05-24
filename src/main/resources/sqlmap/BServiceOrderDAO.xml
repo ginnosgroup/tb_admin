@@ -383,6 +383,9 @@
         <if test="EOINumber != null">
             ,EOI_number = #{EOINumber}
         </if>
+        <if test="bindingOrder != null">
+            ,binding_order = #{bindingOrder}
+        </if>
         WHERE id = #{id};
     </update>
 

@@ -187,7 +187,7 @@ public class Scheduled {
 			try {
 				serviceOrderDTOS = serviceOrderService.listServiceOrder(null, null, null, null, null, null, null, null,
 						null, lastSaturdayDate, endDate, null, null, null, null, null, null, null, null, null, null, null, null, 0,
-						0, false, 0, 9999, null, null, null, null, false, null);
+						0, false, 0, 9999, null, null, null, null, false, null, null);
                 for (Iterator iterator = serviceOrderDTOS.iterator() ; iterator.hasNext() ; ){
                     ServiceOrderDTO so = (ServiceOrderDTO) iterator.next();
                     if (so.getParentId() > 0){

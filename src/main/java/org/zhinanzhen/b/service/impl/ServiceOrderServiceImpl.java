@@ -136,6 +136,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     SONodeFactory soNodeFactory;
 
+    @Resource
+    private CommissionOrderDAO commissionOrderDAO;
+
+    @Resource
+    private CommissionOrderTempDAO commissionOrderTempDAO;
+
 
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -213,6 +219,33 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         try {
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
+            // 免费订单与收费订单绑定
+            if (serviceOrderDo.getBindingOrder() != null) {
+                if (serviceOrderDo.getBindingOrder() > 0) {
+                    ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
+                    List<ServiceOrderDTO> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
+                    double costPrince = 0.00;
+                    for (ServiceOrderDTO a : bybindingOrder) {
+                        ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a.getServiceId());
+                        costPrince += servicePackagePriceDOTmp.getCostPrince();
+                        if (a.getId() == serviceOrderDo.getId()) {
+                            servicePackagePriceDO = servicePackagePriceDOTmp;
+                        }
+                    }
+                    if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
+                        throw new ServiceException("当前订单可分配额度不足，请选择其他订单绑定");
+                    }
+                    serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
+                    serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setReceivable(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setAmount(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setGst(serviceOrderDo.getAmount() / 11);
+                    serviceOrderDo.setDeductGst(serviceOrderDo.getAmount() - serviceOrderDo.getGst());
+                    serviceOrderDo.setExpectAmount(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setPerAmount(servicePackagePriceDO.getCostPrince());
+                }
+            }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
             if (i > 0
@@ -399,7 +432,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                  String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate, List<Integer> regionIdList, Integer userId,
                                  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
                                  Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
-                                 Integer schoolId, Boolean isPay, Boolean isSettle) throws ServiceException {
+                                 Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException {
         return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
                 reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
@@ -416,7 +449,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                   List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
                                                   Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
                                                   boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
-                                                  Boolean isPay, Boolean isSettle) throws ServiceException {
+                                                  Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException {
         List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
         List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
         if (pageNum < 0)
@@ -444,6 +477,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             throw se;
         }
         for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
+            if (bindingList != null) {
+                if (bindingList) {
+                    if (!serviceOrderDo.isPay()) {
+                        continue;
+                    }
+                    serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
+                    List<ServiceOrderDTO> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
+                    if (!listbindingOrder.isEmpty()) {
+                        double costPrince = 0.00;
+                        for (ServiceOrderDTO a : listbindingOrder) {
+                            costPrince += servicePackagePriceDAO.getByServiceId(a.getServiceId()).getCostPrince();
+                        }
+                        serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() / 2) - costPrince);
+                    }
+                }
+            }
 			/*
 			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询学校课程
@@ -2224,6 +2273,56 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     public void updateOfficial(Integer serviceOrderId, Integer officialId, Integer newOfficialId) {
         serviceOrderDao.updateOffice(newOfficialId, serviceOrderId);
         officialHandoverLogDao.add(serviceOrderId, officialId, newOfficialId);
+    }
+
+    @Override
+    public ViewBalanceDTO viewBalance(Integer userId) {
+        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null,
+                null, null, null, null,
+                null, null, null,
+                null, null, null, null, userId,
+                null, null, null, null, null, null
+                , null, null, null, null, null
+                , null, null, null, 0, 9999, null);
+        ViewBalanceDTO viewBalanceDTO = new ViewBalanceDTO();
+        double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).mapToDouble(ServiceOrderDO::getReceivable).sum();
+        double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
+        viewBalanceDTO.setVisaAggregateAmount(sumVisaReceivable / 1.1);
+        viewBalanceDTO.setFreeOrderExpenditure(sumVisaReceivableTmp / 1.1);
+        viewBalanceDTO.setAvailableBalance((sumVisaReceivable - sumVisaReceivableTmp) / 1.1);
+        List<ServiceOrderDO> ovstServiceOrderList = serviceOrderDOS.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).collect(Collectors.toList());
+        List<ServiceOrderDO> ovstServiceOrderListNoPay = serviceOrderDOS.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).collect(Collectors.toList());
+        double ovstAdvanceReceipts = 0.00;
+        double ovstUnpaidAmount = 0.00;
+        for (ServiceOrderDO a : ovstServiceOrderList) {
+            CommissionOrderListDO commissionOrderById = commissionOrderDAO.getCommissionOrderById(a.getId());
+            CommissionOrderTempDO commissionOrderTempByServiceOrderId = commissionOrderTempDAO.getCommissionOrderTempByServiceOrderId(a.getId());
+            if (ObjectUtil.isNotNull(commissionOrderTempByServiceOrderId)) {
+                ovstAdvanceReceipts += commissionOrderTempByServiceOrderId.getExpectAmount();
+            }
+            if (ObjectUtil.isNotNull(commissionOrderById) && commissionOrderById.getReceiveDate() != null) {
+                ovstAdvanceReceipts += commissionOrderById.getExpectAmount();
+            }
+            if (ObjectUtil.isNotNull(commissionOrderById) && commissionOrderById.getReceiveDate() == null) {
+                ovstUnpaidAmount += commissionOrderById.getExpectAmount();
+            }
+        }
+        for (ServiceOrderDO a : ovstServiceOrderListNoPay) {
+            CommissionOrderListDO commissionOrderById = commissionOrderDAO.getCommissionOrderById(a.getId());
+            CommissionOrderTempDO commissionOrderTempByServiceOrderId = commissionOrderTempDAO.getCommissionOrderTempByServiceOrderId(a.getId());
+            if (ObjectUtil.isNotNull(commissionOrderTempByServiceOrderId)) {
+                ovstAdvanceReceipts += commissionOrderTempByServiceOrderId.getExpectAmount();
+            }
+            if (ObjectUtil.isNotNull(commissionOrderById) && commissionOrderById.getReceiveDate() != null) {
+                ovstAdvanceReceipts += commissionOrderById.getExpectAmount();
+            }
+            if (ObjectUtil.isNotNull(commissionOrderById) && commissionOrderById.getReceiveDate() == null) {
+                ovstUnpaidAmount += commissionOrderById.getExpectAmount();
+            }
+        }
+        viewBalanceDTO.setOvstAdvanceReceipts(ovstAdvanceReceipts);
+        viewBalanceDTO.setOvstUnpaidAmount(ovstUnpaidAmount);
+        return viewBalanceDTO;
     }
 
 
