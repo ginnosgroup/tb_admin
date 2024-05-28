@@ -269,6 +269,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "institutionTradingName3", required = false) String institutionTradingName3,
                                              @RequestParam(value = "institutionTradingName4", required = false) String institutionTradingName4,
                                              @RequestParam(value = "institutionTradingName5", required = false) String institutionTradingName5,
+                                             @RequestParam(value = "bindingOrder", required = false) Integer bindingOrderId,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -349,15 +350,16 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(bonus))
                 serviceOrderDto.setBonus(Double.parseDouble(bonus));
             if (StringUtil.isNotEmpty(userId))
-                if (userService.getUserById(StringUtil.toInt(userId)) == null)
+                if (userService.getUserById(StringUtil.toInt(userId)) == null) {
                     return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
-                else {
-                    if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000"))
+                } else {
+                    if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000")) {
                         return new Response<Integer>(1,
                                 "用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",
                                 0);
-                    else
+                    } else {
                         serviceOrderDto.setUserId(StringUtil.toInt(userId));
+                    }
                 }
             if (StringUtil.isNotEmpty(maraId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
                     && !"NSV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -419,6 +421,9 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(servicePackageIdsEOI)) {
                 String[] split = servicePackageIdsEOI.split(",");
                 serviceOrderDto.setEOINumber(split.length);
+            }
+            if (bindingOrderId != null && bindingOrderId > 0) {
+                serviceOrderDto.setBindingOrder(bindingOrderId);
             }
             if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
                 int serviceOrderId = serviceOrderDto.getId();

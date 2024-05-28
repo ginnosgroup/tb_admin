@@ -77,7 +77,8 @@
                 real_people_number,
                 verify_code,
                 ref_no,
-                EOI_number)
+                EOI_number,
+                binding_order)
             VALUES (
                 now(),
                 now(),
@@ -149,7 +150,8 @@
                 #{realPeopleNumber},
                 #{verifyCode},
                 #{refNo},
-                #{EOINumber});
+                #{EOINumber},
+                #{bindingOrder});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">

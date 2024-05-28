@@ -142,7 +142,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private CommissionOrderTempDAO commissionOrderTempDAO;
 
-
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -166,6 +165,33 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         try {
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
+            // 免费订单与收费订单绑定
+            if (serviceOrderDo.getBindingOrder() != null) {
+                if (serviceOrderDo.getBindingOrder() > 0) {
+                    ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
+                    List<ServiceOrderDTO> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
+                    double costPrince = 0.00;
+                    for (ServiceOrderDTO a : bybindingOrder) {
+                        ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a.getServiceId());
+                        costPrince += servicePackagePriceDOTmp.getCostPrince();
+                        if (a.getId() == serviceOrderDo.getId()) {
+                            servicePackagePriceDO = servicePackagePriceDOTmp;
+                        }
+                    }
+                    if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
+                        throw new ServiceException("当前订单可分配额度不足，请选择其他订单绑定");
+                    }
+                    serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
+                    serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setReceivable(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setAmount(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setGst(serviceOrderDo.getAmount() / 11);
+                    serviceOrderDo.setDeductGst(serviceOrderDo.getAmount() - serviceOrderDo.getGst());
+                    serviceOrderDo.setExpectAmount(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setPerAmount(servicePackagePriceDO.getCostPrince());
+                }
+            }
             if (ObjectUtil.isNotNull(serviceById)) {
                 if ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServicePackageId() == 0) {
                     serviceOrderDo.setApplicantId(0);
