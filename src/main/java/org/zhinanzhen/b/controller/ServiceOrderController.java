@@ -1357,6 +1357,9 @@ public class ServiceOrderController extends BaseController {
                     endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                     officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter,
                     serviceId, servicePackageId, schoolId, null, isSettle, bindingList);
+            if (bindingList != null && bindingList) {
+                total = serviceOrderList.size();
+            }
 
             if (newOfficialId != null)
                 for (ServiceOrderDTO so : serviceOrderList)
