@@ -269,7 +269,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "institutionTradingName3", required = false) String institutionTradingName3,
                                              @RequestParam(value = "institutionTradingName4", required = false) String institutionTradingName4,
                                              @RequestParam(value = "institutionTradingName5", required = false) String institutionTradingName5,
-                                             @RequestParam(value = "bindingOrder", required = false) Integer bindingOrderId,
+                                             @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrderId,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);

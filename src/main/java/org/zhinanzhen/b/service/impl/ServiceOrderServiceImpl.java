@@ -1613,7 +1613,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceDO service = serviceDao.getServiceById(serviceOrderDo.getServiceId());
             if (service != null) {
                 detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
-                type += "(" + service.getCode() + ")";
+                String servicePackageType = "";
+                if (serviceOrderDo.getServicePackageId() != 0 && serviceOrderDo.getServicePackageId() > 0) {
+                    servicePackageType = "-" + servicePackageDao.getById(serviceOrderDo.getServicePackageId()).getType();
+                }
+                type += "(" + service.getCode() + servicePackageType + ")";
 
                 if (serviceOrderDo.getServicePackageId() > 0) {
                     ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDo.getServicePackageId());

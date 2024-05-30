@@ -684,7 +684,7 @@
         </if>
         <if test='applicantName != null and applicantName != ""'>
             AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname,
-            ' ', ap.surname) = #{applicantName})
+            '', ap.surname) = #{applicantName})
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}
