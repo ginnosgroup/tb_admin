@@ -169,18 +169,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (serviceOrderDo.getBindingOrder() != null) {
                 if (serviceOrderDo.getBindingOrder() > 0) {
                     ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
-                    List<ServiceOrderDTO> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    bybindingOrder.add(serviceOrderDo.getServiceId());
                     ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
                     double costPrince = 0.00;
-                    for (ServiceOrderDTO a : bybindingOrder) {
-                        ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a.getServiceId());
+                    for (Integer a : bybindingOrder) {
+                        ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a);
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
-                        if (a.getId() == serviceOrderDo.getId()) {
+                        if (a == serviceOrderDo.getId()) {
                             servicePackagePriceDO = servicePackagePriceDOTmp;
                         }
                     }
                     if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
-                        throw new ServiceException("当前订单可分配额度不足，请选择其他订单绑定");
+                        return -1;
+//                        throw new ServiceException("当前订单可分配额度不足，请选择其他订单绑定");
                     }
                     serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
                     serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());
@@ -249,13 +251,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (serviceOrderDo.getBindingOrder() != null) {
                 if (serviceOrderDo.getBindingOrder() > 0) {
                     ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
-                    List<ServiceOrderDTO> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    bybindingOrder.add(serviceOrderDo.getServiceId());
                     ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
                     double costPrince = 0.00;
-                    for (ServiceOrderDTO a : bybindingOrder) {
-                        ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a.getServiceId());
+                    for (Integer a : bybindingOrder) {
+                        ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a);
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
-                        if (a.getId() == serviceOrderDo.getId()) {
+                        if (a == serviceOrderDo.getId()) {
                             servicePackagePriceDO = servicePackagePriceDOTmp;
                         }
                     }
@@ -509,11 +512,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         continue;
                     }
                     serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
-                    List<ServiceOrderDTO> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
+                    List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
                     if (!listbindingOrder.isEmpty()) {
                         double costPrince = 0.00;
-                        for (ServiceOrderDTO a : listbindingOrder) {
-                            costPrince += servicePackagePriceDAO.getByServiceId(a.getServiceId()).getCostPrince();
+                        for (Integer a : listbindingOrder) {
+                            costPrince += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
                         }
                         serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() / 2) - costPrince);
                     }

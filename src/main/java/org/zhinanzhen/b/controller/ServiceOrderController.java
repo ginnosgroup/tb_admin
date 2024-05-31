@@ -425,7 +425,8 @@ public class ServiceOrderController extends BaseController {
             if (bindingOrderId != null && bindingOrderId > 0) {
                 serviceOrderDto.setBindingOrder(bindingOrderId);
             }
-            if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0) {
+            int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
+            if (addResult > 0) {
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
                 if (adminUserLoginInfo != null)
@@ -644,8 +645,11 @@ public class ServiceOrderController extends BaseController {
                         msg += "创建第五学校服务订单失败(第五学校编号:" + schoolId5 + "). ";
                 }
                 return new Response<Integer>(0, msg, serviceOrderDto.getId());
-            } else
+            } else if (addResult == -1) {
+                return new Response<Integer>(1, "当前订单可分配额度不足，请选择其他订单绑定", 0);
+            } else {
                 return new Response<Integer>(1, "创建失败.", 0);
+            }
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
         }

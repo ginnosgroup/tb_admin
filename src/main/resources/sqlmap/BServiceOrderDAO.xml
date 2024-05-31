@@ -590,7 +590,8 @@
         so.verify_code AS verifyCode ,
         so.readcommitted_date AS readcommittedDate,
         so.ref_no AS refNo,
-        so.EOI_number AS EOINumber
+        so.EOI_number AS EOINumber,
+        so.binding_order AS bindingOrder
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id

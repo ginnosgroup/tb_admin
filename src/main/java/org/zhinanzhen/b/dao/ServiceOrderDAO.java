@@ -118,8 +118,8 @@ public interface ServiceOrderDAO {
     @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
     List<ServiceOrderDTO> getZiOrder(int id);
 
-    @Select("SELECT * FROM b_service_order WHERE binding_order = #{id}")
-    List<ServiceOrderDTO> listBybindingOrder(int id);
+    @Select("SELECT service_id AS serviceId FROM b_service_order WHERE binding_order = #{id}")
+    List<Integer> listBybindingOrder(int id);
 
     List<ServiceOrderDO> getTmpServiceOrder(@Param("beforeFormat")String beforeFormat, @Param("nowDate")String nowDate);
 

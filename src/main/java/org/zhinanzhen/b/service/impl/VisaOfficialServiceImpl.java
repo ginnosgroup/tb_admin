@@ -646,10 +646,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 isSIV = "SIV".equals(serviceOrderById1.getType()) && serviceOrderById.getEOINumber() != null;
             }
             if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
-                List<ServiceOrderDTO> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getBindingOrder());
+                List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getBindingOrder());
                 if (!listbindingOrder.isEmpty()) {
-                    for (ServiceOrderDTO a : listbindingOrder) {
-                        bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a.getServiceId()).getCostPrince();
+                    for (Integer a : listbindingOrder) {
+                        bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
                     }
                     if (installment) {
                         bingdingOrderAmount = bingdingOrderAmount * 0.5;
