@@ -259,4 +259,6 @@ public class ServiceOrderDTO {
 	private Integer bindingOrder; // 免费订单绑定的已支付订单
 
 	private Double distributableAmount; // 订单可分配金额
+
+	private Integer bindingOrderCount; // 可以绑定订单数量
 }

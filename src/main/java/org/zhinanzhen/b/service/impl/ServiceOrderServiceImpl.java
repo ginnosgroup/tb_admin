@@ -502,6 +502,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
         try {
+            if (bindingList) {
+                pageSize = 10000;
+            }
             serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
@@ -514,14 +517,21 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
             throw se;
         }
-        for (ServiceOrderDO serviceOrderDo : serviceOrderDoList) {
+        int count = 0;
+        for (int i = 0; i < serviceOrderDoList.size(); i++) {
+            ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
             if (bindingList != null) {
                 if (bindingList) {
-                    if (!serviceOrderDo.isPay()) {
+                    if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
+                        continue;
+                    }
+                    if (i >= 20) {
+                        count++;
                         continue;
                     }
                     serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
                     List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
+                    count++;
                     if (!listbindingOrder.isEmpty()) {
                         double costPrince = 0.00;
                         for (Integer a : listbindingOrder) {
@@ -531,107 +541,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     }
                 }
             }
-			/*
-			ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
-			// 查询学校课程
-			if (serviceOrderDto.getSchoolId() > 0) {
-				SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
-				if (schoolDo != null)
-					serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
-			}
-			// 查询Subagency
-			if (serviceOrderDto.getSubagencyId() > 0) {
-				SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
-				if (subagencyDo != null)
-					serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
-			}
-			// 查询服务
-			ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
-			if (serviceDo != null)
-				serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
-			// 查询服务包类型
-			if (serviceOrderDto.getServicePackageId() > 0) {
-				ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-				if (servicePackageDo != null)
-					serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
-			}
-			// 查询收款方式
-			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
-			if (receiveTypeDo != null)
-				serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
-			// 查询用户
-			UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
-			if (userDo != null)
-				serviceOrderDto.setUser(mapper.map(userDo, UserDTO.class));
-			// 查询Mara
-			MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
-			if (maraDo != null)
-				serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
-			// 查询顾问
-			AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
-			if (adviserDo != null){
-				RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
-				serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
-				if (regionDO != null)
-					serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
-				serviceOrderDto.getAdviser().setRegionDo(regionDO);
-			}
-			// 查询顾问2
-			if (serviceOrderDto.getAdviserId2() > 0) {
-				AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
-				if (adviserDo2 != null)
-					serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
-			}
-			// 查询文案
-			OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
-			if (officialDo != null)
-				serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
-			// 查询文案Tag
-			OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
-			if (officialTagDo != null)
-				serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
-			// 查询子服务
-			if (serviceOrderDto.getParentId() <= 0) {
-				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
-				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
-				list.forEach(serviceOrder -> {
-					ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
-							ChildrenServiceOrderDTO.class);
-					ServicePackageDO servicePackageDo = servicePackageDao
-							.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-																						// 又偷懒了，性能比较差哦：）
-					if (servicePackageDo != null)
-						childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
-					childrenServiceOrderList.add(childrenServiceOrderDto);
-				});
-				serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
-			}
-
-			List<Integer> cIds = new ArrayList<>();
-//			List<VisaDO> visaList = visaDao.listVisaByServiceOrderId(serviceOrderDo.getId());
-//			if (visaList != null && visaList.size() > 0) {
-//				for (VisaDO visaDo : visaList)
-//					cIds.add(visaDo.getId());
-//			}
-//			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
-//					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
-//			if (commissionOrderList != null && commissionOrderList.size() > 0) {
-//				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
-//					cIds.add(commissionOrderDo.getId());
-//			}
-			serviceOrderDto.setCIds(cIds);
-
-			// 查询审核记录
-			//putReviews(serviceOrderDto);
-			serviceOrderDtoList.add(serviceOrderDto);
-
-			// 查询职业名称
-			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
-			if (serviceAssessDO != null)
-				serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-			*/
             serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
         }
+        serviceOrderDtoList.get(0).setBindingOrderCount(count);
         return serviceOrderDtoList;
     }
 

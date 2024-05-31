@@ -1365,7 +1365,7 @@ public class ServiceOrderController extends BaseController {
                     officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter,
                     serviceId, servicePackageId, schoolId, null, isSettle, bindingList);
             if (bindingList != null && bindingList) {
-                total = serviceOrderList.size();
+                total = serviceOrderList.get(0).getBindingOrderCount();
             }
 
             if (newOfficialId != null)
