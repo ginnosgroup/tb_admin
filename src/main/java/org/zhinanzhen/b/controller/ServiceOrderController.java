@@ -980,8 +980,11 @@ public class ServiceOrderController extends BaseController {
                                 + applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ")");
                 }
                 return new Response<Integer>(0, i);
-            } else
+            } else if (i == -1) {
+                return new Response<Integer>(1, "当前订单可分配额度不足，请选择其他订单绑定", 0);
+            } else {
                 return new Response<Integer>(1, "修改失败.", 0);
+            }
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), null);
         }
