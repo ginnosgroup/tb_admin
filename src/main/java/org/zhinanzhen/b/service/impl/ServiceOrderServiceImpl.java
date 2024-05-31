@@ -167,6 +167,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
             // 免费订单与收费订单绑定
             if (serviceOrderDo.getBindingOrder() != null) {
+                String code = serviceById.getCode().replaceAll("\\D", "");
+                if (code.contains("485") || code.contains("500")) {
+                    serviceOrderDo.setBindingOrder(0);
+                }
                 if (serviceOrderDo.getBindingOrder() > 0) {
                     ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
                     List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
@@ -180,9 +184,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             servicePackagePriceDO = servicePackagePriceDOTmp;
                         }
                     }
-                    if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
-                        return -1;
-//                        throw new ServiceException("当前订单可分配额度不足，请选择其他订单绑定");
+                    if (!code.contains("500")) {
+                        if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
+                            return -1;
+                        }
                     }
                     serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
                     serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());
@@ -247,9 +252,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         try {
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
+            ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
             // 免费订单与收费订单绑定
             if (serviceOrderDo.getBindingOrder() != null) {
                 if (serviceOrderDo.getBindingOrder() > 0) {
+                    String code = serviceById.getCode().replaceAll("\\D", "");
                     ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
                     List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
                     bybindingOrder.add(serviceOrderDo.getServiceId());
@@ -262,8 +269,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             servicePackagePriceDO = servicePackagePriceDOTmp;
                         }
                     }
-                    if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
-                        throw new ServiceException("当前订单可分配额度不足，请选择其他订单绑定");
+                    if (!code.contains("500")) {
+                        if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
+                            return -1;
+                        }
                     }
                     serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
                     serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());

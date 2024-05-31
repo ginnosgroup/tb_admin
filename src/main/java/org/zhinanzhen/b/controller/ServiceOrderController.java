@@ -715,7 +715,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "courseId", required = false) Integer courseId,
                                                 @RequestParam(value = "schoolInstitutionLocationId", required = false) Integer schoolInstitutionLocationId,
                                                 @RequestParam(value = "institutionTradingName", required = false) String institutionTradingName,
-                                                @RequestParam(value = "bindingOrder", required = false) Integer bindingOrderId,
+                                                @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrder,
                                                 HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
@@ -741,7 +741,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrderId);
+                    institutionTradingName, bindingOrder);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
