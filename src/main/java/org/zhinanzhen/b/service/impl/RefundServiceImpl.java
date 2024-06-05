@@ -74,12 +74,12 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			}
 			VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
 			ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(visaById.getServiceOrderId());
-			if ("CNY".equals(serviceOrderById.getCurrency()) && "AUD".equals(refundDo.getCurrencyType())) {
+			if ("CNY".equals(serviceOrderById.getCurrency()) && "AUD".equals(refundDo.getRefundCurrency())) {
 				ServiceException se = new ServiceException("支付币种为人民币时退款币种只支持人民币");
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 				throw se;
 			}
-			if ("CNY".equals(refundDo.getCurrencyType())) {
+			if ("CNY".equals(refundDo.getRefundCurrency())) {
 				refundDo.setAmountCNY(refundDo.getAmount() * refundDo.getExchangeRate());
 			}
 			if (refundDao.addRefund(refundDo) > 0) {
