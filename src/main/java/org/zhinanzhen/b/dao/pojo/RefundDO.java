@@ -88,4 +88,5 @@ public class RefundDO implements Serializable {
 	
 	private String note;
 
+	private double amountCNY; // 收款银行人民币金额
 }

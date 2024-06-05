@@ -595,11 +595,14 @@
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        <if test='startGmtCreate != null and startGmtCreate != "" and endGmtCreate != null and endGmtCreate != ""'>
+            <![CDATA[ AND so.gmt_create > #{startGmtCreate} AND so.gmt_create < #{endGmtCreate} ]]>
+        </if>
         <if test='type != null and type != "" and type != "VISAZX" and type != "SIV" and type != "NSV"'>
             AND so.type = #{type}
         </if>
         <if test='type == "VISAZX"'>
-            AND so.type in("VISA","ZX")
+            AND so.type in ("VISA","ZX")
         </if>
         <if test='type == "SIV"'>
             AND so.`code` in (SELECT `code` FROM b_service_order WHERE type="SIV")
@@ -607,7 +610,6 @@
         <if test='type == "NSV"'>
             AND so.`code` in (SELECT `code` FROM b_service_order WHERE type="NSV")
         </if>
-
         <if test='excludeState != null and excludeState != ""'>
             AND so.state != #{excludeState}
         </if>

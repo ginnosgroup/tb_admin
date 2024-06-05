@@ -39,7 +39,9 @@ public interface ServiceOrderDAO {
                           @Param("servicePackageId") Integer servicePackageId,
                           @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle);
 
-    List<ServiceOrderDO> listServiceOrder(@Param("type") String type,
+    List<ServiceOrderDO> listServiceOrder(@Param("startGmtCreate") String startGmtCreate,
+                                          @Param("endGmtCreate") String endGmtCreate,
+                                          @Param("type") String type,
                                           @Param("excludeTypeList") List<String> excludeTypeList, @Param("excludeState") String excludeState,
                                           @Param("stateList") List<String> stateList, @Param("auditingState") String auditingState,
                                           @Param("reviewStateList") List<String> reviewStateList, @Param("urgentState") String urgentState,
@@ -122,6 +124,5 @@ public interface ServiceOrderDAO {
     List<Integer> listBybindingOrder(int id);
 
     List<ServiceOrderDO> getTmpServiceOrder(@Param("beforeFormat")String beforeFormat, @Param("nowDate")String nowDate);
-
 
 }

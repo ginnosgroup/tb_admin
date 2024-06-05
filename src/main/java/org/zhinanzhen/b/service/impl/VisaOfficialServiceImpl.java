@@ -1488,7 +1488,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         String EndOfLastMonth = endOfLastMonth.format(formatter);
         System.out.println("Start of last month: " + startOfLastMonth.format(formatter));
         System.out.println("End of last month: " + endOfLastMonth.format(formatter));
-        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder("OVST", null, null, null, null,
+        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, "OVST", null, null, null, null,
                 null, null, null, null,
                 null, null, StartOfLastMonth,
                 EndOfLastMonth, null, null, null, null,

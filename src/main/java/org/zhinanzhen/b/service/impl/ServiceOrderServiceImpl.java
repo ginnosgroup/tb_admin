@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -241,7 +242,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 throw se;
             }
             for (VisaDO visaDO : visaDOS) {
-                if (visaDO.getServiceOrderId() != serviceOrderDto.getId()) {
+                if (visaDO.getServiceOrderId() != serviceOrderDto.getId() || visaDO.getServiceOrderId() != serviceOrderDto.getApplicantParentId()) {
                     ServiceException se = new ServiceException(
                             "对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
                     se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -502,10 +503,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
         try {
-            if (bindingList) {
+            if (bindingList != null && bindingList) {
                 pageSize = 10000;
             }
-            serviceOrderDoList = serviceOrderDao.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+            serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                     theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
@@ -2231,7 +2232,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     @Override
     public ViewBalanceDTO viewBalance(Integer userId) {
-        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null,
+        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null, null, null,
                 null, null, null, null,
                 null, null, null,
                 null, null, null, null, userId,
@@ -2276,6 +2277,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         viewBalanceDTO.setOvstAdvanceReceipts(ovstAdvanceReceipts);
         viewBalanceDTO.setOvstUnpaidAmount(ovstUnpaidAmount);
+        // 保留两位小数
+        Double bigDecimalAvailableBalance = BigDecimal.valueOf(viewBalanceDTO.getAvailableBalance()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double bigDecimalFreeOrderExpenditure = BigDecimal.valueOf(viewBalanceDTO.getFreeOrderExpenditure()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double bigDecimalOvstAdvanceReceipts = BigDecimal.valueOf(viewBalanceDTO.getOvstAdvanceReceipts()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double bigDecimalOvstUnpaidAmount = BigDecimal.valueOf(viewBalanceDTO.getOvstUnpaidAmount()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        Double bigDecimalVisaAggregateAmount = BigDecimal.valueOf(viewBalanceDTO.getVisaAggregateAmount()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        viewBalanceDTO.setAvailableBalance(bigDecimalAvailableBalance);
+        viewBalanceDTO.setFreeOrderExpenditure(bigDecimalFreeOrderExpenditure);
+        viewBalanceDTO.setOvstAdvanceReceipts(bigDecimalOvstAdvanceReceipts);
+        viewBalanceDTO.setOvstUnpaidAmount(bigDecimalOvstUnpaidAmount);
+        viewBalanceDTO.setVisaAggregateAmount(bigDecimalVisaAggregateAmount);
         return viewBalanceDTO;
     }
 

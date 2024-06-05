@@ -42,6 +42,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	@Resource
 	ServiceDAO serviceDao;
 
+	@Resource
+	private ServiceOrderDAO serviceOrderDAO;
+
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
 		if (ObjectUtil.isNull(refundDto)) {
@@ -68,6 +71,16 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 						.getCommissionOrderById(refundDo.getCommissionOrderId());
 				if (commissionOrderListDo != null)
 					refundDo.setCourseId(commissionOrderListDo.getCourseId());
+			}
+			VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
+			ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(visaById.getServiceOrderId());
+			if ("CNY".equals(serviceOrderById.getCurrency()) && "AUD".equals(refundDo.getCurrencyType())) {
+				ServiceException se = new ServiceException("支付币种为人民币时退款币种只支持人民币");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
+			if ("CNY".equals(refundDo.getCurrencyType())) {
+				refundDo.setAmountCNY(refundDo.getAmount() * refundDo.getExchangeRate());
 			}
 			if (refundDao.addRefund(refundDo) > 0) {
 				refundDto.setId(refundDo.getId());

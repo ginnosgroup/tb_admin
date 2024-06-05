@@ -40,7 +40,8 @@
                 rmb_remarks,
                 reason,
                 remarks,
-                note)
+                note,
+                amount_CNY)
             VALUES (
                 now(),
                 now(),
@@ -76,7 +77,8 @@
                 #{rmbRemarks},
                 #{reason},
                 #{remarks},
-                #{note});
+                #{note},
+                #{amountCNY});
     </insert>
     
     <select id="countRefund" resultType="java.lang.Integer">
@@ -152,7 +154,8 @@
             r.rmb_remarks AS rmbRemarks,
             r.reason AS reason,
             r.remarks,
-            r.note
+            r.note,
+            r.amount_CNY AS amountCNY
         FROM tb_user u, tb_adviser a, tb_region re, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id
         <if test='type != null and type != ""'>
@@ -224,7 +227,8 @@
             r.rmb_remarks AS rmbRemarks,
             r.reason AS reason,
             r.remarks,
-            r.note
+            r.note,
+            r.amount_CNY AS amountCNY
         FROM tb_user u, tb_adviser a, tb_region re, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id AND r.id = #{id, jdbcType=INTEGER};
     </select>
@@ -266,7 +270,8 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks,
-            note
+            note,
+            amount_CNY AS amountCNY
         FROM b_refund
         WHERE state != 'CLOSE' AND commission_order_id = #{commissionOrderId, jdbcType=INTEGER};
     </select>
@@ -308,7 +313,8 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks,
-            note
+            note,
+            amount_CNY AS amountCNY
         FROM b_refund
         WHERE state != 'CLOSE' AND visa_id = #{visaId, jdbcType=INTEGER};
     </select>
@@ -402,6 +408,9 @@
         </if>
         <if test='note != null and note != ""'>
             , note = #{note}
+        </if>
+        <if test='amountCNY != null and amountCNY != ""'>
+            , amount_CNY = #{amountCNY}
         </if>
         WHERE id = #{id};
     </update>
