@@ -32,7 +32,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	MaraDAO maraDao;
-	
+
 	@Resource
 	CommissionOrderDAO commissionOrderDao;
 
@@ -41,9 +41,6 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 
 	@Resource
 	ServiceDAO serviceDao;
-
-	@Resource
-	private ServiceOrderDAO serviceOrderDAO;
 
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
@@ -72,16 +69,6 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 				if (commissionOrderListDo != null)
 					refundDo.setCourseId(commissionOrderListDo.getCourseId());
 			}
-			VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
-			ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(visaById.getServiceOrderId());
-			if ("CNY".equals(serviceOrderById.getCurrency()) && "AUD".equals(refundDo.getRefundCurrency())) {
-				ServiceException se = new ServiceException("支付币种为人民币时退款币种只支持人民币");
-				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
-				throw se;
-			}
-			if ("CNY".equals(refundDo.getRefundCurrency())) {
-				refundDo.setAmountCNY(refundDo.getAmount() * refundDo.getExchangeRate());
-			}
 			if (refundDao.addRefund(refundDo) > 0) {
 				refundDto.setId(refundDo.getId());
 				return refundDo.getId();
@@ -94,20 +81,20 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			throw se;
 		}
 	}
-	
+
 	@Override
 	public int countRefund(String type, String state, Integer visaId, Integer commissionOrderId, Integer regionId,
-			Integer adviserId, String adviserName, String startDate, String endDate, String startReviewedDate,
-			String endReviewedDate, String startCompletedDate, String endCompletedDate) throws ServiceException {
+						   Integer adviserId, String adviserName, String startDate, String endDate, String startReviewedDate,
+						   String endReviewedDate, String startCompletedDate, String endCompletedDate) throws ServiceException {
 		return refundDao.countRefund(type, state, visaId, commissionOrderId, regionId, adviserId, adviserName,
 				startDate, theDateTo23_59_59(endDate));
 	}
 
 	@Override
 	public List<RefundDTO> listRefund(String type, String state, Integer visaId, Integer commissionOrderId,
-			Integer regionId, Integer adviserId, String adviserName, String startDate, String endDate,
-			String startReviewedDate, String endReviewedDate, String startCompletedDate, String endCompletedDate,
-			int pageNum, int pageSize) throws ServiceException {
+									  Integer regionId, Integer adviserId, String adviserName, String startDate, String endDate,
+									  String startReviewedDate, String endReviewedDate, String startCompletedDate, String endCompletedDate,
+									  int pageNum, int pageSize) throws ServiceException {
 		List<RefundDTO> refundDtoList = new ArrayList<>();
 		List<RefundDO> refundDoList = null;
 		try {
@@ -197,10 +184,10 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			throw se;
 		}
 	}
-	
+
 	@Override
 	public List<RefoundReportDTO> listRefundReport2(String startDate, String endDate, String dateType,
-												   String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
+													String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
 		List<RefoundReportDTO> refoundReportDtoList = new ArrayList<>();
 		List<RefoundReportDO> refoundReportDoList = new ArrayList<>();
 		try {
@@ -217,7 +204,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 			throw se;
 		}
 	}
-	
+
 	private void buildAttr(RefundDTO refundDto) {
 		if (refundDto != null && "OVST".equalsIgnoreCase(refundDto.getType())) {
 			if (refundDto.getCourseId() > 0) {

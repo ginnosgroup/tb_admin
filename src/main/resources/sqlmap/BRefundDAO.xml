@@ -1,103 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.RefundDAO">
 
     <insert id="addRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
-            INTO b_refund (
-                gmt_create,
-                gmt_modify,
-                reviewed_date,
-                completed_date,
-                state,
-                type,
-                visa_id,
-                commission_order_id,
-                user_id,
-                applicant_id,
-                adviser_id,
-                mara_id,
-                official_id,
-                school_id,
-                course_id,
-                receive_date,
-                received,
-                amount,
-                payment_voucher_image_url,
-                payment_voucher_image_url_2,
-                payment_voucher_image_url_3,
-                payment_voucher_image_url_4,
-                payment_voucher_image_url_5,
-                refund_voucher_image_url,
-                refund_detail_id,
-                refund_detail,
-                currency_type,
-                exchange_rate,
-                account_name,
-                bank_name,
-                bsb,
-                rmb_remarks,
-                reason,
-                remarks,
-                note,
-                amount_CNY,
-                refund_currency)
-            VALUES (
-                now(),
-                now(),
-                #{reviewedDate},
-                #{completedDate},
-                'PENDING',
-                #{type},
-                #{visaId},
-                #{commissionOrderId},
-                #{userId},
-                #{applicantId},
-                #{adviserId},
-                #{maraId},
-                #{officialId},
-                #{schoolId},
-                #{courseId},
-                #{receiveDate},
-                #{received},
-                #{amount},
-                #{paymentVoucherImageUrl},
-                #{paymentVoucherImageUrl2},
-                #{paymentVoucherImageUrl3},
-                #{paymentVoucherImageUrl4},
-                #{paymentVoucherImageUrl5},
-                #{refundVoucherImageUrl},
-                #{refundDetailId},
-                #{refundDetail},
-                #{currencyType},
-                #{exchangeRate},
-                #{accountName},
-                #{bankName},
-                #{bsb},
-                #{rmbRemarks},
-                #{reason},
-                #{remarks},
-                #{note},
-                #{amountCNY},
-                #{refundCurrency});
+        INTO b_refund (
+            gmt_create,
+            gmt_modify,
+            reviewed_date,
+            completed_date,
+            state,
+            type,
+            visa_id,
+            commission_order_id,
+            user_id,
+            applicant_id,
+            adviser_id,
+            mara_id,
+            official_id,
+            school_id,
+            course_id,
+            receive_date,
+            received,
+            amount,
+            payment_voucher_image_url,
+            payment_voucher_image_url_2,
+            payment_voucher_image_url_3,
+            payment_voucher_image_url_4,
+            payment_voucher_image_url_5,
+            refund_voucher_image_url,
+            refund_detail_id,
+            refund_detail,
+            currency_type,
+            exchange_rate,
+            account_name,
+            bank_name,
+            bsb,
+            rmb_remarks,
+            reason,
+            remarks,
+            note)
+        VALUES (
+                   now(),
+                   now(),
+                   #{reviewedDate},
+                   #{completedDate},
+                   'PENDING',
+                   #{type},
+                   #{visaId},
+                   #{commissionOrderId},
+                   #{userId},
+                   #{applicantId},
+                   #{adviserId},
+                   #{maraId},
+                   #{officialId},
+                   #{schoolId},
+                   #{courseId},
+                   #{receiveDate},
+                   #{received},
+                   #{amount},
+                   #{paymentVoucherImageUrl},
+                   #{paymentVoucherImageUrl2},
+                   #{paymentVoucherImageUrl3},
+                   #{paymentVoucherImageUrl4},
+                   #{paymentVoucherImageUrl5},
+                   #{refundVoucherImageUrl},
+                   #{refundDetailId},
+                   #{refundDetail},
+                   #{currencyType},
+                   #{exchangeRate},
+                   #{accountName},
+                   #{bankName},
+                   #{bsb},
+                   #{rmbRemarks},
+                   #{reason},
+                   #{remarks},
+                   #{note});
     </insert>
-    
+
     <select id="countRefund" resultType="java.lang.Integer">
         SELECT
-            count(*)
-        FROM tb_user u, tb_adviser a, tb_region re, b_refund r 
+        count(*)
+        FROM tb_user u, tb_adviser a, tb_region re, b_refund r
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id
         <if test='type != null and type != ""'>
-			AND r.type = #{type}
-		</if>
-		<if test='state != null and state != ""'>
-			AND r.state = #{state}
-		</if>
-		<if test="visaId != null and visaId > 0">
+            AND r.type = #{type}
+        </if>
+        <if test='state != null and state != ""'>
+            AND r.state = #{state}
+        </if>
+        <if test="visaId != null and visaId > 0">
             AND r.visa_id = #{visaId}
         </if>
-		<if test="commissionOrderId != null and commissionOrderId > 0">
+        <if test="commissionOrderId != null and commissionOrderId > 0">
             AND r.commission_order_id = #{commissionOrderId}
         </if>
         <if test="regionId != null and regionId > 0">
@@ -114,60 +110,58 @@
         </if>
         ;
     </select>
-    
+
     <select id="listRefund" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
         SELECT
-            r.id,
-            r.gmt_create AS gmtCreate,
-            r.gmt_modify AS gmtModify,
-            r.reviewed_date AS reviewedDate,
-            r.completed_date AS completedDate,
-            r.state,
-            r.type,
-            r.visa_id AS visaId,
-            r.commission_order_id AS commissionOrderId,
-            r.user_id AS userId,
-            r.applicant_id AS applicantId,
-            u.name AS userName,
-            r.adviser_id AS adviserId,
-            a.name AS adviserName,
-            re.name AS adviserRegionName,
-            r.mara_id AS maraId,
-            r.official_id AS officialId,
-            o.name AS officialName,
-            r.school_id AS schoolId,
-            r.course_id AS courseId,
-            r.receive_date AS receiveDate,
-            r.received,
-            r.amount,
-            r.payment_voucher_image_url AS paymentVoucherImageUrl,
-            r.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            r.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            r.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            r.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            r.refund_voucher_image_url AS refundVoucherImageUrl,
-            r.refund_detail_id AS refundDetailId,
-            r.refund_detail AS refundDetail,
-            r.currency_type AS currencyType,
-            r.exchange_rate AS exchangeRate,
-            r.account_name AS accountName,
-            r.bank_name AS bankName,
-            r.bsb,
-            r.rmb_remarks AS rmbRemarks,
-            r.reason AS reason,
-            r.remarks,
-            r.note,
-            r.amount_CNY AS amountCNY,
-            r.refund_currency AS refundCurrency
+        r.id,
+        r.gmt_create AS gmtCreate,
+        r.gmt_modify AS gmtModify,
+        r.reviewed_date AS reviewedDate,
+        r.completed_date AS completedDate,
+        r.state,
+        r.type,
+        r.visa_id AS visaId,
+        r.commission_order_id AS commissionOrderId,
+        r.user_id AS userId,
+        r.applicant_id AS applicantId,
+        u.name AS userName,
+        r.adviser_id AS adviserId,
+        a.name AS adviserName,
+        re.name AS adviserRegionName,
+        r.mara_id AS maraId,
+        r.official_id AS officialId,
+        o.name AS officialName,
+        r.school_id AS schoolId,
+        r.course_id AS courseId,
+        r.receive_date AS receiveDate,
+        r.received,
+        r.amount,
+        r.payment_voucher_image_url AS paymentVoucherImageUrl,
+        r.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        r.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        r.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        r.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        r.refund_voucher_image_url AS refundVoucherImageUrl,
+        r.refund_detail_id AS refundDetailId,
+        r.refund_detail AS refundDetail,
+        r.currency_type AS currencyType,
+        r.exchange_rate AS exchangeRate,
+        r.account_name AS accountName,
+        r.bank_name AS bankName,
+        r.bsb,
+        r.rmb_remarks AS rmbRemarks,
+        r.reason AS reason,
+        r.remarks,
+        r.note
         FROM tb_user u, tb_adviser a, tb_region re, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id
         <if test='type != null and type != ""'>
-			AND r.type = #{type}
-		</if>
-		<if test='state != null and state != ""'>
-			AND r.state = #{state}
-		</if>
-		<if test="visaId != null and visaId > 0">
+            AND r.type = #{type}
+        </if>
+        <if test='state != null and state != ""'>
+            AND r.state = #{state}
+        </if>
+        <if test="visaId != null and visaId > 0">
             AND r.visa_id = #{visaId}
         </if>
         <if test="commissionOrderId != null and commissionOrderId > 0">
@@ -188,9 +182,9 @@
         ORDER BY r.gmt_create DESC
         LIMIT #{offset}, #{rows};
     </select>
-    
+
     <select id="getRefundById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
-         SELECT
+        SELECT
             r.id,
             r.gmt_create AS gmtCreate,
             r.gmt_modify AS gmtModify,
@@ -230,15 +224,13 @@
             r.rmb_remarks AS rmbRemarks,
             r.reason AS reason,
             r.remarks,
-            r.note,
-            r.amount_CNY AS amountCNY,
-            r.refund_currency AS refundCurrency
+            r.note
         FROM tb_user u, tb_adviser a, tb_region re, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id AND r.id = #{id, jdbcType=INTEGER};
     </select>
-    
+
     <select id="getRefundByCommissionOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
-         SELECT
+        SELECT
             id,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
@@ -274,15 +266,13 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks,
-            note,
-            amount_CNY AS amountCNY,
-            refund_currency AS refundCurrency
+            note
         FROM b_refund
         WHERE state != 'CLOSE' AND commission_order_id = #{commissionOrderId, jdbcType=INTEGER};
     </select>
-    
+
     <select id="getRefundByVisaId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
-         SELECT
+        SELECT
             id,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
@@ -318,15 +308,13 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks,
-            note,
-            amount_CNY AS amountCNY,
-            refund_currency AS refundCurrency
+            note
         FROM b_refund
         WHERE state != 'CLOSE' AND visa_id = #{visaId, jdbcType=INTEGER};
     </select>
-    
+
     <update id="updateRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO">
-        UPDATE b_refund 
+        UPDATE b_refund
         SET gmt_modify = now()
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -415,15 +403,9 @@
         <if test='note != null and note != ""'>
             , note = #{note}
         </if>
-        <if test='amountCNY != null and amountCNY != ""'>
-            , amount_CNY = #{amountCNY}
-        </if>
-        <if test='refundCurrency != null and refundCurrency != ""'>
-            , refund_currency = #{refundCurrency}
-        </if>
         WHERE id = #{id};
     </update>
-    
+
     <delete id="deleteRefundById" parameterType="java.lang.Integer">
         DELETE FROM b_refund
         WHERE id =#{id, jdbcType=INTEGER};
@@ -431,29 +413,29 @@
 
     <select id="listRefundReport" resultType="org.zhinanzhen.b.dao.pojo.RefoundReportDO">
         SELECT
-            <choose>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(rf.gmt_create, '%Y-%m') AS date,
-                </when>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
-                    DATE_FORMAT(rf.gmt_create, '%Y-%m-%d') AS date,
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(rf.gmt_create, '%Y-%m') AS date,
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                    DATE_FORMAT(rf.gmt_create, '%Y') AS date,
-                </when>
-                <otherwise>
-                    DATE_FORMAT(rf.gmt_create, '%Y-%m-%d') AS date,
-                </otherwise>
-            </choose>
-            r.id AS regionId,
-            r.name AS area,
-            a.id AS adviserId,
-            a.name AS consultant,
-            SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
-            SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(rf.gmt_create, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(rf.gmt_create, '%Y-%m-%d') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(rf.gmt_create, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(rf.gmt_create, '%Y') AS date,
+            </when>
+            <otherwise>
+                DATE_FORMAT(rf.gmt_create, '%Y-%m-%d') AS date,
+            </otherwise>
+        </choose>
+        r.id AS regionId,
+        r.name AS area,
+        a.id AS adviserId,
+        a.name AS consultant,
+        SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
+        SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
         FROM b_refund rf, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -492,32 +474,32 @@
         adviser_id
         ORDER BY rf.gmt_create DESC;
     </select>
-    
+
     <select id="listRefundReport2" resultType="org.zhinanzhen.b.dao.pojo.RefoundReportDO">
         SELECT
-            <choose>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(rf.completed_date, '%Y-%m') AS date,
-                </when>
-                <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
-                    DATE_FORMAT(rf.completed_date, '%Y-%m-%d') AS date,
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(rf.completed_date, '%Y-%m') AS date,
-                </when>
-                <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                    DATE_FORMAT(rf.completed_date, '%Y') AS date,
-                </when>
-                <otherwise>
-                    DATE_FORMAT(rf.completed_date, '%Y-%m-%d') AS date,
-                </otherwise>
-            </choose>
-            r.id AS regionId,
-            r.name AS area,
-            a.id AS adviserId,
-            a.name AS consultant,
-            SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
-            SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(rf.completed_date, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(rf.completed_date, '%Y-%m-%d') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(rf.completed_date, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(rf.completed_date, '%Y') AS date,
+            </when>
+            <otherwise>
+                DATE_FORMAT(rf.completed_date, '%Y-%m-%d') AS date,
+            </otherwise>
+        </choose>
+        r.id AS regionId,
+        r.name AS area,
+        a.id AS adviserId,
+        a.name AS consultant,
+        SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
+        SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
         FROM b_refund rf, tb_adviser a, tb_region r
         WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE') AND rf.visa_id IS NULL AND (rf.visa_id IS NOT NULL OR rf.commission_order_id IS NOT NULL)
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
