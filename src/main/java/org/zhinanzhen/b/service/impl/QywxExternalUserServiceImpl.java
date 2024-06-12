@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONArray;
+import org.aspectj.apache.bcel.generic.Tag;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.QywxExternalUserDAO;
 import org.zhinanzhen.b.dao.pojo.QywxExternalUserDO;
@@ -12,6 +14,7 @@ import org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO;
 import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
+import org.zhinanzhen.b.service.pojo.TagsDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -83,7 +86,10 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 			throw se;
 		}
 		for (QywxExternalUserDO qywxExternalUserDo : qywxExternalUserDoList) {
+			String tags = qywxExternalUserDo.getTags();
+			List<TagsDTO> tagsDTOS = JSONArray.parseArray(tags, TagsDTO.class);
 			QywxExternalUserDTO qywxExternalUserDto = mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
+			qywxExternalUserDto.setTagsDTOS(tagsDTOS);
 			qywxExternalUserDtoList.add(qywxExternalUserDto);
 		}
 		return qywxExternalUserDtoList;

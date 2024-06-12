@@ -116,7 +116,8 @@
             email,
             wechat_username AS wechatUsername,
             weibo_username AS weiboUsername,
-            qq
+            qq,
+            tags
         FROM b_qywx_external_user
         WHERE 1 = 1
         <if test='adviserId != null and adviserId > 0'>

@@ -43,4 +43,5 @@ public class QywxExternalUserDO {
 	
 	private String qq;
 
+	private String tags;
 }

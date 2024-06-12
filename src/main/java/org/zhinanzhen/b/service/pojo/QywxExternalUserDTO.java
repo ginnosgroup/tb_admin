@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class QywxExternalUserDTO extends QywxExternalUserDO {
-    private String tags;
+
 
     private List<TagsDTO> tagsDTOS;
 }
