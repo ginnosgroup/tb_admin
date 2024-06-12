@@ -3,7 +3,9 @@ package org.zhinanzhen.tb.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 public interface AdminUserDAO {
 
@@ -38,4 +40,8 @@ public interface AdminUserDAO {
 	AdminUserDO getAdminUserByOpenUserId(String openUserId); // 我猜是把open拼错成oper, 所以在添加这个接口时我更正成open了
 
 	boolean updateOperUserId(@Param("id")int id ,@Param("operUserId") String operUserId);
+
+	@Select("select * from tb_admin_user where adviser_id = #{adviserId}")
+	AdminUserDO getUserByAdviserId(int id);
+
 }

@@ -428,6 +428,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         double amount = 0.00;
         double rate = 0.00;
+        boolean longTermVisa = false;
         OfficialDO officialById = officialDAO.getOfficialById(serviceOrderById.getOfficialId());
         OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
         rate = officialGradeById.getRate();
@@ -567,6 +568,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             String code = serviceDao.getServiceById(serviceOrderById.getServiceId()).getCode();
             String serviceType = code.replaceAll("[^\\p{L}\\p{N}\\p{Script=Han}]+", "");
             if (arrayList.contains(serviceType)) {
+                longTermVisa = true;
                 if (installment) {
                     amount = firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount();
                     RefundDO refundByVisaId = refundDAO.getRefundByVisaId(secondVisaByServiceOrderId.getId());
@@ -595,7 +597,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             amount = amount / serviceOrderById.getExchangeRate();
         }
         commissionAmountDTO.setRefund(refund); // 设置退款金额
-        visaOfficiaCalculate(serviceOrderById, region, commissionAmountDTO, amount, rate, EOICount, officialGradeById, visaOfficialDO, deriveOrder, serviceParentOrderById, installment);
+        visaOfficiaCalculate(serviceOrderById, region, commissionAmountDTO, amount, rate, EOICount, officialGradeById, visaOfficialDO, deriveOrder, serviceParentOrderById, installment, longTermVisa);
         // EOI订单有删除情况的结算
         if (EOICount > 2) {
             List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
@@ -620,7 +622,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     private VisaOfficialDO visaOfficiaCalculate(ServiceOrderDO serviceOrderById, int region, CommissionAmountDTO commissionAmountDTO, double amount, double rate, int EOICount,
-                                                OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO, List<ServiceOrderDTO> deriveOrder, ServiceOrderDO serviceParentOrderById, boolean installment) throws ServiceException {
+                                                OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO, List<ServiceOrderDTO> deriveOrder, ServiceOrderDO serviceParentOrderById, boolean installment, boolean longTermVisa) throws ServiceException {
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
 
         if (region == 1) {
@@ -645,8 +647,23 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (ObjectUtil.isNotNull(serviceOrderById1)) {
                 isSIV = "SIV".equals(serviceOrderById1.getType()) && serviceOrderById.getEOINumber() != null;
             }
-            if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
-                List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getBindingOrder());
+            List<Integer> integers = serviceOrderDao.listBybindingOrder(serviceOrderById.getId());
+            List<Integer> listbindingOrder = new ArrayList<>();
+            if ((serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) || !integers.isEmpty()) {
+                if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
+                    listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getBindingOrder());
+                }
+                if (!integers.isEmpty()) {
+                    for (Integer a : integers) {
+                        bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
+                    }
+                    if (installment) {
+                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                    }
+                    if (longTermVisa) {
+                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                    }
+                }
                 if (!listbindingOrder.isEmpty()) {
                     for (Integer a : listbindingOrder) {
                         bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
@@ -674,6 +691,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             } else {
                 predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - servicePackagePriceDO.getCostPrince()  - bingdingOrderAmount - servicePackagePriceDO.getThirdPrince();
+                if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
+                    predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - servicePackagePriceDO.getThirdPrince();
+                }
             }
             commissionAmountDTO.setPredictCommissionAmount(predictCommissionAmount);
             if (commissionAmountDTO.getPredictCommissionAmount() <= 0) {

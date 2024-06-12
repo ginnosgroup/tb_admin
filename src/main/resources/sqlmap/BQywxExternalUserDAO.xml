@@ -202,7 +202,17 @@
         </if>
         WHERE id = #{id};
     </update>
-    
+
+    <insert id="bacthAdd" parameterType="java.util.List" >
+        INSERT INTO b_qywx_external_user (id, gmt_create, gmt_modify, union_id, create_time, adviser_id,
+                                          `name`, gender, type, avatar, external_userid, state, user_id, applicant_id,
+                                          phone, email, wechat_username, weibo_username, qq, tags) VALUES
+         <foreach collection="list" item="a" index="index" separator=",">
+             (#{a.id}, now(), now(), #{a.unionId}, #{a.createTime}, #{a.adviserId}, #{a.name}, #{a.gender}, #{a.type}, #{a.avatar}, #{a.externalUserid}, #{a.state}, #{a.userId}
+             , #{a.applicantId}, #{a.phone}, #{a.email}, #{a.wechatUsername}, #{a.weiboUsername}, #{a.qq}, #{a.tags})
+         </foreach>
+    </insert>
+
     <select id="listDescByExternalUserid" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO">
         SELECT
             id,

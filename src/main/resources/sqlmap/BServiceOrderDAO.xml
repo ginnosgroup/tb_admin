@@ -598,8 +598,11 @@
         <if test='startGmtCreate != null and startGmtCreate != "" and endGmtCreate != null and endGmtCreate != ""'>
             <![CDATA[ AND so.gmt_create > #{startGmtCreate} AND so.gmt_create < #{endGmtCreate} ]]>
         </if>
-        <if test='type != null and type != "" and type != "VISAZX" and type != "SIV" and type != "NSV"'>
+        <if test='type != null and type != "" and type != "VISAZX" and type != "SIV" and type != "NSV" and type != "bindingList"'>
             AND so.type = #{type}
+        </if>
+        <if test='type != null and type != "" and type == "bindingList"'>
+            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND so.is_submitted = 1
         </if>
         <if test='type == "VISAZX"'>
             AND so.type in ("VISA","ZX")
@@ -811,7 +814,8 @@
             verify_code AS verifyCode ,
             readcommitted_date AS readcommittedDate,
             ref_no AS refNo,
-            EOI_number AS EOINumber
+            EOI_number AS EOINumber,
+            binding_order AS bindingOrder
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
@@ -57,5 +58,8 @@ public interface UserDAO {
 	boolean updateAuthopenidByPhone(@Param("authOpenid")String authOpenid ,@Param("phone") String phone);
 
 	int updateByAuthopenid(UserDO userDo);
+
+	@Select("select  * from tb_user where auth_type = 'WECHAT_WORK'")
+	List<UserDO> getUserByWxWrok();
 
 }

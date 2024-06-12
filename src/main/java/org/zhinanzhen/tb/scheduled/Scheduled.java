@@ -430,7 +430,7 @@ public class Scheduled {
     }
 
     //每天凌晨触发
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * ? ")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 0 * * * ")
     public void updateCustomerEveryDay() throws ServiceException {
         Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_CUSTOMER);
         if ((int)tokenMap.get("errcode") != 0){

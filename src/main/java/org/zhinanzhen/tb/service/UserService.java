@@ -3,6 +3,8 @@ package org.zhinanzhen.tb.service;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Select;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 

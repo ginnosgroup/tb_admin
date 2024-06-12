@@ -176,20 +176,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
                     List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
                     bybindingOrder.add(serviceOrderDo.getServiceId());
-                    ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
+
                     double costPrince = 0.00;
                     for (Integer a : bybindingOrder) {
                         ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a);
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
-                        if (a == serviceOrderDo.getId()) {
-                            servicePackagePriceDO = servicePackagePriceDOTmp;
-                        }
                     }
                     if (!code.contains("500")) {
                         if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
                             return -1;
                         }
                     }
+                    ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDo.getServiceId());
                     serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
                     serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());
                     serviceOrderDo.setReceivable(servicePackagePriceDO.getCostPrince());
@@ -198,6 +196,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDo.setDeductGst(serviceOrderDo.getAmount() - serviceOrderDo.getGst());
                     serviceOrderDo.setExpectAmount(servicePackagePriceDO.getCostPrince());
                     serviceOrderDo.setPerAmount(servicePackagePriceDO.getCostPrince());
+                    serviceOrderDo.setPay(true);
                 }
             }
             if (ObjectUtil.isNotNull(serviceById)) {
@@ -504,6 +503,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         try {
             if (bindingList != null && bindingList) {
+                type = "bindingList";
                 pageSize = 10000;
             }
             serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,

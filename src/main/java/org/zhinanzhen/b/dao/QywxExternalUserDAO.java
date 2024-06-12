@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.QywxExternalUserDO;
 import org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 
 public interface QywxExternalUserDAO {
 
@@ -32,4 +33,5 @@ public interface QywxExternalUserDAO {
 
 	List<QywxExternalUserDescriptionDO> listDescByApplicantId(@Param("applicantId") Integer applicantId);
 
+	int bacthAdd(List<QywxExternalUserDTO> qywxExternalUserDTOS);
 }
