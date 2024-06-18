@@ -442,7 +442,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
             // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
             int month = sss.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
-            if (month == 1 || month == 2 || month == 3) {
+
+            if (monthlist.contains(month)) {
                 rate = rate + 3;
             }
         }
@@ -644,10 +645,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
             boolean isSIV = false;
             double bingdingOrderAmount = 0.00;
+            Integer getBindingOrderId = 0;
+            getBindingOrderId = serviceOrderById.getId();
             if (ObjectUtil.isNotNull(serviceOrderById1)) {
                 isSIV = "SIV".equals(serviceOrderById1.getType()) && serviceOrderById.getEOINumber() != null;
+                getBindingOrderId = serviceOrderById1.getId();
             }
-            List<Integer> integers = serviceOrderDao.listBybindingOrder(serviceOrderById.getId());
+            List<Integer> integers = serviceOrderDao.listBybindingOrder(getBindingOrderId);
             List<Integer> listbindingOrder = new ArrayList<>();
             if ((serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) || !integers.isEmpty()) {
                 if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
@@ -690,7 +694,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     predictCommissionAmount = byServiceId.getMaxPrice() / EOICount;
                 }
             } else {
-                predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - servicePackagePriceDO.getCostPrince()  - bingdingOrderAmount - servicePackagePriceDO.getThirdPrince();
+                predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - bingdingOrderAmount - servicePackagePriceDO.getThirdPrince();
                 if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
                     predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - servicePackagePriceDO.getThirdPrince();
                 }
