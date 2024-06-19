@@ -259,13 +259,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     String code = serviceById.getCode().replaceAll("\\D", "");
                     ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
                     List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
-                    bybindingOrder.add(serviceOrderDo.getServiceId());
+//                    bybindingOrder.add(serviceOrderDo.getServiceId());
                     ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
                     double costPrince = 0.00;
                     for (Integer a : bybindingOrder) {
                         ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a);
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
-                        if (a == serviceOrderDo.getId()) {
+                        if (a == serviceOrderDo.getServiceId()) {
                             servicePackagePriceDO = servicePackagePriceDOTmp;
                         }
                     }
