@@ -204,15 +204,15 @@ public class AdviserDataController extends BaseController {
 				sheet1.addCell(new Label(6, j, v.getOfficialName(), cellFormat));
 				sheet1.addCell(new Label(7, i, v.getCurrency(), cellFormat));
 				sheet1.addCell(new Label(8, i, v.getExchangeRate() + "", cellFormat));
-				sheet1.addCell(new Label(9, j, v.getKjApprovalDate(), cellFormat));
-				sheet1.addCell(new Label(10, j, v.getReceiveTypeName(), cellFormat));
-				sheet1.addCell(new Label(11, j, v.getReceiveDate(), cellFormat));
-				sheet1.addCell(new Label(12, j, v.getServiceCode(), cellFormat));
-				sheet1.addCell(new Label(13, j, v.getGst(), cellFormat));
-				sheet1.addCell(new Label(14, j, v.getBonus(), cellFormat));
-				sheet1.addCell(new Label(15, j, v.getBonusDate(), cellFormat));
-				sheet1.addCell(new Label(16, j, v.getCommissionState(), cellFormat));
-				sheet1.addCell(new Label(17, j, v.getRemarks(), cellFormat));
+//				sheet1.addCell(new Label(9, j, v.getKjApprovalDate(), cellFormat));
+				sheet1.addCell(new Label(9, j, v.getReceiveTypeName(), cellFormat));
+				sheet1.addCell(new Label(10, j, v.getReceiveDate(), cellFormat));
+				sheet1.addCell(new Label(11, j, v.getServiceCode(), cellFormat));
+				sheet1.addCell(new Label(12, j, v.getGst(), cellFormat));
+				sheet1.addCell(new Label(13, j, v.getBonus(), cellFormat));
+				sheet1.addCell(new Label(14, j, v.getBonusDate(), cellFormat));
+				sheet1.addCell(new Label(15, j, v.getCommissionState(), cellFormat));
+				sheet1.addCell(new Label(16, j, v.getRemarks(), cellFormat));
 				j++;
 			}
 			WritableSheet sheet2 = wbe.getSheet(2);

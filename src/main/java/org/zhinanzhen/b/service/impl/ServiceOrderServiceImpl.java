@@ -241,7 +241,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 throw se;
             }
             for (VisaDO visaDO : visaDOS) {
-                if (visaDO.getServiceOrderId() != serviceOrderDto.getId() || visaDO.getServiceOrderId() != serviceOrderDto.getApplicantParentId()) {
+                if (visaDO.getServiceOrderId() != serviceOrderDto.getId() && visaDO.getServiceOrderId() != serviceOrderDto.getApplicantParentId()) {
                     ServiceException se = new ServiceException(
                             "对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
                     se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
