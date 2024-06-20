@@ -411,10 +411,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         // 判断是否为分期付款订单
         boolean installment = false;
         double refund = 0.00;
-        VisaDO firstVisaByServiceOrderId = null;
-        VisaDO secondVisaByServiceOrderId = null;
+        VisaDO firstVisaByServiceOrderId;
+        VisaDO secondVisaByServiceOrderId;
         firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderById.getId());
         secondVisaByServiceOrderId = visaDAO.getSecondVisaByServiceOrderId(serviceOrderById.getId());
+        if (serviceOrderById.getBindingOrder() != 0 &&serviceOrderById.getBindingOrder() > 0) {
+            if (firstVisaByServiceOrderId == null) {
+                firstVisaByServiceOrderId = new VisaDO();
+            }
+            ServicePackagePriceDO byId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+            firstVisaByServiceOrderId.setAmount(byId.getCostPrince());
+        }
         if (suborder) {
             int id = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getId();
             firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(id);

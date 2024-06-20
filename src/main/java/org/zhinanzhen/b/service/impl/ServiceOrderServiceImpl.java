@@ -196,7 +196,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDo.setDeductGst(serviceOrderDo.getAmount() - serviceOrderDo.getGst());
                     serviceOrderDo.setExpectAmount(servicePackagePriceDO.getCostPrince());
                     serviceOrderDo.setPerAmount(servicePackagePriceDO.getCostPrince());
-                    serviceOrderDo.setPay(true);
                 }
             }
             if (ObjectUtil.isNotNull(serviceById)) {
@@ -526,10 +525,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
                         continue;
                     }
-                    if (i >= 20) {
-                        count++;
+                    if (serviceOrderDoList.get(i).getBindingOrder() != null && serviceOrderDoList.get(i).getBindingOrder() > 0) {
                         continue;
                     }
+//                    if (i >= 20) {
+//                        count++;
+//                        continue;
+//                    }
                     serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
                     List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
                     count++;
