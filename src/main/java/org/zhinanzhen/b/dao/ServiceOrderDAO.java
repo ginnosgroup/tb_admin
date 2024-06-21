@@ -120,7 +120,7 @@ public interface ServiceOrderDAO {
     @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
     List<ServiceOrderDTO> getZiOrder(int id);
 
-    @Select("SELECT service_id AS serviceId FROM b_service_order WHERE binding_order = #{id}")
+    @Select("SELECT service_id AS serviceId FROM b_service_order WHERE binding_order = #{id} AND applicant_parent_id = 0")
     List<Integer> listBybindingOrder(int id);
 
     List<ServiceOrderDO> getTmpServiceOrder(@Param("beforeFormat")String beforeFormat, @Param("nowDate")String nowDate);

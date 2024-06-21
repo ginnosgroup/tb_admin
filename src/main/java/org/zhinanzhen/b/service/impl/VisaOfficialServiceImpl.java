@@ -415,17 +415,18 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         VisaDO secondVisaByServiceOrderId;
         firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderById.getId());
         secondVisaByServiceOrderId = visaDAO.getSecondVisaByServiceOrderId(serviceOrderById.getId());
-        if (serviceOrderById.getBindingOrder() != 0 &&serviceOrderById.getBindingOrder() > 0) {
+        if (suborder) {
+            int id = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getId();
+            firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(id);
+            secondVisaByServiceOrderId = visaDAO.getSecondVisaByServiceOrderId(id);
+        }
+        if (serviceOrderById.getBindingOrder() != null &&serviceOrderById.getBindingOrder() > 0) {
             if (firstVisaByServiceOrderId == null) {
                 firstVisaByServiceOrderId = new VisaDO();
             }
             ServicePackagePriceDO byId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
             firstVisaByServiceOrderId.setAmount(byId.getCostPrince());
-        }
-        if (suborder) {
-            int id = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getId();
-            firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(id);
-            secondVisaByServiceOrderId = visaDAO.getSecondVisaByServiceOrderId(id);
+            firstVisaByServiceOrderId.setId(0);
         }
 //        commissionAmountDTO.setRefund(visaDAO.getVisaById(firstVisaByServiceOrderId.getId()).getRefund()); // 设置退款金额
         // 退款查询
