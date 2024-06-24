@@ -120,6 +120,9 @@
         <if test='state!=null and state !=""'>
             , state = #{state}
         </if>
+        <if test='serviceId!=null and serviceId !=""'>
+            , service_id = #{serviceId}
+        </if>
         where id = #{id}
     </update>
     

@@ -19,7 +19,7 @@ public interface VisaOfficialService {
     
     int count(Integer officialId,List<Integer> regionIdList, Integer id,String startHandlingDate,String endHandlingDate,  String state, String startDate, String endDate ,String userName,String applicantName, Boolean isMerged) throws ServiceException;
 
-    void update(Integer id,String handling_date,Double commissionAmount,String state) throws ServiceException;
+    void update(Integer id,String handling_date,Double commissionAmount,String state, Integer serviceId) throws ServiceException;
     
 	void updateMerged(Integer id, Boolean isMerged) throws ServiceException;
 

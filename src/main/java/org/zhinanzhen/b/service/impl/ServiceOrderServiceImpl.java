@@ -183,7 +183,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
                     }
                     if (!code.contains("500")) {
-                        if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
+                        if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
                             return -1;
                         }
                     }
@@ -269,7 +269,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         }
                     }
                     if (!code.contains("500")) {
-                        if ((serviceOrderByIdTmp.getReceivable() / 2 - costPrince) < 0) {
+                        if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
                             return -1;
                         }
                     }
@@ -2242,8 +2242,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 , null, null, null, null, null
                 , null, null, null, 0, 9999, null);
         ViewBalanceDTO viewBalanceDTO = new ViewBalanceDTO();
-        double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).mapToDouble(ServiceOrderDO::getReceivable).sum();
-        double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
+        double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).filter(ServiceOrderDO -> ServiceOrderDO.getBindingOrder() == null).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getReceivable).sum();
+        double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
         viewBalanceDTO.setVisaAggregateAmount(sumVisaReceivable / 1.1);
         viewBalanceDTO.setFreeOrderExpenditure(sumVisaReceivableTmp / 1.1);
         viewBalanceDTO.setAvailableBalance((sumVisaReceivable - sumVisaReceivableTmp) / 1.1);

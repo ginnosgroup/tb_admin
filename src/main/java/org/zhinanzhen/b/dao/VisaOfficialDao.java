@@ -55,7 +55,8 @@ public interface VisaOfficialDao {
     void update(@Param("id")Integer id,
                 @Param("handling_date")String handling_date,
                 @Param("commissionAmount") Double commissionAmount,
-                @Param("state") String state);
+                @Param("state") String state,
+                @Param("serviceId") Integer serviceId);
 
     int updateVisaOfficial(VisaOfficialDO visaOfficialDO);
 

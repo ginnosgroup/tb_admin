@@ -40,6 +40,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -130,9 +131,9 @@ public class VerifyServiceImpl implements VerifyService {
 				}
 				if (StringUtil.isEmpty(dataFormatter.formatCellValue(row.getCell(0))))
 					continue;
-System.out.println("[对账debug] 0: " + row.getCell(0));
-System.out.println("[对账debug] 0CellStyle: " + row.getCell(0).getCellStyle().getDataFormatString());
-				if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
+                System.out.println("[对账debug] 0: " + row.getCell(0));
+                System.out.println("[对账debug] 0CellStyle: " + row.getCell(0).getCellStyle().getDataFormatString());
+                if ("d/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "d/m/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "dd/mm/yyyy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "d/mm/yyyy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
@@ -154,18 +155,26 @@ System.out.println("[对账debug] 0CellStyle: " + row.getCell(0).getCellStyle().
 				if ("m/d/yy;@".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())
 						|| "m/d/yy".equalsIgnoreCase(row.getCell(0).getCellStyle().getDataFormatString())) {
 					// 实际格式是dd/MM/yyyy但读取却是m/d/yy．这个问题比较奇怪，暂未找到原因
-					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+//                    Cell cell2 = row.getCell(0);
+//                    if (cell2 != null && cell2.getCellType() == CellType.NUMERIC) {
+//                        Date date = cell2.getDateCellValue();
+//                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+//                        String formattedDate = sdf.format(date);
+//                        System.out.println(formattedDate); // 输出 2024/06/13
+//                    }
+//					financeCodeDO.setBankDate(sdfParsedmyyyy.parse(dataFormatter.formatCellValue(row.getCell(0))));
+					financeCodeDO.setBankDate(row.getCell(0).getDateCellValue());
 				}
-System.out.println("[对账debug] 1: " + row.getCell(1).getNumericCellValue());
+                System.out.println("[对账debug] 1: " + row.getCell(1).getNumericCellValue());
 				financeCodeDO.setIncome(row.getCell(1).getNumericCellValue() > 0);
                 financeCodeDO.setMoney(Double.parseDouble(df.format(row.getCell(1).getNumericCellValue())));
-System.out.println("[对账debug] 2: " + row.getCell(2).getStringCellValue());
+                System.out.println("[对账debug] 2: " + row.getCell(2).getStringCellValue());
                 financeCodeDO.setComment(row.getCell(2).getStringCellValue());
-System.out.println("[对账debug] 3: " + df.format(row.getCell(3).getNumericCellValue()));
+                System.out.println("[对账debug] 3: " + df.format(row.getCell(3).getNumericCellValue()));
                 financeCodeDO.setBalance(Double.parseDouble(df.format(row.getCell(3).getNumericCellValue())));
 
                 if (row.getCell(4) != null && StringUtil.isNotEmpty(row.getCell(4).getStringCellValue())) {
-System.out.println("[对账debug] 4: " + row.getCell(4).getStringCellValue());
+                    System.out.println("[对账debug] 4: " + row.getCell(4).getStringCellValue());
                     String orderId = row.getCell(4).getStringCellValue();
                     //if (id.substring(0,2).equalsIgnoreCase("CV")){
                     //   financeCodeDO.setVisaId(Integer.parseInt(id.substring(2)));

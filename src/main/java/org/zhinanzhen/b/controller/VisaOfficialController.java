@@ -327,14 +327,14 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             if (adminUserLoginInfo != null) {
                 if (adminUserLoginInfo.getApList().equalsIgnoreCase("KJ")) {
-                    visaOfficialService.update(id, handlingDate, commissionAmount, state);
+                    visaOfficialService.update(id, handlingDate, commissionAmount, state, null);
                     return new Response<>(0, "修改成功");
                 }
                 if (adminUserLoginInfo.getApList().equalsIgnoreCase("WA") && officialService.getOfficialById(getOfficialId(request)).getIsOfficialAdmin()) {
                     if (commissionAmount != null || StringUtil.isNotEmpty(state)) {
                         return new Response<>(1, "修改失败没有权限");
                     }
-                    visaOfficialService.update(id, handlingDate, commissionAmount, state);
+                    visaOfficialService.update(id, handlingDate, commissionAmount, state, null);
                     return new Response<>(0, "修改成功");
                 }
             }
@@ -458,7 +458,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     try {
 
                         visaOfficialService.update(Integer.valueOf(_id), StringUtil.isEmpty(handling_date) ? null
-                                : simpleDateFormat.parse(handling_date.trim()).getTime() + "", commissionAmount, null);
+                                : simpleDateFormat.parse(handling_date.trim()).getTime() + "", commissionAmount, null, null);
                     } catch (ServiceException s) {
                         message += "[" + _id + "修改失败";
                     }

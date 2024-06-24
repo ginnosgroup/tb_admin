@@ -1496,8 +1496,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public void update(Integer id, String submitIbDate, Double handling_date, String state) {
-        visaOfficialDao.update(id, submitIbDate, handling_date, state);
+    public void update(Integer id, String submitIbDate, Double handling_date, String state, Integer serviceId) {
+        visaOfficialDao.update(id, submitIbDate, handling_date, state, serviceId);
 
     }
     

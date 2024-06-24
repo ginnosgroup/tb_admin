@@ -107,6 +107,9 @@ public class ServiceOrderController extends BaseController {
     @Resource
     VisaOfficialController visaOfficialController;
 
+    @Resource
+    VisaOfficialService visaOfficialService;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public enum ReviewAdviserStateEnum {
@@ -3087,6 +3090,7 @@ public class ServiceOrderController extends BaseController {
     private void updateVisaServiceForAD(ServiceOrderDTO serviceOrderDto, int serviceId) throws ServiceException {
         if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
             List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
+            VisaOfficialDTO byServiceOrderId = visaOfficialService.getByServiceOrderId(serviceOrderDto.getId());
             visaList.forEach(visaDto -> {
                 if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
                     visaDto.setServiceId(serviceId);
@@ -3099,6 +3103,10 @@ public class ServiceOrderController extends BaseController {
                     LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
                             visaDto.getState()));
             });
+            if (ObjectUtil.isNotNull(byServiceOrderId)) {
+                byServiceOrderId.setServiceId(serviceId);
+                visaOfficialService.update(byServiceOrderId.getId(), null, null, null, serviceId);
+            }
         }
     }
 

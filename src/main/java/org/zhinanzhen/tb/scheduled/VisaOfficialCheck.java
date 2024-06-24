@@ -73,11 +73,14 @@ public class VisaOfficialCheck {
         for (ServiceOrderDO e : tmpServiceOrder) {
             if (e.getApplicantParentId() != 0 && e.getServicePackageId() != 0) {
                 ServiceOrderDO serviceParentOrderById = serviceOrderDAO.getServiceOrderById(e.getApplicantParentId());
+                ServicePackageDO byId = servicePackageDAO.getById(e.getServicePackageId());
                 if ("SIV".equals(serviceParentOrderById.getType())) {
-                    ServicePackageDO byId = servicePackageDAO.getById(e.getServicePackageId());
                     if (!"VA".equals(byId.getType()) && !"EOI".equals(byId.getType())) {
                         continue;
                     }
+                }
+                if ("TM".equals(byId.getType())) {
+                    continue;
                 }
             }
             VisaOfficialDO visaOfficialDO = visaOfficialDao.getByServiceOrderId(e.getId());
