@@ -1539,6 +1539,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 , null, null, null, null, null
                 , null, null, null, 0, 9999, null);
         List<VisaOfficialDO> visaOfficialDOs = new ArrayList<>();
+        int count = 0;
         for (ServiceOrderDO e : serviceOrderDOS) {
             try {
                 if ("PAID".equals(e.getState()) || "COMPLETE".equals(e.getState()) || "CLOSE".equals(e.getState())) {
@@ -1593,11 +1594,14 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaOfficialDao.addVisa(visaOfficialDO);
                     visaOfficialDO.setGmtCreate(new Date());
                     visaOfficialDOs.add(visaOfficialDO);
+                } else {
+                    count++;
                 }
             } catch (Exception ex) {
                 log.info("当前生成失败的订单id为---------------------" + e.getId());
                 ex.printStackTrace();
             }
+            log.info("总订单数：-----------------" + serviceOrderDOS.size() + "当前未生成订单状态：--------------" + e.getState() + count);
         }
         return visaOfficialDOs;
     }
