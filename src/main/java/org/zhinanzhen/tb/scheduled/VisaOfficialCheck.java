@@ -7,7 +7,6 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
@@ -22,7 +21,6 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
-import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -31,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -403,29 +402,25 @@ public class VisaOfficialCheck {
 //        WXWorkAPI.sendWecomRotMsg(orderWeekCountStr + "\n" + "\n" + orderWeektTopStr + "\n" + "\n" + careerAssessmentWeektStr + "\n" + eoiWeektStr);
     }
 
-    // 每个周一第一天1点触发
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 1 * * *")
+    // 半个小时执行一次
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0,30 * * * * *")
     public void externalContactImport() {
-// 获取当前日期
-        LocalDate now = LocalDate.now();
+        // 获取当前时间
+        LocalDateTime now = LocalDateTime.now();
 
-        // 获取上个月的第一天
-        LocalDate firstDayOfLastMonth = now.with(TemporalAdjusters.firstDayOfMonth()).minusMonths(1);
-        // 设置时间为0点0分0秒
-        ZonedDateTime firstDayMidnight = firstDayOfLastMonth.atStartOfDay(ZoneId.systemDefault());
-        // 转换为毫秒级时间戳
-        long firstDayTimestamp = firstDayMidnight.toInstant().toEpochMilli() / 1000;
+        // 将LocalDateTime转换为Instant以获取时间戳（毫秒）
+        Instant currentInstant = now.atZone(ZoneId.systemDefault()).toInstant();
+//        long currentTimestampMillis = currentInstant.toEpochMilli();
+        long lastDayTimestamp = currentInstant.getEpochSecond(); // 如果你需要秒为单位的时间戳
 
-        // 获取上个月的最后一天
-        LocalDate lastDayOfLastMonth = now.with(TemporalAdjusters.lastDayOfMonth()).minusMonths(1);
-        // 设置时间为23点59分59秒
-        ZonedDateTime lastDayEnd = lastDayOfLastMonth.atTime(LocalTime.of(23, 59, 59)).atZone(ZoneId.systemDefault());
-        // 转换为毫秒级时间戳
-        long lastDayTimestamp = lastDayEnd.toInstant().toEpochMilli() / 1000;
+        // 计算前半个小时的时间
+        LocalDateTime halfHourAgo = now.minus(30, ChronoUnit.MINUTES);
 
-        // 打印结果
-        System.out.println("上个月1号0点0分的时间戳: " + firstDayTimestamp);
-        System.out.println("上个月最后一天23点59分59秒的时间戳: " + lastDayTimestamp);
+        // 将前半个小时的LocalDateTime转换为Instant以获取时间戳（毫秒）
+        Instant halfHourAgoInstant = halfHourAgo.atZone(ZoneId.systemDefault()).toInstant();
+//        long halfHourAgoTimestampMillis = halfHourAgoInstant.toEpochMilli();
+        long firstDayTimestamp = halfHourAgoInstant.getEpochSecond(); // 如果你需要秒为单位的时间戳
+
 
         List<AdviserDO> adviserDOS = adviserDAO.listAdviser(null, null, 0, 10000);
         List<AdviserDO> newAdviserDOs = new ArrayList<>();
@@ -619,10 +614,12 @@ public class VisaOfficialCheck {
             }
         }
         List<QywxExternalUserDTO> collect1 = qywxExternalUserDTOMap.values().stream().collect(Collectors.toList());
-        qywxExternalUserDAO.bacthAdd(collect1);
+        if (!collect1.isEmpty()) {
+            qywxExternalUserDAO.bacthAdd(collect1);
+        }
+        log.info("当前请求开始时间为----------" + firstDayTimestamp + "当前请求结束时间为-----------" + lastDayTimestamp);
         log.info("总数量为-------------------------" + length.get());
     }
-
 
     private static VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) {
         VisaOfficialDO visaDto = new VisaOfficialDO();
@@ -671,4 +668,6 @@ public class VisaOfficialCheck {
         visaDto.setKjApprovalDate(new Date());
         return visaDto;
     }
+
+
 }
