@@ -412,11 +412,17 @@
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
-        <if test='type != null and type != "" and type != "VISAZX"'>
+        <if test='type != null and type != "" and type != "VISAZX" and type != "bindingList" and type != "bindingList2"'>
             AND so.type = #{type}
         </if>
         <if test='type == "VISAZX"'>
             AND so.type in("VISA","ZX")
+        </if>
+        <if test='type != null and type != "" and type == "bindingList"'>
+            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
+        </if>
+        <if test='type != null and type != "" and type == "bindingList2"'>
+            AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
         </if>
         <if test='excludeState != null and excludeState != ""'>
             AND so.state != #{excludeState}
@@ -598,11 +604,15 @@
         <if test='startGmtCreate != null and startGmtCreate != "" and endGmtCreate != null and endGmtCreate != ""'>
             <![CDATA[ AND so.gmt_create > #{startGmtCreate} AND so.gmt_create < #{endGmtCreate} ]]>
         </if>
-        <if test='type != null and type != "" and type != "VISAZX" and type != "SIV" and type != "NSV" and type != "bindingList"'>
+        <if test='type != null and type != "" and type != "VISAZX" and type != "SIV" and type != "NSV" and type != "bindingList" and type != "bindingList2"'>
             AND so.type = #{type}
         </if>
         <if test='type != null and type != "" and type == "bindingList"'>
-            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND so.is_submitted = 1
+            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
+        </if>
+
+        <if test='type != null and type != "" and type == "bindingList2"'>
+            AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
         </if>
         <if test='type == "VISAZX"'>
             AND so.type in ("VISA","ZX")

@@ -470,12 +470,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
                                  Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
                                  Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException {
-        return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+        if (bindingList != null && bindingList) {
+            if ("OVST".equals(type)) {
+                type = "bindingList2";
+            } else {
+                type = "bindingList";
+            }
+        }
+        int i = serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
                 reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                 theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                 theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                 officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle);
+        return i;
     }
 
     @Override
@@ -502,8 +510,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         try {
             if (bindingList != null && bindingList) {
-                type = "bindingList";
-                pageSize = 10000;
+                if ("OVST".equals(type)) {
+                    type = "bindingList2";
+                } else {
+                    type = "bindingList";
+                }
             }
             serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
@@ -517,30 +528,33 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
             throw se;
         }
-        int count = 0;
-        for (int i = 0; i < serviceOrderDoList.size(); i++) {
-            ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
+        List<ServiceOrderDO> collect = new ArrayList<>();
+        long count = 0L;
+        if ("bindingList".equals(type)) {
+            collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
+        } else {
+            count = serviceOrderDoList.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).count();
+            collect = serviceOrderDoList;
+        }
+
+        for (int i = 0; i < collect.size(); i++) {
+            ServiceOrderDO serviceOrderDo = collect.get(i);
             if (bindingList != null) {
                 if (bindingList) {
-                    if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
-                        continue;
-                    }
-                    if (serviceOrderDoList.get(i).getBindingOrder() != null && serviceOrderDoList.get(i).getBindingOrder() > 0) {
-                        continue;
-                    }
-//                    if (i >= 20) {
-//                        count++;
+//                    if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
 //                        continue;
 //                    }
+                    if (collect.get(i).getBindingOrder() != null && collect.get(i).getBindingOrder() > 0) {
+                        continue;
+                    }
                     serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
                     List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
-                    count++;
                     if (!listbindingOrder.isEmpty()) {
                         double costPrince = 0.00;
                         for (Integer a : listbindingOrder) {
                             costPrince += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
                         }
-                        serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() / 2) - costPrince);
+                        serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() * 0.6) - costPrince);
                     }
                 }
             }

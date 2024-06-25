@@ -260,5 +260,5 @@ public class ServiceOrderDTO {
 
 	private Double distributableAmount; // 订单可分配金额
 
-	private Integer bindingOrderCount; // 可以绑定订单数量
+	private Long bindingOrderCount; // 可以绑定订单数量
 }
