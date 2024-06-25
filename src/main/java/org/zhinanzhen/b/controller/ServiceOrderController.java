@@ -1329,7 +1329,7 @@ public class ServiceOrderController extends BaseController {
                 for (RegionDTO region : regionList) {
                     regionIdList.add(region.getId());
                 }
-                if (bindingList) {
+                if (bindingList != null && bindingList) {
                     regionIdList.clear();
                     regionIdList.add(adminUserLoginInfo.getRegionId());
                 }
