@@ -560,7 +560,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
             serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
         }
-        serviceOrderDtoList.get(0).setBindingOrderCount(count);
+        if (!serviceOrderDtoList.isEmpty()) {
+            serviceOrderDtoList.get(0).setBindingOrderCount(count);
+        }
         return serviceOrderDtoList;
     }
 

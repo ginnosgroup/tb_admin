@@ -403,7 +403,7 @@ public class VisaOfficialCheck {
     }
 
     // 半个小时执行一次
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0,30 * * * * *")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "* 0/30 * * * ?")
     public void externalContactImport() {
         // 获取当前时间
         LocalDateTime now = LocalDateTime.now();
