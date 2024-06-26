@@ -165,7 +165,7 @@ public class VisaOfficialCheck {
         }
     }
 
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 2 1 * *")
+//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 2 1 * *")
     public void visaOfficialOVSTCreate() {
         // 获取今天的日期
         LocalDate today = LocalDate.now();
