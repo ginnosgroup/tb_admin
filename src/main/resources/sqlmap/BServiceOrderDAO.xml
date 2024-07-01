@@ -419,10 +419,10 @@
             AND so.type in("VISA","ZX")
         </if>
         <if test='type != null and type != "" and type == "bindingList"'>
-            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
+            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND binding_order IS NULL
         </if>
         <if test='type != null and type != "" and type == "bindingList2"'>
-            AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
+            AND so.applicant_parent_id = 0 AND binding_order IS NULL
         </if>
         <if test='excludeState != null and excludeState != ""'>
             AND so.state != #{excludeState}
@@ -608,11 +608,11 @@
             AND so.type = #{type}
         </if>
         <if test='type != null and type != "" and type == "bindingList"'>
-            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
+            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND binding_order IS NULL
         </if>
 
         <if test='type != null and type != "" and type == "bindingList2"'>
-            AND so.applicant_parent_id = 0 AND so.is_submitted = 1 AND binding_order IS NULL
+            AND so.applicant_parent_id = 0 AND binding_order IS NULL
         </if>
         <if test='type == "VISAZX"'>
             AND so.type in ("VISA","ZX")
@@ -700,7 +700,7 @@
         </if>
         <if test='applicantName != null and applicantName != ""'>
             AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname,
-            '', ap.surname) = #{applicantName})
+            ' ', ap.surname) = #{applicantName})
         </if>
         <if test="isPay != null">
             AND so.is_pay = #{isPay}

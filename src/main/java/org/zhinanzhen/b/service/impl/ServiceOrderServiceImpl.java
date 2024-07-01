@@ -533,7 +533,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if ("bindingList".equals(type)) {
             collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
         } else {
-            count = serviceOrderDoList.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).count();
+//            count = serviceOrderDoList.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).count();
             collect = serviceOrderDoList;
         }
 
