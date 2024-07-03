@@ -261,4 +261,8 @@ public class ServiceOrderDTO {
 	private Double distributableAmount; // 订单可分配金额
 
 	private Long bindingOrderCount; // 可以绑定订单数量
+
+	private String offerType; // offer类型
+
+	private String offerUrl; // Offer文件路径
 }

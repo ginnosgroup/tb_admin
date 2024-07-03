@@ -151,6 +151,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "bonusDate", required = false) String bonusDate,
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks,
+			@RequestParam(value = "visaStatus", required = false) String visaStatus,
+			@RequestParam(value = "visaCertificate", required = false) String visaCertificate,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
 			HttpServletResponse response) {
 
@@ -234,6 +236,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setZyDate(new Date(Long.parseLong(zyDate)));
 			if (StringUtil.isNotEmpty(remarks))
 				commissionOrderDto.setRemarks(remarks);
+			if (StringUtil.isNotEmpty(visaCertificate))
+				commissionOrderDto.setVisaCertificate(visaCertificate);
+			if (StringUtil.isNotEmpty(visaStatus))
+				commissionOrderDto.setVisaCertificate(visaStatus);
 
 			//if (serviceOrderDto.isSettle() == true && (
 			//		StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)

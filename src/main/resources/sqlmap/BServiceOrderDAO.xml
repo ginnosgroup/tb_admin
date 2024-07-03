@@ -78,7 +78,8 @@
                 verify_code,
                 ref_no,
                 EOI_number,
-                binding_order)
+                binding_order,
+                offer_type)
             VALUES (
                 now(),
                 now(),
@@ -151,7 +152,8 @@
                 #{verifyCode},
                 #{refNo},
                 #{EOINumber},
-                #{bindingOrder});
+                #{bindingOrder},
+                #{offerType});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -388,6 +390,12 @@
         <if test="bindingOrder != null">
             ,binding_order = #{bindingOrder}
         </if>
+        <if test="offerType != null">
+            ,offer_type = #{offerType}
+        </if>
+        <if test="offerUrl != null">
+            ,offer_url = #{offerUrl}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -597,7 +605,9 @@
         so.readcommitted_date AS readcommittedDate,
         so.ref_no AS refNo,
         so.EOI_number AS EOINumber,
-        so.binding_order AS bindingOrder
+        so.binding_order AS bindingOrder,
+        so.offer_type AS offerType,
+        so.offer_url AS offerUrl
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id

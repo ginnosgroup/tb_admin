@@ -2610,6 +2610,8 @@ public class ServiceOrderController extends BaseController {
                                               @RequestParam(value = "refuseReason", required = false) String refuseReason,
                                               @RequestParam(value = "remarks", required = false) String remarks,
                                               @RequestParam(value = "stateMark", required = false) String stateMark, HttpServletRequest request,
+                                              @RequestParam(value = "offerType", required = false) String offerType,
+                                              @RequestParam(value = "offerUrl", required = false) String offerUrl,
                                               HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null)
@@ -2619,8 +2621,23 @@ public class ServiceOrderController extends BaseController {
         ServiceOrderDTO serviceOrderDto;
         try {
             serviceOrderDto = serviceOrderService.getServiceOrderById(id);
-            if (ObjectUtil.isNull(serviceOrderDto))
+            if (ObjectUtil.isNull(serviceOrderDto)) {
                 return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
+            }
+            if ("COMPLETE".equals(state) && "OVST".equals(serviceOrderDto.getType())) {
+                if (StringUtil.isEmpty(offerType)) {
+                    ServiceException se = new ServiceException(
+                            "当前留学订单" + serviceOrderDto.getId() + "没有设置offer类型，请核实");
+                    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                    throw se;
+                }
+                if (StringUtil.isEmpty(offerUrl)) {
+                    ServiceException se = new ServiceException(
+                            "当前留学订单" + serviceOrderDto.getId() + "没有上传Offer文件，请核实");
+                    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                    throw se;
+                }
+            }
             Node node = soNodeFactory.getNode(serviceOrderDto.getState());
 
             Context context = new Context();
@@ -2634,6 +2651,8 @@ public class ServiceOrderController extends BaseController {
             context.putParameter("stateMark", stateMark);
             context.putParameter("ap", adminUserLoginInfo.getApList());
             context.putParameter("adminUserId", adminUserLoginInfo.getId());
+            context.putParameter("offerType", offerType);
+            context.putParameter("offerUrl", offerUrl);
 
             LOG.info("Flow API Log : " + context.toString());
             LOG.info("serviceOrderDto : " + serviceOrderDto);

@@ -167,4 +167,8 @@ public class CommissionOrderDTO {
 
 	private ServicePackagePriceDO servicePackagePriceDO;
 
+	private String visaCertificate; // 签证凭证路径
+
+	private String visaStatus; // 签证状态
+
 }

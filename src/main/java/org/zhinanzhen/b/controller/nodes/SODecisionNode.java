@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -41,6 +42,10 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 					return false;
 				}
 			} else if ("OVST".equals(type)) {// 留学
+				Object offerType = context.getParameter("offerType");
+				if (ObjectUtil.isNotNull(offerType)) {
+					serviceOrderDto.setOfferType(offerType.toString());
+				}
 				if ("WAIT".equals(getName())) {
 					log.error("留学服务订单没有MARA审核流程!");
 					return false;

@@ -248,6 +248,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
         }
+        if ("COMPLETE".equals(serviceOrderDto.getState()) && "OVST".equals(serviceOrderDto.getType())) {
+            String offerType = serviceOrderDto.getOfferType();
+            if (StringUtil.isEmpty(offerType)) {
+                ServiceException se = new ServiceException(
+                        "当前留学订单" + serviceOrderDto.getId() + "没有设置offer类型，请核实");
+                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+                throw se;
+            }
+        }
         try {
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);

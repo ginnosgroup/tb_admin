@@ -183,5 +183,9 @@ public class ServiceOrderDO implements Serializable {
 
 	private Double distributableAmount; // 订单可分配金额
 
+	private String offerType; // offer类型
+
+	private String offerUrl; // Offer文件路径
+
 
 }

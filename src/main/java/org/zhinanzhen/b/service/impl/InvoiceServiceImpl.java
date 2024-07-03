@@ -642,7 +642,7 @@ public class InvoiceServiceImpl extends BaseService implements InvoiceService {
                 jsonObject.put("installmentDueDate",new Date());
             }
             try {
-                _description.add(JSON.parseObject(JSON.toJSONString(jsonObject),InvoiceSchoolDescriptionDO.class));
+                _description.add(JSONObject.parseObject(JSON.toJSONString(jsonObject),InvoiceSchoolDescriptionDO.class));
             }catch (JSONException e){
                 ServiceException se = new ServiceException("Description 栏 时间输入错误:" + e.getMessage());
                 se.setCode(ErrorCodeEnum.DATA_ERROR.code());
