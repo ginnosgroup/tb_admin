@@ -205,6 +205,14 @@ public class ServiceOrderController extends BaseController {
         return super.upload2(file, request.getSession(), "/uploads/low_price_image_url/");
     }
 
+    @RequestMapping(value = "/delete_visa_voucher_img", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> deleteVisaVoucherImg(@RequestParam(value = "offerUrl") String url, HttpServletRequest request,
+                                                HttpServletResponse response) throws IllegalStateException, IOException {
+        super.setPostHeader(response);
+        return super.deleteFile(url);
+    }
+
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,

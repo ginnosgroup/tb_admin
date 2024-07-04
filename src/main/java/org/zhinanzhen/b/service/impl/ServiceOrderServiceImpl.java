@@ -961,6 +961,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             });
         }
+        // 判断offer文件路径是否为多个
+        String offerUrl = serviceOrderDto.getOfferUrl();
+        List<String> list = Arrays.asList(offerUrl.split(","));
+        serviceOrderDto.setOfferUrls(list);
         return serviceOrderDto;
     }
 

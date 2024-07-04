@@ -265,4 +265,6 @@ public class ServiceOrderDTO {
 	private String offerType; // offer类型
 
 	private String offerUrl; // Offer文件路径
+
+	private List<String> offerUrls;
 }

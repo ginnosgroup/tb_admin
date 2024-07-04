@@ -158,7 +158,31 @@ public class BaseController {
 			return new Response<String>(3, "文件为空.", null);
 		}
 	}
-	
+
+	public static Response<String> deleteFile(String url) {
+		if (StringUtil.isNotEmpty(url)) {
+            // 创建File对象
+			File file = new File(url);
+
+			// 检查文件是否存在
+			if (file.exists()) {
+				// 尝试删除文件
+				boolean isDeleted = file.delete();
+
+				if (isDeleted) {
+					return new Response<String>(0, "文件删除成功", null);
+				} else {
+					return new Response<String>(1, "文件删除失败", null);
+				}
+			} else {
+				System.out.println("文件不存在");
+			}
+		} else {
+			return new Response<String>(1, "文件路径错误", null);
+		}
+		return new Response<>(0, null, null);
+	}
+
 	public static Response<String> uploadPdf(MultipartFile file, HttpSession session, String dir)
 			throws IllegalStateException, IOException {
 		if (file != null) {
