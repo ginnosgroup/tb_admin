@@ -79,7 +79,8 @@
                 ref_no,
                 EOI_number,
                 binding_order,
-                offer_type)
+                offer_type,
+                offer_url)
             VALUES (
                 now(),
                 now(),
@@ -153,7 +154,8 @@
                 #{refNo},
                 #{EOINumber},
                 #{bindingOrder},
-                #{offerType});
+                #{offerType},
+                #{offerUrl});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">

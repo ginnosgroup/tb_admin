@@ -43,8 +43,12 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				}
 			} else if ("OVST".equals(type)) {// 留学
 				Object offerType = context.getParameter("offerType");
+				Object offerUrl = context.getParameter("offerUrl");
 				if (ObjectUtil.isNotNull(offerType)) {
 					serviceOrderDto.setOfferType(offerType.toString());
+				}
+				if (ObjectUtil.isNotNull(offerUrl)) {
+					serviceOrderDto.setOfferUrl(offerUrl.toString());
 				}
 				if ("WAIT".equals(getName())) {
 					log.error("留学服务订单没有MARA审核流程!");
