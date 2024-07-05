@@ -36,6 +36,8 @@ public class SchoolInstitutionListDTO {
 
     private String summary;
 
+    private boolean isCooperative;
+
     private boolean isFreeze;
 
     private SchoolCourseDO schoolCourseDO;
