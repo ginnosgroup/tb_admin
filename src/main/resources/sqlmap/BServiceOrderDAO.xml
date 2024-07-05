@@ -837,7 +837,9 @@
             readcommitted_date AS readcommittedDate,
             ref_no AS refNo,
             EOI_number AS EOINumber,
-            binding_order AS bindingOrder
+            binding_order AS bindingOrder,
+            offer_type AS offerType,
+            offer_url AS offerUrl
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 

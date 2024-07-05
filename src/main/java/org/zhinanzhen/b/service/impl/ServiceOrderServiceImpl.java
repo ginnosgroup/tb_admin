@@ -248,9 +248,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
         }
+        String offerType1 = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId()).getOfferType();
         if ("COMPLETE".equals(serviceOrderDto.getState()) && "OVST".equals(serviceOrderDto.getType())) {
             String offerType = serviceOrderDto.getOfferType();
-            if (StringUtil.isEmpty(offerType)) {
+            if (StringUtil.isEmpty(offerType) && StringUtil.isEmpty(offerType1)) {
                 ServiceException se = new ServiceException(
                         "当前留学订单" + serviceOrderDto.getId() + "没有设置offer类型，请核实");
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
