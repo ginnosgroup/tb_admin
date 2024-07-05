@@ -161,8 +161,9 @@ public class BaseController {
 
 	public static Response<String> deleteFile(String url) {
 		if (StringUtil.isNotEmpty(url)) {
+			String realPath = StringUtil.merge("/data", url);
             // 创建File对象
-			File file = new File(url);
+			File file = new File(realPath);
 
 			// 检查文件是否存在
 			if (file.exists()) {
