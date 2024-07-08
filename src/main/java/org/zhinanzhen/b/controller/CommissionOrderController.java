@@ -102,6 +102,14 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		return super.upload2(file, request.getSession(), "/uploads/payment_voucher_image_url_c/");
 	}
 
+	@RequestMapping(value = "/delete_visa_upload_img", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<String> deleteVisaVoucherImg(@RequestParam(value = "visaUrl") String url, HttpServletRequest request,
+												 HttpServletResponse response) throws IllegalStateException, IOException {
+		super.setPostHeader(response);
+		return super.deleteFile(url);
+	}
+
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<List<CommissionOrderDTO>> add(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
@@ -239,7 +247,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (StringUtil.isNotEmpty(visaCertificate))
 				commissionOrderDto.setVisaCertificate(visaCertificate);
 			if (StringUtil.isNotEmpty(visaStatus))
-				commissionOrderDto.setVisaCertificate(visaStatus);
+				commissionOrderDto.setVisaStatus(visaStatus);
 
 			//if (serviceOrderDto.isSettle() == true && (
 			//		StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)

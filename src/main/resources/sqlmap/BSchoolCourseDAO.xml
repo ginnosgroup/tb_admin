@@ -153,7 +153,8 @@
         bsi.institution_type AS bsiinstitutionType,
         bsi.institution_postal_address AS bsiinstitutionPostalAddress,
         bsi.website AS bsiwebsite,
-        bsi.summary AS bsisummary
+        bsi.summary AS bsisummary,
+        bsi.is_cooperative AS bsiiscooperative
         FROM b_school_course AS bsc , b_school_institution bsi
         WHERE bsc.provider_id = bsi.id AND bsc.id = #{id}
     </select>
@@ -169,6 +170,7 @@
         <result column="bsiinstitutionPostalAddress" property="institutionPostalAddress"></result>
         <result column="bsiwebsite" property="website"></result>
         <result column="bsisummary" property="summary"></result>
+        <result column="bsiiscooperative" property="isCooperative"></result>
         <association property="schoolCourseDO" javaType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
             <id column="bscid" property="id"></id>
             <result column="bscgmtCreate" property="gmtCreate"></result>
