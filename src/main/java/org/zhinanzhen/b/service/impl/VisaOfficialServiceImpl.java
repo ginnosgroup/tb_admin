@@ -1606,6 +1606,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         return visaOfficialDOs;
     }
 
+    @Override
+    public int deleteById(Integer id) {
+        return visaOfficialDao.deleteByServiceOrderId(id);
+    }
+
     private VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) throws ServiceException {
         VisaOfficialDO visaDto = new VisaOfficialDO();
         visaDto.setState(BaseCommissionOrderController.ReviewKjStateEnum.PENDING.toString());

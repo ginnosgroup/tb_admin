@@ -281,6 +281,9 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "institutionTradingName4", required = false) String institutionTradingName4,
                                              @RequestParam(value = "institutionTradingName5", required = false) String institutionTradingName5,
                                              @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrderId,
+                                              @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
+                                             @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
+                                             @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -435,6 +438,15 @@ public class ServiceOrderController extends BaseController {
             }
             if (bindingOrderId != null && bindingOrderId > 0) {
                 serviceOrderDto.setBindingOrder(bindingOrderId);
+            }
+            if (expectTimeEnrollment != null) {
+                serviceOrderDto.setExpectTimeEnrollment(expectTimeEnrollment);
+            }
+            if (isApplyVisa != null) {
+                serviceOrderDto.setIsApplyVisa(isApplyVisa);
+            }
+            if (StringUtil.isNotEmpty(visaNumber)) {
+                serviceOrderDto.setVisaNumber(visaNumber);
             }
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
@@ -3132,7 +3144,11 @@ public class ServiceOrderController extends BaseController {
             });
             if (ObjectUtil.isNotNull(byServiceOrderId)) {
                 byServiceOrderId.setServiceId(serviceId);
-                visaOfficialService.update(byServiceOrderId.getId(), null, null, null, serviceId);
+//                visaOfficialService.update(byServiceOrderId.getId(), null, null, null, serviceId);
+                int i = visaOfficialService.deleteById(byServiceOrderId.getServiceOrderId());
+                if (i > 0) {
+                    visaOfficialService.addVisa(byServiceOrderId);
+                }
             }
         }
     }

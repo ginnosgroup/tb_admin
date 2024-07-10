@@ -80,7 +80,10 @@
                 EOI_number,
                 binding_order,
                 offer_type,
-                offer_url)
+                offer_url,
+                expect_time_enrollment,
+                is_apply_visa,
+                visa_number)
             VALUES (
                 now(),
                 now(),
@@ -155,7 +158,10 @@
                 #{EOINumber},
                 #{bindingOrder},
                 #{offerType},
-                #{offerUrl});
+                #{offerUrl},
+                #{expectTimeEnrollment},
+                #{isApplyVisa},
+                #{visaNumber});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -398,6 +404,15 @@
         <if test="offerUrl != null">
             ,offer_url = #{offerUrl}
         </if>
+        <if test="expectTimeEnrollment != null">
+            ,expect_time_enrollment = #{expectTimeEnrollment}
+        </if>
+        <if test="isApplyVisa != null">
+            ,is_apply_visa = #{isApplyVisa}
+        </if>
+        <if test="visaNumber != null">
+            ,visa_number = #{visaNumber}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -609,7 +624,10 @@
         so.EOI_number AS EOINumber,
         so.binding_order AS bindingOrder,
         so.offer_type AS offerType,
-        so.offer_url AS offerUrl
+        so.offer_url AS offerUrl,
+        so.expect_time_enrollment AS expectTimeEnrollment,
+        so.is_apply_visa AS isApplyVisa,
+        so.visa_number AS visaNumber
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id

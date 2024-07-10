@@ -66,5 +66,5 @@ public interface VisaOfficialDao {
 	int updateMerged(@Param("id") Integer id, @Param("isMerged") boolean isMerged);
 
     @Delete("DELETE FROM b_visa_official where service_order_id = #{id}")
-    void deleteByServiceOrderId(int id);
+    int deleteByServiceOrderId(int id);
 }

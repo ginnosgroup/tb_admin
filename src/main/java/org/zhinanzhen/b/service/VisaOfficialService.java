@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service;
 
+import org.apache.ibatis.annotations.Delete;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -25,6 +26,7 @@ public interface VisaOfficialService {
 
     List<VisaOfficialDO> monthlyStatement();
 
+    int deleteById(Integer id);
 //    VisaOfficialDO buildVisa(VisaOfficialDTO visaOfficialDTO) throws ServiceException;
 
 }

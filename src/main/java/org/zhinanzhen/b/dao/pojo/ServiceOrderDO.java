@@ -187,5 +187,10 @@ public class ServiceOrderDO implements Serializable {
 
 	private String offerUrl; // Offer文件路径
 
+	private String expectTimeEnrollment; // 期望入学时间
+
+	private Boolean isApplyVisa; // 是否后续办理学生签证(500)
+
+	private String visaNumber; // 签证编号
 
 }
