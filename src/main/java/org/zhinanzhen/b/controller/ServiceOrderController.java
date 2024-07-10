@@ -739,6 +739,9 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "schoolInstitutionLocationId", required = false) Integer schoolInstitutionLocationId,
                                                 @RequestParam(value = "institutionTradingName", required = false) String institutionTradingName,
                                                 @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrder,
+                                                @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
+                                                @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
+                                                @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                                 HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
@@ -764,7 +767,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -788,7 +791,7 @@ public class ServiceOrderController extends BaseController {
 							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null);
+							schoolInstitutionLocationId, institutionTradingName, null, null, null, null);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -832,7 +835,8 @@ public class ServiceOrderController extends BaseController {
                                         String applicantBirthday, List<ServiceOrderApplicantDTO> serviceOrderApplicantList, String maraId,
                                         String adviserId, String officialId, String remarks, String closedReason, String information,
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
-                                        Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId) {
+                                        Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
+                                        String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -989,6 +993,15 @@ public class ServiceOrderController extends BaseController {
             }
             if (bindingOrderId != null) {
                 serviceOrderDto.setBindingOrder(bindingOrderId);
+            }
+            if (expectTimeEnrollment != null) {
+                serviceOrderDto.setExpectTimeEnrollment(expectTimeEnrollment);
+            }
+            if (isApplyVisa != null) {
+                serviceOrderDto.setIsApplyVisa(isApplyVisa);
+            }
+            if (StringUtil.isNotEmpty(visaNumber)) {
+                serviceOrderDto.setVisaNumber(visaNumber);
             }
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
