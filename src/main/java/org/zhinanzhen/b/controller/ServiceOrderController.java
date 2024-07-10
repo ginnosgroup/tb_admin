@@ -3119,16 +3119,16 @@ public class ServiceOrderController extends BaseController {
             List<VisaDTO> visaList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
             VisaOfficialDTO byServiceOrderId = visaOfficialService.getByServiceOrderId(serviceOrderDto.getId());
             visaList.forEach(visaDto -> {
-                if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
+//                if (visaDto.getState().equals("REVIEW") || visaDto.getState().equals("PENDING")) {
                     visaDto.setServiceId(serviceId);
                     try {
                         visaService.updateVisa(visaDto);
                     } catch (ServiceException e) {
                         LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:", e.getMessage()));
                     }
-                } else
-                    LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
-                            visaDto.getState()));
+//                } else
+//                    LOG.error(StringUtil.merge("签证订单(", visaDto.getId(), ")服务项目修改失败:只允许修改未审核订单,而当前订单状态为",
+//                            visaDto.getState()));
             });
             if (ObjectUtil.isNotNull(byServiceOrderId)) {
                 byServiceOrderId.setServiceId(serviceId);

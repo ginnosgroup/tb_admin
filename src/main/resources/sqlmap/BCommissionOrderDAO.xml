@@ -366,7 +366,7 @@
         <if test='bankDate != null '>
             , bank_date = #{bankDate}
         </if>
-        <if test='visa_status != null '>
+        <if test='visaStatus != null '>
             , visa_status = #{visaStatus}
         </if>
         WHERE id = #{id};
