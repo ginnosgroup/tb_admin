@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -92,6 +93,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@Resource
 	private KjService kjService;
 
+	@Resource
+	private SchoolCourseService schoolCourseService;
+
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
@@ -160,6 +164,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "zyDate", required = false) String zyDate,
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "visaStatus", required = false) String visaStatus,
+			@RequestParam(value = "visaStatusSub", required = false) String visaStatusSub,
 			@RequestParam(value = "visaCertificate", required = false) String visaCertificate,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -246,8 +251,24 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(visaCertificate))
 				commissionOrderDto.setVisaCertificate(visaCertificate);
-			if (StringUtil.isNotEmpty(visaStatus))
+			if (StringUtil.isNotEmpty(visaStatus)) {
 				commissionOrderDto.setVisaStatus(visaStatus);
+				if ("Off shore".equals(visaStatus)) {
+					if (courseId > 0) {
+						SchoolCourseDTO schoolCourseDTO = schoolCourseService.schoolCourseById(courseId);
+						SchoolInstitutionDTO schoolInstitutionById = schoolInstitutionService.getSchoolInstitutionById(schoolCourseDTO.getProviderId());
+						if (ObjectUtil.isNotNull(schoolInstitutionById)) {
+							if (!schoolInstitutionById.isCooperative() && StringUtil.isEmpty(visaCertificate)) {
+								return new Response<List<CommissionOrderDTO>>(1, "当前选择为非合作院校，请上传签证信息", commissionOrderDtoList);
+							}
+						}
+					}
+				}
+			}
+			if (StringUtil.isNotEmpty(visaStatusSub)) {
+				commissionOrderDto.setVisaStatusSub(visaStatusSub);
+			}
+
 
 			//if (serviceOrderDto.isSettle() == true && (
 			//		StringUtil.isNotEmpty(invoiceVoucherImageUrl1) || StringUtil.isNotEmpty(invoiceVoucherImageUrl2)

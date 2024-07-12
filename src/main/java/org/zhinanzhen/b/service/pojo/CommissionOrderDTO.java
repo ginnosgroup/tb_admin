@@ -171,4 +171,6 @@ public class CommissionOrderDTO {
 
 	private String visaStatus; // 签证状态
 
+	private String visaStatusSub; // 签证类型
+
 }
