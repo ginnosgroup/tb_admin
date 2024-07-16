@@ -40,7 +40,10 @@
         payment_voucher_image_url_2,
         payment_voucher_image_url_3,
         payment_voucher_image_url_4,
-        payment_voucher_image_url_5
+        payment_voucher_image_url_5,
+        visa_certificate,
+        visa_status,
+        visa_status_sub
         )VALUES (
         NOW(),
         NOW(),
@@ -78,7 +81,10 @@
         #{paymentVoucherImageUrl2},
         #{paymentVoucherImageUrl3},
         #{paymentVoucherImageUrl4},
-        #{paymentVoucherImageUrl5}
+        #{paymentVoucherImageUrl5},
+        #{visaCertificate},
+        #{visaStatus},
+        #{visaStatusSub}
         )
     </insert>
 
@@ -122,7 +128,10 @@
         payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
         payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-        invoice_number AS invoiceNumber
+        invoice_number AS invoiceNumber,
+        visa_certificate AS visaCertificate,
+        visa_status AS visaStatus,
+        visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE service_order_id = #{id};
     </select>
@@ -167,7 +176,10 @@
         payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
         payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-        invoice_number AS invoiceNumber
+        invoice_number AS invoiceNumber,
+        visa_certificate AS visaCertificate,
+        visa_status AS visaStatus,
+        visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE verify_code = #{verifyCode};
     </select>
@@ -277,6 +289,15 @@
         <if test='invoiceNumber != null and invoiceNumber != ""'>
             , invoice_number = #{invoiceNumber}
         </if>
+        <if test='visaCertificate != null and visaCertificate != ""'>
+            , visa_certificate = #{visaCertificate}
+        </if>
+        <if test='visaStatus != null and visaStatus != ""'>
+            , visa_status = #{visaStatus}
+        </if>
+        <if test='visaStatusSub != null and visaStatusSub != ""'>
+            , visa_status_sub = #{visaStatusSub}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -320,7 +341,10 @@
         payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
         payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-        invoice_number AS invoiceNumber
+        invoice_number AS invoiceNumber,
+        visa_certificate AS visaCertificate,
+        visa_status AS visaStatus,
+        visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE id = #{id};
     </select>
@@ -365,7 +389,10 @@
         payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
         payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-        invoice_number AS invoiceNumber
+        invoice_number AS invoiceNumber,
+        visa_certificate AS visaCertificate,
+        visa_status AS visaStatus,
+        visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE invoice_number IS NOT NULL AND invoice_number = #{invoiceNumber};
     </select>

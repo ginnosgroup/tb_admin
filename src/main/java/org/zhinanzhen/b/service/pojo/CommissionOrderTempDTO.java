@@ -104,4 +104,10 @@ public class CommissionOrderTempDTO {
 
 	private String invoiceNumber;
 
+	private String visaCertificate; // 签证凭证路径
+
+	private String visaStatus; // 签证状态
+
+	private String visaStatusSub; // 签证类型
+
 }

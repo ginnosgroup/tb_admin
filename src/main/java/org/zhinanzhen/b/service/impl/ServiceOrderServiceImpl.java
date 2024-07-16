@@ -968,6 +968,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             List<String> list = Arrays.asList(offerUrl.split(","));
             serviceOrderDto.setOfferUrls(list);
         }
+        // 留学订单添加签证信息
+        if ("OVST".equals(serviceOrderDto.getType())) {
+            CommissionOrderTempDO commissionOrderTempByServiceOrderId = commissionOrderTempDAO.getCommissionOrderTempByServiceOrderId(serviceOrderDto.getId());
+            if (ObjectUtil.isNotNull(commissionOrderTempByServiceOrderId)) {
+                serviceOrderDto.setVisaStatus(commissionOrderTempByServiceOrderId.getVisaStatus());
+                serviceOrderDto.setVisaCertificate(commissionOrderTempByServiceOrderId.getVisaCertificate());
+                serviceOrderDto.setVisaStatusSub(commissionOrderTempByServiceOrderId.getVisaStatusSub());
+            }
+        }
         return serviceOrderDto;
     }
 

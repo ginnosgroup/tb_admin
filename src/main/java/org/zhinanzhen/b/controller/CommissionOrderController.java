@@ -2068,6 +2068,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "currency", required = false) String currency,
 			@RequestParam(value = "exchangeRate", required = false) String exchangeRate,
 		   @RequestParam(value = "verifyCode", required = false) String verifyCode,
+		   @RequestParam(value = "visaStatus", required = false) String visaStatus,
+		   @RequestParam(value = "visaStatusSub", required = false) String visaStatusSub,
+		   @RequestParam(value = "visaCertificate", required = false) String visaCertificate,
 			HttpServletRequest request, HttpServletResponse response
 										   ){
 		try {
@@ -2179,6 +2182,27 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					return new Response(1, "请上传支付凭证");
 			}else
 				return new Response(1, "服务订单不是提前扣拥:" + serviceOrderDto.getId());
+
+			if (StringUtil.isNotEmpty(visaCertificate))
+				tempDTO.setVisaCertificate(visaCertificate);
+			if (StringUtil.isNotEmpty(visaStatus)) {
+				tempDTO.setVisaStatus(visaStatus);
+				if ("Off shore".equals(visaStatus)) {
+					int courseId = serviceOrderDto.getCourseId();
+					if (courseId > 0) {
+						SchoolCourseDTO schoolCourseDTO = schoolCourseService.schoolCourseById(courseId);
+						SchoolInstitutionDTO schoolInstitutionById = schoolInstitutionService.getSchoolInstitutionById(schoolCourseDTO.getProviderId());
+						if (ObjectUtil.isNotNull(schoolInstitutionById)) {
+							if (!schoolInstitutionById.isCooperative() && StringUtil.isEmpty(visaCertificate)) {
+								return new Response<CommissionOrderTempDTO>(1, "当前选择为非合作院校，请上传签证信息", tempDTO);
+							}
+						}
+					}
+				}
+			}
+			if (StringUtil.isNotEmpty(visaStatusSub)) {
+				tempDTO.setVisaStatusSub(visaStatusSub);
+			}
 
 			//顾问在留学提前扣拥状态为COMPLETE时，不用上传发票凭证
 			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl1))

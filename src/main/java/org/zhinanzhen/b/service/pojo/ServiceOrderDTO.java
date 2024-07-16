@@ -273,4 +273,10 @@ public class ServiceOrderDTO {
 	private Boolean isApplyVisa; // 是否后续办理学生签证(500)
 
 	private String visaNumber; // 签证编号
+
+	private String visaCertificate; // 签证凭证路径
+
+	private String visaStatus; // 签证状态
+
+	private String visaStatusSub; // 签证类型
 }
