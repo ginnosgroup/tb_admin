@@ -130,7 +130,7 @@
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
         invoice_number AS invoiceNumber,
         visa_certificate AS visaCertificate,
-        visa_status AS visaStatus,
+        CONCAT(visa_status, '-', visa_status_sub) AS visaStatus,
         visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE service_order_id = #{id};
@@ -178,7 +178,7 @@
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
         invoice_number AS invoiceNumber,
         visa_certificate AS visaCertificate,
-        visa_status AS visaStatus,
+        CONCAT(visa_status, '-', visa_status_sub) AS visaStatus,
         visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE verify_code = #{verifyCode};
@@ -343,7 +343,7 @@
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
         invoice_number AS invoiceNumber,
         visa_certificate AS visaCertificate,
-        visa_status AS visaStatus,
+        CONCAT(visa_status, '-', visa_status_sub) AS visaStatus,
         visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE id = #{id};
@@ -391,7 +391,7 @@
         payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
         invoice_number AS invoiceNumber,
         visa_certificate AS visaCertificate,
-        visa_status AS visaStatus,
+        CONCAT(visa_status, '-', visa_status_sub) AS visaStatus,
         visa_status_sub AS visaStatusSub
         FROM b_commission_order_temp
         WHERE invoice_number IS NOT NULL AND invoice_number = #{invoiceNumber};
