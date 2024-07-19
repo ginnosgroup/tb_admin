@@ -203,6 +203,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDo.setApplicantId(0);
                 }
             }
+            // 留学订单同步申请人签证号
+            if ("OVST".equals(serviceOrderDo.getType())) {
+                ApplicantDO applicantDO = applicantDao.getById(serviceOrderDo.getApplicantId());
+                if (StringUtil.isNotEmpty(serviceOrderDo.getVisaNumber())) {
+                    applicantDO.setVisaCode(serviceOrderDo.getVisaNumber());
+                    applicantDao.update(applicantDO);
+                }
+            }
             if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
                 serviceOrderDto.setId(serviceOrderDo.getId());
                 return serviceOrderDto.getId();

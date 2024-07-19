@@ -535,7 +535,7 @@
         so.service_id AS serviceId,
         so.institution_trading_name AS institutionTradingName,
         so.applicant_id AS applicantId,
-        co.visa_status AS visaStatus,
+        CONCAT(co.visa_status, '-', co.visa_status_sub) AS visaStatus,
         co.visa_certificate AS visaCertificate,
         co.visa_status_sub AS visaStatusSub
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a, b_applicant ap
