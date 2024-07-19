@@ -2657,7 +2657,7 @@ public class ServiceOrderController extends BaseController {
             if (ObjectUtil.isNull(serviceOrderDto)) {
                 return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
             }
-            if ("COMPLETE".equals(state) && "OVST".equals(serviceOrderDto.getType())) {
+            if ("COMPLETE".equals(state) && "OVST".equals(serviceOrderDto.getType()) && StringUtil.isEmpty(stateMark)) {
                 if (StringUtil.isEmpty(offerType)) {
                     ServiceException se = new ServiceException(
                             "当前留学订单" + serviceOrderDto.getId() + "没有设置offer类型，请核实");

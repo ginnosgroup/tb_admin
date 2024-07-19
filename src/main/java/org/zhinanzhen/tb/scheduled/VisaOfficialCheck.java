@@ -615,8 +615,15 @@ public class VisaOfficialCheck {
             }
         }
         List<QywxExternalUserDTO> collect1 = qywxExternalUserDTOMap.values().stream().collect(Collectors.toList());
-        if (!collect1.isEmpty()) {
-            qywxExternalUserDAO.bacthAdd(collect1);
+        List<QywxExternalUserDTO> qywxExternalUserDTOS1 = new ArrayList<>();
+        collect1.forEach(e -> {
+            QywxExternalUserDO byExternalUserid = qywxExternalUserDAO.getByExternalUserid(e.getExternalUserid());
+            if (ObjectUtil.isNull(byExternalUserid)) {
+                qywxExternalUserDTOS1.add(e);
+            }
+        });
+        if (!qywxExternalUserDTOS1.isEmpty()) {
+            qywxExternalUserDAO.bacthAdd(qywxExternalUserDTOS1);
         }
         log.info("当前请求开始时间为----------" + firstDayTimestamp + "当前请求结束时间为-----------" + lastDayTimestamp);
         log.info("总数量为-------------------------" + length.get());
