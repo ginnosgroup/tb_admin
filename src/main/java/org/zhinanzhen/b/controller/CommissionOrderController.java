@@ -2407,6 +2407,13 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				tempDTO.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 				serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			}
+			if (StringUtil.isNotEmpty(tempDTO.getVisaStatus())){
+				String visaStatus = tempDTO.getVisaStatus();
+				String[] split = visaStatus.split("-");
+				if (split.length > 1) {
+					tempDTO.setVisaStatus(split[0]);
+				}
+			}
 
 			if (serviceOrderDto.isSettle()){
 				if (StringUtil.isNotEmpty(paymentVoucherImageUrl1) || StringUtil.isNotEmpty(paymentVoucherImageUrl2)
