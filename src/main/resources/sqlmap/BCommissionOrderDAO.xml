@@ -536,8 +536,7 @@
         so.institution_trading_name AS institutionTradingName,
         so.applicant_id AS applicantId,
         CONCAT(co.visa_status, '-', co.visa_status_sub) AS visaStatus,
-        co.visa_certificate AS visaCertificate,
-        co.visa_status_sub AS visaStatusSub
+        co.visa_certificate AS visaCertificate
         FROM b_commission_order co, b_service_order so, tb_user u, tb_adviser a, b_applicant ap
         WHERE co.service_order_id = so.id AND co.user_id = u.id AND a.id = co.adviser_id AND ap.id = so.applicant_id
         <if test='id != null and id > 0'>
