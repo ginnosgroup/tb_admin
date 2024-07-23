@@ -93,10 +93,12 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 			QywxExternalUserDTO qywxExternalUserDto = mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
 			qywxExternalUserDto.setTagsDTOS(tagsDTOS);
 			qywxExternalUserDtoList.add(qywxExternalUserDto);
-			List<String> channelSources = tagsDTOS.stream()
-					.filter(TagsDTO -> TagsDTO.getGroup().equals("来源"))
-					.map(TagsDTO::getName).collect(Collectors.toList());
-			qywxExternalUserDto.setChannelSource(String.join(",", channelSources));
+			if (tagsDTOS != null) {
+				List<String> channelSources = tagsDTOS.stream()
+						.filter(TagsDTO -> TagsDTO.getGroup().equals("来源"))
+						.map(TagsDTO::getName).collect(Collectors.toList());
+				qywxExternalUserDto.setChannelSource(String.join(",", channelSources));
+			}
 		}
 		return qywxExternalUserDtoList;
 	}
