@@ -44,4 +44,8 @@ public class QywxExternalUserDO {
 	private String qq;
 
 	private String tags;
+
+	private String stateText; // 添加方式
+
+	private String channelSource; // 渠道来源
 }

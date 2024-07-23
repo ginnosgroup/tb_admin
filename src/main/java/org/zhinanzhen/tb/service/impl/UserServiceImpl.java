@@ -65,7 +65,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email,
 			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
-			String source, int adviserId, int regionId) throws ServiceException {
+			String source, int adviserId, int regionId, String stateText, String channelSource) throws ServiceException {
 		if (StringUtil.isEmpty(name)) {
 			ServiceException se = new ServiceException("name is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -105,6 +105,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		userDo.setVisaExpirationDate(visaExpirationDate);
 		userDo.setSource(source);
 		userDo.setAdviserId(adviserId);
+		userDo.setStateText(stateText);
+		userDo.setChannelSource(channelSource);
 		if (regionId > 0)
 			userDo.setRegionId(regionId);
 		else {
