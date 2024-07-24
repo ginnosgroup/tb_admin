@@ -257,7 +257,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         String offerType1 = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId()).getOfferType();
-        if ("COMPLETE".equals(serviceOrderDto.getState()) && "OVST".equals(serviceOrderDto.getType())) {
+        long time = serviceOrderDto.getGmtCreate().getTime();
+        long timeTmp = 1721577600000L;
+        if ("COMPLETE".equals(serviceOrderDto.getState()) && "OVST".equals(serviceOrderDto.getType()) && (timeTmp < time)) {
             String offerType = serviceOrderDto.getOfferType();
             if (StringUtil.isEmpty(offerType) && StringUtil.isEmpty(offerType1)) {
                 ServiceException se = new ServiceException(
