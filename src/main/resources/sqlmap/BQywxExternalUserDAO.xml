@@ -118,7 +118,8 @@
             weibo_username AS weiboUsername,
             qq,
             tags,
-            state_text
+            state_text,
+            channel_source
         FROM b_qywx_external_user
         WHERE 1 = 1
         <if test='adviserId != null and adviserId > 0'>
@@ -153,7 +154,10 @@
             email,
             wechat_username AS wechatUsername,
             weibo_username AS weiboUsername,
-            qq
+            qq,
+            tags,
+            state_text,
+            channel_source
         FROM b_qywx_external_user WHERE id = #{id};
     </select>
     

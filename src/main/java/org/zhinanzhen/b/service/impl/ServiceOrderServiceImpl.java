@@ -2344,6 +2344,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         return viewBalanceDTO;
     }
 
+    @Override
+    public List<ServiceOrderDTO> getZiServiceOrderById(int serviceOrderId) {
+        return serviceOrderDao.getZiOrder(serviceOrderId);
+    }
+
 
     private String getPeopleTypeStr(String peopleType) {
         if ("1A".equalsIgnoreCase(peopleType))

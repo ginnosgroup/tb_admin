@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service;
 
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -89,4 +90,6 @@ public interface ServiceOrderService {
 
 
 	ViewBalanceDTO viewBalance(Integer userId);
+
+	List<ServiceOrderDTO> getZiServiceOrderById(int serviceOrderId);
 }

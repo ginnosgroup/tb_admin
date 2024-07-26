@@ -322,7 +322,7 @@ public class UserController extends BaseController {
 		if (name != null)
 			name = name.trim().replace("  ", " "); // 处理多余空格问题
 		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, email, areaCode,
-				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source));
+				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source, null, null));
 	}
 
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)

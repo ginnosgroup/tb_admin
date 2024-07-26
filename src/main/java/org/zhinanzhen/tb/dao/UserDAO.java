@@ -43,7 +43,8 @@ public interface UserDAO {
 			@Param("birthday") Date birthday, @Param("phone") String phone, @Param("email") String email,
 			@Param("areaCode") String areaCode, @Param("wechatUsername") String wechatUsername,
 			@Param("firstControllerContents") String firstControllerContents, @Param("visaCode") String visaCode,
-			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source);
+			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source,
+			@Param("stateText") String stateText, @Param("channelSource") String channelSource);
 
 	boolean updateAdviserById(@Param("adviserId") int adviserId, @Param("id") int id);
 

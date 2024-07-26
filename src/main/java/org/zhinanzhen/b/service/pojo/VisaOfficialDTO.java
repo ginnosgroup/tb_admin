@@ -198,6 +198,8 @@ public class VisaOfficialDTO {
 
     private String sortEOI;
 
+    private Boolean isRefund = false;
+
 
 }
 

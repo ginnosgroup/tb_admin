@@ -48,7 +48,7 @@ public interface UserService {
 
 	boolean update(int id, String name, String authNickname, Date birthday, String phone, String email, String areaCode,
 			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
-			String source) throws ServiceException;
+			String source, String stateText, String channelSource) throws ServiceException;
 
 	/**
 	 * 用户重新绑定顾问

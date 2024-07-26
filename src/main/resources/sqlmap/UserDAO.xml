@@ -313,6 +313,12 @@
         <if test='source != null and source != ""'>
             , source = #{source}
         </if>
+        <if test='stateText != null and stateText != ""'>
+            , state_text = #{stateText}
+        </if>
+        <if test='channelSource != null and channelSource != ""'>
+            , channel_source = #{channelSource}
+        </if>
         WHERE id = #{id};
     </update>
     

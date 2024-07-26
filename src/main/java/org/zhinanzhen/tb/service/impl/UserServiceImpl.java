@@ -330,7 +330,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public boolean update(int id, String name, String authNickname, Date birthday, String phone, String email,
 			String areaCode, String wechatUsername, String firstControllerContents, String visaCode,
-			Date visaExpirationDate, String source) throws ServiceException {
+			Date visaExpirationDate, String source, String stateText, String channelSource) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -393,7 +393,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 		}
 		return userDao.update(id, name, authNickname, birthday, phone, email, areaCode, wechatUsername,
-				firstControllerContents, visaCode, visaExpirationDate, source);
+				firstControllerContents, visaCode, visaExpirationDate, source, stateText, channelSource);
 	}
 
 	@Override
