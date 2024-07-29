@@ -2178,6 +2178,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				杜大哥（2021-10-18）说：【提前扣拥】在上传【invoice凭证】之后，申请月奖直接将服务订单状态改成【RECEIVED】(已收款凭证已提交)
 				 */
 					serviceOrderDto.setState("RECEIVED");
+					serviceOrderDto.setSubmitted(true);
 				} else
 					return new Response(1, "请上传支付凭证");
 			}else
