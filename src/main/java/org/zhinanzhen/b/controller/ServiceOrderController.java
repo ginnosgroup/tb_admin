@@ -1388,7 +1388,6 @@ public class ServiceOrderController extends BaseController {
                  */
                 return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
             }
-
             int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
@@ -1403,7 +1402,6 @@ public class ServiceOrderController extends BaseController {
             if (bindingList != null && bindingList && "OVST".equals(type)) {
                 total = (int) (total - serviceOrderList.get(0).getBindingOrderCount());
             }
-
             if (newOfficialId != null)
                 for (ServiceOrderDTO so : serviceOrderList)
                     so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note

@@ -28,12 +28,9 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import javax.annotation.Resource;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 @Service("ServiceOrderService")
@@ -543,47 +540,63 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle, pageNum * pageSize, pageSize, orderBy);
             if (serviceOrderDoList == null)
                 return null;
+
+            List<ServiceOrderDO> collect = new ArrayList<>();
+            long count = 0L;
+            if ("bindingList".equals(type)) {
+                collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
+            } else {
+    //            count = serviceOrderDoList.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).count();
+                collect = serviceOrderDoList;
+            }
+            CountDownLatch latch = new CountDownLatch(collect.size()); // 等待两个线程完成
+            for (int i = 0; i < collect.size(); i++) {
+                ServiceOrderDO serviceOrderDo = collect.get(i);
+                if (bindingList != null) {
+                    if (bindingList) {
+    //                    if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
+    //                        continue;
+    //                    }
+                        if (collect.get(i).getBindingOrder() != null && collect.get(i).getBindingOrder() > 0) {
+                            continue;
+                        }
+                        serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
+                        List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
+                        if (!listbindingOrder.isEmpty()) {
+                            double costPrince = 0.00;
+                            for (Integer a : listbindingOrder) {
+                                costPrince += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
+                            }
+                            serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() * 0.6) - costPrince);
+                        }
+                    }
+                }
+                Thread thread1 = new Thread(() -> {
+                    try {
+                        // 线程1的任务
+                        serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
+                        // 只有在成功执行了任务后才减少计数器
+                        latch.countDown(); // 完成任务，计数器减一
+                    } catch (Exception e) {
+                        // 处理异常，例如记录日志
+                        e.printStackTrace();
+                        // 尽管出错，也应减少计数器以避免死锁
+                        latch.countDown();
+                    }
+                });
+                thread1.start();
+            }
+            latch.await();
+            if (!serviceOrderDtoList.isEmpty()) {
+                serviceOrderDtoList.get(0).setBindingOrderCount(count);
+            }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
             throw se;
         }
-        List<ServiceOrderDO> collect = new ArrayList<>();
-        long count = 0L;
-        if ("bindingList".equals(type)) {
-            collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
-        } else {
-//            count = serviceOrderDoList.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).count();
-            collect = serviceOrderDoList;
-        }
 
-        for (int i = 0; i < collect.size(); i++) {
-            ServiceOrderDO serviceOrderDo = collect.get(i);
-            if (bindingList != null) {
-                if (bindingList) {
-//                    if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
-//                        continue;
-//                    }
-                    if (collect.get(i).getBindingOrder() != null && collect.get(i).getBindingOrder() > 0) {
-                        continue;
-                    }
-                    serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
-                    List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
-                    if (!listbindingOrder.isEmpty()) {
-                        double costPrince = 0.00;
-                        for (Integer a : listbindingOrder) {
-                            costPrince += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
-                        }
-                        serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() * 0.6) - costPrince);
-                    }
-                }
-            }
-            serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
-        }
-        if (!serviceOrderDtoList.isEmpty()) {
-            serviceOrderDtoList.get(0).setBindingOrderCount(count);
-        }
-        return serviceOrderDtoList;
+        return serviceOrderDtoList.stream().sorted(Comparator.comparing(ServiceOrderDTO::getId).reversed()).collect(Collectors.toList());
     }
 
     @Override

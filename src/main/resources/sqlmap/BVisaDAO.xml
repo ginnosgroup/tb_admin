@@ -509,13 +509,13 @@
                     DATE_FORMAT(v.receive_date, '%Y-%m-%d') AS date,
                 </when>
                 <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(v.kj_approval_date, '%Y-%m') AS date,
+                    DATE_FORMAT(v.gmt_create, '%Y-%m') AS date,
                 </when>
                 <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                    DATE_FORMAT(v.kj_approval_date, '%Y') AS date,
+                    DATE_FORMAT(v.gmt_create, '%Y') AS date,
                 </when>
                 <otherwise>
-                    DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d') AS date,
+                    DATE_FORMAT(v.gmt_create, '%Y-%m-%d') AS date,
                 </otherwise>
             </choose>
             r.id AS regionId,
@@ -526,12 +526,12 @@
             v.exchange_rate AS exchangeRate,
             v.amount,
             SUM(v.bonus) AS commission,
-            IFNULL(sum(IF(v.currency='CNY',v.expect_amount/v.exchange_rate,v.expect_amount)),0.00) AS serviceFee
-            #SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount/v.exchange_rate,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount/v.exchange_rate,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
+            IFNULL(sum(IF(v.currency='CNY',v.expect_amount,v.expect_amount)),0.00) AS serviceFee
+            #SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
         FROM tb_adviser a, tb_region r, b_visa v LEFT JOIN b_refund rf ON rf.visa_id = v.id AND rf.state = 'PAID'
         WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.kj_approval_date <= #{endDate} ]]>
+            <![CDATA[ AND v.gmt_create > #{startDate} AND v.gmt_create <= #{endDate} ]]>
         </if>
         <if test='regionId != null and regionId != ""'>
             AND r.id = #{regionId}
@@ -554,17 +554,17 @@
                     DATE_FORMAT(v.receive_date, '%Y-%m-%d'),
                 </when>
                 <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                    DATE_FORMAT(v.kj_approval_date, '%Y-%m'),
+                    DATE_FORMAT(v.gmt_create, '%Y-%m'),
                 </when>
                 <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                    DATE_FORMAT(v.kj_approval_date, '%Y'),
+                    DATE_FORMAT(v.gmt_create, '%Y'),
                 </when>
                 <otherwise>
-                    DATE_FORMAT(v.kj_approval_date, '%Y-%m-%d'),
+                    DATE_FORMAT(v.gmt_create, '%Y-%m-%d'),
                 </otherwise>
             </choose>
             v.adviser_id
-        ORDER BY v.kj_approval_date DESC;
+        ORDER BY v.gmt_create DESC;
     </select>
     
     <select id="getFirstVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
