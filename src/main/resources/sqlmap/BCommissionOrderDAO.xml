@@ -958,25 +958,25 @@
                 DATE_FORMAT(co.school_payment_date, '%Y-%m-%d') AS date,
             </when>
             <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                DATE_FORMAT(co.kj_approval_date, '%Y-%m') AS date,
+                DATE_FORMAT(co.gmt_create, '%Y-%m') AS date,
             </when>
             <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                DATE_FORMAT(co.kj_approval_date, '%Y') AS date,
+                DATE_FORMAT(co.gmt_create, '%Y') AS date,
             </when>
             <otherwise>
-                DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d') AS date,
+                DATE_FORMAT(co.gmt_create, '%Y-%m-%d') AS date,
             </otherwise>
         </choose>
         r.id AS regionId,
         r.name AS area,
         a.id AS adviserId,
         a.name AS consultant,
-        #IFNULL(sum(IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount)),0.00) AS deductionCommission,
-        SUM(IF(co.is_settle = true, CASE IFNULL(IF(co.currency='CNY',co.sure_expect_amount/co.exchange_rate,co.sure_expect_amount), 0) WHEN 0 THEN IFNULL(IF(co.currency='CNY',co.expect_amount/co.expect_amount,co.expect_amount), 0) END,
+        #IFNULL(sum(IF(co.currency='CNY',co.expect_amount,co.expect_amount)),0.00) AS deductionCommission,
+        SUM(IF(co.is_settle = true, CASE IFNULL(IF(co.currency='CNY',co.sure_expect_amount,co.sure_expect_amount), 0) WHEN 0 THEN IFNULL(IF(co.currency='CNY',co.expect_amount,co.expect_amount), 0) END,
         0)) AS deductionCommission,
-        SUM(IF(co.is_settle = false, IF(co.currency='CNY',co.expect_amount/co.expect_amount,co.expect_amount), 0)) AS claimCommission,
-        SUM(IF(co.commission_state = 'YZY', IF(co.currency='CNY',co.sure_expect_amount/co.exchange_rate,co.sure_expect_amount), 0)) AS claimedCommission,
-        SUM(IF(co.is_settle, 0 , IFNULL(IF(co.currency='CNY',co.school_payment_amount/co.exchange_rate,co.school_payment_amount) , 0) - IFNULL(IF(co.currency='CNY',co.expect_amount/co.exchange_rate,co.expect_amount) , 0))) AS adjustments
+        SUM(IF(co.is_settle = false, IF(co.currency='CNY',co.expect_amount,co.expect_amount), 0)) AS claimCommission,
+        SUM(IF(co.commission_state = 'YZY', IF(co.currency='CNY',co.sure_expect_amount,co.sure_expect_amount), 0)) AS claimedCommission,
+        SUM(IF(co.is_settle, 0 , IFNULL(IF(co.currency='CNY',co.school_payment_amount/co.exchange_rate,co.school_payment_amount) , 0) - IFNULL(IF(co.currency='CNY',co.expect_amount,co.expect_amount) , 0))) AS adjustments
         FROM tb_adviser a, tb_region r, b_commission_order co LEFT JOIN b_refund rf ON rf.commission_order_id = co.id AND rf.state = 'PAID'
         WHERE a.region_id = r.id AND co.adviser_id = a.id AND co.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -985,7 +985,7 @@
                     <![CDATA[ AND co.school_payment_date > #{startDate} AND co.school_payment_date <= #{endDate} ]]>
                 </when>
                 <otherwise>
-                    <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date <= #{endDate} ]]>
+                    <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create <= #{endDate} ]]>
                 </otherwise>
             </choose>
         </if>
@@ -1010,17 +1010,17 @@
                 DATE_FORMAT(co.school_payment_date, '%Y-%m-%d'),
             </when>
             <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
-                DATE_FORMAT(co.kj_approval_date, '%Y-%m'),
+                DATE_FORMAT(co.gmt_create, '%Y-%m'),
             </when>
             <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
-                DATE_FORMAT(co.kj_approval_date, '%Y'),
+                DATE_FORMAT(co.gmt_create, '%Y'),
             </when>
             <otherwise>
-                DATE_FORMAT(co.kj_approval_date, '%Y-%m-%d'),
+                DATE_FORMAT(co.gmt_create, '%Y-%m-%d'),
             </otherwise>
         </choose>
         co.adviser_id
-        ORDER BY co.kj_approval_date DESC;
+        ORDER BY co.gmt_create DESC;
     </select>
 
     <select id="getCommissionOrderById" parameterType="java.lang.Integer"
