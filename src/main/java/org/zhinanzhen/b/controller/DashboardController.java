@@ -629,7 +629,7 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
 			return new Response(1, "未登录");
-		String thisYearFirstDay = DateClass.thisYearFirstDay();
+		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay, today, "R", "Y");
 		List<Integer> regionIdList = new ArrayList<>();
