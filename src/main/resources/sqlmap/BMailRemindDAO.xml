@@ -20,7 +20,8 @@
         adviser_id,
         offcial_id,
         user_id,
-        kj_id
+        kj_id,
+        need_remind
         ) VALUES (
         NOW(),
         NOW(),
@@ -35,8 +36,8 @@
         #{adviserId},
         #{offcialId},
         #{userId},
-        #{kjId}
-        );
+        #{kjId},
+        #{needRemind});
     </insert>
 
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
@@ -55,7 +56,8 @@
         adviser_id AS adviserId,
         offcial_id AS offcialId,
         kj_id AS kjId,
-        user_id AS userId
+        user_id AS userId,
+        need_remind AS needRemind
         from b_mail_remind
         <where>
             <if test="adviserId != null and adviserId > 0">
@@ -115,7 +117,8 @@
         adviser_id AS adviserId,
         offcial_id AS offcialId,
         kj_id AS kjId,
-        user_id AS userId
+        user_id AS userId,
+        need_remind AS needRemind
         from b_mail_remind
         WHERE id = #{id};
     </select>
@@ -151,7 +154,8 @@
         adviser_id AS adviserId,
         offcial_id AS offcialId,
         kj_id AS kjId,
-        user_id AS userId
+        user_id AS userId,
+        need_remind AS needRemind
         FROM b_mail_remind WHERE  is_send = 0
         <choose>
             <when test='type == "H"'>

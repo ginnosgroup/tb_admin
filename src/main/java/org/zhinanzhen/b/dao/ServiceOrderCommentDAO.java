@@ -9,7 +9,7 @@ public interface ServiceOrderCommentDAO {
 
 	int add(ServiceOrderCommentDO serviceOrderCommentDo);
 
-	public List<ServiceOrderCommentDO> list(@Param("serviceOrderId") Integer serviceOrderId);
+	public List<ServiceOrderCommentDO> list(@Param("serviceOrderId") Integer serviceOrderId,@Param("officialId") Integer officialId);
 
 	public int delete(int id);
 

@@ -1780,11 +1780,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     }
 
     @Override
-    public List<ServiceOrderCommentDTO> listComment(int id) throws ServiceException {
+    public List<ServiceOrderCommentDTO> listComment(int id, int officialId) throws ServiceException {
         List<ServiceOrderCommentDTO> serviceOrderCommentDtoList = new ArrayList<>();
         List<ServiceOrderCommentDO> serviceOrderCommentDoList = new ArrayList<>();
         try {
-            serviceOrderCommentDoList = serviceOrderCommentDao.list(id);
+            serviceOrderCommentDoList = serviceOrderCommentDao.list(id, officialId);
             if (serviceOrderCommentDoList == null)
                 return null;
         } catch (Exception e) {

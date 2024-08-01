@@ -1768,7 +1768,8 @@ public class ServiceOrderController extends BaseController {
     @ResponseBody
     public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
                                         @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-                                        @RequestParam(value = "content") String content, HttpServletRequest request, HttpServletResponse response) {
+                                        @RequestParam(value = "content") String content, @RequestParam(value = "score") Integer score,
+                                        HttpServletRequest request, HttpServletResponse response) {
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             super.setPostHeader(response);
@@ -1780,70 +1781,83 @@ public class ServiceOrderController extends BaseController {
                     .setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
             serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
             serviceOrderCommentDto.setContent(content);
-            if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
-                // 发送邮件
-                String serviceType = "?";
-                if ("VISA".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "签证";
-                else if ("OVST".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "留学";
-                else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "独立技术移民";
-                else if ("NSV".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "雇主担保";
-                else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "曼拓";
-                String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
-                String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>申请人:"
-                        + (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
-                        + serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
-                        + new Date()
-                        + "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
-                        + serviceOrder.getId() + "'>服务订单详情</a>";
-                String email = "";
-                if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    OfficialDTO official = serviceOrder.getOfficial();
-                    if (official != null)
-                        email = official.getEmail();
-                    MaraDTO mara = serviceOrder.getMara();
-                    if (mara != null)
-                        if ("".equals(email))
-                            email = mara.getEmail();
-                        else
-                            email = email + "," + mara.getEmail();
-                } else if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    AdviserDTO adviser = serviceOrder.getAdviser();
-                    if (adviser != null)
-                        email = adviser.getEmail();
-                    MaraDTO mara = serviceOrder.getMara();
-                    if (mara != null)
-                        if ("".equals(email))
-                            email = mara.getEmail();
-                        else
-                            email = email + "," + mara.getEmail();
-                } else if (adminUserLoginInfo != null && "MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    MaraDTO mara = serviceOrder.getMara();
-                    if (mara != null)
-                        if ("".equals(email))
-                            email = mara.getEmail();
-                        else
-                            email = email + "," + mara.getEmail();
-                } else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    OfficialDTO official = serviceOrder.getOfficial();
-                    if (official != null)
-                        email = official.getEmail();
-                    AdviserDTO adviser = serviceOrder.getAdviser();
-                    if (adviser != null)
-                        if ("".equals(email))
-                            email = adviser.getEmail();
-                        else
-                            email = email + "," + adviser.getEmail();
+            if (score != null) {
+                if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                    List<ServiceOrderCommentDTO> serviceOrderCommentDTOS = serviceOrderService.listComment(serviceOrderId, adminUserLoginInfo.getOfficialId());
+                    if (serviceOrderCommentDTOS != null && serviceOrderCommentDTOS.size() > 0) {
+                        return new Response<Integer>(1, "当前订单已经打分，请勿重复打分");
+                    }
+                    serviceOrderCommentDto.setScore(score);
+                    serviceOrderCommentDto.setScoreOfficialId(adminUserLoginInfo.getOfficialId());
+                    serviceOrderService.addComment(serviceOrderCommentDto);
                 }
-                if (!"".equals(email))
-                    SendEmailUtil.send(email, title, message);
                 return new Response<Integer>(0, serviceOrderCommentDto.getId());
-            } else
-                return new Response<Integer>(1, "创建失败.", 0);
+            } else {
+                if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
+                    // 发送邮件
+                    String serviceType = "?";
+                    if ("VISA".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "签证";
+                    else if ("OVST".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "留学";
+                    else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "独立技术移民";
+                    else if ("NSV".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "雇主担保";
+                    else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "曼拓";
+                    String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
+                    String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>申请人:"
+                            + (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
+                            + serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
+                            + new Date()
+                            + "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
+                            + serviceOrder.getId() + "'>服务订单详情</a>";
+                    String email = "";
+                    if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        OfficialDTO official = serviceOrder.getOfficial();
+                        if (official != null)
+                            email = official.getEmail();
+                        MaraDTO mara = serviceOrder.getMara();
+                        if (mara != null)
+                            if ("".equals(email))
+                                email = mara.getEmail();
+                            else
+                                email = email + "," + mara.getEmail();
+                    } else if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        AdviserDTO adviser = serviceOrder.getAdviser();
+                        if (adviser != null)
+                            email = adviser.getEmail();
+                        MaraDTO mara = serviceOrder.getMara();
+                        if (mara != null)
+                            if ("".equals(email))
+                                email = mara.getEmail();
+                            else
+                                email = email + "," + mara.getEmail();
+                    } else if (adminUserLoginInfo != null && "MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        MaraDTO mara = serviceOrder.getMara();
+                        if (mara != null)
+                            if ("".equals(email))
+                                email = mara.getEmail();
+                            else
+                                email = email + "," + mara.getEmail();
+                    } else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        OfficialDTO official = serviceOrder.getOfficial();
+                        if (official != null)
+                            email = official.getEmail();
+                        AdviserDTO adviser = serviceOrder.getAdviser();
+                        if (adviser != null)
+                            if ("".equals(email))
+                                email = adviser.getEmail();
+                            else
+                                email = email + "," + adviser.getEmail();
+                    }
+                    if (!"".equals(email))
+                        SendEmailUtil.send(email, title, message);
+                    return new Response<Integer>(0, serviceOrderCommentDto.getId());
+                } else
+                    return new Response<Integer>(1, "创建失败.", 0);
+            }
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
         }
@@ -1855,7 +1869,7 @@ public class ServiceOrderController extends BaseController {
                                           HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new Response<Integer>(0, serviceOrderService.listComment(serviceOrderId).size());
+            return new Response<Integer>(0, serviceOrderService.listComment(serviceOrderId, 0).size());
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), null);
         }
@@ -1864,10 +1878,11 @@ public class ServiceOrderController extends BaseController {
     @RequestMapping(value = "/listComment", method = RequestMethod.GET)
     @ResponseBody
     public Response<List<ServiceOrderCommentDTO>> listComment(
-            @RequestParam(value = "serviceOrderId") Integer serviceOrderId, HttpServletResponse response) {
+            @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+            @RequestParam(value = "officialId") Integer officialId, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new Response<List<ServiceOrderCommentDTO>>(0, serviceOrderService.listComment(serviceOrderId));
+            return new Response<List<ServiceOrderCommentDTO>>(0, serviceOrderService.listComment(serviceOrderId, officialId));
         } catch (ServiceException e) {
             return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
         }

@@ -10,13 +10,17 @@
                 gmt_modify,
                 admin_user_id,
                 service_order_id,
-                content)
+                content,
+                score,
+                score_official_id)
             VALUES (
                 now(),
                 now(),
                 #{adminUserId},
                 #{serviceOrderId},
-                #{content});
+                #{content},
+                #{score},
+                #{scoreOfficialId});
     </insert>
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO">
@@ -25,9 +29,17 @@
             gmt_create AS gmtCreate,
             admin_user_id AS adminUserId,
             service_order_id AS serviceOrderId,
-            content
+            content,
+            score,
+            score_official_id AS scoreOfficialId
         FROM b_service_order_comment
-        WHERE service_order_id = #{serviceOrderId}
+        WHERE
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            service_order_id = #{serviceOrderId}
+        </if>
+        <if test='scoreOfficialId != null and scoreOfficialId > 0'>
+            , AND score_official_id = #{scoreOfficialId}
+        </if>
         ORDER BY gmt_create DESC;
     </select>
     
