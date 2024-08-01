@@ -3,11 +3,13 @@ package org.zhinanzhen.b.controller;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONArray;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import org.zhinanzhen.b.service.QywxExternalUserService;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
 import org.zhinanzhen.b.service.pojo.QywxExternalUserDescriptionDTO;
+import org.zhinanzhen.b.service.pojo.TagsDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -140,6 +143,18 @@ public class QywxExternalUserController extends BaseController {
 					if (applicantService.update(applicantDto) > 0)
 						LOG.info(StringUtil.merge("修改申请人生日数据成功:", applicantDto.getId()));
 				}
+				String tags = qywxExternalUserDto.getTags();
+				List<TagsDTO> tagsDTOS = JSONArray.parseArray(tags, TagsDTO.class);
+				qywxExternalUserDto.setTagsDTOS(tagsDTOS);
+				if (tagsDTOS != null) {
+					List<String> channelSources = tagsDTOS.stream()
+							.filter(TagsDTO -> TagsDTO.getGroup().equals("来源"))
+							.map(TagsDTO::getName).collect(Collectors.toList());
+					qywxExternalUserDto.setChannelSource(String.join(",", channelSources));
+				}
+				userService.update(userDto.getId(), null, null, null, null,
+						null, null, null, null, null,
+						null, null, qywxExternalUserDto.getStateText(), qywxExternalUserDto.getChannelSource());
 				return new Response<Integer>(0, qywxExternalUserDto.getId());
 			} else {
 				return new Response<Integer>(1, "修改失败.", 0);

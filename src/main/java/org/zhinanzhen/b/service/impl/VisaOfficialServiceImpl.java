@@ -355,15 +355,19 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             visaOfficialDO = buildCommission(serviceOrderById, visaOfficialDTO, pay, region, typeTmp, suborder);
         }
         visaOfficialDO.setOfficialRegion(region);
-        if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
-            visaOfficialDTO.setId(visaOfficialDO.getId());
-            visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
-            visaOfficialDTO.setPredictCommission(visaOfficialDO.getPredictCommission());
-            visaOfficialDTO.setCalculation(visaOfficialDO.getCalculation());
-            return visaOfficialDO.getId();
+        if (visaOfficialDTO.getIsRefund()) {
+            visaOfficialDao.updateVisaOfficial(visaOfficialDO);
         } else {
-            return 0;
+            if (visaOfficialDao.addVisa(visaOfficialDO) > 0) {
+                visaOfficialDTO.setId(visaOfficialDO.getId());
+                visaOfficialDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
+                visaOfficialDTO.setPredictCommission(visaOfficialDO.getPredictCommission());
+                visaOfficialDTO.setCalculation(visaOfficialDO.getCalculation());
+            } else {
+                return 0;
+            }
         }
+        return visaOfficialDO.getId();
     }
 
     private VisaOfficialDO buildCommission(ServiceOrderDO serviceOrderById, VisaOfficialDTO visaOfficialDTO, boolean pay, int region, String packType, boolean suborder) throws ServiceException {
@@ -542,6 +546,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         if ("VISA".equals(packType)) {
             amount += firstVisaByServiceOrderId.getAmount();
+            commissionAmountDTO.setRefund(refund); // 设置退款金额
             if (installment) {
                 amount += secondVisaByServiceOrderId.getAmount();
                 RefundDO refundByVisaId = refundDAO.getRefundByVisaId(secondVisaByServiceOrderId.getId());
@@ -588,7 +593,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         refund = firstRefundByVisaId.getAmount() + refundByVisaId.getAmount();
                     }
                 }
-                commissionAmountDTO.setRefund(refund);
+                refund = refund * 0.5;
                 amount = amount * 0.5;
             }
         }
@@ -651,10 +656,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             commissionAmountDTO.setRuler(servicePackagePriceV2DTO.getRuler());
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        boolean isSIV = false;
         if (commissionAmountDTO.getRuler() == 0) {
             double predictCommissionAmount = 0.00;
             ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
-            boolean isSIV = false;
             double bingdingOrderAmount = 0.00;
             Integer getBindingOrderId = 0;
             getBindingOrderId = serviceOrderById.getId();
@@ -740,6 +745,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() / EOICount);
         visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount() / EOICount);
+        if (isSIV) {
+            visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+            visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
+        }
         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
         return visaOfficialDO;
     }
@@ -1609,6 +1618,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Override
     public int deleteById(Integer id) {
         return visaOfficialDao.deleteByServiceOrderId(id);
+    }
+
+    @Override
+    public List<VisaOfficialDTO> getAllvisaOfficialByServiceOrderId(Integer serviceOrderId) {
+
+        return visaOfficialDao.getAllvisaOfficialByServiceOrderId(serviceOrderId);
     }
 
     private VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) throws ServiceException {

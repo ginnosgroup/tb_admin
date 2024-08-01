@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.VisaListDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialListDO;
+import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 
 import java.util.Date;
 import java.util.List;
@@ -67,4 +68,7 @@ public interface VisaOfficialDao {
 
     @Delete("DELETE FROM b_visa_official where service_order_id = #{id}")
     int deleteByServiceOrderId(int id);
+
+    @Select("select * from b_visa_official where service_order_id = #{serviceOrderId}")
+    List<VisaOfficialDTO> getAllvisaOfficialByServiceOrderId(Integer serviceOrderId);
 }

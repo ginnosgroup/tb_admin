@@ -24,7 +24,9 @@
         auth_logo,
         balance,
         adviser_id,
-        region_id)
+        region_id,
+        channel_source,
+        state_text)
         values (
         now(),
         now(),
@@ -45,7 +47,9 @@
         "",
         0,
         #{adviserId},
-        #{regionId})
+        #{regionId},
+        #{channelSource},
+        #{stateText})
     </insert>
     
     <insert id="addUserAdviser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -139,6 +143,8 @@
         u.phone AS phone,
         u.balance AS balance,
         u.adviser_id AS adviserId,
+        u.channel_source AS channelsource,
+        u.state_text AS stateText,
         a.region_id AS regionId
         FROM tb_user u
             LEFT JOIN b_user_tag ut ON u.id = ut.user_id
@@ -230,7 +236,9 @@
         auth_logo AS authLogo,
         balance,
         adviser_id AS adviserId,
-        region_id AS regionId
+        region_id AS regionId,
+        channel_source AS channelsource,
+        state_text AS stateText
         FROM tb_user
         WHERE id = #{id, jdbcType=INTEGER};
     </select>
@@ -258,7 +266,9 @@
         auth_logo AS authLogo,
         balance,
         adviser_id AS adviserId,
-        region_id AS regionId
+        region_id AS regionId,
+        channel_source AS channelsource,
+        state_text AS stateText
         from tb_user
         where
         auth_type =
@@ -303,6 +313,12 @@
         <if test='source != null and source != ""'>
             , source = #{source}
         </if>
+        <if test='stateText != null and stateText != ""'>
+            , state_text = #{stateText}
+        </if>
+        <if test='channelSource != null and channelSource != ""'>
+            , channel_source = #{channelSource}
+        </if>
         WHERE id = #{id};
     </update>
     
@@ -335,7 +351,9 @@
         auth_nickname AS authNickname,
         auth_username AS authUsername,
         balance,
-        adviser_id AS adviserId
+        adviser_id AS adviserId,
+        channel_source AS channelsource,
+        state_text AS stateText
         FROM tb_user
         WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
         ORDER BY gmt_create DESC
@@ -368,7 +386,9 @@
         auth_logo AS authLogo,
         balance,
         adviser_id AS adviserId,
-        region_id AS regionId
+        region_id AS regionId,
+        channel_source AS channelsource,
+        state_text AS stateText
         FROM tb_user
         WHERE  auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
     </select>

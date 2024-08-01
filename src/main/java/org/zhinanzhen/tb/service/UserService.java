@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Select;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
@@ -11,8 +12,8 @@ import org.zhinanzhen.tb.service.pojo.TagDTO;
 public interface UserService {
 
 	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email, String wechatUsername,
-			String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
-			int regionId) throws ServiceException;
+					   String firstControllerContents, String visaCode, Date visaExpirationDate, String source, int adviserId,
+					   int regionId, String stateText, String channelSource) throws ServiceException;
 
 	public int addUserAdviser(int userId, int adviserId) throws ServiceException;
 
@@ -47,7 +48,7 @@ public interface UserService {
 
 	boolean update(int id, String name, String authNickname, Date birthday, String phone, String email, String areaCode,
 			String wechatUsername, String firstControllerContents, String visaCode, Date visaExpirationDate,
-			String source) throws ServiceException;
+			String source, String stateText, String channelSource) throws ServiceException;
 
 	/**
 	 * 用户重新绑定顾问

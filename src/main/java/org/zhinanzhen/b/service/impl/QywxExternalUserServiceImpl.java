@@ -2,6 +2,8 @@ package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
@@ -91,6 +93,12 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 			QywxExternalUserDTO qywxExternalUserDto = mapper.map(qywxExternalUserDo, QywxExternalUserDTO.class);
 			qywxExternalUserDto.setTagsDTOS(tagsDTOS);
 			qywxExternalUserDtoList.add(qywxExternalUserDto);
+			if (tagsDTOS != null) {
+				List<String> channelSources = tagsDTOS.stream()
+						.filter(TagsDTO -> TagsDTO.getGroup().equals("来源"))
+						.map(TagsDTO::getName).collect(Collectors.toList());
+				qywxExternalUserDto.setChannelSource(String.join(",", channelSources));
+			}
 		}
 		return qywxExternalUserDtoList;
 	}

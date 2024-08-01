@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -22,10 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.RNodeFactory;
-import org.zhinanzhen.b.service.ExchangeRateService;
-import org.zhinanzhen.b.service.RefundService;
-import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
-import org.zhinanzhen.b.service.pojo.RefundDTO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.service.*;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -45,6 +45,8 @@ import jxl.WorkbookSettings;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
+
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -66,7 +68,19 @@ public class RefundController extends BaseController {
 
 	@Resource
 	RNodeFactory rNodeFactory;
-	
+
+	@Resource
+	private VisaService visaService;
+
+	@Resource
+	private VisaOfficialService visaOfficialService;
+
+	@Resource
+	private ServiceOrderService serviceOrderService;
+
+	@Resource
+	private OfficialService officialService;
+
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public enum RefundStateEnum {
@@ -456,8 +470,81 @@ public class RefundController extends BaseController {
 
 		context = workflowStarter.process(workflow, context);
 
+		// 更新文案佣金订单金额以及发送邮件提醒退款信息
+		try {
+			if ("COMPLETE".equals(refundDto.getState())) {
+				AtomicReference<String> visaOfficailId = new AtomicReference<>("");
+				RefundDTO refundById = refundService.getRefundById(refundDto.getId());
+				VisaDTO visaById = visaService.getVisaById(refundById.getVisaId());
+				List<ServiceOrderDTO> list = serviceOrderService.getZiServiceOrderById(visaById.getServiceOrderId());
+				// 父子订单重新结算
+				if (list != null && !list.isEmpty()) {
+					list.forEach(e -> {
+                        try {
+                            VisaOfficialDTO visaOfficialDTO = visaOfficialService.getByServiceOrderId(e.getId());
+							if (ObjectUtil.isNotNull(visaOfficialDTO)) {
+								visaOfficailId.set(visaOfficailId + "," + visaOfficialDTO.getId());
+								visaOfficialDTO.setIsRefund(true);
+								visaOfficialService.addVisa(visaOfficialDTO);
+							}
+                        } catch (ServiceException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    });
+				} else  { // 非父子订单重新结算
+					List<VisaOfficialDTO> allvisaOfficialByServiceOrderId = visaOfficialService.getAllvisaOfficialByServiceOrderId(visaById.getServiceOrderId());
+					if (allvisaOfficialByServiceOrderId != null) {
+						allvisaOfficialByServiceOrderId.forEach(e -> {
+							visaOfficailId.set(visaOfficailId + "," + e.getId());
+							e.setIsRefund(true);
+							try {
+								visaOfficialService.addVisa(e);
+							} catch (ServiceException ex) {
+								throw new RuntimeException(ex);
+							}
+						});
+					}
+				}
+				OfficialDTO officialById = officialService.getOfficialById(visaById.getOfficialId());
+				String visaOfficailIds = visaOfficailId.get();
+				String substring = visaOfficailIds.substring(1);
+				String email = "jiaheng.xu@zhinanzhen.org";
+				String title = "服务订单：" + visaById.getServiceOrderId()  + "退款信息：";
+				String message = "<h1>订单退款信息</h1>"
+						+ "<table border='1'>"
+						+ "<tr><th>退款ID</th><th>佣金订单ID</th><th>服务订单ID</th><th>文案佣金订单ID</th><th>顾问名称</th></tr>"
+						+ "<tr><td>" + refundDto.getId() + "</td><td>" + visaById.getId() + "</td><td>" + visaById.getServiceOrderId() + "</td><td>" + substring + "</td><td>" + officialById.getName() +"</td></tr>"
+						+ "</table>";
+				SendEmailUtil.send(email, title, message);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
 		return context.getParameter("response") != null ? (Response<RefundDTO>) context.getParameter("response")
 				: new Response<RefundDTO>(0, refundDto.getId() + "", null);
+	}
+
+	@RequestMapping(value = "/next_flow2", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<RefundDTO> nextFlow2(HttpServletRequest request,
+										HttpServletResponse response) {
+		String mail = "1286559059@qq.com";
+		String title = "服务订单：" + 123123  + "退款信息：";
+		String content = "<h1>This is a Heading</h1>"
+				+ "<p>This is a paragraph.</p>"
+				+ "<table border='1'>"
+				+ "<tr><th>Header 1</th><th>Header 2</th></tr>"
+				+ "<tr><td>Row 1, Cell 1</td><td>Row 1, Cell 2</td></tr>"
+				+ "<tr><td>Row 2, Cell 1</td><td>Row 2, Cell 2</td></tr>"
+				+ "</table>";
+		if (StringUtil.isEmpty(mail) || StringUtil.isEmpty(title)) {
+			LOG.error("参数错误!");
+			return null;
+		}
+			SendEmailUtil.send(mail, title, content);
+		return null;
 	}
 
 }

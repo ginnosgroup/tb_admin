@@ -602,13 +602,10 @@ public class VisaOfficialCheck {
                     List<FollowStaffsDTO> collect1 = v.stream().filter(FollowStaffsDTO -> collect.get(qywxExternalUserDTO.getAdviserId()).equals(FollowStaffsDTO.getStaffId())).collect(Collectors.toList());
                     if (!collect1.isEmpty()) {
                         FollowStaffsDTO followStaffsDTO = collect1.get(0);
-//                        Integer followTime = followStaffsDTO.getFollowTime();
-//                        Date date = new Date(followTime);
-//                        String format = sdf.format(date);
-                        qywxExternalUserDTO.setTagsDTOS(followStaffsDTO.getTags());
                         String jsonString = JSONObject.toJSONString(followStaffsDTO.getTags());
+                        qywxExternalUserDTO.setTagsDTOS(followStaffsDTO.getTags());
                         qywxExternalUserDTO.setTags(jsonString);
-//                        qywxExternalUserDTO.setCreateTime(format);
+                        qywxExternalUserDTO.setStateText(followStaffsDTO.getStateText());
                     }
                     qywxExternalUserDTOMap.put(k, qywxExternalUserDTO);
                 });

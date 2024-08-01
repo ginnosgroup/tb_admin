@@ -29,4 +29,6 @@ public interface VisaOfficialService {
     int deleteById(Integer id);
 //    VisaOfficialDO buildVisa(VisaOfficialDTO visaOfficialDTO) throws ServiceException;
 
+    List<VisaOfficialDTO> getAllvisaOfficialByServiceOrderId(Integer serviceOrderId);
+
 }

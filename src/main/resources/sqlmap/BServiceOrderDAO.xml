@@ -638,9 +638,8 @@
             AND so.type = #{type}
         </if>
         <if test='type != null and type != "" and type == "bindingList"'>
-            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND binding_order IS NULL
+            AND so.type != 'OVST' AND (so.applicant_parent_id = 0 OR ISNULL(so.applicant_parent_id) ) AND binding_order IS NULL
         </if>
-
         <if test='type != null and type != "" and type == "bindingList2"'>
             AND so.applicant_parent_id = 0 AND binding_order IS NULL
         </if>

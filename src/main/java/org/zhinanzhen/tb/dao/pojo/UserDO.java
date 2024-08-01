@@ -53,4 +53,8 @@ public class UserDO implements Serializable {
 	private String recommendOpenid;
 
 	private Date dob;
+
+	private String stateText; // 添加方式
+
+	private String channelSource; // 渠道来源
 }

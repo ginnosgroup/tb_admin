@@ -61,7 +61,10 @@ public class UserController extends BaseController {
 			@RequestParam(value = "visaCode") String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
 			@RequestParam(value = "source") String source, @RequestParam(value = "adviserId") String adviserId,
-			@RequestParam(value = "regionId", required = false) String regionId, HttpServletResponse response) {
+			@RequestParam(value = "regionId", required = false) String regionId,
+			@RequestParam(value = "stateText", required = false) String stateText,
+			@RequestParam(value = "channelSource", required = false) String channelSource,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			if (ObjectUtil.andIsNull(phone, email, wechatUsername))
@@ -93,7 +96,7 @@ public class UserController extends BaseController {
 					userService.addUser(name, authNickname, new Date(Long.parseLong(birthday.trim())), areaCode, phone,
 							email, wechatUsername, firstControllerContents, visaCode,
 							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId),
-							StringUtil.toInt(regionId)));
+							StringUtil.toInt(regionId), stateText, channelSource));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
@@ -317,7 +320,7 @@ public class UserController extends BaseController {
 		if (name != null)
 			name = name.trim().replace("  ", " "); // 处理多余空格问题
 		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, email, areaCode,
-				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source));
+				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source, null, null));
 	}
 
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)
