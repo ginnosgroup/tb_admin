@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -417,11 +418,13 @@ public class DashboardController extends BaseController {
 		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String today = DateClass.today();
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay, today, "R", null);
+		List<DataDTO> collectListThisMonth = dataListThisMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
 		List<DataDTO> resultList = new ArrayList<>();
 
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0, 7));
-		dataListThisMonth.forEach(dataDTO -> {
+//		dataListThisMonth.forEach(dataDTO -> {
+		collectListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 				// thisMonthData.setDate(dataDTO.getDate());
 				thisMonthData.setServiceFee(new BigDecimal(thisMonthData.getServiceFee() + dataDTO.getServiceFee())
@@ -443,9 +446,14 @@ public class DashboardController extends BaseController {
 		String lastMonthFirstDay = DateClass.lastMonthFirstDay(Calendar.getInstance());
 		String lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
 		List<DataDTO> dataListLastMonth = data.dataReport(lastMonthFirstDay, lastMonthEndDay, "R", null);
+		List<DataDTO> collectListLastMonth = dataListLastMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
+		int regionId1 = adviserService.getAdviserById(adminUserLoginInfo.getAdviserId()).getRegionId();
+		double sum = dataListLastMonth.stream().filter(DataDTO -> regionId1 == DataDTO.getRegionId()).map(DataDTO::getServiceFee).mapToDouble(n -> n).sum();
+		System.out.println("serviceFee总和为---------------------" + sum);
 		DataDTO lastMonthData = new DataDTO();
 		lastMonthData.setDate(lastMonthEndDay.substring(0, 7));
-		dataListLastMonth.forEach(dataDTO -> {
+//		dataListLastMonth.forEach(dataDTO -> {
+		collectListLastMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 				lastMonthData.setDate(dataDTO.getDate());
 				lastMonthData.setServiceFee(new BigDecimal(lastMonthData.getServiceFee() + dataDTO.getServiceFee())
@@ -500,10 +508,12 @@ public class DashboardController extends BaseController {
 		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String today = DateClass.today();
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay, today, "R", null);
+		List<DataDTO> collectListThisMonth = dataListThisMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0, 7));
-		dataListThisMonth.forEach(dataDTO -> {
+//		dataListThisMonth.forEach(dataDTO -> {
+		collectListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 				thisMonthData.setDate(dataDTO.getDate());
 				thisMonthData.setServiceFee(roundHalfUp(thisMonthData.getServiceFee() + dataDTO.getServiceFee()));
@@ -521,9 +531,12 @@ public class DashboardController extends BaseController {
 		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
 		List<DataDTO> dataListLastMonth = data.dataReport(lastYearThisMonthFirstDay, lastYearThisMonthLastDay, "R",
 				null);
+		List<DataDTO> collectLastMonth = dataListLastMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
+
 		DataDTO lastYearThisMonthData = new DataDTO();
 		lastYearThisMonthData.setDate(lastYearThisMonthLastDay.substring(0, 7));
-		dataListLastMonth.forEach(dataDTO -> {
+//		dataListLastMonth.forEach(dataDTO -> {
+		collectLastMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 				lastYearThisMonthData.setDate(dataDTO.getDate());
 				lastYearThisMonthData

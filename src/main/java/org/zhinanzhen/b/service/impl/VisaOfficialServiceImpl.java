@@ -656,10 +656,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             commissionAmountDTO.setRuler(servicePackagePriceV2DTO.getRuler());
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        boolean isSIV = false;
         if (commissionAmountDTO.getRuler() == 0) {
             double predictCommissionAmount = 0.00;
             ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
-            boolean isSIV = false;
             double bingdingOrderAmount = 0.00;
             Integer getBindingOrderId = 0;
             getBindingOrderId = serviceOrderById.getId();
@@ -745,6 +745,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() / EOICount);
         visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount() / EOICount);
+        if (isSIV) {
+            visaOfficialDO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
+            visaOfficialDO.setCommissionAmount(commissionAmountDTO.getCommissionAmount());
+        }
         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
         return visaOfficialDO;
     }
