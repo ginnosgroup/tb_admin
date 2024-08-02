@@ -96,6 +96,7 @@ public class MailRemindController extends BaseController {
                         @RequestParam(value = "visaId" , required = false)Integer visaId,
                         @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
                         @RequestParam(value = "userId" , required = false)Integer userId,
+                        @RequestParam(value = "needRemind" , required = false)Boolean needRemind,
                         HttpServletRequest request, HttpServletResponse response){
         try {
             super.setPostHeader(response);
@@ -186,6 +187,7 @@ public class MailRemindController extends BaseController {
             mailRemindDTO.setCommissionOrderId(commissionOrderId);
             mailRemindDTO.setUserId(userId);
             mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
+            mailRemindDTO.setNeedRemind(needRemind);
             try {
                 mailRemindDTO.setCode(MD5Util.getMD5(content));
             } catch (Exception e) {
