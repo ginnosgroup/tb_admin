@@ -1781,11 +1781,15 @@ public class ServiceOrderController extends BaseController {
                     .setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
             serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
             serviceOrderCommentDto.setContent(content);
-            if (score != null) {
+            if (score > 0) {
                 if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    List<ServiceOrderCommentDTO> serviceOrderCommentDTOS = serviceOrderService.listComment(serviceOrderId, adminUserLoginInfo.getOfficialId());
-                    if (serviceOrderCommentDTOS != null && serviceOrderCommentDTOS.size() > 0) {
-                        return new Response<Integer>(1, "当前订单已经打分，请勿重复打分");
+                    List<ServiceOrderCommentDTO> serviceOrderCommentDTOS = serviceOrderService.listComment(serviceOrderId);
+                    if (serviceOrderCommentDTOS != null) {
+                        for (ServiceOrderCommentDTO serviceOrderCommentDTO : serviceOrderCommentDTOS) {
+                            if (serviceOrderCommentDTO.getScore() > 0) {
+                                return new Response<Integer>(1, "当前订单已经打分，请勿重复打分");
+                            }
+                        }
                     }
                     serviceOrderCommentDto.setScore(score);
                     serviceOrderCommentDto.setScoreOfficialId(adminUserLoginInfo.getOfficialId());
@@ -1869,7 +1873,7 @@ public class ServiceOrderController extends BaseController {
                                           HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new Response<Integer>(0, serviceOrderService.listComment(serviceOrderId, 0).size());
+            return new Response<Integer>(0, serviceOrderService.listComment(serviceOrderId).size());
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), null);
         }
@@ -1879,10 +1883,10 @@ public class ServiceOrderController extends BaseController {
     @ResponseBody
     public Response<List<ServiceOrderCommentDTO>> listComment(
             @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-            @RequestParam(value = "officialId") Integer officialId, HttpServletResponse response) {
+            HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new Response<List<ServiceOrderCommentDTO>>(0, serviceOrderService.listComment(serviceOrderId, officialId));
+            return new Response<List<ServiceOrderCommentDTO>>(0, serviceOrderService.listComment(serviceOrderId));
         } catch (ServiceException e) {
             return new Response<List<ServiceOrderCommentDTO>>(1, e.getMessage(), null);
         }

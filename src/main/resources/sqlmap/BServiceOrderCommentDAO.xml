@@ -37,9 +37,6 @@
         <if test='serviceOrderId != null and serviceOrderId != ""'>
             service_order_id = #{serviceOrderId}
         </if>
-        <if test='scoreOfficialId != null and scoreOfficialId > 0'>
-            AND score_official_id = #{scoreOfficialId}
-        </if>
         ORDER BY gmt_create DESC;
     </select>
     

@@ -57,7 +57,7 @@ public interface ServiceOrderService {
 
 	int addComment(ServiceOrderCommentDTO serviceOrderCommentDto) throws ServiceException;
 
-	List<ServiceOrderCommentDTO> listComment(int id, int officialId) throws ServiceException;
+	List<ServiceOrderCommentDTO> listComment(int id) throws ServiceException;
 
 	int deleteComment(int id) throws ServiceException;
 

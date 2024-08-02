@@ -1780,11 +1780,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     }
 
     @Override
-    public List<ServiceOrderCommentDTO> listComment(int id, int officialId) throws ServiceException {
+    public List<ServiceOrderCommentDTO> listComment(int id) throws ServiceException {
         List<ServiceOrderCommentDTO> serviceOrderCommentDtoList = new ArrayList<>();
         List<ServiceOrderCommentDO> serviceOrderCommentDoList = new ArrayList<>();
         try {
-            serviceOrderCommentDoList = serviceOrderCommentDao.list(id, officialId);
+            serviceOrderCommentDoList = serviceOrderCommentDao.list(id);
             if (serviceOrderCommentDoList == null)
                 return null;
         } catch (Exception e) {
@@ -1799,6 +1799,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (adminUserDo != null)
                 serviceOrderCommentDto.setAdminUserName(adminUserDo.getUsername());
             serviceOrderCommentDtoList.add(serviceOrderCommentDto);
+        }
+
+        Optional<ServiceOrderCommentDTO> first = serviceOrderCommentDtoList.stream()
+                .filter(item -> item.getScore() > 0)
+                .findFirst();
+        if (first.isPresent()) {
+            // 移除元素（如果它存在于列表中）
+            serviceOrderCommentDtoList.remove(first.get());
+            // 将元素添加到列表的开头
+            serviceOrderCommentDtoList.add(0, first.get());
         }
         return serviceOrderCommentDtoList;
     }
