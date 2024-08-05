@@ -1768,7 +1768,7 @@ public class ServiceOrderController extends BaseController {
     @ResponseBody
     public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
                                         @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-                                        @RequestParam(value = "content") String content, @RequestParam(value = "score") Integer score,
+                                        @RequestParam(value = "content") String content, @RequestParam(value = "score") String score,
                                         HttpServletRequest request, HttpServletResponse response) {
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -1781,7 +1781,10 @@ public class ServiceOrderController extends BaseController {
                     .setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
             serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
             serviceOrderCommentDto.setContent(content);
-            if (score > 0) {
+            if (StringUtil.isEmpty(score)) {
+                serviceOrderCommentDto.setScore(0);
+            }
+            if (StringUtil.isNotEmpty(score) && Integer.parseInt(score) > 0) {
                 if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
                     List<ServiceOrderCommentDTO> serviceOrderCommentDTOS = serviceOrderService.listComment(serviceOrderId);
                     if (serviceOrderCommentDTOS != null) {
@@ -1791,7 +1794,7 @@ public class ServiceOrderController extends BaseController {
                             }
                         }
                     }
-                    serviceOrderCommentDto.setScore(score);
+                    serviceOrderCommentDto.setScore(Integer.parseInt(score));
                     serviceOrderCommentDto.setScoreOfficialId(adminUserLoginInfo.getOfficialId());
                     serviceOrderService.addComment(serviceOrderCommentDto);
                 }
