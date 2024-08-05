@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -178,6 +179,7 @@ public class MailRemindController extends BaseController {
                 mailRemindDTO.setTitle("您有一个新提醒待处理");
 
 
+            ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(serviceOrderId);
             mailRemindDTO.setAdviserId(adviserId);
             mailRemindDTO.setOffcialId(offcialId);
             mailRemindDTO.setKjId(kjId);
@@ -185,7 +187,9 @@ public class MailRemindController extends BaseController {
             mailRemindDTO.setVisaId(visaId);
             mailRemindDTO.setServiceOrderId(serviceOrderId);
             mailRemindDTO.setCommissionOrderId(commissionOrderId);
-            mailRemindDTO.setUserId(userId);
+            if (ObjectUtil.isNotNull(serviceOrderById)) {
+                mailRemindDTO.setUserId(serviceOrderById.getUserId());
+            }
             mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             mailRemindDTO.setNeedRemind(needRemind);
             try {
