@@ -917,10 +917,11 @@
                 <![CDATA[ CONCAT(bs.`code`, ' - ', bs.`name`, IF(bsa.name <> '', CONCAT(' - ', bsa.name), '')) AS code, ]]>
                 so.service_id AS serviceId
                 FROM
-                tb_adviser a,
-                b_service_order so LEFT join b_service_assess bsa on so.service_id=bsa.service_id,
-                tb_region tr,
-                b_service bs
+                b_service_order so
+                LEFT JOIN b_service_assess bsa ON so.service_assess_id = bsa.id
+                LEFT JOIN tb_adviser a ON so.adviser_id = a.id
+                LEFT JOIN tb_region tr ON a.region_id = tr.id
+                LEFT JOIN b_service bs ON so.service_id = bs.id
             </when>
         </choose>
         WHERE
