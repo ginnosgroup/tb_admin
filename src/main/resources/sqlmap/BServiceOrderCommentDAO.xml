@@ -12,7 +12,8 @@
                 service_order_id,
                 content,
                 score,
-                score_official_id)
+                score_official_id,
+                ap_list)
             VALUES (
                 now(),
                 now(),
@@ -20,7 +21,8 @@
                 #{serviceOrderId},
                 #{content},
                 #{score},
-                #{scoreOfficialId});
+                #{scoreOfficialId},
+                #{apList});
     </insert>
     
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderCommentDO">
@@ -31,7 +33,8 @@
             service_order_id AS serviceOrderId,
             content,
             score,
-            score_official_id AS scoreOfficialId
+            score_official_id AS scoreOfficialId,
+            ap_list AS apList
         FROM b_service_order_comment
         WHERE
         <if test='serviceOrderId != null and serviceOrderId != ""'>

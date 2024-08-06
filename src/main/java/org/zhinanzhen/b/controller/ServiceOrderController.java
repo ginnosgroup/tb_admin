@@ -1781,6 +1781,7 @@ public class ServiceOrderController extends BaseController {
                     .setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
             serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
             serviceOrderCommentDto.setContent(content);
+            serviceOrderCommentDto.setApList(adminUserLoginInfo.getApList());
             if (StringUtil.isEmpty(score)) {
                 serviceOrderCommentDto.setScore(0);
             }

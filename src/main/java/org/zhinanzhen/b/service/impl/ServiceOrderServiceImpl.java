@@ -1798,6 +1798,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             throw se;
         }
         for (ServiceOrderCommentDO serviceOrderCommentDo : serviceOrderCommentDoList) {
+            String apList = serviceOrderCommentDo.getApList();
+            if (StringUtil.isNotEmpty(apList)) {
+                if ("WA".equals(apList)) {
+                    serviceOrderCommentDo.setApList("文案");
+                }
+                if ("GW".equals(apList)) {
+                    serviceOrderCommentDo.setApList("顾问");
+                }
+            }
             ServiceOrderCommentDTO serviceOrderCommentDto = mapper.map(serviceOrderCommentDo,
                     ServiceOrderCommentDTO.class);
             AdminUserDO adminUserDo = adminUserDao.getAdminUserById(serviceOrderCommentDo.getAdminUserId());

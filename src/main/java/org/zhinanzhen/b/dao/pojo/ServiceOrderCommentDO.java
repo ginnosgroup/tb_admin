@@ -24,4 +24,6 @@ public class ServiceOrderCommentDO implements Serializable {
 
 	private Integer scoreOfficialId;
 
+	private String apList;
+
 }
