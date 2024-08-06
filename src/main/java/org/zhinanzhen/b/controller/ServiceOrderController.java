@@ -1768,7 +1768,7 @@ public class ServiceOrderController extends BaseController {
     @ResponseBody
     public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
                                         @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-                                        @RequestParam(value = "content") String content, @RequestParam(value = "score") String score,
+                                        @RequestParam(value = "content") String content, @RequestParam(value = "score", required = false) String score,
                                         HttpServletRequest request, HttpServletResponse response) {
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
