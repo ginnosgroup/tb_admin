@@ -1768,93 +1768,6 @@ public class ServiceOrderController extends BaseController {
     @ResponseBody
     public Response<Integer> addComment(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
                                         @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
-                                        @RequestParam(value = "content") String content,
-                                        HttpServletRequest request, HttpServletResponse response) {
-        try {
-            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-            super.setPostHeader(response);
-            ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(serviceOrderId);
-            if (serviceOrder == null)
-                return new Response<Integer>(1, "服务订单为空.", 0);
-            ServiceOrderCommentDTO serviceOrderCommentDto = new ServiceOrderCommentDTO();
-            serviceOrderCommentDto
-                    .setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : adminUserId);
-            serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
-            serviceOrderCommentDto.setContent(content);
-            serviceOrderCommentDto.setScore(0);
-            if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
-                // 发送邮件
-                String serviceType = "?";
-                if ("VISA".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "签证";
-                else if ("OVST".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "留学";
-                else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "独立技术移民";
-                else if ("NSV".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "雇主担保";
-                else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
-                    serviceType = "曼拓";
-                String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
-                String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>申请人:"
-                        + (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
-                        + serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
-                        + new Date()
-                        + "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
-                        + serviceOrder.getId() + "'>服务订单详情</a>";
-                String email = "";
-                if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    OfficialDTO official = serviceOrder.getOfficial();
-                    if (official != null)
-                        email = official.getEmail();
-                    MaraDTO mara = serviceOrder.getMara();
-                    if (mara != null)
-                        if ("".equals(email))
-                            email = mara.getEmail();
-                        else
-                            email = email + "," + mara.getEmail();
-                } else if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    AdviserDTO adviser = serviceOrder.getAdviser();
-                    if (adviser != null)
-                        email = adviser.getEmail();
-                    MaraDTO mara = serviceOrder.getMara();
-                    if (mara != null)
-                        if ("".equals(email))
-                            email = mara.getEmail();
-                        else
-                            email = email + "," + mara.getEmail();
-                } else if (adminUserLoginInfo != null && "MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    MaraDTO mara = serviceOrder.getMara();
-                    if (mara != null)
-                        if ("".equals(email))
-                            email = mara.getEmail();
-                        else
-                            email = email + "," + mara.getEmail();
-                } else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-                    OfficialDTO official = serviceOrder.getOfficial();
-                    if (official != null)
-                        email = official.getEmail();
-                    AdviserDTO adviser = serviceOrder.getAdviser();
-                    if (adviser != null)
-                        if ("".equals(email))
-                            email = adviser.getEmail();
-                        else
-                            email = email + "," + adviser.getEmail();
-                }
-                if (!"".equals(email))
-                    SendEmailUtil.send(email, title, message);
-                return new Response<Integer>(0, serviceOrderCommentDto.getId());
-            } else
-                return new Response<Integer>(1, "创建失败.", 0);
-        } catch (ServiceException e) {
-            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
-        }
-    }
-
-    @RequestMapping(value = "/addCommentV2", method = RequestMethod.POST)
-    @ResponseBody
-    public Response<Integer> addCommentV2(@RequestParam(value = "adminUserId", required = false) Integer adminUserId,
-                                        @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
                                         @RequestParam(value = "content") String content, @RequestParam(value = "score") String score,
                                         HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -1885,14 +1798,77 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderCommentDto.setScoreOfficialId(adminUserLoginInfo.getOfficialId());
                     serviceOrderService.addComment(serviceOrderCommentDto);
                 }
+                return new Response<Integer>(0, serviceOrderCommentDto.getId());
+            } else {
+                if (serviceOrderService.addComment(serviceOrderCommentDto) > 0) {
+                    // 发送邮件
+                    String serviceType = "?";
+                    if ("VISA".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "签证";
+                    else if ("OVST".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "留学";
+                    else if ("SIV".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "独立技术移民";
+                    else if ("NSV".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "雇主担保";
+                    else if ("MT".equalsIgnoreCase(serviceOrder.getType()))
+                        serviceType = "曼拓";
+                    String title = "您的" + serviceType + "订单" + serviceOrder.getId() + "有最新评论";
+                    String message = "您的服务订单有一条新的评论，请及时查看．<br/>服务订单类型:" + serviceType + "<br/>申请人:"
+                            + (serviceOrder.getUser() != null ? serviceOrder.getUser().getName() : "") + "<br/>订单ID:"
+                            + serviceOrder.getId() + "<br/>评论内容:" + serviceOrderCommentDto.getContent() + "<br/>评论时间:"
+                            + new Date()
+                            + "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/serviceorderdetail/id?"
+                            + serviceOrder.getId() + "'>服务订单详情</a>";
+                    String email = "";
+                    if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        OfficialDTO official = serviceOrder.getOfficial();
+                        if (official != null)
+                            email = official.getEmail();
+                        MaraDTO mara = serviceOrder.getMara();
+                        if (mara != null)
+                            if ("".equals(email))
+                                email = mara.getEmail();
+                            else
+                                email = email + "," + mara.getEmail();
+                    } else if (adminUserLoginInfo != null && "WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        AdviserDTO adviser = serviceOrder.getAdviser();
+                        if (adviser != null)
+                            email = adviser.getEmail();
+                        MaraDTO mara = serviceOrder.getMara();
+                        if (mara != null)
+                            if ("".equals(email))
+                                email = mara.getEmail();
+                            else
+                                email = email + "," + mara.getEmail();
+                    } else if (adminUserLoginInfo != null && "MA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        MaraDTO mara = serviceOrder.getMara();
+                        if (mara != null)
+                            if ("".equals(email))
+                                email = mara.getEmail();
+                            else
+                                email = email + "," + mara.getEmail();
+                    } else if (adminUserLoginInfo != null && "M".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                        OfficialDTO official = serviceOrder.getOfficial();
+                        if (official != null)
+                            email = official.getEmail();
+                        AdviserDTO adviser = serviceOrder.getAdviser();
+                        if (adviser != null)
+                            if ("".equals(email))
+                                email = adviser.getEmail();
+                            else
+                                email = email + "," + adviser.getEmail();
+                    }
+                    if (!"".equals(email))
+                        SendEmailUtil.send(email, title, message);
+                    return new Response<Integer>(0, serviceOrderCommentDto.getId());
+                } else
+                    return new Response<Integer>(1, "创建失败.", 0);
             }
-            return new Response<Integer>(0, serviceOrderCommentDto.getId());
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
         }
     }
-
-
 
     @RequestMapping(value = "/countComment", method = RequestMethod.GET)
     @ResponseBody
