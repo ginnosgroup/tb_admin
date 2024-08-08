@@ -985,7 +985,7 @@
                     <![CDATA[ AND co.school_payment_date > #{startDate} AND co.school_payment_date <= #{endDate} ]]>
                 </when>
                 <otherwise>
-                    <![CDATA[ AND co.gmt_create > #{startDate} AND co.gmt_create <= #{endDate} ]]>
+                    <![CDATA[ AND co.kj_approval_date > #{startDate} AND co.kj_approval_date <= #{endDate} ]]>
                 </otherwise>
             </choose>
         </if>

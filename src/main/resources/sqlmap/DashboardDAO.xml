@@ -19,7 +19,7 @@
         ;
     </select>
     <select id="getThisMonthbCommissionOrderExpectAmountSBBTM" resultType="java.lang.Double">
-        select IFNULL(sum(IF(currency='CNY',expect_amount,expect_amount)),0.00) FROM b_commission_order bco , tb_adviser tba  where DATE_FORMAT(bco.gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        select IFNULL(sum(IF(currency='CNY',expect_amount,expect_amount)),0.00) FROM b_commission_order bco , tb_adviser tba  where DATE_FORMAT(bco.kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         and is_close = 0 and bco.state != 'PENDING' and bco.state != 'WAIT' AND tba.id = bco.adviser_id
         <if test='adviserId != null'>
             AND bco.adviser_id = #{adviserId}
