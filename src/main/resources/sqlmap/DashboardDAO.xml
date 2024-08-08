@@ -19,7 +19,7 @@
         ;
     </select>
     <select id="getThisMonthbCommissionOrderExpectAmountSBBTM" resultType="java.lang.Double">
-        select IFNULL(sum(IF(currency='CNY',expect_amount,expect_amount)),0.00) FROM b_commission_order bco , tb_adviser tba  where DATE_FORMAT(bco.gmt_create, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        select IFNULL(sum(IF(currency='CNY',expect_amount,expect_amount)),0.00) FROM b_commission_order bco , tb_adviser tba  where DATE_FORMAT(bco.kj_approval_date, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
         and is_close = 0 and bco.state != 'PENDING' and bco.state != 'WAIT' AND tba.id = bco.adviser_id
         <if test='adviserId != null'>
             AND bco.adviser_id = #{adviserId}
@@ -81,7 +81,7 @@
         WHERE co.service_order_id=so.id AND co.user_id=u.id AND u.region_id=r.id AND u.region_id>0 AND co.state!='CLOSE' AND so.is_settle=1 AND co.bonus_date IS NULL GROUP BY r.id ORDER BY IFNULL(sum(co.bonus),0.00) DESC;
     </select>
     <select id="summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool" resultType="org.zhinanzhen.b.dao.pojo.DashboardAmountSummaryDO">
-        SELECT si.id, si.institution_trading_name AS name1, si.institution_name AS name2, count(co.id) AS total, IFNULL(sum(IF(co.currency='CNY',co.bonus/co.exchange_rate,co.bonus)),0.00) AS amount
+        SELECT si.id, si.institution_trading_name AS name1, si.institution_name AS name2, count(co.id) AS total, IFNULL(sum(IF(co.currency='CNY',co.bonus,co.bonus)),0.00) AS amount
         FROM b_commission_order co, b_school_course sc, b_school_institution si
         WHERE co.course_id=sc.id AND sc.provider_id=si.id AND co.state!='CLOSE' AND co.commission_state='DZY' AND co.bonus_date IS NULL GROUP BY si.id ORDER BY IFNULL(sum(co.bonus),0.00) DESC;
     </select>

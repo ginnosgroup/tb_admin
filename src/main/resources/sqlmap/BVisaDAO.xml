@@ -531,7 +531,7 @@
         FROM tb_adviser a, tb_region r, b_visa v LEFT JOIN b_refund rf ON rf.visa_id = v.id AND rf.state = 'PAID'
         WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
-            <![CDATA[ AND v.gmt_create > #{startDate} AND v.gmt_create <= #{endDate} ]]>
+            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.gmt_create <= #{endDate} ]]>
         </if>
         <if test='regionId != null and regionId != ""'>
             AND r.id = #{regionId}
