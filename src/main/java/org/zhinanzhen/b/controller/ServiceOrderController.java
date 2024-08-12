@@ -1782,7 +1782,7 @@ public class ServiceOrderController extends BaseController {
             serviceOrderCommentDto.setServiceOrderId(serviceOrderId);
             serviceOrderCommentDto.setContent(content);
             serviceOrderCommentDto.setApList(adminUserLoginInfo.getApList());
-            if (StringUtil.isEmpty(score)) {
+            if (StringUtil.isEmpty(score) || "0".equals(score)) {
                 serviceOrderCommentDto.setScore(0);
             }
             if (StringUtil.isNotEmpty(score) && Integer.parseInt(score) > 0) {
