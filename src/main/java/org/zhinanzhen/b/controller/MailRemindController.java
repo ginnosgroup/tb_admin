@@ -88,16 +88,16 @@ public class MailRemindController extends BaseController {
 	}
 
     @PostMapping(value = "/add")
-    public Response add(@RequestParam(value = "sendDate") String sendDate,
+    public Response add(@RequestParam(value = "sendDate", required = false) String sendDate,
                         @RequestParam(value = "content")String content,
-                        @RequestParam(value = "adviserId" , required = false)Integer adviserId,
-                        @RequestParam(value = "offcialId" , required = false)Integer offcialId,
-                        @RequestParam(value = "kjId" , required = false)Integer kjId,
-                        @RequestParam(value = "serviceOrderId" , required = false)Integer serviceOrderId,
-                        @RequestParam(value = "visaId" , required = false)Integer visaId,
-                        @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
-                        @RequestParam(value = "userId" , required = false)Integer userId,
-                        @RequestParam(value = "needRemind" , required = false)Boolean needRemind,
+                        @RequestParam(value = "adviserId", required = false)Integer adviserId,
+                        @RequestParam(value = "offcialId", required = false)Integer offcialId,
+                        @RequestParam(value = "kjId", required = false)Integer kjId,
+                        @RequestParam(value = "serviceOrderId", required = false)Integer serviceOrderId,
+                        @RequestParam(value = "visaId", required = false)Integer visaId,
+                        @RequestParam(value = "commissionOrderId", required = false)Integer commissionOrderId,
+                        @RequestParam(value = "userId", required = false)Integer userId,
+                        @RequestParam(value = "needRemind", required = false)Boolean needRemind,
                         HttpServletRequest request, HttpServletResponse response){
         try {
             super.setPostHeader(response);
@@ -190,7 +190,9 @@ public class MailRemindController extends BaseController {
             if (ObjectUtil.isNotNull(serviceOrderById)) {
                 mailRemindDTO.setUserId(serviceOrderById.getUserId());
             }
-            mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
+            if (ObjectUtil.isNotNull(sendDate)) {
+                mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
+            }
             mailRemindDTO.setNeedRemind(needRemind);
             try {
                 mailRemindDTO.setCode(MD5Util.getMD5(content));

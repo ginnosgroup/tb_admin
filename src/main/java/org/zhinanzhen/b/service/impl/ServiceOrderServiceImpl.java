@@ -876,9 +876,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
             mailRemindDOS.forEach(mailRemindDO -> {
                 MailRemindDTO map = mapper.map(mailRemindDO, MailRemindDTO.class);
-                if (map != null && map.getUserId() > 0) {
-                    UserDO userById = userDao.getUserById(map.getUserId());
-                    map.setUserName(userById.getName());
+                Integer adviserId = map.getAdviserId();
+                Integer offcialId = map.getOffcialId();
+                Integer kjId = map.getKjId();
+                if (adviserId != null) {
+                    AdviserDO adviserById = adviserDao.getAdviserById(adviserId);
+                    map.setUserName(adviserById.getName());
+                }
+                if (offcialId != null) {
+                    OfficialDO officialById = officialDao.getOfficialById(offcialId);
+                    map.setUserName(officialById.getName());
+                }
+                if (kjId != null) {
+                    KjDO kjById = kjDao.getKjById(kjId);
+                    map.setUserName(kjById.getName());
                 }
                 mailRemindDTOS.add(map);
             });
