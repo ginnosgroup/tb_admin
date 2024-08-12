@@ -706,7 +706,7 @@
         <if test='parentId != null and parentId > 0'>
             AND so.parent_id = #{parentId}
         </if>
-        <if test='applicantParentId != null and applicantParentId > 0'>
+        <if test='applicantParentId != null'>
             AND so.applicant_parent_id = #{applicantParentId}
         </if>
         <if test='isNotApproved == true'>
