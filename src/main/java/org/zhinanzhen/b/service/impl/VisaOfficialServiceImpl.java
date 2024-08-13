@@ -450,7 +450,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 //        if (region == 0 && monthlist.contains(calendar.get(Calendar.MONTH) + 1)) {
 //            rate = rate + 3;
 //        }
-        if (region == 0) {
+        if (region == 0 && !"资深".equals(officialGradeById.getGrade())) {
             // 创建一个Calendar对象并设置时间为date对象的时间
             Calendar sss = Calendar.getInstance();
             sss.setTime(serviceOrderById.getReadcommittedDate());
