@@ -102,13 +102,13 @@ public class ServiceOrderController extends BaseController {
     WXWorkService wxWorkService;
 
     @Resource
-    OfficialService officialService;
-
-    @Resource
     VisaOfficialController visaOfficialController;
 
     @Resource
     VisaOfficialService visaOfficialService;
+
+    @Resource
+    private ServiceService serviceService;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -980,17 +980,6 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
             if (StringUtil.isNotEmpty(institutionTradingName))
                 serviceOrderDto.setInstitutionTradingName(institutionTradingName);
-            if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
-                for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
-                    serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-					if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
-						LOG.warn("申请人信息修改失败! (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
-					else
-						LOG.warn("申请人信息修改成功. (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
-                }
-                if (serviceOrderApplicantList.get(0) != null && StringUtil.isEmpty(applicantId))
-                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-            }
             if (bindingOrderId != null) {
                 serviceOrderDto.setBindingOrder(bindingOrderId);
             }
@@ -1003,6 +992,43 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(visaNumber)) {
                 serviceOrderDto.setVisaNumber(visaNumber);
             }
+
+            // 普通签证修改为600和870类父子订单签证
+            ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
+            if ("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) {
+                if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 1) {
+                    // 创建主订单
+                    serviceOrderDto.setApplicantId(0);
+                    serviceOrderDto.setApplicantParentId(0);
+                    List<ServiceOrderApplicantDTO> serviceOrderApplicantDTOS = serviceOrderApplicantService.listServiceOrderApplicant(serviceOrderDto.getId(), serviceOrderDto.getApplicantId());
+                    serviceOrderService.updateServiceOrder(serviceOrderDto);
+                    for (ServiceOrderApplicantDTO e : serviceOrderApplicantDTOS) {
+                        serviceOrderApplicantService.deleteServiceOrderApplicant(e.getId());
+                    }
+                    for (ServiceOrderApplicantDTO e : serviceOrderApplicantList) {
+                        serviceOrderApplicantService.addServiceOrderApplicant(e);
+                        serviceOrderDto.setApplicantParentId(serviceOrderDto.getId());
+                        serviceOrderDto.setApplicantId(e.getApplicantId());
+                        int serviceOrderId = serviceOrderService.addServiceOrder(serviceOrderDto);
+                        e.setServiceOrderId(serviceOrderId);
+                        serviceOrderApplicantService.addServiceOrderApplicant(e);
+                    }
+                    return new Response<Integer>(0, "修改成功");
+                }
+            }
+
+            if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
+                for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+                    serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+                    if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
+                        LOG.warn("申请人信息修改失败! (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
+                    else
+                        LOG.warn("申请人信息修改成功. (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
+                }
+                if (serviceOrderApplicantList.get(0) != null && StringUtil.isEmpty(applicantId))
+                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+            }
+
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
                 ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
