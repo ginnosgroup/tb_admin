@@ -344,7 +344,7 @@
         <if test='userId != null and userId > 0'>
             , user_id = #{userId}
         </if>
-        <if test='applicantId != null and applicantId > 0'>
+        <if test='applicantId != null'>
             , applicant_id = #{applicantId}
         </if>
         <if test='maraId != null and maraId > 0'>

@@ -17,30 +17,23 @@ import jxl.WorkbookSettings;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
-import jxl.write.WriteException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
-import org.zhinanzhen.b.dao.*;
-import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderExportDTO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
+import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.dao.AdviserDAO;
-import org.zhinanzhen.tb.dao.RegionDAO;
-import org.zhinanzhen.tb.dao.UserDAO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
-import org.zhinanzhen.tb.dao.pojo.RegionDO;
-import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
@@ -51,18 +44,13 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -114,37 +102,13 @@ public class ServiceOrderController extends BaseController {
     WXWorkService wxWorkService;
 
     @Resource
-    OfficialService officialService;
-
-    @Resource
     VisaOfficialController visaOfficialController;
 
     @Resource
     VisaOfficialService visaOfficialService;
 
     @Resource
-    private ApplicantDAO applicantDAO;
-
-    @Resource
-    private ReceiveTypeDAO receiveTypeDAO;
-
-    @Resource
-    private RegionDAO regionDAO;
-
-    @Resource
-    private ServiceDAO serviceDAO;
-
-    @Resource
-    private UserDAO userDAO;
-
-    @Resource
-    private VisaDAO visaDao;
-
-    @Resource
-    private AdviserDAO adviserDAO;
-
-    @Resource
-    private ServiceOrderDAO serviceOrderDAO;
+    private ServiceService serviceService;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -1016,17 +980,6 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
             if (StringUtil.isNotEmpty(institutionTradingName))
                 serviceOrderDto.setInstitutionTradingName(institutionTradingName);
-            if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
-                for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
-                    serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-					if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
-						LOG.warn("申请人信息修改失败! (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
-					else
-						LOG.warn("申请人信息修改成功. (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
-                }
-                if (serviceOrderApplicantList.get(0) != null && StringUtil.isEmpty(applicantId))
-                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-            }
             if (bindingOrderId != null) {
                 serviceOrderDto.setBindingOrder(bindingOrderId);
             }
@@ -1039,6 +992,46 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(visaNumber)) {
                 serviceOrderDto.setVisaNumber(visaNumber);
             }
+
+            // 普通签证修改为600和870类父子订单签证
+            ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
+            if ("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) {
+                if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 1) {
+                    // 创建主订单
+                    serviceOrderDto.setApplicantId(0);
+                    serviceOrderDto.setApplicantParentId(0);
+                    List<ServiceOrderApplicantDTO> serviceOrderApplicantDTOS = serviceOrderApplicantService.listServiceOrderApplicant(serviceOrderDto.getId(), serviceOrderDto.getApplicantId());
+                    serviceOrderService.updateServiceOrder(serviceOrderDto);
+                    // 父订单id
+                    int parentOrderId = serviceOrderDto.getId();
+                    for (ServiceOrderApplicantDTO e : serviceOrderApplicantDTOS) {
+                        serviceOrderApplicantService.deleteServiceOrderApplicant(e.getId());
+                    }
+                    for (ServiceOrderApplicantDTO e : serviceOrderApplicantList) {
+                        e.setServiceOrderId(parentOrderId);
+                        serviceOrderApplicantService.addServiceOrderApplicant(e);
+                        serviceOrderDto.setApplicantParentId(serviceOrderDto.getId());
+                        serviceOrderDto.setApplicantId(e.getApplicantId());
+                        int serviceOrderId = serviceOrderService.addServiceOrder(serviceOrderDto);
+                        e.setServiceOrderId(serviceOrderId);
+                        serviceOrderApplicantService.addServiceOrderApplicant(e);
+                    }
+                    return new Response<Integer>(0, "修改成功");
+                }
+            }
+
+            if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
+                for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+                    serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+                    if (serviceOrderApplicantService.updateServiceOrderApplicant(serviceOrderApplicantDto) <= 0)
+                        LOG.warn("申请人信息修改失败! (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
+                    else
+                        LOG.warn("申请人信息修改成功. (serviceOrderApplicantDto:" + serviceOrderApplicantDto + ")");
+                }
+                if (serviceOrderApplicantList.get(0) != null && StringUtil.isEmpty(applicantId))
+                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+            }
+
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
                 ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
@@ -3107,162 +3100,6 @@ public class ServiceOrderController extends BaseController {
             throw new RuntimeException(e);
         }
     }
-
-    // 导出签证年报
-    @RequestMapping(value = "/exportList2", method = RequestMethod.GET)
-    @ResponseBody
-    public void exportList2(HttpServletRequest request,
-                           HttpServletResponse response) {
-        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder("2023-07-01 00:00:00", "2024-06-30 23:59:59", null, null, null, null, null,
-                null, null, null, null,
-                null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null, null
-                , null, 0, null, null, null
-                , null, true, null, 0, 99999, null);
-        List<VisaListDO> visaListDOS = visaDao.listVisa(null, null, null,
-                null, null, null, null, null,
-                null, null, null, null, null, null, null,
-                null, null, null, 0, 99999, null);
-//        List<CommissionOrderListDO> commissionOrderListDOS = commissionOrderDAO.listCommissionOrder(null, null, null, null, null, null,
-//                null, null, null, null, null, null, null,
-//                null, null, null, null, null, null, null
-//                , null, null, 0, 9999, null);
-        List<UserDO> userDOS = userDAO.listUser(null, null, null, null, null, null, null, null
-                , null, null, null, null, null, 0, 99999);
-        List<ApplicantDO> applicantDOS = applicantDAO.list(null, null, null, null, 0, 99999);
-        List<ReceiveTypeDO> receiveTypeDOS = receiveTypeDAO.listReceiveType("ENABLED");
-        List<ServiceDO> serviceDOS = serviceDAO.listService(null, false, 0, 9999);
-        List<AdviserDO> adviserDOS = adviserDAO.listAdviser(null, null, 0, 9999);
-        List<RegionDO> regionDOS = regionDAO.regionList();
-
-        List<ServiceOrderDO> collect = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> !"ZX".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
-        Map<Integer, List<VisaListDO>> visaMap = visaListDOS.stream().collect(Collectors.groupingBy(VisaListDO::getServiceOrderId));
-//        Map<Integer, List<CommissionOrderListDO>> CommissionOrderMap = commissionOrderListDOS.stream().collect(Collectors.groupingBy(CommissionOrderListDO::getServiceOrderId));
-        Map<Integer, List<UserDO>> userMap = userDOS.stream().collect(Collectors.groupingBy(UserDO::getId));
-        Map<Integer, List<ApplicantDO>> applicantMap = applicantDOS.stream().collect(Collectors.groupingBy(ApplicantDO::getId));
-        Map<Integer, List<ReceiveTypeDO>> receiveTypeMap = receiveTypeDOS.stream().collect(Collectors.groupingBy(ReceiveTypeDO::getId));
-        Map<Integer, List<ServiceDO>> serviceMap = serviceDOS.stream().collect(Collectors.groupingBy(ServiceDO::getId));
-        Map<Integer, List<AdviserDO>> adviserMap = adviserDOS.stream().collect(Collectors.groupingBy(AdviserDO::getId));
-        Map<Integer, List<RegionDO>> regionMap = regionDOS.stream().collect(Collectors.groupingBy(RegionDO::getId));
-        DecimalFormat decimalFormat = new DecimalFormat("#.00");
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try {
-            super.setGetHeader(response);
-            // 处理顾问管理员
-            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-            response.reset();// 清空输出流
-            String tableName = "annualReport";
-            response.setHeader("Content-disposition",
-                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-            response.setContentType("application/msexcel");
-
-            OutputStream os = response.getOutputStream();
-            jxl.Workbook wb;
-            InputStream is;
-            try {
-                is = this.getClass().getResourceAsStream("/annualReport.xls");
-            } catch (Exception e) {
-                throw new Exception("模版不存在");
-            }
-            try {
-                wb = Workbook.getWorkbook(is);
-            } catch (Exception e) {
-                throw new Exception("模版格式不支持");
-            }
-            WorkbookSettings settings = new WorkbookSettings();
-            settings.setWriteAccess(null);
-            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
-            if (wbe == null) {
-                System.out.println("wbe is null !os=" + os + ",wb" + wb);
-            } else {
-                System.out.println("wbe not null !os=" + os + ",wb" + wb);
-            }
-            WritableSheet sheet = wbe.getSheet(0);
-            WritableCellFormat cellFormat = new WritableCellFormat();
-            if (wbe == null) {
-                System.out.println("wbe is null !os=" + os + ",wb" + wb);
-            } else {
-                System.out.println("wbe not null !os=" + os + ",wb" + wb);
-            }
-            AtomicInteger i = new AtomicInteger(1);
-            ServiceOrderDO serviceOrderDO1 = new ServiceOrderDO();
-            try {
-                for (ServiceOrderDO serviceOrderDO : collect) {
-                        serviceOrderDO1 = serviceOrderDO;
-                        UserDO userDO = userMap.get(serviceOrderDO.getUserId()).get(0);
-                    ApplicantDO applicantDO = new ApplicantDO();
-                    ServiceDO serviceDO = new ServiceDO();
-                    AdviserDO adviserDO = new AdviserDO();
-                    RegionDO regionDO = new RegionDO();
-                    if (serviceOrderDO.getApplicantId() > 0) {
-                        applicantDO = applicantMap.get(serviceOrderDO.getApplicantId()).get(0);
-                    }
-                    if (serviceOrderDO.getServiceId() > 0) {
-                        serviceDO = serviceMap.get(serviceOrderDO.getServiceId()).get(0);
-                    }
-                    if (serviceOrderDO.getApplicantId() > 0) {
-                        applicantDO = applicantMap.get(serviceOrderDO.getApplicantId()).get(0);
-                    }
-                        List<VisaListDO> visaListDOS1 = visaMap.get(serviceOrderDO.getId());
-                    if (serviceOrderDO.getAdviserId() > 0) {
-                        adviserDO = adviserMap.get(serviceOrderDO.getAdviserId()).get(0);
-                    }
-                    if (adviserDO.getRegionId() > 0) {
-                        regionDO = regionMap.get(adviserDO.getRegionId()).get(0);
-                    }
-
-                        if (ObjectUtil.isNotNull(userDO)) {
-                            sheet.addCell(new Label(1, i.get(), String.valueOf(userDO.getName()), cellFormat));
-                        }
-                        if (ObjectUtil.isNotNull(applicantDO)) {
-                            sheet.addCell(new Label(2, i.get(), String.valueOf(applicantDO.getFirstname() + applicantDO.getSurname()), cellFormat));
-                        }
-                        sheet.addCell(new Label(3, i.get(), sdf.format(serviceOrderDO.getGmtCreate()), cellFormat));
-                        sheet.addCell(new Label(4, i.get(), String.valueOf(serviceOrderDO.getCurrency()), cellFormat));
-                        sheet.addCell(new Label(5, i.get(), String.valueOf(serviceOrderDO.getExchangeRate()), cellFormat));
-                        if (serviceOrderDO.getReceiveTypeId() > 0) {
-                            sheet.addCell(new Label(6, i.get(), String.valueOf(receiveTypeMap.get(serviceOrderDO.getReceiveTypeId()).get(0).getName()), cellFormat));
-                        }
-                        sheet.addCell(new Label(7, i.get(), String.valueOf(serviceDO.getCode() + "-" +  serviceDO.getName()), cellFormat));
-                        if (visaListDOS1 != null) {
-                            sheet.addCell(new Label(0, i.get(), String.valueOf(serviceOrderDO.getId()), cellFormat));
-                            double expectAmountSum = visaListDOS1.stream().mapToDouble(VisaListDO::getExpectAmount).sum();
-                            if (serviceOrderDO.getExchangeRate() != 0) {
-                                sheet.addCell(new Label(8, i.get(), String.valueOf(decimalFormat.format(expectAmountSum * serviceOrderDO.getExchangeRate())), cellFormat));
-                                sheet.addCell(new Label(10, i.get(), String.valueOf(decimalFormat.format(expectAmountSum * serviceOrderDO.getExchangeRate())), cellFormat));
-                            }
-                            sheet.addCell(new Label(9, i.get(), String.valueOf(decimalFormat.format(expectAmountSum)), cellFormat));
-                            sheet.addCell(new Label(11, i.get(), String.valueOf(decimalFormat.format(expectAmountSum)), cellFormat));
-                            if (expectAmountSum == 0) {
-                                sheet.addCell(new Label(8, i.get(), String.valueOf(expectAmountSum * serviceOrderDO.getExchangeRate()), cellFormat));
-                                sheet.addCell(new Label(10, i.get(), String.valueOf(expectAmountSum * serviceOrderDO.getExchangeRate()), cellFormat));
-                                sheet.addCell(new Label(9, i.get(), String.valueOf(expectAmountSum), cellFormat));
-                                sheet.addCell(new Label(11, i.get(), String.valueOf(expectAmountSum), cellFormat));
-                            }
-                        } else {
-                            continue;
-                        }
-                        if (ObjectUtil.isNotNull(adviserDO)) {
-                            sheet.addCell(new Label(12, i.get(), String.valueOf(adviserDO.getName()), cellFormat));
-                        }
-                        if (ObjectUtil.isNotNull(regionDO)) {
-                            sheet.addCell(new Label(13, i.get(), String.valueOf(regionDO.getName()), cellFormat));
-                        }
-                        i.getAndIncrement();
-                    }
-                } catch (WriteException e) {
-                    System.out.println("当前错误订单" + serviceOrderDO1);
-                    throw new RuntimeException(e);
-            }
-
-            wbe.write();
-            wbe.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     // 用户支付信息：订单支付金额以及留学订单相关金额
     @RequestMapping(value = "/viewBalance", method = RequestMethod.GET)
