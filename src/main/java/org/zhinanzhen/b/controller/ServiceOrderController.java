@@ -1002,10 +1002,13 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderDto.setApplicantParentId(0);
                     List<ServiceOrderApplicantDTO> serviceOrderApplicantDTOS = serviceOrderApplicantService.listServiceOrderApplicant(serviceOrderDto.getId(), serviceOrderDto.getApplicantId());
                     serviceOrderService.updateServiceOrder(serviceOrderDto);
+                    // 父订单id
+                    int parentOrderId = serviceOrderDto.getId();
                     for (ServiceOrderApplicantDTO e : serviceOrderApplicantDTOS) {
                         serviceOrderApplicantService.deleteServiceOrderApplicant(e.getId());
                     }
                     for (ServiceOrderApplicantDTO e : serviceOrderApplicantList) {
+                        e.setServiceOrderId(parentOrderId);
                         serviceOrderApplicantService.addServiceOrderApplicant(e);
                         serviceOrderDto.setApplicantParentId(serviceOrderDto.getId());
                         serviceOrderDto.setApplicantId(e.getApplicantId());
