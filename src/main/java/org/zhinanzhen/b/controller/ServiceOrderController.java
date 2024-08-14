@@ -1010,7 +1010,7 @@ public class ServiceOrderController extends BaseController {
                     for (ServiceOrderApplicantDTO e : serviceOrderApplicantList) {
                         e.setServiceOrderId(parentOrderId);
                         serviceOrderApplicantService.addServiceOrderApplicant(e);
-                        serviceOrderDto.setApplicantParentId(serviceOrderDto.getId());
+                        serviceOrderDto.setApplicantParentId(parentOrderId);
                         serviceOrderDto.setApplicantId(e.getApplicantId());
                         int serviceOrderId = serviceOrderService.addServiceOrder(serviceOrderDto);
                         e.setServiceOrderId(serviceOrderId);
