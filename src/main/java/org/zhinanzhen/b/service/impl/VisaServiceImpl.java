@@ -398,7 +398,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			List<List<VisaListDO>> lists = new ArrayList<>();
 
 			if (visaListDoList != null && visaListDoList.size() > 50) {
-				lists = splitList(visaListDoList, visaListDoList.size() / 20);
+				lists = splitList(visaListDoList, (int) Math.ceil((double) visaListDoList.size() / 20));
 			} else {
 				lists = splitList(visaListDoList, 5);
 			}
