@@ -17,4 +17,5 @@ public interface SubagencyService {
 
 	public int deleteSubagencyById(int id) throws ServiceException;
 
+    String getSubagencyByServiceOrderId(int serviceOrderId);
 }
