@@ -113,4 +113,10 @@ public class SubagencyServiceImpl extends BaseService implements SubagencyServic
 		}
 	}
 
+    @Override
+    public String getSubagencyByServiceOrderId(int serviceOrderId) {
+        String s = subagencyDao.getSubagencyByServiceOrderId(serviceOrderId);
+		return s;
+    }
+
 }
