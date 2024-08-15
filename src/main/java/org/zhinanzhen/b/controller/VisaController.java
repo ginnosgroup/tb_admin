@@ -5,11 +5,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -95,6 +93,9 @@ public class VisaController extends BaseCommissionOrderController {
 	
 	@Resource
 	private KjService kjService;
+
+	@Resource
+	private ServiceService serviceService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -894,7 +895,6 @@ public class VisaController extends BaseCommissionOrderController {
 		List<Integer> regionIdList = null;
 		if (regionId != null && regionId > 0)
 			regionIdList = ListUtil.buildArrayList(regionId);
-		Integer kjId = getKjId(request);
 
 		try {
 
@@ -926,29 +926,27 @@ public class VisaController extends BaseCommissionOrderController {
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, 0, 9999, null);
 
-			list.forEach(v -> {
-				if (v.getServiceOrderId() > 0)
-					try {
-						ServiceOrderDTO serviceOrderDto = serviceOrderService
-								.getServiceOrderById(v.getServiceOrderId());
-						if (serviceOrderDto != null)
-							v.setServiceOrder(serviceOrderDto);
-					} catch (ServiceException e) {
-					}
-			});
-
+//			list.forEach(v -> {
+//				if (v.getServiceOrderId() > 0)
+//					try {
+//						ServiceOrderDTO serviceOrderDto = serviceOrderService
+//								.getServiceOrderById(v.getServiceOrderId());
+//						if (serviceOrderDto != null)
+//							v.setServiceOrder(serviceOrderDto);
+//					} catch (ServiceException e) {
+//
+//					}
+//			});
 			int _regionId = 0;
 			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0)
 				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
-//			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
-//				_regionId = kjService.getKjById(kjId).getRegionId();
-			if (regionService.isCN(_regionId)) {
-
+			// 超级管理员导出佣金订单
+			if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
 				OutputStream os = response.getOutputStream();
 				jxl.Workbook wb;
 				InputStream is;
 				try {
-					is = this.getClass().getResourceAsStream("/VisaTemplateCNY.xls");
+					is = this.getClass().getResourceAsStream("/visa_information.xls");
 				} catch (Exception e) {
 					throw new Exception("模版不存在");
 				}
@@ -968,16 +966,23 @@ public class VisaController extends BaseCommissionOrderController {
 				}
 				WritableSheet sheet = wbe.getSheet(0);
 				WritableCellFormat cellFormat = new WritableCellFormat();
-
+				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
+				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
+				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
+				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
 				int i = 1;
 				for (VisaDTO visaDto : list) {
-					sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+					sheet.addCell(new Label(0, i, String.valueOf(visaDto.getId()), cellFormat));
 					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-					if (visaDto.getReceiveDate() != null)
+					if (visaDto.getReceiveDate() != null) {
 						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+					}
 					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
 					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+					ServiceDTO serviceDTO = serviceMap.get(visaDto.getServiceId());
+					if (ObjectUtil.isNotNull(serviceDTO)) {
+						sheet.addCell(new Label(5, i, serviceDTO.getName() + "-" + serviceDTO.getCode(), cellFormat));
+					}
 					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
 					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
 					sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
@@ -986,89 +991,23 @@ public class VisaController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
 					sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
 					sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(14, i, visaDto.getExpectAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(15, i, visaDto.getExpectAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(16, i, visaDto.getBonus() + "", cellFormat));
-					if (visaDto.getBonusDate() != null)
-						sheet.addCell(new Label(17, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-					sheet.addCell(new Label(18, i, visaDto.getBankCheck(), cellFormat));
-					sheet.addCell(new Label(19, i, visaDto.isChecked() + "", cellFormat));
-					sheet.addCell(new Label(20, i, visaDto.getAdviserName(), cellFormat));
-					if (visaDto.getState() != null)
-						sheet.addCell(new Label(21, i, getStateStr(visaDto.getState()), cellFormat));
-					if (visaDto.getKjApprovalDate() != null)
-						sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-					sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
-					i++;
-				}
-				wbe.write();
-				wbe.close();
-				if (is != null)
-					is.close();
-				if (os != null)
-					os.close();
-
-			} else {
-
-				//AUD
-
-				OutputStream os = response.getOutputStream();
-				jxl.Workbook wb;
-				InputStream is;
-				try {
-					is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
-				} catch (Exception e) {
-					throw new Exception("模版不存在");
-				}
-				try {
-					wb = Workbook.getWorkbook(is);
-				} catch (Exception e) {
-					throw new Exception("模版格式不支持");
-				}
-				WorkbookSettings settings = new WorkbookSettings();
-				settings.setWriteAccess(null);
-				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
-
-				if (wbe == null) {
-					System.out.println("wbe is null !os=" + os + ",wb" + wb);
-				} else {
-					System.out.println("wbe not null !os=" + os + ",wb" + wb);
-				}
-				WritableSheet sheet = wbe.getSheet(0);
-				WritableCellFormat cellFormat = new WritableCellFormat();
-
-				int i = 1;
-				for (VisaDTO visaDto : list) {
-					sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
-					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-					if (visaDto.getReceiveDate() != null)
-						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
-					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
-					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-					sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
-					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
-					sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
-					sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(14, i, visaDto.getGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(15, i, visaDto.getDeductGstAUD() + "", cellFormat));
-					sheet.addCell(new Label(16, i, visaDto.getExpectAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(17, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(14, i, visaDto.getGst() + "", cellFormat));
+					sheet.addCell(new Label(15, i, visaDto.getDeductGst() + "", cellFormat));
+					sheet.addCell(new Label(16, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(17, i, visaDto.getSureExpectAmount() + "", cellFormat));
 					sheet.addCell(new Label(18, i, visaDto.getBonus() + "", cellFormat));
-					if (visaDto.getBonusDate() != null)
-						sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()), cellFormat));
-					sheet.addCell(new Label(20, i, visaDto.getBankCheck(), cellFormat));
-					sheet.addCell(new Label(21, i, visaDto.isChecked() + "", cellFormat));
-					sheet.addCell(new Label(22, i, visaDto.getAdviserName(), cellFormat));
-					if (visaDto.getState() != null)
-						sheet.addCell(new Label(23, i, getStateStr(visaDto.getState()), cellFormat));
-					if (visaDto.getKjApprovalDate() != null)
-						sheet.addCell(new Label(24, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
-					sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
+					if (ObjectUtil.isNotNull(visaDto.getBonusDate())) {
+						sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()) + "", cellFormat));
+					}
+					if (StringUtil.isNotEmpty(visaDto.getVerifyCode())) {
+						sheet.addCell(new Label(20, i, visaDto.getVerifyCode() + "", cellFormat));
+					}
+					String adviserName = adviserMap.get(visaDto.getAdviserId());
+					if (StringUtil.isNotEmpty(adviserName)) {
+						sheet.addCell(new Label(22, i, adviserName + "", cellFormat));
+					}
+					sheet.addCell(new Label(23, i, visaDto.getState() + "", cellFormat));
+					sheet.addCell(new Label(24, i, visaDto.getRemarks() + "", cellFormat));
 					i++;
 				}
 				wbe.write();
@@ -1077,7 +1016,145 @@ public class VisaController extends BaseCommissionOrderController {
 					is.close();
 				if (os != null)
 					os.close();
+			}
+			// 会计导出佣金订单
+			if (getKjId(request) != null) {
+				if (regionService.isCN(_regionId)) {
+					OutputStream os = response.getOutputStream();
+					jxl.Workbook wb;
+					InputStream is;
+					try {
+						is = this.getClass().getResourceAsStream("/VisaTemplateCNY.xls");
+					} catch (Exception e) {
+						throw new Exception("模版不存在");
+					}
+					try {
+						wb = Workbook.getWorkbook(is);
+					} catch (Exception e) {
+						throw new Exception("模版格式不支持");
+					}
+					WorkbookSettings settings = new WorkbookSettings();
+					settings.setWriteAccess(null);
+					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
 
+					if (wbe == null) {
+						System.out.println("wbe is null !os=" + os + ",wb" + wb);
+					} else {
+						System.out.println("wbe not null !os=" + os + ",wb" + wb);
+					}
+					WritableSheet sheet = wbe.getSheet(0);
+					WritableCellFormat cellFormat = new WritableCellFormat();
+
+					int i = 1;
+					for (VisaDTO visaDto : list) {
+						sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+						sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+						if (visaDto.getReceiveDate() != null)
+							sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+						sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+						sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+						sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+						sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
+						sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
+						sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(14, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(15, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(16, i, visaDto.getBonus() + "", cellFormat));
+						if (visaDto.getBonusDate() != null)
+							sheet.addCell(new Label(17, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+						sheet.addCell(new Label(18, i, visaDto.getBankCheck(), cellFormat));
+						sheet.addCell(new Label(19, i, visaDto.isChecked() + "", cellFormat));
+						sheet.addCell(new Label(20, i, visaDto.getAdviserName(), cellFormat));
+						if (visaDto.getState() != null)
+							sheet.addCell(new Label(21, i, getStateStr(visaDto.getState()), cellFormat));
+						if (visaDto.getKjApprovalDate() != null)
+							sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+						sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
+						i++;
+					}
+					wbe.write();
+					wbe.close();
+					if (is != null)
+						is.close();
+					if (os != null)
+						os.close();
+
+				} else {
+
+					//AUD
+
+					OutputStream os = response.getOutputStream();
+					jxl.Workbook wb;
+					InputStream is;
+					try {
+						is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+					} catch (Exception e) {
+						throw new Exception("模版不存在");
+					}
+					try {
+						wb = Workbook.getWorkbook(is);
+					} catch (Exception e) {
+						throw new Exception("模版格式不支持");
+					}
+					WorkbookSettings settings = new WorkbookSettings();
+					settings.setWriteAccess(null);
+					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+					if (wbe == null) {
+						System.out.println("wbe is null !os=" + os + ",wb" + wb);
+					} else {
+						System.out.println("wbe not null !os=" + os + ",wb" + wb);
+					}
+					WritableSheet sheet = wbe.getSheet(0);
+					WritableCellFormat cellFormat = new WritableCellFormat();
+
+					int i = 1;
+					for (VisaDTO visaDto : list) {
+						sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+						sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+						if (visaDto.getReceiveDate() != null)
+							sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+						sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+						sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+						sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+						sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
+						sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
+						sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(14, i, visaDto.getGstAUD() + "", cellFormat));
+						sheet.addCell(new Label(15, i, visaDto.getDeductGstAUD() + "", cellFormat));
+						sheet.addCell(new Label(16, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(17, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(18, i, visaDto.getBonus() + "", cellFormat));
+						if (visaDto.getBonusDate() != null)
+							sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+						sheet.addCell(new Label(20, i, visaDto.getBankCheck(), cellFormat));
+						sheet.addCell(new Label(21, i, visaDto.isChecked() + "", cellFormat));
+						sheet.addCell(new Label(22, i, visaDto.getAdviserName(), cellFormat));
+						if (visaDto.getState() != null)
+							sheet.addCell(new Label(23, i, getStateStr(visaDto.getState()), cellFormat));
+						if (visaDto.getKjApprovalDate() != null)
+							sheet.addCell(new Label(24, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+						sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
+						i++;
+					}
+					wbe.write();
+					wbe.close();
+					if (is != null)
+						is.close();
+					if (os != null)
+						os.close();
+
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
