@@ -28,6 +28,8 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 @Service("VisaService")
 public class VisaServiceImpl extends BaseService implements VisaService {
@@ -392,69 +394,59 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					state, pageNum * pageSize, pageSize, orderBy);
 			if (visaListDoList == null)
 				return null;
+
+			List<List<VisaListDO>> lists = new ArrayList<>();
+
+			if (visaListDoList != null && visaListDoList.size() > 50) {
+				lists = splitList(visaListDoList, (int) Math.ceil((double) visaListDoList.size() / 20));
+			} else {
+				lists = splitList(visaListDoList, 5);
+			}
+			CountDownLatch latch = new CountDownLatch(lists.size());
+			for (List<VisaListDO> list : lists) {
+				Thread thread1 = new Thread(() -> {
+					for (VisaListDO visaListDo : list) {
+						VisaDTO visaDto = null;
+						try {
+							visaDto = putVisaDTO(visaListDo);
+							List<Date> remindDateList = new ArrayList<>();
+							List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
+									AbleStateEnum.ENABLED.toString());
+							for (RemindDO remindDo : remindDoList) {
+								remindDateList.add(remindDo.getRemindDate());
+							}
+							visaDto.setRemindDateList(remindDateList);
+							visaDtoList.add(visaDto);
+						} catch (ServiceException e) {
+							e.printStackTrace();
+						}
+					}
+					// 只有在成功执行了任务后才减少计数器
+					latch.countDown(); // 完成任务，计数器减一
+				});
+				thread1.start();
+			}
+			latch.await();
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
-		for (VisaListDO visaListDo : visaListDoList) {
-			VisaDTO visaDto = putVisaDTO(visaListDo);
-			/*
-			VisaDTO visaDto = mapper.map(visaListDo, VisaDTO.class);
-			putReviews(visaDto);
-			if (visaDto.getUserId() > 0) {
-				UserDO userDo = userDao.getUserById(visaDto.getUserId());
-				visaDto.setUserName(userDo.getName());
-				visaDto.setPhone(userDo.getPhone());
-				visaDto.setBirthday(userDo.getBirthday());
-			}
-//			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
-//			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))
-//				visaDto.setRefuseReason(serviceOrderDo.getRefuseReason());
-			AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
-			if (adviserDo != null) {
-				visaDto.setAdviserName(adviserDo.getName());
-			}
-			OfficialDO officialDo = officialDao.getOfficialById(visaListDo.getOfficialId());
-			if (officialDo != null) {
-				visaDto.setOfficialName(officialDo.getName());
-			}
-			ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaListDo.getReceiveTypeId());
-			if (receiveTypeDo != null) {
-				visaDto.setReceiveTypeName(receiveTypeDo.getName());
-			}
-			ServiceDO serviceDo = serviceDao.getServiceById(visaListDo.getServiceId());
-			if (serviceDo != null) {
-				visaDto.setServiceCode(serviceDo.getCode());
-			}*/
-			List<Date> remindDateList = new ArrayList<>();
-			List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
-					AbleStateEnum.ENABLED.toString());
-			for (RemindDO remindDo : remindDoList) {
-				remindDateList.add(remindDo.getRemindDate());
-			}
-			visaDto.setRemindDateList(remindDateList);
-			/*
-			List<VisaDO> list = visaDao.listVisaByCode(visaDto.getCode());
-			if (list != null) {
-				double totalPerAmount = 0.00;
-				double totalAmount = 0.00;
-				for (VisaDO visaDo : list) {
-					totalPerAmount += visaDo.getPerAmount();
-					if (visaDo.getPaymentVoucherImageUrl1() != null || visaDo.getPaymentVoucherImageUrl2() != null
-							|| visaDo.getPaymentVoucherImageUrl3() != null
-							|| visaDo.getPaymentVoucherImageUrl4() != null
-							|| visaDo.getPaymentVoucherImageUrl5() != null)
-						totalAmount += visaDo.getAmount();
-				}
-				visaDto.setTotalPerAmount(totalPerAmount);
-				visaDto.setTotalAmount(totalAmount);
-			}*/
-			visaDtoList.add(visaDto);
-		}
-		return visaDtoList;
+		return visaDtoList.stream().sorted(Comparator.comparing(VisaDTO::getId).reversed()).collect(Collectors.toList());
 	}
-	
+
+	public static <T> List<List<T>> splitList(List<T> list, int size) {
+		List<List<T>> result = new ArrayList<>();
+		int currentIndex = 0;
+		while (currentIndex < list.size()) {
+			int endIndex = Math.min(currentIndex + size, list.size());
+			List<T> sublist = list.subList(currentIndex, endIndex);
+			result.add(sublist);
+			currentIndex += size;
+		}
+		return result;
+	}
+
 	public List<VisaDTO> listVisaByServiceOrderId(Integer serviceOrderId) throws ServiceException {
 		if (serviceOrderId == null) {
 			ServiceException se = new ServiceException("serviceOrderId is null !");
