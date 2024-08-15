@@ -992,9 +992,11 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(visaNumber)) {
                 serviceOrderDto.setVisaNumber(visaNumber);
             }
-
+            ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
-            ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
+            if (StringUtil.isNotEmpty(serviceId)) {
+                serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
+            }
             if ("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) {
                 if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 1) {
                     // 创建主订单
