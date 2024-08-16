@@ -190,7 +190,7 @@ public class MailRemindController extends BaseController {
             if (ObjectUtil.isNotNull(serviceOrderById)) {
                 mailRemindDTO.setUserId(serviceOrderById.getUserId());
             }
-            if (ObjectUtil.isNotNull(sendDate)) {
+            if (ObjectUtil.isNotNull(sendDate) && needRemind) {
                 mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             }
             mailRemindDTO.setNeedRemind(needRemind);
