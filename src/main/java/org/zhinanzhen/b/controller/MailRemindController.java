@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -87,15 +88,16 @@ public class MailRemindController extends BaseController {
 	}
 
     @PostMapping(value = "/add")
-    public Response add(@RequestParam(value = "sendDate") String sendDate,
+    public Response add(@RequestParam(value = "sendDate", required = false) String sendDate,
                         @RequestParam(value = "content")String content,
-                        @RequestParam(value = "adviserId" , required = false)Integer adviserId,
-                        @RequestParam(value = "offcialId" , required = false)Integer offcialId,
-                        @RequestParam(value = "kjId" , required = false)Integer kjId,
-                        @RequestParam(value = "serviceOrderId" , required = false)Integer serviceOrderId,
-                        @RequestParam(value = "visaId" , required = false)Integer visaId,
-                        @RequestParam(value = "commissionOrderId" , required = false)Integer commissionOrderId,
-                        @RequestParam(value = "userId" , required = false)Integer userId,
+                        @RequestParam(value = "adviserId", required = false)Integer adviserId,
+                        @RequestParam(value = "offcialId", required = false)Integer offcialId,
+                        @RequestParam(value = "kjId", required = false)Integer kjId,
+                        @RequestParam(value = "serviceOrderId", required = false)Integer serviceOrderId,
+                        @RequestParam(value = "visaId", required = false)Integer visaId,
+                        @RequestParam(value = "commissionOrderId", required = false)Integer commissionOrderId,
+                        @RequestParam(value = "userId", required = false)Integer userId,
+                        @RequestParam(value = "needRemind", required = false)Boolean needRemind,
                         HttpServletRequest request, HttpServletResponse response){
         try {
             super.setPostHeader(response);
@@ -177,6 +179,7 @@ public class MailRemindController extends BaseController {
                 mailRemindDTO.setTitle("您有一个新提醒待处理");
 
 
+            ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(serviceOrderId);
             mailRemindDTO.setAdviserId(adviserId);
             mailRemindDTO.setOffcialId(offcialId);
             mailRemindDTO.setKjId(kjId);
@@ -184,8 +187,13 @@ public class MailRemindController extends BaseController {
             mailRemindDTO.setVisaId(visaId);
             mailRemindDTO.setServiceOrderId(serviceOrderId);
             mailRemindDTO.setCommissionOrderId(commissionOrderId);
-            mailRemindDTO.setUserId(userId);
-            mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
+            if (ObjectUtil.isNotNull(serviceOrderById)) {
+                mailRemindDTO.setUserId(serviceOrderById.getUserId());
+            }
+            if (ObjectUtil.isNotNull(sendDate) && needRemind) {
+                mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
+            }
+            mailRemindDTO.setNeedRemind(needRemind);
             try {
                 mailRemindDTO.setCode(MD5Util.getMD5(content));
             } catch (Exception e) {

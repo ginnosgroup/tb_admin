@@ -43,4 +43,6 @@ public class MailRemindDO {
     private Integer userId;
 
     private Integer kjId;
+
+    private Boolean needRemind;
 }

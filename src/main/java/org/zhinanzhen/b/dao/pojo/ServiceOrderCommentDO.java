@@ -20,4 +20,10 @@ public class ServiceOrderCommentDO implements Serializable {
 
 	private String content;
 
+	private Integer score;
+
+	private Integer scoreOfficialId;
+
+	private String apList;
+
 }

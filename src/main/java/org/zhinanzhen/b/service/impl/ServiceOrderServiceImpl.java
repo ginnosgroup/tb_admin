@@ -875,7 +875,23 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (mailRemindDOS.size() > 0) {
             List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
             mailRemindDOS.forEach(mailRemindDO -> {
-                mailRemindDTOS.add(mapper.map(mailRemindDO, MailRemindDTO.class));
+                MailRemindDTO map = mapper.map(mailRemindDO, MailRemindDTO.class);
+                Integer adviserId = map.getAdviserId();
+                Integer offcialId = map.getOffcialId();
+                Integer kjId = map.getKjId();
+                if (adviserId != null) {
+                    AdviserDO adviserById = adviserDao.getAdviserById(adviserId);
+                    map.setUserName(adviserById.getName());
+                }
+                if (offcialId != null) {
+                    OfficialDO officialById = officialDao.getOfficialById(offcialId);
+                    map.setUserName(officialById.getName());
+                }
+                if (kjId != null) {
+                    KjDO kjById = kjDao.getKjById(kjId);
+                    map.setUserName(kjById.getName());
+                }
+                mailRemindDTOS.add(map);
             });
             serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
         }
@@ -1793,12 +1809,31 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             throw se;
         }
         for (ServiceOrderCommentDO serviceOrderCommentDo : serviceOrderCommentDoList) {
+            String apList = serviceOrderCommentDo.getApList();
+            if (StringUtil.isNotEmpty(apList)) {
+                if ("WA".equals(apList)) {
+                    serviceOrderCommentDo.setApList("文案");
+                }
+                if ("GW".equals(apList)) {
+                    serviceOrderCommentDo.setApList("顾问");
+                }
+            }
             ServiceOrderCommentDTO serviceOrderCommentDto = mapper.map(serviceOrderCommentDo,
                     ServiceOrderCommentDTO.class);
             AdminUserDO adminUserDo = adminUserDao.getAdminUserById(serviceOrderCommentDo.getAdminUserId());
             if (adminUserDo != null)
                 serviceOrderCommentDto.setAdminUserName(adminUserDo.getUsername());
             serviceOrderCommentDtoList.add(serviceOrderCommentDto);
+        }
+
+        Optional<ServiceOrderCommentDTO> first = serviceOrderCommentDtoList.stream()
+                .filter(item -> item.getScore() > 0)
+                .findFirst();
+        if (first.isPresent()) {
+            // 移除元素（如果它存在于列表中）
+            serviceOrderCommentDtoList.remove(first.get());
+            // 将元素添加到列表的开头
+            serviceOrderCommentDtoList.add(0, first.get());
         }
         return serviceOrderCommentDtoList;
     }
