@@ -570,18 +570,19 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             }
             // 长期签证
-            List<String> arrayList = new ArrayList<String>() {
-                {
-                    this.add("103");
-                    this.add("143");
-                    this.add("173");
-                    this.add("864");
-                    this.add("835");
-                    this.add("838");
-                    this.add("820境内");
-                    this.add("489");
-                }
-            };
+//            List<String> arrayList = new ArrayList<String>() {
+//                {
+//                    this.add("103");
+//                    this.add("143");
+//                    this.add("173");
+//                    this.add("864");
+//                    this.add("835");
+//                    this.add("838");
+//                    this.add("820境内");
+//                    this.add("489");
+//                }
+//            };
+            List<String> arrayList = serviceDao.listLongTimeVisa();
             String code = serviceDao.getServiceById(serviceOrderById.getServiceId()).getCode();
             String serviceType = code.replaceAll("[^\\p{L}\\p{N}\\p{Script=Han}]+", "");
             if (arrayList.contains(serviceType)) {

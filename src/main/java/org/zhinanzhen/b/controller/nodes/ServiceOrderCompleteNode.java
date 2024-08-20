@@ -24,11 +24,17 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
 
     @Autowired
     private VisaOfficialDao visaOfficialDao;
+
+    @Autowired
+    private ServiceDAO serviceDAO;
+
     public static ServiceOrderCompleteNode serviceOrderCompleteNode;
+
     @PostConstruct
     public void init(){
         serviceOrderCompleteNode=this;
         serviceOrderCompleteNode.visaOfficialDao=this.visaOfficialDao;
+        serviceOrderCompleteNode.serviceDAO=this.serviceDAO;
     }
 
     public ServiceOrderCompleteNode(ServiceOrderService serviceOrderService) {
@@ -56,18 +62,19 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
             }
             if ("VISA".equals(type) && serviceOrderDto.getParentId() == 0) // 签证
             {
-                List<String> arrayList = new ArrayList<String>() {
-                    {
-                        this.add("103");
-                        this.add("143");
-                        this.add("173");
-                        this.add("864");
-                        this.add("835");
-                        this.add("838");
-                        this.add("820境内");
-                        this.add("489");
-                    }
-                };
+//            List<String> arrayList = new ArrayList<String>() {
+//                {
+//                    this.add("103");
+//                    this.add("143");
+//                    this.add("173");
+//                    this.add("864");
+//                    this.add("835");
+//                    this.add("838");
+//                    this.add("820境内");
+//                    this.add("489");
+//                }
+//            };
+                List<String> arrayList = serviceOrderCompleteNode.serviceDAO.listLongTimeVisa();
                 String code = serviceOrderDto.getService().getCode();
                 String serviceType = code.replaceAll("[^\\p{L}\\p{N}\\p{Script=Han}]+", "");
                 if (arrayList.contains(serviceType)) {

@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 
 public interface ServiceDAO {
@@ -26,4 +27,6 @@ public interface ServiceDAO {
 
 	public int deleteServiceById(@Param("id") int id, @Param("isZx") boolean isZx);
 
+	@Select("select code from b_service where `name` = '签证' and is_long_time = true and is_delete = false")
+    List<String> listLongTimeVisa();
 }
