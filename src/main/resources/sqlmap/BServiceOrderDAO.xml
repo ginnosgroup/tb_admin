@@ -902,6 +902,9 @@
         SELECT
         count( so.id ) AS count,
         tr.`name` AS name,
+        <if test='regionId != null and regionId > 0'>
+            a.`name` AS adviserName,
+        </if>
         <choose>
             <when test=" type!=null and type!='' and type == 'OVST' ">
                 bsc.`name` AS code,
@@ -946,6 +949,9 @@
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
+        <if test='regionId != null and regionId > 0'>
+            AND a.region_id = #{regionId}
+        </if>
         <choose>
             <when test=" type!=null and type!='' and type == 'OVST' ">
                 GROUP BY
@@ -960,6 +966,9 @@
                 bsa.`name`
             </when>
         </choose>
+        <if test='regionId != null and regionId > 0'>
+            ,a.`name`
+        </if>
     </select>
 
     <select id="listByVerifyCode" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -1229,15 +1238,27 @@
         bsi.name AS instiName,
         bsi.institution_trading_name AS institutionTradingName,
         bsi.institution_name AS institutionName,
+        <if test='regionId != null and regionId > 0'>
+            a.`name` AS adviserName,
+        </if>
         course_id AS serviceId
         FROM tb_adviser a,b_service_order so,tb_region tr,b_school_course bsc,b_school_institution bsi
         WHERE so.is_delete = 0
         AND a.id = so.adviser_id AND type = 'OVST' AND so.parent_id = 0
         AND so.state != 'PENDING' AND tr.id = a.region_id AND course_id = bsc.id AND bsi.id = bsc.provider_id
+        <if test='regionId != null and regionId > 0'>
+            AND a.region_id = #{regionId}
+        </if>
         <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
             <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
         </if>
-        GROUP BY bsi.id , tr.`name`;
+        <if test='regionId != null and regionId > 0' >
+            AND a.region_id = #{regionId}
+        </if>
+        GROUP BY bsi.id , tr.`name`
+        <if test='regionId != null and regionId > 0'>
+            ,a.`name`
+        </if>
     </select>
     <select id="getCommissionOrderList" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
         SELECT

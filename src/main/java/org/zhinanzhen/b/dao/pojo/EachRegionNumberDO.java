@@ -39,4 +39,6 @@ public class EachRegionNumberDO {
     private String institutionTradingName;
 
     private String institutionName;
+
+    private String adviserName;
 }

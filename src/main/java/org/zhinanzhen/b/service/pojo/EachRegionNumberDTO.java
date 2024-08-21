@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
+import org.zhinanzhen.b.dao.pojo.EachRegionNumberDO;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,7 +10,7 @@ import lombok.Data;
  * Version: V1.0
  */
 @Data
-public class EachRegionNumberDTO {
+public class EachRegionNumberDTO extends EachRegionNumberDO {
 
     private  String name;
 
@@ -43,4 +44,5 @@ public class EachRegionNumberDTO {
     private int BJ;
 
     private int other;
+
 }

@@ -17,6 +17,7 @@ import jxl.WorkbookSettings;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import jxl.write.WriteException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
@@ -51,6 +53,7 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -109,6 +112,9 @@ public class ServiceOrderController extends BaseController {
 
     @Resource
     private ServiceService serviceService;
+
+    @Resource
+    private AdviserService adviserService;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -2312,15 +2318,16 @@ public class ServiceOrderController extends BaseController {
     public void downExcel(@RequestParam(value = "type") String type,
                           @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
                           @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-                          @RequestParam(value = "subject", required = false) String subject, HttpServletRequest request,
+                          @RequestParam(value = "subject", required = false) String subject,
+                          @RequestParam(value = "regionId", required = false) String regionId,HttpServletRequest request,
                           HttpServletResponse response) {
 
         try {
             super.setGetHeader(response);
             List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
-            if (StringUtil.isEmpty(subject))// 导出签证/留学各个项目各个地区的个数
+            if (StringUtil.isEmpty(subject)) // 导出签证/留学各个项目各个地区的个数
                 eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
-                        startOfficialApprovalDate, endOfficialApprovalDate);
+                        startOfficialApprovalDate, endOfficialApprovalDate, Integer.valueOf(regionId));
 
             if (StringUtil.isNotEmpty(subject)) {
                 List<EachSubjectCountDTO> eachSubjectCountDTOS = serviceOrderService
@@ -2375,87 +2382,206 @@ public class ServiceOrderController extends BaseController {
                 return;
             }
 
-            response.reset();// 清空输出流
-            String tableName = "Information";
-            response.setHeader("Content-disposition",
-                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-            response.setContentType("application/msexcel");
 
-            OutputStream os = response.getOutputStream();
-            jxl.Workbook wb;
-            InputStream is;
-            try {
-                is = this.getClass().getResourceAsStream("/data.xls");
-            } catch (Exception e) {
-                throw new Exception("模版不存在");
-            }
-            try {
-                wb = Workbook.getWorkbook(is);
-            } catch (Exception e) {
-                throw new Exception("模版格式不支持");
-            }
-            WorkbookSettings settings = new WorkbookSettings();
-            settings.setWriteAccess(null);
-            jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+            if (StringUtil.isNotEmpty(regionId) && Integer.valueOf(regionId) > 0) {
+                response.reset();// 清空输出流
+                String tableName = "Information";
+                response.setHeader("Content-disposition",
+                        "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+                response.setContentType("application/msexcel");
 
-            if (wbe == null) {
-                System.out.println("wbe is null !os=" + os + ",wb" + wb);
+                OutputStream os = response.getOutputStream();
+                jxl.Workbook wb;
+                InputStream is;
+                try {
+                    is = this.getClass().getResourceAsStream("/data1.xls");
+                } catch (Exception e) {
+                    throw new Exception("模版不存在");
+                }
+                try {
+                    wb = Workbook.getWorkbook(is);
+                } catch (Exception e) {
+                    throw new Exception("模版格式不支持");
+                }
+                WorkbookSettings settings = new WorkbookSettings();
+                settings.setWriteAccess(null);
+                jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+                if (wbe == null) {
+                    System.out.println("wbe is null !os=" + os + ",wb" + wb);
+                } else {
+                    System.out.println("wbe not null !os=" + os + ",wb" + wb);
+                }
+                WritableSheet sheet = wbe.getSheet(0);
+                WritableCellFormat cellFormat = new WritableCellFormat();
+                if ("VISA".equalsIgnoreCase(type)) {
+                    int i1 = Integer.parseInt(regionId);
+                    List<Integer> objects = new ArrayList<>();
+                    objects.add(i1);
+                    Map<String, List<EachRegionNumberDTO>> eachRegionNumberDTOMap = eachRegionNumberDTOS.stream().collect(Collectors.groupingBy(EachRegionNumberDTO::getCode));
+                    List<String> adviserDTOS = eachRegionNumberDTOS.stream().map(EachRegionNumberDTO::getAdviserName).distinct().collect(Collectors.toList());
+                    Map<String, Integer> adviserSortMap = new HashMap<>();
+                    AtomicInteger i = new AtomicInteger();
+                    eachRegionNumberDTOMap.forEach((k, v) -> {
+                        if (i.get() == 0) {
+                            try {
+                                sheet.addCell(new Label(0, i.get(), "排序", cellFormat));
+                                sheet.addCell(new Label(1, i.get(), "签证项目", cellFormat));
+                                sheet.addCell(new Label(2, i.get(), "总数", cellFormat));
+                                int count = 3;
+                                for (String adviserDTO : adviserDTOS) {
+                                    sheet.addCell(new Label(count, i.get(), adviserDTO, cellFormat));
+                                    adviserSortMap.put(adviserDTO, count);
+                                    count++;
+                                }
+                            } catch (WriteException e) {
+                                throw new RuntimeException(e);
+                            }
+                            i.getAndIncrement();
+                        }
+                        try {
+                            sheet.addCell(new Label(0, i.get(), i.get() + ""));
+                            sheet.addCell(new Label(1, i.get(), k + ""));
+                            sheet.addCell(new Label(2, i.get(), v.stream().mapToInt(EachRegionNumberDTO::getCount).sum() + ""));
+                            for (EachRegionNumberDTO eachRegionNumberDTO : v) {
+                                Integer number = adviserSortMap.get(eachRegionNumberDTO.getAdviserName());
+                                if (number != null && number > 0) {
+                                    sheet.addCell(new Label(number, i.get(),  eachRegionNumberDTO.getCount() + ""));
+                                }
+                            }
+
+                        } catch (WriteException e) {
+                            throw new RuntimeException(e);
+                        }
+                        i.getAndIncrement();
+                    });
+                    wbe.write();
+                    wbe.close();
+                }
+                if ("OVST".equalsIgnoreCase(type)) {
+                    Map<String, List<EachRegionNumberDTO>> eachRegionNumberDTOMap = eachRegionNumberDTOS.stream().collect(Collectors.groupingBy(EachRegionNumberDTO::getServiceId));
+                    List<String> adviserDTOS = eachRegionNumberDTOS.stream().map(EachRegionNumberDTO::getAdviserName).distinct().collect(Collectors.toList());
+                    Map<String, Integer> adviserSortMap = new HashMap<>();
+                    AtomicInteger i = new AtomicInteger();
+                    eachRegionNumberDTOMap.forEach((k,v) -> {
+                        if (i.get() == 0) {
+                            try {
+                                sheet.addCell(new Label(0, i.get(), "排序", cellFormat));
+                                sheet.addCell(new Label(1, i.get(), "Institution Trading Name", cellFormat));
+                                sheet.addCell(new Label(2, i.get(), "Institution Name", cellFormat));
+                                sheet.addCell(new Label(3, i.get(), "总数", cellFormat));
+                                int count = 4;
+                                for (String adviserDTO : adviserDTOS) {
+                                    sheet.addCell(new Label(count, i.get(), adviserDTO, cellFormat));
+                                    adviserSortMap.put(adviserDTO, count);
+                                    count++;
+                                }
+                            } catch (WriteException e) {
+                                throw new RuntimeException(e);
+                            }
+                            i.getAndIncrement();
+                        }
+                        try {
+                            sheet.addCell(new Label(0, i.get(), i.get() + ""));
+                            sheet.addCell(new Label(1, i.get(), v.get(0).getInstitutionTradingName() + ""));
+                            sheet.addCell(new Label(2, i.get(), v.get(0).getInstiName() + ""));
+                            sheet.addCell(new Label(3, i.get(), v.stream().mapToInt(EachRegionNumberDTO::getCount).sum() + ""));
+                            for (EachRegionNumberDTO eachRegionNumberDTO : v) {
+                                Integer number = adviserSortMap.get(eachRegionNumberDTO.getAdviserName());
+                                if (number != null && number > 0) {
+                                    sheet.addCell(new Label(number, i.get(),  eachRegionNumberDTO.getCount() + ""));
+                                }
+                            }
+                        } catch (WriteException e) {
+                            throw new RuntimeException(e);
+                        }
+                        i.getAndIncrement();
+                    });
+                    wbe.write();
+                    wbe.close();
+                }
             } else {
-                System.out.println("wbe not null !os=" + os + ",wb" + wb);
-            }
-            WritableSheet sheet = wbe.getSheet(0);
-            WritableCellFormat cellFormat = new WritableCellFormat();
-            int i = 0;
-            for (EachRegionNumberDTO eo : eachRegionNumberDTOS) {
-                if (i == 0 && type.equalsIgnoreCase("VISA")) {
-                    sheet.addCell(new Label(1, i, "签证项目", cellFormat));
-                    sheet.addCell(new Label(11, i, "CIS", cellFormat));
-                    sheet.addCell(new Label(12, i, "青岛", cellFormat));
-                    sheet.addCell(new Label(13, i, "北京", cellFormat));
-                    sheet.addCell(new Label(14, i, "other", cellFormat));
-                    i++;
-                }
-                if (i == 0 && type.equalsIgnoreCase("OVST")) {
-                    sheet.addCell(new Label(1, i, "Institution Trading Name", cellFormat));
-                    sheet.addCell(new Label(2, i, "Institution Name", cellFormat));
-                    sheet.addCell(new Label(3, i, "总数", cellFormat));
-                    sheet.addCell(new Label(4, i, "Sydney", cellFormat));
-                    sheet.addCell(new Label(5, i, "Melbourne", cellFormat));
-                    sheet.addCell(new Label(6, i, "Brisbane", cellFormat));
-                    sheet.addCell(new Label(7, i, "Adelaide", cellFormat));
-                    sheet.addCell(new Label(8, i, "Hobart", cellFormat));
-                    sheet.addCell(new Label(9, i, "Canberra", cellFormat));
-                    sheet.addCell(new Label(10, i, "攻坚部", cellFormat));
-                    sheet.addCell(new Label(11, i, "CIS", cellFormat));
-                    sheet.addCell(new Label(12, i, "青岛", cellFormat));
-                    sheet.addCell(new Label(13, i, "北京", cellFormat));
-                    sheet.addCell(new Label(14, i, "other", cellFormat));
-                    i++;
-                }
-                if (i == 0 && type.equalsIgnoreCase("ZX")) {
-                    sheet.addCell(new Label(1, i, "咨询服务", cellFormat));
-                    i++;
-                }
-                sheet.addCell(new Label(0, i, i + "", cellFormat));
-                sheet.addCell(new Label(1, i, eo.getName(), cellFormat));
-                sheet.addCell(new Label(2, i, eo.getInstitutionName(), cellFormat));
-                sheet.addCell(new Label(3, i, eo.getTotal() + "", cellFormat));
-                sheet.addCell(new Label(4, i, eo.getSydney() + "", cellFormat));
-                sheet.addCell(new Label(5, i, eo.getMelbourne() + "", cellFormat));
-                sheet.addCell(new Label(6, i, eo.getBrisbane() + "", cellFormat));
-                sheet.addCell(new Label(7, i, eo.getAdelaide() + "", cellFormat));
-                sheet.addCell(new Label(8, i, eo.getHobart() + "", cellFormat));
-                sheet.addCell(new Label(9, i, eo.getCanberra() + "", cellFormat));
-                sheet.addCell(new Label(10, i, eo.getCrucial() + "", cellFormat));
-                sheet.addCell(new Label(11, i, eo.getCis() + "", cellFormat));
-                sheet.addCell(new Label(12, i, eo.getQD() + "", cellFormat));
-                sheet.addCell(new Label(13, i, eo.getBJ() + "", cellFormat));
-                sheet.addCell(new Label(14, i, eo.getOther() + "", cellFormat));
-                i++;
-            }
-            wbe.write();
-            wbe.close();
+                response.reset();// 清空输出流
+                String tableName = "Information";
+                response.setHeader("Content-disposition",
+                        "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+                response.setContentType("application/msexcel");
 
+                OutputStream os = response.getOutputStream();
+                jxl.Workbook wb;
+                InputStream is;
+                try {
+                    is = this.getClass().getResourceAsStream("/data.xls");
+                } catch (Exception e) {
+                    throw new Exception("模版不存在");
+                }
+                try {
+                    wb = Workbook.getWorkbook(is);
+                } catch (Exception e) {
+                    throw new Exception("模版格式不支持");
+                }
+                WorkbookSettings settings = new WorkbookSettings();
+                settings.setWriteAccess(null);
+                jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+                if (wbe == null) {
+                    System.out.println("wbe is null !os=" + os + ",wb" + wb);
+                } else {
+                    System.out.println("wbe not null !os=" + os + ",wb" + wb);
+                }
+                WritableSheet sheet = wbe.getSheet(0);
+                WritableCellFormat cellFormat = new WritableCellFormat();
+                int i = 0;
+                for (EachRegionNumberDTO eo : eachRegionNumberDTOS) {
+                    if (i == 0 && type.equalsIgnoreCase("VISA")) {
+                        sheet.addCell(new Label(1, i, "签证项目", cellFormat));
+                        sheet.addCell(new Label(11, i, "CIS", cellFormat));
+                        sheet.addCell(new Label(12, i, "青岛", cellFormat));
+                        sheet.addCell(new Label(13, i, "北京", cellFormat));
+                        sheet.addCell(new Label(14, i, "other", cellFormat));
+                        i++;
+                    }
+                    if (i == 0 && type.equalsIgnoreCase("OVST")) {
+                        sheet.addCell(new Label(1, i, "Institution Trading Name", cellFormat));
+                        sheet.addCell(new Label(2, i, "Institution Name", cellFormat));
+                        sheet.addCell(new Label(3, i, "总数", cellFormat));
+                        sheet.addCell(new Label(4, i, "Sydney", cellFormat));
+                        sheet.addCell(new Label(5, i, "Melbourne", cellFormat));
+                        sheet.addCell(new Label(6, i, "Brisbane", cellFormat));
+                        sheet.addCell(new Label(7, i, "Adelaide", cellFormat));
+                        sheet.addCell(new Label(8, i, "Hobart", cellFormat));
+                        sheet.addCell(new Label(9, i, "Canberra", cellFormat));
+                        sheet.addCell(new Label(10, i, "攻坚部", cellFormat));
+                        sheet.addCell(new Label(11, i, "CIS", cellFormat));
+                        sheet.addCell(new Label(12, i, "青岛", cellFormat));
+                        sheet.addCell(new Label(13, i, "北京", cellFormat));
+                        sheet.addCell(new Label(14, i, "other", cellFormat));
+                        i++;
+                    }
+                    if (i == 0 && type.equalsIgnoreCase("ZX")) {
+                        sheet.addCell(new Label(1, i, "咨询服务", cellFormat));
+                        i++;
+                    }
+                    sheet.addCell(new Label(0, i, i + "", cellFormat));
+                    sheet.addCell(new Label(1, i, eo.getName(), cellFormat));
+                    sheet.addCell(new Label(2, i, eo.getInstitutionName(), cellFormat));
+                    sheet.addCell(new Label(3, i, eo.getTotal() + "", cellFormat));
+                    sheet.addCell(new Label(4, i, eo.getSydney() + "", cellFormat));
+                    sheet.addCell(new Label(5, i, eo.getMelbourne() + "", cellFormat));
+                    sheet.addCell(new Label(6, i, eo.getBrisbane() + "", cellFormat));
+                    sheet.addCell(new Label(7, i, eo.getAdelaide() + "", cellFormat));
+                    sheet.addCell(new Label(8, i, eo.getHobart() + "", cellFormat));
+                    sheet.addCell(new Label(9, i, eo.getCanberra() + "", cellFormat));
+                    sheet.addCell(new Label(10, i, eo.getCrucial() + "", cellFormat));
+                    sheet.addCell(new Label(11, i, eo.getCis() + "", cellFormat));
+                    sheet.addCell(new Label(12, i, eo.getQD() + "", cellFormat));
+                    sheet.addCell(new Label(13, i, eo.getBJ() + "", cellFormat));
+                    sheet.addCell(new Label(14, i, eo.getOther() + "", cellFormat));
+                    i++;
+                }
+                wbe.write();
+                wbe.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return;

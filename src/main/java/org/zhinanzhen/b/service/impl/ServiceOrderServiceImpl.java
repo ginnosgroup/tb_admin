@@ -1934,12 +1934,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     @Override
     public List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate,
-                                                                      String endOfficialApprovalDate) {
+                                                                      String endOfficialApprovalDate, Integer regionId) {
         List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,
-                startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
+                startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), regionId);
         if (type.equalsIgnoreCase("OVST")) {//留学匹配新老学校名字
             List<EachRegionNumberDO> newSchoolEachRegionNumberList = serviceOrderDao.listOvstServiceOrderGroupByForRegion(
-                    startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
+                    startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), regionId);
             List<EachRegionNumberDO> _list = new ArrayList<>();
             newSchoolEachRegionNumberList.forEach(numberDo -> {
                 boolean contain = false;
@@ -1999,6 +1999,73 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 			eachRegionNumberDTO.setName(code);
 			eachRegionNumberDTOS.add(eachRegionNumberDTO);
 		} */
+
+        if (regionId != null && regionId > 0) {
+            if ("VISA".equalsIgnoreCase(type)) {
+                for (EachRegionNumberDO eachRegionNumberDO : eachRegionNumberDOS) {
+                    if (eachRegionNumberDO.getServicePackageId() > 0) {
+                        ServicePackageDO servicePackageDO = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+                        if (ObjectUtil.isNotNull(servicePackageDO)) {
+                            String servicePackageType = servicePackageDO.getType();
+                            switch (servicePackageType) {
+                                case "CA":
+                                    servicePackageType = "职业评估";
+                                    break;
+                                case "EOI":
+                                    servicePackageType = "EOI";
+                                    break;
+                                case "SA":
+                                    servicePackageType = "学校申请";
+                                    break;
+                                case "VA":
+                                    servicePackageType = "签证申请";
+                                    break;
+                                case "ZD":
+                                    servicePackageType = "州担";
+                                    break;
+                                case "MAT":
+                                    servicePackageType = "Matrix";
+                                    break;
+                                case "SBO":
+                                    servicePackageType = "SBO";
+                                    break;
+                                case "TM":
+                                    servicePackageType = "提名";
+                                    break;
+                                case "DB":
+                                    servicePackageType = "担保";
+                                    break;
+                                case "ROI":
+                                    servicePackageType = "ROI";
+                                    break;
+                                default:
+                                    servicePackageType = null;
+                            }
+                            if (!"25".equalsIgnoreCase(eachRegionNumberDO.getServiceId())) {
+                                eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + "-" + servicePackageType);
+                            }
+                        }
+                    }
+                    if ("25".equalsIgnoreCase(eachRegionNumberDO.getServiceId())) {
+                        ServicePackageDO byId = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+                        if (ObjectUtil.isNotNull(byId)) {
+                            ServiceDO serviceById = serviceDao.getServiceById(byId.getServiceId());
+                            eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + "-" + serviceById.getCode());
+                        }
+                    }
+                    EachRegionNumberDTO eachRegionNumberDTO = mapper.map(eachRegionNumberDO, EachRegionNumberDTO.class);
+                    eachRegionNumberDTOS.add(eachRegionNumberDTO);
+                }
+            }
+            if ("OVST".equalsIgnoreCase(type)) {
+                for (EachRegionNumberDO eachRegionNumberDO : eachRegionNumberDOS) {
+                    EachRegionNumberDTO eachRegionNumberDTO = mapper.map(eachRegionNumberDO, EachRegionNumberDTO.class);
+                    eachRegionNumberDTOS.add(eachRegionNumberDTO);
+                }
+            }
+            return eachRegionNumberDTOS;
+        }
+
         Map<String, EachRegionNumberDTO> map = MapUtil.newHashMap();
         eachRegionNumberDOS.forEach(eachRegionNumberDO -> {
             String name = StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
@@ -2088,7 +2155,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     public List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate) {
         List<EachSubjectCountDO> eachSubjectCountDOList = serviceOrderDao.eachSubjectCount(startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate));
         List<EachSubjectCountDTO> subjectCountDTOList = new ArrayList<>();
-        HashSet<String> nameSet = new HashSet();
+        HashSet<String> nameSet = new HashSet<>();
         eachSubjectCountDOList.forEach(eachSubjectCountDO -> {
             nameSet.add(eachSubjectCountDO.getName());
         });

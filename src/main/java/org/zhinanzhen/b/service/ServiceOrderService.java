@@ -70,7 +70,7 @@ public interface ServiceOrderService {
 	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
 
 	List<EachRegionNumberDTO> listServiceOrderGroupByForRegion(String type, String startOfficialApprovalDate,
-			String endOfficialApprovalDate);
+			String endOfficialApprovalDate, Integer regionId) throws ServiceException;
 
 	List<EachSubjectCountDTO> eachSubjectCount(String startOfficialApprovalDate, String endOfficialApprovalDate);
 

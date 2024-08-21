@@ -79,7 +79,7 @@ public interface ServiceOrderDAO {
 
     List<EachRegionNumberDO> listServiceOrderGroupByForRegion(@Param("type") String type,
                                                               @Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-                                                              @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+                                                              @Param("endOfficialApprovalDate") String endOfficialApprovalDate,@Param("regionId") Integer regionId);
 
     List<ServiceOrderDO> listByVerifyCode(@Param("verifyCode") String verifyCode);
 
@@ -99,7 +99,7 @@ public interface ServiceOrderDAO {
      * 服务订单按照顾问地区,新学校库专业分组
      */
     List<EachRegionNumberDO> listOvstServiceOrderGroupByForRegion(@Param("startOfficialApprovalDate") String startOfficialApprovalDate,
-                                                                  @Param("endOfficialApprovalDate") String endOfficialApprovalDate);
+                                                                  @Param("endOfficialApprovalDate") String endOfficialApprovalDate,@Param("regionId") Integer regionId);
 
     //查看服务订单对应佣金信息
     List<VisaDO> getCommissionOrderList(@Param("id") int id
