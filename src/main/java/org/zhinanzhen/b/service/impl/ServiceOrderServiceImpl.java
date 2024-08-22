@@ -2042,7 +2042,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     servicePackageType = null;
                             }
                             if (!"25".equalsIgnoreCase(eachRegionNumberDO.getServiceId())) {
-                                eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + "-" + servicePackageType);
+                                if (eachRegionNumberDO.getServicePackageId() > 0) {
+                                    if ("EOI".equalsIgnoreCase(servicePackageType)) {
+                                        ServiceDO serviceById = serviceDao.getServiceById(servicePackageDO.getServiceId());
+                                        eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + " - " + servicePackageType + " - " + serviceById.getCode());
+                                    } else {
+                                        eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + " - " + servicePackageType);
+                                    }
+                                }
                             }
                         }
                     }
@@ -2050,7 +2057,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         ServicePackageDO byId = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
                         if (ObjectUtil.isNotNull(byId)) {
                             ServiceDO serviceById = serviceDao.getServiceById(byId.getServiceId());
-                            eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + "-" + serviceById.getCode());
+                            eachRegionNumberDO.setCode(eachRegionNumberDO.getCode() + " - " + serviceById.getCode());
                         }
                     }
                     EachRegionNumberDTO eachRegionNumberDTO = mapper.map(eachRegionNumberDO, EachRegionNumberDTO.class);

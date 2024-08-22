@@ -917,7 +917,7 @@
             </when>
             <when test=" type!=null and type!='' and type == 'VISA' ">
                 so.service_package_id AS servicePackageId,
-                <![CDATA[ CONCAT(bs.`code`, ' - ', bs.`name`, IF(bsa.name <> '', CONCAT(' - ', bsa.name), '')) AS code, ]]>
+                <![CDATA[ CONCAT(bs.`name`, ' - ', bs.`code`, IF(bsa.name <> '', CONCAT(' - ', bsa.name), '')) AS code, ]]>
                 so.service_id AS serviceId
                 FROM
                 b_service_order so

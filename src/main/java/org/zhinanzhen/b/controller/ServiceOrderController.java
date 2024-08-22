@@ -2484,7 +2484,7 @@ public class ServiceOrderController extends BaseController {
                         try {
                             sheet.addCell(new Label(0, i.get(), i.get() + ""));
                             sheet.addCell(new Label(1, i.get(), v.get(0).getInstitutionTradingName() + ""));
-                            sheet.addCell(new Label(2, i.get(), v.get(0).getInstiName() + ""));
+                            sheet.addCell(new Label(2, i.get(), v.get(0).getInstitutionName() + ""));
                             sheet.addCell(new Label(3, i.get(), v.stream().mapToInt(EachRegionNumberDTO::getCount).sum() + ""));
                             for (EachRegionNumberDTO eachRegionNumberDTO : v) {
                                 Integer number = adviserSortMap.get(eachRegionNumberDTO.getAdviserName());
