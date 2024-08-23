@@ -672,7 +672,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             List<Integer> listbindingOrder = new ArrayList<>();
             if ((serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) || !integers.isEmpty()) {
                 if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
-                    listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getBindingOrder());
+                    listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getId());
                 }
                 if (!integers.isEmpty()) {
                     for (Integer a : integers) {

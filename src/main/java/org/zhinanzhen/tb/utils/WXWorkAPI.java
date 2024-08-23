@@ -45,6 +45,12 @@ public class WXWorkAPI {
 
     public  final  static  String  SECRET_CUSTOMER = "OJd0c4VImqx3EJitBCoCMosjmFOIOdlIgmiuegAiTHs";
 
+    // 创建表格
+    public  final  static  String  SECRET_EXCEL = "SIn5ClSNgIR5KWRa6TWq0M2yjtC8rF-eLizmRjphjjg";
+
+
+//    public  final  static  String  SECRET_EXCEL = "bjrJzyULUPxlvcUGIV5QTaVfp-jLwRWyVyAmRSlQX_k";
+
     //应用的凭证密钥
     //public  final  static  String  SECRET_CORP = "u9YgNImH-UjKwZwNMZmKIz174oiiuuPQpjnJT8s4kfs";
 
@@ -70,6 +76,12 @@ public class WXWorkAPI {
     public final static String CUSTOMERLIST = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=ACCESS_TOKEN&userid=USERID";
     
     private static final String WECOM_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=1afa665e-642b-4098-b4d3-4f553efe06bf";
+
+    // 创建表格
+    private static final String SETUP_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/create_doc?access_token=ACCESS_TOKEN";
+
+    //编辑表格
+    private static final String REDACT_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/spreadsheet/batch_update?access_token=ACCESS_TOKEN";
 
     //发送GET请求
     public static JSONObject sendGet(String url) {

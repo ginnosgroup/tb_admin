@@ -12,6 +12,7 @@ import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
@@ -29,6 +30,7 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -140,6 +142,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private CommissionOrderTempDAO commissionOrderTempDAO;
 
+    @Resource
+    private VisaOfficialService visaOfficialService;
+
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -161,6 +166,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         try {
+            ServiceOrderDO serviceOrderByIdTmp = null;
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
             // 免费订单与收费订单绑定
@@ -169,12 +175,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 if (code.contains("485") || code.contains("500")) {
                     serviceOrderDo.setBindingOrder(0);
                 }
+                List<Integer> bybindingOrder = new ArrayList<>();
+                double costPrince = 0.00;
                 if (serviceOrderDo.getBindingOrder() > 0) {
-                    ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
-                    List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
+                    bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
                     bybindingOrder.add(serviceOrderDo.getServiceId());
-
-                    double costPrince = 0.00;
                     for (Integer a : bybindingOrder) {
                         ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a);
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
@@ -194,6 +200,24 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDo.setExpectAmount(servicePackagePriceDO.getCostPrince());
                     serviceOrderDo.setPerAmount(servicePackagePriceDO.getCostPrince());
                 }
+//                // 更新被绑定订单下的佣金订单
+//                VisaDO firstVisaByServiceOrderId = visaDao.getFirstVisaByServiceOrderId(serviceOrderByIdTmp.getId());
+//                VisaDO secondVisaByServiceOrderId = visaDao.getSecondVisaByServiceOrderId(serviceOrderByIdTmp.getId());
+//                double firstAmount = 0.00;
+//                double secondAmount = 0.00;
+//                if (firstVisaByServiceOrderId != null && secondVisaByServiceOrderId != null) {
+//                    firstAmount = costPrince * firstVisaByServiceOrderId.getAmount() / (firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount());
+//                    secondAmount = costPrince * secondVisaByServiceOrderId.getAmount() / (firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount());
+//                    buildVisa(firstVisaByServiceOrderId, firstAmount);
+//                    buildVisa(secondVisaByServiceOrderId, secondAmount);
+//                    visaDao.updateVisa(firstVisaByServiceOrderId);
+//                    visaDao.updateVisa(secondVisaByServiceOrderId);
+//                }
+//                if (firstVisaByServiceOrderId != null && secondVisaByServiceOrderId == null) {
+//                    firstAmount = costPrince;
+//                    buildVisa(firstVisaByServiceOrderId, firstAmount);
+//                    visaDao.updateVisa(firstVisaByServiceOrderId);
+//                }
             }
             if (ObjectUtil.isNotNull(serviceById)) {
                 if ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServicePackageId() == 0) {
@@ -209,6 +233,29 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
+                if (ObjectUtil.isNotNull(serviceOrderByIdTmp)) {
+                    AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderByIdTmp.getAdviserId());
+                    ApplicantDTO applicantDto = null;
+                    if (serviceOrderDo.getApplicantId() > 0)
+                        applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+                    applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
+                            serviceOrderDo.getInformation());
+                    OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+                    // 绑定成功发送邮件通知顾问
+                    sendMail(adviserDo.getEmail(), "免费订单绑定提醒:",
+                            StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经绑定成功。", "<br>订单号:",
+                                    serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
+                                    adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>被绑定订单号:", serviceOrderByIdTmp.getId()));
+                    // 更新被绑定订单下的文案佣金订单
+                    List<VisaOfficialDTO> allvisaOfficialByServiceOrderId = visaOfficialDao.getAllvisaOfficialByServiceOrderId(serviceOrderByIdTmp.getId());
+                    for (VisaOfficialDTO byServiceOrderId : allvisaOfficialByServiceOrderId) {
+                        if (byServiceOrderId != null) {
+                            VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
+                            visaOfficialDTO.setIsRefund(true);
+                            visaOfficialService.addVisa(visaOfficialDTO);
+                        }
+                    }
+                }
                 serviceOrderDto.setId(serviceOrderDo.getId());
                 return serviceOrderDto.getId();
             } else {
@@ -219,6 +266,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+    }
+
+    private void buildVisa(VisaDO firstVisaByServiceOrderId, double firstAmount) {
+        double firstVisaByServiceOrderIdCommission  = firstVisaByServiceOrderId.getAmount() - firstAmount;
+        if ("CNY".equals(firstVisaByServiceOrderId.getCurrency())) {
+            BigDecimal bigDecimal = BigDecimal.valueOf(firstVisaByServiceOrderIdCommission);
+            BigDecimal bigDecimalExc = new BigDecimal(firstVisaByServiceOrderId.getExchangeRate());
+            BigDecimal divide = bigDecimal.divide(bigDecimalExc, 4, RoundingMode.HALF_UP);
+            firstVisaByServiceOrderIdCommission = divide.doubleValue();
+        }
+        firstVisaByServiceOrderId.setGst(firstVisaByServiceOrderIdCommission / 11);
+        firstVisaByServiceOrderId.setDeductGst(firstVisaByServiceOrderIdCommission - firstVisaByServiceOrderId.getGst());
+        firstVisaByServiceOrderId.setBonus(firstVisaByServiceOrderId.getDeductGst() * 0.1);
+        firstVisaByServiceOrderId.setExpectAmount(firstVisaByServiceOrderIdCommission);
     }
 
     @Override
@@ -269,12 +330,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
+            ServiceOrderDO serviceOrderByIdTmp = null;
             // 免费订单与收费订单绑定
             if (serviceOrderDo.getBindingOrder() != null) {
                 if (serviceOrderDo.getBindingOrder() > 0) {
+                    List<Integer> bybindingOrder = new ArrayList<>();
                     String code = serviceById.getCode().replaceAll("\\D", "");
-                    ServiceOrderDO serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
-                    List<Integer> bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
+                    serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
+                    bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
 //                    bybindingOrder.add(serviceOrderDo.getServiceId());
                     ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
                     double costPrince = 0.00;
@@ -298,10 +361,50 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDo.setDeductGst(serviceOrderDo.getAmount() - serviceOrderDo.getGst());
                     serviceOrderDo.setExpectAmount(servicePackagePriceDO.getCostPrince());
                     serviceOrderDo.setPerAmount(servicePackagePriceDO.getCostPrince());
+
+//                    // 更新被绑定订单下的佣金订单
+//                    VisaDO firstVisaByServiceOrderId = visaDao.getFirstVisaByServiceOrderId(serviceOrderByIdTmp.getId());
+//                    VisaDO secondVisaByServiceOrderId = visaDao.getSecondVisaByServiceOrderId(serviceOrderByIdTmp.getId());
+//                    double firstAmount = 0.00;
+//                    double secondAmount = 0.00;
+//                    if (firstVisaByServiceOrderId != null && secondVisaByServiceOrderId != null) {
+//                        firstAmount = costPrince * firstVisaByServiceOrderId.getAmount() / (firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount());
+//                        secondAmount = costPrince * secondVisaByServiceOrderId.getAmount() / (firstVisaByServiceOrderId.getAmount() + secondVisaByServiceOrderId.getAmount());
+//                        buildVisa(firstVisaByServiceOrderId, firstAmount);
+//                        buildVisa(secondVisaByServiceOrderId, secondAmount);
+//                        visaDao.updateVisa(firstVisaByServiceOrderId);
+//                        visaDao.updateVisa(secondVisaByServiceOrderId);
+//                    }
+//                    if (firstVisaByServiceOrderId != null && secondVisaByServiceOrderId == null) {
+//                        firstAmount = costPrince;
+//                        buildVisa(firstVisaByServiceOrderId, firstAmount);
+//                        visaDao.updateVisa(firstVisaByServiceOrderId);
+//                    }
                 }
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
+            // 绑定成功发送邮件通知顾问
+            AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderByIdTmp.getAdviserId());
+            ApplicantDTO applicantDto = null;
+            if (serviceOrderDo.getApplicantId() > 0)
+                applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+            applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
+                    serviceOrderDo.getInformation());
+            OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+            sendMail(adviserDo.getEmail(), "免费订单绑定提醒:",
+                    StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经绑定成功。", "<br>订单号:",
+                            serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
+                            adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>被绑定订单号:", serviceOrderByIdTmp.getId()));
+            // 更新被绑定订单下的文案佣金订单
+            List<VisaOfficialDTO> allvisaOfficialByServiceOrderId = visaOfficialDao.getAllvisaOfficialByServiceOrderId(serviceOrderByIdTmp.getId());
+            for (VisaOfficialDTO byServiceOrderId : allvisaOfficialByServiceOrderId) {
+                if (byServiceOrderId != null) {
+                    VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
+                    visaOfficialDTO.setIsRefund(true);
+                    visaOfficialService.addVisa(visaOfficialDTO);
+                }
+            }
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
@@ -554,9 +657,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 ServiceOrderDO serviceOrderDo = collect.get(i);
                 if (bindingList != null) {
                     if (bindingList) {
-    //                    if (!"OVST".equals(serviceOrderDo.getType()) && !serviceOrderDo.isPay()) {
-    //                        continue;
-    //                    }
                         if (collect.get(i).getBindingOrder() != null && collect.get(i).getBindingOrder() > 0) {
                             continue;
                         }
@@ -611,6 +711,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
             if (serviceOrderDo == null)
                 return null;
+            serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
+            List<Integer> listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getId());
+            if (!listbindingOrder.isEmpty()) {
+                double costPrince = 0.00;
+                for (Integer a : listbindingOrder) {
+                    costPrince += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
+                }
+                serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() * 0.6) - costPrince);
+            }
             serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
 			/*
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
