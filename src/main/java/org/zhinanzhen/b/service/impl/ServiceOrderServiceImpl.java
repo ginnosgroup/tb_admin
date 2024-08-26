@@ -380,31 +380,31 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 //                        buildVisa(firstVisaByServiceOrderId, firstAmount);
 //                        visaDao.updateVisa(firstVisaByServiceOrderId);
 //                    }
+                    // 绑定成功发送邮件通知顾问
+                    AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderByIdTmp.getAdviserId());
+                    ApplicantDTO applicantDto = null;
+                    if (serviceOrderDo.getApplicantId() > 0)
+                        applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+                    applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
+                            serviceOrderDo.getInformation());
+                    OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+                    sendMail(adviserDo.getEmail(), "免费订单绑定提醒:",
+                            StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经绑定成功。", "<br>订单号:",
+                                    serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
+                                    adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>被绑定订单号:", serviceOrderByIdTmp.getId()));
+                    // 更新被绑定订单下的文案佣金订单
+                    List<VisaOfficialDTO> allvisaOfficialByServiceOrderId = visaOfficialDao.getAllvisaOfficialByServiceOrderId(serviceOrderByIdTmp.getId());
+                    for (VisaOfficialDTO byServiceOrderId : allvisaOfficialByServiceOrderId) {
+                        if (byServiceOrderId != null) {
+                            VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
+                            visaOfficialDTO.setIsRefund(true);
+                            visaOfficialService.addVisa(visaOfficialDTO);
+                        }
+                    }
                 }
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-            // 绑定成功发送邮件通知顾问
-            AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderByIdTmp.getAdviserId());
-            ApplicantDTO applicantDto = null;
-            if (serviceOrderDo.getApplicantId() > 0)
-                applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
-            applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
-                    serviceOrderDo.getInformation());
-            OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
-            sendMail(adviserDo.getEmail(), "免费订单绑定提醒:",
-                    StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经绑定成功。", "<br>订单号:",
-                            serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
-                            adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>被绑定订单号:", serviceOrderByIdTmp.getId()));
-            // 更新被绑定订单下的文案佣金订单
-            List<VisaOfficialDTO> allvisaOfficialByServiceOrderId = visaOfficialDao.getAllvisaOfficialByServiceOrderId(serviceOrderByIdTmp.getId());
-            for (VisaOfficialDTO byServiceOrderId : allvisaOfficialByServiceOrderId) {
-                if (byServiceOrderId != null) {
-                    VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
-                    visaOfficialDTO.setIsRefund(true);
-                    visaOfficialService.addVisa(visaOfficialDTO);
-                }
-            }
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
