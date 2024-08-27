@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.ChatDO;
+import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.pojo.ChatDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
@@ -37,4 +38,5 @@ public interface WXWorkService {
 
     void createChat(int serviceOrderId , String token);
 
+    int addExcel(SetupExcelDO setupExcelDO);
 }

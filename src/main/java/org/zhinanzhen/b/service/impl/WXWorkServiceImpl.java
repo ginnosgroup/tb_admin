@@ -357,4 +357,9 @@ public class WXWorkServiceImpl implements WXWorkService {
         }
     }
 
+    @Override
+    public int addExcel(SetupExcelDO setupExcelDO) {
+        return wxWorkDAO.addExcel(setupExcelDO);
+    }
+
 }

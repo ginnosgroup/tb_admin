@@ -22,6 +22,20 @@
         #{officialId}
         );
     </insert>
+
+    <insert id="addExcel" keyProperty="id">
+        INSERT  INTO b_excel(
+            gmt_create,
+            url,
+            doc_id,
+            sheet_id
+        ) VALUES (
+            NOW(),
+            #{url},
+            #{docId},
+            #{sheetId}     );
+    </insert>
+
     <select id="ChatDOByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.ChatDO">
         select
         id,

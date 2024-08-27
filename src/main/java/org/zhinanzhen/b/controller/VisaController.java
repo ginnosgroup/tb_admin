@@ -1162,6 +1162,299 @@ public class VisaController extends BaseCommissionOrderController {
 		}
 	}
 
+	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)
+	@ResponseBody
+	public void down_V2(@RequestParam(value = "id", required = false) Integer id,
+					 @RequestParam(value = "keyword", required = false) String keyword,
+					 @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+					 @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+					 @RequestParam(value = "commissionState", required = false) String commissionState,
+					 @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+					 @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+					 @RequestParam(value = "startDate", required = false) String startDate,
+					 @RequestParam(value = "endDate", required = false) String endDate,
+					 @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+					 @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+					 @RequestParam(value = "regionId", required = false) Integer regionId,
+					 @RequestParam(value = "adviserId", required = false) Integer adviserId,
+					 @RequestParam(value = "userId", required = false) Integer userId,
+					 @RequestParam(value = "userName", required = false) String userName,
+					 @RequestParam(value = "applicantName", required = false) String applicantName,
+					 @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
+					 HttpServletResponse response) {
+
+		// 更改当前顾问编号
+		Integer newAdviserId = getAdviserId(request);
+		if (newAdviserId != null)
+			adviserId = newAdviserId;
+
+		// 会计角色过滤状态
+		List<String> stateList = null;
+		if (getKjId(request) != null) {
+			stateList = new ArrayList<>();
+			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+			stateList.add(ReviewKjStateEnum.FINISH.toString());
+			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+//			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+		}
+
+		List<String> commissionStateList = null;
+		if (StringUtil.isNotEmpty(commissionState))
+			commissionStateList = Arrays.asList(commissionState.split(","));
+
+		List<Integer> regionIdList = null;
+		if (regionId != null && regionId > 0)
+			regionIdList = ListUtil.buildArrayList(regionId);
+
+		try {
+
+			// 处理顾问管理员
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+				for (RegionDTO region : regionList)
+					regionIdList.add(region.getId());
+				adviserId = null;
+			}
+
+			response.reset();// 清空输出流
+			String tableName = "visa_information";
+			response.setHeader("Content-disposition",
+					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+			response.setContentType("application/msexcel");
+
+			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
+					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
+					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, 0, 9999, null);
+
+			int _regionId = 0;
+			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0)
+				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
+			// 超级管理员导出佣金订单
+			if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
+				OutputStream os = response.getOutputStream();
+				jxl.Workbook wb;
+				InputStream is;
+				try {
+					is = this.getClass().getResourceAsStream("/visa_information.xls");
+				} catch (Exception e) {
+					throw new Exception("模版不存在");
+				}
+				try {
+					wb = Workbook.getWorkbook(is);
+				} catch (Exception e) {
+					throw new Exception("模版格式不支持");
+				}
+				WorkbookSettings settings = new WorkbookSettings();
+				settings.setWriteAccess(null);
+				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+				if (wbe == null) {
+					System.out.println("wbe is null !os=" + os + ",wb" + wb);
+				} else {
+					System.out.println("wbe not null !os=" + os + ",wb" + wb);
+				}
+				WritableSheet sheet = wbe.getSheet(0);
+				WritableCellFormat cellFormat = new WritableCellFormat();
+				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
+				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
+				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
+				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
+				int i = 1;
+				for (VisaDTO visaDto : list) {
+					sheet.addCell(new Label(0, i, String.valueOf(visaDto.getId()), cellFormat));
+					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+					if (visaDto.getReceiveDate() != null) {
+						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+					}
+					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+					ServiceDTO serviceDTO = serviceMap.get(visaDto.getServiceId());
+					if (ObjectUtil.isNotNull(serviceDTO)) {
+						sheet.addCell(new Label(5, i, serviceDTO.getName() + "-" + serviceDTO.getCode(), cellFormat));
+					}
+					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
+					sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
+					sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+					sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+					sheet.addCell(new Label(14, i, visaDto.getGst() + "", cellFormat));
+					sheet.addCell(new Label(15, i, visaDto.getDeductGst() + "", cellFormat));
+					sheet.addCell(new Label(16, i, visaDto.getExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(17, i, visaDto.getSureExpectAmount() + "", cellFormat));
+					sheet.addCell(new Label(18, i, visaDto.getBonus() + "", cellFormat));
+					if (ObjectUtil.isNotNull(visaDto.getBonusDate())) {
+						sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()) + "", cellFormat));
+					}
+					if (StringUtil.isNotEmpty(visaDto.getVerifyCode())) {
+						sheet.addCell(new Label(20, i, visaDto.getVerifyCode() + "", cellFormat));
+					}
+					String adviserName = adviserMap.get(visaDto.getAdviserId());
+					if (StringUtil.isNotEmpty(adviserName)) {
+						sheet.addCell(new Label(22, i, adviserName + "", cellFormat));
+					}
+					sheet.addCell(new Label(23, i, visaDto.getState() + "", cellFormat));
+					sheet.addCell(new Label(24, i, visaDto.getRemarks() + "", cellFormat));
+					i++;
+				}
+				wbe.write();
+				wbe.close();
+				if (is != null)
+					is.close();
+				if (os != null)
+					os.close();
+			}
+			// 会计导出佣金订单
+			if (getKjId(request) != null) {
+				if (regionService.isCN(_regionId)) {
+					OutputStream os = response.getOutputStream();
+					jxl.Workbook wb;
+					InputStream is;
+					try {
+						is = this.getClass().getResourceAsStream("/VisaTemplateCNY.xls");
+					} catch (Exception e) {
+						throw new Exception("模版不存在");
+					}
+					try {
+						wb = Workbook.getWorkbook(is);
+					} catch (Exception e) {
+						throw new Exception("模版格式不支持");
+					}
+					WorkbookSettings settings = new WorkbookSettings();
+					settings.setWriteAccess(null);
+					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+					if (wbe == null) {
+						System.out.println("wbe is null !os=" + os + ",wb" + wb);
+					} else {
+						System.out.println("wbe not null !os=" + os + ",wb" + wb);
+					}
+					WritableSheet sheet = wbe.getSheet(0);
+					WritableCellFormat cellFormat = new WritableCellFormat();
+
+					int i = 1;
+					for (VisaDTO visaDto : list) {
+						sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+						sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+						if (visaDto.getReceiveDate() != null)
+							sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+						sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+						sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+						sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+						sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
+						sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
+						sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(14, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(15, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(16, i, visaDto.getBonus() + "", cellFormat));
+						if (visaDto.getBonusDate() != null)
+							sheet.addCell(new Label(17, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+						sheet.addCell(new Label(18, i, visaDto.getBankCheck(), cellFormat));
+						sheet.addCell(new Label(19, i, visaDto.isChecked() + "", cellFormat));
+						sheet.addCell(new Label(20, i, visaDto.getAdviserName(), cellFormat));
+						if (visaDto.getState() != null)
+							sheet.addCell(new Label(21, i, getStateStr(visaDto.getState()), cellFormat));
+						if (visaDto.getKjApprovalDate() != null)
+							sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+						sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
+						i++;
+					}
+					wbe.write();
+					wbe.close();
+					if (is != null)
+						is.close();
+					if (os != null)
+						os.close();
+
+				} else {
+
+					//AUD
+
+					OutputStream os = response.getOutputStream();
+					jxl.Workbook wb;
+					InputStream is;
+					try {
+						is = this.getClass().getResourceAsStream("/VisaTemplate.xls");
+					} catch (Exception e) {
+						throw new Exception("模版不存在");
+					}
+					try {
+						wb = Workbook.getWorkbook(is);
+					} catch (Exception e) {
+						throw new Exception("模版格式不支持");
+					}
+					WorkbookSettings settings = new WorkbookSettings();
+					settings.setWriteAccess(null);
+					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+
+					if (wbe == null) {
+						System.out.println("wbe is null !os=" + os + ",wb" + wb);
+					} else {
+						System.out.println("wbe not null !os=" + os + ",wb" + wb);
+					}
+					WritableSheet sheet = wbe.getSheet(0);
+					WritableCellFormat cellFormat = new WritableCellFormat();
+
+					int i = 1;
+					for (VisaDTO visaDto : list) {
+						sheet.addCell(new Label(0, i, "CV" + visaDto.getId(), cellFormat));
+						sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
+						if (visaDto.getReceiveDate() != null)
+							sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
+						sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
+						sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
+						sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+						sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
+						sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
+						sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
+						sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(14, i, visaDto.getGstAUD() + "", cellFormat));
+						sheet.addCell(new Label(15, i, visaDto.getDeductGstAUD() + "", cellFormat));
+						sheet.addCell(new Label(16, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(17, i, visaDto.getExpectAmountAUD() + "", cellFormat));
+						sheet.addCell(new Label(18, i, visaDto.getBonus() + "", cellFormat));
+						if (visaDto.getBonusDate() != null)
+							sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()), cellFormat));
+						sheet.addCell(new Label(20, i, visaDto.getBankCheck(), cellFormat));
+						sheet.addCell(new Label(21, i, visaDto.isChecked() + "", cellFormat));
+						sheet.addCell(new Label(22, i, visaDto.getAdviserName(), cellFormat));
+						if (visaDto.getState() != null)
+							sheet.addCell(new Label(23, i, getStateStr(visaDto.getState()), cellFormat));
+						if (visaDto.getKjApprovalDate() != null)
+							sheet.addCell(new Label(24, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
+						sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
+						i++;
+					}
+					wbe.write();
+					wbe.close();
+					if (is != null)
+						is.close();
+					if (os != null)
+						os.close();
+
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+
+
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<VisaDTO> getVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {

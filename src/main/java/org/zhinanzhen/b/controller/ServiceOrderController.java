@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderExportDTO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
+import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -42,6 +44,7 @@ import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
+import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -2313,6 +2316,231 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/down_V2", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> down_V2(@RequestParam(value = "id", required = false) Integer id,
+                     @RequestParam(value = "type", required = false) String type,
+                     @RequestParam(value = "state", required = false) String state,
+                     @RequestParam(value = "auditingState", required = false) String auditingState,
+                     @RequestParam(value = "reviewState", required = false) String reviewState,
+                     @RequestParam(value = "urgentState", required = false) String urgentState,
+                     @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+                     @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+                     @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+                     @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+                     @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+                     @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
+                     @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
+                     @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
+                     @RequestParam(value = "regionId", required = false) Integer regionId,
+                     @RequestParam(value = "userId", required = false) Integer userId,
+                     @RequestParam(value = "userName", required = false) String userName,
+                     @RequestParam(value = "applicantName", required = false) String applicantName,
+                     @RequestParam(value = "maraId", required = false) Integer maraId,
+                     @RequestParam(value = "adviserId", required = false) Integer adviserId,
+                     @RequestParam(value = "officialId", required = false) Integer officialId,
+                     @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
+                     @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+                     @RequestParam(value = "serviceId", required = false) Integer serviceId,
+                     @RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+                     @RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
+                     HttpServletResponse response) {
+        List<String> excludeTypeList = null;
+        String excludeState = null;
+        List<String> stateList = null;
+        if (state != null && !"".equals(state))
+            stateList = new ArrayList<>(Arrays.asList(state.split(",")));
+        List<String> reviewStateList = null;
+        if (reviewState != null && !"".equals(reviewState))
+            reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
+        Integer newMaraId = getMaraId(request);
+        if (newMaraId != null) {
+            excludeTypeList = ListUtil.buildArrayList("ZX");
+            maraId = newMaraId;
+            excludeState = ReviewAdviserStateEnum.PENDING.toString();
+            reviewStateList = new ArrayList<>();
+            reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+            reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+            reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+        }
+        Integer newOfficialId = getOfficialId(request);
+        if (newOfficialId != null) {
+            excludeTypeList = ListUtil.buildArrayList("ZX");
+            if (getOfficialAdminId(request) == null)
+                officialId = newOfficialId; // 非文案管理员就只显示自己的单子
+            excludeState = ReviewAdviserStateEnum.PENDING.toString();
+        }
+
+        List<Integer> regionIdList = null;
+        if (regionId != null && regionId > 0)
+            regionIdList = ListUtil.buildArrayList(regionId);
+
+        try {
+            super.setGetHeader(response);
+            // 处理顾问管理员
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+                List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                for (RegionDTO region : regionList)
+                    regionIdList.add(region.getId());
+            } else {
+                Integer newAdviserId = getAdviserId(request);
+                if (newAdviserId != null)
+                    adviserId = newAdviserId;
+            }
+
+            List<ServiceOrderDTO> serviceOrderList = null;
+            if (id != null && id > 0) {
+                serviceOrderList = new ArrayList<ServiceOrderDTO>();
+                ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+                if (serviceOrder != null)
+                    serviceOrderList.add(serviceOrder);
+            }
+            if (id == null) {
+                serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+                        auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
+                        startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
+                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId,
+                        officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
+                        serviceId, servicePackageId, schoolId, null, null, null);
+
+                if (newOfficialId != null)
+                    for (ServiceOrderDTO so : serviceOrderList)
+                        so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+            }
+
+            // 获取token
+            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+            if ((int)tokenMap.get("errcode") != 0){
+                throw  new RuntimeException( tokenMap.get("errmsg").toString());
+            }
+            String customerToken = (String) tokenMap.get("access_token");
+
+            // 创建表格
+            String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+            final JSONObject[] parm = {new JSONObject()};
+            parm[0].put("doc_type", 4);
+            parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+            String[] userIds = {"XuShiYi"};
+            parm[0].put("admin_users", userIds);
+            JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+            String url = "";
+            if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+                url = setupExcelJsonObject.get("url").toString();
+                String docId = setupExcelJsonObject.get("docid").toString();
+                SetupExcelDO setupExcelDO = new SetupExcelDO();
+                setupExcelDO.setUrl(url);
+                setupExcelDO.setDocId(docId);
+                String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
+                parm[0] = new JSONObject();
+                parm[0].put("docid", docId);
+                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+                List<ServiceOrderDTO> finalServiceOrderList = serviceOrderList;
+                Thread thread1 = new Thread(() -> {
+                    try {
+                        // 线程1的任务
+                        if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
+                            JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
+                            Iterator<Object> iterator = propertiesObjects.iterator();
+                            String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
+                            setupExcelDO.setSheetId(sheetId);
+                            int i = wxWorkService.addExcel(setupExcelDO);
+                            if (i > 0) {
+                                String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
+                                parm[0] = new JSONObject();
+                                parm[0].put("docid", docId);
+
+                                List<JSONObject> requests = new ArrayList<>();
+                                JSONObject requestsJson = new JSONObject();
+                                JSONObject updateRangeRequest = new JSONObject();
+                                JSONObject gridData = new JSONObject();
+                                int count = 0;
+
+                                List<String> excelTitle = new ArrayList<>();
+                                excelTitle.add("ID");
+                                excelTitle.add("创建时间");
+                                excelTitle.add("提交审核时间");
+                                excelTitle.add("办理完成日期");
+                                excelTitle.add("提交申请时间");
+                                excelTitle.add("客户ID");
+                                excelTitle.add("客户姓名");
+                                excelTitle.add("生日");
+                                excelTitle.add("手机号码");
+                                excelTitle.add("申请人ID");
+                                excelTitle.add("申请人姓名");
+                                excelTitle.add("所属顾问");
+                                excelTitle.add("MARA");
+                                excelTitle.add("文案");
+                                excelTitle.add("服务名称");
+                                excelTitle.add("项目代号/学校");
+                                excelTitle.add("状态");
+                                excelTitle.add("计数");
+                                excelTitle.add("备注");
+
+                                for (ServiceOrderDTO serviceOrderDTO : finalServiceOrderList) {
+                                    if (count == 0) {
+                                        gridData.put("start_row", 0);
+                                        gridData.put("start_column", 0);
+                                        List<JSONObject> rows = new ArrayList<>();
+                                        for (String title : excelTitle) {
+                                            JSONObject jsonObject = new JSONObject();
+                                            JSONObject text = new JSONObject();
+                                            text.put("text", title);
+                                            jsonObject.put("cell_value", text);
+                                            rows.add(jsonObject);
+                                        }
+                                        List<JSONObject> objects = new ArrayList<>();
+                                        JSONObject rowsValue = new JSONObject();
+                                        rowsValue.put("values", rows);
+                                        objects.add(rowsValue);
+                                        gridData.put("rows", objects);
+                                        updateRangeRequest.put("sheet_id", sheetId);
+                                        updateRangeRequest.put("grid_data", gridData);
+                                        requestsJson.put("update_range_request", updateRangeRequest);
+                                        requests.add(requestsJson);
+                                        parm[0].put("requests", requests);
+                                        count++;
+                                        WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+                                        parm[0] = new JSONObject();
+                                        requests.remove(0);
+                                    }
+                                    parm[0].put("docid", docId);
+                                    gridData.put("start_row", count);
+                                    gridData.put("start_column", 0);
+                                    List<JSONObject> rows = build(serviceOrderDTO);
+                                    List<JSONObject> objects = new ArrayList<>();
+                                    JSONObject rowsValue = new JSONObject();
+                                    rowsValue.put("values", rows);
+                                    objects.add(rowsValue);
+                                    gridData.put("rows", objects);
+                                    updateRangeRequest.put("sheet_id", sheetId);
+                                    updateRangeRequest.put("grid_data", gridData);
+                                    requestsJson.put("update_range_request", updateRangeRequest);
+                                    requests.add(requestsJson);
+                                    parm[0].put("requests", requests);
+                                    count++;
+                                    WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+                                    parm[0] = new JSONObject();
+                                    requests.remove(0);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        // 处理异常，例如记录日志
+                        e.printStackTrace();
+                    }
+                });
+                thread1.start();
+            }
+            return new Response<>(0, "生成Excel成功， excel链接为：" + url);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new Response<>(0, "生成Excel成功， excel链接为：");
+    }
+
     @RequestMapping(value = "/downExcel", method = RequestMethod.GET)
     @ResponseBody
     public void downExcel(@RequestParam(value = "type") String type,
@@ -3382,4 +3610,286 @@ public class ServiceOrderController extends BaseController {
         }
         return servicepakageName;
     }
+
+    public List<JSONObject> build(ServiceOrderDTO so) {
+        List<JSONObject> rows = new ArrayList<>();
+
+        JSONObject jsonObject = new JSONObject();
+        JSONObject text = new JSONObject();
+        text.put("text", String.valueOf(so.getId()));
+        jsonObject.put("cell_value", text);
+        rows.add(jsonObject);
+
+        if (so.getGmtCreate() != null) {
+            JSONObject jsonObject1 = new JSONObject();
+            JSONObject text1 = new JSONObject();
+            text1.put("text", sdf.format(so.getGmtCreate()));
+            jsonObject1.put("cell_value", text1);
+            rows.add(jsonObject1);
+        } else {
+            JSONObject jsonObject1 = new JSONObject();
+            JSONObject text1 = new JSONObject();
+            text1.put("text", "");
+            jsonObject1.put("cell_value", text1);
+            rows.add(jsonObject1);
+        }
+
+        if (so.getOfficialApprovalDate() != null) {
+            JSONObject jsonObject2 = new JSONObject();
+            JSONObject text2 = new JSONObject();
+            text2.put("text", sdf.format(so.getOfficialApprovalDate()));
+            jsonObject2.put("cell_value", text2);
+            rows.add(jsonObject2);
+        } else {
+            JSONObject jsonObject2 = new JSONObject();
+            JSONObject text2 = new JSONObject();
+            text2.put("text", "");
+            jsonObject2.put("cell_value", text2);
+            rows.add(jsonObject2);
+        }
+
+        if (so.getFinishDate() != null) {
+            JSONObject jsonObject3 = new JSONObject();
+            JSONObject text3 = new JSONObject();
+            text3.put("text", sdf.format(so.getFinishDate()));
+            jsonObject3.put("cell_value", text3);
+            rows.add(jsonObject3);
+        } else {
+            JSONObject jsonObject3 = new JSONObject();
+            JSONObject text3 = new JSONObject();
+            text3.put("text", "");
+            jsonObject3.put("cell_value", text3);
+            rows.add(jsonObject3);
+        }
+
+        if (so.getReadcommittedDate() != null) {
+            JSONObject jsonObject4 = new JSONObject();
+            JSONObject text4 = new JSONObject();
+            text4.put("text", sdf.format(so.getReadcommittedDate()));
+            jsonObject4.put("cell_value", text4);
+            rows.add(jsonObject4);
+        } else {
+            JSONObject jsonObject4 = new JSONObject();
+            JSONObject text4 = new JSONObject();
+            text4.put("text", "");
+            jsonObject4.put("cell_value", text4);
+            rows.add(jsonObject4);
+        }
+
+        JSONObject jsonObject5 = new JSONObject();
+        JSONObject text5 = new JSONObject();
+        text5.put("text", String.valueOf(so.getUserId()));
+        jsonObject5.put("cell_value", text5);
+        rows.add(jsonObject5);
+
+        if (so.getUser() != null) {
+            JSONObject jsonObject6 = new JSONObject();
+            JSONObject text6 = new JSONObject();
+            text6.put("text", so.getUser().getName());
+            jsonObject6.put("cell_value", text6);
+            rows.add(jsonObject6);
+
+            JSONObject jsonObject7 = new JSONObject();
+            JSONObject text7 = new JSONObject();
+            text7.put("text", sdf.format(so.getUser().getBirthday()));
+            jsonObject7.put("cell_value", text7);
+            rows.add(jsonObject7);
+
+            JSONObject jsonObject8 = new JSONObject();
+            JSONObject text8 = new JSONObject();
+            text8.put("text", so.getUser().getPhone());
+            jsonObject8.put("cell_value", text8);
+            rows.add(jsonObject8);
+        } else {
+            JSONObject jsonObject6 = new JSONObject();
+            JSONObject text6 = new JSONObject();
+            text6.put("text", "");
+            jsonObject6.put("cell_value", text6);
+            rows.add(jsonObject6);
+
+            JSONObject jsonObject7 = new JSONObject();
+            JSONObject text7 = new JSONObject();
+            text7.put("text", "");
+            jsonObject7.put("cell_value", text7);
+            rows.add(jsonObject7);
+
+            JSONObject jsonObject8 = new JSONObject();
+            JSONObject text8 = new JSONObject();
+            text8.put("text", "");
+            jsonObject8.put("cell_value", text8);
+            rows.add(jsonObject8);
+        }
+
+        if (so.getApplicant() != null) {
+            JSONObject jsonObject9 = new JSONObject();
+            JSONObject text9 = new JSONObject();
+            text9.put("text", String.valueOf(so.getApplicantId()));
+            jsonObject9.put("cell_value", text9);
+            rows.add(jsonObject9);
+
+            JSONObject jsonObject10 = new JSONObject();
+            JSONObject text10 = new JSONObject();
+            text10.put("text",so.getApplicant().getFirstname() + " " + so.getApplicant().getSurname());
+            jsonObject10.put("cell_value", text10);
+            rows.add(jsonObject10);
+        } else {
+            JSONObject jsonObject9 = new JSONObject();
+            JSONObject text9 = new JSONObject();
+            text9.put("text", "");
+            jsonObject9.put("cell_value", text9);
+            rows.add(jsonObject9);
+
+            JSONObject jsonObject10 = new JSONObject();
+            JSONObject text10 = new JSONObject();
+            text10.put("text","");
+            jsonObject10.put("cell_value", text10);
+            rows.add(jsonObject10);
+        }
+
+        if (so.getAdviser() != null) {
+            JSONObject jsonObject11 = new JSONObject();
+            JSONObject text11 = new JSONObject();
+            text11.put("text",so.getAdviser().getName());
+            jsonObject11.put("cell_value", text11);
+            rows.add(jsonObject11);
+        } else {
+            JSONObject jsonObject11 = new JSONObject();
+            JSONObject text11 = new JSONObject();
+            text11.put("text", "");
+            jsonObject11.put("cell_value", text11);
+            rows.add(jsonObject11);
+        }
+
+        if (so.getMara() != null) {
+            JSONObject jsonObject12 = new JSONObject();
+            JSONObject text12 = new JSONObject();
+            text12.put("text",so.getMara().getName());
+            jsonObject12.put("cell_value", text12);
+            rows.add(jsonObject12);
+        } else {
+            JSONObject jsonObject12 = new JSONObject();
+            JSONObject text12 = new JSONObject();
+            text12.put("text", "");
+            jsonObject12.put("cell_value", text12);
+            rows.add(jsonObject12);
+        }
+
+        if (so.getOfficial() != null) {
+            JSONObject jsonObject13 = new JSONObject();
+            JSONObject text13 = new JSONObject();
+            text13.put("text",so.getOfficial().getName());
+            jsonObject13.put("cell_value", text13);
+            rows.add(jsonObject13);
+        } else {
+            JSONObject jsonObject13 = new JSONObject();
+            JSONObject text13 = new JSONObject();
+            text13.put("text", "");
+            jsonObject13.put("cell_value", text13);
+            rows.add(jsonObject13);
+        }
+
+        if (so.getService() != null && !"ZX".equalsIgnoreCase(so.getType())) {
+            String servicepakageName = "";
+            String tmp = "";
+            if (so.getServicePackage() != null) {
+                String servicePackagetype = so.getServicePackage().getType();
+                servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+                tmp = "-";
+            }
+            if (so.getServiceAssessId() == null) {
+                JSONObject jsonObject14 = new JSONObject();
+                JSONObject text14 = new JSONObject();
+                text14.put("text",so.getService().getName());
+                jsonObject14.put("cell_value", text14);
+                rows.add(jsonObject14);
+
+                JSONObject jsonObject15 = new JSONObject();
+                JSONObject text15 = new JSONObject();
+                text15.put("text",so.getService().getCode() + tmp + servicepakageName);
+                jsonObject15.put("cell_value", text15);
+                rows.add(jsonObject15);
+            }
+            if (so.getServiceAssessDO() != null) {
+                JSONObject jsonObject14 = new JSONObject();
+                JSONObject text14 = new JSONObject();
+                text14.put("text",so.getService().getCode() + tmp + servicepakageName);
+                jsonObject14.put("cell_value", text14);
+                rows.add(jsonObject14);
+
+                JSONObject jsonObject15 = new JSONObject();
+                JSONObject text15 = new JSONObject();
+                text15.put("text",so.getService().getCode() + " - " + so.getServiceAssessDO().getName());
+                jsonObject15.put("cell_value", text15);
+                rows.add(jsonObject15);
+            }
+
+        }
+        if (so.getSchool() != null) {
+            JSONObject jsonObject14 = new JSONObject();
+            JSONObject text14 = new JSONObject();
+            text14.put("text"," 留学 ");
+            jsonObject14.put("cell_value", text14);
+            rows.add(jsonObject14);
+
+            JSONObject jsonObject15 = new JSONObject();
+            JSONObject text15 = new JSONObject();
+            text15.put("text",so.getSchool().getName());
+            jsonObject15.put("cell_value", text15);
+            rows.add(jsonObject15);
+        } else if (so.getSchoolInstitutionListDTO() != null) {
+            JSONObject jsonObject14 = new JSONObject();
+            JSONObject text14 = new JSONObject();
+            text14.put("text"," 留学 ");
+            jsonObject14.put("cell_value", text14);
+            rows.add(jsonObject14);
+
+            JSONObject jsonObject15 = new JSONObject();
+            JSONObject text15 = new JSONObject();
+            text15.put("text",so.getSchoolInstitutionListDTO().getName() + "-"
+                    + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName());
+            jsonObject15.put("cell_value", text15);
+            rows.add(jsonObject15);
+        }
+        if ("ZX".equalsIgnoreCase(so.getType())) {
+            JSONObject jsonObject14 = new JSONObject();
+            JSONObject text14 = new JSONObject();
+            text14.put("text"," 咨询 ");
+            jsonObject14.put("cell_value", text14);
+            rows.add(jsonObject14);
+
+            JSONObject jsonObject15 = new JSONObject();
+            JSONObject text15 = new JSONObject();
+            text15.put("text",so.getService().getCode());
+            jsonObject15.put("cell_value", text15);
+            rows.add(jsonObject15);
+        }
+        String s = convertOrderStatus(so.getState());
+        JSONObject jsonObject16 = new JSONObject();
+        JSONObject text16 = new JSONObject();
+        text16.put("text",s);
+        jsonObject16.put("cell_value", text16);
+        rows.add(jsonObject16);
+
+        JSONObject jsonObject17 = new JSONObject();
+        JSONObject text17 = new JSONObject();
+        text17.put("text", String.valueOf(so.getRealPeopleNumber()));
+        jsonObject17.put("cell_value", text17);
+        rows.add(jsonObject17);
+
+        if (so.getRemarks() != null) {
+            JSONObject jsonObject18 = new JSONObject();
+            JSONObject text18 = new JSONObject();
+            text18.put("text",so.getRemarks());
+            jsonObject18.put("cell_value", text18);
+            rows.add(jsonObject18);
+        } else {
+            JSONObject jsonObject18 = new JSONObject();
+            JSONObject text18 = new JSONObject();
+            text18.put("text","");
+            jsonObject18.put("cell_value", text18);
+            rows.add(jsonObject18);
+        }
+        return rows;
+    }
+
 }

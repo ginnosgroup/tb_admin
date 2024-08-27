@@ -642,7 +642,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     private VisaOfficialDO visaOfficiaCalculate(ServiceOrderDO serviceOrderById, int region, CommissionAmountDTO commissionAmountDTO, double amount, double rate, int EOICount,
                                                 OfficialGradeDO officialGradeById, VisaOfficialDO visaOfficialDO, List<ServiceOrderDTO> deriveOrder, ServiceOrderDO serviceParentOrderById, boolean installment, boolean longTermVisa) throws ServiceException {
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
-
         if (region == 1) {
             double quarterExchangeRate = exchangeRateService.getQuarterExchangeRate();
             visaOfficialDO.setExchangeRate(quarterExchangeRate);
@@ -721,9 +720,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
             }
             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-            commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() * (rate / 100)) / EOICount);
+            if (visaOfficialDO.getCommissionAmount() != null && visaOfficialDO.getCommissionAmount() > 0) {
+                commissionAmountDTO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount());
+                commissionAmountDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
+            }
+            commissionAmountDTO.setCommission((commissionAmountDTO.getCommissionAmount() * (rate / 100)) / EOICount);
             if (isSIV) {
-                commissionAmountDTO.setCommission((commissionAmountDTO.getPredictCommissionAmount() * (rate / 100)));
+                commissionAmountDTO.setCommission((commissionAmountDTO.getCommissionAmount() * (rate / 100)));
             }
             String calculation = new String();
             calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + officialGradeById.getGrade() + "," + rate + "%" + "," + dateFormat.format(officialGradeById.getGmtModify());
@@ -1506,9 +1509,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public void update(Integer id, String submitIbDate, Double handling_date, String state, Integer serviceId) {
-        visaOfficialDao.update(id, submitIbDate, handling_date, state, serviceId);
-
+    public void update(Integer id, String submitIbDate, Double commissionAmount, String state, Integer serviceId) throws ServiceException {
+        visaOfficialDao.update(id, submitIbDate, commissionAmount, state, serviceId);
+        VisaOfficialDO one = visaOfficialDao.getOne(id);
+        VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(one.getServiceOrderId());
+        VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
+        visaOfficialDTO.setIsRefund(true);
+        int i = addVisa(visaOfficialDTO);
     }
     
     @Override

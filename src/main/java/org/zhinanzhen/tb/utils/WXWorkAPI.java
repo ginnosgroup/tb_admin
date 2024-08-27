@@ -78,10 +78,11 @@ public class WXWorkAPI {
     private static final String WECOM_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=1afa665e-642b-4098-b4d3-4f553efe06bf";
 
     // 创建表格
-    private static final String SETUP_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/create_doc?access_token=ACCESS_TOKEN";
-
+    public final static String SETUP_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/create_doc?access_token=ACCESS_TOKEN";
+    // 获取表格基础信息
+    public final static String INFORMATION_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/spreadsheet/get_sheet_properties?access_token=ACCESS_TOKEN";
     //编辑表格
-    private static final String REDACT_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/spreadsheet/batch_update?access_token=ACCESS_TOKEN";
+    public final static String REDACT_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/spreadsheet/batch_update?access_token=ACCESS_TOKEN";
 
     //发送GET请求
     public static JSONObject sendGet(String url) {
