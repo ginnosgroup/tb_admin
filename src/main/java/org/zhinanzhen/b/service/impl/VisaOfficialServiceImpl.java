@@ -720,7 +720,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
             }
             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-            if (visaOfficialDO.getCommissionAmount() != null && visaOfficialDO.getCommissionAmount() > 0) {
+            if (visaOfficialDO.getCommissionAmount() != null && visaOfficialDO.getCommissionAmount() > 0 && visaOfficialDO.getCommissionAmount() != visaOfficialDO.getPredictCommissionAmount()) {
                 commissionAmountDTO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount());
                 commissionAmountDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
             }
