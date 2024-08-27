@@ -46,7 +46,7 @@ public interface VisaOfficialDao {
               @Param("userName")String userName,
               @Param("applicantName")String applicantName,
               @Param("isMerged") Boolean isMerged);
-    VisaListDO getOne(@Param("id")Integer id
+    VisaOfficialDO getOne(@Param("id")Integer id
     );
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);

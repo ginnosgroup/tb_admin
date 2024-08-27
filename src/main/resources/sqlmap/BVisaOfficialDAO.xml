@@ -315,73 +315,28 @@
         </if>
 
     </select>
-    <select id="getOne" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialListDO">
+    <select id="getOne" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
         SELECT
-            bv.id AS id,
-            bv.gmt_create AS gmtCreate,
-            bv.code AS code,
-            bv.handling_date AS handlingDate,
-            bv.user_id AS userId,
-            bv.state AS state,
-            bv.commission_state AS commissionState,
-            bv.kj_approval_date AS kjApprovalDate,
-            bv.receive_type_id AS receiveTypeId,
-            bv.receive_date AS receiveDate,
-            bv.service_id AS serviceId,
-            bv.service_order_id AS serviceOrderId,
-            bv.installment_num AS installmentNum,
-            bv.installment,
-            bv.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            bv.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            bv.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            bv.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            bv.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            bv.visa_voucher_image_url AS visaVoucherImageUrl,
-            bv.receivable AS receivable,
-            bv.received AS received,
-            bv.per_amount AS perAmount,
-            bv.amount AS amount,
-            bv.expect_amount AS expectAmount,
-            bv.sure_expect_amount AS sureExpectAmount,
-            bv.currency,
-            bv.exchange_rate AS exchangeRate,
-            bv.discount AS discount,
-            bv.invoice_number AS invoiceNumber,
-            bv.gst AS gst,
-            bv.deduct_gst AS deductGst,
-            bv.bonus AS bonus,
-            bv.bonus_date AS bonusDate,
-            bv.adviser_id AS adviserId,
-            bv.mara_id AS maraId,
-            bv.official_id AS officialId,
-            bv.bank_check AS bankCheck,
-            bv.is_checked AS isChecked,
-            bv.is_merged AS isMerged,
-            bv.remarks AS remarks,
-            bv.refuse_reason AS refuseReason,
-            bv.verify_code AS verifyCode,
-            bv.bank_date AS bankDate,
-            bv.is_close AS isClose,
-            bv.invoice_create AS invoiceCreate,
-            tu.name AS userName,
-            tu.birthday AS birthday,
-            tu.phone AS phone,
-            so.applicant_id AS applicantId,
-            so.commissionAmount,
-            so.predict_commission predictCommission,
-            ifnull(br.amount,0) as refund,
-            so.predict_commission as predictCommission,
-            bog.rate rate
+            bv.*
+--             tu.name AS userName,
+--             tu.birthday AS birthday,
+--             tu.phone AS phone,
+--             so.applicant_id AS applicantId,
+--             so.commissionAmount,
+--             so.predict_commission predictCommission,
+--             ifnull(br.amount,0) as refund,
+--             so.predict_commission as predictCommission,
+--             bog.rate rate
         from b_visa_official bv
-                 JOIN b_service_order so ON bv.service_order_id = so.id
-                 JOIN tb_user tu ON bv.user_id = tu.id
-                 JOIN b_applicant ba ON so.applicant_id = ba.id
-                 left JOIN b_receive_type brt ON brt.id = so.receive_type_id
-                 join tb_adviser ta on ta.id = bv.adviser_id
-                 left join b_refund br on br.commission_order_id = bv.id
-                 join b_official bo on bo.id = bv.official_id
-                 left join b_official_grade bog on bog.id = bo.grade_id
-                 left join b_service bs on bs.id = so.service_id
+--                  JOIN b_service_order so ON bv.service_order_id = so.id
+--                  JOIN tb_user tu ON bv.user_id = tu.id
+--                  JOIN b_applicant ba ON so.applicant_id = ba.id
+--                  left JOIN b_receive_type brt ON brt.id = so.receive_type_id
+--                  join tb_adviser ta on ta.id = bv.adviser_id
+--                  left join b_refund br on br.commission_order_id = bv.id
+--                  join b_official bo on bo.id = bv.official_id
+--                  left join b_official_grade bog on bog.id = bo.grade_id
+--                  left join b_service bs on bs.id = so.service_id
         where bv.id = #{id}
     </select>
     <select id="listVisaByCode" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
