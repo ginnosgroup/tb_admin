@@ -1510,12 +1510,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
     @Override
     public void update(Integer id, String submitIbDate, Double commissionAmount, String state, Integer serviceId) throws ServiceException {
-        visaOfficialDao.update(id, submitIbDate, commissionAmount, state, serviceId);
+
+
         VisaOfficialDO one = visaOfficialDao.getOne(id);
         VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(one.getServiceOrderId());
-        VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
-        visaOfficialDTO.setIsRefund(true);
-        int i = addVisa(visaOfficialDTO);
+        double rate = byServiceOrderId.getPredictCommission() / byServiceOrderId.getCommissionAmount();
+        double v = (double) Math.round(rate * 20) / 20;
+        byServiceOrderId.setCommissionAmount(commissionAmount);
+        byServiceOrderId.setPredictCommission(commissionAmount * v);
+        byServiceOrderId.setPredictCommissionCNY(byServiceOrderId.getPredictCommission() * byServiceOrderId.getExchangeRate());
+        visaOfficialDao.updateVisaOfficial(byServiceOrderId);
+
     }
     
     @Override
