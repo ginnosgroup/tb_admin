@@ -13,6 +13,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
+import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -54,6 +57,7 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -96,6 +100,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	private ServiceService serviceService;
+
+	@Resource
+	WXWorkService wxWorkService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -1164,7 +1171,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)
 	@ResponseBody
-	public void down_V2(@RequestParam(value = "id", required = false) Integer id,
+	public Response<String> down_V2(@RequestParam(value = "id", required = false) Integer id,
 					 @RequestParam(value = "keyword", required = false) String keyword,
 					 @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
 					 @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
@@ -1234,80 +1241,141 @@ public class VisaController extends BaseCommissionOrderController {
 				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
 			// 超级管理员导出佣金订单
 			if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
-				OutputStream os = response.getOutputStream();
-				jxl.Workbook wb;
-				InputStream is;
-				try {
-					is = this.getClass().getResourceAsStream("/visa_information.xls");
-				} catch (Exception e) {
-					throw new Exception("模版不存在");
+				// 获取token
+				Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+				if ((int)tokenMap.get("errcode") != 0){
+					throw  new RuntimeException( tokenMap.get("errmsg").toString());
 				}
-				try {
-					wb = Workbook.getWorkbook(is);
-				} catch (Exception e) {
-					throw new Exception("模版格式不支持");
-				}
-				WorkbookSettings settings = new WorkbookSettings();
-				settings.setWriteAccess(null);
-				jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+				String customerToken = (String) tokenMap.get("access_token");
 
-				if (wbe == null) {
-					System.out.println("wbe is null !os=" + os + ",wb" + wb);
-				} else {
-					System.out.println("wbe not null !os=" + os + ",wb" + wb);
-				}
-				WritableSheet sheet = wbe.getSheet(0);
-				WritableCellFormat cellFormat = new WritableCellFormat();
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
 				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
 				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
-				int i = 1;
-				for (VisaDTO visaDto : list) {
-					sheet.addCell(new Label(0, i, String.valueOf(visaDto.getId()), cellFormat));
-					sheet.addCell(new Label(1, i, sdf.format(visaDto.getGmtCreate()), cellFormat));
-					if (visaDto.getReceiveDate() != null) {
-						sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
-					}
-					sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
-					sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-					ServiceDTO serviceDTO = serviceMap.get(visaDto.getServiceId());
-					if (ObjectUtil.isNotNull(serviceDTO)) {
-						sheet.addCell(new Label(5, i, serviceDTO.getName() + "-" + serviceDTO.getCode(), cellFormat));
-					}
-					sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(10, i, visaDto.getCurrency(), cellFormat));
-					sheet.addCell(new Label(11, i, visaDto.getExchangeRate() + "", cellFormat));
-					sheet.addCell(new Label(12, i, visaDto.getAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(13, i, visaDto.getAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(14, i, visaDto.getGst() + "", cellFormat));
-					sheet.addCell(new Label(15, i, visaDto.getDeductGst() + "", cellFormat));
-					sheet.addCell(new Label(16, i, visaDto.getExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(17, i, visaDto.getSureExpectAmount() + "", cellFormat));
-					sheet.addCell(new Label(18, i, visaDto.getBonus() + "", cellFormat));
-					if (ObjectUtil.isNotNull(visaDto.getBonusDate())) {
-						sheet.addCell(new Label(19, i, sdf.format(visaDto.getBonusDate()) + "", cellFormat));
-					}
-					if (StringUtil.isNotEmpty(visaDto.getVerifyCode())) {
-						sheet.addCell(new Label(20, i, visaDto.getVerifyCode() + "", cellFormat));
-					}
-					String adviserName = adviserMap.get(visaDto.getAdviserId());
-					if (StringUtil.isNotEmpty(adviserName)) {
-						sheet.addCell(new Label(22, i, adviserName + "", cellFormat));
-					}
-					sheet.addCell(new Label(23, i, visaDto.getState() + "", cellFormat));
-					sheet.addCell(new Label(24, i, visaDto.getRemarks() + "", cellFormat));
-					i++;
+
+
+				// 创建表格
+				String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+				final JSONObject[] parm = {new JSONObject()};
+				parm[0].put("doc_type", 4);
+				parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+				String[] userIds = {"XuShiYi"};
+				parm[0].put("admin_users", userIds);
+				JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+				String url = "";
+				if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+					url = setupExcelJsonObject.get("url").toString();
+					String docId = setupExcelJsonObject.get("docid").toString();
+					SetupExcelDO setupExcelDO = new SetupExcelDO();
+					setupExcelDO.setUrl(url);
+					setupExcelDO.setDocId(docId);
+					String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
+					parm[0] = new JSONObject();
+					parm[0].put("docid", docId);
+					JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+					List<VisaDTO> finalServiceOrderList = list;
+					Thread thread1 = new Thread(() -> {
+						try {
+							// 线程1的任务
+							if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
+								JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
+								Iterator<Object> iterator = propertiesObjects.iterator();
+								String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
+								setupExcelDO.setSheetId(sheetId);
+								int i = wxWorkService.addExcel(setupExcelDO);
+								if (i > 0) {
+									String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
+									parm[0] = new JSONObject();
+									parm[0].put("docid", docId);
+
+									List<JSONObject> requests = new ArrayList<>();
+									JSONObject requestsJson = new JSONObject();
+									JSONObject updateRangeRequest = new JSONObject();
+									JSONObject gridData = new JSONObject();
+									int count = 0;
+
+									List<String> excelTitle = new ArrayList<>();
+									excelTitle.add("订单ID");
+									excelTitle.add("佣金订单创建日期");
+									excelTitle.add("客户支付日期");
+									excelTitle.add("客户名称");
+									excelTitle.add("收款方式");
+									excelTitle.add("服务项目");
+									excelTitle.add("总计应收人民币");
+									excelTitle.add("总计应收澳币");
+									excelTitle.add("总计收款人民币");
+									excelTitle.add("手机收款澳币");
+									excelTitle.add("本次支付币种");
+									excelTitle.add("创建订单时汇率");
+									excelTitle.add("本次收款人民币");
+									excelTitle.add("本次收款澳币");
+									excelTitle.add("GST");
+									excelTitle.add("Deduct GST");
+									excelTitle.add("预收业绩");
+									excelTitle.add("确认预售业绩");
+									excelTitle.add("月奖");
+									excelTitle.add("月奖支付时间");
+									excelTitle.add("银行对账字段");
+									excelTitle.add("顾问");
+									excelTitle.add("状态");
+									excelTitle.add("备注");
+
+									for (VisaDTO serviceOrderDTO : finalServiceOrderList) {
+										if (count == 0) {
+											gridData.put("start_row", 0);
+											gridData.put("start_column", 0);
+											List<JSONObject> rows = new ArrayList<>();
+											for (String title : excelTitle) {
+												JSONObject jsonObject = new JSONObject();
+												JSONObject text = new JSONObject();
+												text.put("text", title);
+												jsonObject.put("cell_value", text);
+												rows.add(jsonObject);
+											}
+											List<JSONObject> objects = new ArrayList<>();
+											JSONObject rowsValue = new JSONObject();
+											rowsValue.put("values", rows);
+											objects.add(rowsValue);
+											gridData.put("rows", objects);
+											updateRangeRequest.put("sheet_id", sheetId);
+											updateRangeRequest.put("grid_data", gridData);
+											requestsJson.put("update_range_request", updateRangeRequest);
+											requests.add(requestsJson);
+											parm[0].put("requests", requests);
+											count++;
+											WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+											parm[0] = new JSONObject();
+											requests.remove(0);
+										}
+										parm[0].put("docid", docId);
+										gridData.put("start_row", count);
+										gridData.put("start_column", 0);
+										List<JSONObject> rows = build(serviceOrderDTO, adviserMap, serviceMap);
+										List<JSONObject> objects = new ArrayList<>();
+										JSONObject rowsValue = new JSONObject();
+										rowsValue.put("values", rows);
+										objects.add(rowsValue);
+										gridData.put("rows", objects);
+										updateRangeRequest.put("sheet_id", sheetId);
+										updateRangeRequest.put("grid_data", gridData);
+										requestsJson.put("update_range_request", updateRangeRequest);
+										requests.add(requestsJson);
+										parm[0].put("requests", requests);
+										count++;
+										WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+										parm[0] = new JSONObject();
+										requests.remove(0);
+									}
+								}
+							}
+						} catch (Exception e) {
+							// 处理异常，例如记录日志
+							e.printStackTrace();
+						}
+					});
+					thread1.start();
 				}
-				wbe.write();
-				wbe.close();
-				if (is != null)
-					is.close();
-				if (os != null)
-					os.close();
+				return new Response<>(0, "生成Excel成功， excel链接为：" + url);
 			}
 			// 会计导出佣金订单
 			if (getKjId(request) != null) {
@@ -1377,9 +1445,7 @@ public class VisaController extends BaseCommissionOrderController {
 						os.close();
 
 				} else {
-
 					//AUD
-
 					OutputStream os = response.getOutputStream();
 					jxl.Workbook wb;
 					InputStream is;
@@ -1445,13 +1511,12 @@ public class VisaController extends BaseCommissionOrderController {
 						is.close();
 					if (os != null)
 						os.close();
-
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return;
 		}
+		return new Response<>(0, "生成Excel成功， excel链接为：");
 	}
 
 
@@ -1665,6 +1730,188 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), 0);
 		}
+	}
+
+	public List<JSONObject> build(VisaDTO so, Map<Integer, String> adviserMap, Map<Integer,ServiceDTO> serviceMap) {
+		List<JSONObject> rows = new ArrayList<>();
+		// 订单ID
+		JSONObject jsonObject = new JSONObject();
+		JSONObject text = new JSONObject();
+		text.put("text", String.valueOf(so.getId()));
+		jsonObject.put("cell_value", text);
+		rows.add(jsonObject);
+		// 佣金订单创建日期
+		JSONObject jsonObject1 = new JSONObject();
+		JSONObject text1 = new JSONObject();
+		text1.put("text", sdf.format(so.getGmtCreate()));
+		jsonObject1.put("cell_value", text1);
+		rows.add(jsonObject1);
+		// 客户支付日期
+		JSONObject jsonObject2 = new JSONObject();
+		JSONObject text2 = new JSONObject();
+		if (so.getReceiveDate() != null) {
+			text2.put("text", sdf.format(so.getReceiveDate()));
+		} else {
+			text2.put("text", "");
+		}
+		jsonObject2.put("cell_value", text2);
+		rows.add(jsonObject2);
+		// 客户名称
+		JSONObject jsonObject3 = new JSONObject();
+		JSONObject text3 = new JSONObject();
+		text3.put("text", so.getUserName());
+		jsonObject3.put("cell_value", text3);
+		rows.add(jsonObject3);
+		// 收款方式
+		JSONObject jsonObject4 = new JSONObject();
+		JSONObject text4 = new JSONObject();
+		text4.put("text", so.getReceiveTypeName());
+		jsonObject4.put("cell_value", text4);
+		rows.add(jsonObject4);
+		// 服务项目
+		ServiceDTO serviceDTO = serviceMap.get(so.getServiceId());
+		if (ObjectUtil.isNotNull(serviceDTO)) {
+			JSONObject jsonObject5 = new JSONObject();
+			JSONObject text5 = new JSONObject();
+			text5.put("text", serviceDTO.getName() + "-" + serviceDTO.getCode());
+			jsonObject5.put("cell_value", text5);
+			rows.add(jsonObject5);
+		}
+		// 总计应收人民币
+		JSONObject jsonObject6 = new JSONObject();
+		JSONObject text6 = new JSONObject();
+		text6.put("text", String.valueOf(so.getTotalAmountCNY()));
+		jsonObject6.put("cell_value", text6);
+		rows.add(jsonObject6);
+		// 总计应收澳币
+		JSONObject jsonObject7 = new JSONObject();
+		JSONObject text7 = new JSONObject();
+		text7.put("text", String.valueOf(so.getTotalAmountAUD()));
+		jsonObject7.put("cell_value", text7);
+		rows.add(jsonObject7);
+		// 总计收款人民币
+		JSONObject jsonObject8 = new JSONObject();
+		JSONObject text8 = new JSONObject();
+		text8.put("text", String.valueOf(so.getTotalAmountCNY()));
+		jsonObject8.put("cell_value", text8);
+		rows.add(jsonObject8);
+		// 手机收款澳币
+		JSONObject jsonObject9 = new JSONObject();
+		JSONObject text9 = new JSONObject();
+		text9.put("text", String.valueOf(so.getTotalAmountAUD()));
+		jsonObject9.put("cell_value", text9);
+		rows.add(jsonObject9);
+		// 本次支付币种
+		JSONObject jsonObject10 = new JSONObject();
+		JSONObject text10 = new JSONObject();
+		text10.put("text", so.getCurrency());
+		jsonObject10.put("cell_value", text10);
+		rows.add(jsonObject10);
+		// 创建订单时汇率
+		JSONObject jsonObject11 = new JSONObject();
+		JSONObject text11 = new JSONObject();
+		text11.put("text", String.valueOf(so.getExchangeRate()));
+		jsonObject11.put("cell_value", text11);
+		rows.add(jsonObject11);
+		// 本次收款人民币
+		JSONObject jsonObject12 = new JSONObject();
+		JSONObject text12 = new JSONObject();
+		text12.put("text", String.valueOf(so.getAmountCNY()));
+		jsonObject12.put("cell_value", text12);
+		rows.add(jsonObject12);
+		// 本次收款澳币
+		JSONObject jsonObject13 = new JSONObject();
+		JSONObject text13 = new JSONObject();
+		text13.put("text", String.valueOf(so.getAmountAUD()));
+		jsonObject13.put("cell_value", text13);
+		rows.add(jsonObject13);
+		// GST
+		JSONObject jsonObject14 = new JSONObject();
+		JSONObject text14 = new JSONObject();
+		text14.put("text", String.valueOf(so.getGst()));
+		jsonObject14.put("cell_value", text14);
+		rows.add(jsonObject14);
+		// Deduct GST
+		JSONObject jsonObject15 = new JSONObject();
+		JSONObject text15 = new JSONObject();
+		text15.put("text", String.valueOf(so.getDeductGst()));
+		jsonObject15.put("cell_value", text15);
+		rows.add(jsonObject15);
+		// 预收业绩
+		JSONObject jsonObject16 = new JSONObject();
+		JSONObject text16 = new JSONObject();
+		text16.put("text", String.valueOf(so.getExpectAmount()));
+		jsonObject16.put("cell_value", text16);
+		rows.add(jsonObject16);
+		// 确认预售业绩
+		JSONObject jsonObject17 = new JSONObject();
+		JSONObject text17 = new JSONObject();
+		text17.put("text", String.valueOf(so.getSureExpectAmount()));
+		jsonObject17.put("cell_value", text17);
+		rows.add(jsonObject17);
+		// 月奖
+		JSONObject jsonObject18 = new JSONObject();
+		JSONObject text18 = new JSONObject();
+		text18.put("text", String.valueOf(so.getBonus()));
+		jsonObject18.put("cell_value", text18);
+		rows.add(jsonObject18);
+		// 月奖支付时间
+		if (ObjectUtil.isNotNull(so.getBonusDate())) {
+			JSONObject jsonObject19 = new JSONObject();
+			JSONObject text19 = new JSONObject();
+			text19.put("text", sdf.format(so.getBonusDate()));
+			jsonObject18.put("cell_value", text19);
+			rows.add(jsonObject19);
+		} else {
+			JSONObject jsonObject19 = new JSONObject();
+			JSONObject text19 = new JSONObject();
+			text19.put("text", "");
+			jsonObject19.put("cell_value", text19);
+			rows.add(jsonObject19);
+		}
+		// 银行对账字段
+		if (StringUtil.isNotEmpty(so.getVerifyCode())) {
+			JSONObject jsonObject20 = new JSONObject();
+			JSONObject text20 = new JSONObject();
+			text20.put("text", so.getVerifyCode());
+			jsonObject20.put("cell_value", text20);
+			rows.add(jsonObject20);
+		} else {
+			JSONObject jsonObject20 = new JSONObject();
+			JSONObject text20 = new JSONObject();
+			text20.put("text", "");
+			jsonObject20.put("cell_value", text20);
+			rows.add(jsonObject20);
+		}
+		// 顾问
+		String adviserName = adviserMap.get(so.getAdviserId());
+		if (StringUtil.isNotEmpty(adviserName)) {
+			JSONObject jsonObject21 = new JSONObject();
+			JSONObject text21 = new JSONObject();
+			text21.put("text", adviserName);
+			jsonObject21.put("cell_value", text21);
+			rows.add(jsonObject21);
+		} else {
+			JSONObject jsonObject21 = new JSONObject();
+			JSONObject text21 = new JSONObject();
+			text21.put("text", "");
+			jsonObject21.put("cell_value", text21);
+			rows.add(jsonObject21);
+		}
+		// 状态
+		JSONObject jsonObject22 = new JSONObject();
+		JSONObject text22 = new JSONObject();
+		text22.put("text", so.getState());
+		jsonObject22.put("cell_value", text22);
+		rows.add(jsonObject22);
+		// 备注
+		JSONObject jsonObject23 = new JSONObject();
+		JSONObject text23 = new JSONObject();
+		text23.put("text", so.getRemarks());
+		jsonObject23.put("cell_value", text23);
+		rows.add(jsonObject23);
+
+		return rows;
 	}
 
 }

@@ -2187,23 +2187,61 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             String name = StringUtil.isNotEmpty(eachRegionNumberDO.getCode()) ? eachRegionNumberDO.getCode()
                     : eachRegionNumberDO.getInstitutionTradingName();
             if (eachRegionNumberDO.getServicePackageId() != null && eachRegionNumberDO.getServicePackageId() > 0) {
-                ServicePackageDO servicePackageDo = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
-                if (servicePackageDo != null) {
-                    String _type = servicePackageDo.getType();
-                    if ("CA".equals(_type))
-                        name += " - 职业评估";
-                    if ("EOI".equals(_type))
-                        name += " - EOI";
-                    if ("SA".equals(_type))
-                        name += " - 学校申请";
-                    if ("VA".equals(_type))
-                        name += " - 签证申请";
-                    if ("ZD".equals(_type))
-                        name += " - 州担";
-                    if ("TM".equals(_type))
-                        name += " - 提名";
-                    if ("DB".equals(_type))
-                        name += " - 担保";
+//                ServicePackageDO servicePackageDo = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+                ServicePackageDO servicePackageDO = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+                if (ObjectUtil.isNotNull(servicePackageDO)) {
+                    String servicePackageType = servicePackageDO.getType();
+                    switch (servicePackageType) {
+                        case "CA":
+                            servicePackageType = "职业评估";
+                            break;
+                        case "EOI":
+                            servicePackageType = "EOI";
+                            break;
+                        case "SA":
+                            servicePackageType = "学校申请";
+                            break;
+                        case "VA":
+                            servicePackageType = "签证申请";
+                            break;
+                        case "ZD":
+                            servicePackageType = "州担";
+                            break;
+                        case "MAT":
+                            servicePackageType = "Matrix";
+                            break;
+                        case "SBO":
+                            servicePackageType = "SBO";
+                            break;
+                        case "TM":
+                            servicePackageType = "提名";
+                            break;
+                        case "DB":
+                            servicePackageType = "担保";
+                            break;
+                        case "ROI":
+                            servicePackageType = "ROI";
+                            break;
+                        default:
+                            servicePackageType = null;
+                    }
+                    if (!"25".equalsIgnoreCase(eachRegionNumberDO.getServiceId())) {
+                        if (eachRegionNumberDO.getServicePackageId() > 0) {
+                            if ("EOI".equalsIgnoreCase(servicePackageType)) {
+                                ServiceDO serviceById = serviceDao.getServiceById(servicePackageDO.getServiceId());
+                                name = eachRegionNumberDO.getCode() + " - " + servicePackageType + " - " + serviceById.getCode();
+                            } else {
+                                name = eachRegionNumberDO.getCode() + " - " + servicePackageType;
+                            }
+                        }
+                    }
+                }
+                if ("25".equalsIgnoreCase(eachRegionNumberDO.getServiceId())) {
+                    ServicePackageDO byId = servicePackageDao.getById(eachRegionNumberDO.getServicePackageId());
+                    if (ObjectUtil.isNotNull(byId)) {
+                        ServiceDO serviceById = serviceDao.getServiceById(byId.getServiceId());
+                        name = eachRegionNumberDO.getCode() + " - " + serviceById.getCode();
+                    }
                 }
             }
             EachRegionNumberDTO eachRegionNumberDTO = new EachRegionNumberDTO();
