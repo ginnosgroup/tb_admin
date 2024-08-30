@@ -720,7 +720,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 commissionAmountDTO.setPredictCommissionAmount(0.00);
             }
             commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-            if (visaOfficialDO.getCommissionAmount() != null && visaOfficialDO.getCommissionAmount() > 0) {
+            if (visaOfficialDO.getCommissionAmount() != null && visaOfficialDO.getCommissionAmount() > 0 && visaOfficialDO.getCommissionAmount() != visaOfficialDO.getPredictCommissionAmount()) {
                 commissionAmountDTO.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount());
                 commissionAmountDTO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
             }
@@ -1510,12 +1510,45 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
     @Override
     public void update(Integer id, String submitIbDate, Double commissionAmount, String state, Integer serviceId) throws ServiceException {
-        visaOfficialDao.update(id, submitIbDate, commissionAmount, state, serviceId);
+        List<Integer> monthlist = new ArrayList<Integer>() {
+            {
+                this.add(1);
+                this.add(2);
+                this.add(3);
+                this.add(7);
+                this.add(8);
+                this.add(9);
+            }
+        };
+        Integer region = 0;
         VisaOfficialDO one = visaOfficialDao.getOne(id);
         VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(one.getServiceOrderId());
-        VisaOfficialDTO visaOfficialDTO = mapper.map(byServiceOrderId, VisaOfficialDTO.class);
-        visaOfficialDTO.setIsRefund(true);
-        int i = addVisa(visaOfficialDTO);
+        OfficialDO officialById = officialDao.getOfficialById(byServiceOrderId.getOfficialId());
+        OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
+        Double rate = officialGradeById.getRate();
+        // 判断当前文案地区为澳洲还是中国
+        RegionDO regionById = regionDAO.getRegionById(officialById.getRegionId());
+        String regionName = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
+        if (StringUtil.isNotEmpty(regionName)) {
+            region = 1;
+        }
+        if (region == 0 && !"资深".equals(officialGradeById.getGrade())) {
+            // 创建一个Calendar对象并设置时间为date对象的时间
+            Calendar sss = Calendar.getInstance();
+            sss.setTime(byServiceOrderId.getGmtCreate());
+
+            // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
+            int month = sss.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
+
+            if (monthlist.contains(month)) {
+                rate = rate + 3;
+            }
+        }
+        byServiceOrderId.setCommissionAmount(commissionAmount);
+        byServiceOrderId.setPredictCommission(commissionAmount * rate / 100);
+        byServiceOrderId.setPredictCommissionCNY(byServiceOrderId.getPredictCommission() * byServiceOrderId.getExchangeRate());
+        visaOfficialDao.updateVisaOfficial(byServiceOrderId);
+
     }
     
     @Override
