@@ -2534,7 +2534,15 @@ public class ServiceOrderController extends BaseController {
                 });
                 thread1.start();
             }
-            return new Response<>(0, "生成Excel成功， excel链接为：" + url);
+            // 使用StringBuilder来构建HTML字符串
+            StringBuilder htmlBuilder = new StringBuilder();
+            htmlBuilder.append("<a href=\"");
+            htmlBuilder.append(url + "\""); // 插入链接的URL
+            htmlBuilder.append(" target=\"_blank");
+            htmlBuilder.append("\">");
+            htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+            htmlBuilder.append("</a>");
+            return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -3038,7 +3046,15 @@ public class ServiceOrderController extends BaseController {
                         });
                         thread1.start();
                     }
-                    return new Response<>(0, "生成Excel成功， excel链接为：" + url);
+                // 使用StringBuilder来构建HTML字符串
+                StringBuilder htmlBuilder = new StringBuilder();
+                htmlBuilder.append("<a href=\"");
+                htmlBuilder.append(url + "\""); // 插入链接的URL
+                htmlBuilder.append(" target=\"_blank");
+                htmlBuilder.append("\">");
+                htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+                htmlBuilder.append("</a>");
+                return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
 //                }
 //                if ("OVST".equalsIgnoreCase(type)) {
 //                    Map<String, List<EachRegionNumberDTO>> eachRegionNumberDTOMap = eachRegionNumberDTOS.stream().collect(Collectors.groupingBy(EachRegionNumberDTO::getServiceId));
