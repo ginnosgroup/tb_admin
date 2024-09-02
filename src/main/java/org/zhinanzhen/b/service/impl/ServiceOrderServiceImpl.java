@@ -405,6 +405,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
+            if (i > 0) {
+                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDo.getId());
+                if (ziOrder != null && ziOrder.size() > 0) {
+                    for (ServiceOrderDTO serviceOrderDTO : ziOrder) {
+                        serviceOrderDTO.setBindingOrder(serviceOrderDo.getBindingOrder());
+                        serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDTO, ServiceOrderDO.class));
+                    }
+                }
+            }
+
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
