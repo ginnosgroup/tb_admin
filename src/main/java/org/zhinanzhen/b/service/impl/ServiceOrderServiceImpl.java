@@ -330,6 +330,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
+            List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDo.getId());
             ServiceOrderDO serviceOrderByIdTmp = null;
             // 免费订单与收费订单绑定
             if (serviceOrderDo.getBindingOrder() != null) {
@@ -338,7 +339,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     String code = serviceById.getCode().replaceAll("\\D", "");
                     serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
                     bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
-//                    bybindingOrder.add(serviceOrderDo.getServiceId());
                     ServicePackagePriceDO servicePackagePriceDO = new ServicePackagePriceDO();
                     double costPrince = 0.00;
                     for (Integer a : bybindingOrder) {
@@ -404,17 +404,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
-            int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
-            if (i > 0) {
-                List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDo.getId());
-                if (ziOrder != null && ziOrder.size() > 0) {
-                    for (ServiceOrderDTO serviceOrderDTO : ziOrder) {
-                        serviceOrderDTO.setBindingOrder(serviceOrderDo.getBindingOrder());
-                        serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDTO, ServiceOrderDO.class));
-                    }
+            if (ziOrder != null && ziOrder.size() > 0) {
+                if (serviceOrderDo.getApplicantParentId() == 0) {
+                    serviceOrderDo.setApplicantId(0);
+                }
+                for (ServiceOrderDTO serviceOrderDTO : ziOrder) {
+                    serviceOrderDTO.setBindingOrder(serviceOrderDo.getBindingOrder());
+                    serviceOrderDao.updateServiceOrder(mapper.map(serviceOrderDTO, ServiceOrderDO.class));
                 }
             }
-
+            int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())

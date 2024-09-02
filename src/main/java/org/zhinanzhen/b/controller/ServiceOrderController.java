@@ -1006,7 +1006,7 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(serviceId)) {
                 serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
             }
-            if ("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) {
+            if (("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) && bindingOrderId == null) {
                 if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 1) {
                     // 创建主订单
                     serviceOrderDto.setApplicantId(0);
