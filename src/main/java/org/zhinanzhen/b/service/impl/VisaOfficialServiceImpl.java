@@ -1523,32 +1523,42 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         Integer region = 0;
         VisaOfficialDO one = visaOfficialDao.getOne(id);
         VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(one.getServiceOrderId());
-        OfficialDO officialById = officialDao.getOfficialById(byServiceOrderId.getOfficialId());
-        OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
-        Double rate = officialGradeById.getRate();
-        // 判断当前文案地区为澳洲还是中国
-        RegionDO regionById = regionDAO.getRegionById(officialById.getRegionId());
-        String regionName = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
-        if (StringUtil.isNotEmpty(regionName)) {
-            region = 1;
-        }
-        if (region == 0 && !"资深".equals(officialGradeById.getGrade())) {
-            // 创建一个Calendar对象并设置时间为date对象的时间
-            Calendar sss = Calendar.getInstance();
-            sss.setTime(byServiceOrderId.getGmtCreate());
 
-            // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
-            int month = sss.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
+        if (StringUtil.isEmpty(submitIbDate)) {
+            OfficialDO officialById = officialDao.getOfficialById(byServiceOrderId.getOfficialId());
+            OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
+            Double rate = officialGradeById.getRate();
+            // 判断当前文案地区为澳洲还是中国
+            RegionDO regionById = regionDAO.getRegionById(officialById.getRegionId());
+            String regionName = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");
+            if (StringUtil.isNotEmpty(regionName)) {
+                region = 1;
+            }
+            if (region == 0 && !"资深".equals(officialGradeById.getGrade())) {
+                // 创建一个Calendar对象并设置时间为date对象的时间
+                Calendar sss = Calendar.getInstance();
+                sss.setTime(byServiceOrderId.getGmtCreate());
 
-            if (monthlist.contains(month)) {
-                rate = rate + 3;
+                // 获取月份（注意：Calendar的月份是从0开始的，所以1代表二月，0代表一月）
+                int month = sss.get(Calendar.MONTH) + 1; // 加1是因为我们需要从1开始的月份
+
+                if (monthlist.contains(month)) {
+                    rate = rate + 3;
+                }
+            }
+            byServiceOrderId.setCommissionAmount(commissionAmount);
+            byServiceOrderId.setPredictCommission(commissionAmount * rate / 100);
+            byServiceOrderId.setPredictCommissionCNY(byServiceOrderId.getPredictCommission() * byServiceOrderId.getExchangeRate());
+            visaOfficialDao.updateVisaOfficial(byServiceOrderId);
+        } else {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Date parse = sdf.parse(submitIbDate);
+                visaOfficialDao.updateHandlingDate(id, parse);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
-        byServiceOrderId.setCommissionAmount(commissionAmount);
-        byServiceOrderId.setPredictCommission(commissionAmount * rate / 100);
-        byServiceOrderId.setPredictCommissionCNY(byServiceOrderId.getPredictCommission() * byServiceOrderId.getExchangeRate());
-        visaOfficialDao.updateVisaOfficial(byServiceOrderId);
-
     }
     
     @Override
