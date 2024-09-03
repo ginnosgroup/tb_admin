@@ -2423,10 +2423,14 @@ public class ServiceOrderController extends BaseController {
             final JSONObject[] parm = {new JSONObject()};
             parm[0].put("doc_type", 4);
             parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
-            String[] userIds = {"XuShiYi"};
-            parm[0].put("admin_users", userIds);
+//            String[] userIds = {"XuShiYi"};
+//            parm[0].put("admin_users", userIds);
+            LOG.info("parm--------------------" + Arrays.toString(parm));
+            LOG.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
+
             JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
             String url = "";
+            LOG.info("setupExcelJsonObject-------------" + setupExcelJsonObject.toString());
             setupExcelJsonObjectTmp = setupExcelJsonObject;
             if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
                 url = setupExcelJsonObject.get("url").toString();
