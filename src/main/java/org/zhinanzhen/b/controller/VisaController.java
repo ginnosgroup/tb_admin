@@ -1318,7 +1318,7 @@ public class VisaController extends BaseCommissionOrderController {
 									excelTitle.add("月奖支付时间");
 									excelTitle.add("银行对账字段");
 									if ("KJ".equals(adminUserLoginInfo.getApList())) {
-										excelTitle.add("是否字段对账");
+										excelTitle.add("是否自动对账");
 									}
 									excelTitle.add("顾问");
 									excelTitle.add("状态");
@@ -1899,7 +1899,7 @@ public class VisaController extends BaseCommissionOrderController {
 			jsonObject20.put("cell_value", text20);
 			rows.add(jsonObject20);
 		}
-		if ("kj".equals(adminUserLoginInfo.getApList())) {
+		if ("KJ".equals(adminUserLoginInfo.getApList())) {
 			JSONObject jsonObject21 = new JSONObject();
 			JSONObject text21 = new JSONObject();
 			text21.put("text", String.valueOf(so.isChecked()));
