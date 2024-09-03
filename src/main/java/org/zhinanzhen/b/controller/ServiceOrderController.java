@@ -2374,7 +2374,7 @@ public class ServiceOrderController extends BaseController {
         List<Integer> regionIdList = null;
         if (regionId != null && regionId > 0)
             regionIdList = ListUtil.buildArrayList(regionId);
-
+        JSONObject setupExcelJsonObjectTmp = null;
         try {
             super.setGetHeader(response);
             // 处理顾问管理员
@@ -2427,6 +2427,7 @@ public class ServiceOrderController extends BaseController {
             parm[0].put("admin_users", userIds);
             JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
             String url = "";
+            setupExcelJsonObjectTmp = setupExcelJsonObject;
             if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
                 url = setupExcelJsonObject.get("url").toString();
                 String docId = setupExcelJsonObject.get("docid").toString();
@@ -2546,7 +2547,7 @@ public class ServiceOrderController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Response<>(0, "生成Excel成功， excel链接为：");
+        return new Response<>(0, "生成Excel成功， excel链接为：" + JSONObject.toJSONString(setupExcelJsonObjectTmp));
     }
 
     @RequestMapping(value = "/downExcel", method = RequestMethod.GET)
