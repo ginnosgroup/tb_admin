@@ -1146,6 +1146,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDto.setInsuranceCompanyDO(list.get(0));
                 }
             }
+        } else {
+            serviceOrderDto.setIsInsuranceCompany("");
         }
         return serviceOrderDto;
     }

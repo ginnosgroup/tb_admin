@@ -27,10 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderExportDTO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderReadcommittedDateDO;
-import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
+import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -118,6 +116,9 @@ public class ServiceOrderController extends BaseController {
 
     @Resource
     private AdviserService adviserService;
+
+    @Resource
+    private InsuranceCompanyDAO insuranceCompanyDAO;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -751,6 +752,8 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
                                                 @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
                                                 @RequestParam(value = "visaNumber", required = false) String visaNumber,
+                                                @RequestParam(value = "insuranceCompany", required = false) String insuranceCompany, // 保险公司id
+                                                @RequestParam(value = "hasInsurance", required = false) String hasInsurance, // 是否购买保险
                                                 HttpServletResponse response) {
 //		if (getOfficialAdminId(request) != null)
 //			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
@@ -776,7 +779,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -800,7 +803,7 @@ public class ServiceOrderController extends BaseController {
 							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null, null, null, null);
+							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -845,7 +848,7 @@ public class ServiceOrderController extends BaseController {
                                         String adviserId, String officialId, String remarks, String closedReason, String information,
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
-                                        String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber) {
+                                        String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1005,6 +1008,17 @@ public class ServiceOrderController extends BaseController {
             // 普通签证修改为600和870类父子订单签证
             if (StringUtil.isNotEmpty(serviceId)) {
                 serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
+            }
+            // 是否购买保险
+            if (StringUtil.isNotEmpty(hasInsurance)) {
+                serviceOrderDto.setIsInsuranceCompany(hasInsurance);
+            }
+            // 保存保险公司和订单中间表
+            if (StringUtil.isNotEmpty(insuranceCompany)) {
+                ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
+                if (ObjectUtil.isNull(serviceOrderInsuranceDO)) {
+                    insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), Integer.valueOf(insuranceCompany));
+                }
             }
             if (("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) && bindingOrderId == null) {
                 if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 1) {
