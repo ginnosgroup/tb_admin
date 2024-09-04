@@ -145,6 +145,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private VisaOfficialService visaOfficialService;
 
+    @Resource
+    private InsuranceCompanyDAO insuranceCompanyDAO;
+
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -1132,6 +1135,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 serviceOrderDto.setVisaStatus(commissionOrderTempByServiceOrderId.getVisaStatus());
                 serviceOrderDto.setVisaCertificate(commissionOrderTempByServiceOrderId.getVisaCertificate());
                 serviceOrderDto.setVisaStatusSub(commissionOrderTempByServiceOrderId.getVisaStatusSub());
+            }
+        }
+        // 是否购买过保险
+        if ("1".equals(serviceOrderDto.getIsInsuranceCompany())) {
+            ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
+            if (ObjectUtil.isNotNull(serviceOrderInsuranceDO)) {
+                List<InsuranceCompanyDO> list = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
+                if (list != null && list.size() > 0) {
+                    serviceOrderDto.setInsuranceCompanyDO(list.get(0));
+                }
             }
         }
         return serviceOrderDto;

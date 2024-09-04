@@ -7,7 +7,11 @@ import javax.annotation.Resource;
 
 import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.ServiceService;
+import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -27,6 +31,11 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 	@Resource
 	protected ServiceOrderService serviceOrderService;
 
+	@Resource
+	protected ServiceService serviceService;
+
+	@Resource
+	protected InsuranceCompanyDAO insuranceCompanyDAO;
 	@Override
 	protected boolean saveNode(Context context) {
 		try {
@@ -37,6 +46,17 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			}
 			String type = serviceOrderDto.getType();
 			if ("VISA".equals(type)) {// 签证
+				ServiceDTO serviceById = serviceService.getServiceById(serviceOrderDto.getServiceId());
+				if (serviceById != null && (serviceById.getCode().contains("485") || serviceById.getCode().contains("500"))) {
+					Object insuranceCompanyId = context.getParameter("insuranceCompanyId");
+					Object isInsuranceCompany = context.getParameter("isInsuranceCompany");
+					if (ObjectUtil.isNotNull(insuranceCompanyId)) {
+						insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), (Integer) insuranceCompanyId);
+					}
+					if (ObjectUtil.isNotNull(isInsuranceCompany)) {
+						serviceOrderDto.setIsInsuranceCompany((String) isInsuranceCompany);
+					}
+				}
 				if ("PAID".equals(getName())) {
 					log.error("签证服务订单没有COE支付流程!");
 					return false;

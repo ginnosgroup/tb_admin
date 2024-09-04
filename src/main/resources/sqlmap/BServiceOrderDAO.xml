@@ -83,7 +83,8 @@
                 offer_url,
                 expect_time_enrollment,
                 is_apply_visa,
-                visa_number)
+                visa_number,
+                is_insurance_company )
             VALUES (
                 now(),
                 now(),
@@ -161,7 +162,8 @@
                 #{offerUrl},
                 #{expectTimeEnrollment},
                 #{isApplyVisa},
-                #{visaNumber});
+                #{visaNumber},
+                #{isInsuranceCompany});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -413,6 +415,9 @@
         <if test="visaNumber != null">
             ,visa_number = #{visaNumber}
         </if>
+        <if test='isInsuranceCompany != null and isInsuranceCompany != "" '>
+            ,visa_number = #{isInsuranceCompany}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -627,7 +632,8 @@
         so.offer_url AS offerUrl,
         so.expect_time_enrollment AS expectTimeEnrollment,
         so.is_apply_visa AS isApplyVisa,
-        so.visa_number AS visaNumber
+        so.visa_number AS visaNumber,
+        so.is_insurance_company AS isInsuranceCompany
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
@@ -857,6 +863,7 @@
             binding_order AS bindingOrder,
             offer_type AS offerType,
             offer_url AS offerUrl
+            is_insurance_company AS isInsuranceCompany
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1049,7 +1056,8 @@
             real_people_number AS realPeopleNumber ,
             verify_code AS verifyCode ,
             readcommitted_date AS readcommittedDate,
-            ref_no AS refNo
+            ref_no AS refNo,
+            is_insurance_company AS isInsuranceCompany
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1151,7 +1159,8 @@
         so.real_people_number AS realPeopleNumber ,
         so.verify_code AS verifyCode ,
         so.readcommitted_date AS readcommittedDate,
-        so.ref_no AS refNo
+        so.ref_no AS refNo,
+        so.is_insurance_company AS isInsuranceCompany
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1427,6 +1436,7 @@
             so.readcommitted_date AS readcommittedDate,
             so.ref_no AS refNo,
             so.EOI_number AS EOINumber,
+            so.is_insurance_company AS isInsuranceCompany,
             bsp.id AS bspId,
             bsp.type AS bspType,
             bsp.service_id AS bspServiceId

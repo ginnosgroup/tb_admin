@@ -193,4 +193,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String visaNumber; // 签证编号
 
+	private String isInsuranceCompany; // 是否购买保险
+
 }

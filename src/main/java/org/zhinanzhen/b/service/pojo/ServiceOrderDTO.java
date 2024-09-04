@@ -1,10 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
-import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
-import org.zhinanzhen.b.dao.pojo.OfficialDO;
-import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
-import org.zhinanzhen.b.dao.pojo.VisaDO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
@@ -279,4 +276,8 @@ public class ServiceOrderDTO {
 	private String visaStatus; // 签证状态
 
 	private String visaStatusSub; // 签证类型
+
+	private String isInsuranceCompany; // 是否购买保险
+
+	private InsuranceCompanyDO insuranceCompanyDO;
 }

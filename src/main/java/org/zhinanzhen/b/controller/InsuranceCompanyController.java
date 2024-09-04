@@ -22,7 +22,7 @@ public class InsuranceCompanyController extends BaseController {
     @Resource
     private InsuranceCompanyService insuranceCompanyService;
 
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
     public ListResponse<List<InsuranceCompanyDO>> listServiceOrder(
             @RequestParam(value = "id", required = false) Integer id,
@@ -55,9 +55,9 @@ public class InsuranceCompanyController extends BaseController {
         try {
             super.setGetHeader(response);
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//            if (!"SUPERAD".equals(adminUserLoginInfo.getApList())) {
-//                return new Response<Integer>(1, "仅限超级管理员能创建保险公司信息.", 0);
-//            }
+            if (!"SUPERAD".equals(adminUserLoginInfo.getApList())) {
+                return new Response<Integer>(1, "仅限超级管理员能创建保险公司信息.", 0);
+            }
             InsuranceCompanyDO insuranceCompanyDO = new InsuranceCompanyDO();
             if (StringUtil.isNotEmpty(name)) {
                 insuranceCompanyDO.setName(name);
@@ -85,9 +85,9 @@ public class InsuranceCompanyController extends BaseController {
         try {
             super.setGetHeader(response);
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//            if (!"SUPERAD".equals(adminUserLoginInfo.getApList())) {
-//                return new Response<Integer>(1, "仅限超级管理员能修改保险公司信息.", 0);
-//            }
+            if (!"SUPERAD".equals(adminUserLoginInfo.getApList())) {
+                return new Response<Integer>(1, "仅限超级管理员能修改保险公司信息.", 0);
+            }
             InsuranceCompanyDO insuranceCompanyDO = new InsuranceCompanyDO();
             insuranceCompanyDO.setId(id);
             if (StringUtil.isNotEmpty(name)) {

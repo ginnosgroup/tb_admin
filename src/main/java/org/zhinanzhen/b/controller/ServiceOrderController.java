@@ -3428,6 +3428,8 @@ public class ServiceOrderController extends BaseController {
                                               @RequestParam(value = "stateMark", required = false) String stateMark, HttpServletRequest request,
                                               @RequestParam(value = "offerType", required = false) String offerType,
                                               @RequestParam(value = "offerUrl", required = false) String offerUrl,
+                                              @RequestParam(value = "insuranceCompanyId", required = false) String insuranceCompanyId,
+                                              @RequestParam(value = "isInsuranceCompany", required = false) String isInsuranceCompany,
                                               HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null)
@@ -3469,6 +3471,8 @@ public class ServiceOrderController extends BaseController {
             context.putParameter("adminUserId", adminUserLoginInfo.getId());
             context.putParameter("offerType", offerType);
             context.putParameter("offerUrl", offerUrl);
+            context.putParameter("insuranceCompanyId", insuranceCompanyId);
+            context.putParameter("isInsuranceCompany", isInsuranceCompany);
 
             LOG.info("Flow API Log : " + context.toString());
             LOG.info("serviceOrderDto : " + serviceOrderDto);
