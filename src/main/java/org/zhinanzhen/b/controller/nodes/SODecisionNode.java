@@ -3,9 +3,13 @@ package org.zhinanzhen.b.controller.nodes;
 import java.util.Date;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.ikasoa.core.utils.ObjectUtil;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO;
@@ -24,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@NoArgsConstructor
 public abstract class SODecisionNode extends AbstractDecisionNode {
 
 	protected final static String SUSPEND_NODE = "SuspendNode";
@@ -36,6 +41,15 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 
 	@Resource
 	protected InsuranceCompanyDAO insuranceCompanyDAO;
+
+	public static SODecisionNode soDecisionNode;
+
+	@PostConstruct
+	public void init() {
+		soDecisionNode = this;
+		soDecisionNode.serviceService = this.serviceService;
+		soDecisionNode.insuranceCompanyDAO = this.insuranceCompanyDAO;
+	}
 	@Override
 	protected boolean saveNode(Context context) {
 		try {
@@ -45,16 +59,19 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				return false;
 			}
 			String type = serviceOrderDto.getType();
-			if ("VISA".equals(type)) {// 签证
-				ServiceDTO serviceById = serviceService.getServiceById(serviceOrderDto.getServiceId());
+			if ("VISA".equals(type)) { // 签证
+				ServiceDTO serviceById = soDecisionNode.serviceService.getServiceById(serviceOrderDto.getServiceId());
 				if (serviceById != null && (serviceById.getCode().contains("485") || serviceById.getCode().contains("500"))) {
-					Object insuranceCompanyId = context.getParameter("insuranceCompanyId");
-					Object isInsuranceCompany = context.getParameter("isInsuranceCompany");
-					if (ObjectUtil.isNotNull(insuranceCompanyId)) {
-						insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), (Integer) insuranceCompanyId);
+					Object insuranceCompany = context.getParameter("insuranceCompany");
+					Object hasInsurance = context.getParameter("hasInsurance");
+					if (ObjectUtil.isNotNull(insuranceCompany)) {
+						ServiceOrderInsuranceDO serviceOrderInsuranceDO = soDecisionNode.insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
+						if (ObjectUtil.isNull(serviceOrderInsuranceDO)) {
+							soDecisionNode.insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), Integer.valueOf(insuranceCompany.toString()));
+						}
 					}
-					if (ObjectUtil.isNotNull(isInsuranceCompany)) {
-						serviceOrderDto.setIsInsuranceCompany((String) isInsuranceCompany);
+					if (ObjectUtil.isNotNull(hasInsurance)) {
+						serviceOrderDto.setIsInsuranceCompany((String) hasInsurance);
 					}
 				}
 				if ("PAID".equals(getName())) {

@@ -416,7 +416,7 @@
             ,visa_number = #{visaNumber}
         </if>
         <if test='isInsuranceCompany != null and isInsuranceCompany != "" '>
-            ,visa_number = #{isInsuranceCompany}
+            ,is_insurance_company = #{isInsuranceCompany}
         </if>
         WHERE id = #{id};
     </update>
@@ -862,7 +862,7 @@
             EOI_number AS EOINumber,
             binding_order AS bindingOrder,
             offer_type AS offerType,
-            offer_url AS offerUrl
+            offer_url AS offerUrl,
             is_insurance_company AS isInsuranceCompany
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>

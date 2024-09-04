@@ -29,7 +29,7 @@
         VALUES (
                    now(),
                    #{serviceOrderId},
-                   #{insuranceCompanyId},
+                   #{insuranceCompanyId}
                );
     </insert>
     <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO">
