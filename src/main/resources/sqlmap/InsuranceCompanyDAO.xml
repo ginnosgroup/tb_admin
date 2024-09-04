@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.InsuranceCompanyDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_insurance_company (
+                gmt_create,
+                gmt_modify,
+                name,
+                marks,
+                is_recommend)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{marks},
+                #{isRecommend}
+               );
+    </insert>
+    <insert id="addSserviceOrderInsurance" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+        INTO b_service_order_insurance (
+            gmt_create,
+            service_order_id,
+            insurance_company_id
+            )
+        VALUES (
+                   now(),
+                   #{serviceOrderId},
+                   #{insuranceCompanyId},
+               );
+    </insert>
+    <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO">
+        UPDATE b_insurance_company
+        SET gmt_modify = now()
+        <if test='name != null and name != "" '>
+            , name = #{name}
+        </if>
+        <if test='marks != null and marks != ""'>
+            , marks = #{marks}
+        </if>
+        <if test='isRecommend != null'>
+            , is_recommend = #{isRecommend}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="list" resultType="org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            name,
+            marks,
+            is_recommend AS isRecommend
+        FROM b_insurance_company
+        <where>
+            <if test="id != null and id > 0">
+                AND id = #{id}
+            </if>
+            <if test='isSUPERAD != null and isSUPERAD == 0'>
+                AND is_recommend = true
+            </if>
+        </where>
+        LIMIT #{offset}, #{rows};
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM b_insurance_company
+        <where>
+            <if test="id != null and id > 0">
+                AND id = #{id}
+            </if>
+            <if test='isSUPERAD != null and isSUPERAD == 0'>
+                AND is_recommend = true
+            </if>
+        </where>
+    </select>
+    <select id="listServiceOrderInsuranceDOByServiceOrderId"
+            resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            service_order_id AS serviceOrderId,
+            insurance_company_id AS insuranceCompanyId
+        FROM
+            b_service_order_insurance
+        <where>
+            service_order_id = #{serviceOrderId}
+        </where>
+    </select>
+
+</mapper>
