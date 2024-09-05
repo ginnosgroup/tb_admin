@@ -87,6 +87,20 @@ public class DashboardController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/listHalfAYearCommissionOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<CommissionOrderListDTO>> listHalfAYearCommissionOrder(HttpServletRequest request,
+																			   HttpServletResponse response) {
+		try {
+			if (getAdminUserLoginInfo(request) == null)
+				return new Response<List<CommissionOrderListDTO>>(1, "请先登录!", null);
+			return new Response<List<CommissionOrderListDTO>>(0,
+					commissionOrderService.listHalfAYearCommissionOrder(getAdviserId(request), getOfficialId(request)));
+		} catch (ServiceException e) {
+			return new Response<List<CommissionOrderListDTO>>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/NotReviewedServiceOrder", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<ServiceOrderDTO>> NotReviewedServiceOrder(

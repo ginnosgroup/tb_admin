@@ -108,4 +108,6 @@ public interface CommissionOrderDAO {
 	
 	int confirm(int id);
 
+	List<CommissionOrderListDO> listHalfAYearCommissionOrder(@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
+															 @Param("currentDateFormatted") String currentDateFormatted, @Param("sixMonthsAgoFormatted") String sixMonthsAgoFormatted);
 }

@@ -25,6 +25,8 @@ import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -287,6 +289,35 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         try {
             commissionOrderListDoList = commissionOrderDao.listThisMonthCommissionOrderAtDashboard(adviserId,
                     officialId);
+            if (commissionOrderListDoList == null)
+                return null;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+            throw se;
+        }
+        commissionOrderListDoList.forEach(commissionOrderListDo -> commissionOrderListDtoList
+                .add(buildCommissionOrderListDto(commissionOrderListDo)));
+        return commissionOrderListDtoList;
+    }
+
+    @Override
+    public List<CommissionOrderListDTO> listHalfAYearCommissionOrder(Integer adviserId, Integer officialId)
+            throws ServiceException {
+        List<CommissionOrderListDTO> commissionOrderListDtoList = new ArrayList<>();
+        List<CommissionOrderListDO> commissionOrderListDoList = new ArrayList<>();
+        try {
+            // 获取当前日期
+            LocalDate currentDate = LocalDate.now();
+            // 格式化当前日期为YYYYMM
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+            String currentDateFormatted = currentDate.format(formatter);
+            // 计算半年前的日期
+            LocalDate sixMonthsAgo = currentDate.minusMonths(5);
+            // 格式化半年前的日期为YYYYMM
+            String sixMonthsAgoFormatted = sixMonthsAgo.format(formatter);
+            commissionOrderListDoList = commissionOrderDao.listHalfAYearCommissionOrder(adviserId,
+                    officialId, currentDateFormatted, sixMonthsAgoFormatted);
             if (commissionOrderListDoList == null)
                 return null;
         } catch (Exception e) {

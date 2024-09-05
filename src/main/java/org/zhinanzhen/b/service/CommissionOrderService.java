@@ -37,6 +37,7 @@ public interface CommissionOrderService {
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
 			throws ServiceException;
+	List<CommissionOrderListDTO> listHalfAYearCommissionOrder(Integer adviserId, Integer officialId) throws ServiceException;;
 
 	List<CommissionOrderReportDTO> listCommissionOrderReport(String startDate, String endDate, String dateType,
 															 String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
@@ -72,5 +73,7 @@ public interface CommissionOrderService {
 	CommissionOrderTempDTO getCommissionOrderTempById(int id) throws ServiceException;
 	
 	int confirmByInvoiceNo(String invoiceNo) throws ServiceException;
+
+
 
 }
