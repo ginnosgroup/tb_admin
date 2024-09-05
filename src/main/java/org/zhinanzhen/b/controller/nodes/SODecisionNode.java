@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor
 public abstract class SODecisionNode extends AbstractDecisionNode {
-
+	// next_flow操作页
 	protected final static String SUSPEND_NODE = "SuspendNode";
 
 	@Resource

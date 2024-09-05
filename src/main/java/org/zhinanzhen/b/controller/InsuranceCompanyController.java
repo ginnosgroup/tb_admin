@@ -26,8 +26,8 @@ public class InsuranceCompanyController extends BaseController {
     @ResponseBody
     public ListResponse<List<InsuranceCompanyDO>> listServiceOrder(
             @RequestParam(value = "id", required = false) Integer id,
-            @RequestParam(value = "offset", required = false) Integer offset,
-            @RequestParam(value = "rows", required = false) Integer rows,HttpServletRequest request,
+            @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+            HttpServletRequest request,
             HttpServletResponse response) {
         try {
             super.setGetHeader(response);
@@ -37,11 +37,11 @@ public class InsuranceCompanyController extends BaseController {
                 isSUPERAD = true;
             }
             Integer count = insuranceCompanyService.count(id, isSUPERAD);
-            List<InsuranceCompanyDO> list = insuranceCompanyService.list(id, isSUPERAD, offset, rows);
-            return new ListResponse<List<InsuranceCompanyDO>>(true, rows, count, list, "");
+            List<InsuranceCompanyDO> list = insuranceCompanyService.list(id, isSUPERAD, pageNum, pageSize);
+            return new ListResponse<List<InsuranceCompanyDO>>(true, pageSize, count, list, "");
         } catch (Exception e) {
             e.printStackTrace();
-            return new ListResponse<List<InsuranceCompanyDO>>(false, rows, 0, null, e.getMessage());
+            return new ListResponse<List<InsuranceCompanyDO>>(false, pageSize, 0, null, e.getMessage());
         }
     }
 
