@@ -127,6 +127,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Resource
     private SchoolDAO schoolDAO;
 
+    @Resource
+    private InsuranceCompanyDAO insuranceCompanyDAO;
+
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
         List<ApplicantListDO> applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaListDo.getServiceOrderId());
@@ -1471,6 +1474,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (serviceOrderDto.getCourseId() > 0) {
                 SchoolInstitutionListDTO schoolInstitutionInfoByCourseId = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDto.getCourseId());
                 serviceOrderDto.setSchoolInstitutionListDTO(schoolInstitutionInfoByCourseId);
+            }
+            if ("1".equals(serviceOrderDto.getIsInsuranceCompany())) {
+                ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
+                List<InsuranceCompanyDO> insuranceCompanyDOS = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
+                if (insuranceCompanyDOS != null && insuranceCompanyDOS.size() > 0) {
+                    serviceOrderDto.setInsuranceCompanyDO(insuranceCompanyDOS.get(0));
+                }
             }
 
             visaOfficialDto.setServiceOrder(serviceOrderDto);
