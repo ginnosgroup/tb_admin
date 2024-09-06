@@ -161,6 +161,7 @@ public class MailRemindController extends BaseController {
             }else if (visaId != null && visaId > 0){
                 VisaDTO visaDTO = visaService.getVisaById(visaId);
                 if (visaDTO != null ){
+                    mailRemindDTO.setVisaId(visaDTO.getId());
                     mailRemindDTO.setTitle("客户:" + visaDTO.getUserName() + "  签证佣金订单ID:" + visaDTO.getId() + " 今日有一个提醒待处理");
                 }
             }else if (commissionOrderId != null && commissionOrderId > 0){
@@ -178,8 +179,12 @@ public class MailRemindController extends BaseController {
             }else
                 mailRemindDTO.setTitle("您有一个新提醒待处理");
 
-
-            ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(serviceOrderId);
+            if (serviceOrderId != null && serviceOrderId > 0){
+                ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(serviceOrderId);
+                if (ObjectUtil.isNotNull(serviceOrderById)) {
+                    mailRemindDTO.setUserId(serviceOrderById.getUserId());
+                }
+            }
             mailRemindDTO.setAdviserId(adviserId);
             mailRemindDTO.setOffcialId(offcialId);
             mailRemindDTO.setKjId(kjId);
@@ -187,10 +192,7 @@ public class MailRemindController extends BaseController {
             mailRemindDTO.setVisaId(visaId);
             mailRemindDTO.setServiceOrderId(serviceOrderId);
             mailRemindDTO.setCommissionOrderId(commissionOrderId);
-            if (ObjectUtil.isNotNull(serviceOrderById)) {
-                mailRemindDTO.setUserId(serviceOrderById.getUserId());
-            }
-            if (ObjectUtil.isNotNull(sendDate) && needRemind) {
+            if (ObjectUtil.isNotNull(sendDate) && serviceOrderId != null && needRemind) {
                 mailRemindDTO.setSendDate(new Date(Long.parseLong(sendDate)));
             }
             mailRemindDTO.setNeedRemind(needRemind);
