@@ -333,9 +333,16 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					AdviserDO adviserDo = adviserDao.getAdviserById(_visaDo.getAdviserId());
 					if (!ObjectUtil.orIsNull(serviceOrderDo, officialDo, adviserDo)) {
 						ApplicantDTO applicantDto = null;
-						if (serviceOrderDo.getApplicantId() > 0)
-							applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()),
-									ApplicantDTO.class);
+						if (serviceOrderDo.getApplicantId() > 0) {
+							applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+						}
+						if (ObjectUtil.isNull(applicantDto)) {
+							List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDo.getId());
+							if (ziOrder != null && ziOrder.size() > 0) {
+								applicantDto = mapper.map(applicantDao.getById(ziOrder.get(0).getApplicantId()), ApplicantDTO.class);
+							}
+						}
+
 						Date date = serviceOrderDo.getGmtCreate();
 						sendMail(officialDo.getEmail(), "尾款支付完成提醒", StringUtil.merge("亲爱的:", officialDo.getName(),
 								"<br/>", "您的服务订单已经完成尾款支付，请及时提交移民局申请。<br>订单号:", serviceOrderId,

@@ -407,7 +407,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
-            if (ziOrder != null && ziOrder.size() > 0) {
+            if (ziOrder != null && ziOrder.size() > 0 && !"OVST".equals(serviceOrderDo.getType())) {
                 if (serviceOrderDo.getApplicantParentId() == 0) {
                     serviceOrderDo.setApplicantId(0);
                 }

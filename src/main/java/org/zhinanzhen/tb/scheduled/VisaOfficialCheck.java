@@ -464,14 +464,14 @@ public class VisaOfficialCheck {
 //            paramMap.put("staffId", "ZhiNanZhenemily");
             paramMap.put("startTime", firstDayTimestamp);
             paramMap.put("endTime", lastDayTimestamp);
-            log.info("URL : " + url);
-            log.info("Params : " + paramMap);
+//            log.info("URL : " + url);
+//            log.info("Params : " + paramMap);
             JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
             if (ObjectUtil.isNull(weibanUserListJsonObject)) {
                 log.warn("'weibanUserListJsonObject' not exist !");
                 return;
             }
-            log.info("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
+//            log.info("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
             if ((int) weibanUserListJsonObject.get("errcode") != 0) {
                 log.warn("调用微伴API异常!");
                 return;
@@ -496,8 +496,8 @@ public class VisaOfficialCheck {
 //            paramMap.put("staffId", "ZhiNanZhenemily");
                 paramMap.put("startTime", firstDayTimestamp);
                 paramMap.put("endTime", lastDayTimestamp);
-                log.info("URL : " + url);
-                log.info("Params : " + paramMap);
+//                log.info("URL : " + url);
+//                log.info("Params : " + paramMap);
                 JSONObject weibanUserListJsonObjectTmp = restTemplate.getForObject(url, JSONObject.class, paramMap);
                 if (ObjectUtil.isNull(weibanUserListJsonObjectTmp)) {
                     log.warn("'weibanUserListJsonObject' not exist !");
