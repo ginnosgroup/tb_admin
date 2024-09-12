@@ -583,6 +583,14 @@ public class Scheduled {
         }
     }
 
+    /**
+     * 每小时触发一次(设置提醒)
+     */
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 * * * * ? ")
+    public void sout(){
+        log.info("定时任务测试-------------------");
+    }
+
     /*
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 56 * * * ? ")
     public void t() throws Exception {
@@ -612,7 +620,7 @@ public class Scheduled {
     */
     
     // 每日更新汇率
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 6 * * ?")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 30 5 * * ?")
 	public void updateRateEveryDay(){
 		try {
 			JSONObject jsonObject = getJsonObject("http://web.juhe.cn/finance/exchange/rmbquot?key=459f1492038689af44230eb125de38c7");
