@@ -18,6 +18,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +77,9 @@ public class WXWorkAPI {
     public final static String CUSTOMERLIST = "https://qyapi.weixin.qq.com/cgi-bin/externalcontact/list?access_token=ACCESS_TOKEN&userid=USERID";
     
     private static final String WECOM_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=1afa665e-642b-4098-b4d3-4f553efe06bf";
+
+    // 在线文档分享机器人
+    private static final String ONLINE_DOCUMENTS_WEBHOOK = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=addc9829-eb26-49a0-8379-8b4e9ba077f6";
 
     // 创建表格
     public static final String SETUP_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/create_doc?access_token=ACCESS_TOKEN";
@@ -221,5 +225,56 @@ public class WXWorkAPI {
 			return false;
 		}
 	}
+
+    // added by sulei
+    public static boolean sendShareLinkMsg(String url, String userName, String text) {
+        JSONObject json = new JSONObject();
+        json.put("msgtype", "template_card");
+        JSONObject templateCard = new JSONObject();
+        templateCard.put("card_type", "text_notice");
+        JSONObject source = new JSONObject();
+        source.put("icon_url", "https://wework.qpic.cn/wwpic/252813_jOfDHtcISzuodLa_1629280209/0");
+        source.put("desc", "生成了在线excel：");
+        source.put("desc_color", 0);
+        templateCard.put("source", source);
+        List<JSONObject> objects = new ArrayList<>();
+        JSONObject horizontalContent = new JSONObject();
+        horizontalContent.put("keyname", "导出用户");
+        horizontalContent.put("value", userName);
+        objects.add(horizontalContent);
+        JSONObject horizontalContent2 = new JSONObject();
+        horizontalContent2.put("keyname", "excel地址");
+        horizontalContent2.put("value", "点击访问");
+        horizontalContent2.put("type", 1);
+        horizontalContent2.put("url", url);
+        objects.add(horizontalContent2);
+        templateCard.put("horizontal_content_list", objects);
+        JSONObject mainTitle = new JSONObject();
+        mainTitle.put("title", "导出信息");
+        mainTitle.put("desc", text);
+        templateCard.put("main_title", mainTitle);
+        JSONObject cardAction = new JSONObject();
+        cardAction.put("type", 1);
+        cardAction.put("url", url);
+        templateCard.put("card_action", cardAction);
+        json.put("template_card", templateCard);
+        String jsonString = JSONObject.toJSONString(json);
+        log.info("企业微信机器人发送信息:" + jsonString);
+        try {
+            HttpClient client = new HttpClient();
+            client.getHttpConnectionManager().getParams().setConnectionTimeout(5 * 1000);
+            client.getHttpConnectionManager().getParams().setSoTimeout(2 * 60 * 1000);
+            client.getParams().setContentCharset("UTF-8");
+            PostMethod postMethod = new PostMethod(ONLINE_DOCUMENTS_WEBHOOK);
+            postMethod.setRequestHeader("Content-Type", "applicantion/json");
+            postMethod.setRequestEntity(new StringRequestEntity(jsonString, "applicantion/json", "UTF-8"));
+            int code = client.executeMethod(postMethod);
+            log.info("企业微信机器人信息状态:" + code);
+            return code == HttpStatus.SC_OK;
+        } catch (Exception e) {
+            log.error("企业微信机器人信息发送失败:", e.getMessage());
+            return false;
+        }
+    }
 
 }

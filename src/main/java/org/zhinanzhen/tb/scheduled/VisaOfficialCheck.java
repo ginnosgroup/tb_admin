@@ -285,6 +285,9 @@ public class VisaOfficialCheck {
         String startOfLastMonth = startOfWeek.format(formatter);
         String endOfLastMonth = endOfWeek.format(formatter);
 
+        log.info("获取上周订单情况开始时间---------------------" + startOfLastMonth);
+        log.info("获取上周订单情况结束时间---------------------" + endOfLastMonth);
+
         String orderWeekCountStr = "上周新增签证总量：";
         StringBuilder orderWeektTopStr = new StringBuilder("上周服务内容数量TOP10：");
         StringBuilder eoiWeektStr = new StringBuilder("上周eoi总数：");
@@ -406,224 +409,228 @@ public class VisaOfficialCheck {
     // 半个小时执行一次
     @org.springframework.scheduling.annotation.Scheduled(cron = "* 0/30 * * * ?")
     public void externalContactImport() {
-        // 获取当前时间
-        LocalDateTime now = LocalDateTime.now();
+        try {
+            // 获取当前时间
+            LocalDateTime now = LocalDateTime.now();
 
-        // 将LocalDateTime转换为Instant以获取时间戳（毫秒）
-        Instant currentInstant = now.atZone(ZoneId.systemDefault()).toInstant();
+            // 将LocalDateTime转换为Instant以获取时间戳（毫秒）
+            Instant currentInstant = now.atZone(ZoneId.systemDefault()).toInstant();
 //        long currentTimestampMillis = currentInstant.toEpochMilli();
-        long lastDayTimestamp = currentInstant.getEpochSecond(); // 如果你需要秒为单位的时间戳
+            long lastDayTimestamp = currentInstant.getEpochSecond(); // 如果你需要秒为单位的时间戳
 
-        // 计算前半个小时的时间
-        LocalDateTime halfHourAgo = now.minus(30, ChronoUnit.MINUTES);
+            // 计算前半个小时的时间
+            LocalDateTime halfHourAgo = now.minus(30, ChronoUnit.MINUTES);
 
-        // 将前半个小时的LocalDateTime转换为Instant以获取时间戳（毫秒）
-        Instant halfHourAgoInstant = halfHourAgo.atZone(ZoneId.systemDefault()).toInstant();
+            // 将前半个小时的LocalDateTime转换为Instant以获取时间戳（毫秒）
+            Instant halfHourAgoInstant = halfHourAgo.atZone(ZoneId.systemDefault()).toInstant();
 //        long halfHourAgoTimestampMillis = halfHourAgoInstant.toEpochMilli();
-        long firstDayTimestamp = halfHourAgoInstant.getEpochSecond(); // 如果你需要秒为单位的时间戳
+            long firstDayTimestamp = halfHourAgoInstant.getEpochSecond(); // 如果你需要秒为单位的时间戳
 
 
-        List<AdviserDO> adviserDOS = adviserDAO.listAdviser(null, null, 0, 10000);
-        List<AdviserDO> newAdviserDOs = new ArrayList<>();
-        for (AdviserDO a : adviserDOS) {
-            AdminUserDO userDO = adminUserDAO.getUserByAdviserId(a.getId());
-            if (ObjectUtil.isNotNull(userDO) && StringUtil.isNotEmpty(userDO.getOperUserId()) && "ENABLED".equals(a.getState())) {
-                a.setOperUserId(userDO.getOperUserId());
-                newAdviserDOs.add(a);
+            List<AdviserDO> adviserDOS = adviserDAO.listAdviser(null, null, 0, 10000);
+            List<AdviserDO> newAdviserDOs = new ArrayList<>();
+            for (AdviserDO a : adviserDOS) {
+                AdminUserDO userDO = adminUserDAO.getUserByAdviserId(a.getId());
+                if (ObjectUtil.isNotNull(userDO) && StringUtil.isNotEmpty(userDO.getOperUserId()) && "ENABLED".equals(a.getState())) {
+                    a.setOperUserId(userDO.getOperUserId());
+                    newAdviserDOs.add(a);
+                }
             }
-        }
-        Map<Integer, String> collect = newAdviserDOs.stream().collect(Collectors.toMap(AdviserDO::getId, AdviserDO::getOperUserId));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US); // HH表示24小时制
-        // 获取token
-        String urlToken = "https://open.weibanzhushou.com/open-api/access_token/get";
-        HashMap<String, String> uriVariablesMap = new HashMap<>();
-        uriVariablesMap.put("corp_id", weibanCropId);
-        uriVariablesMap.put("secret", weibanSecret);
-        log.info("uriVariablesMap : " + uriVariablesMap);
-        JSONObject weibanTokenJsonObject = restTemplate.postForObject(urlToken, uriVariablesMap, JSONObject.class);
-        if ((int) weibanTokenJsonObject.get("errcode") != 0) {
-            ServiceException se = new ServiceException(weibanTokenJsonObject.get("errmsg").toString());
-            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-        }
-        log.info(weibanTokenJsonObject.get("access_token").toString());
-        AtomicInteger length = new AtomicInteger(0);
-        JSONArray jsonArray = new JSONArray();
-        Map<Integer, JSONArray> jsonArrayHashMap = new HashMap<>();
+            Map<Integer, String> collect = newAdviserDOs.stream().collect(Collectors.toMap(AdviserDO::getId, AdviserDO::getOperUserId));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US); // HH表示24小时制
+            // 获取token
+            String urlToken = "https://open.weibanzhushou.com/open-api/access_token/get";
+            HashMap<String, String> uriVariablesMap = new HashMap<>();
+            uriVariablesMap.put("corp_id", weibanCropId);
+            uriVariablesMap.put("secret", weibanSecret);
+            log.info("uriVariablesMap : " + uriVariablesMap);
+            JSONObject weibanTokenJsonObject = restTemplate.postForObject(urlToken, uriVariablesMap, JSONObject.class);
+            if ((int) weibanTokenJsonObject.get("errcode") != 0) {
+                ServiceException se = new ServiceException(weibanTokenJsonObject.get("errmsg").toString());
+                se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            }
+            log.info(weibanTokenJsonObject.get("access_token").toString());
+            AtomicInteger length = new AtomicInteger(0);
+            JSONArray jsonArray = new JSONArray();
+            Map<Integer, JSONArray> jsonArrayHashMap = new HashMap<>();
 //        for (AdviserDO e : newAdviserDOs) {
-        for (AdviserDO e : newAdviserDOs) {
-            // 获取列表
-            String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
-                    "access_token={accessToken}", "&staff_id={staffId}", "&limit={limit}&offset={offset}",
-                    "&start_time={startTime}&end_time={endTime}");
-            HashMap<String, Object> paramMap = new HashMap<>();
-            Integer offset = 0;
-            paramMap.put("accessToken", weibanTokenJsonObject.get("access_token").toString());
-            paramMap.put("limit", 100);
-            paramMap.put("offset", offset);
-            paramMap.put("staffId", e.getOperUserId());
+            for (AdviserDO e : newAdviserDOs) {
+                // 获取列表
+                String url = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/list?",
+                        "access_token={accessToken}", "&staff_id={staffId}", "&limit={limit}&offset={offset}",
+                        "&start_time={startTime}&end_time={endTime}");
+                HashMap<String, Object> paramMap = new HashMap<>();
+                Integer offset = 0;
+                paramMap.put("accessToken", weibanTokenJsonObject.get("access_token").toString());
+                paramMap.put("limit", 100);
+                paramMap.put("offset", offset);
+                paramMap.put("staffId", e.getOperUserId());
 //            paramMap.put("staffId", "ZhiNanZhenemily");
-            paramMap.put("startTime", firstDayTimestamp);
-            paramMap.put("endTime", lastDayTimestamp);
+                paramMap.put("startTime", firstDayTimestamp);
+                paramMap.put("endTime", lastDayTimestamp);
 //            log.info("URL : " + url);
 //            log.info("Params : " + paramMap);
-            JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
-            if (ObjectUtil.isNull(weibanUserListJsonObject)) {
-                log.warn("'weibanUserListJsonObject' not exist !");
-                return;
-            }
+                JSONObject weibanUserListJsonObject = restTemplate.getForObject(url, JSONObject.class, paramMap);
+                if (ObjectUtil.isNull(weibanUserListJsonObject)) {
+                    log.warn("'weibanUserListJsonObject' not exist !");
+                    return;
+                }
 //            log.info("weibanUserListJsonObject : " + weibanUserListJsonObject.toString());
-            if ((int) weibanUserListJsonObject.get("errcode") != 0) {
-                log.warn("调用微伴API异常!");
-                return;
-            }
-            if (!weibanUserListJsonObject.containsKey("external_user_list")) {
-                log.warn("'external_user_list' not exist by Json !");
-                return;
-            }
-            // 获取列表数据
+                if ((int) weibanUserListJsonObject.get("errcode") != 0) {
+                    log.warn("调用微伴API异常!");
+                    return;
+                }
+                if (!weibanUserListJsonObject.containsKey("external_user_list")) {
+                    log.warn("'external_user_list' not exist by Json !");
+                    return;
+                }
+                // 获取列表数据
 //            jsonArray = weibanUserListJsonObject.getJSONArray("external_user_list");
 //            if (ObjectUtil.isNull(jsonArray)) {
 //                log.warn("'jsonArray' is null : " + weibanUserListJsonObject.toString());
 //                return;
 //            }
-            Integer total = (Integer) weibanUserListJsonObject.get("total");
-            length.getAndAdd(total);
-            for (int i = 0; i < total; i = i + 100) {
-                paramMap.put("accessToken", weibanTokenJsonObject.get("access_token").toString());
-                paramMap.put("limit", 100);
-                paramMap.put("offset", i);
-                paramMap.put("staffId", e.getOperUserId());
+                Integer total = (Integer) weibanUserListJsonObject.get("total");
+                length.getAndAdd(total);
+                for (int i = 0; i < total; i = i + 100) {
+                    paramMap.put("accessToken", weibanTokenJsonObject.get("access_token").toString());
+                    paramMap.put("limit", 100);
+                    paramMap.put("offset", i);
+                    paramMap.put("staffId", e.getOperUserId());
 //            paramMap.put("staffId", "ZhiNanZhenemily");
-                paramMap.put("startTime", firstDayTimestamp);
-                paramMap.put("endTime", lastDayTimestamp);
+                    paramMap.put("startTime", firstDayTimestamp);
+                    paramMap.put("endTime", lastDayTimestamp);
 //                log.info("URL : " + url);
 //                log.info("Params : " + paramMap);
-                JSONObject weibanUserListJsonObjectTmp = restTemplate.getForObject(url, JSONObject.class, paramMap);
-                if (ObjectUtil.isNull(weibanUserListJsonObjectTmp)) {
-                    log.warn("'weibanUserListJsonObject' not exist !");
-                    return;
-                }
-                log.info("weibanUserListJsonObject : " + weibanUserListJsonObjectTmp.toString());
-                if ((int) weibanUserListJsonObjectTmp.get("errcode") != 0) {
-                    log.warn("调用微伴API异常!");
-                    return;
-                }
-                if (!weibanUserListJsonObjectTmp.containsKey("external_user_list")) {
-                    log.warn("'external_user_list' not exist by Json !");
-                    return;
-                }
-                // 获取列表数据
-                JSONArray jsonArray2 = weibanUserListJsonObjectTmp.getJSONArray("external_user_list");
-                if (ObjectUtil.isNull(jsonArray2)) {
-                    log.warn("'jsonArray' is null : " + weibanUserListJsonObjectTmp.toString());
-                    return;
-                }
-                jsonArray.addAll(jsonArray2);
-                if (jsonArrayHashMap.get(e.getId()) == null) {
-                    jsonArrayHashMap.put(e.getId(), jsonArray2);
-                } else {
-                    JSONArray objects = jsonArrayHashMap.get(e.getId());
-                    objects.addAll(jsonArray2);
-                    jsonArrayHashMap.put(e.getId(), objects);
-                }
-
-            }
-        }
-        List<QywxExternalUserDTO> qywxExternalUserDTOS = new ArrayList<>();
-        jsonArrayHashMap.forEach((k, v) -> {
-            List<WeBanUserDTO> weBanUserDTOS = JSONArray.parseArray(v.toJSONString(), WeBanUserDTO.class);
-            try {
-                for (WeBanUserDTO weBanUserDTO : weBanUserDTOS) {
-                    String externalUserid = weBanUserDTO.getId();
-                    QywxExternalUserDTO qywxExternalUserDto = new QywxExternalUserDTO();
-                    // createtime
-                    if (weBanUserDTO.getCreatedAt() != null)
-                        qywxExternalUserDto.setCreateTime(
-                                new Date(Long.parseLong(String.valueOf(weBanUserDTO.getCreatedAt())) * 1000));
-                    // adviserId
-                    qywxExternalUserDto.setAdviserId(k);
-                    // externalUserid
-                    qywxExternalUserDto.setExternalUserid(externalUserid);
-                    // name
-                    if (weBanUserDTO.getName() != null) {
-                        String s = new String(weBanUserDTO.getName().getBytes(), StandardCharsets.UTF_8);
-                        qywxExternalUserDto.setName(s);
+                    JSONObject weibanUserListJsonObjectTmp = restTemplate.getForObject(url, JSONObject.class, paramMap);
+                    if (ObjectUtil.isNull(weibanUserListJsonObjectTmp)) {
+                        log.warn("'weibanUserListJsonObject' not exist !");
+                        return;
+                    }
+                    log.info("weibanUserListJsonObject : " + weibanUserListJsonObjectTmp.toString());
+                    if ((int) weibanUserListJsonObjectTmp.get("errcode") != 0) {
+                        log.warn("调用微伴API异常!");
+                        return;
+                    }
+                    if (!weibanUserListJsonObjectTmp.containsKey("external_user_list")) {
+                        log.warn("'external_user_list' not exist by Json !");
+                        return;
+                    }
+                    // 获取列表数据
+                    JSONArray jsonArray2 = weibanUserListJsonObjectTmp.getJSONArray("external_user_list");
+                    if (ObjectUtil.isNull(jsonArray2)) {
+                        log.warn("'jsonArray' is null : " + weibanUserListJsonObjectTmp.toString());
+                        return;
+                    }
+                    jsonArray.addAll(jsonArray2);
+                    if (jsonArrayHashMap.get(e.getId()) == null) {
+                        jsonArrayHashMap.put(e.getId(), jsonArray2);
+                    } else {
+                        JSONArray objects = jsonArrayHashMap.get(e.getId());
+                        objects.addAll(jsonArray2);
+                        jsonArrayHashMap.put(e.getId(), objects);
                     }
 
-                    // type
-                    if (weBanUserDTO.getType() != null)
-                        qywxExternalUserDto.setType(weBanUserDTO.getType());
-                    // avatar
-                    if (weBanUserDTO.getAvatar() != null)
-                        qywxExternalUserDto.setAvatar(weBanUserDTO.getAvatar());
-                    // gender
-                    if (weBanUserDTO.getGender() != null)
-                        qywxExternalUserDto.setGender(weBanUserDTO.getGender());
-                    // unionid
-                    if (weBanUserDTO.getUnionid() != null)
-                        qywxExternalUserDto.setUnionId(weBanUserDTO.getUnionid());
-                    // state
-                    qywxExternalUserDto.setState("WCZ");
-                    qywxExternalUserDTOS.add(qywxExternalUserDto);
                 }
-            } catch (Exception x) {
-                x.printStackTrace();
             }
-        });
-        Map<String, QywxExternalUserDTO> qywxExternalUserDTOMap = qywxExternalUserDTOS.stream().collect(Collectors.toMap(QywxExternalUserDTO::getExternalUserid, Function.identity(), (v1, v2) -> v2));
-        List<String> userExternalUserids = qywxExternalUserDTOS.stream().map(QywxExternalUserDTO::getExternalUserid).collect(Collectors.toList());
-        List<List<String>> result = new ArrayList<>();
-        int currentIndex = 0;
-        while (currentIndex < userExternalUserids.size()) {
-            int endIndex = Math.min(currentIndex + 20, userExternalUserids.size());
-            List<String> subList = userExternalUserids.subList(currentIndex, endIndex);
-            result.add(new ArrayList<>(subList)); // 创建一个新的ArrayList来避免对原始列表的修改影响子列表
-            currentIndex += 20;
-        }
-        // 客户详情
-        String urlDetail = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/batch_get?",
-                "access_token={accessToken}");
-        HashMap<String, Object> paramMapDetail = new HashMap<>();
-        for (List<String> a : result) {
-            // 顾问id
-            paramMapDetail.put("accessToken", weibanTokenJsonObject.get("access_token").toString());
+            List<QywxExternalUserDTO> qywxExternalUserDTOS = new ArrayList<>();
+            jsonArrayHashMap.forEach((k, v) -> {
+                List<WeBanUserDTO> weBanUserDTOS = JSONArray.parseArray(v.toJSONString(), WeBanUserDTO.class);
+                try {
+                    for (WeBanUserDTO weBanUserDTO : weBanUserDTOS) {
+                        String externalUserid = weBanUserDTO.getId();
+                        QywxExternalUserDTO qywxExternalUserDto = new QywxExternalUserDTO();
+                        // createtime
+                        if (weBanUserDTO.getCreatedAt() != null)
+                            qywxExternalUserDto.setCreateTime(
+                                    new Date(Long.parseLong(String.valueOf(weBanUserDTO.getCreatedAt())) * 1000));
+                        // adviserId
+                        qywxExternalUserDto.setAdviserId(k);
+                        // externalUserid
+                        qywxExternalUserDto.setExternalUserid(externalUserid);
+                        // name
+                        if (weBanUserDTO.getName() != null) {
+                            String s = new String(weBanUserDTO.getName().getBytes(), StandardCharsets.UTF_8);
+                            qywxExternalUserDto.setName(s);
+                        }
+
+                        // type
+                        if (weBanUserDTO.getType() != null)
+                            qywxExternalUserDto.setType(weBanUserDTO.getType());
+                        // avatar
+                        if (weBanUserDTO.getAvatar() != null)
+                            qywxExternalUserDto.setAvatar(weBanUserDTO.getAvatar());
+                        // gender
+                        if (weBanUserDTO.getGender() != null)
+                            qywxExternalUserDto.setGender(weBanUserDTO.getGender());
+                        // unionid
+                        if (weBanUserDTO.getUnionid() != null)
+                            qywxExternalUserDto.setUnionId(weBanUserDTO.getUnionid());
+                        // state
+                        qywxExternalUserDto.setState("WCZ");
+                        qywxExternalUserDTOS.add(qywxExternalUserDto);
+                    }
+                } catch (Exception x) {
+                    x.printStackTrace();
+                }
+            });
+            Map<String, QywxExternalUserDTO> qywxExternalUserDTOMap = qywxExternalUserDTOS.stream().collect(Collectors.toMap(QywxExternalUserDTO::getExternalUserid, Function.identity(), (v1, v2) -> v2));
+            List<String> userExternalUserids = qywxExternalUserDTOS.stream().map(QywxExternalUserDTO::getExternalUserid).collect(Collectors.toList());
+            List<List<String>> result = new ArrayList<>();
+            int currentIndex = 0;
+            while (currentIndex < userExternalUserids.size()) {
+                int endIndex = Math.min(currentIndex + 20, userExternalUserids.size());
+                List<String> subList = userExternalUserids.subList(currentIndex, endIndex);
+                result.add(new ArrayList<>(subList)); // 创建一个新的ArrayList来避免对原始列表的修改影响子列表
+                currentIndex += 20;
+            }
+            // 客户详情
+            String urlDetail = StringUtil.merge("https://open.weibanzhushou.com/open-api/external_user/batch_get?",
+                    "access_token={accessToken}");
+            HashMap<String, Object> paramMapDetail = new HashMap<>();
+            for (List<String> a : result) {
+                // 顾问id
+                paramMapDetail.put("accessToken", weibanTokenJsonObject.get("access_token").toString());
 //            JSONObject weibanUserDetailJsonObject = restTemplate.getForObject(urlDetail, JSONObject.class, paramMapDetail);
-            JSONObject jsonObject = new JSONObject();
-            List<String> objects = new ArrayList<>();
-            log.info("当前请求用户组--------------------------" + a);
-            objects.addAll(a);
-            jsonObject.put("id_list", objects);
-            JSONObject weibanUserDetailJsonObject = restTemplate.postForObject(urlDetail, jsonObject, JSONObject.class, paramMapDetail);
-            if ((Integer)weibanUserDetailJsonObject.get("errcode") == 0) {
-                List<WeBanUserDTO> weBanUserDTOS = JSONArray.parseArray(weibanUserDetailJsonObject.getJSONArray("external_user").toJSONString(), WeBanUserDTO.class);
-                Map<String, List<FollowStaffsDTO>> followStaffsDTOs = weBanUserDTOS.stream().collect(Collectors.toMap(WeBanUserDTO::getId, WeBanUserDTO::getFollowStaffs));
-                followStaffsDTOs.forEach((k, v) -> {
-                    QywxExternalUserDTO qywxExternalUserDTO = qywxExternalUserDTOMap.get(k);
-                    List<FollowStaffsDTO> collect1 = v.stream().filter(FollowStaffsDTO -> collect.get(qywxExternalUserDTO.getAdviserId()).equals(FollowStaffsDTO.getStaffId())).collect(Collectors.toList());
-                    if (!collect1.isEmpty()) {
-                        FollowStaffsDTO followStaffsDTO = collect1.get(0);
-                        String jsonString = JSONObject.toJSONString(followStaffsDTO.getTags());
-                        qywxExternalUserDTO.setTagsDTOS(followStaffsDTO.getTags());
-                        qywxExternalUserDTO.setTags(jsonString);
-                        qywxExternalUserDTO.setStateText(followStaffsDTO.getStateText());
-                    }
-                    qywxExternalUserDTOMap.put(k, qywxExternalUserDTO);
-                });
+                JSONObject jsonObject = new JSONObject();
+                List<String> objects = new ArrayList<>();
+                log.info("当前请求用户组--------------------------" + a);
+                objects.addAll(a);
+                jsonObject.put("id_list", objects);
+                JSONObject weibanUserDetailJsonObject = restTemplate.postForObject(urlDetail, jsonObject, JSONObject.class, paramMapDetail);
+                if ((Integer)weibanUserDetailJsonObject.get("errcode") == 0) {
+                    List<WeBanUserDTO> weBanUserDTOS = JSONArray.parseArray(weibanUserDetailJsonObject.getJSONArray("external_user").toJSONString(), WeBanUserDTO.class);
+                    Map<String, List<FollowStaffsDTO>> followStaffsDTOs = weBanUserDTOS.stream().collect(Collectors.toMap(WeBanUserDTO::getId, WeBanUserDTO::getFollowStaffs));
+                    followStaffsDTOs.forEach((k, v) -> {
+                        QywxExternalUserDTO qywxExternalUserDTO = qywxExternalUserDTOMap.get(k);
+                        List<FollowStaffsDTO> collect1 = v.stream().filter(FollowStaffsDTO -> collect.get(qywxExternalUserDTO.getAdviserId()).equals(FollowStaffsDTO.getStaffId())).collect(Collectors.toList());
+                        if (!collect1.isEmpty()) {
+                            FollowStaffsDTO followStaffsDTO = collect1.get(0);
+                            String jsonString = JSONObject.toJSONString(followStaffsDTO.getTags());
+                            qywxExternalUserDTO.setTagsDTOS(followStaffsDTO.getTags());
+                            qywxExternalUserDTO.setTags(jsonString);
+                            qywxExternalUserDTO.setStateText(followStaffsDTO.getStateText());
+                        }
+                        qywxExternalUserDTOMap.put(k, qywxExternalUserDTO);
+                    });
+                }
             }
-        }
-        List<QywxExternalUserDTO> collect1 = qywxExternalUserDTOMap.values().stream().collect(Collectors.toList());
-        List<QywxExternalUserDTO> qywxExternalUserDTOS1 = new ArrayList<>();
-        collect1.forEach(e -> {
-            QywxExternalUserDO byExternalUserid = qywxExternalUserDAO.getByExternalUserid(e.getExternalUserid());
-            if (ObjectUtil.isNull(byExternalUserid)) {
-                qywxExternalUserDTOS1.add(e);
+            List<QywxExternalUserDTO> collect1 = qywxExternalUserDTOMap.values().stream().collect(Collectors.toList());
+            List<QywxExternalUserDTO> qywxExternalUserDTOS1 = new ArrayList<>();
+            collect1.forEach(e -> {
+                QywxExternalUserDO byExternalUserid = qywxExternalUserDAO.getByExternalUserid(e.getExternalUserid());
+                if (ObjectUtil.isNull(byExternalUserid)) {
+                    qywxExternalUserDTOS1.add(e);
+                }
+            });
+            if (!qywxExternalUserDTOS1.isEmpty()) {
+                qywxExternalUserDAO.bacthAdd(qywxExternalUserDTOS1);
             }
-        });
-        if (!qywxExternalUserDTOS1.isEmpty()) {
-            qywxExternalUserDAO.bacthAdd(qywxExternalUserDTOS1);
+            log.info("当前请求开始时间为----------" + firstDayTimestamp + "当前请求结束时间为-----------" + lastDayTimestamp);
+            log.info("总数量为-------------------------" + length.get());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        log.info("当前请求开始时间为----------" + firstDayTimestamp + "当前请求结束时间为-----------" + lastDayTimestamp);
-        log.info("总数量为-------------------------" + length.get());
     }
 
     private static VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) {

@@ -614,7 +614,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         }
         ServiceOrderDO serviceParentOrderById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
-        if ("CNY".equals(serviceOrderById.getCurrency())) {
+        if ("CNY".equals(serviceOrderById.getCurrency()) && (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() == 0)) {
             amount = amount / serviceOrderById.getExchangeRate();
         }
         commissionAmountDTO.setRefund(refund); // 设置退款金额
@@ -734,6 +734,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             String calculation = new String();
             calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + officialGradeById.getGrade() + "," + rate + "%" + "," + dateFormat.format(officialGradeById.getGmtModify());
             commissionAmountDTO.setCalculation(calculation);
+            if ("CNY".equals(serviceOrderById.getCurrency()) && (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0)) {
+                visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * serviceOrderById.getExchangeRate() / EOICount);
+            }
             visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
             visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
         }

@@ -2437,8 +2437,14 @@ public class ServiceOrderController extends BaseController {
             final JSONObject[] parm = {new JSONObject()};
             parm[0].put("doc_type", 4);
             parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
-//            String[] userIds = {"XuShiYi"};
-//            parm[0].put("admin_users", userIds);
+            if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
+                String[] userIds = {"XuShiYi"};
+                parm[0].put("admin_users", userIds);
+            }
+            if (StringUtil.isNotEmpty(adminUserLoginInfo.getOperUserid())) {
+                String[] userIds = {adminUserLoginInfo.getOperUserid(), "XuShiYi"};
+                parm[0].put("admin_users", userIds);
+            }
             LOG.info("parm--------------------" + Arrays.toString(parm));
             LOG.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
 
@@ -2561,6 +2567,23 @@ public class ServiceOrderController extends BaseController {
             htmlBuilder.append("\">");
             htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
             htmlBuilder.append("</a>");
+            String apList = adminUserLoginInfo.getApList();
+            switch (apList) {
+                case "GW":
+                    apList = "顾问";
+                    break;
+                case "WA":
+                    apList = "文案";
+                    break;
+                case "KJ":
+                    apList = "会计";
+                    break;
+                case "SUPERAD":
+                    apList = "超级管理员";
+                    break;
+                default: apList = apList;
+            }
+            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "服务订单导出");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -2861,7 +2884,7 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isEmpty(subject)) // 导出签证/留学各个项目各个地区的个数
                 eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
                         startOfficialApprovalDate, endOfficialApprovalDate, Integer.valueOf(regionId));
-
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             if (StringUtil.isNotEmpty(subject)) {
                 List<EachSubjectCountDTO> eachSubjectCountDTOS = serviceOrderService
                         .eachSubjectCount(startOfficialApprovalDate, endOfficialApprovalDate);
@@ -3073,50 +3096,8 @@ public class ServiceOrderController extends BaseController {
                 htmlBuilder.append("\">");
                 htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
                 htmlBuilder.append("</a>");
+                WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出服务项目地区统计");
                 return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
-//                }
-//                if ("OVST".equalsIgnoreCase(type)) {
-//                    Map<String, List<EachRegionNumberDTO>> eachRegionNumberDTOMap = eachRegionNumberDTOS.stream().collect(Collectors.groupingBy(EachRegionNumberDTO::getServiceId));
-//                    List<String> adviserDTOS = eachRegionNumberDTOS.stream().map(EachRegionNumberDTO::getAdviserName).distinct().collect(Collectors.toList());
-//                    Map<String, Integer> adviserSortMap = new HashMap<>();
-//                    AtomicInteger i = new AtomicInteger();
-//                    eachRegionNumberDTOMap.forEach((k,v) -> {
-//                        if (i.get() == 0) {
-//                            try {
-//                                sheet.addCell(new Label(0, i.get(), "排序", cellFormat));
-//                                sheet.addCell(new Label(1, i.get(), "Institution Trading Name", cellFormat));
-//                                sheet.addCell(new Label(2, i.get(), "Institution Name", cellFormat));
-//                                sheet.addCell(new Label(3, i.get(), "总数", cellFormat));
-//                                int count = 4;
-//                                for (String adviserDTO : adviserDTOS) {
-//                                    sheet.addCell(new Label(count, i.get(), adviserDTO, cellFormat));
-//                                    adviserSortMap.put(adviserDTO, count);
-//                                    count++;
-//                                }
-//                            } catch (WriteException e) {
-//                                throw new RuntimeException(e);
-//                            }
-//                            i.getAndIncrement();
-//                        }
-//                        try {
-//                            sheet.addCell(new Label(0, i.get(), i.get() + ""));
-//                            sheet.addCell(new Label(1, i.get(), v.get(0).getInstitutionTradingName() + ""));
-//                            sheet.addCell(new Label(2, i.get(), v.get(0).getInstitutionName() + ""));
-//                            sheet.addCell(new Label(3, i.get(), v.stream().mapToInt(EachRegionNumberDTO::getCount).sum() + ""));
-//                            for (EachRegionNumberDTO eachRegionNumberDTO : v) {
-//                                Integer number = adviserSortMap.get(eachRegionNumberDTO.getAdviserName());
-//                                if (number != null && number > 0) {
-//                                    sheet.addCell(new Label(number, i.get(),  eachRegionNumberDTO.getCount() + ""));
-//                                }
-//                            }
-//                        } catch (WriteException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//                        i.getAndIncrement();
-//                    });
-//                    wbe.write();
-//                    wbe.close();
-//                }
             } else {
                 response.reset();// 清空输出流
                 String tableName = "Information";
@@ -3202,8 +3183,6 @@ public class ServiceOrderController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
-        } finally {
-
         }
         return new Response<>(0, "生成Excel成功， excel链接为：");
     }
