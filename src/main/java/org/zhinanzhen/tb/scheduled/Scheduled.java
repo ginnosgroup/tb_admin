@@ -583,13 +583,13 @@ public class Scheduled {
         }
     }
 
-    /**
-     * 每小时触发一次(设置提醒)
-     */
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 * * * * ? ")
-    public void sout(){
-        log.info("定时任务测试-------------------");
-    }
+//    /**
+//     * 每小时触发一次(设置提醒)
+//     */
+//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 * * * * ? ")
+//    public void sout(){
+//        log.info("定时任务测试-------------------");
+//    }
 
     /*
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 56 * * * ? ")
