@@ -2502,6 +2502,7 @@ public class ServiceOrderController extends BaseController {
                                 excelTitle.add("项目代号/学校");
                                 excelTitle.add("状态");
                                 excelTitle.add("计数");
+                                excelTitle.add("offer类型");
                                 excelTitle.add("备注");
 
                                 for (ServiceOrderDTO serviceOrderDTO : finalServiceOrderList) {
@@ -4250,18 +4251,32 @@ public class ServiceOrderController extends BaseController {
         jsonObject17.put("cell_value", text17);
         rows.add(jsonObject17);
 
-        if (so.getRemarks() != null) {
+        if (so.getOfferType() != null) {
             JSONObject jsonObject18 = new JSONObject();
             JSONObject text18 = new JSONObject();
-            text18.put("text",so.getRemarks());
+            text18.put("text", String.valueOf(so.getOfferType()));
             jsonObject18.put("cell_value", text18);
             rows.add(jsonObject18);
         } else {
             JSONObject jsonObject18 = new JSONObject();
             JSONObject text18 = new JSONObject();
-            text18.put("text","");
+            text18.put("text", "");
             jsonObject18.put("cell_value", text18);
             rows.add(jsonObject18);
+        }
+
+        if (so.getRemarks() != null) {
+            JSONObject jsonObject19 = new JSONObject();
+            JSONObject text19 = new JSONObject();
+            text19.put("text",so.getRemarks());
+            jsonObject19.put("cell_value", text19);
+            rows.add(jsonObject19);
+        } else {
+            JSONObject jsonObject19 = new JSONObject();
+            JSONObject text19 = new JSONObject();
+            text19.put("text","");
+            jsonObject19.put("cell_value", text19);
+            rows.add(jsonObject19);
         }
         return rows;
     }

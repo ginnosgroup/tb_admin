@@ -258,7 +258,8 @@ public class VisaOfficialCheck {
     }
 
     // 每个周一第一天1点触发
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 1 * * MON")
+//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 1 * * MON")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "* 0/10 * * * MON")
     public void orderStatistics() {
         // 获取今天的日期
         LocalDate today = LocalDate.now();
@@ -398,12 +399,12 @@ public class VisaOfficialCheck {
             orderWeektCount.getAndAdd(v.size());
         });
         orderWeekCountStr = orderWeekCountStr + orderWeektCount.get();
-//        System.out.println(orderWeekCountStr);
-//        System.out.println(orderWeektTopStr);
-//        System.out.println(careerAssessmentWeektStr);
-//        System.out.println(eoiWeektStr);
+        System.out.println(orderWeekCountStr);
+        System.out.println(orderWeektTopStr);
+        System.out.println(careerAssessmentWeektStr);
+        System.out.println(eoiWeektStr);
 
-        WXWorkAPI.sendWecomRotMsg(orderWeekCountStr + "\n" + "\n" + orderWeektTopStr + "\n" + "\n" + careerAssessmentWeektStr + "\n" + eoiWeektStr);
+//        WXWorkAPI.sendWecomRotMsg(orderWeekCountStr + "\n" + "\n" + orderWeektTopStr + "\n" + "\n" + careerAssessmentWeektStr + "\n" + eoiWeektStr);
     }
 
     // 半个小时执行一次
