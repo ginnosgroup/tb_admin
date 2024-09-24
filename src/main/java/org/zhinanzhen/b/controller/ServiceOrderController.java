@@ -3893,6 +3893,52 @@ public class ServiceOrderController extends BaseController {
                 stateName = "服务申请完成";
                 break;
             case "FINISH":
+                stateName = "资料审核完成";
+                break;
+            case "CLOSE":
+                stateName = "关闭";
+                break;
+            case "RECEIVED":
+                stateName = "已收款凭证已提交";
+                break;
+            case "PAID":
+                stateName = "COE已下";
+                break;
+            case "WAIT":
+                stateName = "已提交Mara审核";
+                break;
+            case "APPLY_FAILED":
+                stateName = "申请失败";
+                break;
+            case "COMPLETE_FD":
+                stateName = "财务转账完成";
+                break;
+            default:
+                stateName = "无状态";
+        }
+        return stateName;
+    }
+
+    // 转换订单状态
+    private String convertOvstOrderStatus(String state) {
+        String stateName = null;
+        switch (state) {
+            case "PENDING":
+                stateName = "待提交审核";
+                break;
+            case "REVIEW":
+                stateName = "资料待审核";
+                break;
+            case "OREVIEW":
+                stateName = "资料审核中";
+                break;
+            case "APPLY":
+                stateName = "服务申请中";
+                break;
+            case "COMPLETE":
+                stateName = "申请成功";
+                break;
+            case "FINISH":
                 stateName = "完成-支付成功";
                 break;
             case "CLOSE":
@@ -4238,12 +4284,22 @@ public class ServiceOrderController extends BaseController {
             jsonObject15.put("cell_value", text15);
             rows.add(jsonObject15);
         }
-        String s = convertOrderStatus(so.getState());
-        JSONObject jsonObject16 = new JSONObject();
-        JSONObject text16 = new JSONObject();
-        text16.put("text",s);
-        jsonObject16.put("cell_value", text16);
-        rows.add(jsonObject16);
+        if ("OVST".equals(so.getType())) {
+            String s = convertOvstOrderStatus(so.getState());
+            JSONObject jsonObject16 = new JSONObject();
+            JSONObject text16 = new JSONObject();
+            text16.put("text",s);
+            jsonObject16.put("cell_value", text16);
+            rows.add(jsonObject16);
+        } else {
+            String s = convertOrderStatus(so.getState());
+            JSONObject jsonObject16 = new JSONObject();
+            JSONObject text16 = new JSONObject();
+            text16.put("text",s);
+            jsonObject16.put("cell_value", text16);
+            rows.add(jsonObject16);
+        }
+
 
         JSONObject jsonObject17 = new JSONObject();
         JSONObject text17 = new JSONObject();
