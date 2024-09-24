@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.zhinanzhen.tb.annotation.UnRecordLog;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
@@ -14,7 +13,6 @@ public interface AdminUserDAO {
 
 	public AdminUserDO login(@Param("username") String username, @Param("password") String password);
 
-	@UnRecordLog
 	public boolean updateSessionId(@Param("id") int id, @Param("sessionId") String sessionId);
 
 	public boolean updatePassword(@Param("username") String username, @Param("password") String password);
