@@ -62,7 +62,11 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			if ("VISA".equals(type)) { // 签证
 				ServiceDTO serviceById = soDecisionNode.serviceService.getServiceById(serviceOrderDto.getServiceId());
 				if (serviceById != null && (serviceById.getCode().contains("485") || serviceById.getCode().contains("500"))) {
-					String insuranceCompany = context.getParameter("insuranceCompany").toString();
+					Object insuranceCompanyTmp = context.getParameter("insuranceCompany");
+					String insuranceCompany = "";
+					if (ObjectUtil.isNotNull(insuranceCompanyTmp)) {
+						insuranceCompany = context.getParameter("insuranceCompany").toString();
+					}
 					Object hasInsurance = context.getParameter("hasInsurance");
 					if (StringUtil.isNotEmpty(insuranceCompany)) {
 						ServiceOrderInsuranceDO serviceOrderInsuranceDO = soDecisionNode.insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
