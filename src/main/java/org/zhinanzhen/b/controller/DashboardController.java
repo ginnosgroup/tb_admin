@@ -381,9 +381,9 @@ public class DashboardController extends BaseController {
 			throws ServiceException {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo == null || !("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
-			return new DashboardResponse(1, "没有权限", null);
+//		if (adminUserLoginInfo == null || !("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//				|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+//			return new DashboardResponse(1, "没有权限", null);
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = DateClass.today();
 		List<DataDTO> areaDataList = data.dataReport(startDate, endDate, "A", null); // 全area地区的area数据
@@ -762,6 +762,34 @@ public class DashboardController extends BaseController {
 		}
 		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 			return new Response(0, dashboardService.getThisMonthExpectAmount(null, null,
+					exchangeRateService.getQuarterExchangeRate()));
+		}
+		return new Response(0, 0);
+	}
+
+	/**
+	 * /dashboard/getMonthExpectAmount 返回顾问管理员/顾问自己的本月预收业绩
+	 * 此接口返回：顾问管理员地区下所有顾问的本月预收业绩/superad返回所有顾问本月预收业绩
+	 *
+	 * @throws ServiceException
+	 */
+	@GetMapping(value = "/getMonthExpectAmountSubtractGst")
+	@ResponseBody
+	public Response getMonthExpectAmountSubtractGst(HttpServletRequest request, HttpServletResponse response)
+			throws ServiceException {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+			List<Integer> regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+			List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+			for (RegionDTO region : regionList)
+				regionIdList.add(region.getId());
+			return new Response(0, dashboardService.getThisMonthExpectAmountSubtractGst(null, regionIdList,
+					exchangeRateService.getQuarterExchangeRate()));
+		}
+		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+			return new Response(0, dashboardService.getThisMonthExpectAmountSubtractGst(null, null,
 					exchangeRateService.getQuarterExchangeRate()));
 		}
 		return new Response(0, 0);

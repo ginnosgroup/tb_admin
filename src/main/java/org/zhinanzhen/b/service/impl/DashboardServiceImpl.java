@@ -12,6 +12,7 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.utils.ListUtil;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service("DashboardService")
@@ -34,6 +35,22 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 		return (visaExpectAmountSBBTM == null ? 0.00 : visaExpectAmountSBBTM)
 				+ (bCommissionOrderExpectAmountSBBTM == null ? 0.00 : bCommissionOrderExpectAmountSBBTM)
 				- (thisMonthRefundAmount == null ? 0.00 : thisMonthRefundAmount);
+	}
+
+	@Override
+	public double getThisMonthExpectAmountSubtractGst(Integer adviserId, List<Integer> regionIdList, Double rate)
+			throws ServiceException {
+		Double visaExpectAmountSBBTM = dashboardDAO.getThisMonthVisaExpectAmountSubtractGst(adviserId, regionIdList);
+		Double bCommissionOrderExpectAmountSBBTM = dashboardDAO.getThisMonthbCommissionOrderExpectAmountSBBTMSubtractGst(adviserId,
+				regionIdList);
+		Double thisMonthRefundAmount = dashboardDAO.getThisMonthRefundAmount(adviserId, regionIdList, rate);
+		double v = 0.00;
+		if (thisMonthRefundAmount != null) {
+			v = new BigDecimal(thisMonthRefundAmount - (thisMonthRefundAmount / 11)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+		}
+		return (visaExpectAmountSBBTM == null ? 0.00 : visaExpectAmountSBBTM)
+				+ (bCommissionOrderExpectAmountSBBTM == null ? 0.00 : bCommissionOrderExpectAmountSBBTM)
+				- v;
 	}
 
 	@Override
