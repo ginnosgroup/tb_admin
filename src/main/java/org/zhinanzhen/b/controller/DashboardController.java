@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,13 +68,16 @@ public class DashboardController extends BaseController {
 			if (getAdminUserLoginInfo(request) == null) {
 				return new Response<Double>(1, "请先登录!", null);
 			}
-			double thisMonthExpectAmount = dashboardService.getThisMonthExpectAmount(getAdviserId(request), null,
+			Double thisMonthExpectAmount = dashboardService.getThisMonthExpectAmount(getAdviserId(request), null,
 					exchangeRateService.getQuarterExchangeRate());
-			double thisMonthExpectAmountSubtractGst = dashboardService.getThisMonthExpectAmountSubtractGst(getAdviserId(request), null,
+			Double thisMonthExpectAmountSubtractGst = dashboardService.getThisMonthExpectAmountSubtractGst(getAdviserId(request), null,
 					exchangeRateService.getQuarterExchangeRate());
-			Map<String, Double> thisMonthExpectAmountMap = new HashMap<>();
-			thisMonthExpectAmountMap.put("thisMonthExpectAmount", thisMonthExpectAmount);
-			thisMonthExpectAmountMap.put("thisMonthExpectAmountSubtractGst", thisMonthExpectAmountSubtractGst);
+
+			Map<String, String> thisMonthExpectAmountMap = new HashMap<>();
+			thisMonthExpectAmountMap.put("thisMonthExpectAmount", String.format("%.2f", thisMonthExpectAmount));
+			thisMonthExpectAmountMap.put("thisMonthExpectAmountSubtractGst", String.format("%.2f", thisMonthExpectAmountSubtractGst));
+//			thisMonthExpectAmountMap.put("thisMonthExpectAmount", thisMonthExpectAmount);
+//			thisMonthExpectAmountMap.put("thisMonthExpectAmountSubtractGst", thisMonthExpectAmountSubtractGst);
 			return new Response<>(0, thisMonthExpectAmountMap);
 		} catch (ServiceException e) {
 			return new Response<Double>(e.getCode(), e.getMessage(), null);
@@ -657,7 +661,7 @@ public class DashboardController extends BaseController {
 		List<Integer> regionIdList = new ArrayList<>();
 		double total = 0;
 		double totalSubtractGst = 0;
-		Map<String, Double> totalmap = new HashMap<>();
+		Map<String, String> totalmap = new HashMap<>();
 		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())) {
 			for (DataDTO dataDTO : dataList) {
 				total = roundHalfUp(dataDTO.getTotal() + total);
@@ -665,8 +669,8 @@ public class DashboardController extends BaseController {
 			for (DataDTO dataDTO : dataListSubtractGst) {
 				totalSubtractGst = roundHalfUp(dataDTO.getTotal() + totalSubtractGst);
 			}
-			totalmap.put("total", total);
-			totalmap.put("totalSubtractGst", totalSubtractGst);
+			totalmap.put("total", String.format("%.2f", total));
+			totalmap.put("totalSubtractGst", String.format("%.2f", totalSubtractGst));
 			return new Response(0, "全澳全年业绩总和", totalmap);
 		} else if ("GW".equalsIgnoreCase(loginInfo.getApList())) {
 			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0) { // 顾问管理员
@@ -691,11 +695,11 @@ public class DashboardController extends BaseController {
 					if (dataDTO.getAdviserId() == adviserId)
 						_totalSubtractGst = roundHalfUp(dataDTO.getTotal());
 				}
-				Map map = new HashMap();
-				map.put("total", total);
-				map.put("managerTotal", _total);
-				map.put("totalSubtractGst", totalSubtractGst);
-				map.put("managerTotalSubtractGst", _totalSubtractGst);
+				Map<String, String> map = new HashMap();
+				map.put("total", String.format("%.2f", total));
+				map.put("managerTotal", String.format("%.2f", _total));
+				map.put("totalSubtractGst", String.format("%.2f", totalSubtractGst));
+				map.put("managerTotalSubtractGst", String.format("%.2f", _totalSubtractGst));
 				return new Response(0, "本地区全年累计业绩总和/MANAGER自己全年业绩总和", map);
 			} else {
 				Integer adviserId = loginInfo.getAdviserId();
@@ -715,10 +719,10 @@ public class DashboardController extends BaseController {
 						break;
 					}
 				}
-				Map map = new HashMap();
-				map.put("total", total);
-				map.put("totalSubtractGst", totalSubtractGst);
-				map.put("RANK", i + 1);
+				Map<String, String> map = new HashMap();
+				map.put("total", String.format("%.2f", total));
+				map.put("totalSubtractGst", String.format("%.2f", totalSubtractGst));
+				map.put("RANK", String.valueOf(i + 1));
 				return new Response(0, "顾问全年业绩总和", map);
 			}
 		}
@@ -815,33 +819,33 @@ public class DashboardController extends BaseController {
 		return new Response(0, 0);
 	}
 
-	/**
-	 * /dashboard/getMonthExpectAmount 返回顾问管理员/顾问自己的本月预收业绩
-	 * 此接口返回：顾问管理员地区下所有顾问的本月预收业绩/superad返回所有顾问本月预收业绩
-	 *
-	 * @throws ServiceException
-	 */
-	@GetMapping(value = "/getMonthExpectAmountSubtractGst")
-	@ResponseBody
-	public Response getMonthExpectAmountSubtractGst(HttpServletRequest request, HttpServletResponse response)
-			throws ServiceException {
-		super.setGetHeader(response);
-		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
-				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
-			List<Integer> regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
-			List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-			for (RegionDTO region : regionList)
-				regionIdList.add(region.getId());
-			return new Response(0, dashboardService.getThisMonthExpectAmountSubtractGst(null, regionIdList,
-					exchangeRateService.getQuarterExchangeRate()));
-		}
-		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-			return new Response(0, dashboardService.getThisMonthExpectAmountSubtractGst(null, null,
-					exchangeRateService.getQuarterExchangeRate()));
-		}
-		return new Response(0, 0);
-	}
+//	/**
+//	 * /dashboard/getMonthExpectAmount 返回顾问管理员/顾问自己的本月预收业绩
+//	 * 此接口返回：顾问管理员地区下所有顾问的本月预收业绩/superad返回所有顾问本月预收业绩
+//	 *
+//	 * @throws ServiceException
+//	 */
+//	@GetMapping(value = "/getMonthExpectAmountSubtractGst")
+//	@ResponseBody
+//	public Response getMonthExpectAmountSubtractGst(HttpServletRequest request, HttpServletResponse response)
+//			throws ServiceException {
+//		super.setGetHeader(response);
+//		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//		if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//				&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+//			List<Integer> regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+//			List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+//			for (RegionDTO region : regionList)
+//				regionIdList.add(region.getId());
+//			return new Response(0, dashboardService.getThisMonthExpectAmountSubtractGst(null, regionIdList,
+//					exchangeRateService.getQuarterExchangeRate()));
+//		}
+//		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+//			return new Response(0, dashboardService.getThisMonthExpectAmountSubtractGst(null, null,
+//					exchangeRateService.getQuarterExchangeRate()));
+//		}
+//		return new Response(0, 0);
+//	}
 
 	// 签证待申请月奖金额
 	@GetMapping(value = "/getVisaUnassignedBonusAmount")
