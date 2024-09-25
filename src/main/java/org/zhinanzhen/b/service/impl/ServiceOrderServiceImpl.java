@@ -245,7 +245,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             serviceOrderDo.getInformation());
                     OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
                     // 绑定成功发送邮件通知顾问
-                    sendMail(adviserDo.getEmail(), "免费订单绑定提醒:",
+                    sendMail("jiaheng.xu@zhinanzhen.org", "免费订单绑定提醒:",
                             StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经绑定成功。", "<br>订单号:",
                                     serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
                                     adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>被绑定订单号:", serviceOrderByIdTmp.getId()));

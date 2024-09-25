@@ -75,5 +75,6 @@ public interface CommissionOrderService {
 	int confirmByInvoiceNo(String invoiceNo) throws ServiceException;
 
 
-
+	List<CommissionOrderReportDTO> listCommissionOrderReportSubtractGst(String startDate, String endDate, String dateType,
+																		String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
 }

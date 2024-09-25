@@ -62,12 +62,19 @@ public class DashboardController extends BaseController {
 
 	@RequestMapping(value = "/getMonthExpectAmount", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<Double> getMonthExpectAmount(HttpServletRequest request, HttpServletResponse response) {
+	public Response getMonthExpectAmount(HttpServletRequest request, HttpServletResponse response) {
 		try {
-			if (getAdminUserLoginInfo(request) == null)
+			if (getAdminUserLoginInfo(request) == null) {
 				return new Response<Double>(1, "请先登录!", null);
-			return new Response<Double>(0, dashboardService.getThisMonthExpectAmount(getAdviserId(request), null,
-					exchangeRateService.getQuarterExchangeRate()));
+			}
+			double thisMonthExpectAmount = dashboardService.getThisMonthExpectAmount(getAdviserId(request), null,
+					exchangeRateService.getQuarterExchangeRate());
+			double thisMonthExpectAmountSubtractGst = dashboardService.getThisMonthExpectAmountSubtractGst(getAdviserId(request), null,
+					exchangeRateService.getQuarterExchangeRate());
+			Map<String, Double> thisMonthExpectAmountMap = new HashMap<>();
+			thisMonthExpectAmountMap.put("thisMonthExpectAmount", thisMonthExpectAmount);
+			thisMonthExpectAmountMap.put("thisMonthExpectAmountSubtractGst", thisMonthExpectAmountSubtractGst);
+			return new Response<>(0, thisMonthExpectAmountMap);
 		} catch (ServiceException e) {
 			return new Response<Double>(e.getCode(), e.getMessage(), null);
 		}
@@ -646,33 +653,53 @@ public class DashboardController extends BaseController {
 		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay, today, "R", "Y");
+		List<DataDTO> dataListSubtractGst = data.dataReportSubtractGst(thisYearFirstDay, today, "R", "Y");
 		List<Integer> regionIdList = new ArrayList<>();
 		double total = 0;
+		double totalSubtractGst = 0;
+		Map<String, Double> totalmap = new HashMap<>();
 		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())) {
 			for (DataDTO dataDTO : dataList) {
 				total = roundHalfUp(dataDTO.getTotal() + total);
 			}
-			return new Response(0, "全澳全年业绩总和", total);
+			for (DataDTO dataDTO : dataListSubtractGst) {
+				totalSubtractGst = roundHalfUp(dataDTO.getTotal() + totalSubtractGst);
+			}
+			totalmap.put("total", total);
+			totalmap.put("totalSubtractGst", totalSubtractGst);
+			return new Response(0, "全澳全年业绩总和", totalmap);
 		} else if ("GW".equalsIgnoreCase(loginInfo.getApList())) {
-			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0) {// 顾问管理员
+			if (loginInfo.getRegionId() != null && loginInfo.getRegionId() > 0) { // 顾问管理员
 				Integer adviserId = loginInfo.getAdviserId();
 				double _total = 0;
+				double _totalSubtractGst = 0;
 				List<RegionDTO> _regionList = regionService.listRegion(loginInfo.getRegionId());
 				regionIdList.add(loginInfo.getRegionId());
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
+				// 没减去gst
 				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
 				for (DataDTO dataDTO : _list) {
 					total = roundHalfUp(dataDTO.getTotal() + total);
 					if (dataDTO.getAdviserId() == adviserId)
 						_total = roundHalfUp(dataDTO.getTotal());
 				}
+				// 减去gst
+				List<DataRankDTO> _listSubtractGst = RegionClassification.dataSplitByRegionId(dataListSubtractGst, regionIdList);
+				for (DataDTO dataDTO : _listSubtractGst) {
+					totalSubtractGst = roundHalfUp(dataDTO.getTotal() + totalSubtractGst);
+					if (dataDTO.getAdviserId() == adviserId)
+						_totalSubtractGst = roundHalfUp(dataDTO.getTotal());
+				}
 				Map map = new HashMap();
 				map.put("total", total);
 				map.put("managerTotal", _total);
+				map.put("totalSubtractGst", totalSubtractGst);
+				map.put("managerTotalSubtractGst", _totalSubtractGst);
 				return new Response(0, "本地区全年累计业绩总和/MANAGER自己全年业绩总和", map);
 			} else {
 				Integer adviserId = loginInfo.getAdviserId();
+				// 没减去gst
 				int i = 0, size = dataList.size();
 				for (; i < size; i++) {
 					if (adviserId == dataList.get(i).getAdviserId()) {
@@ -680,8 +707,17 @@ public class DashboardController extends BaseController {
 						break;
 					}
 				}
+				// 减去gst
+				int iSubtractGst = 0, sizeSubtractGst = dataListSubtractGst.size();
+				for (; iSubtractGst < sizeSubtractGst; iSubtractGst++) {
+					if (adviserId == dataListSubtractGst.get(i).getAdviserId()) {
+						totalSubtractGst = roundHalfUp(dataListSubtractGst.get(i).getTotal());
+						break;
+					}
+				}
 				Map map = new HashMap();
 				map.put("total", total);
+				map.put("totalSubtractGst", totalSubtractGst);
 				map.put("RANK", i + 1);
 				return new Response(0, "顾问全年业绩总和", map);
 			}
@@ -757,12 +793,24 @@ public class DashboardController extends BaseController {
 			List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
 			for (RegionDTO region : regionList)
 				regionIdList.add(region.getId());
-			return new Response(0, dashboardService.getThisMonthExpectAmount(null, regionIdList,
-					exchangeRateService.getQuarterExchangeRate()));
+			double thisMonthExpectAmount = dashboardService.getThisMonthExpectAmount(null, regionIdList,
+					exchangeRateService.getQuarterExchangeRate());
+			double thisMonthExpectAmountSubtractGst = dashboardService.getThisMonthExpectAmountSubtractGst(null, regionIdList,
+					exchangeRateService.getQuarterExchangeRate());
+			Map<String, Double> thisMonthExpectAmountMap = new HashMap<>();
+			thisMonthExpectAmountMap.put("thisMonthExpectAmount", thisMonthExpectAmount);
+			thisMonthExpectAmountMap.put("thisMonthExpectAmountSubtractGst", thisMonthExpectAmountSubtractGst);
+			return new Response(0, thisMonthExpectAmountMap);
 		}
 		if (adminUserLoginInfo != null && "SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-			return new Response(0, dashboardService.getThisMonthExpectAmount(null, null,
-					exchangeRateService.getQuarterExchangeRate()));
+			double thisMonthExpectAmount = dashboardService.getThisMonthExpectAmount(null, null,
+					exchangeRateService.getQuarterExchangeRate());
+			double thisMonthExpectAmountSubtractGst = dashboardService.getThisMonthExpectAmountSubtractGst(null, null,
+					exchangeRateService.getQuarterExchangeRate());
+			Map<String, Double> thisMonthExpectAmountMap = new HashMap<>();
+			thisMonthExpectAmountMap.put("thisMonthExpectAmount", thisMonthExpectAmount);
+			thisMonthExpectAmountMap.put("thisMonthExpectAmountSubtractGst", thisMonthExpectAmountSubtractGst);
+			return new Response(0, thisMonthExpectAmountMap);
 		}
 		return new Response(0, 0);
 	}
