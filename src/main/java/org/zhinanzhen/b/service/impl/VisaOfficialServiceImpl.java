@@ -667,7 +667,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             Integer getBindingOrderId = 0;
             getBindingOrderId = serviceOrderById.getId();
             if (ObjectUtil.isNotNull(serviceOrderById1)) {
-                isSIV = "SIV".equals(serviceOrderById1.getType()) && serviceOrderById.getEOINumber() != null;
+//                isSIV = "SIV".equals(serviceOrderById1.getType()) && serviceOrderById.getEOINumber() != null;
+                isSIV = "SIV".equals(serviceOrderById1.getType());
                 getBindingOrderId = serviceOrderById1.getId();
             }
             List<Integer> integers = serviceOrderDao.listBybindingOrder(getBindingOrderId);
@@ -684,6 +685,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         bingdingOrderAmount = bingdingOrderAmount * 0.5;
                     }
                     if (longTermVisa) {
+                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                    }
+                    if (isSIV) {
                         bingdingOrderAmount = bingdingOrderAmount * 0.5;
                     }
                 }
