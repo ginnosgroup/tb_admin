@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -193,6 +194,26 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 		List<RefoundReportDO> refoundReportDoList = new ArrayList<>();
 		try {
 			refoundReportDoList = refundDao.listRefundReport2(startDate,
+					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId, adviserIdList);
+			if (refoundReportDoList == null)
+				return null;
+			refoundReportDoList.forEach(refoundReportDO -> refoundReportDtoList
+					.add(mapper.map(refoundReportDO, RefoundReportDTO.class)));
+			return refoundReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<RefoundReportDTO> listRefundReportSubtractGst(String startDate, String endDate, String dateType,
+															  String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
+		List<RefoundReportDTO> refoundReportDtoList = new ArrayList<>();
+		List<RefoundReportDO> refoundReportDoList = new ArrayList<>();
+		try {
+			refoundReportDoList = refundDao.listRefundReportSubtractGst(startDate,
 					theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId, adviserIdList);
 			if (refoundReportDoList == null)
 				return null;

@@ -909,4 +909,24 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		return visaDao.count(officialId,regionId,id,startHandlingDate,endHandlingDate,commissionState,startSubmitIbDate,endSubmitIbDate,startDate,endDate, userName, applicantName);
 	}
 
+	@Override
+	public List<VisaReportDTO> listVisaReportSubtractGst(String startDate, String endDate, String dateType, String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
+		List<VisaReportDO> visaReportDoList = new ArrayList<>();
+		List<VisaReportDTO> visaReportDtoList = new ArrayList<>();
+		try {
+			visaReportDoList = visaDao.listVisaReportSubtractGst(startDate, theDateTo23_59_59(endDate), dateType, dateMethod,
+					regionId, adviserId, adviserIdList);
+			if (visaReportDoList == null)
+				return null;
+			visaReportDoList
+					.forEach(visaReportDo -> visaReportDtoList.add(mapper.map(visaReportDo, VisaReportDTO.class)));
+			return visaReportDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+
 }

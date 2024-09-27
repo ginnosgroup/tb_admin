@@ -9,6 +9,8 @@ public interface DashboardService {
 
 	double getThisMonthExpectAmount(Integer adviserId, List<Integer> regionIdList, Double rate) throws ServiceException;
 
+	double getThisMonthExpectAmountSubtractGst(Integer adviserId, List<Integer> regionIdList, Double rate) throws ServiceException;
+
 	double getVisaUnassignedBonusAmount() throws ServiceException;
 
 	double getCommissionOrderUnassignedBonusAmount() throws ServiceException;

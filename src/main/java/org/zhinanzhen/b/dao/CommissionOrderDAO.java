@@ -110,4 +110,9 @@ public interface CommissionOrderDAO {
 
 	List<CommissionOrderListDO> listHalfAYearCommissionOrder(@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId,
 															 @Param("currentDateFormatted") String currentDateFormatted, @Param("sixMonthsAgoFormatted") String sixMonthsAgoFormatted);
+
+	List<CommissionOrderReportDO> listCommissionOrderReportSubtractGst(@Param("startDate") String startDate,
+																	   @Param("endDate") String endDate, @Param("dateType") String dateType,
+																	   @Param("dateMethod") String dateMethod, @Param("regionId") Integer regionId,
+																	   @Param("adviserId") Integer adviserId,@Param("adviserIdList") List<String> adviserIdList);
 }

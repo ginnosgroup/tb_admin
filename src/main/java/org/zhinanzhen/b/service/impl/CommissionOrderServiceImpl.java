@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -1045,5 +1046,24 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
 		return i;
 
 	}
+
+    @Override
+    public List<CommissionOrderReportDTO> listCommissionOrderReportSubtractGst(String startDate, String endDate, String dateType, String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException {
+        List<CommissionOrderReportDO> commissionOrderReportDoList = new ArrayList<>();
+        List<CommissionOrderReportDTO> commissionOrderReportDtoList = new ArrayList<>();
+        try {
+            commissionOrderReportDoList = commissionOrderDao.listCommissionOrderReportSubtractGst(startDate,
+                    theDateTo23_59_59(endDate), dateType, dateMethod, regionId, adviserId, adviserIdList);
+            if (commissionOrderReportDoList == null)
+                return null;
+            commissionOrderReportDoList.forEach(commissionOrderReportDo -> commissionOrderReportDtoList
+                    .add(mapper.map(commissionOrderReportDo, CommissionOrderReportDTO.class)));
+            return commissionOrderReportDtoList;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+            throw se;
+        }
+    }
 }
 

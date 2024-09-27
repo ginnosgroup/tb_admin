@@ -1069,4 +1069,71 @@
     left join b_service bs on bs.id = so.service_id
     where bv.id = #{id}
     </select>
+    <select id="listVisaReportSubtractGst" resultType="org.zhinanzhen.b.dao.pojo.VisaReportDO">
+        SELECT
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(v.receive_date, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(v.receive_date, '%Y-%m-%d') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(v.gmt_create, '%Y-%m') AS date,
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(v.gmt_create, '%Y') AS date,
+            </when>
+            <otherwise>
+                DATE_FORMAT(v.gmt_create, '%Y-%m-%d') AS date,
+            </otherwise>
+        </choose>
+        r.id AS regionId,
+        r.name AS area,
+        a.id AS adviserId,
+        a.name AS consultant,
+        v.currency,
+        v.exchange_rate AS exchangeRate,
+        v.amount,
+        SUM(v.bonus) AS commission,
+        IFNULL(sum(IF(v.currency='CNY',v.deduct_gst,v.deduct_gst)),0.00) AS serviceFee
+        #SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
+        FROM tb_adviser a, tb_region r, b_visa v LEFT JOIN b_refund rf ON rf.visa_id = v.id AND rf.state = 'PAID'
+        WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND v.kj_approval_date > #{startDate} AND v.gmt_create <= #{endDate} ]]>
+        </if>
+        <if test='regionId != null and regionId != ""'>
+            AND r.id = #{regionId}
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND a.id = #{adviserId}
+        </if>
+        <if test="adviserIdList != null">
+            AND a.id IN
+            <foreach collection="adviserIdList" index="index" open="(" close=")" separator="," item="aid">
+                #{aid}
+            </foreach>
+        </if>
+        GROUP BY
+        <choose>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(v.receive_date, '%Y-%m'),
+            </when>
+            <when test='dateType != null and dateType == "P" and dateMethod != null and dateMethod == "D"'>
+                DATE_FORMAT(v.receive_date, '%Y-%m-%d'),
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "M"'>
+                DATE_FORMAT(v.gmt_create, '%Y-%m'),
+            </when>
+            <when test='dateType != null and dateType == "A" and dateMethod != null and dateMethod == "Y"'>
+                DATE_FORMAT(v.gmt_create, '%Y'),
+            </when>
+            <otherwise>
+                DATE_FORMAT(v.gmt_create, '%Y-%m-%d'),
+            </otherwise>
+        </choose>
+        v.adviser_id
+        ORDER BY v.gmt_create DESC;
+    </select>
 </mapper>

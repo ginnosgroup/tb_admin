@@ -40,4 +40,9 @@ public interface RefundDAO {
 			@Param("dateType") String dateType, @Param("dateMethod") String dateMethod,
 			@Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId,
 			@Param("adviserIdList") List<String> adviserIdList);
+
+	List<RefoundReportDO> listRefundReportSubtractGst(@Param("startDate") String startDate, @Param("endDate") String endDate,
+													  @Param("dateType") String dateType, @Param("dateMethod") String dateMethod,
+													  @Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId,
+													  @Param("adviserIdList") List<String> adviserIdList);
 }

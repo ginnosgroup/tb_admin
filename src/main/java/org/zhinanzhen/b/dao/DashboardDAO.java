@@ -10,8 +10,15 @@ public interface DashboardDAO {
 	public Double getThisMonthVisaExpectAmount(@Param("adviserId") Integer adviserId,
 			@Param("regionIdList") List<Integer> regionIdList);
 
+	public Double getThisMonthVisaExpectAmountSubtractGst(@Param("adviserId") Integer adviserId,
+											   @Param("regionIdList") List<Integer> regionIdList);
+
 	public Double getThisMonthbCommissionOrderExpectAmountSBBTM(@Param("adviserId") Integer adviserId,
 			@Param("regionIdList") List<Integer> regionIdList);
+
+	public Double getThisMonthbCommissionOrderExpectAmountSBBTMSubtractGst(@Param("adviserId") Integer adviserId,
+																@Param("regionIdList") List<Integer> regionIdList);
+
 
 	public Double getThisMonthRefundAmount(@Param("adviserId") Integer adviserId,
 			@Param("regionIdList") List<Integer> regionIdList, @Param("rate") Double rate);
