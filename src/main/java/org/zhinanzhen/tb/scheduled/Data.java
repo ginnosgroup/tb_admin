@@ -269,7 +269,7 @@ public class Data extends BaseService {
             //List<DataDTO> areaRankDataList = new ArrayList<DataDTO>();//area排名的数据
 
             List<CommissionOrderReportDTO> commissionOrderReportDtoList = commissionOrderService.listCommissionOrderReportSubtractGst(startDate,endDate,"A",dateMethod == null?"M":"Y",0,0,null);
-            double sum = commissionOrderReportDtoList.stream().filter(a -> a.getAdviserId() == 1000016).mapToDouble(CommissionOrderReportDTO::getClaimCommission).sum();
+            double sum = commissionOrderReportDtoList.stream().mapToDouble(CommissionOrderReportDTO::getClaimCommission).sum();
             List<CommissionOrderReportDTO> commissionOrderReportDtoList2 = commissionOrderService.listCommissionOrderReportSubtractGst(startDate,endDate,"P",dateMethod == null?"M":"Y",0,0,null);
             List<VisaReportDTO> VisaReportList = visaService.listVisaReportSubtractGst(startDate,endDate,"A", dateMethod == null?"M":"Y",0,0,null);
             List<RefoundReportDTO> refundReportList = refundService.listRefundReportSubtractGst(startDate, endDate, "A", dateMethod == null?"M":"Y", 0, 0, null);
