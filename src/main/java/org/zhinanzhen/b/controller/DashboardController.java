@@ -89,10 +89,15 @@ public class DashboardController extends BaseController {
 	public Response<List<CommissionOrderListDTO>> listThisMonthCommissionOrder(HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
-			if (getAdminUserLoginInfo(request) == null)
+			if (getAdminUserLoginInfo(request) == null) {
 				return new Response<List<CommissionOrderListDTO>>(1, "请先登录!", null);
+			}
+			List<CommissionOrderListDTO> commissionOrderListDTOS = commissionOrderService.listThisMonthCommissionOrder(getAdviserId(request), getOfficialId(request));
+			for (int i = 0; i < commissionOrderListDTOS.size(); i++) {
+				commissionOrderListDTOS.get(i).setNewId("qc1" + i);
+			}
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listThisMonthCommissionOrder(getAdviserId(request), getOfficialId(request)));
+					commissionOrderListDTOS);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(e.getCode(), e.getMessage(), null);
 		}
@@ -103,10 +108,15 @@ public class DashboardController extends BaseController {
 	public Response<List<CommissionOrderListDTO>> listHalfAYearCommissionOrder(HttpServletRequest request,
 																			   HttpServletResponse response) {
 		try {
-			if (getAdminUserLoginInfo(request) == null)
+			if (getAdminUserLoginInfo(request) == null) {
 				return new Response<List<CommissionOrderListDTO>>(1, "请先登录!", null);
+			}
+			List<CommissionOrderListDTO> commissionOrderListDTOS = commissionOrderService.listHalfAYearCommissionOrder(getAdviserId(request), getOfficialId(request));
+			for (int i = 0; i < commissionOrderListDTOS.size(); i++) {
+				commissionOrderListDTOS.get(i).setNewId("qc6" + i);
+			}
 			return new Response<List<CommissionOrderListDTO>>(0,
-					commissionOrderService.listHalfAYearCommissionOrder(getAdviserId(request), getOfficialId(request)));
+					commissionOrderListDTOS);
 		} catch (ServiceException e) {
 			return new Response<List<CommissionOrderListDTO>>(e.getCode(), e.getMessage(), null);
 		}
@@ -165,6 +175,9 @@ public class DashboardController extends BaseController {
 
 		// 顾问排名.也是全部数据。顾问id,月份分组数据
 		List<DataDTO> dataList = data.dataReport(startDate, endDate, "R", null); // R 全area顾问倒序排名的数据 顾问
+		for (int i = 0; i < dataList.size(); i++) {
+			dataList.get(i).setId("c6b" + i);
+		}
 		// dataList数据中顾问是相同的地区(regionId)合并到一条记录
 		// List<DataDTO> areaTodayDataList = data.dataReport(startDate,endDate,"A"); //
 		// A 全area地区的area数据 数据
@@ -202,7 +215,11 @@ public class DashboardController extends BaseController {
 		List<DataDTO> dataList = data.dataReport(startDate, endDate, "R", null); // R 全area顾问倒序排名的数据 顾问
 		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				|| "Kj".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
-			return new DashboardResponse(0, "success", RegionClassification.dataSplitByRegionId(dataList, regionIdList),
+			List<DataRankDTO> dataRankDTOS = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
+			for (int i = 0; i < dataRankDTOS.size(); i++) {
+				dataRankDTOS.get(i).setId("c5b" + i);
+			}
+			return new DashboardResponse(0, "success", dataRankDTOS,
 					startDate, endDate);
 		} else {
 			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {// 顾问管理员显示管理区域
@@ -211,12 +228,18 @@ public class DashboardController extends BaseController {
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
 				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
+				for (int i = 0; i < _list.size(); i++) {
+					_list.get(i).setId("c5b" + i);
+				}
 				return new DashboardResponse(0, "顾问管理员", _list, startDate, endDate);
 			} else {// 顾问显示自己区域排名
 				AdviserDTO adviserDTO = adviserService.getAdviserById(adminUserLoginInfo.getAdviserId());
 				if (adviserDTO != null)
 					regionIdList.add(adviserDTO.getRegionId());
 				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
+				for (int i = 0; i < _list.size(); i++) {
+					_list.get(i).setId("c5b" + i);
+				}
 				return new DashboardResponse(0, "顾问", _list, startDate, endDate);
 			}
 		}
@@ -314,6 +337,9 @@ public class DashboardController extends BaseController {
 				return 1;
 			}
 		});
+		for (int i = 0; i < areaDataList.size(); i++) {
+			areaDataList.get(i).setId("c2a" + i);
+		}
 		return new DashboardResponse(0, "全澳-上周业绩组成", areaDataList, startDate, endDate, total);
 	}
 
@@ -411,6 +437,9 @@ public class DashboardController extends BaseController {
 				return 1;
 			}
 		});
+		for (int i = 0; i < areaDataList.size(); i++) {
+			areaDataList.get(i).setId("c2b" + i);
+		}
 		return new DashboardResponse(0, "全澳-本月业绩组成", areaDataList, startDate, endDate, total);
 	}
 
@@ -612,12 +641,18 @@ public class DashboardController extends BaseController {
 				for (RegionDTO region : _regionList)
 					regionIdList.add(region.getId());
 				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
+				for (int i = 0; i < _list.size(); i++) {
+					_list.get(i).setId("c5a" + i);
+				}
 				return new DashboardResponse(0, "顾问管理区域排名", _list, thisYearFirstDay, today);
 			} else {
 				AdviserDTO adviserDTO = adviserService.getAdviserById(loginInfo.getAdviserId());
 				if (adviserDTO != null)
 					regionIdList.add(adviserDTO.getRegionId());
 				List<DataRankDTO> _list = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
+				for (int i = 0; i < _list.size(); i++) {
+					_list.get(i).setId("c5a" + i);
+				}
 				return new DashboardResponse(0, "顾问所属区域排名", _list, thisYearFirstDay, today);
 			}
 		}
@@ -637,7 +672,11 @@ public class DashboardController extends BaseController {
 		String thisYearFirstDay = DateClass._7_1();
 		String today = DateClass.today();
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay, today, "R", null);
-		return new DashboardResponse(0, "success", RegionClassification.dataSplitByRegionId(dataList, null),
+		List<DataRankDTO> dataRankDTOS = RegionClassification.dataSplitByRegionId(dataList, null);
+		for (int i = 0; i < dataRankDTOS.size(); i++) {
+			dataRankDTOS.get(i).setId("c6a" + i);
+		}
+		return new DashboardResponse(0, "success", dataRankDTOS,
 				thisYearFirstDay, today);
 	}
 
@@ -952,8 +991,13 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
+			}
+			List<DashboardAmountSummaryDTO> dashboardAmountSummaryDTOS = dashboardService.summaryCommissionOrderDZYUnassignedBonusAmount();
+			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
+				dashboardAmountSummaryDTOS.get(i).setNewId("Kj2a" + i);
+			}
 			return new Response(0, dashboardService.summaryCommissionOrderDZYUnassignedBonusAmount());
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
@@ -968,9 +1012,14 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
-			return new Response(0, dashboardService.summaryCommissionOrderSettleUnassignedBonusAmount());
+			}
+			List<DashboardAmountSummaryDTO> dashboardAmountSummaryDTOS = dashboardService.summaryCommissionOrderSettleUnassignedBonusAmount();
+			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
+				dashboardAmountSummaryDTOS.get(i).setNewId("Kj2b" + i);
+			}
+			return new Response(0, dashboardAmountSummaryDTOS);
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
@@ -984,9 +1033,14 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
-			return new Response(0, dashboardService.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool());
+			}
+			List<DashboardAmountSummaryDTO> dashboardAmountSummaryDTOS = dashboardService.summaryCommissionOrderDZYUnassignedBonusAmountGroupBySchool();
+			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
+				dashboardAmountSummaryDTOS.get(i).setNewId("Kj3a" + i);
+			}
+			return new Response(0, dashboardAmountSummaryDTOS);
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
@@ -1000,8 +1054,13 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
+			}
+			List<DashboardAmountSummaryDTO> dashboardAmountSummaryDTOS = dashboardService.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool();
+			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
+				dashboardAmountSummaryDTOS.get(i).setNewId("Kj3b" + i);
+			}
 			return new Response(0, dashboardService.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool());
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);

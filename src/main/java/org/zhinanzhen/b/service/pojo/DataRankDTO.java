@@ -13,4 +13,5 @@ public class DataRankDTO extends DataDTO{
 
     private int rank;
 
+    private String id;
 }

@@ -123,7 +123,9 @@ public class VisaRemindController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			List<UserDTO> userDTOList = visaRemindService.listVisaRemindDateDesc(adviserId,pageNum,pageSize);
-
+			for (int i = 0; i < userDTOList.size(); i++) {
+				userDTOList.get(i).setNewId("qv1" + i);
+			}
 			return new Response<List<UserDTO>>(0, userDTOList);
 		} catch (ServiceException e) {
 			return new Response<List<UserDTO>>(1, e.getMessage(), null);

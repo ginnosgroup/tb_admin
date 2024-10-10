@@ -15,4 +15,6 @@ public class DashboardAmountSummaryDTO {
 
 	private double amount;
 
+	private String newId;
+
 }

@@ -5,6 +5,8 @@ import org.zhinanzhen.b.dao.pojo.CommissionOrderReportDO;
 @Data
 public class DataDTO {
 
+    private String id;
+
     private String date;
 
     private int regionId;

@@ -13,6 +13,10 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 
 	@Getter
 	@Setter
+	private String newId;
+
+	@Getter
+	@Setter
 	private Date signingDate;
 
 	@Getter

@@ -17,4 +17,5 @@ public class UserDTO {
 
     private Integer adviserId;
 
+    private String newId;
 }
