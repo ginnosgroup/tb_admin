@@ -82,9 +82,6 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 				dashboardAmountSummaryDtoList
 						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
 			});
-		for (int i = 0; i < dashboardAmountSummaryDtoList.size(); i++) {
-			dashboardAmountSummaryDtoList.get(i).setId("Kj1a" + i);
-		}
 		return dashboardAmountSummaryDtoList;
 	}
 
@@ -98,9 +95,6 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 				dashboardAmountSummaryDtoList
 						.add(mapper.map(dashboardAmountSummaryDo, DashboardAmountSummaryDTO.class));
 			});
-		for (int i = 0; i < dashboardAmountSummaryDtoList.size(); i++) {
-			dashboardAmountSummaryDtoList.get(i).setId("Kj1b" + i);
-		}
 		return dashboardAmountSummaryDtoList;
 	}
 

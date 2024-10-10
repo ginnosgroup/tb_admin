@@ -959,9 +959,14 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
-			return new Response(0, dashboardService.summaryVisaUnassignedBonusAmount());
+			}
+			List<DashboardAmountSummaryDTO> dashboardAmountSummaryDTOS = dashboardService.summaryVisaUnassignedBonusAmount();
+			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
+				dashboardAmountSummaryDTOS.get(i).setNewId("Kj1a" + i);
+			}
+			return new Response(0, dashboardAmountSummaryDTOS);
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
@@ -975,9 +980,14 @@ public class DashboardController extends BaseController {
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 		if (adminUserLoginInfo != null) {
 			if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+					&& !"KJ".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
 				return new Response<List<DashboardAmountSummaryDTO>>(1, "仅限会计获取.", null);
-			return new Response(0, dashboardService.summaryCommissionOrderUnassignedBonusAmount());
+			}
+			List<DashboardAmountSummaryDTO> dashboardAmountSummaryDTOS = dashboardService.summaryCommissionOrderUnassignedBonusAmount();
+			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
+				dashboardAmountSummaryDTOS.get(i).setNewId("Kj1b" + i);
+			}
+			return new Response(0, dashboardAmountSummaryDTOS);
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
@@ -998,7 +1008,7 @@ public class DashboardController extends BaseController {
 			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
 				dashboardAmountSummaryDTOS.get(i).setNewId("Kj2a" + i);
 			}
-			return new Response(0, dashboardService.summaryCommissionOrderDZYUnassignedBonusAmount());
+			return new Response(0, dashboardAmountSummaryDTOS);
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
@@ -1061,7 +1071,7 @@ public class DashboardController extends BaseController {
 			for (int i = 0; i < dashboardAmountSummaryDTOS.size(); i++) {
 				dashboardAmountSummaryDTOS.get(i).setNewId("Kj3b" + i);
 			}
-			return new Response(0, dashboardService.summaryCommissionOrderSettleUnassignedBonusAmountGroupBySchool());
+			return new Response(0, dashboardAmountSummaryDTOS);
 		} else
 			return new Response<List<DashboardAmountSummaryDTO>>(1, "获取失败.", null);
 	}
