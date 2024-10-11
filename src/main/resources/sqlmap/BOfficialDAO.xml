@@ -76,6 +76,9 @@
         <if test='regionId != null and regionId != ""'>
             AND region_id = #{regionId}
         </if>
+        <if test='gradeId != null and gradeId != ""'>
+            AND grade_id = #{gradeId}
+        </if>
         ;
     </select>
     
@@ -148,6 +151,9 @@
         </if>
         <if test='regionId != null and regionId != ""'>
             AND regionId = #{regionId}
+        </if>
+        <if test='gradeId != null and gradeId != ""'>
+            AND gradeId = #{gradeId}
         </if>
         ORDER BY
         a.sort

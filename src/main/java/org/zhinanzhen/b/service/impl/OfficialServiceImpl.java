@@ -79,12 +79,12 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	}
 
 	@Override
-	public int countOfficial(String name, Integer regionId) throws ServiceException {
-		return officialDao.countOfficial(name, regionId);
+	public int countOfficial(String name, Integer regionId, Integer gradeId) throws ServiceException {
+		return officialDao.countOfficial(name, regionId, gradeId);
 	}
 
 	@Override
-	public List<OfficialDTO> listOfficial(String name, Integer regionId, int pageNum, int pageSize)
+	public List<OfficialDTO> listOfficial(String name, Integer regionId, Integer gradeId, int pageNum, int pageSize)
 			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -95,7 +95,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		List<OfficialDTO> officialDtoList = new ArrayList<OfficialDTO>();
 		List<OfficialDO> officialDoList = new ArrayList<OfficialDO>();
 		try {
-			officialDoList = officialDao.listOfficial(name, regionId, pageNum * pageSize, pageSize);
+			officialDoList = officialDao.listOfficial(name, regionId, gradeId, pageNum * pageSize, pageSize);
 			if (officialDoList == null) {
 				return null;
 			}

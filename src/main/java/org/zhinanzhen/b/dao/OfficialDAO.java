@@ -11,9 +11,9 @@ public interface OfficialDAO {
 
 	public int updateOfficial(OfficialDO adviserDo);
 
-	public int countOfficial(@Param("name") String name, @Param("regionId") Integer regionId);
+	public int countOfficial(@Param("name") String name, @Param("regionId") Integer regionId, @Param("gradeId") Integer gradeId);
 
-	public List<OfficialDO> listOfficial(@Param("name") String name, @Param("regionId") Integer regionId,
+	public List<OfficialDO> listOfficial(@Param("name") String name, @Param("regionId") Integer regionId, @Param("gradeId") Integer gradeId,
 			@Param("offset") int offset, @Param("rows") int rows);
 
 	public OfficialDO getOfficialById(int id);
