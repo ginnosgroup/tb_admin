@@ -1067,8 +1067,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
     }
 
     @Override
-    public CommissionOrderDO getCommissionOrderByServiceOrderId(Integer serviceOrderId) {
-        return commissionOrderDao.getCommissionOrderById(serviceOrderId);
+    public CommissionOrderDTO getCommissionOrderByServiceOrderId(Integer serviceOrderId) {
+        CommissionOrderListDO commissionOrderById = commissionOrderDao.getFirstCommissionOrderByServiceOrderId(serviceOrderId);
+        if (ObjectUtil.isNotNull(commissionOrderById)) {
+            return mapper.map(commissionOrderById, CommissionOrderDTO.class);
+        }
+        return null;
     }
 }
 

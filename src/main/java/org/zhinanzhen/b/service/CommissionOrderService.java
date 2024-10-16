@@ -78,5 +78,5 @@ public interface CommissionOrderService {
 	List<CommissionOrderReportDTO> listCommissionOrderReportSubtractGst(String startDate, String endDate, String dateType,
 																		String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
 
-	CommissionOrderDO getCommissionOrderByServiceOrderId(Integer serviceOrderId);
+	CommissionOrderDTO getCommissionOrderByServiceOrderId(Integer serviceOrderId);
 }

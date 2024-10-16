@@ -1059,6 +1059,15 @@ public class ServiceOrderController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
+                if ("OVST".equalsIgnoreCase(serviceOrderDto.getType())) {
+                    // 如果留学订单有佣金订单同步更改
+                    CommissionOrderDTO commissionOrderByServiceOrderId = commissionOrderService.getCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+                    if (commissionOrderByServiceOrderId != null) {
+                        commissionOrderByServiceOrderId.setCourseId(serviceOrderDto.getCourseId());
+                        commissionOrderByServiceOrderId.setSchoolInstitutionLocationId(serviceOrderDto.getSchoolInstitutionLocationId());
+                        commissionOrderService.updateCommissionOrder(commissionOrderByServiceOrderId);
+                    }
+                }
                 ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
                 if (applicantDto != null && applicantBirthday != null) {
                     applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
