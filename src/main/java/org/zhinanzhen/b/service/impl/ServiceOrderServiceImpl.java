@@ -1188,7 +1188,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         EOICount++;
                     }
                 }
-                if (EOICount == serviceOrderParentById.getEOINumber() - 1) {
+                if (ObjectUtil.isNotNull(serviceOrderParentById) && EOICount == (serviceOrderParentById.getEOINumber() - 1)) {
                     ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
                     VisaOfficialDO visaOfficialDO = visaOfficialDOS.stream().max(Comparator.comparing(VisaOfficialDO::getPredictCommission)).get();
                     visaOfficialDOS.remove(visaOfficialDO);

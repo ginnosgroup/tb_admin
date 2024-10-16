@@ -3711,6 +3711,12 @@ public class ServiceOrderController extends BaseController {
                         return new Response<>(0, "修改成功", null);
                     else
                         return new Response<Integer>(1, "修改失败.", null);
+                } else if (serviceOrderDto.getCourseId() > 0) {
+                    orderDto.setCourseId(serviceOrderDto.getCourseId());
+                    if (serviceOrderService.updateServiceOrder(orderDto) > 0)
+                        return new Response<>(0, "修改成功", null);
+                    else
+                        return new Response<Integer>(1, "修改失败.", null);
                 } else
                     return new Response<Integer>(1, "修改失败,请检查参数.", null);
 //            } else
