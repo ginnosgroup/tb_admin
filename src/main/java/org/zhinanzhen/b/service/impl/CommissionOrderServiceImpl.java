@@ -1065,5 +1065,10 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             throw se;
         }
     }
+
+    @Override
+    public CommissionOrderDO getCommissionOrderByServiceOrderId(Integer serviceOrderId) {
+        return commissionOrderDao.getCommissionOrderById(serviceOrderId);
+    }
 }
 

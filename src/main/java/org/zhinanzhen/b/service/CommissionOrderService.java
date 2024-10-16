@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 
-
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -77,4 +77,6 @@ public interface CommissionOrderService {
 
 	List<CommissionOrderReportDTO> listCommissionOrderReportSubtractGst(String startDate, String endDate, String dateType,
 																		String dateMethod, Integer regionId, Integer adviserId, List<String> adviserIdList) throws ServiceException;
+
+	CommissionOrderDO getCommissionOrderByServiceOrderId(Integer serviceOrderId);
 }

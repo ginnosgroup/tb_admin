@@ -3713,6 +3713,11 @@ public class ServiceOrderController extends BaseController {
                         return new Response<Integer>(1, "修改失败.", null);
                 } else if (serviceOrderDto.getCourseId() > 0) {
                     orderDto.setCourseId(serviceOrderDto.getCourseId());
+                    CommissionOrderListDTO commissionOrderById = commissionOrderService.getCommissionOrderById(orderDto.getId());
+                    if (commissionOrderById != null) {
+                        commissionOrderById.setCourseId(serviceOrderDto.getCourseId());
+                        commissionOrderService.updateCommissionOrderByServiceOrderId(commissionOrderById);
+                    }
                     if (serviceOrderService.updateServiceOrder(orderDto) > 0)
                         return new Response<>(0, "修改成功", null);
                     else
