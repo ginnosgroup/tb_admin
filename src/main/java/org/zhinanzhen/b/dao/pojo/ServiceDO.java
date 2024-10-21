@@ -21,6 +21,8 @@ public class ServiceDO implements Serializable {
 	private boolean isZx;
 	
 	private boolean isDelete;
+
+	private boolean settlementNew;
 	
 	private List<ServicePackagePriceDO> ServicePackagePirceList;
 }

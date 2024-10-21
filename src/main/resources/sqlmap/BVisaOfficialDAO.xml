@@ -448,6 +448,65 @@
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>
+    <select id="getByServiceOrderIdOne" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
+            discount,
+            invoice_number AS invoiceNumber,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            is_merged AS isMerged,
+            remarks,
+            refuse_reason AS refuseReason,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose,
+            invoice_create AS invoiceCreate,
+            predict_commission AS predictCommission,
+            commissionAmount,
+            calculation,
+            predict_commissionAmount AS predictCommissionAmount,
+            predict_commission_CNY AS predictCommissionCNY,
+            official_region AS officialRegion
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
+        ORDER BY predict_commission DESC
+            LIMIT 1;
+    </select>
 
     <update id="updateVisaOfficial" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
         UPDATE b_visa_official

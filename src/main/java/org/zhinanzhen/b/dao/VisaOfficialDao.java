@@ -53,6 +53,8 @@ public interface VisaOfficialDao {
 
     VisaOfficialDO getByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
+    VisaOfficialDO getByServiceOrderIdOne(@Param("serviceOrderId") int serviceOrderId);
+
     void update(@Param("id")Integer id,
                 @Param("handling_date")String handling_date,
                 @Param("commissionAmount") Double commissionAmount,
