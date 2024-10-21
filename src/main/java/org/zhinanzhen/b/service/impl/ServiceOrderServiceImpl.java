@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -188,9 +189,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         ServicePackagePriceDO servicePackagePriceDOTmp = servicePackagePriceDAO.getByServiceId(a);
                         costPrince += servicePackagePriceDOTmp.getCostPrince();
                     }
-                    if (!code.contains("500")) {
-                        if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
-                            return -1;
+                    int stateValue = stateDecision(serviceOrderDto.getState());
+                    if (stateValue < 1) {
+                        if (!code.contains("500")) {
+                            if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
+                                return -1;
+                            }
                         }
                     }
                     ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderDo.getServiceId());
@@ -351,9 +355,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             servicePackagePriceDO = servicePackagePriceDOTmp;
                         }
                     }
-                    if (!code.contains("500")) {
-                        if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
-                            return -1;
+                    int stateValue = stateDecision(serviceOrderDto.getState());
+                    if (stateValue < 1) {
+                        if (!code.contains("500")) {
+                            if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
+                                return -1;
+                            }
                         }
                     }
                     serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
@@ -437,6 +444,45 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+    }
+
+    private int stateDecision(String state) {
+        int stateValue = 0;
+        switch (state) {
+                case "OREVIEW":
+                    stateValue = 1;
+                    break;
+                case "APPLY":
+                    stateValue = 1;
+                    break;
+                case "COMPLETE":
+                    stateValue = 1;
+                    break;
+                case "FINISH":
+                    stateValue = 1;
+                    break;
+                case "CLOSE":
+                    stateValue = 1;
+                    break;
+                case "RECEIVED":
+                    stateValue = 1;
+                    break;
+                case "PAID":
+                    stateValue = 1;
+                    break;
+                case "WAIT":
+                    stateValue = 1;
+                    break;
+                case "APPLY_FAILED":
+                    stateValue = 1;
+                    break;
+                case "COMPLETE_FD":
+                    stateValue = 1;
+                    break;
+                default:
+                    stateValue = 0;
+        }
+        return stateValue;
     }
 
     private void sendEmailOfUpdateOfficial(ServiceOrderDO serviceOrderDo, ServiceOrderDO _serviceOrderDo) {
@@ -1022,8 +1068,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(serviceOrderDto.getCourseId());
             if (schoolCourseDO != null) {
                 SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionById(schoolCourseDO.getProviderId());
-                if (schoolInstitutionDO != null)
+                if (schoolInstitutionDO != null) {
+                    String tradingName = schoolInstitutionDO.getInstitutionTradingName();
+                    if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(";")) {
+                        List<String> tradingNames = ListUtil.buildArrayList(tradingName.split(";"));
+                        if (tradingNames.stream().anyMatch(a -> a.equalsIgnoreCase(serviceOrderDto.getInstitutionTradingName()))) {
+                            schoolInstitutionDO.setInstitutionTradingName(serviceOrderDto.getInstitutionTradingName());
+                        }
+                    }
                     serviceOrderDto.setSchoolInstitutionListDTO(mapper.map(schoolInstitutionDO, SchoolInstitutionListDTO.class));
+                }
                 serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
                 if (serviceOrderDto.getSchoolInstitutionLocationId() > 0) {
                     SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
