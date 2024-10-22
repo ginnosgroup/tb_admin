@@ -700,15 +700,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                 }
             }
-            if (isSIV) {
+            if (isSIV && "EOI".equalsIgnoreCase(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 for (ServiceOrderDTO a : deriveOrder) {
-                    deriveOrder.forEach(e->{
-                        VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(a.getId());
-                        if (ObjectUtil.isNotNull(byServiceOrderId)) {
-                            visaOfficialDOS.add(byServiceOrderId);
-                        }
-                    });
+                    ServicePackageDO servicePackageDO = servicePackageDAO.getById(a.getServicePackageId());
+                    if ("VA".equalsIgnoreCase(servicePackageDO.getType())) {
+                        continue;
+                    }
+                    VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(a.getId());
+                    if (ObjectUtil.isNotNull(byServiceOrderId)) {
+                        visaOfficialDOS.add(byServiceOrderId);
+                    }
                 }
                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
                 if (visaOfficialDOS.isEmpty()) {
