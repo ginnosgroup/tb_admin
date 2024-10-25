@@ -19,6 +19,7 @@ import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,7 @@ import java.util.zip.ZipOutputStream;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/serviceOrder")
+@Slf4j
 public class ServiceOrderController extends BaseController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
@@ -2339,35 +2341,297 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
+//    @RequestMapping(value = "/down_V2", method = RequestMethod.GET)
+//    @ResponseBody
+//    public Response<String> down_V2(@RequestParam(value = "id", required = false) Integer id,
+//                     @RequestParam(value = "type", required = false) String type,
+//                     @RequestParam(value = "state", required = false) String state,
+//                     @RequestParam(value = "auditingState", required = false) String auditingState,
+//                     @RequestParam(value = "reviewState", required = false) String reviewState,
+//                     @RequestParam(value = "urgentState", required = false) String urgentState,
+//                     @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+//                     @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+//                     @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+//                     @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+//                     @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+//                     @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
+//                     @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
+//                     @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
+//                     @RequestParam(value = "regionId", required = false) Integer regionId,
+//                     @RequestParam(value = "userId", required = false) Integer userId,
+//                     @RequestParam(value = "userName", required = false) String userName,
+//                     @RequestParam(value = "applicantName", required = false) String applicantName,
+//                     @RequestParam(value = "maraId", required = false) Integer maraId,
+//                     @RequestParam(value = "adviserId", required = false) Integer adviserId,
+//                     @RequestParam(value = "officialId", required = false) Integer officialId,
+//                     @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
+//                     @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+//                     @RequestParam(value = "serviceId", required = false) Integer serviceId,
+//                     @RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+//                     @RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
+//                     HttpServletResponse response) {
+//        List<String> excludeTypeList = null;
+//        String excludeState = null;
+//        List<String> stateList = null;
+//        if (state != null && !"".equals(state))
+//            stateList = new ArrayList<>(Arrays.asList(state.split(",")));
+//        List<String> reviewStateList = null;
+//        if (reviewState != null && !"".equals(reviewState))
+//            reviewStateList = new ArrayList<>(Arrays.asList(reviewState.split(",")));
+//        Integer newMaraId = getMaraId(request);
+//        if (newMaraId != null) {
+//            excludeTypeList = ListUtil.buildArrayList("ZX");
+//            maraId = newMaraId;
+//            excludeState = ReviewAdviserStateEnum.PENDING.toString();
+//            reviewStateList = new ArrayList<>();
+//            reviewStateList.add(ServiceOrderReviewStateEnum.ADVISER.toString());
+//            reviewStateList.add(ServiceOrderReviewStateEnum.MARA.toString());
+//            reviewStateList.add(ServiceOrderReviewStateEnum.OFFICIAL.toString());
+//        }
+//        Integer newOfficialId = getOfficialId(request);
+//        if (newOfficialId != null) {
+//            excludeTypeList = ListUtil.buildArrayList("ZX");
+//            if (getOfficialAdminId(request) == null)
+//                officialId = newOfficialId; // 非文案管理员就只显示自己的单子
+//            excludeState = ReviewAdviserStateEnum.PENDING.toString();
+//        }
+//
+//        List<Integer> regionIdList = null;
+//        if (regionId != null && regionId > 0)
+//            regionIdList = ListUtil.buildArrayList(regionId);
+//        JSONObject setupExcelJsonObjectTmp = null;
+//        try {
+//            super.setGetHeader(response);
+//            // 处理顾问管理员
+//            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//            if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//                    && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+//                List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+//                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+//                for (RegionDTO region : regionList)
+//                    regionIdList.add(region.getId());
+//            } else {
+//                Integer newAdviserId = getAdviserId(request);
+//                if (newAdviserId != null)
+//                    adviserId = newAdviserId;
+//            }
+//
+//            List<ServiceOrderDTO> serviceOrderList = null;
+//            if (id != null && id > 0) {
+//                serviceOrderList = new ArrayList<ServiceOrderDTO>();
+//                ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+//                if (serviceOrder != null)
+//                    serviceOrderList.add(serviceOrder);
+//            }
+//            if (id == null) {
+//                serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+//                        auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
+//                        startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
+//                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId,
+//                        officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
+//                        serviceId, servicePackageId, schoolId, null, null, null);
+//
+//                if (newOfficialId != null)
+//                    for (ServiceOrderDTO so : serviceOrderList)
+//                        so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+//            }
+//
+//            // 获取token
+//            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+//            if ((int)tokenMap.get("errcode") != 0){
+//                throw  new RuntimeException( tokenMap.get("errmsg").toString());
+//            }
+//            String customerToken = (String) tokenMap.get("access_token");
+//
+//            // 创建表格
+//            String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//            final JSONObject[] parm = {new JSONObject()};
+//            parm[0].put("doc_type", 4);
+//            parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+//            if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
+//                String[] userIds = {"XuShiYi"};
+//                parm[0].put("admin_users", userIds);
+//            }
+//            if (StringUtil.isNotEmpty(adminUserLoginInfo.getOperUserid())) {
+//                String[] userIds = {adminUserLoginInfo.getOperUserid(), "XuShiYi"};
+//                parm[0].put("admin_users", userIds);
+//            }
+//            LOG.info("parm--------------------" + Arrays.toString(parm));
+//            LOG.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
+//
+//            JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+//            String url = "";
+//            LOG.info("setupExcelJsonObject-------------" + setupExcelJsonObject.toString());
+//            setupExcelJsonObjectTmp = setupExcelJsonObject;
+//            if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+//                url = setupExcelJsonObject.get("url").toString();
+//                String docId = setupExcelJsonObject.get("docid").toString();
+//                SetupExcelDO setupExcelDO = new SetupExcelDO();
+//                setupExcelDO.setUrl(url);
+//                setupExcelDO.setDocId(docId);
+//                String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//                parm[0] = new JSONObject();
+//                parm[0].put("docid", docId);
+//                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+//                List<ServiceOrderDTO> finalServiceOrderList = serviceOrderList;
+//                Thread thread1 = new Thread(() -> {
+//                    try {
+//                        // 线程1的任务
+//                        if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
+//                            JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
+//                            Iterator<Object> iterator = propertiesObjects.iterator();
+//                            String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
+//                            setupExcelDO.setSheetId(sheetId);
+//                            int i = wxWorkService.addExcel(setupExcelDO);
+//                            if (i > 0) {
+//                                String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//                                parm[0] = new JSONObject();
+//                                parm[0].put("docid", docId);
+//
+//                                List<JSONObject> requests = new ArrayList<>();
+//                                JSONObject requestsJson = new JSONObject();
+//                                JSONObject updateRangeRequest = new JSONObject();
+//                                JSONObject gridData = new JSONObject();
+//                                int count = 0;
+//
+//                                List<String> excelTitle = new ArrayList<>();
+//                                excelTitle.add("ID");
+//                                excelTitle.add("创建时间");
+//                                excelTitle.add("提交审核时间");
+//                                excelTitle.add("办理完成日期");
+//                                excelTitle.add("提交申请时间");
+//                                excelTitle.add("客户ID");
+//                                excelTitle.add("客户姓名");
+//                                excelTitle.add("生日");
+//                                excelTitle.add("手机号码");
+//                                excelTitle.add("申请人ID");
+//                                excelTitle.add("申请人姓名");
+//                                excelTitle.add("所属顾问");
+//                                excelTitle.add("MARA");
+//                                excelTitle.add("文案");
+//                                excelTitle.add("服务名称");
+//                                excelTitle.add("项目代号/学校");
+//                                excelTitle.add("状态");
+//                                excelTitle.add("计数");
+//                                excelTitle.add("offer类型");
+//                                excelTitle.add("备注");
+//
+//                                for (ServiceOrderDTO serviceOrderDTO : finalServiceOrderList) {
+//                                    if (count == 0) {
+//                                        gridData.put("start_row", 0);
+//                                        gridData.put("start_column", 0);
+//                                        List<JSONObject> rows = new ArrayList<>();
+//                                        for (String title : excelTitle) {
+//                                            JSONObject jsonObject = new JSONObject();
+//                                            JSONObject text = new JSONObject();
+//                                            text.put("text", title);
+//                                            jsonObject.put("cell_value", text);
+//                                            rows.add(jsonObject);
+//                                        }
+//                                        List<JSONObject> objects = new ArrayList<>();
+//                                        JSONObject rowsValue = new JSONObject();
+//                                        rowsValue.put("values", rows);
+//                                        objects.add(rowsValue);
+//                                        gridData.put("rows", objects);
+//                                        updateRangeRequest.put("sheet_id", sheetId);
+//                                        updateRangeRequest.put("grid_data", gridData);
+//                                        requestsJson.put("update_range_request", updateRangeRequest);
+//                                        requests.add(requestsJson);
+//                                        parm[0].put("requests", requests);
+//                                        count++;
+//                                        WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//                                        parm[0] = new JSONObject();
+//                                        requests.remove(0);
+//                                    }
+//                                    parm[0].put("docid", docId);
+//                                    gridData.put("start_row", count);
+//                                    gridData.put("start_column", 0);
+//                                    List<JSONObject> rows = build(serviceOrderDTO);
+//                                    List<JSONObject> objects = new ArrayList<>();
+//                                    JSONObject rowsValue = new JSONObject();
+//                                    rowsValue.put("values", rows);
+//                                    objects.add(rowsValue);
+//                                    gridData.put("rows", objects);
+//                                    updateRangeRequest.put("sheet_id", sheetId);
+//                                    updateRangeRequest.put("grid_data", gridData);
+//                                    requestsJson.put("update_range_request", updateRangeRequest);
+//                                    requests.add(requestsJson);
+//                                    parm[0].put("requests", requests);
+//                                    count++;
+//                                    WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//                                    parm[0] = new JSONObject();
+//                                    requests.remove(0);
+//                                }
+//                            }
+//                        }
+//                    } catch (Exception e) {
+//                        // 处理异常，例如记录日志
+//                        e.printStackTrace();
+//                    }
+//                });
+//                thread1.start();
+//            }
+//            // 使用StringBuilder来构建HTML字符串
+//            StringBuilder htmlBuilder = new StringBuilder();
+//            htmlBuilder.append("<a href=\"");
+//            htmlBuilder.append(url + "\""); // 插入链接的URL
+//            htmlBuilder.append(" target=\"_blank");
+//            htmlBuilder.append("\">");
+//            htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+//            htmlBuilder.append("</a>");
+//            String apList = adminUserLoginInfo.getApList();
+//            switch (apList) {
+//                case "GW":
+//                    apList = "顾问";
+//                    break;
+//                case "WA":
+//                    apList = "文案";
+//                    break;
+//                case "KJ":
+//                    apList = "会计";
+//                    break;
+//                case "SUPERAD":
+//                    apList = "超级管理员";
+//                    break;
+//                default: apList = apList;
+//            }
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "服务订单导出");
+//            return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return new Response<>(0, "生成Excel成功， excel链接为：" + JSONObject.toJSONString(setupExcelJsonObjectTmp));
+//    }
+
     @RequestMapping(value = "/down_V2", method = RequestMethod.GET)
     @ResponseBody
     public Response<String> down_V2(@RequestParam(value = "id", required = false) Integer id,
-                     @RequestParam(value = "type", required = false) String type,
-                     @RequestParam(value = "state", required = false) String state,
-                     @RequestParam(value = "auditingState", required = false) String auditingState,
-                     @RequestParam(value = "reviewState", required = false) String reviewState,
-                     @RequestParam(value = "urgentState", required = false) String urgentState,
-                     @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
-                     @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
-                     @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
-                     @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-                     @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
-                     @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
-                     @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
-                     @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
-                     @RequestParam(value = "regionId", required = false) Integer regionId,
-                     @RequestParam(value = "userId", required = false) Integer userId,
-                     @RequestParam(value = "userName", required = false) String userName,
-                     @RequestParam(value = "applicantName", required = false) String applicantName,
-                     @RequestParam(value = "maraId", required = false) Integer maraId,
-                     @RequestParam(value = "adviserId", required = false) Integer adviserId,
-                     @RequestParam(value = "officialId", required = false) Integer officialId,
-                     @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
-                     @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
-                     @RequestParam(value = "serviceId", required = false) Integer serviceId,
-                     @RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
-                     @RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
-                     HttpServletResponse response) {
+                                    @RequestParam(value = "type", required = false) String type,
+                                    @RequestParam(value = "state", required = false) String state,
+                                    @RequestParam(value = "auditingState", required = false) String auditingState,
+                                    @RequestParam(value = "reviewState", required = false) String reviewState,
+                                    @RequestParam(value = "urgentState", required = false) String urgentState,
+                                    @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+                                    @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+                                    @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+                                    @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+                                    @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+                                    @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
+                                    @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
+                                    @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
+                                    @RequestParam(value = "regionId", required = false) Integer regionId,
+                                    @RequestParam(value = "userId", required = false) Integer userId,
+                                    @RequestParam(value = "userName", required = false) String userName,
+                                    @RequestParam(value = "applicantName", required = false) String applicantName,
+                                    @RequestParam(value = "maraId", required = false) Integer maraId,
+                                    @RequestParam(value = "adviserId", required = false) Integer adviserId,
+                                    @RequestParam(value = "officialId", required = false) Integer officialId,
+                                    @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
+                                    @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+                                    @RequestParam(value = "serviceId", required = false) Integer serviceId,
+                                    @RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+                                    @RequestParam(value = "schoolId", required = false) Integer schoolId, HttpServletRequest request,
+                                    HttpServletResponse response) {
         List<String> excludeTypeList = null;
         String excludeState = null;
         List<String> stateList = null;
@@ -2444,123 +2708,118 @@ public class ServiceOrderController extends BaseController {
             // 创建表格
             String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
             final JSONObject[] parm = {new JSONObject()};
-            parm[0].put("doc_type", 4);
+            parm[0].put("doc_type", 10);
             parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
-            if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
-                String[] userIds = {"XuShiYi"};
-                parm[0].put("admin_users", userIds);
-            }
-            if (StringUtil.isNotEmpty(adminUserLoginInfo.getOperUserid())) {
-                String[] userIds = {adminUserLoginInfo.getOperUserid(), "XuShiYi"};
-                parm[0].put("admin_users", userIds);
-            }
-            LOG.info("parm--------------------" + Arrays.toString(parm));
-            LOG.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
+            log.info("parm--------------------" + Arrays.toString(parm));
+            log.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
 
             JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
-            String url = "";
+            log.info("setupExcelJsonObject-------------" + setupExcelJsonObject.toString());
+            String docid = setupExcelJsonObject.get("docid").toString();
+
+            String url = setupExcelJsonObject.get("url").toString();
             LOG.info("setupExcelJsonObject-------------" + setupExcelJsonObject.toString());
             setupExcelJsonObjectTmp = setupExcelJsonObject;
             if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
-                url = setupExcelJsonObject.get("url").toString();
-                String docId = setupExcelJsonObject.get("docid").toString();
-                SetupExcelDO setupExcelDO = new SetupExcelDO();
-                setupExcelDO.setUrl(url);
-                setupExcelDO.setDocId(docId);
-                String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
-                parm[0] = new JSONObject();
-                parm[0].put("docid", docId);
-                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+                // 添加子表
+                String url2 = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_sheet?access_token=ACCESS_TOKEN";
+                String accessTokenZiBiao = url2.replace("ACCESS_TOKEN", customerToken);
+                final JSONObject[] parmZiBiao = {new JSONObject()};
+                parmZiBiao[0].put("docid", docid);
+//                parmZiBiao[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
+                JSONObject jsonObjectProperties = new JSONObject();
+                jsonObjectProperties.put("title", "测试表格1");
+                jsonObjectProperties.put("index", 2);
+                parmZiBiao[0].put("properties", jsonObjectProperties);
+                JSONObject jsonObject1 = WXWorkAPI.sendPostBody_Map(accessTokenZiBiao, parmZiBiao[0]);
+                log.info("setupExcelJsonObject-------------" + jsonObject1.toString());
+
+                // 获得sheetId
+                Object properties = jsonObject1.get("properties");
+                JSONObject jsonObject4 = JSONObject.parseObject(properties.toString());
+                String sheetId = jsonObject4.get("sheet_id").toString();
+                log.info("sheet_id-------------------" + sheetId);
+
+                // 查询默认字段id
+                String urlMoRen = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/get_fields?access_token=ACCESS_TOKEN";
+                String accessTokenMoRen = urlMoRen.replace("ACCESS_TOKEN", customerToken);
+                final JSONObject[] parmMoRen = {new JSONObject()};
+                parmMoRen[0].put("docid", docid);
+//        parmMoRen[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
+                parmMoRen[0].put("sheet_id", sheetId);
+                parmMoRen[0].put("offset", 0);
+                parmMoRen[0].put("limit", 10);
+                JSONObject jsonObject5 = WXWorkAPI.sendPostBody_Map(accessTokenMoRen, parmMoRen[0]);
+                log.info("setupExcelJsonObject-------------" + jsonObject5.toString());
+
+                // 获取默认字段id
+                String fieldId = "";
+                Object fields = jsonObject5.get("fields");
+                JSONArray jsonArray = JSONArray.parseArray(fields.toString());
+                Iterator<Object> iteratorTmp = jsonArray.iterator();
+                while (iteratorTmp.hasNext()) {
+                    Object next = iteratorTmp.next();
+                    JSONObject jsonObject = JSONObject.parseObject(next.toString());
+                    fieldId = jsonObject.get("field_id").toString();
+                    log.info("字段id----------------------" + fieldId);
+                }
+
+                // 更新字段
+                String url4 = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_fields?access_token=ACCESS_TOKEN";
+                String accessToken2 = url4.replace("ACCESS_TOKEN", customerToken);
+                final JSONObject[] parm2 = {new JSONObject()};
+                parm2[0].put("docid", docid);
+//        parm2[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
+                parm2[0].put("sheet_id", sheetId);
+                // 添加字段标题title
+                List<String> exlceTitles = buildExlceTitle();
+                List<JSONObject> fieldList = new ArrayList<>();
+                for (String exlceTitle : exlceTitles) {
+                    JSONObject jsonObjectField = new JSONObject();
+                    jsonObjectField.put("field_title", exlceTitle);
+                    jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+                    fieldList.add(jsonObjectField);
+                }
+                parm2[0].put("fields", fieldList);
+                JSONObject jsonObject2 = WXWorkAPI.sendPostBody_Map(accessToken2, parm2[0]);
+                log.info("setupExcelJsonObject-------------" + jsonObject2.toString());
+
+                // 删除字段
+                String urlShanChu = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/delete_fields?access_token=ACCESS_TOKEN";
+                String accessTokenShanChu = urlShanChu.replace("ACCESS_TOKEN", customerToken);
+                final JSONObject[] parmShanChu = {new JSONObject()};
+                parmShanChu[0].put("docid", docid);
+//        parmShanChu[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
+                parmShanChu[0].put("sheet_id", sheetId);
+                List<String> fielIds = new ArrayList<>();
+                fielIds.add(fieldId);
+                parmShanChu[0].put("field_ids", fielIds);
+                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(accessTokenShanChu, parmShanChu[0]);
+                log.info("setupExcelJsonObject-------------" + informationExcelJsonObject.toString());
                 List<ServiceOrderDTO> finalServiceOrderList = serviceOrderList;
                 Thread thread1 = new Thread(() -> {
                     try {
                         // 线程1的任务
                         if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
-                            JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
-                            Iterator<Object> iterator = propertiesObjects.iterator();
-                            String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
-                            setupExcelDO.setSheetId(sheetId);
-                            int i = wxWorkService.addExcel(setupExcelDO);
-                            if (i > 0) {
-                                String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
-                                parm[0] = new JSONObject();
-                                parm[0].put("docid", docId);
-
-                                List<JSONObject> requests = new ArrayList<>();
-                                JSONObject requestsJson = new JSONObject();
-                                JSONObject updateRangeRequest = new JSONObject();
-                                JSONObject gridData = new JSONObject();
-                                int count = 0;
-
-                                List<String> excelTitle = new ArrayList<>();
-                                excelTitle.add("ID");
-                                excelTitle.add("创建时间");
-                                excelTitle.add("提交审核时间");
-                                excelTitle.add("办理完成日期");
-                                excelTitle.add("提交申请时间");
-                                excelTitle.add("客户ID");
-                                excelTitle.add("客户姓名");
-                                excelTitle.add("生日");
-                                excelTitle.add("手机号码");
-                                excelTitle.add("申请人ID");
-                                excelTitle.add("申请人姓名");
-                                excelTitle.add("所属顾问");
-                                excelTitle.add("MARA");
-                                excelTitle.add("文案");
-                                excelTitle.add("服务名称");
-                                excelTitle.add("项目代号/学校");
-                                excelTitle.add("状态");
-                                excelTitle.add("计数");
-                                excelTitle.add("offer类型");
-                                excelTitle.add("备注");
-
+                            // 添加行记录
+                            String urlJiLu = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_records?access_token=ACCESS_TOKEN";
+                            String accessTokenJiLu = urlJiLu.replace("ACCESS_TOKEN", customerToken);
+                            final JSONObject[] parmJiLu = {new JSONObject()};
+                            parmJiLu[0].put("docid", docid);
+//        parmJiLu[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
+                            parmJiLu[0].put("sheet_id", sheetId);
                                 for (ServiceOrderDTO serviceOrderDTO : finalServiceOrderList) {
-                                    if (count == 0) {
-                                        gridData.put("start_row", 0);
-                                        gridData.put("start_column", 0);
-                                        List<JSONObject> rows = new ArrayList<>();
-                                        for (String title : excelTitle) {
-                                            JSONObject jsonObject = new JSONObject();
-                                            JSONObject text = new JSONObject();
-                                            text.put("text", title);
-                                            jsonObject.put("cell_value", text);
-                                            rows.add(jsonObject);
-                                        }
-                                        List<JSONObject> objects = new ArrayList<>();
-                                        JSONObject rowsValue = new JSONObject();
-                                        rowsValue.put("values", rows);
-                                        objects.add(rowsValue);
-                                        gridData.put("rows", objects);
-                                        updateRangeRequest.put("sheet_id", sheetId);
-                                        updateRangeRequest.put("grid_data", gridData);
-                                        requestsJson.put("update_range_request", updateRangeRequest);
-                                        requests.add(requestsJson);
-                                        parm[0].put("requests", requests);
-                                        count++;
-                                        WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
-                                        parm[0] = new JSONObject();
-                                        requests.remove(0);
-                                    }
-                                    parm[0].put("docid", docId);
-                                    gridData.put("start_row", count);
-                                    gridData.put("start_column", 0);
-                                    List<JSONObject> rows = build(serviceOrderDTO);
-                                    List<JSONObject> objects = new ArrayList<>();
-                                    JSONObject rowsValue = new JSONObject();
-                                    rowsValue.put("values", rows);
-                                    objects.add(rowsValue);
-                                    gridData.put("rows", objects);
-                                    updateRangeRequest.put("sheet_id", sheetId);
-                                    updateRangeRequest.put("grid_data", gridData);
-                                    requestsJson.put("update_range_request", updateRangeRequest);
-                                    requests.add(requestsJson);
-                                    parm[0].put("requests", requests);
-                                    count++;
-                                    WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
-                                    parm[0] = new JSONObject();
-                                    requests.remove(0);
+                                    JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(serviceOrderDTO);
+                                    List<JSONObject> recordsList = new ArrayList<>();
+                                    JSONObject jsonObjectValue = new JSONObject();
+                                    jsonObjectValue.put("values", jsonObjectFILEDTITLE);
+                                    recordsList.add(jsonObjectValue);
+
+                                    parmJiLu[0].put("records", recordsList);
+                                    JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+                                    log.info(accessTokenJiLu);
+                                    log.info("jsonObjectJiLu-------------" + jsonObjectJiLu.toString());
                                 }
-                            }
                         }
                     } catch (Exception e) {
                         // 处理异常，例如记录日志
@@ -4416,6 +4675,360 @@ public class ServiceOrderController extends BaseController {
         }
 
         return rows;
+    }
+
+    public List<String> buildExlceTitle() {
+        List<String> excelTitle = new ArrayList<>();
+        excelTitle.add("备注");
+        excelTitle.add("offer类型");
+        excelTitle.add("计数");
+        excelTitle.add("状态");
+        excelTitle.add("项目代号/学校");
+        excelTitle.add("服务名称");
+        excelTitle.add("文案");
+        excelTitle.add("MARA");
+        excelTitle.add("所属顾问");
+        excelTitle.add("申请人姓名");
+        excelTitle.add("申请人ID");
+        excelTitle.add("手机号码");
+        excelTitle.add("生日");
+        excelTitle.add("客户姓名");
+        excelTitle.add("客户ID");
+        excelTitle.add("提交申请时间");
+        excelTitle.add("办理完成日期");
+        excelTitle.add("提交审核时间");
+        excelTitle.add("创建时间");
+        excelTitle.add("ID");
+        return excelTitle;
+    }
+
+    public JSONObject buileExcelJsonObject(ServiceOrderDTO so) {
+        List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
+        JSONObject jsonObjectFILEDTITLE = new JSONObject();
+        // id
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObject.put("text", String.valueOf(so.getId()));
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("ID", jsonObjectFILEDTITLEList);
+        // 创建时间
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        if (so.getGmtCreate() != null) {
+            jsonObject.put("text", sdf.format(so.getGmtCreate()));
+        } else {
+            jsonObject.put("text", "");
+        }
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("创建时间", jsonObjectFILEDTITLEList);
+        // 提交审核时间
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        if (so.getOfficialApprovalDate() != null) {
+            jsonObject.put("text", sdf.format(so.getOfficialApprovalDate()));
+        } else {
+            jsonObject.put("text", "");
+        }
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("提交审核时间", jsonObjectFILEDTITLEList);
+        // 办理完成时间
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        if (so.getFinishDate() != null) {
+            jsonObject.put("text", sdf.format(so.getFinishDate()));
+        } else {
+            jsonObject.put("text", "");
+        }
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("办理完成日期", jsonObjectFILEDTITLEList);
+        // 提交申请时间
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        if (so.getReadcommittedDate() != null) {
+            jsonObject.put("text", sdf.format(so.getReadcommittedDate()));
+        } else {
+            jsonObject.put("text", "");
+        }
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("提交申请时间", jsonObjectFILEDTITLEList);
+        // 客户id
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        jsonObject.put("text", String.valueOf(so.getUserId()));
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("客户ID", jsonObjectFILEDTITLEList);
+        // 客户姓名 生日 手机号码
+        if (so.getUser() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getUser().getName());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("客户姓名", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", sdf.format(so.getUser().getBirthday()));
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("生日", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getUser().getPhone());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("手机号码", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("客户姓名", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("生日", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("手机号码", jsonObjectFILEDTITLEList);
+        }
+        // 申请人id 申请人姓名
+        if (so.getApplicant() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", String.valueOf(so.getApplicantId()));
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("申请人ID", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getApplicant().getFirstname() + "" + so.getApplicant().getSurname());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("申请人姓名", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("申请人ID", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("申请人姓名", jsonObjectFILEDTITLEList);
+        }
+        // 所属顾问
+        if (so.getAdviser() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getAdviser().getName());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("所属顾问", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("所属顾问", jsonObjectFILEDTITLEList);
+        }
+        // MARA
+        if (so.getMara() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getMara().getName());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("MARA", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("MARA", jsonObjectFILEDTITLEList);
+        }
+        // 文案
+        if (so.getOfficial() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getOfficial().getName());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("文案", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("文案", jsonObjectFILEDTITLEList);
+        }
+        // 服务名称   项目代号/学校
+        if (so.getService() != null && !"ZX".equalsIgnoreCase(so.getType())) {
+            String servicepakageName = "";
+            String tmp = "";
+            if (so.getServicePackage() != null) {
+                String servicePackagetype = so.getServicePackage().getType();
+                servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+                tmp = "-";
+            }
+            if (so.getServiceAssessId() == null) {
+                jsonObject = new JSONObject();
+                jsonObject.put("type", "text");
+                jsonObjectFILEDTITLEList = new ArrayList<>();
+                jsonObject.put("text", so.getService().getName());
+                jsonObjectFILEDTITLEList.add(jsonObject);
+                jsonObjectFILEDTITLE.put("服务名称", jsonObjectFILEDTITLEList);
+
+                jsonObject = new JSONObject();
+                jsonObject.put("type", "text");
+                jsonObjectFILEDTITLEList = new ArrayList<>();
+                jsonObject.put("text", so.getService().getCode() + tmp + servicepakageName);
+                jsonObjectFILEDTITLEList.add(jsonObject);
+                jsonObjectFILEDTITLE.put("项目代号/学校", jsonObjectFILEDTITLEList);
+            }
+            if (so.getServiceAssessDO() != null) {
+                jsonObject = new JSONObject();
+                jsonObject.put("type", "text");
+                jsonObjectFILEDTITLEList = new ArrayList<>();
+                jsonObject.put("text", so.getService().getCode() + tmp + servicepakageName);
+                jsonObjectFILEDTITLEList.add(jsonObject);
+                jsonObjectFILEDTITLE.put("服务名称", jsonObjectFILEDTITLEList);
+
+                jsonObject = new JSONObject();
+                jsonObject.put("type", "text");
+                jsonObjectFILEDTITLEList = new ArrayList<>();
+                jsonObject.put("text", so.getService().getCode() + " - " + so.getServiceAssessDO().getName());
+                jsonObjectFILEDTITLEList.add(jsonObject);
+                jsonObjectFILEDTITLE.put("项目代号/学校", jsonObjectFILEDTITLEList);
+            }
+        }
+
+        if (so.getSchool() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", " 留学 ");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("服务名称", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getSchool().getName());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("项目代号/学校", jsonObjectFILEDTITLEList);
+        } else if (so.getSchoolInstitutionListDTO() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", " 留学 ");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("服务名称", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getSchoolInstitutionListDTO().getName() + "-"
+                    + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("项目代号/学校", jsonObjectFILEDTITLEList);
+        }
+
+        if ("ZX".equalsIgnoreCase(so.getType())) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", " 咨询 ");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("服务名称", jsonObjectFILEDTITLEList);
+
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getService().getCode());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("项目代号/学校", jsonObjectFILEDTITLEList);
+        }
+        // 状态
+        if ("OVST".equals(so.getType())) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", convertOvstOrderStatus(so.getState()));
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("状态", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", convertOvstOrderStatus(so.getState()));
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("状态", jsonObjectFILEDTITLEList);
+        }
+
+        // 计数
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        jsonObject.put("text", String.valueOf(so.getRealPeopleNumber()));
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put("计数", jsonObjectFILEDTITLEList);
+
+        // offer类型
+        if (so.getOfferType() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getOfferType());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("offer类型", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("offer类型", jsonObjectFILEDTITLEList);
+        }
+        // 备注
+        if (so.getRemarks() != null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getRemarks());
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("备注", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("备注", jsonObjectFILEDTITLEList);
+        }
+        return jsonObjectFILEDTITLE;
     }
 
 }

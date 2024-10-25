@@ -260,10 +260,14 @@
         <if test='serviceOrderType != null and serviceOrderType != ""'>
             AND so.type = #{serviceOrderType}
         </if>
+        <if test='serviceOrderId !=null and  serviceOrderId !=""'>
+            and bv.service_order_id = #{serviceOrderId}
+        </if>
         ${orderBy}
         <if test="offset !=null and pageSize!=null">
             limit #{offset} ,#{pageSize}
         </if>
+
 
 
     </select>

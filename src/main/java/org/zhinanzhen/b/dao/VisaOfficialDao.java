@@ -33,7 +33,8 @@ public interface VisaOfficialDao {
                                  @Param("offset")Integer offset,
                                  @Param("pageSize")Integer pageSize,
                                  @Param("orderBy") String orderBy,
-                                  @Param("serviceOrderType")String serviceOrderType);
+                                  @Param("serviceOrderType")String serviceOrderType,
+                                  @Param("serviceOrderId") Integer serviceOrderId);
 
     int count(@Param("officialId")Integer officialId,
               @Param("regionIdList")List<Integer> regionIdList,
