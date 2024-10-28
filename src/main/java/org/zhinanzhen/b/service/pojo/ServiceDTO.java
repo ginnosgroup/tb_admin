@@ -19,5 +19,7 @@ public class ServiceDTO {
 	
 	private boolean isDelete;
 
+	private boolean isLongTime; // 判断是否为长期签证
+
 	private List<ServicePackagePriceDTO> ServicePackagePirceList;
 }
