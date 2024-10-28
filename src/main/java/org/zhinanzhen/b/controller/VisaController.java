@@ -1311,6 +1311,7 @@ public class VisaController extends BaseCommissionOrderController {
 			parm2[0].put("sheet_id", sheetId);
 			// 添加字段标题title
 			List<String> exlceTitles = buildExlceTitle(adminUserLoginInfo.getApList(), _regionId);
+			log.info("字段标题-----------------------" + exlceTitles);
 			List<JSONObject> fieldList = new ArrayList<>();
 			for (String exlceTitle : exlceTitles) {
 				JSONObject jsonObjectField = new JSONObject();
@@ -1320,7 +1321,7 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			parm2[0].put("fields", fieldList);
 			JSONObject jsonObject2 = WXWorkAPI.sendPostBody_Map(accessToken2, parm2[0]);
-			log.info("setupExcelJsonObject-------------" + jsonObject2.toString());
+			log.info("jsonObject2-------------" + jsonObject2.toString());
 
 			// 删除字段
 			String accessTokenShanChu = WXWorkAPI.DELETE_FIELD.replace("ACCESS_TOKEN", customerToken);
@@ -1356,6 +1357,7 @@ public class VisaController extends BaseCommissionOrderController {
 									jsonObjectValue.put("values", jsonObjectFILEDTITLE);
 									recordsList.add(jsonObjectValue);
 									parmJiLu[0].put("records", recordsList);
+									log.info("请求体--------------------------" + JSONObject.toJSONString(parmJiLu[0]));
 									JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
 									log.info(accessTokenJiLu);
 									log.info("setupExcelJsonObject-------------" + jsonObjectJiLu.toString());
@@ -2344,21 +2346,11 @@ public class VisaController extends BaseCommissionOrderController {
 	private JSONObject buileExcelJsonObject(VisaDTO so, Map<Integer, String> adviserMap, Map<Integer,ServiceDTO> serviceMap, AdminUserLoginInfo adminUserLoginInfo, int _regionId) throws ServiceException {
 		List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
 		JSONObject jsonObjectFILEDTITLE = new JSONObject();
-		// id
+		// 订单ID
 		JSONObject jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObject.put("text", String.valueOf(so.getId()));
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("ID", jsonObjectFILEDTITLEList);
-		buildJsonobjectRow(String.valueOf(so.getId()), "ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-		// 佣金订单审核时间
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", sdf.format(so.getGmtCreate()));
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("佣金订单审核时间", jsonObjectFILEDTITLEList);
-		buildJsonobjectRow(sdf.format(so.getGmtCreate()), "佣金订单审核时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRow(String.valueOf(so.getId()), "订单ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		// 佣金订单创建日期
+		buildJsonobjectRow(sdf.format(so.getGmtCreate()), "佣金订单创建日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 客户支付日期
 		if (so.getReceiveDate() != null) {
 			buildJsonobjectRow(sdf.format(so.getGmtCreate()), "客户支付日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -2366,66 +2358,24 @@ public class VisaController extends BaseCommissionOrderController {
 			buildJsonobjectRow("", "客户支付日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		}
 		// 客户名称
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", so.getUserName());
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("客户名称", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(so.getUserName(), "客户名称", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 收款方式
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", so.getReceiveTypeName());
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("收款方式", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(so.getReceiveTypeName(), "收款方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 服务项目
 		ServiceDTO serviceDTO = serviceMap.get(so.getServiceId());
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", serviceDTO.getName() + "-" + serviceDTO.getCode());
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("服务项目", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(serviceDTO.getName() + "-" + serviceDTO.getCode(), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计应收人民币
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", String.valueOf(so.getTotalAmountCNY()));
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("总计应收人民币", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计应收澳币
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", String.valueOf(so.getTotalAmountAUD()));
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("总计应收澳币", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计收款人民币
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", String.valueOf(so.getTotalAmountCNY()));
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("总计收款人民币", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计收款澳币
-//		jsonObject = new JSONObject();
-//		jsonObject.put("type", "text");
-//		jsonObjectFILEDTITLEList = new ArrayList<>();
-//		jsonObject.put("text", String.valueOf(so.getTotalAmountAUD()));
-//		jsonObjectFILEDTITLEList.add(jsonObject);
-//		jsonObjectFILEDTITLE.put("总计收款澳币", jsonObjectFILEDTITLEList);
 		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 本次支付币种
 		buildJsonobjectRow(so.getCurrency(), "本次支付币种", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -2476,7 +2426,12 @@ public class VisaController extends BaseCommissionOrderController {
 			buildJsonobjectRow(String.valueOf(so.getKjApprovalDate()), "财务审核时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		}
 		// 备注
-		buildJsonobjectRow(so.getRemarks(), "备注", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		if (so.getRemarks() != null) {
+			buildJsonobjectRow(so.getRemarks(), "备注", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "备注", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+
 		return jsonObjectFILEDTITLE;
 	}
 

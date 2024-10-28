@@ -2722,11 +2722,9 @@ public class ServiceOrderController extends BaseController {
             setupExcelJsonObjectTmp = setupExcelJsonObject;
             if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
                 // 添加子表
-                String url2 = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_sheet?access_token=ACCESS_TOKEN";
-                String accessTokenZiBiao = url2.replace("ACCESS_TOKEN", customerToken);
+                String accessTokenZiBiao = WXWorkAPI.CREATE_CHILE_TABLE.replace("ACCESS_TOKEN", customerToken);
                 final JSONObject[] parmZiBiao = {new JSONObject()};
                 parmZiBiao[0].put("docid", docid);
-//                parmZiBiao[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
                 JSONObject jsonObjectProperties = new JSONObject();
                 jsonObjectProperties.put("title", "测试表格1");
                 jsonObjectProperties.put("index", 2);
@@ -2741,11 +2739,9 @@ public class ServiceOrderController extends BaseController {
                 log.info("sheet_id-------------------" + sheetId);
 
                 // 查询默认字段id
-                String urlMoRen = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/get_fields?access_token=ACCESS_TOKEN";
-                String accessTokenMoRen = urlMoRen.replace("ACCESS_TOKEN", customerToken);
+                String accessTokenMoRen = WXWorkAPI.GET_DEFAULT_FIELD.replace("ACCESS_TOKEN", customerToken);
                 final JSONObject[] parmMoRen = {new JSONObject()};
                 parmMoRen[0].put("docid", docid);
-//        parmMoRen[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
                 parmMoRen[0].put("sheet_id", sheetId);
                 parmMoRen[0].put("offset", 0);
                 parmMoRen[0].put("limit", 10);
@@ -2765,11 +2761,9 @@ public class ServiceOrderController extends BaseController {
                 }
 
                 // 更新字段
-                String url4 = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_fields?access_token=ACCESS_TOKEN";
-                String accessToken2 = url4.replace("ACCESS_TOKEN", customerToken);
+                String accessToken2 = WXWorkAPI.UPDATE_FIELD.replace("ACCESS_TOKEN", customerToken);
                 final JSONObject[] parm2 = {new JSONObject()};
                 parm2[0].put("docid", docid);
-//        parm2[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
                 parm2[0].put("sheet_id", sheetId);
                 // 添加字段标题title
                 List<String> exlceTitles = buildExlceTitle();
@@ -2785,11 +2779,9 @@ public class ServiceOrderController extends BaseController {
                 log.info("setupExcelJsonObject-------------" + jsonObject2.toString());
 
                 // 删除字段
-                String urlShanChu = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/delete_fields?access_token=ACCESS_TOKEN";
-                String accessTokenShanChu = urlShanChu.replace("ACCESS_TOKEN", customerToken);
+                String accessTokenShanChu = WXWorkAPI.DELETE_FIELD.replace("ACCESS_TOKEN", customerToken);
                 final JSONObject[] parmShanChu = {new JSONObject()};
                 parmShanChu[0].put("docid", docid);
-//        parmShanChu[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
                 parmShanChu[0].put("sheet_id", sheetId);
                 List<String> fielIds = new ArrayList<>();
                 fielIds.add(fieldId);
@@ -2802,11 +2794,9 @@ public class ServiceOrderController extends BaseController {
                         // 线程1的任务
                         if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
                             // 添加行记录
-                            String urlJiLu = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_records?access_token=ACCESS_TOKEN";
-                            String accessTokenJiLu = urlJiLu.replace("ACCESS_TOKEN", customerToken);
+                            String accessTokenJiLu = WXWorkAPI.INSERT_ROW.replace("ACCESS_TOKEN", customerToken);
                             final JSONObject[] parmJiLu = {new JSONObject()};
                             parmJiLu[0].put("docid", docid);
-//        parmJiLu[0].put("docid", "dcVPpvCEmnK9sPbiOBbJEIrctM02AyhwfFIBjZbsE-oVh4DBTL0arzV7AZixEtA73c-qk3BV9BzTgc8i04WoOiKA");
                             parmJiLu[0].put("sheet_id", sheetId);
                                 for (ServiceOrderDTO serviceOrderDTO : finalServiceOrderList) {
                                     JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(serviceOrderDTO);

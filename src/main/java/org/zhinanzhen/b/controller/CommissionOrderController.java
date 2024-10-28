@@ -14,6 +14,7 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import lombok.extern.slf4j.Slf4j;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ import java.util.stream.Collectors;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/commissionOrder")
+@Slf4j
 public class CommissionOrderController extends BaseCommissionOrderController {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(CommissionOrderController.class);
@@ -1646,26 +1648,26 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<String> down_V2(@RequestParam(value = "id", required = false) Integer id,
-					 @RequestParam(value = "regionId", required = false) Integer regionId,
-					 @RequestParam(value = "maraId", required = false) Integer maraId,
-					 @RequestParam(value = "adviserId", required = false) Integer adviserId,
-					 @RequestParam(value = "officialId", required = false) Integer officialId,
-					 @RequestParam(value = "userId", required = false) Integer userId,
-					 @RequestParam(value = "userName", required = false) String name,
-					 @RequestParam(value = "applicantName", required = false) String applicantName,
-					 @RequestParam(value = "phone", required = false) String phone,
-					 @RequestParam(value = "wechatUsername", required = false) String wechatUsername,
-					 @RequestParam(value = "schoolId", required = false) Integer schoolId,
-					 @RequestParam(value = "isSettle", required = false) Boolean isSettle,
-					 @RequestParam(value = "state", required = false) String state,
-					 @RequestParam(value = "commissionState", required = false) String commissionState,
-					 @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
-					 @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
-					 @RequestParam(value = "startDate", required = false) String startDate,
-					 @RequestParam(value = "endDate", required = false) String endDate,
-					 @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
-					 @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
-					 HttpServletRequest request, HttpServletResponse response) {
+									@RequestParam(value = "regionId", required = false) Integer regionId,
+									@RequestParam(value = "maraId", required = false) Integer maraId,
+									@RequestParam(value = "adviserId", required = false) Integer adviserId,
+									@RequestParam(value = "officialId", required = false) Integer officialId,
+									@RequestParam(value = "userId", required = false) Integer userId,
+									@RequestParam(value = "userName", required = false) String name,
+									@RequestParam(value = "applicantName", required = false) String applicantName,
+									@RequestParam(value = "phone", required = false) String phone,
+									@RequestParam(value = "wechatUsername", required = false) String wechatUsername,
+									@RequestParam(value = "schoolId", required = false) Integer schoolId,
+									@RequestParam(value = "isSettle", required = false) Boolean isSettle,
+									@RequestParam(value = "state", required = false) String state,
+									@RequestParam(value = "commissionState", required = false) String commissionState,
+									@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+									@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+									@RequestParam(value = "startDate", required = false) String startDate,
+									@RequestParam(value = "endDate", required = false) String endDate,
+									@RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+									@RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+									HttpServletRequest request, HttpServletResponse response) {
 
 		Integer newMaraId = getMaraId(request);
 		if (newMaraId != null)
@@ -1719,19 +1721,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				adviserId = null;
 			}
 
-//			response.reset();// 清空输出流
-//			String tableName = "commission_order_information";
-//			response.setHeader("Content-disposition",
-//					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
-//			response.setContentType("application/msexcel");
-
-//			Date _startKjApprovalDate = null;
-//			if (startKjApprovalDate != null)
-//				_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
-//			Date _endKjApprovalDate = null;
-//			if (endKjApprovalDate != null)
-//				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
-
 			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
 					regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
 					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
@@ -1744,433 +1733,681 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			int _regionId;
 			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0)
 				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
-            else {
-                _regionId = 0;
-            }
-//			if (ObjectUtil.isNotNull(kjId) && kjId > 0)
-//				_regionId = kjService.getKjById(kjId).getRegionId();
-//			if ("SUPERAD".equals(adminUserLoginInfo.getApList())) {
-				// 获取token
-				Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
-				if ((int)tokenMap.get("errcode") != 0){
-					throw  new RuntimeException( tokenMap.get("errmsg").toString());
-				}
-				String customerToken = (String) tokenMap.get("access_token");
+			else {
+				_regionId = 0;
+			}
+			// 获取token
+			Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+			if ((int)tokenMap.get("errcode") != 0){
+				throw  new RuntimeException( tokenMap.get("errmsg").toString());
+			}
+			String customerToken = (String) tokenMap.get("access_token");
 
-				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
-				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
+			List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
+			Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
 
-				// 创建表格
-				String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
-				final JSONObject[] parm = {new JSONObject()};
-				parm[0].put("doc_type", 4);
-				parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
-				String[] userIds = {"XuShiYi"};
-				parm[0].put("admin_users", userIds);
-				JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
-				String url = "";
-				if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
-					url = setupExcelJsonObject.get("url").toString();
-					String docId = setupExcelJsonObject.get("docid").toString();
-					SetupExcelDO setupExcelDO = new SetupExcelDO();
-					setupExcelDO.setUrl(url);
-					setupExcelDO.setDocId(docId);
-					String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
-					parm[0] = new JSONObject();
-					parm[0].put("docid", docId);
-					JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
-					List<CommissionOrderListDTO> finalServiceOrderList = commissionOrderList;
-					Thread thread1 = new Thread(() -> {
-						try {
-							// 线程1的任务
-							if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
-								JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
-								Iterator<Object> iterator = propertiesObjects.iterator();
-								String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
-								setupExcelDO.setSheetId(sheetId);
-								int i = wxWorkService.addExcel(setupExcelDO);
-								if (i > 0) {
-									String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
-									parm[0] = new JSONObject();
-									parm[0].put("docid", docId);
+			// 创建表格
+			String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+			final JSONObject[] parm = {new JSONObject()};
+			parm[0].put("doc_type", 10);
+			parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+			log.info("parm--------------------" + Arrays.toString(parm));
+			log.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
 
-									List<JSONObject> requests = new ArrayList<>();
-									JSONObject requestsJson = new JSONObject();
-									JSONObject updateRangeRequest = new JSONObject();
-									JSONObject gridData = new JSONObject();
-									int count = 0;
+			JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+			log.info("setupExcelJsonObject-------------" + setupExcelJsonObject.toString());
+			String docid = setupExcelJsonObject.get("docid").toString();
 
-									List<String> excelTitle = new ArrayList<>();
-									excelTitle.add("订单ID");
-									excelTitle.add("佣金订单创建日期");
-									excelTitle.add("客户支付日期");
-									excelTitle.add("Student Name");
-									excelTitle.add("Student ID");
-									excelTitle.add("生日");
-									excelTitle.add("收款方式");
-									excelTitle.add("服务项目");
-									excelTitle.add("是否提前扣佣");
-									excelTitle.add("Institute/Institution Trading Name");
-									excelTitle.add("Institution Name");
-									excelTitle.add("Location Name");
-									excelTitle.add("State");
-									excelTitle.add("Course Name");
-									excelTitle.add("Course Start Date");
-									excelTitle.add("Course End Date");
-									excelTitle.add("Installment Due Date");
-									excelTitle.add("收款方式");
-									excelTitle.add("Total Tuition Fee");
-									excelTitle.add("Per Tuition Fee per Installment");
-									excelTitle.add("总计应收人民币");
-									excelTitle.add("总计应收澳币");
-									excelTitle.add("总计已收人民币");
-									excelTitle.add("总计已收澳币");
-									excelTitle.add("本次支付币种");
-									excelTitle.add("创建订单时汇率");
-									excelTitle.add("本次收款人民币");
-									excelTitle.add("本次收款澳币");
-									excelTitle.add("Commission");
-									excelTitle.add("确认预收业绩");
-									if (!regionService.isCN(_regionId)) {
-										excelTitle.add("GST");
-										excelTitle.add("Deduct GST");
-									}
-									excelTitle.add("学校支付金额");
-									excelTitle.add("学校支付时间");
-									excelTitle.add("Invoice NO.");
-									excelTitle.add("追佣时间");
-									excelTitle.add("Subagency");
-									excelTitle.add("月奖");
-									excelTitle.add("月奖支付时间");
-									excelTitle.add("银行对账字段");
-									excelTitle.add("顾问");
-									excelTitle.add("状态");
-									excelTitle.add("财务审核时间");
-									excelTitle.add("佣金备注");
-									excelTitle.add("服务备注");
+			// 添加子表
+			String accessTokenZiBiao = WXWorkAPI.CREATE_CHILE_TABLE.replace("ACCESS_TOKEN", customerToken);
+			final JSONObject[] parmZiBiao = {new JSONObject()};
+        	parmZiBiao[0].put("docid", docid);
+			JSONObject jsonObjectProperties = new JSONObject();
+			jsonObjectProperties.put("title", "测试表格1");
+			jsonObjectProperties.put("index", 2);
+			parmZiBiao[0].put("properties", jsonObjectProperties);
+			JSONObject jsonObject1 = WXWorkAPI.sendPostBody_Map(accessTokenZiBiao, parmZiBiao[0]);
+			log.info("setupExcelJsonObject-------------" + jsonObject1.toString());
 
-									for (CommissionOrderListDTO serviceOrderDTO : finalServiceOrderList) {
-										if (count == 0) {
-											gridData.put("start_row", 0);
-											gridData.put("start_column", 0);
-											List<JSONObject> rows = new ArrayList<>();
-											for (String title : excelTitle) {
-												JSONObject jsonObject = new JSONObject();
-												JSONObject text = new JSONObject();
-												text.put("text", title);
-												jsonObject.put("cell_value", text);
-												rows.add(jsonObject);
-											}
-											List<JSONObject> objects = new ArrayList<>();
-											JSONObject rowsValue = new JSONObject();
-											rowsValue.put("values", rows);
-											objects.add(rowsValue);
-											gridData.put("rows", objects);
-											updateRangeRequest.put("sheet_id", sheetId);
-											updateRangeRequest.put("grid_data", gridData);
-											requestsJson.put("update_range_request", updateRangeRequest);
-											requests.add(requestsJson);
-											parm[0].put("requests", requests);
-											count++;
-											WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
-											parm[0] = new JSONObject();
-											requests.remove(0);
-										}
-										parm[0].put("docid", docId);
-										gridData.put("start_row", count);
-										gridData.put("start_column", 0);
-										List<JSONObject> rows = build(serviceOrderDTO, adviserMap, _regionId);
-										List<JSONObject> objects = new ArrayList<>();
-										JSONObject rowsValue = new JSONObject();
-										rowsValue.put("values", rows);
-										objects.add(rowsValue);
-										gridData.put("rows", objects);
-										updateRangeRequest.put("sheet_id", sheetId);
-										updateRangeRequest.put("grid_data", gridData);
-										requestsJson.put("update_range_request", updateRangeRequest);
-										requests.add(requestsJson);
-										parm[0].put("requests", requests);
-										count++;
-										WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
-										parm[0] = new JSONObject();
-										requests.remove(0);
-									}
-								}
+			// 获得sheetId
+			Object properties = jsonObject1.get("properties");
+			JSONObject jsonObject4 = JSONObject.parseObject(properties.toString());
+			String sheetId = jsonObject4.get("sheet_id").toString();
+			log.info("sheet_id-------------------" + sheetId);
+
+			// 查询默认字段id
+			String accessTokenMoRen = WXWorkAPI.GET_DEFAULT_FIELD.replace("ACCESS_TOKEN", customerToken);
+			final JSONObject[] parmMoRen = {new JSONObject()};
+			parmMoRen[0].put("docid", docid);
+			parmMoRen[0].put("sheet_id", sheetId);
+			parmMoRen[0].put("offset", 0);
+			parmMoRen[0].put("limit", 10);
+			JSONObject jsonObject5 = WXWorkAPI.sendPostBody_Map(accessTokenMoRen, parmMoRen[0]);
+			log.info("setupExcelJsonObject-------------" + jsonObject5.toString());
+
+			// 获取默认字段id
+			String fieldId = "";
+			Object fields = jsonObject5.get("fields");
+			JSONArray jsonArray = JSONArray.parseArray(fields.toString());
+			Iterator<Object> iterator = jsonArray.iterator();
+			while (iterator.hasNext()) {
+				Object next = iterator.next();
+				JSONObject jsonObject = JSONObject.parseObject(next.toString());
+				fieldId = jsonObject.get("field_id").toString();
+				log.info("字段id----------------------" + fieldId);
+			}
+
+			// 更新字段
+			String accessToken2 = WXWorkAPI.UPDATE_FIELD.replace("ACCESS_TOKEN", customerToken);
+			log.info("更新字段-------------------" + accessToken2);
+			final JSONObject[] parm2 = {new JSONObject()};
+			parm2[0].put("docid", docid);
+			parm2[0].put("sheet_id", sheetId);
+			// 添加字段标题title
+			List<String> exlceTitles = buildExlceTitle(_regionId);
+			List<JSONObject> fieldList = new ArrayList<>();
+			for (String exlceTitle : exlceTitles) {
+				JSONObject jsonObjectField = new JSONObject();
+				jsonObjectField.put("field_title", exlceTitle);
+				jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+				fieldList.add(jsonObjectField);
+			}
+			parm2[0].put("fields", fieldList);
+			JSONObject jsonObject2 = WXWorkAPI.sendPostBody_Map(accessToken2, parm2[0]);
+			log.info("jsonObject2-------------" + jsonObject2.toString());
+
+			// 删除字段
+			String accessTokenShanChu = WXWorkAPI.DELETE_FIELD.replace("ACCESS_TOKEN", customerToken);
+			final JSONObject[] parmShanChu = {new JSONObject()};
+			parmShanChu[0].put("docid", docid);
+			parmShanChu[0].put("sheet_id", sheetId);
+			List<String> fielIds = new ArrayList<>();
+			fielIds.add(fieldId);
+			parmShanChu[0].put("field_ids", fielIds);
+			JSONObject jsonObjectShanChu = WXWorkAPI.sendPostBody_Map(accessTokenShanChu, parmShanChu[0]);
+			log.info("setupExcelJsonObject-------------" + jsonObjectShanChu.toString());
+
+
+			String url = "";
+			if ("0".equals(jsonObject2.get("errcode").toString())) {
+				url = setupExcelJsonObject.get("url").toString();
+				String docId = setupExcelJsonObject.get("docid").toString();
+				SetupExcelDO setupExcelDO = new SetupExcelDO();
+				setupExcelDO.setUrl(url);
+				setupExcelDO.setDocId(docId);
+				List<CommissionOrderListDTO> finalServiceOrderList = commissionOrderList;
+				Thread thread1 = new Thread(() -> {
+					try {
+						// 线程1的任务
+						if ("0".equals(jsonObject1.get("errcode").toString())) {
+							// 添加行记录
+							String accessTokenJiLu = WXWorkAPI.INSERT_ROW.replace("ACCESS_TOKEN", customerToken);
+							final JSONObject[] parmJiLu = {new JSONObject()};
+							parmJiLu[0].put("docid", docid);
+							parmJiLu[0].put("sheet_id", sheetId);
+							for (CommissionOrderListDTO serviceOrderDTO : finalServiceOrderList) {
+								JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(serviceOrderDTO, adviserMap, _regionId);
+								List<JSONObject> recordsList = new ArrayList<>();
+								JSONObject jsonObjectValue = new JSONObject();
+								jsonObjectValue.put("values", jsonObjectFILEDTITLE);
+								recordsList.add(jsonObjectValue);
+								parmJiLu[0].put("records", recordsList);
+								log.info("请求体--------------------------" + JSONObject.toJSONString(parmJiLu[0]));
+								JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+								log.info(accessTokenJiLu);
+								log.info("setupExcelJsonObject-------------" + jsonObjectJiLu.toString());
 							}
-						} catch (Exception e) {
-							// 处理异常，例如记录日志
-							e.printStackTrace();
 						}
-					});
-					thread1.start();
-				}
-				StringBuilder htmlBuilder = new StringBuilder();
-				htmlBuilder.append("<a href=\"");
-				htmlBuilder.append(url + "\""); // 插入链接的URL
-				htmlBuilder.append(" target=\"_blank");
-				htmlBuilder.append("\">");
-				htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
-				htmlBuilder.append("</a>");
-				WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出留学佣金订单信息");
-				return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
-//			}
-//			if (getKjId(request) != null) {
-//				if (regionService.isCN(_regionId)) {
-//					os = response.getOutputStream();
-//					try {
-//						is = this.getClass().getResourceAsStream("/CommissionOrderTemplateCNY.xls");
-//					} catch (Exception e) {
-//						throw new Exception("模版不存在");
-//					}
-//					try {
-//						wb = Workbook.getWorkbook(is);
-//					} catch (Exception e) {
-//						throw new Exception("模版格式不支持");
-//					}
-//					WorkbookSettings settings = new WorkbookSettings();
-//					settings.setWriteAccess(null);
-//					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
-//
-//					if (wbe == null) {
-//						System.out.println("wbe is null !os=" + os + ",wb" + wb);
-//					} else {
-//						System.out.println("wbe not null !os=" + os + ",wb" + wb);
-//					}
-//					WritableSheet sheet = wbe.getSheet(0);
-//					WritableCellFormat cellFormat = new WritableCellFormat();
-//
-//					int i = 1;
-//					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-//						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
-//						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
-//						if (commissionOrderListDto.getReceiveDate() != null)
-//							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
-//						if (commissionOrderListDto.getApplicant() != null)
-//							sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
-//									+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
-//						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
-//						if (commissionOrderListDto.getBirthday() != null)
-//							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
-//						if (commissionOrderListDto.getReceiveType() != null)
-//							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-//						if (commissionOrderListDto.getService() != null)
-//							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
-//						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
-//						if (commissionOrderListDto.getSchool() != null) {
-//							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
-//							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
-//						}
-//						if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
-//							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
-//							//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
-//							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
-//							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
-//								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
-//								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
-//							}
-//							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
-//								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
-//						}
-//						if (commissionOrderListDto.getStartDate() != null)
-//							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
-//						if (commissionOrderListDto.getEndDate() != null)
-//							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
-//						if (commissionOrderListDto.getInstallmentDueDate() != null)
-//							sheet.addCell(
-//									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
-//						if (commissionOrderListDto.getReceiveType() != null)
-//							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-//						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
-//						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-//						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
-//						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
-//						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
-//						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
-//						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
-//						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-//						if (commissionOrderListDto.isSettle())
-//							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-//						else
-//							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(30, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
-//						//31待确定
-//						if (commissionOrderListDto.getSchoolPaymentDate() != null)
-//							sheet.addCell(
-//									new Label(32, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-//						sheet.addCell(new Label(33, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
-//						if (commissionOrderListDto.getZyDate() != null)
-//							sheet.addCell(new Label(34, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
-//						if (commissionOrderListDto.getSubagency() != null)
-//							sheet.addCell(new Label(35, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-//						sheet.addCell(new Label(36, i, commissionOrderListDto.getBonus() + "", cellFormat));
-//						if (commissionOrderListDto.getBonusDate() != null)
-//							sheet.addCell(new Label(37, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-//						sheet.addCell(new Label(38, i, commissionOrderListDto.getBankCheck(), cellFormat));
-//						sheet.addCell(new Label(39, i, commissionOrderListDto.isChecked() + "", cellFormat));
-//						if (commissionOrderListDto.getAdviser() != null)
-//							sheet.addCell(new Label(40, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
-//						if (commissionOrderListDto.getState() != null)
-//							sheet.addCell(new Label(41, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
-//						if (commissionOrderListDto.getKjApprovalDate() != null)
-//							sheet.addCell(new Label(42, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-//						sheet.addCell(new Label(43, i, commissionOrderListDto.getRemarks(), cellFormat));
-//						ServiceOrderDTO serviceOrderDTO = serviceOrderService
-//								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-//						sheet.addCell(new Label(44, i,
-//								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
-//										: "",
-//								cellFormat));
-//						i++;
-//					}
-//					wbe.write();
-//					wbe.close();
-//
-//				} else {
-//
-//					os = response.getOutputStream();
-//					try {
-//						is = this.getClass().getResourceAsStream("/CommissionOrderTemplate.xls");
-//					} catch (Exception e) {
-//						throw new Exception("模版不存在");
-//					}
-//					try {
-//						wb = Workbook.getWorkbook(is);
-//					} catch (Exception e) {
-//						throw new Exception("模版格式不支持");
-//					}
-//					WorkbookSettings settings = new WorkbookSettings();
-//					settings.setWriteAccess(null);
-//					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
-//
-//					if (wbe == null) {
-//						System.out.println("wbe is null !os=" + os + ",wb" + wb);
-//					} else {
-//						System.out.println("wbe not null !os=" + os + ",wb" + wb);
-//					}
-//					WritableSheet sheet = wbe.getSheet(0);
-//					WritableCellFormat cellFormat = new WritableCellFormat();
-//
-//					int i = 1;
-//					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-//						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
-//						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
-//						if (commissionOrderListDto.getReceiveDate() != null)
-//							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
-//						if (commissionOrderListDto.getApplicant() != null)
-//							sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
-//									+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
-//						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
-//						if (commissionOrderListDto.getBirthday() != null)
-//							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
-//						if (commissionOrderListDto.getReceiveType() != null)
-//							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-//						if (commissionOrderListDto.getService() != null)
-//							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
-//						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
-//						if (commissionOrderListDto.getSchool() != null) {
-//							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
-//							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
-//						}
-//						if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
-//							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
-//							//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
-//							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
-//							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
-//								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
-//								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
-//							}
-//							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
-//								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
-//						}
-//						if (commissionOrderListDto.getStartDate() != null)
-//							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
-//						if (commissionOrderListDto.getEndDate() != null)
-//							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
-//						if (commissionOrderListDto.getInstallmentDueDate() != null)
-//							sheet.addCell(
-//									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
-//						if (commissionOrderListDto.getReceiveType() != null)
-//							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-//						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
-//						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-//						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
-//						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
-//						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
-//						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
-//						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
-//						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-//						if (commissionOrderListDto.isSettle())
-//							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-//						else
-//							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
-//						sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", cellFormat));
-//						sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
-//						sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
-//						if (commissionOrderListDto.getSchoolPaymentDate() != null)
-//							sheet.addCell(
-//									new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-//						sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
-//						if (commissionOrderListDto.getZyDate() != null)
-//							sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
-//						if (commissionOrderListDto.getSubagency() != null)
-//							sheet.addCell(new Label(36, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-//						sheet.addCell(new Label(37, i, commissionOrderListDto.getBonus() + "", cellFormat));
-//						if (commissionOrderListDto.getBonusDate() != null)
-//							sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-//						sheet.addCell(new Label(39, i, commissionOrderListDto.getBankCheck(), cellFormat));
-//						sheet.addCell(new Label(40, i, commissionOrderListDto.isChecked() + "", cellFormat));
-//						if (commissionOrderListDto.getAdviser() != null)
-//							sheet.addCell(new Label(41, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
-//						if (commissionOrderListDto.getState() != null)
-//							sheet.addCell(new Label(42, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
-//						if (commissionOrderListDto.getKjApprovalDate() != null)
-//							sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-//						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), cellFormat));
-//						ServiceOrderDTO serviceOrderDTO = serviceOrderService
-//								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
-//						sheet.addCell(new Label(45, i,
-//								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
-//										: "",
-//								cellFormat));
-//						i++;
-//					}
-//					wbe.write();
-//					wbe.close();
-//
-//				}
-//			}
+					} catch (Exception e) {
+						// 处理异常，例如记录日志
+						e.printStackTrace();
+					}
+				});
+				thread1.start();
+			}
+			StringBuilder htmlBuilder = new StringBuilder();
+			htmlBuilder.append("<a href=\"");
+			htmlBuilder.append(url + "\""); // 插入链接的URL
+			htmlBuilder.append(" target=\"_blank");
+			htmlBuilder.append("\">");
+			htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+			htmlBuilder.append("</a>");
+//			WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出留学佣金订单信息");
+			return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//		finally{
-//			try {
-//				if (is != null)
-//					is.close();
-//				System.out.println("is is close");
-//			} catch (IOException e) {
-//				System.out.println("is is close 出现 异常:");
-//				e.printStackTrace();
-//			}
-//			try {
-//				if (os != null)
-//					os.close();
-//				System.out.println("os is close");
-//			} catch (IOException e) {
-//				System.out.println("os is close 出现 异常:");
-//				e.printStackTrace();
-//			}
-//			if (wb != null)
-//				wb.close();
-//			System.out.println("wb is close");
-//		}
 		return new Response<>(0, "生成Excel成功， excel链接为：");
 	}
+
+
+
+
+//	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)
+//	@ResponseBody
+//	public Response<String> down_V2(@RequestParam(value = "id", required = false) Integer id,
+//					 @RequestParam(value = "regionId", required = false) Integer regionId,
+//					 @RequestParam(value = "maraId", required = false) Integer maraId,
+//					 @RequestParam(value = "adviserId", required = false) Integer adviserId,
+//					 @RequestParam(value = "officialId", required = false) Integer officialId,
+//					 @RequestParam(value = "userId", required = false) Integer userId,
+//					 @RequestParam(value = "userName", required = false) String name,
+//					 @RequestParam(value = "applicantName", required = false) String applicantName,
+//					 @RequestParam(value = "phone", required = false) String phone,
+//					 @RequestParam(value = "wechatUsername", required = false) String wechatUsername,
+//					 @RequestParam(value = "schoolId", required = false) Integer schoolId,
+//					 @RequestParam(value = "isSettle", required = false) Boolean isSettle,
+//					 @RequestParam(value = "state", required = false) String state,
+//					 @RequestParam(value = "commissionState", required = false) String commissionState,
+//					 @RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
+//					 @RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
+//					 @RequestParam(value = "startDate", required = false) String startDate,
+//					 @RequestParam(value = "endDate", required = false) String endDate,
+//					 @RequestParam(value = "startInvoiceCreate", required = false) String startInvoiceCreate,
+//					 @RequestParam(value = "endInvoiceCreate", required = false) String endInvoiceCreate,
+//					 HttpServletRequest request, HttpServletResponse response) {
+//
+//		Integer newMaraId = getMaraId(request);
+//		if (newMaraId != null)
+//			maraId = newMaraId;
+//		Integer newAdviserId = getAdviserId(request);
+//		if (newAdviserId != null)
+//			adviserId = newAdviserId;
+//		Integer newOfficialId = getOfficialId(request);
+//		if (newOfficialId != null)
+//			officialId = newOfficialId;
+//		Integer kjId = getKjId(request);
+//
+//		List<String> commissionStateList = null;
+//		if (StringUtil.isNotEmpty(commissionState))
+//			commissionStateList = Arrays.asList(commissionState.split(","));
+//
+//		// 会计角色过滤状态
+//		Boolean isYzyAndYjy = false;
+//		List<String> stateList = new ArrayList<>();
+//		if (state == null && getKjId(request) != null) {
+//			stateList.add(ReviewKjStateEnum.REVIEW.toString());
+//			stateList.add(ReviewKjStateEnum.FINISH.toString());
+//			stateList.add(ReviewKjStateEnum.COMPLETE.toString());
+////			stateList.add(ReviewKjStateEnum.CLOSE.toString());
+//			if (CommissionStateEnum.YZY.toString().equalsIgnoreCase(commissionState)) {
+//				commissionStateList = null;
+//				isYzyAndYjy = true;
+//			}
+//		} else if (state == null)
+//			stateList = null;
+//		else
+//			stateList.add(state);
+//
+//		List<Integer> regionIdList = null;
+//		if (regionId != null && regionId > 0)
+//			regionIdList = ListUtil.buildArrayList(regionId);
+//
+//		InputStream is = null;
+//		OutputStream os = null;
+//		Workbook wb = null;
+//		try {
+//
+//			// 处理顾问管理员
+//			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//			if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//					&& adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+//				List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
+//				regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+//				for (RegionDTO region : regionList)
+//					regionIdList.add(region.getId());
+//				adviserId = null;
+//			}
+//
+////			response.reset();// 清空输出流
+////			String tableName = "commission_order_information";
+////			response.setHeader("Content-disposition",
+////					"attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+////			response.setContentType("application/msexcel");
+//
+////			Date _startKjApprovalDate = null;
+////			if (startKjApprovalDate != null)
+////				_startKjApprovalDate = new Date(Long.parseLong(startKjApprovalDate));
+////			Date _endKjApprovalDate = null;
+////			if (endKjApprovalDate != null)
+////				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
+//
+//			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
+//					regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
+//					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
+//					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
+//
+//			if (commissionOrderList == null)
+//				throw new Exception("查询佣金订单数据错误!");
+//			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
+//
+//			int _regionId;
+//			if (ObjectUtil.isNotNull(adviserId) && adviserId > 0)
+//				_regionId = adviserService.getAdviserById(adviserId).getRegionId();
+//            else {
+//                _regionId = 0;
+//            }
+//				// 获取token
+//				Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+//				if ((int)tokenMap.get("errcode") != 0){
+//					throw  new RuntimeException( tokenMap.get("errmsg").toString());
+//				}
+//				String customerToken = (String) tokenMap.get("access_token");
+//
+//				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
+//				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
+//
+//				// 创建表格
+//				String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//				final JSONObject[] parm = {new JSONObject()};
+//				parm[0].put("doc_type", 4);
+//				parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+//				String[] userIds = {"XuShiYi"};
+//				parm[0].put("admin_users", userIds);
+//				JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+//				String url = "";
+//				if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+//					url = setupExcelJsonObject.get("url").toString();
+//					String docId = setupExcelJsonObject.get("docid").toString();
+//					SetupExcelDO setupExcelDO = new SetupExcelDO();
+//					setupExcelDO.setUrl(url);
+//					setupExcelDO.setDocId(docId);
+//					String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//					parm[0] = new JSONObject();
+//					parm[0].put("docid", docId);
+//					JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+//					List<CommissionOrderListDTO> finalServiceOrderList = commissionOrderList;
+//					Thread thread1 = new Thread(() -> {
+//						try {
+//							// 线程1的任务
+//							if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
+//								JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
+//								Iterator<Object> iterator = propertiesObjects.iterator();
+//								String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
+//								setupExcelDO.setSheetId(sheetId);
+//								int i = wxWorkService.addExcel(setupExcelDO);
+//								if (i > 0) {
+//									String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//									parm[0] = new JSONObject();
+//									parm[0].put("docid", docId);
+//
+//									List<JSONObject> requests = new ArrayList<>();
+//									JSONObject requestsJson = new JSONObject();
+//									JSONObject updateRangeRequest = new JSONObject();
+//									JSONObject gridData = new JSONObject();
+//									int count = 0;
+//
+//									List<String> excelTitle = new ArrayList<>();
+//									excelTitle.add("订单ID");
+//									excelTitle.add("佣金订单创建日期");
+//									excelTitle.add("客户支付日期");
+//									excelTitle.add("Student Name");
+//									excelTitle.add("Student ID");
+//									excelTitle.add("生日");
+//									excelTitle.add("收款方式");
+//									excelTitle.add("服务项目");
+//									excelTitle.add("是否提前扣佣");
+//									excelTitle.add("Institute/Institution Trading Name");
+//									excelTitle.add("Institution Name");
+//									excelTitle.add("Location Name");
+//									excelTitle.add("State");
+//									excelTitle.add("Course Name");
+//									excelTitle.add("Course Start Date");
+//									excelTitle.add("Course End Date");
+//									excelTitle.add("Installment Due Date");
+//									excelTitle.add("收款方式");
+//									excelTitle.add("Total Tuition Fee");
+//									excelTitle.add("Per Tuition Fee per Installment");
+//									excelTitle.add("总计应收人民币");
+//									excelTitle.add("总计应收澳币");
+//									excelTitle.add("总计已收人民币");
+//									excelTitle.add("总计已收澳币");
+//									excelTitle.add("本次支付币种");
+//									excelTitle.add("创建订单时汇率");
+//									excelTitle.add("本次收款人民币");
+//									excelTitle.add("本次收款澳币");
+//									excelTitle.add("Commission");
+//									excelTitle.add("确认预收业绩");
+//									if (!regionService.isCN(_regionId)) {
+//										excelTitle.add("GST");
+//										excelTitle.add("Deduct GST");
+//									}
+//									excelTitle.add("学校支付金额");
+//									excelTitle.add("学校支付时间");
+//									excelTitle.add("Invoice NO.");
+//									excelTitle.add("追佣时间");
+//									excelTitle.add("Subagency");
+//									excelTitle.add("月奖");
+//									excelTitle.add("月奖支付时间");
+//									excelTitle.add("银行对账字段");
+//									excelTitle.add("顾问");
+//									excelTitle.add("状态");
+//									excelTitle.add("财务审核时间");
+//									excelTitle.add("佣金备注");
+//									excelTitle.add("服务备注");
+//
+//									for (CommissionOrderListDTO serviceOrderDTO : finalServiceOrderList) {
+//										if (count == 0) {
+//											gridData.put("start_row", 0);
+//											gridData.put("start_column", 0);
+//											List<JSONObject> rows = new ArrayList<>();
+//											for (String title : excelTitle) {
+//												JSONObject jsonObject = new JSONObject();
+//												JSONObject text = new JSONObject();
+//												text.put("text", title);
+//												jsonObject.put("cell_value", text);
+//												rows.add(jsonObject);
+//											}
+//											List<JSONObject> objects = new ArrayList<>();
+//											JSONObject rowsValue = new JSONObject();
+//											rowsValue.put("values", rows);
+//											objects.add(rowsValue);
+//											gridData.put("rows", objects);
+//											updateRangeRequest.put("sheet_id", sheetId);
+//											updateRangeRequest.put("grid_data", gridData);
+//											requestsJson.put("update_range_request", updateRangeRequest);
+//											requests.add(requestsJson);
+//											parm[0].put("requests", requests);
+//											count++;
+//											WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//											parm[0] = new JSONObject();
+//											requests.remove(0);
+//										}
+//										parm[0].put("docid", docId);
+//										gridData.put("start_row", count);
+//										gridData.put("start_column", 0);
+//										List<JSONObject> rows = build(serviceOrderDTO, adviserMap, _regionId);
+//										List<JSONObject> objects = new ArrayList<>();
+//										JSONObject rowsValue = new JSONObject();
+//										rowsValue.put("values", rows);
+//										objects.add(rowsValue);
+//										gridData.put("rows", objects);
+//										updateRangeRequest.put("sheet_id", sheetId);
+//										updateRangeRequest.put("grid_data", gridData);
+//										requestsJson.put("update_range_request", updateRangeRequest);
+//										requests.add(requestsJson);
+//										parm[0].put("requests", requests);
+//										count++;
+//										WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//										parm[0] = new JSONObject();
+//										requests.remove(0);
+//									}
+//								}
+//							}
+//						} catch (Exception e) {
+//							// 处理异常，例如记录日志
+//							e.printStackTrace();
+//						}
+//					});
+//					thread1.start();
+//				}
+//				StringBuilder htmlBuilder = new StringBuilder();
+//				htmlBuilder.append("<a href=\"");
+//				htmlBuilder.append(url + "\""); // 插入链接的URL
+//				htmlBuilder.append(" target=\"_blank");
+//				htmlBuilder.append("\">");
+//				htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+//				htmlBuilder.append("</a>");
+//				WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出留学佣金订单信息");
+//				return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
+////			}
+////			if (getKjId(request) != null) {
+////				if (regionService.isCN(_regionId)) {
+////					os = response.getOutputStream();
+////					try {
+////						is = this.getClass().getResourceAsStream("/CommissionOrderTemplateCNY.xls");
+////					} catch (Exception e) {
+////						throw new Exception("模版不存在");
+////					}
+////					try {
+////						wb = Workbook.getWorkbook(is);
+////					} catch (Exception e) {
+////						throw new Exception("模版格式不支持");
+////					}
+////					WorkbookSettings settings = new WorkbookSettings();
+////					settings.setWriteAccess(null);
+////					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+////
+////					if (wbe == null) {
+////						System.out.println("wbe is null !os=" + os + ",wb" + wb);
+////					} else {
+////						System.out.println("wbe not null !os=" + os + ",wb" + wb);
+////					}
+////					WritableSheet sheet = wbe.getSheet(0);
+////					WritableCellFormat cellFormat = new WritableCellFormat();
+////
+////					int i = 1;
+////					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
+////						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
+////						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
+////						if (commissionOrderListDto.getReceiveDate() != null)
+////							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+////						if (commissionOrderListDto.getApplicant() != null)
+////							sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
+////									+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
+////						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
+////						if (commissionOrderListDto.getBirthday() != null)
+////							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
+////						if (commissionOrderListDto.getReceiveType() != null)
+////							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+////						if (commissionOrderListDto.getService() != null)
+////							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
+////						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
+////						if (commissionOrderListDto.getSchool() != null) {
+////							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
+////							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
+////						}
+////						if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
+////							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
+////							//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
+////							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
+////							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
+////								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
+////								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
+////							}
+////							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
+////								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+////						}
+////						if (commissionOrderListDto.getStartDate() != null)
+////							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
+////						if (commissionOrderListDto.getEndDate() != null)
+////							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
+////						if (commissionOrderListDto.getInstallmentDueDate() != null)
+////							sheet.addCell(
+////									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
+////						if (commissionOrderListDto.getReceiveType() != null)
+////							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+////						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
+////						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
+////						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
+////						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
+////						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
+////						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
+////						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
+////						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+////						if (commissionOrderListDto.isSettle())
+////							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+////						else
+////							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(30, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+////						//31待确定
+////						if (commissionOrderListDto.getSchoolPaymentDate() != null)
+////							sheet.addCell(
+////									new Label(32, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
+////						sheet.addCell(new Label(33, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+////						if (commissionOrderListDto.getZyDate() != null)
+////							sheet.addCell(new Label(34, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+////						if (commissionOrderListDto.getSubagency() != null)
+////							sheet.addCell(new Label(35, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
+////						sheet.addCell(new Label(36, i, commissionOrderListDto.getBonus() + "", cellFormat));
+////						if (commissionOrderListDto.getBonusDate() != null)
+////							sheet.addCell(new Label(37, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+////						sheet.addCell(new Label(38, i, commissionOrderListDto.getBankCheck(), cellFormat));
+////						sheet.addCell(new Label(39, i, commissionOrderListDto.isChecked() + "", cellFormat));
+////						if (commissionOrderListDto.getAdviser() != null)
+////							sheet.addCell(new Label(40, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+////						if (commissionOrderListDto.getState() != null)
+////							sheet.addCell(new Label(41, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
+////						if (commissionOrderListDto.getKjApprovalDate() != null)
+////							sheet.addCell(new Label(42, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
+////						sheet.addCell(new Label(43, i, commissionOrderListDto.getRemarks(), cellFormat));
+////						ServiceOrderDTO serviceOrderDTO = serviceOrderService
+////								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+////						sheet.addCell(new Label(44, i,
+////								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
+////										: "",
+////								cellFormat));
+////						i++;
+////					}
+////					wbe.write();
+////					wbe.close();
+////
+////				} else {
+////
+////					os = response.getOutputStream();
+////					try {
+////						is = this.getClass().getResourceAsStream("/CommissionOrderTemplate.xls");
+////					} catch (Exception e) {
+////						throw new Exception("模版不存在");
+////					}
+////					try {
+////						wb = Workbook.getWorkbook(is);
+////					} catch (Exception e) {
+////						throw new Exception("模版格式不支持");
+////					}
+////					WorkbookSettings settings = new WorkbookSettings();
+////					settings.setWriteAccess(null);
+////					jxl.write.WritableWorkbook wbe = Workbook.createWorkbook(os, wb, settings);
+////
+////					if (wbe == null) {
+////						System.out.println("wbe is null !os=" + os + ",wb" + wb);
+////					} else {
+////						System.out.println("wbe not null !os=" + os + ",wb" + wb);
+////					}
+////					WritableSheet sheet = wbe.getSheet(0);
+////					WritableCellFormat cellFormat = new WritableCellFormat();
+////
+////					int i = 1;
+////					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
+////						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
+////						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
+////						if (commissionOrderListDto.getReceiveDate() != null)
+////							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+////						if (commissionOrderListDto.getApplicant() != null)
+////							sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
+////									+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
+////						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
+////						if (commissionOrderListDto.getBirthday() != null)
+////							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
+////						if (commissionOrderListDto.getReceiveType() != null)
+////							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+////						if (commissionOrderListDto.getService() != null)
+////							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
+////						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
+////						if (commissionOrderListDto.getSchool() != null) {
+////							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
+////							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
+////						}
+////						if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
+////							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
+////							//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
+////							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
+////							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
+////								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
+////								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
+////							}
+////							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
+////								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+////						}
+////						if (commissionOrderListDto.getStartDate() != null)
+////							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
+////						if (commissionOrderListDto.getEndDate() != null)
+////							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
+////						if (commissionOrderListDto.getInstallmentDueDate() != null)
+////							sheet.addCell(
+////									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
+////						if (commissionOrderListDto.getReceiveType() != null)
+////							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+////						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
+////						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
+////						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
+////						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
+////						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
+////						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
+////						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
+////						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+////						if (commissionOrderListDto.isSettle())
+////							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+////						else
+////							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
+////						sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", cellFormat));
+////						sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
+////						sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+////						if (commissionOrderListDto.getSchoolPaymentDate() != null)
+////							sheet.addCell(
+////									new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
+////						sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+////						if (commissionOrderListDto.getZyDate() != null)
+////							sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+////						if (commissionOrderListDto.getSubagency() != null)
+////							sheet.addCell(new Label(36, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
+////						sheet.addCell(new Label(37, i, commissionOrderListDto.getBonus() + "", cellFormat));
+////						if (commissionOrderListDto.getBonusDate() != null)
+////							sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+////						sheet.addCell(new Label(39, i, commissionOrderListDto.getBankCheck(), cellFormat));
+////						sheet.addCell(new Label(40, i, commissionOrderListDto.isChecked() + "", cellFormat));
+////						if (commissionOrderListDto.getAdviser() != null)
+////							sheet.addCell(new Label(41, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+////						if (commissionOrderListDto.getState() != null)
+////							sheet.addCell(new Label(42, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
+////						if (commissionOrderListDto.getKjApprovalDate() != null)
+////							sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
+////						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), cellFormat));
+////						ServiceOrderDTO serviceOrderDTO = serviceOrderService
+////								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+////						sheet.addCell(new Label(45, i,
+////								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
+////										: "",
+////								cellFormat));
+////						i++;
+////					}
+////					wbe.write();
+////					wbe.close();
+////
+////				}
+////			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+////		finally{
+////			try {
+////				if (is != null)
+////					is.close();
+////				System.out.println("is is close");
+////			} catch (IOException e) {
+////				System.out.println("is is close 出现 异常:");
+////				e.printStackTrace();
+////			}
+////			try {
+////				if (os != null)
+////					os.close();
+////				System.out.println("os is close");
+////			} catch (IOException e) {
+////				System.out.println("os is close 出现 异常:");
+////				e.printStackTrace();
+////			}
+////			if (wb != null)
+////				wb.close();
+////			System.out.println("wb is close");
+////		}
+//		return new Response<>(0, "生成Excel成功， excel链接为：");
+//	}
 
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
@@ -3496,5 +3733,261 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					+ "<br/><br/><a href='https://yongjinbiao.zhinanzhen.org/webroot_new/commissionorderdetail/ovst/id?" + commissionOrderById.getId() + "'>需要申请月奖的佣金订单链接</a>";
 			SendEmailUtil.send(adviserDTO.getEmail(), userDTO.getName() + sdf.format(commissionOrderById.getInstallmentDueDate())+ " 请及时申请月奖",message);
 		}
+	}
+
+	public List<String> buildExlceTitle(Integer _regionId) throws ServiceException {
+		List<String> excelTitle = new ArrayList<>();
+		excelTitle.add("服务备注");
+		excelTitle.add("佣金备注");
+		excelTitle.add("财务审核时间");
+		excelTitle.add("状态");
+		excelTitle.add("顾问");
+		excelTitle.add("银行对账字段");
+		excelTitle.add("月奖支付时间");
+		excelTitle.add("月奖");
+		excelTitle.add("Subagency");
+		excelTitle.add("追佣时间");
+		excelTitle.add("Invoice NO.");
+		excelTitle.add("学校支付时间");
+		excelTitle.add("学校支付金额");
+		if (!regionService.isCN(_regionId)) {
+			excelTitle.add("Deduct GST");
+			excelTitle.add("GST");
+		}
+		excelTitle.add("确认预收业绩");
+		excelTitle.add("Commission");
+		excelTitle.add("本次收款澳币");
+		excelTitle.add("本次收款人民币");
+		excelTitle.add("创建订单时汇率");
+		excelTitle.add("本次支付币种");
+		excelTitle.add("总计已收澳币");
+		excelTitle.add("总计已收人民币");
+		excelTitle.add("总计应收澳币");
+		excelTitle.add("总计应收人民币");
+		excelTitle.add("Per Tuition Fee per Installment");
+		excelTitle.add("Total Tuition Fee");
+		excelTitle.add("收款 方式");
+		excelTitle.add("Installment Due Date");
+		excelTitle.add("Course End Date");
+		excelTitle.add("Course Start Date");
+		excelTitle.add("Course Name");
+		excelTitle.add("State");
+		excelTitle.add("Location Name");
+		excelTitle.add("Institution Name");
+		excelTitle.add("Institute/Institution Trading Name");
+		excelTitle.add("是否提前扣佣");
+		excelTitle.add("服务项目");
+		excelTitle.add("收款方式");
+		excelTitle.add("生日");
+		excelTitle.add("Student ID");
+		excelTitle.add("Student Name");
+		excelTitle.add("客户支付日期");
+		excelTitle.add("佣金订单创建日期");
+		excelTitle.add("订单ID");
+		return excelTitle;
+	}
+
+	private JSONObject buileExcelJsonObject(CommissionOrderListDTO so, Map<Integer, String> adviserMap, int regionId) throws ServiceException {
+		List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
+		JSONObject jsonObjectFILEDTITLE = new JSONObject();
+		JSONObject jsonObject = new JSONObject();
+		//订单ID
+		buildJsonobjectRow(String.valueOf(so.getId()), "订单ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//佣金订单创建日期
+		buildJsonobjectRow(sdf.format( so.getGmtCreate()), "佣金订单创建日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//客户支付日期
+		if ( so.getReceiveDate() != null) {
+			buildJsonobjectRow(sdf.format( so.getReceiveDate()), "客户支付日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "客户支付日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Student Name
+		if ( so.getApplicant() != null) {
+			buildJsonobjectRow(so.getApplicant().getFirstname(), "Student Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "Student Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Student ID
+		if ( so.getApplicant() != null) {
+			buildJsonobjectRow(so.getStudentCode(), "Student ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "Student ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//生日
+		if ( so.getBirthday() != null) {
+			buildJsonobjectRow(sdf.format(so.getBirthday()), "生日", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "生日", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//收款方式
+		if ( so.getReceiveType() != null) {
+			buildJsonobjectRow(so.getReceiveType().getName(), "收款方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "收款方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//服务项目
+		if (so.getService() != null) {
+			buildJsonobjectRow(so.getService().getName(), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//是否提前扣佣
+		buildJsonobjectRow(String.valueOf(so.isSettle()), "是否提前扣佣", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//Institute/Institution Trading Name
+		//Institution Name
+		if ( so.getSchool() != null) {
+			buildJsonobjectRow(so.getSchool().getName(), "Institute/Institution Trading Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else if (so.getSchoolInstitutionListDTO() != null) {
+			buildJsonobjectRow(so.getSchoolInstitutionListDTO().getInstitutionTradingName(), "Institute/Institution Trading Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+
+			buildJsonobjectRow(so.getSchoolInstitutionListDTO().getInstitutionName(), "Institution Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+
+			if ( so.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
+				//Location Name
+				buildJsonobjectRow(so.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), "Location Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+				//State
+				buildJsonobjectRow(so.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), "State", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+
+			} else {
+				buildJsonobjectRow("", "Location Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+				buildJsonobjectRow("", "State", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			}
+			if (so.getSchoolInstitutionListDTO().getSchoolCourseDO() != null) {
+				//Course Name
+				buildJsonobjectRow(so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), "Course Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			} else {
+				buildJsonobjectRow(so.getSchool().getSubject(), "Course Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			}
+
+		} else {
+			buildJsonobjectRow("", "Institute/Institution Trading Name", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Course Start Date
+		if ( so.getStartDate() != null) {
+			buildJsonobjectRow(sdf.format( so.getStartDate()), "Course Start Date", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "Course Start Date", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Course End Date
+		if ( so.getEndDate() != null) {
+			buildJsonobjectRow(sdf.format( so.getEndDate()), "Course End Date", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "Course End Date", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Installment Due Date
+		buildJsonobjectRow(sdf.format( so.getInstallmentDueDate()), "Installment Due Date", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//收款 方式
+		if ( so.getReceiveType() != null) {
+			buildJsonobjectRow(so.getReceiveType().getName(), "收款 方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "收款 方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Total Tuition Fee
+		buildJsonobjectRow(String.valueOf(so.getTuitionFee()), "Total Tuition Fee", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//Per Tuition Fee per Installment
+		buildJsonobjectRow(String.valueOf(so.getPerAmount()), "Per Tuition Fee per Installment", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//总计应收人民币
+		buildJsonobjectRow(String.valueOf(so.getTotalPerAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//总计应收澳币
+		buildJsonobjectRow(String.valueOf(so.getTotalPerAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//总计已收人民币
+		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计已收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//总计已收澳币
+		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计已收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//本次支付币种
+		buildJsonobjectRow(so.getCurrency(), "本次支付币种", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//创建订单时汇率
+		buildJsonobjectRow(String.valueOf(so.getExchangeRate()), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//本次收款人民币
+		buildJsonobjectRow(String.valueOf(so.getAmountCNY()), "本次收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//本次收款澳币
+		buildJsonobjectRow(String.valueOf(so.getAmountAUD()), "本次收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//Commission
+		buildJsonobjectRow(String.valueOf(so.getExpectAmountAUD()), "Commission", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//确认预收业绩
+		if ( so.isSettle()) {
+			buildJsonobjectRow(String.valueOf(so.getExpectAmountAUD()), "确认预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow(String.valueOf(so.getSureExpectAmountAUD()), "确认预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		if (!regionService.isCN(regionId)) {
+			//GST
+			buildJsonobjectRow(String.valueOf(so.getGst()), "GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			//Deduct GST
+			buildJsonobjectRow(String.valueOf(so.getDeductGst()), "Deduct GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//学校支付金额
+		buildJsonobjectRow(String.valueOf(so.getSchoolPaymentAmount()), "学校支付金额", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//学校支付时间
+		if (ObjectUtil.isNotNull( so.getSchoolPaymentDate())) {
+			buildJsonobjectRow(sdf.format( so.getSchoolPaymentDate()), "学校支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "学校支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Invoice NO.
+		if (so.getInvoiceNumber() != null) {
+			buildJsonobjectRow(so.getInvoiceNumber(), "Invoice NO.", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "Invoice NO.", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//追佣时间
+		if (ObjectUtil.isNotNull( so.getZyDate())) {
+			buildJsonobjectRow(sdf.format( so.getZyDate()), "追佣时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "追佣时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//Subagency
+		String subagencyName = subagencyService.getSubagencyByServiceOrderId( so.getServiceOrderId());
+		if (StringUtil.isNotEmpty(subagencyName)) {
+			buildJsonobjectRow(subagencyName, "Subagency", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "Subagency", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//月奖
+		buildJsonobjectRow(String.valueOf(so.getBonus()), "月奖", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//月奖支付时间
+		if (ObjectUtil.isNotNull( so.getBonusDate())) {
+			buildJsonobjectRow(sdf.format( so.getBonusDate()), "月奖支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "月奖支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//银行对账字段
+		if (so.getVerifyCode() != null) {
+			buildJsonobjectRow(so.getVerifyCode(), "银行对账字段", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "银行对账字段", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//顾问
+		String adviserName = adviserMap.get( so.getAdviserId());
+		if (StringUtil.isNotEmpty(adviserName)) {
+			buildJsonobjectRow(adviserName, "顾问", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "顾问", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//状态
+		buildJsonobjectRow(so.getState(), "状态", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		//财务审核时间
+		if (ObjectUtil.isNotNull( so.getKjApprovalDate())) {
+			buildJsonobjectRow(sdf.format( so.getKjApprovalDate()), "财务审核时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "财务审核时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//佣金备注
+		if (StringUtil.isNotEmpty( so.getRemarks())) {
+			buildJsonobjectRow(so.getRemarks(), "佣金备注", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		} else {
+			buildJsonobjectRow("", "佣金备注", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		}
+		//服务备注
+		return jsonObjectFILEDTITLE;
+	}
+
+	public void buildJsonobjectRow(String value, String title, JSONObject jsonObject, List<JSONObject> jsonObjectFILEDTITLEList, JSONObject jsonObjectFILEDTITLE) {
+		jsonObject = new JSONObject();
+		jsonObject.put("type", "text");
+		jsonObjectFILEDTITLEList = new ArrayList<>();
+		jsonObject.put("text", value);
+		jsonObjectFILEDTITLEList.add(jsonObject);
+		jsonObjectFILEDTITLE.put(title, jsonObjectFILEDTITLEList);
 	}
 }

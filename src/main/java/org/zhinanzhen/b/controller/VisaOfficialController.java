@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -433,6 +434,179 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         }
     }
 
+//    @RequestMapping(value = "/downOfficialCommission_V2", method = RequestMethod.GET)
+//    @ResponseBody
+//    public Response<String> downOfficialCommission_V2(
+//            @RequestParam(value = "id", required = false) Integer id,
+//            @RequestParam(value = "state", required = false) String state,
+//            @RequestParam(value = "startDate", required = false) String startDate,
+//            @RequestParam(value = "endDate", required = false) String endDate,
+//            @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+//            @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+//            @RequestParam(value = "regionId", required = false) Integer regionId,
+//            @RequestParam(value = "officialId", required = false) Integer officialId,
+//            @RequestParam(value = "userName", required = false) String userName,
+//            @RequestParam(value = "applicantName", required = false) String applicantName,
+//            HttpServletResponse response, HttpServletRequest request) {
+//        try {
+//            List<Integer> regionList = null;
+//            if (regionId != null) {
+//                regionList = new ArrayList<>();
+//                regionList.add(regionId);
+//            }
+//            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//            if ("WA".equals(adminUserLoginInfo.getApList())) {
+//                officialId = adminUserLoginInfo.getOfficialId();
+//            }
+//            String name = applicantName;
+//            if (StringUtil.isNotEmpty(applicantName)) {
+//                name = applicantName.replaceAll("\\s", "");
+//            }
+//            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
+//                    startDate, endDate, null, null, userName, name, null, null, null, null, null);
+//
+//            // 获取token
+//            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+//            if ((int) tokenMap.get("errcode") != 0) {
+//                throw new RuntimeException(tokenMap.get("errmsg").toString());
+//            }
+//            String customerToken = (String) tokenMap.get("access_token");
+//
+//            // 创建表格
+//            String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//            final JSONObject[] parm = {new JSONObject()};
+//            parm[0].put("doc_type", 4);
+//            parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+////            String[] userIds = {"XuShiYi"};
+////            parm[0].put("admin_users", userIds);
+//            JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+//            String url = "";
+//            if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+//                url = setupExcelJsonObject.get("url").toString();
+//                String docId = setupExcelJsonObject.get("docid").toString();
+//                SetupExcelDO setupExcelDO = new SetupExcelDO();
+//                setupExcelDO.setUrl(url);
+//                setupExcelDO.setDocId(docId);
+//                String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//                parm[0] = new JSONObject();
+//                parm[0].put("docid", docId);
+//                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+//                List<VisaOfficialDTO> finalServiceOrderList = officialList;
+//                Thread thread1 = new Thread(() -> {
+//                    try {
+//                        // 线程1的任务
+//                        if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
+//                            JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
+//                            Iterator<Object> iterator = propertiesObjects.iterator();
+//                            String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
+//                            setupExcelDO.setSheetId(sheetId);
+//                            int i = wxWorkService.addExcel(setupExcelDO);
+//                            if (i > 0) {
+//                                String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//                                parm[0] = new JSONObject();
+//                                parm[0].put("docid", docId);
+//
+//                                List<JSONObject> requests = new ArrayList<>();
+//                                JSONObject requestsJson = new JSONObject();
+//                                JSONObject updateRangeRequest = new JSONObject();
+//                                JSONObject gridData = new JSONObject();
+//                                int count = 0;
+//
+//                                List<String> excelTitle = new ArrayList<>();
+//                                excelTitle.add("文案佣金ID");
+//                                excelTitle.add("服务订单ID");
+//                                excelTitle.add("提交移民局申请时间");
+//                                excelTitle.add("服务订单创建日期");
+//                                excelTitle.add("客户姓名");
+//                                excelTitle.add("申请人姓名");
+//                                excelTitle.add("客户支付日期");
+//                                excelTitle.add("支付币种");
+//                                excelTitle.add("创建订单时汇率");
+//                                excelTitle.add("收款方式");
+//                                excelTitle.add("服务项目");
+//                                excelTitle.add("所属顾问");
+//                                excelTitle.add("所属文案");
+//                                excelTitle.add("MARA");
+//                                excelTitle.add("总计应收澳币");
+//                                excelTitle.add("总计应收人民币");
+//                                excelTitle.add("计入佣金提点金额（预估）");
+//                                excelTitle.add("计入佣金提点金额（确认）");
+//                                excelTitle.add("预估佣金（澳币）");
+//                                excelTitle.add("预估佣金（人民币）");
+//                                excelTitle.add("是否合账");
+//                                excelTitle.add("状态");
+//
+//                                for (VisaOfficialDTO serviceOrderDTO : finalServiceOrderList) {
+//                                    if (count == 0) {
+//                                        gridData.put("start_row", 0);
+//                                        gridData.put("start_column", 0);
+//                                        List<JSONObject> rows = new ArrayList<>();
+//                                        for (String title : excelTitle) {
+//                                            JSONObject jsonObject = new JSONObject();
+//                                            JSONObject text = new JSONObject();
+//                                            text.put("text", title);
+//                                            jsonObject.put("cell_value", text);
+//                                            rows.add(jsonObject);
+//                                        }
+//                                        List<JSONObject> objects = new ArrayList<>();
+//                                        JSONObject rowsValue = new JSONObject();
+//                                        rowsValue.put("values", rows);
+//                                        objects.add(rowsValue);
+//                                        gridData.put("rows", objects);
+//                                        updateRangeRequest.put("sheet_id", sheetId);
+//                                        updateRangeRequest.put("grid_data", gridData);
+//                                        requestsJson.put("update_range_request", updateRangeRequest);
+//                                        requests.add(requestsJson);
+//                                        parm[0].put("requests", requests);
+//                                        count++;
+//                                        WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//                                        parm[0] = new JSONObject();
+//                                        requests.remove(0);
+//                                    }
+//                                    parm[0].put("docid", docId);
+//                                    gridData.put("start_row", count);
+//                                    gridData.put("start_column", 0);
+//                                    List<JSONObject> rows = build(serviceOrderDTO);
+//                                    List<JSONObject> objects = new ArrayList<>();
+//                                    JSONObject rowsValue = new JSONObject();
+//                                    rowsValue.put("values", rows);
+//                                    objects.add(rowsValue);
+//                                    gridData.put("rows", objects);
+//                                    updateRangeRequest.put("sheet_id", sheetId);
+//                                    updateRangeRequest.put("grid_data", gridData);
+//                                    requestsJson.put("update_range_request", updateRangeRequest);
+//                                    requests.add(requestsJson);
+//                                    parm[0].put("requests", requests);
+//                                    count++;
+//                                    WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//                                    parm[0] = new JSONObject();
+//                                    requests.remove(0);
+//                                }
+//                            }
+//                        }
+//                    } catch (Exception e) {
+//                        // 处理异常，例如记录日志
+//                        e.printStackTrace();
+//                    }
+//                });
+//                thread1.start();
+//            }
+//            // 使用StringBuilder来构建HTML字符串
+//            StringBuilder htmlBuilder = new StringBuilder();
+//            htmlBuilder.append("<a href=\"");
+//            htmlBuilder.append(url + "\""); // 插入链接的URL
+//            htmlBuilder.append(" target=\"_blank");
+//            htmlBuilder.append("\">");
+//            htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+//            htmlBuilder.append("</a>");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+//            return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return new Response<>(0, "生成Excel成功， excel链接为：");
+//    }
+
     @RequestMapping(value = "/downOfficialCommission_V2", method = RequestMethod.GET)
     @ResponseBody
     public Response<String> downOfficialCommission_V2(
@@ -446,6 +620,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "officialId", required = false) Integer officialId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
+            @RequestParam(value = "currency", required = false) String currency,
             HttpServletResponse response, HttpServletRequest request) {
         try {
             List<Integer> regionList = null;
@@ -472,116 +647,113 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             String customerToken = (String) tokenMap.get("access_token");
 
             // 创建表格
+            // 创建表格
             String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
             final JSONObject[] parm = {new JSONObject()};
-            parm[0].put("doc_type", 4);
+            parm[0].put("doc_type", 10);
             parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
-//            String[] userIds = {"XuShiYi"};
-//            parm[0].put("admin_users", userIds);
+            log.info("parm--------------------" + Arrays.toString(parm));
+            log.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
+
             JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+            log.info("setupExcelJsonObject-------------" + setupExcelJsonObject.toString());
+            String docid = setupExcelJsonObject.get("docid").toString();
+
+            // 添加子表
+            String accessTokenZiBiao = WXWorkAPI.CREATE_CHILE_TABLE.replace("ACCESS_TOKEN", customerToken);
+            final JSONObject[] parmZiBiao = {new JSONObject()};
+            parmZiBiao[0].put("docid", docid);
+            JSONObject jsonObjectProperties = new JSONObject();
+            jsonObjectProperties.put("title", "测试表格2");
+            jsonObjectProperties.put("index", 2);
+            parmZiBiao[0].put("properties", jsonObjectProperties);
+            JSONObject jsonObject1 = WXWorkAPI.sendPostBody_Map(accessTokenZiBiao, parmZiBiao[0]);
+            log.info("setupExcelJsonObject-------------" + jsonObject1.toString());
+
+            // 获得sheetId
+            Object properties = jsonObject1.get("properties");
+            JSONObject jsonObject4 = JSONObject.parseObject(properties.toString());
+            String sheetId = jsonObject4.get("sheet_id").toString();
+            log.info("sheet_id-------------------" + sheetId);
+
+            // 查询默认字段id
+            String accessTokenMoRen = WXWorkAPI.GET_DEFAULT_FIELD.replace("ACCESS_TOKEN", customerToken);
+            final JSONObject[] parmMoRen = {new JSONObject()};
+            parmMoRen[0].put("docid", docid);
+            parmMoRen[0].put("sheet_id", sheetId);
+            parmMoRen[0].put("offset", 0);
+            parmMoRen[0].put("limit", 10);
+            JSONObject jsonObject5 = WXWorkAPI.sendPostBody_Map(accessTokenMoRen, parmMoRen[0]);
+            log.info("setupExcelJsonObject-------------" + jsonObject5.toString());
+
+            // 获取默认字段id
+            String fieldId = "";
+            Object fields = jsonObject5.get("fields");
+            JSONArray jsonArray = JSONArray.parseArray(fields.toString());
+            Iterator<Object> iterator = jsonArray.iterator();
+            while (iterator.hasNext()) {
+                Object next = iterator.next();
+                JSONObject jsonObject = JSONObject.parseObject(next.toString());
+                fieldId = jsonObject.get("field_id").toString();
+                log.info("字段id----------------------" + fieldId);
+            }
+
+            // 更新字段
+            String accessToken2 = WXWorkAPI.UPDATE_FIELD.replace("ACCESS_TOKEN", customerToken);
+            final JSONObject[] parm2 = {new JSONObject()};
+            parm2[0].put("docid", docid);
+            parm2[0].put("sheet_id", sheetId);
+            // 添加字段标题title
+            List<String> exlceTitles = buildExlceTitle(currency);
+            List<JSONObject> fieldList = new ArrayList<>();
+            for (String exlceTitle : exlceTitles) {
+                JSONObject jsonObjectField = new JSONObject();
+                jsonObjectField.put("field_title", exlceTitle);
+                jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+                fieldList.add(jsonObjectField);
+            }
+            parm2[0].put("fields", fieldList);
+            JSONObject jsonObject2 = WXWorkAPI.sendPostBody_Map(accessToken2, parm2[0]);
+            log.info("setupExcelJsonObject-------------" + jsonObject2.toString());
+
+            // 删除字段
+            String accessTokenShanChu = WXWorkAPI.DELETE_FIELD.replace("ACCESS_TOKEN", customerToken);
+            final JSONObject[] parmShanChu = {new JSONObject()};
+            parmShanChu[0].put("docid", docid);
+            parmShanChu[0].put("sheet_id", sheetId);
+            List<String> fielIds = new ArrayList<>();
+            fielIds.add(fieldId);
+            parmShanChu[0].put("field_ids", fielIds);
+            JSONObject jsonObjectShanChu = WXWorkAPI.sendPostBody_Map(accessTokenShanChu, parmShanChu[0]);
+            log.info("setupExcelJsonObject-------------" + jsonObjectShanChu.toString());
+
             String url = "";
-            if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+            if ("0".equals(jsonObject2.get("errcode").toString())) {
                 url = setupExcelJsonObject.get("url").toString();
                 String docId = setupExcelJsonObject.get("docid").toString();
                 SetupExcelDO setupExcelDO = new SetupExcelDO();
                 setupExcelDO.setUrl(url);
                 setupExcelDO.setDocId(docId);
-                String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
-                parm[0] = new JSONObject();
-                parm[0].put("docid", docId);
-                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
                 List<VisaOfficialDTO> finalServiceOrderList = officialList;
                 Thread thread1 = new Thread(() -> {
                     try {
-                        // 线程1的任务
-                        if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
-                            JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
-                            Iterator<Object> iterator = propertiesObjects.iterator();
-                            String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
-                            setupExcelDO.setSheetId(sheetId);
-                            int i = wxWorkService.addExcel(setupExcelDO);
-                            if (i > 0) {
-                                String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
-                                parm[0] = new JSONObject();
-                                parm[0].put("docid", docId);
+                        // 添加行记录
+                        String accessTokenJiLu = WXWorkAPI.INSERT_ROW.replace("ACCESS_TOKEN", customerToken);
+                        final JSONObject[] parmJiLu = {new JSONObject()};
+                        parmJiLu[0].put("docid", docid);
+                        parmJiLu[0].put("sheet_id", sheetId);
+                        for (VisaOfficialDTO visaOfficialDTO : finalServiceOrderList) {
+                            ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
+                            JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(visaOfficialDTO, currency, serviceOrderById);
+                            List<JSONObject> recordsList = new ArrayList<>();
+                            JSONObject jsonObjectValue = new JSONObject();
+                            jsonObjectValue.put("values", jsonObjectFILEDTITLE);
+                            recordsList.add(jsonObjectValue);
 
-                                List<JSONObject> requests = new ArrayList<>();
-                                JSONObject requestsJson = new JSONObject();
-                                JSONObject updateRangeRequest = new JSONObject();
-                                JSONObject gridData = new JSONObject();
-                                int count = 0;
-
-                                List<String> excelTitle = new ArrayList<>();
-                                excelTitle.add("文案佣金ID");
-                                excelTitle.add("服务订单ID");
-                                excelTitle.add("提交移民局申请时间");
-                                excelTitle.add("服务订单创建日期");
-                                excelTitle.add("客户姓名");
-                                excelTitle.add("申请人姓名");
-                                excelTitle.add("客户支付日期");
-                                excelTitle.add("支付币种");
-                                excelTitle.add("创建订单时汇率");
-                                excelTitle.add("收款方式");
-                                excelTitle.add("服务项目");
-                                excelTitle.add("所属顾问");
-                                excelTitle.add("所属文案");
-                                excelTitle.add("MARA");
-                                excelTitle.add("总计应收澳币");
-                                excelTitle.add("总计应收人民币");
-                                excelTitle.add("计入佣金提点金额（预估）");
-                                excelTitle.add("计入佣金提点金额（确认）");
-                                excelTitle.add("预估佣金（澳币）");
-                                excelTitle.add("预估佣金（人民币）");
-                                excelTitle.add("是否合账");
-                                excelTitle.add("状态");
-
-                                for (VisaOfficialDTO serviceOrderDTO : finalServiceOrderList) {
-                                    if (count == 0) {
-                                        gridData.put("start_row", 0);
-                                        gridData.put("start_column", 0);
-                                        List<JSONObject> rows = new ArrayList<>();
-                                        for (String title : excelTitle) {
-                                            JSONObject jsonObject = new JSONObject();
-                                            JSONObject text = new JSONObject();
-                                            text.put("text", title);
-                                            jsonObject.put("cell_value", text);
-                                            rows.add(jsonObject);
-                                        }
-                                        List<JSONObject> objects = new ArrayList<>();
-                                        JSONObject rowsValue = new JSONObject();
-                                        rowsValue.put("values", rows);
-                                        objects.add(rowsValue);
-                                        gridData.put("rows", objects);
-                                        updateRangeRequest.put("sheet_id", sheetId);
-                                        updateRangeRequest.put("grid_data", gridData);
-                                        requestsJson.put("update_range_request", updateRangeRequest);
-                                        requests.add(requestsJson);
-                                        parm[0].put("requests", requests);
-                                        count++;
-                                        WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
-                                        parm[0] = new JSONObject();
-                                        requests.remove(0);
-                                    }
-                                    parm[0].put("docid", docId);
-                                    gridData.put("start_row", count);
-                                    gridData.put("start_column", 0);
-                                    List<JSONObject> rows = build(serviceOrderDTO);
-                                    List<JSONObject> objects = new ArrayList<>();
-                                    JSONObject rowsValue = new JSONObject();
-                                    rowsValue.put("values", rows);
-                                    objects.add(rowsValue);
-                                    gridData.put("rows", objects);
-                                    updateRangeRequest.put("sheet_id", sheetId);
-                                    updateRangeRequest.put("grid_data", gridData);
-                                    requestsJson.put("update_range_request", updateRangeRequest);
-                                    requests.add(requestsJson);
-                                    parm[0].put("requests", requests);
-                                    count++;
-                                    WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
-                                    parm[0] = new JSONObject();
-                                    requests.remove(0);
-                                }
-                            }
+                            parmJiLu[0].put("records", recordsList);
+                            JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+                            log.info(accessTokenJiLu);
+                            log.info("jsonObjectJiLu-------------" + jsonObjectJiLu.toString());
                         }
                     } catch (Exception e) {
                         // 处理异常，例如记录日志
@@ -598,13 +770,192 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             htmlBuilder.append("\">");
             htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
             htmlBuilder.append("</a>");
-            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Response<>(0, "生成Excel成功， excel链接为：");
     }
+
+    private JSONObject buileExcelJsonObject(VisaOfficialDTO so, String currency, ServiceOrderDTO serviceOrderById) throws ServiceException {
+        List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
+        JSONObject jsonObjectFILEDTITLE = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+        String peopleType = serviceOrderById.getPeopleType();
+        String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
+        // 文案佣金ID
+        buildJsonobjectRow(String.valueOf(so.getId()), "文案佣金ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 服务订单ID
+        buildJsonobjectRow(String.valueOf(so.getServiceOrderId()), "服务订单ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 提交移民局申请时间
+        buildJsonobjectRow(so.getHandlingDate() == null ? "" : sdf.format(so.getHandlingDate()), "提交移民局申请时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 服务订单创建日期
+        buildJsonobjectRow(sdf.format(so.getServiceOrder().getGmtCreate()), "服务订单创建日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 客户姓名
+        buildJsonobjectRow(so.getUserName(), "客户姓名", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 申请人姓名
+        buildJsonobjectRow(so.getApplicant().get(0).getFirstname(), "申请人姓名", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 客户支付日期
+        buildJsonobjectRow(so.getReceiveDate() == null ? "" : sdf.format(so.getReceiveDate()), "客户支付日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 支付币种
+        buildJsonobjectRow(so.getCurrency(), "支付币种", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 创建订单时汇率
+        buildJsonobjectRow(String.valueOf(so.getExchangeRate()), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 收款方式
+        buildJsonobjectRow(so.getReceiveTypeName() == null ? "" : so.getReceiveTypeName(), "收款方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 服务项目
+        String servicePackageType = "";
+        if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
+            servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
+        }
+        buildJsonobjectRow(StringUtil.merge(so.getServiceOrder().getService().getName(), "-", so.getServiceCode(), servicePackageType), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 所属顾问
+        buildJsonobjectRow(so.getAdviserName(), "所属顾问", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 所属文案
+        buildJsonobjectRow(so.getOfficialName(), "所属文案", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // MARA
+        buildJsonobjectRow(so.getMaraDTO() == null || so.getMaraDTO().getName() == null ? "" : so.getMaraDTO().getName(), "MARA", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 总计应收澳币
+        buildJsonobjectRow(String.valueOf(so.getTotalPerAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 总计应收人民币
+        buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 计入佣金提点金额（预估）
+        buildJsonobjectRow(String.valueOf(so.getPredictCommissionAmount()), "计入佣金提点金额（预估）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 计入佣金提点金额（确认）
+        buildJsonobjectRow(so.getCommissionAmount() == null ? "" : String.valueOf(so.getCommissionAmount()), "计入佣金提点金额（确认）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 预估佣金（澳币）
+        buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "预估佣金（澳币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 预估佣金（人民币）
+        buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "预估佣金（人民币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        if ("RMB".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow("0", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow("0", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            // 带孩子（RMB）
+            // 带配偶（RMB）
+            if ("2A".equalsIgnoreCase(peopleType)) {
+                buildJsonobjectRow("50", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            }
+            if ("XA".equalsIgnoreCase(peopleType)) {
+                buildJsonobjectRow("25", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            }
+            if ("XB".equalsIgnoreCase(peopleType)) {
+                buildJsonobjectRow("25", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+                buildJsonobjectRow("50", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            }
+        }
+        DecimalFormat df = new DecimalFormat("#.00");
+        if ("AUD".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow("0", "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow("0", "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            // 带孩子（AUD）
+            // 带配偶（AUD）
+            if ("2A".equalsIgnoreCase(peopleType)) {
+                double additionalAmount = 50 / so.getExchangeRate();
+                buildJsonobjectRow(df.format(additionalAmount), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            }
+            if ("XA".equalsIgnoreCase(peopleType)) {
+                double additionalAmount = 25 / so.getExchangeRate();
+                buildJsonobjectRow(df.format(additionalAmount), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            }
+            if ("XB".equalsIgnoreCase(peopleType)) {
+                double additionalAmount2A = 50 / so.getExchangeRate();
+                double additionalAmountXA = 25 / so.getExchangeRate();
+                buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+                buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            }
+        }
+        if ("ALL".equalsIgnoreCase(currency)) {
+            double additionalAmount2A = 50 / so.getExchangeRate();
+            double additionalAmountXA = 25 / so.getExchangeRate();
+            buildJsonobjectRow("25", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow("50", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        }
+        // 买保险
+        buildJsonobjectRow(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"), "买保险", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // total（AUD）
+        if ("AUD".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "total（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        }
+        // total（RMB）
+        if ("RMB".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        }
+        if ("ALL".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "total（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        }
+        // 是否合账
+        buildJsonobjectRow(so.isMerged() ? "是" : "否", "是否合账", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 状态
+        String states = so.getState() == null ? "" : so.getState();
+        buildJsonobjectRow(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states, "状态", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        return jsonObjectFILEDTITLE;
+    }
+
+    public void buildJsonobjectRow(String value, String title, JSONObject jsonObject, List<JSONObject> jsonObjectFILEDTITLEList, JSONObject jsonObjectFILEDTITLE) {
+        jsonObject = new JSONObject();
+        jsonObject.put("type", "text");
+        jsonObjectFILEDTITLEList = new ArrayList<>();
+        jsonObject.put("text", value);
+        jsonObjectFILEDTITLEList.add(jsonObject);
+        jsonObjectFILEDTITLE.put(title, jsonObjectFILEDTITLEList);
+    }
+
+    public List<String> buildExlceTitle(String currency) {
+        List<String> excelTitle = new ArrayList<>();
+        excelTitle.add("状态");
+        excelTitle.add("是否合账");
+        if ("AUD".equalsIgnoreCase(currency)) {
+            excelTitle.add("total（AUD）");
+        }
+        if ("RMB".equalsIgnoreCase(currency)) {
+            excelTitle.add("total（RMB）");
+        }
+        if ("ALL".equalsIgnoreCase(currency)) {
+            excelTitle.add("total（AUD）");
+            excelTitle.add("total（RMB）");
+        }
+        excelTitle.add("买保险");
+        if ("AUD".equalsIgnoreCase(currency)) {
+            excelTitle.add("带配偶（AUD）");
+            excelTitle.add("带孩子（AUD）");
+        }
+        if ("RMB".equalsIgnoreCase(currency)) {
+            excelTitle.add("带配偶（RMB）");
+            excelTitle.add("带孩子（RMB）");
+        }
+        if ("ALL".equalsIgnoreCase(currency)) {
+            excelTitle.add("带配偶（AUD）");
+            excelTitle.add("带孩子（AUD）");
+            excelTitle.add("带配偶（RMB）");
+            excelTitle.add("带孩子（RMB）");
+        }
+        excelTitle.add("预估佣金（人民币）");
+        excelTitle.add("预估佣金（澳币）");
+        excelTitle.add("计入佣金提点金额（确认）");
+        excelTitle.add("计入佣金提点金额（预估）");
+        excelTitle.add("总计应收人民币");
+        excelTitle.add("总计应收澳币");
+        excelTitle.add("MARA");
+        excelTitle.add("所属文案");
+        excelTitle.add("所属顾问");
+        excelTitle.add("服务项目");
+        excelTitle.add("收款方式");
+        excelTitle.add("创建订单时汇率");
+        excelTitle.add("支付币种");
+        excelTitle.add("客户支付日期");
+        excelTitle.add("申请人姓名");
+        excelTitle.add("客户姓名");
+        excelTitle.add("服务订单创建日期");
+        excelTitle.add("提交移民局申请时间");
+        excelTitle.add("服务订单ID");
+        excelTitle.add("文案佣金ID");
+        return excelTitle;
+    }
+
 
     private List<JSONObject> build(VisaOfficialDTO so) throws ServiceException {
         List<JSONObject> rows = new ArrayList<>();
