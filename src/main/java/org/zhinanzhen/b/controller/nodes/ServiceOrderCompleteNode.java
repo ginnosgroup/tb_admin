@@ -102,7 +102,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         List<VisaOfficialListDO> list = serviceOrderCompleteNode.visaOfficialDao.list(null, null, null,
                                 null, null, null,
                                 null, null, null, null, null, null, null, 0,
-                                10, null, null, serviceOrderDto.getId());
+                                10, null, null, serviceOrderDto.getId(), null);
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
@@ -174,7 +174,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         List<VisaOfficialListDO> list = serviceOrderCompleteNode.visaOfficialDao.list(null, null, null,
                                 null, null, null,
                                 null, null, null, null, null, null, null, 0,
-                                10, null, null, serviceOrderDto.getId());
+                                10, null, null, serviceOrderDto.getId(), null);
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
 

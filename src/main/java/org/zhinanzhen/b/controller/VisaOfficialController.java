@@ -256,6 +256,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "isMerged", required = false) String isMerged,
             @RequestParam(value = "pageNum") Integer pageNum,
             @RequestParam(value = "pageSize") Integer pageSize,
+            @RequestParam(value = "currency", required = false) String currency,
             @RequestParam(value = "sorter", required = false) String sorter, HttpServletResponse response,
             HttpServletRequest request) {
         super.setGetHeader(response);
@@ -303,11 +304,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             if (StringUtil.isNotEmpty(applicantName)) {
                 name = applicantName.replaceAll("\\s", "");
             }
-            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged);
+            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged, currency);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
-                    endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null);
-
-
+                    endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null, currency);
             return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
         } catch (ServiceException e) {
             return new ListResponse<>(false, pageSize, 0, null, e.getMessage());
@@ -374,7 +373,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 name = applicantName.replaceAll("\\s", "");
             }
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                    startDate, endDate, null, null, userName, name, null, null, null, null, null);
+                    startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
@@ -637,7 +636,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 name = applicantName.replaceAll("\\s", "");
             }
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                    startDate, endDate, null, null, userName, name, null, null, null, null, null);
+                    startDate, endDate, null, null, userName, name, null, null, null, null, null, currency);
 
             // 获取token
             Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);

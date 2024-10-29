@@ -915,7 +915,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate,String firstSettlementMonth,String lastSettlementMonth,  String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter, String serviceOrderType) throws ServiceException {
+    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate,String firstSettlementMonth,String lastSettlementMonth,  String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter, String serviceOrderType, String currency) throws ServiceException {
 
         if (pageNum != null && pageNum < 0) {
             pageNum = DEFAULT_PAGE_NUM;
@@ -939,7 +939,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
 				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
 				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), theDateTo00_00_00(firstSettlementMonth), theDateTo23_59_59(lastSettlementMonth), userName, applicantName, isMerged, offset,
-				pageSize, orderBy, serviceOrderType, null);
+				pageSize, orderBy, serviceOrderType, null, currency);
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
         if (list == null || list.size() == 0) {
             return null;
@@ -1041,8 +1041,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 	}
 
     @Override
-    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged) throws ServiceException {
-    	return visaOfficialDao.count(officialId, regionIdList, id, theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged);
+    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged, String currency) throws ServiceException {
+    	return visaOfficialDao.count(officialId, regionIdList, id, theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, currency);
     }
 
     @Override

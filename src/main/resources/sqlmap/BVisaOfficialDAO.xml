@@ -263,6 +263,9 @@
         <if test='serviceOrderId !=null and  serviceOrderId !=""'>
             and bv.service_order_id = #{serviceOrderId}
         </if>
+        <if test='currency !=null and  currency !=""'>
+            and bv.currency = #{currency}
+        </if>
         ${orderBy}
         <if test="offset !=null and pageSize!=null">
             limit #{offset} ,#{pageSize}
@@ -307,6 +310,9 @@
         </if>
         <if test='isMerged != null'>
             AND co.is_merged = #{isMerged}
+        </if>
+        <if test='currency != null and currency != ""'>
+            AND co.currency = #{currency}
         </if>
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND co.handling_date > #{startHandlingDate} AND co.handling_date < #{endHandlingDate} ]]>

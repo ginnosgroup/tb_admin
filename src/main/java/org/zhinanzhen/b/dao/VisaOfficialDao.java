@@ -34,7 +34,8 @@ public interface VisaOfficialDao {
                                  @Param("pageSize")Integer pageSize,
                                  @Param("orderBy") String orderBy,
                                   @Param("serviceOrderType")String serviceOrderType,
-                                  @Param("serviceOrderId") Integer serviceOrderId);
+                                  @Param("serviceOrderId") Integer serviceOrderId,
+                                  @Param("currency") String currency);
 
     int count(@Param("officialId")Integer officialId,
               @Param("regionIdList")List<Integer> regionIdList,
@@ -46,7 +47,8 @@ public interface VisaOfficialDao {
               @Param("endDate")String endDate,
               @Param("userName")String userName,
               @Param("applicantName")String applicantName,
-              @Param("isMerged") Boolean isMerged);
+              @Param("isMerged") Boolean isMerged,
+                @Param("currency") String currency);
     VisaOfficialDO getOne(@Param("id")Integer id
     );
 

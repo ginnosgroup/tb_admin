@@ -14,11 +14,11 @@ public interface VisaOfficialService {
                                                 String endHandlingDate, String state,  String startDate, String endDate,
                                                 String firstSettlementMonth,String lastSettlementMonth, String userName,
                                                 String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize,
-                                                Sorter sorter, String serviceOrderType)throws ServiceException;
+                                                Sorter sorter, String serviceOrderType, String currency)throws ServiceException;
     
     VisaOfficialDTO getByServiceOrderId(Integer serviceOrderId)throws ServiceException;
     
-    int count(Integer officialId,List<Integer> regionIdList, Integer id,String startHandlingDate,String endHandlingDate,  String state, String startDate, String endDate ,String userName,String applicantName, Boolean isMerged) throws ServiceException;
+    int count(Integer officialId,List<Integer> regionIdList, Integer id,String startHandlingDate,String endHandlingDate,  String state, String startDate, String endDate ,String userName,String applicantName, Boolean isMerged, String currency) throws ServiceException;
 
     void update(Integer id,String handling_date,Double commissionAmount,String state, Integer serviceId) throws ServiceException;
     
