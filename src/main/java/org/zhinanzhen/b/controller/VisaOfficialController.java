@@ -828,20 +828,20 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "预估佣金（澳币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 预估佣金（人民币）
         buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "预估佣金（人民币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-        if ("RMB".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow("0", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow("0", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            // 带孩子（RMB）
-            // 带配偶（RMB）
+        if ("CNY".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow("0", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow("0", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            // 带孩子（CNY）
+            // 带配偶（CNY）
             if ("2A".equalsIgnoreCase(peopleType)) {
-                buildJsonobjectRow("50", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+                buildJsonobjectRow("50", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             }
             if ("XA".equalsIgnoreCase(peopleType)) {
-                buildJsonobjectRow("25", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+                buildJsonobjectRow("25", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             }
             if ("XB".equalsIgnoreCase(peopleType)) {
-                buildJsonobjectRow("25", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-                buildJsonobjectRow("50", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+                buildJsonobjectRow("25", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+                buildJsonobjectRow("50", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             }
         }
         DecimalFormat df = new DecimalFormat("#.00");
@@ -868,8 +868,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         if ("ALL".equalsIgnoreCase(currency)) {
             double additionalAmount2A = 50 / so.getExchangeRate();
             double additionalAmountXA = 25 / so.getExchangeRate();
-            buildJsonobjectRow("25", "带孩子（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow("50", "带配偶（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow("25", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow("50", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
@@ -879,13 +879,13 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         if ("AUD".equalsIgnoreCase(currency)) {
             buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "total（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
-        // total（RMB）
-        if ("RMB".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // total（CNY）
+        if ("CNY".equalsIgnoreCase(currency)) {
+            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
         if ("ALL".equalsIgnoreCase(currency)) {
             buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "total（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（RMB）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
         // 是否合账
         buildJsonobjectRow(so.isMerged() ? "是" : "否", "是否合账", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -911,27 +911,27 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         if ("AUD".equalsIgnoreCase(currency)) {
             excelTitle.add("total（AUD）");
         }
-        if ("RMB".equalsIgnoreCase(currency)) {
-            excelTitle.add("total（RMB）");
+        if ("CNY".equalsIgnoreCase(currency)) {
+            excelTitle.add("total（CNY）");
         }
         if ("ALL".equalsIgnoreCase(currency)) {
             excelTitle.add("total（AUD）");
-            excelTitle.add("total（RMB）");
+            excelTitle.add("total（CNY）");
         }
         excelTitle.add("买保险");
         if ("AUD".equalsIgnoreCase(currency)) {
             excelTitle.add("带配偶（AUD）");
             excelTitle.add("带孩子（AUD）");
         }
-        if ("RMB".equalsIgnoreCase(currency)) {
-            excelTitle.add("带配偶（RMB）");
-            excelTitle.add("带孩子（RMB）");
+        if ("CNY".equalsIgnoreCase(currency)) {
+            excelTitle.add("带配偶（CNY）");
+            excelTitle.add("带孩子（CNY）");
         }
         if ("ALL".equalsIgnoreCase(currency)) {
             excelTitle.add("带配偶（AUD）");
             excelTitle.add("带孩子（AUD）");
-            excelTitle.add("带配偶（RMB）");
-            excelTitle.add("带孩子（RMB）");
+            excelTitle.add("带配偶（CNY）");
+            excelTitle.add("带孩子（CNY）");
         }
         excelTitle.add("预估佣金（人民币）");
         excelTitle.add("预估佣金（澳币）");
