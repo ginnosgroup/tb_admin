@@ -17,7 +17,7 @@ public interface VisaService {
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 			String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate,
-			String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId, Integer userId,
+			String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId, Integer userId, String userName,
 			String applicantName, String state) throws ServiceException;
 
 	public List<VisaDTO> listVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,

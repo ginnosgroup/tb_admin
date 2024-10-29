@@ -1475,6 +1475,9 @@ public class ServiceOrderController extends BaseController {
              * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.
              * getId())); } }
              */
+            if (serviceOrderList == null) {
+                serviceOrderList = new ArrayList<>();
+            }
             return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
         } catch (ServiceException e) {
             return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());

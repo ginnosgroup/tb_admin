@@ -1092,6 +1092,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					se.printStackTrace();
 				}
 			});
+			if (list == null) {
+				list = new ArrayList<>();
+			}
 			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null, e.getMessage());

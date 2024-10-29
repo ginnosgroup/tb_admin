@@ -623,6 +623,7 @@ public class VisaController extends BaseCommissionOrderController {
 									   @RequestParam(value = "regionId", required = false) Integer regionId,
 									   @RequestParam(value = "adviserId", required = false) Integer adviserId,
 									   @RequestParam(value = "userId", required = false) Integer userId,
+									   @RequestParam(value = "userName", required = false) String userName,
 									   @RequestParam(value = "applicantName", required = false) String applicantName,
 									   @RequestParam(value = "state", required = false) String state, HttpServletRequest request,
 									   HttpServletResponse response) {
@@ -671,7 +672,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 			return new Response<Integer>(0, visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate,
 					stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
-					startInvoiceCreate, endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state));
+					startInvoiceCreate, endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
@@ -752,7 +753,7 @@ public class VisaController extends BaseCommissionOrderController {
 			
 			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, applicantName, state);
+					endInvoiceCreate, regionIdList, adviserId, userId, userName,  applicantName, state);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
@@ -799,6 +800,9 @@ public class VisaController extends BaseCommissionOrderController {
 					serviceException.printStackTrace();
 				}
 			});
+			if (list == null) {
+				list = new ArrayList<>();
+			}
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
