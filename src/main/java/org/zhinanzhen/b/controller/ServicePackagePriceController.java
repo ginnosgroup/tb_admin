@@ -203,10 +203,12 @@ public class ServicePackagePriceController extends BaseController {
                 if (rulerV2 != null)
                     servicePackagePriceDto.setRulerV2(rulerV2);
                 if (servicePackagePriceService.updateServicePackagePrice(servicePackagePriceDto) > 0) {
-                    msg += "(地区ID:" + regionId + ")修改成功!; ";
+//                    msg += "(地区ID:" + regionId + ")修改成功!; ";
+                    msg += "";
                     ids += servicePackagePriceDto.getId() + ",";
                 } else {
-                    msg += "(地区ID:" + regionId + ")修改失败!; ";
+//                    msg += "(地区ID:" + regionId + ")修改失败!; ";
+                    msg += "";
                     isFail = true;
                 }
             }
