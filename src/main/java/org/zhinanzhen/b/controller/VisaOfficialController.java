@@ -307,7 +307,12 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged, currency);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
                     endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null, currency);
-            return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
+            if (officialDTOList == null) {
+                officialDTOList = new ArrayList<>();
+                return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
+            } else {
+                return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
+            }
         } catch (ServiceException e) {
             return new ListResponse<>(false, pageSize, 0, null, e.getMessage());
         }

@@ -936,6 +936,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (sorter.getAdviserName() != null)
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
+        if ("ALL".equalsIgnoreCase(currency)) {
+            currency = null;
+        }
 		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
 				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
 				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), theDateTo00_00_00(firstSettlementMonth), theDateTo23_59_59(lastSettlementMonth), userName, applicantName, isMerged, offset,
@@ -1042,6 +1045,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
     @Override
     public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged, String currency) throws ServiceException {
+        if ("ALL".equalsIgnoreCase(currency)) {
+            currency = null;
+        }
     	return visaOfficialDao.count(officialId, regionIdList, id, theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, currency);
     }
 
