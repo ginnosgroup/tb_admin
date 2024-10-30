@@ -6,6 +6,7 @@ import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import java.util.Date;
 import java.util.List;
 
 public interface VisaOfficialService {
@@ -30,5 +31,11 @@ public interface VisaOfficialService {
 //    VisaOfficialDO buildVisa(VisaOfficialDTO visaOfficialDTO) throws ServiceException;
 
     List<VisaOfficialDTO> getAllvisaOfficialByServiceOrderId(Integer serviceOrderId);
+
+    VisaOfficialDO getByServiceOrderIdOne(int id);
+
+    void visaServiceupdateHandlingDate(int id, Date handlingDate);
+
+    void visaServiceupdateVisaOfficial(VisaOfficialDO visaOfficialDO1);
 
 }

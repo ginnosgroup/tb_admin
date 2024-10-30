@@ -364,20 +364,42 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "applicantName", required = false) String applicantName,
             HttpServletResponse response, HttpServletRequest request) {
         try {
-            List<Integer> regionList = null;
+            List<Integer> regionIdList = null;
             if (regionId != null) {
-                regionList = new ArrayList<>();
-                regionList.add(regionId);
+                regionIdList = new ArrayList<>();
+                regionIdList.add(regionId);
             }
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-            if ("WA".equals(adminUserLoginInfo.getApList())) {
-                officialId = adminUserLoginInfo.getOfficialId();
+            Integer newOfficialId = getOfficialId(request);
+//            if ("WA".equals(adminUserLoginInfo.getApList())) {
+//                officialId = adminUserLoginInfo.getOfficialId();
+//            }
+
+            if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
+                int regionIdCurrent = officialService.getOfficialById(newOfficialId).getRegionId();
+                List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
+                regionIdList = ListUtil.buildArrayList(regionIdCurrent);
+                for (RegionDTO region : regionList)
+                    regionIdList.add(region.getId());
+                if (officialId != null) {
+                    OfficialDTO officialById = officialService.getOfficialById(officialId);
+                    if (officialById.getRegionId() != regionIdCurrent) {
+                        String s = "该文案管理员不能查询该地区，请核验地区";
+                    }
+                }
+            } else {
+                // 更改当前文案编号
+                if (newOfficialId != null)
+                    officialId = newOfficialId;
+//                if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
             }
+
             String name = applicantName;
             if (StringUtil.isNotEmpty(applicantName)) {
                 name = applicantName.replaceAll("\\s", "");
             }
-            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
@@ -453,21 +475,42 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //            @RequestParam(value = "applicantName", required = false) String applicantName,
 //            HttpServletResponse response, HttpServletRequest request) {
 //        try {
-//            List<Integer> regionList = null;
+//            List<Integer> regionIdList = null;
 //            if (regionId != null) {
-//                regionList = new ArrayList<>();
-//                regionList.add(regionId);
+//                regionIdList = new ArrayList<>();
+//                regionIdList.add(regionId);
 //            }
 //            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-//            if ("WA".equals(adminUserLoginInfo.getApList())) {
-//                officialId = adminUserLoginInfo.getOfficialId();
+//            Integer newOfficialId = getOfficialId(request);
+////            if ("WA".equals(adminUserLoginInfo.getApList())) {
+////                officialId = adminUserLoginInfo.getOfficialId();
+////            }
+//
+//            if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//                    && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
+//                int regionIdCurrent = officialService.getOfficialById(newOfficialId).getRegionId();
+//                List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
+//                regionIdList = ListUtil.buildArrayList(regionIdCurrent);
+//                for (RegionDTO region : regionList)
+//                    regionIdList.add(region.getId());
+//                if (officialId != null) {
+//                    OfficialDTO officialById = officialService.getOfficialById(officialId);
+//                    if (officialById.getRegionId() != regionIdCurrent) {
+//                        String s = "该文案管理员不能查询该地区，请核验地区";
+//                    }
+//                }
+//            } else {
+//                // 更改当前文案编号
+//                if (newOfficialId != null)
+//                    officialId = newOfficialId;
+////                if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
 //            }
 //            String name = applicantName;
 //            if (StringUtil.isNotEmpty(applicantName)) {
 //                name = applicantName.replaceAll("\\s", "");
 //            }
-//            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-//                    startDate, endDate, null, null, userName, name, null, null, null, null, null);
+//            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
+//                    startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
 //
 //            // 获取token
 //            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
@@ -627,20 +670,41 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "currency", required = false) String currency,
             HttpServletResponse response, HttpServletRequest request) {
         try {
-            List<Integer> regionList = null;
+            List<Integer> regionIdList = null;
             if (regionId != null) {
-                regionList = new ArrayList<>();
-                regionList.add(regionId);
+                regionIdList = new ArrayList<>();
+                regionIdList.add(regionId);
             }
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-            if ("WA".equals(adminUserLoginInfo.getApList())) {
-                officialId = adminUserLoginInfo.getOfficialId();
+            Integer newOfficialId = getOfficialId(request);
+//            if ("WA".equals(adminUserLoginInfo.getApList())) {
+//                officialId = adminUserLoginInfo.getOfficialId();
+//            }
+
+            if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
+                int regionIdCurrent = officialService.getOfficialById(newOfficialId).getRegionId();
+                List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
+                regionIdList = ListUtil.buildArrayList(regionIdCurrent);
+                for (RegionDTO region : regionList)
+                    regionIdList.add(region.getId());
+                if (officialId != null) {
+                    OfficialDTO officialById = officialService.getOfficialById(officialId);
+                    if (officialById.getRegionId() != regionIdCurrent) {
+                        String s = "该文案管理员不能查询该地区，请核验地区";
+                    }
+                }
+            } else {
+                // 更改当前文案编号
+                if (newOfficialId != null)
+                    officialId = newOfficialId;
+//                if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
             }
             String name = applicantName;
             if (StringUtil.isNotEmpty(applicantName)) {
                 name = applicantName.replaceAll("\\s", "");
             }
-            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, null, null, userName, name, null, null, null, null, null, currency);
 
             // 获取token

@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.IkasoaException;
+import com.ikasoa.core.utils.BeanUtil;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -117,7 +119,7 @@ public class ServiceOrderController extends BaseController {
     private ServiceService serviceService;
 
     @Resource
-    private AdviserService adviserService;
+    private ServicePackagePriceService servicePackagePriceService;
 
     @Resource
     private InsuranceCompanyDAO insuranceCompanyDAO;
@@ -756,9 +758,9 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                                 @RequestParam(value = "insuranceCompany", required = false) String insuranceCompany, // 保险公司id
                                                 @RequestParam(value = "hasInsurance", required = false) String hasInsurance, // 是否购买保险
+                                                @RequestParam(value = "isTransfer") String isTransfer, // 是否为中转订单
+                                                @RequestParam(value = "transferRemarks") String transferRemarks, // 是否为中转订单
                                                 HttpServletResponse response) {
-//		if (getOfficialAdminId(request) != null)
-//			return new Response<Integer>(1, "文案管理员不可操作服务订单.", 0);
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
         try {
@@ -781,7 +783,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -805,7 +807,7 @@ public class ServiceOrderController extends BaseController {
 							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance);
+							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -850,7 +852,8 @@ public class ServiceOrderController extends BaseController {
                                         String adviserId, String officialId, String remarks, String closedReason, String information,
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
-                                        String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance) {
+                                        String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
+                                        String isTransfer, String transferRemarks) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1022,6 +1025,40 @@ public class ServiceOrderController extends BaseController {
                     insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), Integer.valueOf(insuranceCompany));
                 }
             }
+            // 中转订单创建中转文案佣金订单
+            if ("1".equalsIgnoreCase(isTransfer)) {
+                serviceOrderDto.setTransferRemarks(transferRemarks);
+                ServiceDTO serviceById = serviceService.getServiceById(serviceOrderDto.getServiceId());
+                if (serviceById.isLongTime()) {
+                    VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
+                    VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
+                    visaOfficialDO = visaOfficialService.getByServiceOrderIdOne(serviceOrderDto.getId());
+                    visaOfficialDO.setInstallmentNum(2);
+                    visaOfficialDO.setInstallment(2);
+                    visaOfficialDO.setKjApprovalDate(null);
+
+                    visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * 0.5);
+                    visaOfficialDO1.setPerAmount(visaOfficialDO.getPerAmount());
+
+                    visaOfficialDO1.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount());
+                    visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() * 0.5);
+                    visaOfficialDO.setPredictCommissionAmount(visaOfficialDO.getCommissionAmount());
+                    visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * 0.5);
+                    visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
+                    visaOfficialDO.setOfficialId(Integer.parseInt(officialId));
+                    visaOfficialDO1.setId(visaOfficialDO.getId());
+                    visaOfficialDO1.setCommissionState("YJY");
+                    visaOfficialDO1.setInstallmentNum(1);
+                    visaOfficialDO1.setInstallment(2);
+                    visaOfficialDO1.setExchangeRate(visaOfficialDO.getExchangeRate());
+                    VisaOfficialDTO visaOfficialDTO = new VisaOfficialDTO();
+                    BeanUtil.copyProperties(visaOfficialDO, visaOfficialDTO);
+                    visaOfficialService.addVisa(visaOfficialDTO);
+                    visaOfficialService.visaServiceupdateHandlingDate(visaOfficialDO.getId(), visaOfficialDO.getHandlingDate());
+                    visaOfficialService.visaServiceupdateVisaOfficial(visaOfficialDO1);
+                }
+            }
+
             if (("600".equals(serviceDTO.getCode()) || "870".equals(serviceDTO.getCode())) && bindingOrderId == null) {
                 if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 1) {
                     // 创建主订单
@@ -1088,6 +1125,8 @@ public class ServiceOrderController extends BaseController {
             }
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), null);
+        } catch (IkasoaException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -203,8 +203,12 @@ public class WXWorkServiceImpl implements WXWorkService {
                         SchoolInstitutionListDTO schoolInstitutionInfo = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDO.getCourseId());
                         if (schoolInstitutionInfo != null) {
 							String name = schoolInstitutionInfo.getInstitutionTradingName();
-							if (StringUtil.isNotEmpty(name))
-								name = name.split(";")[0];
+							if (StringUtil.isNotEmpty(name)) {
+                                name = name.split(";")[0];
+                            }
+                            if ("null".equalsIgnoreCase(name)) {
+                                name = schoolInstitutionInfo.getInstitutionName();
+                            }
 							msg = msg + "[ 留学 - " + name + "      专业 : "
 									+ schoolInstitutionInfo.getSchoolCourseDO().getCourseName() + " ] . \n";
                         } 
