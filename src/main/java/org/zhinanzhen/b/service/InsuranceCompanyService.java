@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service;
 
 import org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO;
 
 import java.util.List;
 
@@ -13,5 +14,7 @@ public interface InsuranceCompanyService {
     Integer add(InsuranceCompanyDO insuranceCompanyDO);
 
     Integer update(InsuranceCompanyDO insuranceCompanyDO);
+
+    ServiceOrderInsuranceDO listServiceOrderInsuranceDOByServiceOrderId(Integer serviceOrderId);
 
 }

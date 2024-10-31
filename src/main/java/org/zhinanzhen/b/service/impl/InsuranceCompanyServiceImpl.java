@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.impl;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO;
 import org.zhinanzhen.b.service.InsuranceCompanyService;
 
 import javax.annotation.Resource;
@@ -33,5 +34,10 @@ public class InsuranceCompanyServiceImpl implements InsuranceCompanyService {
     @Override
     public Integer update(InsuranceCompanyDO insuranceCompanyDO) {
         return insuranceCompanyDAO.update(insuranceCompanyDO);
+    }
+
+    @Override
+    public ServiceOrderInsuranceDO listServiceOrderInsuranceDOByServiceOrderId(Integer serviceOrderId) {
+        return insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderId);
     }
 }

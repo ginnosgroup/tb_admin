@@ -26,6 +26,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
+import org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.*;
@@ -83,6 +86,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @Resource
     private WXWorkService wxWorkService;
+
+    @Resource
+    private InsuranceCompanyService insuranceCompanyService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -424,8 +430,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
 //                }
                 System.out.println("当前id--------------------------" + visaDTO.getId());
-                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
-                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                if (visaDTO.getServiceOrder().getApplicantParentId() > 0) {
+                    ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId());
+                    if (serviceOrderById!= null && "SIV".equals(serviceOrderById.getType())) {
+                        servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                    }
                 }
                 row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
@@ -576,6 +585,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                                 excelTitle.add("计入佣金提点金额（确认）");
                                 excelTitle.add("预估佣金（澳币）");
                                 excelTitle.add("预估佣金（人民币）");
+                                excelTitle.add("是否购买保险");
+                                excelTitle.add("保险公司");
                                 excelTitle.add("是否合账");
                                 excelTitle.add("状态");
 
@@ -714,8 +725,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         rows.add(jsonObject9);
         // 服务项目");
         String servicePackageType = "";
-        if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
-            servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
+        if (so.getServiceOrder().getApplicantParentId() > 0) {
+            ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId());
+            if (serviceOrderById!= null && "SIV".equals(serviceOrderById.getType())) {
+                servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
+            }
         }
         JSONObject jsonObject10 = new JSONObject();
         JSONObject text10 = new JSONObject();
@@ -776,6 +790,36 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         text19.put("text", so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()));
         jsonObject19.put("cell_value", text19);
         rows.add(jsonObject19);
+        // 是否购买保险
+        ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(so.getServiceOrderId());
+        if ("1".equalsIgnoreCase(serviceOrderById.getIsInsuranceCompany())) {
+            ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyService.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderById.getId());
+            List<InsuranceCompanyDO> list = insuranceCompanyService.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 10);
+            JSONObject jsonObject22 = new JSONObject();
+            JSONObject text22 = new JSONObject();
+            text22.put("text", "是");
+            jsonObject22.put("cell_value", text22);
+            rows.add(jsonObject22);
+
+            JSONObject jsonObject23 = new JSONObject();
+            JSONObject text23 = new JSONObject();
+            text23.put("text", list.get(0).getName());
+            jsonObject23.put("cell_value", text23);
+            rows.add(jsonObject23);
+        } else {
+            JSONObject jsonObject22 = new JSONObject();
+            JSONObject text22 = new JSONObject();
+            text22.put("text", "否");
+            jsonObject22.put("cell_value", text22);
+            rows.add(jsonObject22);
+
+            JSONObject jsonObject23 = new JSONObject();
+            JSONObject text23 = new JSONObject();
+            text23.put("text", "");
+            jsonObject23.put("cell_value", text23);
+            rows.add(jsonObject23);
+        }
+
         // 是否合账");
         JSONObject jsonObject20 = new JSONObject();
         JSONObject text20 = new JSONObject();
