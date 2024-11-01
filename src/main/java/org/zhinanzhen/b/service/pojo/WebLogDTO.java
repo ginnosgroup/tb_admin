@@ -3,9 +3,13 @@ package org.zhinanzhen.b.service.pojo;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class WebLogDTO {
+
+    private Integer id;
+
     /**
      * 操作描述
      */
@@ -14,7 +18,7 @@ public class WebLogDTO {
     /**
      * 操作用户
      */
-    private String username;
+    private Integer userId;
  
     /**
      * 操作时间
@@ -62,5 +66,9 @@ public class WebLogDTO {
     private String result;
 
     private Integer serviceOrderId;
+
+    private List<String> operationDescription;
+
+    private String role;
  
 }

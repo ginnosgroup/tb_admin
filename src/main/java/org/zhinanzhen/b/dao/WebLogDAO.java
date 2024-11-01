@@ -10,6 +10,6 @@ public interface WebLogDAO {
 
     List<WebLogDTO> listWebLogs (@Param("serviceOrderId") Integer serviceOrderId, @Param("offset") Integer offset, @Param("rows") Integer rows);
 
-    Integer count(Integer serviceOrderId);
+    Integer count(@Param("serviceOrderId") Integer serviceOrderId);
 
 }

@@ -38,7 +38,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
- 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 统一日志处理切面
  */
@@ -53,12 +55,13 @@ public class WebLogAspect extends BaseController{
 
     @Autowired
     private AdminUserDAO adminUserDAO;
+
     //定义切点表达式,指定通知功能被应用的范围
-    @Pointcut("execution(public * org.zhinanzhen.b.controller.ServiceOrderController.*(..))")
-//            "execution(public * org.zhinanzhen.b.controller.VisaOfficialController.*(..)) || " +
-//            "execution(public * org.zhinanzhen.b.controller.VisaController.*(..)) || " +
-//            "execution(public * org.zhinanzhen.b.controller.CommissionOrderController.*(..))")
+    @Pointcut("execution(public * org.zhinanzhen.b.controller.ServiceOrderController.*(..)) || " +
+            "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
+            "execution(public * org.zhinanzhen.b.controller.OfficialController.officialHandover(..))")
     public void webLog() {
+
     }
  
     @Before("webLog()")
@@ -101,7 +104,7 @@ public class WebLogAspect extends BaseController{
         String urlStr = request.getRequestURL().toString();
         webLog.setBasePath(StrUtil.removeSuffix(urlStr, URLUtil.url(urlStr).getPath()));
         webLog.setIp(request.getRemoteUser());
-        webLog.setUsername(adminUserById.getUsername());
+        webLog.setUserId(adminUserById.getId());
         webLog.setMethod(request.getMethod());
 
         webLog.setSpendTime((int) (endTime - startTime));
@@ -121,14 +124,43 @@ public class WebLogAspect extends BaseController{
         List<Object> parameter = getParameter(method, joinPoint.getArgs());
         if (parameter != null && !methodName.contains("upload") && !methodName.equalsIgnoreCase("add")) {
             for (Object o : parameter) {
-                if ("id".equalsIgnoreCase(o.toString())) {
-                    JSONObject jsonObject = JSONObject.parseObject(o.toString());
-                    webLog.setServiceOrderId((Integer) jsonObject.get("id"));
+                if (o.toString().contains("id")) {
+                    // 定义正则表达式来匹配id后面的数字
+                    // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
+                    String regex = "\\{id=(\\d+)\\}";
+                    // 创建Pattern对象
+                    Pattern pattern = Pattern.compile(regex);
+                    // 创建Matcher对象
+                    Matcher matcher = pattern.matcher(o.toString());
+                    // 查找匹配项
+                    if (matcher.find()) {
+                        // 提取匹配的数字
+                        String id = matcher.group(1);
+                        webLog.setServiceOrderId(Integer.valueOf(id));
+                        log.info("ID: " + id);
+                    } else {
+                        System.out.println("未找到ID");
+                    }
                 }
-                if ("serviceOrderId".equalsIgnoreCase(o.toString())) {
-                    JSONObject jsonObject = JSONObject.parseObject(o.toString());
-                    webLog.setServiceOrderId((Integer) jsonObject.get("serviceOrderId"));
+                if (o.toString().contains("serviceOrderId")) {
+                    // 定义正则表达式来匹配id后面的数字
+                    // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
+                    String regex = "\\{serviceOrderId=(\\d+)\\}";
+                    // 创建Pattern对象
+                    Pattern pattern = Pattern.compile(regex);
+                    // 创建Matcher对象
+                    Matcher matcher = pattern.matcher(o.toString());
+                    // 查找匹配项
+                    if (matcher.find()) {
+                        // 提取匹配的数字
+                        String id = matcher.group(1);
+                        webLog.setServiceOrderId(Integer.valueOf(id));
+                        log.info("ID: " + id);
+                    } else {
+                        System.out.println("未找到ID");
+                    }
                 }
+
             }
         }
         if (parameter != null && methodName.equalsIgnoreCase("add")) {
@@ -136,11 +168,34 @@ public class WebLogAspect extends BaseController{
             webLog.setServiceOrderId(integerResponse.getData());
         }
         webLog.setParameter(parameter.toString());
-        webLog.setResult(result.toString());
+        String resultString = result.toString();
+        if (resultString.length() >= 2000) {
+            webLog.setResult(resultString.substring(0, 1999));
+        } else {
+            webLog.setResult(resultString);
+        }
 
+
+        String apList = adminUserLoginInfo.getApList();
+        switch (apList) {
+            case "GW":
+                apList = "顾问";
+                break;
+            case "WA":
+                apList = "文案";
+                break;
+            case "KJ":
+                apList = "会计";
+                break;
+            case "SUPERAD":
+                apList = "超级管理员";
+                break;
+            default: apList = apList;
+        }
+        webLog.setRole(apList);
 
         if (!StringUtils.isEmpty(methodName)) {
-            if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img")){
+            if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
                 webLogDAO.addWebLogs(webLog);
             }
         }

@@ -11,6 +11,9 @@ import java.util.List;
 
 public interface VisaOfficialService {
     int addVisa(VisaOfficialDTO visaOfficialDto) throws ServiceException;
+
+    int addVisaTmp(VisaOfficialDO visaOfficialDO) throws ServiceException;
+
     List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate,
                                                 String endHandlingDate, String state,  String startDate, String endDate,
                                                 String firstSettlementMonth,String lastSettlementMonth, String userName,

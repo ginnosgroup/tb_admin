@@ -514,7 +514,8 @@
             official_region AS officialRegion
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId}
-        ORDER BY predict_commission DESC
+        ORDER BY gmt_create DESC
+--         ORDER BY predict_commission DESC
             LIMIT 1;
     </select>
 

@@ -20,10 +20,7 @@ import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
-import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
-import org.zhinanzhen.tb.dao.pojo.RegionDO;
-import org.zhinanzhen.tb.dao.pojo.UserDO;
+import org.zhinanzhen.tb.dao.pojo.*;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
@@ -148,6 +145,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     @Resource
     private InsuranceCompanyDAO insuranceCompanyDAO;
+
+    @Resource
+    private ServiceOrderOriginallyDAO serviceOrderOriginallyDAO;
 
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
@@ -321,7 +321,24 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
         }
-        String offerType1 = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId()).getOfferType();
+        // 保存原顾问id或者文案id
+        ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+        ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
+        int adviserId = serviceOrderById.getAdviserId();
+        int officialId = serviceOrderById.getOfficialId();
+        if (adviserId != serviceOrderDto.getAdviserId()) {
+            serviceOrderOriginallyDO.setServiceOrderId(serviceOrderById.getId());
+            serviceOrderOriginallyDO.setAdviserId(adviserId);
+            serviceOrderOriginallyDO.setNewAdviserId(adviserId);
+        }
+        if (officialId != serviceOrderDto.getOfficialId()) {
+            serviceOrderOriginallyDO.setServiceOrderId(serviceOrderById.getId());
+            serviceOrderOriginallyDO.setOfficialId(officialId);
+            serviceOrderOriginallyDO.setNewOfficialId(officialId);
+        }
+        serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
+
+        String offerType1 = serviceOrderById.getOfferType();
         long time = serviceOrderDto.getGmtCreate().getTime();
         long timeTmp = 1721577600000L;
         if ("COMPLETE".equals(serviceOrderDto.getState()) && "OVST".equals(serviceOrderDto.getType()) && (timeTmp < time)) {
@@ -2642,7 +2659,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 , null, null, null, null, null
                 , null, null, null, 0, 9999, null);
         ViewBalanceDTO viewBalanceDTO = new ViewBalanceDTO();
-        double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).filter(ServiceOrderDO -> ServiceOrderDO.getBindingOrder() == null).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getReceivable).sum();
+        double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).filter(ServiceOrderDO -> ServiceOrderDO.getBindingOrder() == null).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getPerAmount).sum();
         double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
         viewBalanceDTO.setVisaAggregateAmount(sumVisaReceivable / 1.1);
         viewBalanceDTO.setFreeOrderExpenditure(sumVisaReceivableTmp / 1.1);

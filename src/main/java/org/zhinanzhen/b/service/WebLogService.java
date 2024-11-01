@@ -10,4 +10,6 @@ public interface WebLogService {
 
     Integer count(Integer serviceOrderId);
 
+    int addWebLogs (WebLogDTO webLog);
+
 }

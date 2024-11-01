@@ -295,7 +295,7 @@ public class AdviserDataController extends BaseController {
 			LOG.info(StringUtil.merge("顾问数据迁移:adviserId=", adviserId, "newAdviserId=", newAdviserId, "userIds=",
 					userIds));
 			return new Response<Map<String, Integer>>(0,
-					adviserDataService.adviserDataMigration(newAdviserId, adviserId, userIdList));
+					adviserDataService.adviserDataMigration(newAdviserId, adviserId, userIdList, adminUserLoginInfo.getId(), adminUserLoginInfo.getApList()));
 		} catch (ServiceException e) {
 			return new Response<Map<String, Integer>>(1, StringUtil.merge("迁移失败:", e.getMessage()),
 					MapUtil.newHashMap());

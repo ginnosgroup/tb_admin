@@ -377,6 +377,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         return visaOfficialDO.getId();
     }
 
+    @Override
+    public int addVisaTmp(VisaOfficialDO visaOfficialDO) throws ServiceException {
+        return visaOfficialDao.addVisa(visaOfficialDO);
+    }
+
     private VisaOfficialDO buildCommission(ServiceOrderDO serviceOrderById, VisaOfficialDTO visaOfficialDTO, boolean pay, int region, String packType, boolean suborder) throws ServiceException {
         VisaOfficialDO visaOfficialDO = mapper.map(visaOfficialDTO, VisaOfficialDO.class);
         if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {

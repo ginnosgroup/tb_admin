@@ -15,6 +15,7 @@ import com.ikasoa.web.workflow.Node;
 import com.ikasoa.web.workflow.Workflow;
 import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.write.Label;
@@ -23,6 +24,8 @@ import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -758,8 +761,8 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                                 @RequestParam(value = "insuranceCompany", required = false) String insuranceCompany, // 保险公司id
                                                 @RequestParam(value = "hasInsurance", required = false) String hasInsurance, // 是否购买保险
-                                                @RequestParam(value = "isTransfer") String isTransfer, // 是否为中转订单
-                                                @RequestParam(value = "transferRemarks") String transferRemarks, // 是否为中转订单
+                                                @RequestParam(value = "isTransfer", required = false) String isTransfer, // 是否为中转订单
+                                                @RequestParam(value = "transferRemarks", required = false) String transferRemarks, // 是否为中转订单
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -1051,9 +1054,7 @@ public class ServiceOrderController extends BaseController {
                     visaOfficialDO1.setInstallmentNum(1);
                     visaOfficialDO1.setInstallment(2);
                     visaOfficialDO1.setExchangeRate(visaOfficialDO.getExchangeRate());
-                    VisaOfficialDTO visaOfficialDTO = new VisaOfficialDTO();
-                    BeanUtil.copyProperties(visaOfficialDO, visaOfficialDTO);
-                    visaOfficialService.addVisa(visaOfficialDTO);
+                    visaOfficialService.addVisaTmp(visaOfficialDO);
                     visaOfficialService.visaServiceupdateHandlingDate(visaOfficialDO.getId(), visaOfficialDO.getHandlingDate());
                     visaOfficialService.visaServiceupdateVisaOfficial(visaOfficialDO1);
                 }
@@ -1125,8 +1126,6 @@ public class ServiceOrderController extends BaseController {
             }
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), null);
-        } catch (IkasoaException e) {
-            throw new RuntimeException(e);
         }
     }
 

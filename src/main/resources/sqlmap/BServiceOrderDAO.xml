@@ -1335,7 +1335,7 @@
     </select>
     <select id="OfficialHandoverServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
-            id
+            id,official_id
         FROM
             `b_service_order`
         WHERE

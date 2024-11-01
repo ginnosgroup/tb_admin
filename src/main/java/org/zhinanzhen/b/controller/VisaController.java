@@ -255,7 +255,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setVerifyCode(null);// 只给第一笔对账verifyCode
 					visaDto.setKjApprovalDate(null);
 					visaDto.setReceiveDate(null);
-					visaDto.setPerAmount(_receivable > _perAmount ? _receivable - _perAmount : 0.00); // 第二笔单子修改本次应收款
+					visaDto.setPerAmount(_receivable > _perAmount ? (_receivable - _perAmount) / 2 : 0.00); // 第二笔单子修改本次应收款
 					visaDto.setAmount(visaDto.getPerAmount());
 					visaDto.setDiscount(0.00);
 					commission = visaDto.getAmount();
@@ -276,8 +276,10 @@ public class VisaController extends BaseCommissionOrderController {
 				}
 				if (visaService.addVisa(visaDto) > 0)
 					visaDtoList.add(visaDto);
-				_perAmount += visaDto.getPerAmount();
-				_amount += visaDto.getAmount();
+				if (installmentNum == 1) {
+					_perAmount += visaDto.getPerAmount();
+					_amount += visaDto.getAmount();
+				}
 			}
 			serviceOrderDto.setOfficialApprovalDate(new Date());
 			serviceOrderDto.setSubmitted(true);

@@ -106,8 +106,14 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
-                        visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.4);
-                        visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.4);
+                        if (list != null && list.size() == 1) {
+                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.4);
+                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.4);
+                        }
+                        if (list != null && list.size() == 2) {
+                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.2);
+                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.2);
+                        }
                         double expectAmount = visaOfficialDO.getExpectAmount();
                         for (VisaOfficialListDO visaOfficialListDO : list) {
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - visaOfficialListDO.getCommissionAmount());

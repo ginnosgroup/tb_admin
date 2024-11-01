@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceOrderOriginallyDAO">
+    <insert id="addServiceOrderOriginallyDO" parameterType="org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT
+        INTO b_service_order_originally (
+            service_order_id,
+            adviser_id,
+            official_id,
+            user_id,
+            new_adviser_id,
+            new_official_id,
+            web_log_id
+        )
+        VALUES (
+            #{serviceOrderId},
+            #{adviserId},
+            #{officialId},
+            #{userId},
+            #{newAdviserId},
+            #{newOfficialId},
+            #{webLogId}
+                );
+    </insert>
+    <select id="listServiceOrderOriginallyDO" resultType="org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO">
+        select id,service_order_id, adviser_id, official_id, user_id, new_adviser_id, new_official_id, web_log_id
+        from b_service_order_originally
+        where 1 = 1
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='webLogId != null and webLogId != ""'>
+            AND web_log_id = #{webLogId}
+        </if>
+    </select>
+
+
+</mapper>
