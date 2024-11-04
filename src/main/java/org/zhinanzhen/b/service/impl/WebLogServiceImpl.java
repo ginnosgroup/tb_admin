@@ -66,12 +66,12 @@ public class WebLogServiceImpl implements WebLogService {
                     userName = adminUserById.getUsername();
                 }
                 if ("add".equalsIgnoreCase(split[split.length - 1])) {
-                    serviceOrderOriginallyDOList.add(webLogDTO.getRole() + ":" + userName + "添加了服务订单" + "  " + "操作人" + ":" + userName);
+                    serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + ":" + userName + "添加了服务订单" + "  " + "操作人" + ":" + userName);
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                 }
                 if ("next_flow".equalsIgnoreCase(split[split.length - 1])) {
                     String operationDescription = buildOperationDescription(serviceOrderDO.getState());
-                    serviceOrderOriginallyDOList.add(webLogDTO.getRole() + userName + operationDescription);
+                    serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + userName + operationDescription);
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                 }
                 if ("adviserDataMigration".equalsIgnoreCase(split[split.length - 1])) {
@@ -80,7 +80,7 @@ public class WebLogServiceImpl implements WebLogService {
                         if (serviceOrderOriginallyDO.getAdviserId() != null && serviceOrderOriginallyDO.getNewAdviserId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
                             AdviserDO adviserDOOld = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getAdviserId());
                             AdviserDO adviserDONew = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getNewAdviserId());
-                            serviceOrderOriginallyDOList.add("顾问" + adviserDOOld.getName() + "迁移数据给" + adviserDONew.getName() + "  操作人" + userName);
+                            serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  顾问" + adviserDOOld.getName() + "迁移数据给" + adviserDONew.getName() + "  操作人" + userName);
                         }
                     }
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
@@ -91,7 +91,7 @@ public class WebLogServiceImpl implements WebLogService {
                         if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
                             OfficialDO officialDOOld = officialDAO.getOfficialById(serviceOrderOriginallyDO.getOfficialId());
                             OfficialDO officialDONew = officialDAO.getOfficialById(serviceOrderOriginallyDO.getNewOfficialId());
-                            serviceOrderOriginallyDOList.add("文案" + officialDOOld.getName() + "迁移数据给" + officialDONew.getName() + "  操作人" + userName);
+                            serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  文案" + officialDOOld.getName() + "迁移数据给" + officialDONew.getName() + "  操作人" + userName);
                         }
                     }
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
@@ -103,7 +103,7 @@ public class WebLogServiceImpl implements WebLogService {
                             Integer officialId = serviceOrderOriginallyDO.getOfficialId();
                             OfficialDO officialDO = officialDAO.getOfficialById(officialId);
                             OfficialDO officialById = officialDAO.getOfficialById(Integer.valueOf(JSONObject.parseObject(standardJson).get("officialId").toString()));
-                            serviceOrderOriginallyDOList.add("文案" + officialDO.getName() + "更换为" + "  文案" + officialById.getName() + "  操作人" + userName);
+                            serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  文案" + officialDO.getName() + "更换为" + "  文案" + officialById.getName() + "  操作人" + userName);
                         }
                     }
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
