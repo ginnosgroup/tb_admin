@@ -184,23 +184,20 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
 
-                        VisaDO visaByServiceOrderIdFirst = serviceOrderCompleteNode.visaDAO.getFirstVisaByServiceOrderId(serviceOrderParent.getId());
-                        VisaDO visaByServiceOrderIdSecond = serviceOrderCompleteNode.visaDAO.getSecondVisaByServiceOrderId(serviceOrderParent.getId());
-                        double remainingAmount = visaByServiceOrderIdFirst.getAmount();
-                        if (ObjectUtil.isNotNull(visaByServiceOrderIdSecond)) {
-                            remainingAmount += visaByServiceOrderIdSecond.getAmount();
-                            RefundDO secondRefundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaByServiceOrderIdSecond.getId());
-                            if (ObjectUtil.isNotNull(secondRefundByVisaId)) {
-                                remainingAmount = remainingAmount - secondRefundByVisaId.getAmount();
+
+                        List<VisaDO> visaDOS = serviceOrderCompleteNode.visaDAO.listVisaByServiceOrderId(serviceOrderParent.getId());
+                        double remainingAmount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+                        List<RefundDO> refundDOs = new ArrayList<>();
+                        for (VisaDO visaDO : visaDOS) {
+                            RefundDO refundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaDO.getId());
+                            if (ObjectUtil.isNotNull(refundByVisaId)) {
+                                refundDOs.add(refundByVisaId);
                             }
-                            remainingAmount = remainingAmount * 0.5;
-                        } else {
-                            remainingAmount = remainingAmount * 0.5;
                         }
-                        RefundDO firstRefundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaByServiceOrderIdFirst.getId());
-                        if (ObjectUtil.isNotNull(firstRefundByVisaId)) {
-                            remainingAmount = remainingAmount - firstRefundByVisaId.getAmount();
+                        if (!refundDOs.isEmpty()) {
+                            remainingAmount = remainingAmount - refundDOs.stream().mapToDouble(RefundDO::getAmount).sum();
                         }
+                        remainingAmount = remainingAmount / 2;
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
                         visaOfficialDO.setCommissionAmount(remainingAmount / 1.1);
 
@@ -216,7 +213,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                                 visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
                             }
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - visaOfficialListDO.getCommissionAmount());
-                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() - visaOfficialListDO.getPredictCommission());
+                            visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
                             visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * 0.5);
                             visaOfficialDO1.setPerAmount(visaOfficialDO.getPerAmount());
                             visaOfficialDO1.setId(visaOfficialListDO.getId());
