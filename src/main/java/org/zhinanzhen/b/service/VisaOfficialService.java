@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service;
 
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -40,5 +41,6 @@ public interface VisaOfficialService {
     void visaServiceupdateHandlingDate(int id, Date handlingDate);
 
     void visaServiceupdateVisaOfficial(VisaOfficialDO visaOfficialDO1);
+
 
 }
