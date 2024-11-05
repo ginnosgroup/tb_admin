@@ -70,6 +70,11 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			if (officialDto.getState() != null) {
 				officialDo.setState(officialDto.getState().toString());
 			}
+			if ("RESIGN".equalsIgnoreCase(officialDo.getWorkState())) {
+				officialDo.setState("DISABLED");
+				AdminUserDO adminUserDO = adminUserDao.getUserByAdviserId(null, officialDo.getId());
+				adminUserDao.updateState(adminUserDO.getId(), "DISABLED");
+			}
 			return officialDao.updateOfficial(officialDo);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

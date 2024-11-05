@@ -44,7 +44,8 @@ public interface UserDAO {
 			@Param("areaCode") String areaCode, @Param("wechatUsername") String wechatUsername,
 			@Param("firstControllerContents") String firstControllerContents, @Param("visaCode") String visaCode,
 			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source,
-			@Param("stateText") String stateText, @Param("channelSource") String channelSource);
+			@Param("stateText") String stateText, @Param("channelSource") String channelSource,
+		   @Param("adviserId") String adviserId);
 
 	boolean updateAdviserById(@Param("adviserId") int adviserId, @Param("id") int id);
 
@@ -62,5 +63,9 @@ public interface UserDAO {
 
 	@Select("select  * from tb_user where auth_type = 'WECHAT_WORK'")
 	List<UserDO> getUserByWxWrok();
+
+	int updateUserAdviserById(@Param("userId") Integer userId, @Param("adviserId") String adviserId);
+
+	int updateUserApplicationById(@Param("userId") Integer userId, @Param("adviserId") String adviserId);
 
 }

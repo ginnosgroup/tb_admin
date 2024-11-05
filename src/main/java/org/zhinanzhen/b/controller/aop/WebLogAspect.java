@@ -54,9 +54,12 @@ public class WebLogAspect extends BaseController{
     private AdminUserDAO adminUserDAO;
 
     //定义切点表达式,指定通知功能被应用的范围
+//                "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
+//                        "execution(public * org.zhinanzhen.b.controller.OfficialController.officialHandover(..)) || " +
+//    "execution(public * org.zhinanzhen.tb.controller.UserController.update(..))"
     @Pointcut("execution(public * org.zhinanzhen.b.controller.ServiceOrderController.*(..)) || " +
-            "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
-            "execution(public * org.zhinanzhen.b.controller.OfficialController.officialHandover(..))")
+            "execution(public * org.zhinanzhen.tb.controller.UserController.addUser(..))"
+    )
     public void webLog() {
 
     }
@@ -133,7 +136,11 @@ public class WebLogAspect extends BaseController{
                     if (matcher.find()) {
                         // 提取匹配的数字
                         String id = matcher.group(1);
-                        webLog.setServiceOrderId(Integer.valueOf(id));
+                        if (urlStr.contains("user")) {
+                            webLog.setOperatedUser(Integer.valueOf(id));
+                        } else {
+                            webLog.setServiceOrderId(Integer.valueOf(id));
+                        }
                         log.info("ID: " + id);
                     } else {
                         System.out.println("未找到ID");
@@ -162,7 +169,12 @@ public class WebLogAspect extends BaseController{
         }
         if (parameter != null && methodName.equalsIgnoreCase("add")) {
             Response<Integer> integerResponse = (Response) result;
-            webLog.setServiceOrderId(integerResponse.getData());
+            if (urlStr.contains("serviceOrder")) {
+                webLog.setServiceOrderId(integerResponse.getData());
+            }
+            if (urlStr.contains("user")) {
+                webLog.setOperatedUser(integerResponse.getData());
+            }
         }
         webLog.setParameter(parameter.toString());
         String resultString = result.toString();
@@ -190,6 +202,30 @@ public class WebLogAspect extends BaseController{
             default: apList = apList;
         }
         webLog.setRole(apList);
+
+//        if (parameter != null && methodName.contains("userIds") && !methodName.equalsIgnoreCase("newAdviserId")) {
+//            String regexUserIds = "\\{userIds=(\\d+)\\}";
+//            for (Object o : parameter) {
+//                // 创建Pattern对象
+//                Pattern pattern = Pattern.compile(regexUserIds);
+//                // 创建Matcher对象
+//                Matcher matcher = pattern.matcher(o.toString());
+//                // 查找匹配项
+//                if (matcher.find()) {
+//                    // 提取匹配的数字
+//                    String userIds = matcher.group(1);
+//                    String[] split1 = userIds.split(";");
+//                    for (int i = 0; i < split1.length; i++) {
+//                        webLog.setOperatedUser(Integer.valueOf(split1[i]));
+//                        webLogDAO.addWebLogs(webLog);
+//                    }
+//                } else {
+//                    System.out.println("未找到修改用户id");
+//                }
+//            }
+//            return result;
+//        }
+
 
         if (!StringUtils.isEmpty(methodName)) {
             if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){

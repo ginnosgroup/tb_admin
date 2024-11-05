@@ -9,7 +9,8 @@ import java.util.List;
 public interface ServiceOrderOriginallyDAO {
     int addServiceOrderOriginallyDO(ServiceOrderOriginallyDO serviceOrderOriginallyDO);
 
-    List<ServiceOrderOriginallyDO> listServiceOrderOriginallyDO(@Param("serviceOrderId") Integer serviceOrderId, @Param("webLogId") Integer webLogId);
+    List<ServiceOrderOriginallyDO> listServiceOrderOriginallyDO(@Param("serviceOrderId") Integer serviceOrderId, @Param("webLogId") Integer webLogId,
+    @Param("operatedUser") Integer operatedUser);
 
 
 }

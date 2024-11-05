@@ -55,7 +55,7 @@ public class OfficialController extends BaseController {
 	private WebLogService webLogService;
 
 	public enum OfficialWorkStateEnum{
-		NORMAL ("正常"), BUSY ("忙碌");
+		NORMAL ("正常"), BUSY ("忙碌"), RESIGN("离职");
 		private String comment;
 		private OfficialWorkStateEnum(String comment){
 			this.comment = comment;

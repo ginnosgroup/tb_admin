@@ -451,7 +451,7 @@ public class VisaOfficialCheck {
                 List<AdviserDO> adviserDOS = adviserDAO.listAdviser(null, null, 0, 10000);
                 List<AdviserDO> newAdviserDOs = new ArrayList<>();
                 for (AdviserDO a : adviserDOS) {
-                    AdminUserDO userDO = adminUserDAO.getUserByAdviserId(a.getId());
+                    AdminUserDO userDO = adminUserDAO.getUserByAdviserId(a.getId(), null);
                     if (ObjectUtil.isNotNull(userDO) && StringUtil.isNotEmpty(userDO.getOperUserId()) && "ENABLED".equals(a.getState())) {
                         a.setOperUserId(userDO.getOperUserId());
                         newAdviserDOs.add(a);

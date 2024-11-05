@@ -260,14 +260,16 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
         // 判断文案结算方式
         ServicePackagePriceV2DTO servicePackagePriceV2DTO = new ServicePackagePriceV2DTO();
         OfficialDO officialDO = serviceOrderCompleteNode.officialDAO.getOfficialById(officialId);
-        String rulerV2 = servicePackagePriceDO.getRulerV2();
-        List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
-        for (ServicePackagePriceV2DTO packagePriceV2DTO : servicePackagePriceV2DTOS) {
-            String officialGrades = packagePriceV2DTO.getOfficialGrades();
-            if (StringUtil.isNotEmpty(officialGrades)) {
-                String[] split = officialGrades.split(",");
-                if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
-                    servicePackagePriceV2DTO = packagePriceV2DTO;
+        if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
+            String rulerV2 = servicePackagePriceDO.getRulerV2();
+            List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+            for (ServicePackagePriceV2DTO packagePriceV2DTO : servicePackagePriceV2DTOS) {
+                String officialGrades = packagePriceV2DTO.getOfficialGrades();
+                if (StringUtil.isNotEmpty(officialGrades)) {
+                    String[] split = officialGrades.split(",");
+                    if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
+                        servicePackagePriceV2DTO = packagePriceV2DTO;
+                    }
                 }
             }
         }

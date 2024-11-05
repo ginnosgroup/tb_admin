@@ -127,6 +127,9 @@ public class ServiceOrderController extends BaseController {
     @Resource
     private InsuranceCompanyDAO insuranceCompanyDAO;
 
+    @Resource
+    private OfficialService officialService;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public enum ReviewAdviserStateEnum {
@@ -1030,6 +1033,11 @@ public class ServiceOrderController extends BaseController {
             }
             // 中转订单创建中转文案佣金订单
             if ("1".equalsIgnoreCase(isTransfer)) {
+                int officialId1 = serviceOrderDto.getOfficialId();
+                OfficialDTO officialById = officialService.getOfficialById(officialId1);
+                if (!"RESIGN".equalsIgnoreCase(officialById.getWorkState())) {
+                    return new Response<Integer>(1, "被迁移文案不是离职状态");
+                }
                 serviceOrderDto.setTransferRemarks(transferRemarks);
                 ServiceDTO serviceById = serviceService.getServiceById(serviceOrderDto.getServiceId());
                 if (serviceById.isLongTime()) {

@@ -34,6 +34,9 @@
         <if test='webLogId != null and webLogId != ""'>
             AND web_log_id = #{webLogId}
         </if>
+        <if test='operatedUser != null and operatedUser != ""'>
+            AND user_id = #{operatedUser}
+        </if>
     </select>
 
 

@@ -19,7 +19,7 @@ public class ServiceOrderOriginallyServiceImpl implements ServiceOrderOriginally
     }
 
     @Override
-    public List<ServiceOrderOriginallyDO> listServiceOrderOriginallyDO(Integer serviceOrderId, Integer webLogId) {
-        return serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(serviceOrderId, webLogId);
+    public List<ServiceOrderOriginallyDO> listServiceOrderOriginallyDO(Integer serviceOrderId, Integer webLogId, Integer userId) {
+        return serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(serviceOrderId, webLogId, userId);
     }
 }

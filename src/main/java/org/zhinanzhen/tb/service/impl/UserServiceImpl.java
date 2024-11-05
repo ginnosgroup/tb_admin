@@ -10,11 +10,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.zhinanzhen.b.dao.ApplicantDAO;
-import org.zhinanzhen.b.dao.MaraDAO;
-import org.zhinanzhen.b.dao.OfficialDAO;
-import org.zhinanzhen.b.dao.ServiceOrderDAO;
-import org.zhinanzhen.b.dao.TagDAO;
+import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.ApplicantDO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
@@ -22,9 +18,11 @@ import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
+import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
 import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
@@ -58,6 +56,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private MaraDAO maraDao;
 	@Resource
 	private OfficialDAO officialDao;
+	@Resource
+	private ServiceOrderOriginallyDAO serviceOrderOriginallyDAO;
+	@Resource
+	private WebLogDAO webLogDAO;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -330,7 +332,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Override
 	public boolean update(int id, String name, String authNickname, Date birthday, String phone, String email,
 			String areaCode, String wechatUsername, String firstControllerContents, String visaCode,
-			Date visaExpirationDate, String source, String stateText, String channelSource) throws ServiceException {
+			Date visaExpirationDate, String source, String stateText, String channelSource, String adviserId, String apList, Integer userId) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -392,8 +394,27 @@ public class UserServiceImpl extends BaseService implements UserService {
 				}
 			}
 		}
+		if (adviserId != null && _userDo.getAdviserId() != Integer.valueOf(adviserId)) {
+			WebLogDTO webLogDTO = new WebLogDTO();
+			webLogDTO.setOperatedUser(_userDo.getId());
+			webLogDTO.setUserId(userId);
+			webLogDTO.setRole(apList);
+			webLogDTO.setStartTime(sdf.format(new Date()));
+			webLogDTO.setUri("/admin_v2.1/user/update");
+			webLogDAO.addWebLogs(webLogDTO);
+
+			ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
+			serviceOrderOriginallyDO.setUserId(id);
+			serviceOrderOriginallyDO.setWebLogId(webLogDTO.getId());
+			serviceOrderOriginallyDO.setAdviserId(_userDo.getAdviserId());
+			serviceOrderOriginallyDO.setNewAdviserId(Integer.valueOf(adviserId));
+			serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
+
+			userDao.updateUserAdviserById(id, adviserId);
+			userDao.updateUserApplicationById(id, adviserId);
+		}
 		return userDao.update(id, name, authNickname, birthday, phone, email, areaCode, wechatUsername,
-				firstControllerContents, visaCode, visaExpirationDate, source, stateText, channelSource);
+				firstControllerContents, visaCode, visaExpirationDate, source, stateText, channelSource, adviserId);
 	}
 
 	@Override

@@ -140,9 +140,20 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 		}
 		for (Integer userId : userIdList) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			WebLogDTO webLogDTOTmp = new WebLogDTO();
+			webLogDTOTmp.setUserId(operateUserId);
+			webLogDTOTmp.setRole(apList);
+			webLogDTOTmp.setOperatedUser(userId);
+			webLogDTOTmp.setStartTime(sdf.format(new Date()));
+			webLogDTOTmp.setUri("/admin_v2.1/user/adviserDataMigration");
+			webLogDAO.addWebLogs(webLogDTOTmp);
+
 			ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
 			serviceOrderOriginallyDO.setAdviserId(adviserId);
+			serviceOrderOriginallyDO.setNewAdviserId(newAdviserId);
 			serviceOrderOriginallyDO.setUserId(userId);
+			serviceOrderOriginallyDO.setWebLogId(webLogDTOTmp.getId());
 			serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
 			List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null, null, null,
 					null, null, null, null,

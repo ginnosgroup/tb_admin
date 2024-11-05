@@ -67,6 +67,8 @@ public class WebLogDTO {
 
     private Integer serviceOrderId;
 
+    private Integer operatedUser;
+
     private List<String> operationDescription;
 
     private String role;

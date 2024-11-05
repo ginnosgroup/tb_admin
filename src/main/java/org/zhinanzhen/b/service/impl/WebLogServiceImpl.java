@@ -17,6 +17,7 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -45,68 +46,108 @@ public class WebLogServiceImpl implements WebLogService {
     private ServiceOrderDAO serviceOrderDAO;
 
     @Override
-    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer offset, Integer rows) {
+    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer userId, Integer operatedUser, Integer offset, Integer rows) {
         try {
-            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, offset, rows);
+            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, userId, operatedUser, offset, rows);
+            String userName = "";
             for (WebLogDTO webLogDTO : webLogDTOS) {
-                String userName = "";
-                List<String> serviceOrderOriginallyDOList = new ArrayList<>();
-                String[] split = webLogDTO.getUri().split("/");
-                String parameter = webLogDTO.getParameter();
-                String standardJson = convertServiceOrderDO(parameter);
-                // 使用ObjectMapper将其解析为类
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                ServiceOrderDO serviceOrderDO = new ServiceOrderDO();
-                if (standardJson != null) {
-                    serviceOrderDO = objectMapper.readValue(standardJson, ServiceOrderDO.class);
+                String uri = webLogDTO.getUri();
+                String[] split = uri.split("/");
+                if ("serviceOrder".equalsIgnoreCase(split[2])) {
+                    List<String> serviceOrderOriginallyDOList = new ArrayList<>();
+//                    String[] split = webLogDTO.getUri().split("/");
+                    String parameter = webLogDTO.getParameter();
+                    String standardJson = convertServiceOrderDO(parameter);
+                    // 使用ObjectMapper将其解析为类
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    ServiceOrderDO serviceOrderDO = new ServiceOrderDO();
+                    if (standardJson != null) {
+                        serviceOrderDO = objectMapper.readValue(standardJson, ServiceOrderDO.class);
+                    }
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    if ("add".equalsIgnoreCase(split[split.length - 1])) {
+                        serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + ":" + userName + "  添加了服务订单" + "  " + "操作人" + ":" + userName);
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                    }
+                    if ("next_flow".equalsIgnoreCase(split[split.length - 1])) {
+                        String operationDescription = buildOperationDescription(serviceOrderDO.getState());
+                        serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + ":"  + userName + "  " + operationDescription + "  " + "操作人" + ":" + userName);
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                    }
+                    if ("adviserDataMigration".equalsIgnoreCase(split[split.length - 1])) {
+                        List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), webLogDTO.getId(), null);
+                        for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
+                            if (serviceOrderOriginallyDO.getAdviserId() != null && serviceOrderOriginallyDO.getNewAdviserId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
+                                AdviserDO adviserDOOld = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getAdviserId());
+                                AdviserDO adviserDONew = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getNewAdviserId());
+                                serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  顾问" + ":"  + adviserDOOld.getName() + "  迁移数据给" + adviserDONew.getName() + "  操作人:" + userName);
+                            }
+                        }
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                    }
+                    if ("officialHandover".equalsIgnoreCase(split[split.length - 1])) {
+                        List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), webLogDTO.getId(), null);
+                        for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
+                            if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
+                                OfficialDO officialDOOld = officialDAO.getOfficialById(serviceOrderOriginallyDO.getOfficialId());
+                                OfficialDO officialDONew = officialDAO.getOfficialById(serviceOrderOriginallyDO.getNewOfficialId());
+                                serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  文案" + ":"  + officialDOOld.getName() + "  迁移数据给" + officialDONew.getName() + "  操作人:" + userName);
+                            }
+                        }
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                    }
+                    if ("update".equalsIgnoreCase(split[split.length - 1])) {
+                        List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), null, null);
+                        for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
+                            if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() == null) {
+                                Integer officialId = serviceOrderOriginallyDO.getOfficialId();
+                                OfficialDO officialDO = officialDAO.getOfficialById(officialId);
+                                OfficialDO officialById = officialDAO.getOfficialById(Integer.valueOf(JSONObject.parseObject(standardJson).get("officialId").toString()));
+                                serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  文案" + ":"  + officialDO.getName() + "  更换为" + "  文案" + ":"  + officialById.getName() + "  操作人:" + userName);
+                            }
+                        }
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                    }
+                    if ("finish".equalsIgnoreCase(split[split.length - 1])) {
+                        continue;
+                    }
                 }
-                AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
-                if (adminUserById != null) {
-                    userName = adminUserById.getUsername();
-                }
-                if ("add".equalsIgnoreCase(split[split.length - 1])) {
-                    serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + ":" + userName + "添加了服务订单" + "  " + "操作人" + ":" + userName);
-                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
-                }
-                if ("next_flow".equalsIgnoreCase(split[split.length - 1])) {
-                    String operationDescription = buildOperationDescription(serviceOrderDO.getState());
-                    serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + userName + operationDescription);
-                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
-                }
-                if ("adviserDataMigration".equalsIgnoreCase(split[split.length - 1])) {
-                    List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), webLogDTO.getId());
-                    for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
-                        if (serviceOrderOriginallyDO.getAdviserId() != null && serviceOrderOriginallyDO.getNewAdviserId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
-                            AdviserDO adviserDOOld = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getAdviserId());
-                            AdviserDO adviserDONew = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getNewAdviserId());
-                            serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  顾问" + adviserDOOld.getName() + "迁移数据给" + adviserDONew.getName() + "  操作人" + userName);
+                if ("user".equalsIgnoreCase(split[2])) {
+                    List<String> serviceOrderOriginallyDOList = new ArrayList<>();
+                    String parameter = webLogDTO.getParameter();
+                    String standardJson = convertServiceOrderDO(parameter);
+                    // 使用ObjectMapper将其解析为类
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    UserDO userDO = new UserDO();
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    if (standardJson != null) {
+                        userDO = objectMapper.readValue(standardJson, UserDO.class);
+                    }
+                    if ("add".equalsIgnoreCase(split[split.length - 1])) {
+                        serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  " +  webLogDTO.getRole() + ":" + userName + "  创建客户" + "  " + "操作人" + ":" + userName);
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                    }
+                    if ("update".equalsIgnoreCase(split[split.length - 1]) || "adviserDataMigration".equalsIgnoreCase(split[split.length - 1])) {
+                        List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(null, webLogDTO.getId(), webLogDTO.getOperatedUser());
+                        for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
+                            if (serviceOrderOriginallyDO.getAdviserId() != null && serviceOrderOriginallyDO.getNewAdviserId() != null) {
+                                Integer adviserId = serviceOrderOriginallyDO.getAdviserId();
+                                AdviserDO adviserDO = adviserDAO.getAdviserById(adviserId);
+//                                AdviserDO adviserById = adviserDAO.getAdviserById(Integer.valueOf(JSONObject.parseObject(standardJson).get("adviserId").toString()));
+                                AdviserDO adviserById = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getNewAdviserId());
+                                serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  顾问" + ":"  + adviserDO.getName() + "  更换为" + "  顾问" + ":"  + adviserById.getName() + "  操作人:" + userName);
+                            }
+                            webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                         }
                     }
-                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
-                }
-                if ("officialHandover".equalsIgnoreCase(split[split.length - 1])) {
-                    List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), webLogDTO.getId());
-                    for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
-                        if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
-                            OfficialDO officialDOOld = officialDAO.getOfficialById(serviceOrderOriginallyDO.getOfficialId());
-                            OfficialDO officialDONew = officialDAO.getOfficialById(serviceOrderOriginallyDO.getNewOfficialId());
-                            serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  文案" + officialDOOld.getName() + "迁移数据给" + officialDONew.getName() + "  操作人" + userName);
-                        }
-                    }
-                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
-                }
-                if ("update".equalsIgnoreCase(split[split.length - 1])) {
-                    List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), null);
-                    for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
-                        if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() == null) {
-                            Integer officialId = serviceOrderOriginallyDO.getOfficialId();
-                            OfficialDO officialDO = officialDAO.getOfficialById(officialId);
-                            OfficialDO officialById = officialDAO.getOfficialById(Integer.valueOf(JSONObject.parseObject(standardJson).get("officialId").toString()));
-                            serviceOrderOriginallyDOList.add(webLogDTO.getStartTime() + "  文案" + officialDO.getName() + "更换为" + "  文案" + officialById.getName() + "  操作人" + userName);
-                        }
-                    }
-                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                 }
             }
             return webLogDTOS;
@@ -117,8 +158,8 @@ public class WebLogServiceImpl implements WebLogService {
     }
 
     @Override
-    public Integer count(Integer serviceOrderId) {
-        return webLogDAO.count(serviceOrderId);
+    public Integer count(Integer serviceOrderId, Integer operatedUser) {
+        return webLogDAO.count(serviceOrderId, operatedUser);
     }
 
     @Override

@@ -26,12 +26,13 @@ public class WebLogController extends BaseController {
     @ResponseBody
     public ListResponse<List<WebLogDTO>> listServiceOrder(
             @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+            @RequestParam(value = "operatedUser", required = false) Integer operatedUser,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer total = webLogService.count(serviceOrderId);
-            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, pageNum, pageSize);
+            Integer total = webLogService.count(serviceOrderId, operatedUser);
+            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, null, operatedUser, pageNum, pageSize);
             return new ListResponse<List<WebLogDTO>>(true, pageSize, total, webLogDTOS, "");
         } catch (Exception e) {
             throw new RuntimeException(e);
