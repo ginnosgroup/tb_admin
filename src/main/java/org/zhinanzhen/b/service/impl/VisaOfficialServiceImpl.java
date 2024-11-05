@@ -614,7 +614,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         }
         ServiceOrderDO serviceParentOrderById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
-        if ("CNY".equals(serviceOrderById.getCurrency()) && (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() == 0)) {
+        if ("CNY".equals(serviceOrderById.getCurrency())) {
+//        if ("CNY".equals(serviceOrderById.getCurrency()) && (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() == 0)) {
             amount = amount / serviceOrderById.getExchangeRate();
         }
         commissionAmountDTO.setRefund(refund); // 设置退款金额
