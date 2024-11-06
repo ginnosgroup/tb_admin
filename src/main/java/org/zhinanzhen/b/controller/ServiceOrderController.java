@@ -2234,7 +2234,12 @@ public class ServiceOrderController extends BaseController {
                         servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
                         tmp = "-";
                     }
-                    sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
+                    if ("雇主担保".equalsIgnoreCase(so.getService().getName())) {
+                        sheet.addCell(new Label(14, i, so.getService().getName() + "-" + so.getService().getCode() + tmp + servicepakageName, cellFormat));
+                    } else {
+                        sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
+                    }
+
                     sheet.addCell(new Label(15, i, so.getService().getCode() + tmp + servicepakageName, cellFormat));
                     if (so.getServiceAssessDO() != null)
                         sheet.addCell(new Label(14, i,
@@ -4240,7 +4245,11 @@ public class ServiceOrderController extends BaseController {
             if (so.getServiceAssessId() == null) {
                 JSONObject jsonObject14 = new JSONObject();
                 JSONObject text14 = new JSONObject();
-                text14.put("text",so.getService().getName());
+                if ("雇主担保".equalsIgnoreCase(so.getService().getName())) {
+                    text14.put("text",so.getService().getName() + "-" + so.getService().getCode() + tmp + servicepakageName);
+                } else {
+                    text14.put("text",so.getService().getName());
+                }
                 jsonObject14.put("cell_value", text14);
                 rows.add(jsonObject14);
 
