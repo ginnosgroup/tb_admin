@@ -819,6 +819,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         boolean isSIV = false;
+        boolean isNSV = false;
         if (commissionAmountDTO.getRuler() == 0) {
             double predictCommissionAmount = 0.00;
             ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
@@ -827,9 +828,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             getBindingOrderId = serviceOrderById.getId();
             if (ObjectUtil.isNotNull(serviceOrderById1)) {
                 isSIV = "SIV".equals(serviceOrderById1.getType());
+                isNSV = "NSV".equals(serviceOrderById1.getType());
                 getBindingOrderId = serviceOrderById1.getId();
             }
-            if (longTermVisa || isSIV) {
+            if (longTermVisa || isSIV || isNSV) {
                 amount = amount * 0.5;
             }
             List<Integer> integers = serviceOrderDao.listBybindingOrder(getBindingOrderId);
@@ -942,6 +944,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (serviceOrderById.getApplicantParentId() > 0) {
                 ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
                 isSIV = "SIV".equals(serviceOrderById1.getType());
+                isNSV = "NSV".equals(serviceOrderById1.getType());
             }
             // 500新版结算
             if ("500".equalsIgnoreCase(serviceDO.getCode())) {
@@ -1021,6 +1024,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                 visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
             } else {
+                if (isNSV) {
+                    predictCommissionAmount = predictCommissionAmount * 0.5;
+                }
                 if (longTermVisa && !serviceDO.getCode().contains("820") && !serviceDO.getCode().contains("309")) {
                     predictCommissionAmount = predictCommissionAmount * 0.4;
                 }

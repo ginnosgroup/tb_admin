@@ -150,7 +150,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         visaOfficialDO.setInstallmentNum(2);
                         visaOfficialDO.setInstallment(2);
                         visaOfficialDO.setKjApprovalDate(null);
-                        visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * 0.5);
+                        visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount());
                         visaOfficialDO1.setPerAmount(visaOfficialDO.getPerAmount());
                         visaOfficialDO1.setId(visaOfficialDO.getId());
                         visaOfficialDO1.setCommissionState("YJY");
