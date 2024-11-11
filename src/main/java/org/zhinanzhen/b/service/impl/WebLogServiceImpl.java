@@ -78,12 +78,12 @@ public class WebLogServiceImpl implements WebLogService {
                         userName = adminUserById.getUsername();
                     }
                     if ("add".equalsIgnoreCase(split[split.length - 1])) {
-                        serviceOrderOriginallyDOList.add(startTime + "  " +  webLogDTO.getRole() + ":" + userName + "  添加了服务订单" + "  " + "操作人" + ":" + userName);
+                        serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    添加了服务订单" + "    " + "操作人" + ":" + userName);
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                     }
                     if ("next_flow".equalsIgnoreCase(split[split.length - 1])) {
                         String operationDescription = buildOperationDescription(serviceOrderDO.getState());
-                        serviceOrderOriginallyDOList.add(startTime + "  " +  webLogDTO.getRole() + ":"  + userName + "  " + operationDescription + "  " + "操作人" + ":" + userName);
+                        serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":"  + userName + "    " + operationDescription + "    " + "操作人" + ":" + userName);
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                     }
                     if ("adviserDataMigration".equalsIgnoreCase(split[split.length - 1])) {
@@ -92,7 +92,7 @@ public class WebLogServiceImpl implements WebLogService {
                             if (serviceOrderOriginallyDO.getAdviserId() != null && serviceOrderOriginallyDO.getNewAdviserId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
                                 AdviserDO adviserDOOld = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getAdviserId());
                                 AdviserDO adviserDONew = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getNewAdviserId());
-                                serviceOrderOriginallyDOList.add(startTime + "  顾问" + ":"  + adviserDOOld.getName() + "  迁移数据给" + adviserDONew.getName() + "  操作人:" + userName);
+                                serviceOrderOriginallyDOList.add(startTime + "    顾问" + ":"  + adviserDOOld.getName() + "    迁移数据给" + adviserDONew.getName() + "    操作人:" + userName);
                             }
                         }
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
@@ -103,7 +103,7 @@ public class WebLogServiceImpl implements WebLogService {
                             if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() != null) {
                                 OfficialDO officialDOOld = officialDAO.getOfficialById(serviceOrderOriginallyDO.getOfficialId());
                                 OfficialDO officialDONew = officialDAO.getOfficialById(serviceOrderOriginallyDO.getNewOfficialId());
-                                serviceOrderOriginallyDOList.add(startTime + "  文案" + ":"  + officialDOOld.getName() + "  迁移数据给" + officialDONew.getName() + "  操作人:" + userName);
+                                serviceOrderOriginallyDOList.add(startTime + "    文案" + ":"  + officialDOOld.getName() + "    迁移数据给" + officialDONew.getName() + "    操作人:" + userName);
                             }
                         }
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
@@ -115,7 +115,7 @@ public class WebLogServiceImpl implements WebLogService {
                                 Integer officialId = serviceOrderOriginallyDO.getOfficialId();
                                 OfficialDO officialDO = officialDAO.getOfficialById(officialId);
                                 OfficialDO officialById = officialDAO.getOfficialById(Integer.valueOf(JSONObject.parseObject(standardJson).get("officialId").toString()));
-                                serviceOrderOriginallyDOList.add(startTime + "  文案" + ":"  + officialDO.getName() + "  更换为" + "  文案" + ":"  + officialById.getName() + "  操作人:" + userName);
+                                serviceOrderOriginallyDOList.add(startTime + "    文案" + ":"  + officialDO.getName() + "    更换为" + "    文案" + ":"  + officialById.getName() + "    操作人:" + userName);
                             }
                         }
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
@@ -140,7 +140,7 @@ public class WebLogServiceImpl implements WebLogService {
                         userDO = objectMapper.readValue(standardJson, UserDO.class);
                     }
                     if ("add".equalsIgnoreCase(split[split.length - 1])) {
-                        serviceOrderOriginallyDOList.add(startTime + "  " +  webLogDTO.getRole() + ":" + userName + "  创建客户" + "  " + "操作人" + ":" + userName);
+                        serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    创建客户" + "    " + "操作人" + ":" + userName);
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                     }
                     if ("update".equalsIgnoreCase(split[split.length - 1]) || "adviserDataMigration".equalsIgnoreCase(split[split.length - 1])) {
@@ -151,7 +151,7 @@ public class WebLogServiceImpl implements WebLogService {
                                 AdviserDO adviserDO = adviserDAO.getAdviserById(adviserId);
 //                                AdviserDO adviserById = adviserDAO.getAdviserById(Integer.valueOf(JSONObject.parseObject(standardJson).get("adviserId").toString()));
                                 AdviserDO adviserById = adviserDAO.getAdviserById(serviceOrderOriginallyDO.getNewAdviserId());
-                                serviceOrderOriginallyDOList.add(startTime + "  顾问" + ":"  + adviserDO.getName() + "  更换为" + "  顾问" + ":"  + adviserById.getName() + "  操作人:" + userName);
+                                serviceOrderOriginallyDOList.add(startTime + "    顾问" + ":"  + adviserDO.getName() + "    更换为" + "    顾问" + ":"  + adviserById.getName() + "    操作人:" + userName);
                             }
                             webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                         }
@@ -178,6 +178,9 @@ public class WebLogServiceImpl implements WebLogService {
     public String buildOperationDescription(String state) {
         String operationDescription = "";
         switch (state) {
+            case "PENDING":
+                operationDescription = "撤回订单";
+                break;
             case "REVIEW":
                 operationDescription = "提交审核订单";
                 break;
