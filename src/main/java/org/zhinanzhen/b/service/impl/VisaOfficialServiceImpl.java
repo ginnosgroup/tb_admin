@@ -822,8 +822,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         boolean isNSV = false;
         if (commissionAmountDTO.getRuler() == 0) {
             double predictCommissionAmount = 0.00;
-            ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
             double bingdingOrderAmount = 0.00;
+            ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
             Integer getBindingOrderId = 0;
             getBindingOrderId = serviceOrderById.getId();
             if (ObjectUtil.isNotNull(serviceOrderById1)) {
@@ -834,35 +834,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (longTermVisa || isSIV || isNSV) {
                 amount = amount * 0.5;
             }
-            List<Integer> integers = serviceOrderDao.listBybindingOrder(getBindingOrderId);
-            List<Integer> listbindingOrder = new ArrayList<>();
-            if ((serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) || !integers.isEmpty()) {
-                if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
-                    listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getId());
-                }
-                if (!integers.isEmpty()) {
-                    for (Integer a : integers) {
-                        bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
-                    }
-                    if (installment) {
-                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
-                    }
-                    if (longTermVisa) {
-                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
-                    }
-                    if (isSIV) {
-                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
-                    }
-                }
-                if (!listbindingOrder.isEmpty()) {
-                    for (Integer a : listbindingOrder) {
-                        bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
-                    }
-                    if (installment) {
-                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
-                    }
-                }
-            }
+            bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV);
             if (isSIV && "EOI".equalsIgnoreCase(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 for (ServiceOrderDTO a : deriveOrder) {
@@ -941,11 +913,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     predictCommissionAmount = predictCommissionAmount - costPrince;
                 }
             }
+            Integer getBindingOrderId = 0;
+            double bingdingOrderAmount = 0.00;
+            getBindingOrderId = serviceOrderById.getId();
             if (serviceOrderById.getApplicantParentId() > 0) {
                 ServiceOrderDO serviceOrderById1 = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
                 isSIV = "SIV".equals(serviceOrderById1.getType());
                 isNSV = "NSV".equals(serviceOrderById1.getType());
+                getBindingOrderId = serviceOrderById1.getId();
             }
+            bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV);
+            predictCommissionAmount = predictCommissionAmount - bingdingOrderAmount;
             // 500新版结算
             if ("500".equalsIgnoreCase(serviceDO.getCode())) {
                 if (predictCommissionAmount < thresholdsAmount) {
@@ -1071,6 +1049,42 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         visaOfficialDO.setCalculation(commissionAmountDTO.getCalculation());
         return visaOfficialDO;
+    }
+
+    private double getBingdingOrderAmount(ServiceOrderDO serviceOrderById, boolean installment, boolean longTermVisa, Integer getBindingOrderId, double bingdingOrderAmount, boolean isSIV, boolean isNSV) {
+        List<Integer> integers = serviceOrderDao.listBybindingOrder(getBindingOrderId);
+        List<Integer> listbindingOrder = new ArrayList<>();
+        if ((serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) || !integers.isEmpty()) {
+            if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
+                listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getId());
+            }
+            if (!integers.isEmpty()) {
+                for (Integer a : integers) {
+                    bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
+                }
+                if (installment) {
+                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                }
+                if (longTermVisa) {
+                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                }
+                if (isSIV) {
+                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                }
+                if (isNSV) {
+                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                }
+            }
+            if (!listbindingOrder.isEmpty()) {
+                for (Integer a : listbindingOrder) {
+                    bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
+                }
+                if (installment) {
+                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
+                }
+            }
+        }
+        return bingdingOrderAmount;
     }
 
     // 文案佣金订单是否直接计算固定金额
