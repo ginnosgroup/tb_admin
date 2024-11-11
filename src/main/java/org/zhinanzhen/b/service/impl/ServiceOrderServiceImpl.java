@@ -947,8 +947,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 List<ApplicantDTO> applicantDtoList = new ArrayList<>();
                 serviceOrderApplicantList.forEach(serviceOrderApplicant -> {
                     ApplicantDO applicantDo = applicantDao.getById(serviceOrderApplicant.getApplicantId());
-                    if (applicantDo != null)
+                    if (applicantDo != null) {
+                        if (applicantDo.getFileUrl() == null) {
+                            List<ServiceOrderApplicantDO> list = serviceOrderApplicantDao.list(serviceOrderDO.getId(), applicantDo.getId());
+                            if (list != null) {
+                                applicantDo.setFileUrl(list.get(0).getUrl());
+                            }
+                        }
                         applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+                    }
                 });
 				if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
 					applicantDtoList.add(serviceOrderDto.getApplicant());
