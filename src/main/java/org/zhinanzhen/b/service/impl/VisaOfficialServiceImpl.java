@@ -268,6 +268,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             throw se;
         }
         if (visaOfficialDao.countVisaByServiceOrderIdAndExcludeCode(visaOfficialDTO.getServiceOrderId(), visaOfficialDTO.getCode()) > 0) {
+            ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
+            if ("COMPLETE".equalsIgnoreCase(serviceOrderById.getState())) {
+                return serviceOrderById.getId();
+            }
             ServiceException se = new ServiceException("已创建过佣金订单,不能重复创建!");
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
