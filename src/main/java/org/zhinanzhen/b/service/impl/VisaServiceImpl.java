@@ -580,6 +580,15 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setBirthday(userDo.getBirthday());
 			visaDto.setUser(mapper.map(userDo, UserDTO.class));
 		}
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
+		if (serviceOrderDo.getApplicantId() > 0) {
+			List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+			ApplicantDO applicantDO = applicantDao.getById(serviceOrderDo.getApplicantId());
+			applicantDTOS.add(mapper.map(applicantDO, ApplicantDTO.class));
+			visaDto.setApplicant(applicantDTOS);
+			visaDto.setApplicantId(applicantDO.getId());
+
+		}
 //			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
 //			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))
 //				visaDto.setRefuseReason(serviceOrderDo.getRefuseReason());
