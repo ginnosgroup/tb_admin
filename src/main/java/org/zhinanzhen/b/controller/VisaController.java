@@ -1907,10 +1907,18 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<VisaDTO> getVisa(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<VisaDTO> getVisa(@RequestParam(value = "id") int id, HttpServletResponse response,HttpServletRequest request) {
 		try {
 			super.setGetHeader(response);
-			return new Response<VisaDTO>(0, visaService.getVisaById(id));
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			VisaDTO visaById = new VisaDTO();
+			visaById = visaService.getVisaById(id);
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+				if (visaById.getAdviserId() != adminUserLoginInfo.getAdviserId()) {
+					visaById.setCurrentAdvisor(false);
+				}
+			}
+			return new Response<VisaDTO>(0, visaById);
 		} catch (ServiceException e) {
 			return new Response<VisaDTO>(1, e.getMessage(), null);
 		}

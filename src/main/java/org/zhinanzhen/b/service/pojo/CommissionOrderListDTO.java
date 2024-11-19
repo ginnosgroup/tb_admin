@@ -106,4 +106,8 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Setter
 	private boolean isRefunded = false;
 
+	@Getter
+	@Setter
+	private boolean isCurrentAdvisor = true;
+
 }

@@ -2415,10 +2415,18 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<CommissionOrderListDTO> get(@RequestParam(value = "id") int id, HttpServletResponse response) {
+	public Response<CommissionOrderListDTO> get(@RequestParam(value = "id") int id, HttpServletResponse response, HttpServletRequest request) {
 		try {
 			super.setGetHeader(response);
-			return new Response<CommissionOrderListDTO>(0, commissionOrderService.getCommissionOrderById(id));
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			CommissionOrderListDTO commissionOrderById = new CommissionOrderListDTO();
+			commissionOrderById = commissionOrderService.getCommissionOrderById(id);
+			if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+				if (commissionOrderById.getAdviserId() != adminUserLoginInfo.getAdviserId()) {
+					commissionOrderById.setCurrentAdvisor(false);
+				}
+			}
+			return new Response<CommissionOrderListDTO>(0, commissionOrderById);
 		} catch (ServiceException e) {
 			return new Response<CommissionOrderListDTO>(1, e.getMessage(), null);
 		}

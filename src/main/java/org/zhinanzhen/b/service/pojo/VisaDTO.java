@@ -180,7 +180,7 @@ public class VisaDTO {
 
 	private MaraDTO maraDTO;
 
-
+	private boolean isCurrentAdvisor = true;
 
 
 }
