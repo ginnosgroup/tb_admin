@@ -217,7 +217,7 @@
     </select>
     
     <update id="commissionOrderDataMigration">
-        update b_commission_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('COMPLETE', 'CLOSE')
+        update b_commission_order set gmt_modify=now(),adviser_id=#{newAdviserId} where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='userIdList != null'>
             AND user_id IN
             <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
@@ -228,7 +228,7 @@
     </update>
     
     <select id="countCommissionOrderDataMigration" resultType="java.lang.Integer">
-        select count(*) from b_commission_order where adviser_id=#{adviserId} and bonus_date is null and state not in ('COMPLETE', 'CLOSE')
+        select count(*) from b_commission_order where adviser_id=#{adviserId} and bonus_date is null and state not in ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
         <if test='userIdList != null'>
             AND user_id IN
             <foreach collection="userIdList" item="userIdList" index="index" open="(" close=")" separator=",">
