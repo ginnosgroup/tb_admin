@@ -25,7 +25,7 @@ public class OfficialGradeController extends BaseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public Response<List<OfficialGradeDTO>> get(@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+    public Response<List<OfficialGradeDTO>> get(@RequestParam(value = "pageNum", required = false) int pageNum, @RequestParam(value = "pageSize", required = false) int pageSize,
                                                 HttpServletRequest request, HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo != null)
