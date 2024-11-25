@@ -41,9 +41,9 @@ public class OfficialGradeController extends BaseController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> addGrade(@RequestParam(value = "grade") String grade,
-                                      @RequestParam(value = "rate") String rate,
-                                      @RequestParam(value = "ruler") Integer ruler,
+    public Response<Integer> addGrade(@RequestParam(value = "grade", required = false) String grade,
+                                      @RequestParam(value = "rate", required = false) String rate,
+                                      @RequestParam(value = "ruler", required = false) Integer ruler,
                                       HttpServletRequest request, HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo != null)
