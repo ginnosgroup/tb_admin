@@ -53,8 +53,8 @@ public class OfficialGradeController extends BaseController {
             super.setPostHeader(response);
             OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
             officialGradeDTO.setGrade(grade);
-            officialGradeDTO.setRate(Double.parseDouble(rate));
-            officialGradeDTO.setRuler(ruler);
+//            officialGradeDTO.setRate(Double.parseDouble(rate));
+//            officialGradeDTO.setRuler(ruler);
             if (officialGradeService.addOfficialGrade(officialGradeDTO) > 0)
                 return new Response<Integer>(0, "添加成功", 0);
             else
