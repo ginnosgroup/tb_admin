@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.zhinanzhen.b.dao.pojo.AdviserUserDO;
 import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
@@ -62,5 +63,14 @@ public interface UserDAO {
 
 	@Select("select  * from tb_user where auth_type = 'WECHAT_WORK'")
 	List<UserDO> getUserByWxWrok();
+
+	@Select("select * from tb_user2")
+	List<UserDO> getUser2();
+
+	@Select("SELECT * FROM tb_user_adviser WHERE user_id IN (SELECT user_id FROM tb_user_adviser GROUP BY user_id HAVING COUNT(user_id) > 1 ) AND is_creater = 1 AND gmt_modify > '2024-05-01 00:00:00' ORDER BY gmt_modify ASC")
+	List<UserAdviserDO> listADviserUder();
+
+	@Select("select * from tb_user_adviser where user_id = #{userId} ORDER BY gmt_modify ASC")
+	List<UserAdviserDO> listADviserUder2(Integer userId);
 
 }
