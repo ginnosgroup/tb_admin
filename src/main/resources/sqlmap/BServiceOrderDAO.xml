@@ -1452,7 +1452,7 @@
         select id,state from b_service_order
                         where readcommitted_date between #{beforeFormat} and #{nowDate}
                           and (state = 'APPLY' OR state = 'COMPLETE')
-                            and official_id != 0
+                            and official_id != 0 and type != 'OVST'
     </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
