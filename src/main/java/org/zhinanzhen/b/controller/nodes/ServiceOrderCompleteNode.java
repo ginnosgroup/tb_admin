@@ -184,9 +184,18 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
 
-
+                        double remainingAmount = 0.00;
                         List<VisaDO> visaDOS = serviceOrderCompleteNode.visaDAO.listVisaByServiceOrderId(serviceOrderParent.getId());
-                        double remainingAmount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+                        if ((list != null) && (visaDOS != null && visaDOS.size() > 1)) {
+                            double visaNumOne = visaDOS.get(0).getAmount();
+                            visaDOS.remove(0);
+                            double visaNumTwo = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+                            double predictCommissionAmount = list.get(0).getPredictCommissionAmount();
+                            remainingAmount = findClosest(predictCommissionAmount, visaNumOne, visaNumTwo);
+                        } else {
+                            remainingAmount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+                            remainingAmount = remainingAmount / 2;
+                        }
                         List<RefundDO> refundDOs = new ArrayList<>();
                         for (VisaDO visaDO : visaDOS) {
                             RefundDO refundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaDO.getId());
@@ -197,7 +206,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         if (!refundDOs.isEmpty()) {
                             remainingAmount = remainingAmount - refundDOs.stream().mapToDouble(RefundDO::getAmount).sum();
                         }
-                        remainingAmount = remainingAmount / 2;
+//                        remainingAmount = remainingAmount / 2;
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
                         visaOfficialDO.setCommissionAmount(remainingAmount / 1.1);
 
@@ -250,6 +259,23 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
     @Override
     public String[] nextNodeNames() {
         return new String[]{"PAID", "CLOSE", "WAIT_FD"};
+    }
+
+
+    // 判断以哪一个visa结算
+    public static double findClosest(double num, double a, double b) {
+        // 计算差的绝对值
+        double diffA = Math.abs(num - a);
+        double diffB = Math.abs(num - b);
+
+        // 比较绝对值，如果相等则返回两个数值
+        if (diffA == diffB) {
+            return a;
+        } else if (diffA < diffB) {
+            return a;
+        } else {
+            return b;
+        }
     }
 
     // 文案地区判断

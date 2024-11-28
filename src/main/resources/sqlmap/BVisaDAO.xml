@@ -501,7 +501,7 @@
             bank_date AS bankDate,
             is_close AS isClose,
             invoice_create AS invoiceCreate
-        FROM b_visa WHERE service_order_id = #{serviceOrderId};
+        FROM b_visa WHERE service_order_id = #{serviceOrderId} order by installment_num ASC;
     </select>
     
     <select id="listVisaReport" resultType="org.zhinanzhen.b.dao.pojo.VisaReportDO">

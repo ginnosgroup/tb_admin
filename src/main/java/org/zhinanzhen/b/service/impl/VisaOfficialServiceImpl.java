@@ -440,11 +440,31 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         List<VisaDO> visaDOS = new ArrayList<>();
         // 父子订单金额计算
         visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderById.getId());
+        ServiceOrderDO serviceOrderByParentId = new ServiceOrderDO();
         if (suborder) {
+            serviceOrderByParentId = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
             int id = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getId();
             visaDOS = visaDAO.listVisaByServiceOrderId(id);
         }
-        amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+        // 设置amount金额
+        if (!visaDOS.isEmpty()) {
+            if (visaDOS.size() == 1) {
+                amount = visaDOS.get(0).getAmount(); // 收款总额
+            }
+            if (visaDOS.size() > 1) {
+                installment = true;
+                amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+                if (suborder && ("SIV".equalsIgnoreCase(serviceOrderByParentId.getType()) || "NSV".equalsIgnoreCase(serviceOrderByParentId.getType()))) {
+                    int visaOfficialCount = visaOfficialDao.getCountvisaOfficialByServiceOrderPatrentId(serviceOrderById.getApplicantParentId());
+                    if (visaOfficialCount == 0) {
+                        amount = visaDOS.get(0).getAmount();
+                    } else {
+                        visaDOS.remove(0);
+                        amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+                    }
+                }
+            }
+        }
         // 免费绑定订单金额计算
         if (serviceOrderById.getBindingOrder() != null &&serviceOrderById.getBindingOrder() > 0) {
             ServicePackagePriceDO byId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
@@ -835,7 +855,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 isNSV = "NSV".equals(serviceOrderById1.getType());
                 getBindingOrderId = serviceOrderById1.getId();
             }
-            if (longTermVisa || isSIV || isNSV) {
+            if (longTermVisa) {
                 amount = amount * 0.5;
             }
             bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV);
@@ -966,6 +986,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     commissionAmountDTO.setCalculation(calculation);
                 }
             } else if (isSIV) {
+                if (!installment) {
+                    predictCommissionAmount = predictCommissionAmount * 0.5;
+                }
                 ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
                 if (ObjectUtil.isNotNull(servicePackageDO) && "EOI".equalsIgnoreCase(servicePackageDO.getType())) {
                     List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
@@ -986,10 +1009,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         predictCommissionAmount = byServiceId.getMaxPrice() / EOICount;
                     }
                 }
+//                if (ObjectUtil.isNotNull(servicePackageDO) && "VA".equalsIgnoreCase(servicePackageDO.getType())) {
+//                    predictCommissionAmount = predictCommissionAmount * 0.25; // 打包签证签证申请为总金额的四分之一结算
+//                } else {
+//                    predictCommissionAmount = predictCommissionAmount * 0.5; // 打包签证其他为总金额的一半结算
+//                }
                 if (ObjectUtil.isNotNull(servicePackageDO) && "VA".equalsIgnoreCase(servicePackageDO.getType())) {
-                    predictCommissionAmount = predictCommissionAmount * 0.25; // 打包签证签证申请为总金额的四分之一结算
-                } else {
-                    predictCommissionAmount = predictCommissionAmount * 0.5; // 打包签证其他为总金额的一半结算
+                    predictCommissionAmount = predictCommissionAmount * 0.5; // 打包签证中签证结算为一半金额
                 }
                 commissionAmountDTO.setPredictCommissionAmount(predictCommissionAmount);
                 if (commissionAmountDTO.getPredictCommissionAmount() <= 0) {

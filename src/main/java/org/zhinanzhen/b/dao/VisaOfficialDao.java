@@ -91,4 +91,8 @@ public interface VisaOfficialDao {
             "1046322,1046017,1046554,1046166,1046509,\n" +
             "1046508,1046221,1046370)")
     List<VisaOfficialDO> listLinShi();
+
+
+    int getCountvisaOfficialByServiceOrderPatrentId(@Param("applicantParentId")int applicantParentId);
+
 }
