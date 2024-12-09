@@ -213,7 +213,7 @@ public class VisaOfficialCheck {
                 EndOfLastMonth, null, null, null, null,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, 0, 9999, null);
+                , null, null, null, null, 0, 9999, null);
         for (ServiceOrderDO e : serviceOrderDOS) {
             try {
                 if ("PAID".equals(e.getState()) || "COMPLETE".equals(e.getState()) || "CLOSE".equals(e.getState())) {
@@ -316,7 +316,7 @@ public class VisaOfficialCheck {
                     null, null, null, null, null,
                     null, null, null, null, null, null
                     , null, 0, null, null, null
-                    , null, null, null, 0, 9999, null);
+                    , null, null, null, null, 0, 9999, null);
             Map<String, List<ServiceOrderDO>> eoiCountHashMap = new HashMap<>(); // eoi计算容器
             Map<String, List<ServiceOrderDO>> careerAssessmentHashMap = new HashMap<>(); // 职业评估计算容器
             List<ServiceOrderDO> collect = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());

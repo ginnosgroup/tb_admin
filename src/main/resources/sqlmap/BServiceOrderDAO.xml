@@ -747,8 +747,11 @@
         <if test="isSettle != null">
             AND so.is_settle = #{isSettle}
         </if>
-        <if test="servicePackageId">
+        <if test="servicePackageId != null">
             AND so.service_package_id = #{servicePackageId}
+        </if>
+        <if test="servicePackageId != null">
+            AND so.binding_order = #{bindingOrder}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};

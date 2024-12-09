@@ -325,7 +325,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         String packType = "";
         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
 
-        OfficialDO officialById = officialDao.getOfficialById(serviceOrderById.getOfficialId());
+//        OfficialDO officialById = officialDao.getOfficialById(serviceOrderById.getOfficialId());
 
         // 打包签证结算
         if (orderType == 0) {
@@ -1244,6 +1244,60 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
                 visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
             }
+            visaOfficialDto.setRefundAmount(0.00);
+            visaOfficialDto.setBingDingAmount(0.00);
+            if (serviceOrderDto.getApplicantParentId() > 0) {
+                ServiceOrderDO parentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId());
+                List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(parentOrder.getId());
+                if (visaDOS != null && !visaDOS.isEmpty()) {
+                    for (VisaDO visaDO : visaDOS) {
+                        RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
+                        if (refundDO != null) {
+                            visaOfficialDto.setRefundAmount(refundDO.getAmount());
+                        }
+                    }
+                }
+                List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
+                        null, null, null, null, null, null,
+                        null, null, null, null, null,
+                        null, null, null, null, null, null, null, null,
+                        null, null, null, null, null, null, null,
+                        null, null, parentOrder.getId(), 0, 20, null);
+                if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
+                    for (ServiceOrderDO orderDO : serviceOrderDOS) {
+                        ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
+                        if (byServiceId!= null) {
+                            Double bingDingAmount = visaOfficialDto.getBingDingAmount();
+                            visaOfficialDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
+                        }
+                    }
+                }
+            } else {
+                List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderDO.getId());
+                if (visaDOS != null && !visaDOS.isEmpty()) {
+                    for (VisaDO visaDO : visaDOS) {
+                        RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
+                        if (refundDO != null) {
+                            visaOfficialDto.setRefundAmount(refundDO.getAmount());
+                        }
+                    }
+                }
+                List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
+                        null, null, null, null, null, null,
+                        null, null, null, null, null,
+                        null, null, null, null, null, null, null, null,
+                        null, null, null, null, null, null, null,
+                        null, null, visaOfficialDto.getServiceOrderId(), 0, 20, null);
+                if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
+                    for (ServiceOrderDO orderDO : serviceOrderDOS) {
+                        ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
+                        if (byServiceId!= null) {
+                            Double bingDingAmount = visaOfficialDto.getBingDingAmount();
+                            visaOfficialDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
+                        }
+                    }
+                }
+            }
             visaOfficialDtoList.add(visaOfficialDto);
         }
         return visaOfficialDtoList;
@@ -1351,7 +1405,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 EndOfLastMonth, null, null, null, null,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, 0, 9999, null);
+                , null, null, null, null, 0, 9999, null);
         List<VisaOfficialDO> visaOfficialDOs = new ArrayList<>();
         int count = 0;
         for (ServiceOrderDO e : serviceOrderDOS) {
