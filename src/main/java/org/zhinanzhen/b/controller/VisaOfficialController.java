@@ -837,7 +837,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             htmlBuilder.append("\">");
             htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
             htmlBuilder.append("</a>");
-//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
