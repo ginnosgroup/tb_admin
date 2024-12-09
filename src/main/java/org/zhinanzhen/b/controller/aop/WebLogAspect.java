@@ -81,127 +81,128 @@ public class WebLogAspect extends BaseController{
     @Around("webLog()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable 
     {
-        long startTime = System.currentTimeMillis();
-        //获取当前请求对象
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
+        try {
+            long startTime = System.currentTimeMillis();
+            //获取当前请求对象
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
 
-        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        AdminUserDO adminUserById = new AdminUserDO();
-        if (adminUserLoginInfo != null) {
-            adminUserById = adminUserDAO.getAdminUserById(adminUserLoginInfo.getId());
-        }
-        //记录请求信息
-        WebLogDTO webLog = new WebLogDTO();
- 
-        //前面是前置通知，后面是后置通知
-        Object result = joinPoint.proceed();
- 
-        Signature signature = joinPoint.getSignature();
-        MethodSignature methodSignature = (MethodSignature) signature;
-        Method method = methodSignature.getMethod();
-        long endTime = System.currentTimeMillis();
-        String urlStr = request.getRequestURL().toString();
-        webLog.setBasePath(StrUtil.removeSuffix(urlStr, URLUtil.url(urlStr).getPath()));
-        webLog.setIp(request.getRemoteUser());
-        webLog.setUserId(adminUserById.getId());
-        webLog.setMethod(request.getMethod());
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            AdminUserDO adminUserById = new AdminUserDO();
+            if (adminUserLoginInfo != null) {
+                adminUserById = adminUserDAO.getAdminUserById(adminUserLoginInfo.getId());
+            }
+            //记录请求信息
+            WebLogDTO webLog = new WebLogDTO();
 
-        webLog.setSpendTime((int) (endTime - startTime));
+            //前面是前置通知，后面是后置通知
+            Object result = joinPoint.proceed();
 
-        // 使用java.time包
-        Instant instant = Instant.ofEpochMilli(startTime);
-        ZonedDateTime dateTime = instant.atZone(ZoneId.systemDefault()); // 使用系统默认时区
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = dateTime.format(formatter);
+            Signature signature = joinPoint.getSignature();
+            MethodSignature methodSignature = (MethodSignature) signature;
+            Method method = methodSignature.getMethod();
+            long endTime = System.currentTimeMillis();
+            String urlStr = request.getRequestURL().toString();
+            webLog.setBasePath(StrUtil.removeSuffix(urlStr, URLUtil.url(urlStr).getPath()));
+            webLog.setIp(request.getRemoteUser());
+            webLog.setUserId(adminUserById.getId());
+            webLog.setMethod(request.getMethod());
 
-        webLog.setStartTime(formattedDate);
-        String requestURI = request.getRequestURI();
-        webLog.setUri(requestURI);
-        webLog.setUrl(request.getRequestURL().toString());
-        String[] split = requestURI.split("/");
-        String methodName = split[split.length - 1];
-        List<Object> parameter = getParameter(method, joinPoint.getArgs());
-        if (parameter != null && !methodName.contains("upload") && !methodName.equalsIgnoreCase("add")) {
-            for (Object o : parameter) {
-                if (o.toString().contains("id")) {
-                    // 定义正则表达式来匹配id后面的数字
-                    // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
-                    String regex = "\\{id=(\\d+)\\}";
-                    // 创建Pattern对象
-                    Pattern pattern = Pattern.compile(regex);
-                    // 创建Matcher对象
-                    Matcher matcher = pattern.matcher(o.toString());
-                    // 查找匹配项
-                    if (matcher.find()) {
-                        // 提取匹配的数字
-                        String id = matcher.group(1);
-                        if (urlStr.contains("user")) {
-                            webLog.setOperatedUser(Integer.valueOf(id));
+            webLog.setSpendTime((int) (endTime - startTime));
+
+            // 使用java.time包
+            Instant instant = Instant.ofEpochMilli(startTime);
+            ZonedDateTime dateTime = instant.atZone(ZoneId.systemDefault()); // 使用系统默认时区
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = dateTime.format(formatter);
+
+            webLog.setStartTime(formattedDate);
+            String requestURI = request.getRequestURI();
+            webLog.setUri(requestURI);
+            webLog.setUrl(request.getRequestURL().toString());
+            String[] split = requestURI.split("/");
+            String methodName = split[split.length - 1];
+            List<Object> parameter = getParameter(method, joinPoint.getArgs());
+            if (parameter != null && !methodName.contains("upload") && !methodName.equalsIgnoreCase("add")) {
+                for (Object o : parameter) {
+                    if (o.toString().contains("id")) {
+                        // 定义正则表达式来匹配id后面的数字
+                        // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
+                        String regex = "\\{id=(\\d+)\\}";
+                        // 创建Pattern对象
+                        Pattern pattern = Pattern.compile(regex);
+                        // 创建Matcher对象
+                        Matcher matcher = pattern.matcher(o.toString());
+                        // 查找匹配项
+                        if (matcher.find()) {
+                            // 提取匹配的数字
+                            String id = matcher.group(1);
+                            if (urlStr.contains("user")) {
+                                webLog.setOperatedUser(Integer.valueOf(id));
+                            } else {
+                                webLog.setServiceOrderId(Integer.valueOf(id));
+                            }
+                            log.info("ID: " + id);
                         } else {
-                            webLog.setServiceOrderId(Integer.valueOf(id));
+                            System.out.println("未找到ID");
                         }
-                        log.info("ID: " + id);
-                    } else {
-                        System.out.println("未找到ID");
                     }
-                }
-                if (o.toString().contains("serviceOrderId")) {
-                    // 定义正则表达式来匹配id后面的数字
-                    // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
-                    String regex = "\\{serviceOrderId=(\\d+)\\}";
-                    // 创建Pattern对象
-                    Pattern pattern = Pattern.compile(regex);
-                    // 创建Matcher对象
-                    Matcher matcher = pattern.matcher(o.toString());
-                    // 查找匹配项
-                    if (matcher.find()) {
-                        // 提取匹配的数字
-                        String id = matcher.group(1);
-                        webLog.setServiceOrderId(Integer.valueOf(id));
-                        log.info("ID: " + id);
-                    } else {
-                        System.out.println("未找到ID");
+                    if (o.toString().contains("serviceOrderId")) {
+                        // 定义正则表达式来匹配id后面的数字
+                        // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
+                        String regex = "\\{serviceOrderId=(\\d+)\\}";
+                        // 创建Pattern对象
+                        Pattern pattern = Pattern.compile(regex);
+                        // 创建Matcher对象
+                        Matcher matcher = pattern.matcher(o.toString());
+                        // 查找匹配项
+                        if (matcher.find()) {
+                            // 提取匹配的数字
+                            String id = matcher.group(1);
+                            webLog.setServiceOrderId(Integer.valueOf(id));
+                            log.info("ID: " + id);
+                        } else {
+                            System.out.println("未找到ID");
+                        }
                     }
+
                 }
-
             }
-        }
-        if (parameter != null && methodName.equalsIgnoreCase("add")) {
-            Response<Integer> integerResponse = (Response) result;
-            if (urlStr.contains("serviceOrder")) {
-                webLog.setServiceOrderId(integerResponse.getData());
+            if (parameter != null && methodName.equalsIgnoreCase("add")) {
+                Response<Integer> integerResponse = (Response) result;
+                if (urlStr.contains("serviceOrder")) {
+                    webLog.setServiceOrderId(integerResponse.getData());
+                }
+                if (urlStr.contains("user")) {
+                    webLog.setOperatedUser(integerResponse.getData());
+                }
             }
-            if (urlStr.contains("user")) {
-                webLog.setOperatedUser(integerResponse.getData());
+            webLog.setParameter(parameter.toString());
+            String resultString = result.toString();
+            if (resultString.length() >= 2000) {
+                webLog.setResult(resultString.substring(0, 1999));
+            } else {
+                webLog.setResult(resultString);
             }
-        }
-        webLog.setParameter(parameter.toString());
-        String resultString = result.toString();
-        if (resultString.length() >= 2000) {
-            webLog.setResult(resultString.substring(0, 1999));
-        } else {
-            webLog.setResult(resultString);
-        }
 
 
-        String apList = adminUserLoginInfo.getApList();
-        switch (apList) {
-            case "GW":
-                apList = "顾问";
-                break;
-            case "WA":
-                apList = "文案";
-                break;
-            case "KJ":
-                apList = "会计";
-                break;
-            case "SUPERAD":
-                apList = "超级管理员";
-                break;
-            default: apList = apList;
-        }
-        webLog.setRole(apList);
+            String apList = adminUserLoginInfo.getApList();
+            switch (apList) {
+                case "GW":
+                    apList = "顾问";
+                    break;
+                case "WA":
+                    apList = "文案";
+                    break;
+                case "KJ":
+                    apList = "会计";
+                    break;
+                case "SUPERAD":
+                    apList = "超级管理员";
+                    break;
+                default: apList = apList;
+            }
+            webLog.setRole(apList);
 
 //        if (parameter != null && methodName.contains("userIds") && !methodName.equalsIgnoreCase("newAdviserId")) {
 //            String regexUserIds = "\\{userIds=(\\d+)\\}";
@@ -227,13 +228,17 @@ public class WebLogAspect extends BaseController{
 //        }
 
 
-        if (!StringUtils.isEmpty(methodName)) {
-            if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
-                webLogDAO.addWebLogs(webLog);
+            if (!StringUtils.isEmpty(methodName)) {
+                if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
+                    webLogDAO.addWebLogs(webLog);
+                }
             }
+            log.info("{}", JSONUtil.parse(webLog));
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        log.info("{}", JSONUtil.parse(webLog));
-        return result;
+        return null;
     }
  
     /**

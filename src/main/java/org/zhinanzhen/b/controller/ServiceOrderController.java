@@ -2775,7 +2775,7 @@ public class ServiceOrderController extends BaseController {
                 final JSONObject[] parmZiBiao = {new JSONObject()};
                 parmZiBiao[0].put("docid", docid);
                 JSONObject jsonObjectProperties = new JSONObject();
-                jsonObjectProperties.put("title", "测试表格1");
+                jsonObjectProperties.put("title", "佣金订单导出信息");
                 jsonObjectProperties.put("index", 2);
                 parmZiBiao[0].put("properties", jsonObjectProperties);
                 JSONObject jsonObject1 = WXWorkAPI.sendPostBody_Map(accessTokenZiBiao, parmZiBiao[0]);
@@ -2853,7 +2853,6 @@ public class ServiceOrderController extends BaseController {
                                     JSONObject jsonObjectValue = new JSONObject();
                                     jsonObjectValue.put("values", jsonObjectFILEDTITLE);
                                     recordsList.add(jsonObjectValue);
-
                                     parmJiLu[0].put("records", recordsList);
                                     JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
                                     log.info(accessTokenJiLu);
@@ -4719,6 +4718,7 @@ public class ServiceOrderController extends BaseController {
     public List<String> buildExlceTitle() {
         List<String> excelTitle = new ArrayList<>();
         excelTitle.add("备注");
+        excelTitle.add("是否购买保险");
         excelTitle.add("offer类型");
         excelTitle.add("计数");
         excelTitle.add("状态");
@@ -5050,6 +5050,22 @@ public class ServiceOrderController extends BaseController {
             jsonObject.put("text", "");
             jsonObjectFILEDTITLEList.add(jsonObject);
             jsonObjectFILEDTITLE.put("offer类型", jsonObjectFILEDTITLEList);
+        }
+        // 是否购买保险
+        if (StringUtil.isNotEmpty(so.getIsInsuranceCompany())) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", so.getIsInsuranceCompany().equalsIgnoreCase("0") ? "否" : "是");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("是否购买保险", jsonObjectFILEDTITLEList);
+        } else {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "否");
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("是否购买保险", jsonObjectFILEDTITLEList);
         }
         // 备注
         if (so.getRemarks() != null) {

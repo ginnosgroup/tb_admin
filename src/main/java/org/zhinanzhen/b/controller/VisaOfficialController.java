@@ -719,7 +719,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
             final JSONObject[] parm = {new JSONObject()};
             parm[0].put("doc_type", 10);
-            parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+            parm[0].put("doc_name", "officialVisa-" + sdf.format(new Date()));
             log.info("parm--------------------" + Arrays.toString(parm));
             log.info("setupExcelAccessToken-------------------" + setupExcelAccessToken);
 
@@ -732,7 +732,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             final JSONObject[] parmZiBiao = {new JSONObject()};
             parmZiBiao[0].put("docid", docid);
             JSONObject jsonObjectProperties = new JSONObject();
-            jsonObjectProperties.put("title", "测试表格2");
+            jsonObjectProperties.put("title", "文案佣金订单导出信息");
             jsonObjectProperties.put("index", 2);
             parmZiBiao[0].put("properties", jsonObjectProperties);
             JSONObject jsonObject1 = WXWorkAPI.sendPostBody_Map(accessTokenZiBiao, parmZiBiao[0]);
