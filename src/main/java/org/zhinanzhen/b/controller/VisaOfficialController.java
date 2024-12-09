@@ -715,7 +715,6 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             String customerToken = (String) tokenMap.get("access_token");
 
             // 创建表格
-            // 创建表格
             String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
             final JSONObject[] parm = {new JSONObject()};
             parm[0].put("doc_type", 10);
@@ -957,6 +956,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         }
         // 是否合账
         buildJsonobjectRow(so.isMerged() ? "是" : "否", "是否合账", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 退款金额
+        buildJsonobjectRow(String.valueOf(so.getRefundAmount()), "退款金额", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 绑定订单金额
+        buildJsonobjectRow(String.valueOf(so.getBingDingAmount()), "绑定订单金额", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 状态
         String states = so.getState() == null ? "" : so.getState();
         buildJsonobjectRow(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states, "状态", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -975,6 +978,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     public List<String> buildExlceTitle(String currency) {
         List<String> excelTitle = new ArrayList<>();
         excelTitle.add("状态");
+        excelTitle.add("绑定订单金额");
+        excelTitle.add("退款金额");
         excelTitle.add("是否合账");
         if ("AUD".equalsIgnoreCase(currency)) {
             excelTitle.add("total（AUD）");

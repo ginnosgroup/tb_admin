@@ -282,4 +282,8 @@ public class ServiceOrderDTO {
 	private InsuranceCompanyDO insuranceCompanyDO;
 
 	private String transferRemarks; // 中转备注
+
+	private Double refundAmount; // 退款金额
+
+	private Double bingDingAmount; // 绑定金额
 }

@@ -149,6 +149,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private ServiceOrderOriginallyDAO serviceOrderOriginallyDAO;
 
+    @Resource
+    private VisaDAO visaDAO;
+
+    @Resource
+    private RefundDAO refundDAO;
+
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -1229,6 +1235,59 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         } else {
             serviceOrderDto.setIsInsuranceCompany("");
         }
+//        // 判断退款金额以及绑定订单金额
+//        if (serviceOrderDto.getApplicantParentId() > 0) {
+//            ServiceOrderDO parentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId());
+//            List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(parentOrder.getId());
+//            if (visaDOS != null && !visaDOS.isEmpty()) {
+//                for (VisaDO visaDO : visaDOS) {
+//                    RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
+//                    if (refundDO != null) {
+//                        serviceOrderDto.setRefundAmount(refundDO.getAmount());
+//                    }
+//                }
+//            }
+//            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null,
+//                    null, null, null, null, null, null,
+//                    null, null, null, null, null,
+//                    null, null, null, null, null, null, null, null,
+//                    null, null, null, null, null, null, null,
+//                    null, null, parentOrder.getId(), 0, 20, null);
+//            if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
+//                for (ServiceOrderDO orderDO : serviceOrderDOS) {
+//                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
+//                    if (byServiceId!= null) {
+//                        Double bingDingAmount = serviceOrderDto.getBingDingAmount();
+//                        serviceOrderDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
+//                    }
+//                }
+//            }
+//        } else {
+//            List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderDO.getId());
+//            if (visaDOS != null && !visaDOS.isEmpty()) {
+//                for (VisaDO visaDO : visaDOS) {
+//                    RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
+//                    if (refundDO != null) {
+//                        serviceOrderDto.setRefundAmount(refundDO.getAmount());
+//                    }
+//                }
+//            }
+//            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null,
+//                    null, null, null, null, null, null,
+//                    null, null, null, null, null,
+//                    null, null, null, null, null, null, null, null,
+//                    null, null, null, null, null, null, null,
+//                    null, null, serviceOrderDto.getId(), 0, 20, null);
+//            if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
+//                for (ServiceOrderDO orderDO : serviceOrderDOS) {
+//                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
+//                    if (byServiceId!= null) {
+//                        Double bingDingAmount = serviceOrderDto.getBingDingAmount();
+//                        serviceOrderDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
+//                    }
+//                }
+//            }
+//        }
         return serviceOrderDto;
     }
 
