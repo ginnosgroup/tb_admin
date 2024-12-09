@@ -17,6 +17,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class ServiceOrderTransferNode extends SODecisionNode{
     @Autowired
     private ServicePackagePriceDAO servicePackagePriceDAO;
 
+    @Autowired
+    private ServiceOrderDAO serviceOrderDAO;
+
     public static ServiceOrderTransferNode serviceOrderTransferNode;
 
     @PostConstruct
@@ -44,6 +48,7 @@ public class ServiceOrderTransferNode extends SODecisionNode{
         serviceOrderTransferNode.visaOfficialDao=this.visaOfficialDao;
         serviceOrderTransferNode.serviceDAO=this.serviceDAO;
         serviceOrderTransferNode.officialDAO=this.officialDAO;
+        serviceOrderTransferNode.serviceOrderDAO=this.serviceOrderDAO;
         serviceOrderTransferNode.servicePackagePriceDAO=this.servicePackagePriceDAO;
     }
 
@@ -60,6 +65,19 @@ public class ServiceOrderTransferNode extends SODecisionNode{
                 context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
                 return null;
             }
+            // 计算绑定订单金额
+            boolean isBound = false;
+            double costPrince = 0.00;
+            List<Integer> integers = new ArrayList<>();
+            integers = serviceOrderTransferNode.serviceOrderDAO.listBybindingOrder(serviceOrderDto.getId());
+            isBound = !integers.isEmpty();
+            if (isBound) { // 被绑定订单金额确定
+                for (Integer integer : integers) {
+                    ServicePackagePriceDO byServiceId = serviceOrderTransferNode.servicePackagePriceDAO.getByServiceId(integer);
+                    costPrince += byServiceId.getCostPrince();
+                }
+                costPrince = costPrince * 0.2;
+            }
             if ("VISA".equals(type) && serviceOrderDto.getParentId() == 0) // 签证
             {
                 List<String> arrayList = serviceOrderTransferNode.serviceDAO.listLongTimeVisa();
@@ -74,7 +92,10 @@ public class ServiceOrderTransferNode extends SODecisionNode{
                     visaOfficialDO.setInstallmentNum(2);
                     visaOfficialDO.setInstallment(2);
                     visaOfficialDO.setKjApprovalDate(null);
-
+                    if (isBound) { // 被绑定订单金额确定
+                        visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - costPrince);
+                        visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
+                    }
                     visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * 0.5);
                     visaOfficialDO1.setPerAmount(visaOfficialDO.getPerAmount());
 

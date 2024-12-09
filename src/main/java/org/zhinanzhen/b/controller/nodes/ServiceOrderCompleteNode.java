@@ -87,6 +87,23 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
             String type = serviceOrderDto.getType();
             ServicePackagePriceDO servicePackagePriceDO = serviceOrderCompleteNode.servicePackagePriceDAO.getByServiceId(serviceOrderDto.getServiceId());
             ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugdNew(serviceOrderDto.getOfficialId(), servicePackagePriceDO);
+            // 计算绑定订单金额
+            boolean isBound = false;
+            double costPrince = 0.00;
+            List<Integer> integers = new ArrayList<>();
+            List<RefundDO> refundDOs = new ArrayList<>();
+            integers = serviceOrderCompleteNode.serviceOrderDAO.listBybindingOrder(serviceOrderDto.getId());
+            isBound = !integers.isEmpty();
+            if (serviceOrderDto.getApplicantParentId() > 0) {
+                integers = serviceOrderCompleteNode.serviceOrderDAO.listBybindingOrder(serviceOrderDto.getApplicantParentId());
+                isBound = !integers.isEmpty();
+            }
+            if (isBound) { // 被绑定订单金额确定
+                for (Integer integer : integers) {
+                    ServicePackagePriceDO byServiceId = serviceOrderCompleteNode.servicePackagePriceDAO.getByServiceId(integer);
+                    costPrince += byServiceId.getCostPrince();
+                }
+            }
             if (!"ZX".equals(type) && !serviceOrderDto.isSettle() && !"WA".equalsIgnoreCase(getAp(context))) { // 咨询不用判断文案权限,扣拥留学不用判断
                 context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
                 return null;
@@ -107,15 +124,21 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
                         if (list != null && list.size() == 1) {
+                            costPrince = costPrince * 0.6;
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.4);
                             visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.4);
                         }
                         if (list != null && list.size() == 2) {
+                            costPrince = costPrince * 0.4;
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.2);
                             visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.2);
                         }
                         double expectAmount = visaOfficialDO.getExpectAmount();
                         for (VisaOfficialListDO visaOfficialListDO : list) {
+                            if (isBound) { // 被绑定订单金额确定
+                                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - costPrince);
+                                visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
+                            }
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - visaOfficialListDO.getCommissionAmount());
                             visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() - visaOfficialListDO.getPredictCommission());
                             expectAmount = expectAmount - visaOfficialListDO.getPerAmount();
@@ -166,12 +189,6 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                 }
             }
             if (serviceOrderDto.getApplicantParentId() > 0 && (ObjectUtil.isNotNull(officialById) && 1000034 == officialById.getRegionId())) {
-                boolean isBound = false;
-                List<Integer> integers = new ArrayList<>();
-                if (serviceOrderDto.getApplicantParentId() > 0) {
-                    integers = serviceOrderCompleteNode.serviceOrderDAO.listBybindingOrder(serviceOrderDto.getApplicantParentId());
-                    isBound = !integers.isEmpty();
-                }
                 ServiceOrderDTO serviceOrderParent = serviceOrderCompleteNode.serviceOrderService.getServiceOrderById(serviceOrderDto.getApplicantParentId());
                 isSiv = "SIV".equalsIgnoreCase(serviceOrderParent.getType());
                 if (isSiv) {
@@ -187,38 +204,51 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         double remainingAmount = 0.00;
                         List<VisaDO> visaDOS = serviceOrderCompleteNode.visaDAO.listVisaByServiceOrderId(serviceOrderParent.getId());
                         if ((list != null) && (visaDOS != null && visaDOS.size() > 1)) {
+                            VisaDO visaDO = visaDOS.get(0);
                             double visaNumOne = visaDOS.get(0).getAmount();
                             visaDOS.remove(0);
                             double visaNumTwo = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
                             double predictCommissionAmount = list.get(0).getPredictCommissionAmount();
                             remainingAmount = findClosest(predictCommissionAmount, visaNumOne, visaNumTwo);
+                            if (visaDO.getAmount() == remainingAmount){
+                                RefundDO refundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaDO.getId());
+                                if (ObjectUtil.isNotNull(refundByVisaId)) {
+                                    refundDOs.add(refundByVisaId);
+                                }
+                                if (!refundDOs.isEmpty()) {
+                                    remainingAmount = remainingAmount - refundDOs.stream().mapToDouble(RefundDO::getAmount).sum();
+                                }
+                            } else {
+                                for (VisaDO aDo : visaDOS) {
+                                    RefundDO refundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(aDo.getId());
+                                    if (ObjectUtil.isNotNull(refundByVisaId)) {
+                                        refundDOs.add(refundByVisaId);
+                                    }
+                                }
+                                if (!refundDOs.isEmpty()) {
+                                    remainingAmount = remainingAmount - refundDOs.stream().mapToDouble(RefundDO::getAmount).sum();
+                                }
+                            }
+                            costPrince = costPrince * (remainingAmount) / (visaNumOne + visaNumTwo);
+                            remainingAmount = remainingAmount - costPrince;
                         } else {
                             remainingAmount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
-                            remainingAmount = remainingAmount / 2;
-                        }
-                        List<RefundDO> refundDOs = new ArrayList<>();
-                        for (VisaDO visaDO : visaDOS) {
-                            RefundDO refundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaDO.getId());
+                            remainingAmount = remainingAmount - costPrince;
+                            RefundDO refundByVisaId = serviceOrderCompleteNode.refundDAO.getRefundByVisaId(visaDOS.get(0).getId());
                             if (ObjectUtil.isNotNull(refundByVisaId)) {
                                 refundDOs.add(refundByVisaId);
                             }
+                            if (!refundDOs.isEmpty()) {
+                                remainingAmount = remainingAmount - refundDOs.stream().mapToDouble(RefundDO::getAmount).sum();
+                            }
+                            remainingAmount = remainingAmount * 0.5;
                         }
-                        if (!refundDOs.isEmpty()) {
-                            remainingAmount = remainingAmount - refundDOs.stream().mapToDouble(RefundDO::getAmount).sum();
-                        }
-//                        remainingAmount = remainingAmount / 2;
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
                         visaOfficialDO.setCommissionAmount(remainingAmount / 1.1);
 
-                        double costPrince = 0.00;
                         for (VisaOfficialListDO visaOfficialListDO : list) {
                             if (isBound) { // 被绑定订单金额确定
-                                for (Integer integer : integers) {
-                                    ServicePackagePriceDO byServiceId = serviceOrderCompleteNode.servicePackagePriceDAO.getByServiceId(integer);
-                                    costPrince += byServiceId.getCostPrince();
-                                }
-                                costPrince = costPrince * 0.5;
-                                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - costPrince);
+                                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount());
                                 visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
                             }
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - visaOfficialListDO.getCommissionAmount());

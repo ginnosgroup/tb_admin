@@ -750,7 +750,7 @@
         <if test="servicePackageId != null">
             AND so.service_package_id = #{servicePackageId}
         </if>
-        <if test="servicePackageId != null">
+        <if test="bindingOrder != null">
             AND so.binding_order = #{bindingOrder}
         </if>
         ${orderBy}
