@@ -854,6 +854,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             commissionAmountDTO.setRuler(0);
         } else if (1000034 == officialById.getRegionId()) { // 新版结算
             servicePackagePriceV2DTO = closeJugdNew(serviceOrderById.getOfficialId(), servicePackagePriceDO);
+            log.info("当前服务计算规则-----------------------" + servicePackagePriceV2DTO);
             commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
             servicePackagePriceDO.setAmount(servicePackagePriceV2DTO.getAmount());
             commissionAmountDTO.setRuler(3);
