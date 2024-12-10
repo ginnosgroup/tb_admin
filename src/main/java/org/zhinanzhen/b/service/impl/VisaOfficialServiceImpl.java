@@ -965,8 +965,18 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             predictCommissionAmount = predictCommissionAmount / 1.1;
             // 500新版结算
             if ("500".equalsIgnoreCase(serviceDO.getCode())) {
+                double additionalAmount = 0.00;
+                if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                    additionalAmount = 50;
+                }
+                if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                    additionalAmount = 25;
+                }
+                if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                    additionalAmount = 75;
+                }
                 if (predictCommissionAmount < thresholdsAmount) {
-                    commissionAmountDTO.setCommission(servicePackagePriceV2DTO.getAmount());
+                    commissionAmountDTO.setCommission(servicePackagePriceV2DTO.getAmount() + additionalAmount);
                     commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
                     String calculation = new String();
                     calculation = "1" + "|" + commissionAmountDTO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
@@ -979,17 +989,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                 }
                 if (predictCommissionAmount >= thresholdsAmount) {
-                    double additionalAmount = 0.00;
                     predictCommissionAmount = ((predictCommissionAmount - 3000));
-                    if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-                        additionalAmount = 50;
-                    }
-                    if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-                        additionalAmount = 25;
-                    }
-                    if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-                        additionalAmount = 75;
-                    }
+
                     commissionAmountDTO.setPredictCommissionAmount(predictCommissionAmount);
                     if (commissionAmountDTO.getPredictCommissionAmount() < 0) {
                         commissionAmountDTO.setPredictCommissionAmount(0);
