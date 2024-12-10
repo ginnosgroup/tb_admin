@@ -771,6 +771,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             parm2[0].put("docid", docid);
             parm2[0].put("sheet_id", sheetId);
             // 添加字段标题title
+            if (StringUtil.isEmpty(currency)) {
+                currency = "ALL";
+            }
             List<String> exlceTitles = buildExlceTitle(currency);
             List<JSONObject> fieldList = new ArrayList<>();
             for (String exlceTitle : exlceTitles) {
@@ -802,6 +805,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 setupExcelDO.setUrl(url);
                 setupExcelDO.setDocId(docId);
                 List<VisaOfficialDTO> finalServiceOrderList = officialList;
+                String finalCurrency = currency;
                 Thread thread1 = new Thread(() -> {
                     try {
                         // 添加行记录
@@ -811,7 +815,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                         parmJiLu[0].put("sheet_id", sheetId);
                         for (VisaOfficialDTO visaOfficialDTO : finalServiceOrderList) {
                             ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
-                            JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(visaOfficialDTO, currency, serviceOrderById);
+                            JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(visaOfficialDTO, finalCurrency, serviceOrderById);
                             List<JSONObject> recordsList = new ArrayList<>();
                             JSONObject jsonObjectValue = new JSONObject();
                             jsonObjectValue.put("values", jsonObjectFILEDTITLE);
@@ -837,7 +841,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             htmlBuilder.append("\">");
             htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
             htmlBuilder.append("</a>");
-            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -895,50 +899,36 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "预估佣金（澳币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 预估佣金（人民币）
         buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "预估佣金（人民币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        double additionalAmount2A = 0.00; // 带配偶
+        double additionalAmountXA = 0.00; // 带孩子
+        DecimalFormat df = new DecimalFormat("0.00");
+        if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+            additionalAmount2A = 50.00;
+        }
+        if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+            additionalAmountXA = 25.00;
+        }
+        if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+            additionalAmount2A = 50.00;
+            additionalAmountXA = 25.00;
+        }
         if ("CNY".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow("0", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow("0", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             // 带孩子（CNY）
             // 带配偶（CNY）
-            if ("2A".equalsIgnoreCase(peopleType)) {
-                buildJsonobjectRow("50", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            }
-            if ("XA".equalsIgnoreCase(peopleType)) {
-                buildJsonobjectRow("25", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            }
-            if ("XB".equalsIgnoreCase(peopleType)) {
-                buildJsonobjectRow("25", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-                buildJsonobjectRow("50", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            }
+            buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
-        DecimalFormat df = new DecimalFormat("#.00");
         if ("AUD".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow("0", "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow("0", "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
             // 带孩子（AUD）
             // 带配偶（AUD）
-            if ("2A".equalsIgnoreCase(peopleType)) {
-                double additionalAmount = 50 / so.getExchangeRate();
-                buildJsonobjectRow(df.format(additionalAmount), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            }
-            if ("XA".equalsIgnoreCase(peopleType)) {
-                double additionalAmount = 25 / so.getExchangeRate();
-                buildJsonobjectRow(df.format(additionalAmount), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            }
-            if ("XB".equalsIgnoreCase(peopleType)) {
-                double additionalAmount2A = 50 / so.getExchangeRate();
-                double additionalAmountXA = 25 / so.getExchangeRate();
-                buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-                buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            }
+            buildJsonobjectRow(df.format(additionalAmountXA / so.getExchangeRate()), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmount2A / so.getExchangeRate()), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
         if ("ALL".equalsIgnoreCase(currency)) {
-            double additionalAmount2A = 50 / so.getExchangeRate();
-            double additionalAmountXA = 25 / so.getExchangeRate();
-            buildJsonobjectRow("25", "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow("50", "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmountXA / so.getExchangeRate()), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            buildJsonobjectRow(df.format(additionalAmount2A / so.getExchangeRate()), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         }
         // 买保险
         buildJsonobjectRow(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"), "买保险", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);

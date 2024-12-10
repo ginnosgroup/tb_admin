@@ -62,6 +62,7 @@ public class OfficialGradeServiceImpl extends BaseService implements OfficialGra
             throw se;
         }
         OfficialGradeDO officialGradeDO = mapper.map(officialGradeDtO, OfficialGradeDO.class);
+        officialGradeDO.setRate(0.00);
         return officialGradeDao.addOfficialGrade(officialGradeDO) > 0 ? officialGradeDO.getId() : 0;
 
     }
