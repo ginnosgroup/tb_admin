@@ -394,31 +394,31 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
             pay = true;
         }
-        if (!pay) {
-            ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
-            ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugd(serviceOrderById.getOfficialId(), servicePackagePriceDO);
-            if (ObjectUtil.isNotNull(servicePackagePriceDO) && servicePackagePriceV2DTO.getRuler() == 1) {
-                String calculation = new String();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                calculation = "1" + "|" + servicePackagePriceDO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
-                visaOfficialDO.setCalculation(calculation);
-                visaOfficialDO.setPredictCommission(servicePackagePriceV2DTO.getAmount());
-                visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
-                if (region == 1) {
-                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceV2DTO.getAmount());
-                    visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
-                }
-                visaOfficialDO.setCommissionAmount(0.00);
-                visaOfficialDO.setPredictCommissionAmount(0.00);
-            } else {
-                visaOfficialDO.setPredictCommission(0.00);
-                visaOfficialDO.setCommissionAmount(0.00);
-                visaOfficialDO.setPredictCommission(0.00);
-                visaOfficialDO.setCalculation(null);
-                visaOfficialDO.setPredictCommissionCNY(0.00);
-            }
-            return visaOfficialDO;
-        }
+//        if (!pay) {
+//            ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+//            ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugd(serviceOrderById.getOfficialId(), servicePackagePriceDO);
+//            if (ObjectUtil.isNotNull(servicePackagePriceDO) && servicePackagePriceV2DTO.getRuler() == 1) {
+//                String calculation = new String();
+//                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                calculation = "1" + "|" + servicePackagePriceDO.getThirdPrince() + "," + servicePackagePriceDO.getAmount() + "|" + dateFormat.format(servicePackagePriceDO.getGmtModify());
+//                visaOfficialDO.setCalculation(calculation);
+//                visaOfficialDO.setPredictCommission(servicePackagePriceV2DTO.getAmount());
+//                visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
+//                if (region == 1) {
+//                    visaOfficialDO.setPredictCommissionCNY(servicePackagePriceV2DTO.getAmount());
+//                    visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / visaOfficialDO.getExchangeRate());
+//                }
+//                visaOfficialDO.setCommissionAmount(0.00);
+//                visaOfficialDO.setPredictCommissionAmount(0.00);
+//            } else {
+//                visaOfficialDO.setPredictCommission(0.00);
+//                visaOfficialDO.setCommissionAmount(0.00);
+//                visaOfficialDO.setPredictCommission(0.00);
+//                visaOfficialDO.setCalculation(null);
+//                visaOfficialDO.setPredictCommissionCNY(0.00);
+//            }
+//            return visaOfficialDO;
+//        }
         CommissionAmountDTO commissionAmountDTO = new CommissionAmountDTO();
         List<Integer> monthlist = new ArrayList<Integer>() {
             {

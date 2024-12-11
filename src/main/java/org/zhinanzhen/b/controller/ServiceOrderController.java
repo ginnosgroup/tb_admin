@@ -958,6 +958,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
                 serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
+            int officialId1 = serviceOrderDto.getOfficialId();
             if (StringUtil.isNotEmpty(officialId) && !"0".equals(officialId)) {
                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
             }
@@ -1033,7 +1034,6 @@ public class ServiceOrderController extends BaseController {
             }
             // 中转订单创建中转文案佣金订单
             if ("1".equalsIgnoreCase(isTransfer)) {
-                int officialId1 = serviceOrderDto.getOfficialId();
                 OfficialDTO officialById = officialService.getOfficialById(officialId1);
                 if (!"RESIGN".equalsIgnoreCase(officialById.getWorkState())) {
                     return new Response<Integer>(1, "被迁移文案不是离职状态");
