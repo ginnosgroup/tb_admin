@@ -1741,6 +1741,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         String rulerV2 = servicePackagePriceDO.getRulerV2();
         log.info("服务包价格为:" + servicePackagePriceDO);
         List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+        log.info("解析后服务包价格为:" + servicePackagePriceV2DTOS);
         for (ServicePackagePriceV2DTO packagePriceV2DTO : servicePackagePriceV2DTOS) {
             String officialGrades = packagePriceV2DTO.getOfficialGrades();
             if (StringUtil.isNotEmpty(officialGrades)) {
