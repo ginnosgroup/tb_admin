@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 
+import cn.hutool.log.Log;
 import com.alibaba.fastjson.JSONArray;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -1747,6 +1748,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             String officialGrades = packagePriceV2DTO.getOfficialGrades();
             if (StringUtil.isNotEmpty(officialGrades)) {
                 String[] split = officialGrades.split(",");
+                log.info("规则组为----" + Arrays.toString(split));
                 if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
                     log.info("当前核对计算的文案等级为-------------" + packagePriceV2DTO);
                     servicePackagePriceV2DTO = packagePriceV2DTO;
