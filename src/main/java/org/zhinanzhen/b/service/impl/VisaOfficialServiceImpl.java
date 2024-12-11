@@ -1745,6 +1745,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (StringUtil.isNotEmpty(officialGrades)) {
                 String[] split = officialGrades.split(",");
                 if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
+                    log.info("当前核对计算的文案等级为-------------" + packagePriceV2DTO);
                     servicePackagePriceV2DTO = packagePriceV2DTO;
                 }
             }
