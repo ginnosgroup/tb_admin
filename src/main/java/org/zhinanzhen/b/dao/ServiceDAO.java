@@ -29,4 +29,7 @@ public interface ServiceDAO {
 
 	@Select("select code from b_service where `name` = '签证' and is_long_time = true and is_delete = false")
     List<String> listLongTimeVisa();
+
+	@Select("select code from b_service where is_extra = true and is_delete = false")
+	List<String> listExtraAmount();
 }
