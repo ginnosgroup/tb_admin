@@ -467,18 +467,21 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 serviceList = serviceDao.listExtraAmount();
             }
         }
+        OfficialDO officialById = officialDAO.getOfficialById(serviceOrderById.getOfficialId());
         if (!visaDOS.isEmpty()) {
-            // 计算extra金额
-            amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
-            if (isSIV || isNSV) {
-                ServicePackagePriceDO packagePriceDAOByServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderByParentId.getServiceId());
-                if (amount > packagePriceDAOByServiceId.getMaxPrice()) {
-                    extraAmount = amount - packagePriceDAOByServiceId.getMaxPrice();
-                }
-            } else if (serviceList.contains(serviceType)) {
-                ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
-                if (byServiceId.getMaxPrice() < amount) {
-                    extraAmount = amount - byServiceId.getMaxPrice();
+            if (1000034 == officialById.getRegionId()) {
+                // 计算extra金额
+                amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+                if (isSIV || isNSV) {
+                    ServicePackagePriceDO packagePriceDAOByServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderByParentId.getServiceId());
+                    if (amount > packagePriceDAOByServiceId.getMaxPrice()) {
+                        extraAmount = amount - packagePriceDAOByServiceId.getMaxPrice();
+                    }
+                } else if (serviceList.contains(serviceType)) {
+                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+                    if (byServiceId.getMaxPrice() < amount) {
+                        extraAmount = amount - byServiceId.getMaxPrice();
+                    }
                 }
             }
             if (visaDOS.size() == 1) {
@@ -544,7 +547,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
 
         // 澳洲地区高峰月份rate处理
-        OfficialDO officialById = officialDAO.getOfficialById(serviceOrderById.getOfficialId());
         OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
         rate = officialGradeById.getRate();
         if (region == 0 && !"资深".equals(officialGradeById.getGrade())) {
