@@ -775,11 +775,41 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 currency = "ALL";
             }
             List<String> exlceTitles = buildExlceTitle(currency);
+            List<String> exlceTitleNumberList = new ArrayList<>();
+            exlceTitleNumberList.add("绑定订单金额");
+            exlceTitleNumberList.add("退款金额");
+            exlceTitleNumberList.add("total（AUD）");
+            exlceTitleNumberList.add("total（CNY）");
+            exlceTitleNumberList.add("total（AUD）");
+            exlceTitleNumberList.add("total（CNY）");
+            exlceTitleNumberList.add("带配偶（AUD）");
+            exlceTitleNumberList.add("带孩子（AUD）");
+            exlceTitleNumberList.add("带配偶（CNY）");
+            exlceTitleNumberList.add("带孩子（CNY）");
+            exlceTitleNumberList.add("带配偶（AUD）");
+            exlceTitleNumberList.add("带孩子（AUD）");
+            exlceTitleNumberList.add("带配偶（CNY）");
+            exlceTitleNumberList.add("带孩子（CNY）");
+            exlceTitleNumberList.add("预估佣金（人民币）");
+            exlceTitleNumberList.add("预估佣金（澳币）");
+            exlceTitleNumberList.add("计入佣金提点金额（确认）");
+            exlceTitleNumberList.add("计入佣金提点金额（预估）");
+            exlceTitleNumberList.add("总计应收人民币");
+            exlceTitleNumberList.add("总计应收澳币");
+            exlceTitleNumberList.add("创建订单时汇率");
             List<JSONObject> fieldList = new ArrayList<>();
             for (String exlceTitle : exlceTitles) {
                 JSONObject jsonObjectField = new JSONObject();
                 jsonObjectField.put("field_title", exlceTitle);
-                jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+                if (exlceTitleNumberList.contains(exlceTitle)) {
+                    jsonObjectField.put("field_type", "FIELD_TYPE_NUMBER");
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("decimal_places", 2);
+                    jsonObject.put("use_separate", false);
+                    jsonObjectField.put("property_number", jsonObject);
+                } else {
+                    jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+                }
                 fieldList.add(jsonObjectField);
             }
             parm2[0].put("fields", fieldList);
@@ -841,7 +871,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             htmlBuilder.append("\">");
             htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
             htmlBuilder.append("</a>");
-//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -853,7 +883,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
         JSONObject jsonObjectFILEDTITLE = new JSONObject();
         JSONObject jsonObject = new JSONObject();
-        String peopleType = serviceOrderById.getPeopleType();
+//        String peopleType = serviceOrderById.getPeopleType();
         String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
         // 文案佣金ID
         buildJsonobjectRow(String.valueOf(so.getId()), "文案佣金ID", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -872,7 +902,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         // 支付币种
         buildJsonobjectRow(so.getCurrency(), "支付币种", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 创建订单时汇率
-        buildJsonobjectRow(String.valueOf(so.getExchangeRate()), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("创建订单时汇率", so.getExchangeRate());
         // 收款方式
         buildJsonobjectRow(so.getReceiveTypeName() == null ? "" : so.getReceiveTypeName(), "收款方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 服务项目
@@ -888,20 +918,19 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         // MARA
         buildJsonobjectRow(so.getMaraDTO() == null || so.getMaraDTO().getName() == null ? "" : so.getMaraDTO().getName(), "MARA", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 总计应收澳币
-        buildJsonobjectRow(String.valueOf(so.getTotalPerAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("总计应收澳币", so.getTotalPerAmountAUD());
         // 总计应收人民币
-        buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("总计应收人民币", so.getTotalAmountCNY());
         // 计入佣金提点金额（预估）
-        buildJsonobjectRow(String.valueOf(so.getPredictCommissionAmount()), "计入佣金提点金额（预估）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("计入佣金提点金额（预估）", so.getPredictCommissionAmount());
         // 计入佣金提点金额（确认）
-        buildJsonobjectRow(so.getCommissionAmount() == null ? "" : String.valueOf(so.getCommissionAmount()), "计入佣金提点金额（确认）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("计入佣金提点金额（确认）", so.getCommissionAmount() == null ? 0 : so.getCommissionAmount());
         // 预估佣金（澳币）
-        buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "预估佣金（澳币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("预估佣金（澳币）", so.getPredictCommission() == null ? 0 : so.getPredictCommission());
         // 预估佣金（人民币）
-        buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "预估佣金（人民币）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("预估佣金（人民币）", so.getPredictCommissionCNY() == null ? 0 : so.getPredictCommissionCNY());
         double additionalAmount2A = 0.00; // 带配偶
         double additionalAmountXA = 0.00; // 带孩子
-        DecimalFormat df = new DecimalFormat("0.00");
         if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
             additionalAmount2A = 50.00;
         }
@@ -915,41 +944,41 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         if ("CNY".equalsIgnoreCase(currency)) {
             // 带孩子（CNY）
             // 带配偶（CNY）
-            buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+            jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
         }
         if ("AUD".equalsIgnoreCase(currency)) {
             // 带孩子（AUD）
             // 带配偶（AUD）
-            buildJsonobjectRow(df.format(additionalAmountXA / so.getExchangeRate()), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmount2A / so.getExchangeRate()), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+            jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
         }
         if ("ALL".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow(df.format(additionalAmountXA), "带孩子（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmount2A), "带配偶（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmountXA / so.getExchangeRate()), "带孩子（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(df.format(additionalAmount2A / so.getExchangeRate()), "带配偶（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+            jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
+            jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+            jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
         }
         // 买保险
         buildJsonobjectRow(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"), "买保险", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // total（AUD）
         if ("AUD".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "total（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            jsonObjectFILEDTITLE.put("total（AUD）", so.getPredictCommission() == null ? 0 : so.getPredictCommission());
         }
         // total（CNY）
         if ("CNY".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            jsonObjectFILEDTITLE.put("total（CNY）", so.getPredictCommissionCNY() == null ? 0 : so.getPredictCommissionCNY());
         }
         if ("ALL".equalsIgnoreCase(currency)) {
-            buildJsonobjectRow(so.getPredictCommission() == null ? "" : String.valueOf(so.getPredictCommission()), "total（AUD）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
-            buildJsonobjectRow(so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()), "total（CNY）", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+            jsonObjectFILEDTITLE.put("total（AUD）", so.getPredictCommission() == null ? 0 : so.getPredictCommission());
+            jsonObjectFILEDTITLE.put("total（CNY）", so.getPredictCommissionCNY() == null ? 0 : so.getPredictCommissionCNY());
         }
         // 是否合账
         buildJsonobjectRow(so.isMerged() ? "是" : "否", "是否合账", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 退款金额
-        buildJsonobjectRow(String.valueOf(so.getRefundAmount()), "退款金额", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("退款金额", so.getRefundAmount());
         // 绑定订单金额
-        buildJsonobjectRow(String.valueOf(so.getBingDingAmount()), "绑定订单金额", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        jsonObjectFILEDTITLE.put("绑定订单金额", so.getBingDingAmount());
         // 状态
         String states = so.getState() == null ? "" : so.getState();
         buildJsonobjectRow(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states, "状态", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);

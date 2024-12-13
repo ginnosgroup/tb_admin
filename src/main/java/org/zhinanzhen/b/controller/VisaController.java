@@ -1332,17 +1332,19 @@ public class VisaController extends BaseCommissionOrderController {
 			exlceTitleNumberList.add("本次收款澳币");
 			exlceTitleNumberList.add("本次收款人民币");
 			exlceTitleNumberList.add("创建订单时汇率");
-			exlceTitleNumberList.add("本次支付币种");
 			exlceTitleNumberList.add("总计收款澳币");
 			exlceTitleNumberList.add("总计收款人民币");
 			exlceTitleNumberList.add("总计应收澳币");
 			exlceTitleNumberList.add("总计应收人民币");
-
 			for (String exlceTitle : exlceTitles) {
 				JSONObject jsonObjectField = new JSONObject();
 				jsonObjectField.put("field_title", exlceTitle);
 				if (exlceTitleNumberList.contains(exlceTitle)) {
 					jsonObjectField.put("field_type", "FIELD_TYPE_NUMBER");
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("decimal_places", 2);
+					jsonObject.put("use_separate", false);
+					jsonObjectField.put("property_number", jsonObject);
 				} else {
 					jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
 				}
@@ -1406,7 +1408,7 @@ public class VisaController extends BaseCommissionOrderController {
 				htmlBuilder.append("\">");
 				htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
 				htmlBuilder.append("</a>");
-//				WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出佣金订单信息");
+				WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出佣金订单信息");
 				return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
 //			}
 //			// 会计导出佣金订单
@@ -2494,12 +2496,7 @@ public class VisaController extends BaseCommissionOrderController {
 	}
 
 	public void buildJsonobjectRowNumber(Double value, String title, JSONObject jsonObject, List<JSONObject> jsonObjectFILEDTITLEList, JSONObject jsonObjectFILEDTITLE) {
-		jsonObject = new JSONObject();
-//		jsonObject.put("type", "double");
-		jsonObjectFILEDTITLEList = new ArrayList<>();
-		jsonObject.put("double", value);
-		jsonObjectFILEDTITLEList.add(jsonObject);
-		jsonObjectFILEDTITLE.put(title, jsonObjectFILEDTITLEList);
+		jsonObjectFILEDTITLE.put(title, value);
 	}
 
 }

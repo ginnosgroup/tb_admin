@@ -1808,11 +1808,35 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			parm2[0].put("sheet_id", sheetId);
 			// 添加字段标题title
 			List<String> exlceTitles = buildExlceTitle(_regionId);
+			List<String> exlceTitleNumberList = new ArrayList<>();
 			List<JSONObject> fieldList = new ArrayList<>();
+			exlceTitleNumberList.add("月奖");
+			exlceTitleNumberList.add("学校支付金额");
+			if (!regionService.isCN(_regionId)) {
+				exlceTitleNumberList.add("Deduct GST");
+				exlceTitleNumberList.add("GST");
+			}
+			exlceTitleNumberList.add("确认预收业绩");
+			exlceTitleNumberList.add("Commission");
+			exlceTitleNumberList.add("本次收款澳币");
+			exlceTitleNumberList.add("本次收款人民币");
+			exlceTitleNumberList.add("创建订单时汇率");
+			exlceTitleNumberList.add("总计已收澳币");
+			exlceTitleNumberList.add("总计已收人民币");
+			exlceTitleNumberList.add("总计应收澳币");
+			exlceTitleNumberList.add("总计应收人民币");
 			for (String exlceTitle : exlceTitles) {
 				JSONObject jsonObjectField = new JSONObject();
 				jsonObjectField.put("field_title", exlceTitle);
-				jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+				if (exlceTitleNumberList.contains(exlceTitle)) {
+					jsonObjectField.put("field_type", "FIELD_TYPE_NUMBER");
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("decimal_places", 2);
+					jsonObject.put("use_separate", false);
+					jsonObjectField.put("property_number", jsonObject);
+				} else {
+					jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+				}
 				fieldList.add(jsonObjectField);
 			}
 			parm2[0].put("fields", fieldList);
@@ -1875,7 +1899,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			htmlBuilder.append("\">");
 			htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
 			htmlBuilder.append("</a>");
-//			WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出留学佣金订单信息");
+			WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出留学佣金订单信息");
 			return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3898,37 +3922,38 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		//Per Tuition Fee per Installment
 		buildJsonobjectRow(String.valueOf(so.getPerAmount()), "Per Tuition Fee per Installment", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		//总计应收人民币
-		buildJsonobjectRow(String.valueOf(so.getTotalPerAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("总计应收人民币", so.getTotalPerAmountCNY());
 		//总计应收澳币
-		buildJsonobjectRow(String.valueOf(so.getTotalPerAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("总计应收澳币", so.getTotalPerAmountAUD());
 		//总计已收人民币
-		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计已收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("总计已收人民币", so.getTotalAmountCNY());
 		//总计已收澳币
-		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计已收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("总计已收澳币", so.getTotalAmountAUD());
 		//本次支付币种
 		buildJsonobjectRow(so.getCurrency(), "本次支付币种", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		//创建订单时汇率
-		buildJsonobjectRow(String.valueOf(so.getExchangeRate()), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("创建订单时汇率", so.getExchangeRate());
 		//本次收款人民币
-		buildJsonobjectRow(String.valueOf(so.getAmountCNY()), "本次收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("本次收款人民币", so.getAmountCNY());
 		//本次收款澳币
-		buildJsonobjectRow(String.valueOf(so.getAmountAUD()), "本次收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("本次收款澳币", so.getAmountAUD());
 		//Commission
-		buildJsonobjectRow(String.valueOf(so.getExpectAmountAUD()), "Commission", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("Commission", so.getExpectAmountAUD());
 		//确认预收业绩
 		if ( so.isSettle()) {
+			jsonObjectFILEDTITLE.put("确认预收业绩", so.getExpectAmountAUD());
 			buildJsonobjectRow(String.valueOf(so.getExpectAmountAUD()), "确认预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		} else {
-			buildJsonobjectRow(String.valueOf(so.getSureExpectAmountAUD()), "确认预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			jsonObjectFILEDTITLE.put("确认预收业绩", so.getSureExpectAmountAUD());
 		}
 		if (!regionService.isCN(regionId)) {
 			//GST
-			buildJsonobjectRow(String.valueOf(so.getGst()), "GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			jsonObjectFILEDTITLE.put("GST", so.getGst());
 			//Deduct GST
-			buildJsonobjectRow(String.valueOf(so.getDeductGst()), "Deduct GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			jsonObjectFILEDTITLE.put("Deduct GST", so.getDeductGst());
 		}
 		//学校支付金额
-		buildJsonobjectRow(String.valueOf(so.getSchoolPaymentAmount()), "学校支付金额", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("学校支付金额", so.getSchoolPaymentAmount());
 		//学校支付时间
 		if (ObjectUtil.isNotNull( so.getSchoolPaymentDate())) {
 			buildJsonobjectRow(sdf.format( so.getSchoolPaymentDate()), "学校支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -3955,7 +3980,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			buildJsonobjectRow("", "Subagency", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		}
 		//月奖
-		buildJsonobjectRow(String.valueOf(so.getBonus()), "月奖", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		jsonObjectFILEDTITLE.put("月奖", so.getBonus());
 		//月奖支付时间
 		if (ObjectUtil.isNotNull( so.getBonusDate())) {
 			buildJsonobjectRow(sdf.format( so.getBonusDate()), "月奖支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
