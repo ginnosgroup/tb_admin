@@ -1323,10 +1323,29 @@ public class VisaController extends BaseCommissionOrderController {
 			List<String> exlceTitles = buildExlceTitle(adminUserLoginInfo.getApList(), _regionId);
 			log.info("字段标题-----------------------" + exlceTitles);
 			List<JSONObject> fieldList = new ArrayList<>();
+			List<String> exlceTitleNumberList = new ArrayList<>();
+			exlceTitleNumberList.add("月奖");
+			exlceTitleNumberList.add("确认预售业绩");
+			exlceTitleNumberList.add("预收业绩");
+			exlceTitleNumberList.add("Deduct GST");
+			exlceTitleNumberList.add("GST");
+			exlceTitleNumberList.add("本次收款澳币");
+			exlceTitleNumberList.add("本次收款人民币");
+			exlceTitleNumberList.add("创建订单时汇率");
+			exlceTitleNumberList.add("本次支付币种");
+			exlceTitleNumberList.add("总计收款澳币");
+			exlceTitleNumberList.add("总计收款人民币");
+			exlceTitleNumberList.add("总计应收澳币");
+			exlceTitleNumberList.add("总计应收人民币");
+
 			for (String exlceTitle : exlceTitles) {
 				JSONObject jsonObjectField = new JSONObject();
 				jsonObjectField.put("field_title", exlceTitle);
-				jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+				if (exlceTitleNumberList.contains(exlceTitle)) {
+					jsonObjectField.put("field_type", "FIELD_TYPE_NUMBER");
+				} else {
+					jsonObjectField.put("field_type", "FIELD_TYPE_TEXT");
+				}
 				fieldList.add(jsonObjectField);
 			}
 			parm2[0].put("fields", fieldList);
@@ -1387,7 +1406,7 @@ public class VisaController extends BaseCommissionOrderController {
 				htmlBuilder.append("\">");
 				htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
 				htmlBuilder.append("</a>");
-				WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出佣金订单信息");
+//				WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出佣金订单信息");
 				return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
 //			}
 //			// 会计导出佣金订单
@@ -2385,36 +2404,48 @@ public class VisaController extends BaseCommissionOrderController {
 		buildJsonobjectRow(serviceDTO.getName() + "-" + serviceDTO.getCode(), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计应收人民币
-		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getTotalAmountCNY(), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计应收澳币
-		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getTotalAmountAUD(), "总计应收澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计收款人民币
-		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getTotalAmountCNY(), "总计收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计收款澳币
-		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getTotalAmountAUD()), "总计收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getTotalAmountAUD(), "总计收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 本次支付币种
 		buildJsonobjectRow(so.getCurrency(), "本次支付币种", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 创建订单时汇率
-		buildJsonobjectRow(String.valueOf(so.getExchangeRate()), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getExchangeRate()), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getExchangeRate(), "创建订单时汇率", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 本次收款人民币
-		buildJsonobjectRow(String.valueOf(so.getAmountCNY()), "本次收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getAmountCNY()), "本次收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getAmountCNY(), "本次收款人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 本次收款澳币
-		buildJsonobjectRow(String.valueOf(so.getAmountAUD()), "本次收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getAmountAUD()), "本次收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getAmountAUD(), "本次收款澳币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// GST
 		if ("SUPERAD".equals(adminUserLoginInfo.getApList()) || ("KJ".equals(adminUserLoginInfo.getApList()) && !regionService.isCN(_regionId))) {
-			buildJsonobjectRow(String.valueOf(so.getGst()), "GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//			buildJsonobjectRow(String.valueOf(so.getGst()), "GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			buildJsonobjectRowNumber(so.getGst(), "GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 			// Deduct GST
-			buildJsonobjectRow(String.valueOf(so.getDeductGst()), "Deduct GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//			buildJsonobjectRow(String.valueOf(so.getDeductGst()), "Deduct GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+			buildJsonobjectRowNumber(so.getDeductGst(), "Deduct GST", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		}
 		// 预收业绩
-		buildJsonobjectRow(String.valueOf(so.getExpectAmount()), "预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getExpectAmount()), "预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getExpectAmount(), "预收业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 确认预售业绩
-		buildJsonobjectRow(String.valueOf(so.getSureExpectAmount()), "确认预售业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getSureExpectAmount()), "确认预售业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getSureExpectAmount(), "确认预售业绩", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 月奖
-		buildJsonobjectRow(String.valueOf(so.getBonus()), "月奖", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+//		buildJsonobjectRow(String.valueOf(so.getBonus()), "月奖", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRowNumber(so.getBonus(), "月奖", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 		// 月奖支付时间
 		if (ObjectUtil.isNotNull(so.getBonusDate())) {
 			buildJsonobjectRow(sdf.format(so.getBonusDate()), "月奖支付时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -2458,6 +2489,15 @@ public class VisaController extends BaseCommissionOrderController {
 		jsonObject.put("type", "text");
 		jsonObjectFILEDTITLEList = new ArrayList<>();
 		jsonObject.put("text", value);
+		jsonObjectFILEDTITLEList.add(jsonObject);
+		jsonObjectFILEDTITLE.put(title, jsonObjectFILEDTITLEList);
+	}
+
+	public void buildJsonobjectRowNumber(Double value, String title, JSONObject jsonObject, List<JSONObject> jsonObjectFILEDTITLEList, JSONObject jsonObjectFILEDTITLE) {
+		jsonObject = new JSONObject();
+//		jsonObject.put("type", "double");
+		jsonObjectFILEDTITLEList = new ArrayList<>();
+		jsonObject.put("double", value);
 		jsonObjectFILEDTITLEList.add(jsonObject);
 		jsonObjectFILEDTITLE.put(title, jsonObjectFILEDTITLEList);
 	}
