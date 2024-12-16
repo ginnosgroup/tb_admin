@@ -908,7 +908,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         if (commissionAmountDTO.getRuler() == 0) {
             double predictCommissionAmount = 0.00;
             double bingdingOrderAmount = 0.00;
-            Integer getBindingOrderId = 0;
+            Integer getBindingOrderId = -1;
             if (isSIV || isNSV) {
                 getBindingOrderId = serviceOrderByParentId.getId();
             }
