@@ -123,26 +123,32 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
                         visaOfficialDO = serviceOrderCompleteNode.visaOfficialDao.getByServiceOrderIdOne(serviceOrderDto.getId());
-                        if (list != null && list.size() == 1) {
-                            costPrince = costPrince * 0.6;
-                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.4);
-                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.4);
+                        List<VisaDO> visaDOS = serviceOrderCompleteNode.visaDAO.listVisaByServiceOrderId(serviceOrderDto.getId());
+                        double amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+//                        if (list != null && list.size() == 1) {
+//                            costPrince = costPrince * 0.6;
+//                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.4);
+//                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.4);
+//                        }
+//                        if (list != null && list.size() == 2) {
+//                            costPrince = costPrince * 0.4;
+//                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.2);
+//                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.2);
+//                        }
+                        visaOfficialDO.setPerAmount(amount);
+                        visaOfficialDO.setCommissionAmount(amount / 1.1);
+                        visaOfficialDO.setPredictCommission(visaOfficialDO.getCommissionAmount() * servicePackagePriceV2DTO.getRate() / 100);
+                        if (isBound) { // 被绑定订单金额确定
+                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - costPrince);
+                            visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
                         }
-                        if (list != null && list.size() == 2) {
-                            costPrince = costPrince * 0.4;
-                            visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() / 0.2);
-                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() / 0.2);
-                        }
-                        double expectAmount = visaOfficialDO.getExpectAmount();
+//                        double expectAmount = visaOfficialDO.getExpectAmount();
                         for (VisaOfficialListDO visaOfficialListDO : list) {
-                            if (isBound) { // 被绑定订单金额确定
-                                visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - costPrince);
-                                visaOfficialDO.setPredictCommission((visaOfficialDO.getCommissionAmount()) * servicePackagePriceV2DTO.getRate() / 100);
-                            }
+                            visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() - visaOfficialListDO.getPerAmount());
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - visaOfficialListDO.getCommissionAmount());
-                            visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() - visaOfficialListDO.getPredictCommission());
-                            expectAmount = expectAmount - visaOfficialListDO.getPerAmount();
-                            visaOfficialDO.setPerAmount(expectAmount);
+                            visaOfficialDO.setPredictCommission(visaOfficialDO.getCommissionAmount() * servicePackagePriceV2DTO.getRate() / 100);
+//                            expectAmount = expectAmount - visaOfficialListDO.getPerAmount();
+//                            visaOfficialDO.setPerAmount(expectAmount);
 
                             visaOfficialDO1.setPerAmount(visaOfficialListDO.getPerAmount());
                             visaOfficialDO1.setId(visaOfficialListDO.getId());

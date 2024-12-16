@@ -1038,6 +1038,9 @@ public class ServiceOrderController extends BaseController {
                 if (!"RESIGN".equalsIgnoreCase(officialById.getWorkState())) {
                     return new Response<Integer>(1, "被迁移文案不是离职状态");
                 }
+                ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugdNew(serviceOrderDto.getOfficialId(), servicePackagePriceService.getServicePackagePriceByServiceId(serviceOrderDto.getServiceId()));
+                List<VisaDTO> visaDTOS = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
+                double amountTransfer = visaDTOS.stream().mapToDouble(VisaDTO::getAmount).sum();
                 serviceOrderDto.setTransferRemarks(transferRemarks);
                 ServiceDTO serviceById = serviceService.getServiceById(serviceOrderDto.getServiceId());
                 if (serviceById.isLongTime()) {
@@ -1048,13 +1051,13 @@ public class ServiceOrderController extends BaseController {
                     visaOfficialDO.setInstallment(2);
                     visaOfficialDO.setKjApprovalDate(null);
 
-                    visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() * 0.5);
-                    visaOfficialDO1.setPerAmount(visaOfficialDO.getPerAmount());
+                    visaOfficialDO.setPerAmount(amountTransfer * 0.2);
+                    visaOfficialDO1.setPerAmount(amountTransfer - visaOfficialDO.getPerAmount());
 
                     visaOfficialDO1.setPredictCommissionAmount(visaOfficialDO.getPredictCommissionAmount());
-                    visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() * 0.5);
+                    visaOfficialDO.setCommissionAmount(amountTransfer * 0.2 / 1.1);
                     visaOfficialDO.setPredictCommissionAmount(visaOfficialDO.getCommissionAmount());
-                    visaOfficialDO.setPredictCommission(visaOfficialDO.getPredictCommission() * 0.5);
+                    visaOfficialDO.setPredictCommission(amountTransfer / 1.1 * 0.2 * servicePackagePriceV2DTO.getRate() / 100);
                     visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
                     visaOfficialDO.setOfficialId(Integer.parseInt(officialId));
                     visaOfficialDO1.setId(visaOfficialDO.getId());
@@ -5086,4 +5089,22 @@ public class ServiceOrderController extends BaseController {
         return jsonObjectFILEDTITLE;
     }
 
+    // 文案地区判断
+    public ServicePackagePriceV2DTO closeJugdNew(Integer officialId, ServicePackagePriceDO servicePackagePriceDO) throws ServiceException {
+        // 判断文案结算方式
+        ServicePackagePriceV2DTO servicePackagePriceV2DTO = new ServicePackagePriceV2DTO();
+        OfficialDTO officialDO = officialService.getOfficialById(officialId);
+        String rulerV2 = servicePackagePriceDO.getRulerV2();
+        List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
+        for (ServicePackagePriceV2DTO packagePriceV2DTO : servicePackagePriceV2DTOS) {
+            String officialGrades = packagePriceV2DTO.getOfficialGrades();
+            if (StringUtil.isNotEmpty(officialGrades)) {
+                String[] split = officialGrades.split(",");
+                if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
+                    servicePackagePriceV2DTO = packagePriceV2DTO;
+                }
+            }
+        }
+        return servicePackagePriceV2DTO;
+    }
 }
