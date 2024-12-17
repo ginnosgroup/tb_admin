@@ -728,7 +728,27 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         if (so.getServiceOrder().getApplicantParentId() > 0) {
             ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId());
             if (serviceOrderById!= null && "SIV".equals(serviceOrderById.getType())) {
-                servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
+                String type = so.getServiceOrder().getServicePackage().getType();
+                switch (type) {
+                    case "CA":
+                        type =  "职业评估";
+                        break;
+                    case "EOI":
+                        type = "EOI";
+                        break;
+                    case "VA":
+                        type = "签证申请";
+                        break;
+                    case "TM":
+                        type = "提名";
+                        break;
+                    case "ZD":
+                        type = "州担";
+                        break;
+                    default:
+                        type = type;
+                }
+                servicePackageType = "-" + type;
             }
         }
         JSONObject jsonObject10 = new JSONObject();
