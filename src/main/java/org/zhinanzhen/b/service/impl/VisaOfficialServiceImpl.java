@@ -529,7 +529,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         }
         if ("NSV".equals(packType)) {
-            amount += firstVisaByServiceOrderId.getAmount() * 0.5;
+
             if (installment) {
                 ServicePackageDO byId = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
                 if ("TM".equals(byId.getType())) {
@@ -545,6 +545,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                     commissionAmountDTO.setRefund(refund);
                 }
+            } else {
+                amount += (firstVisaByServiceOrderId.getAmount() - refund) * 0.5;
+                refund = 0;
             }
         }
         if ("VISA".equals(packType)) {
