@@ -54,7 +54,8 @@
             predict_commissionAmount,
             verify_code,
             official_region,
-            predict_commission_CNY)
+            predict_commission_CNY,
+            extra_amount)
         VALUES (
                    now(),
                    now(),
@@ -105,7 +106,8 @@
                    #{predictCommissionAmount},
                    #{verifyCode},
                #{officialRegion},
-                #{predictCommissionCNY});
+                #{predictCommissionCNY},
+                #{extraAmount});
     </insert>
     <update id="update">
         UPDATE b_visa_official
@@ -212,7 +214,8 @@
         bv.predict_commission predictCommission,
         ifnull(br.amount,0.0) as refund,
         bv.calculation,
-        bv.predict_commissionAmount  as predictCommissionAmount
+        bv.predict_commissionAmount  as predictCommissionAmount,
+        bv.extra_amount AS extraAmount
         from b_visa_official bv
         JOIN b_service_order so ON bv.service_order_id = so.id
         left JOIN tb_user tu ON bv.user_id = tu.id
@@ -396,7 +399,8 @@
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose,
-            invoice_create AS invoiceCreate
+            invoice_create AS invoiceCreate,
+            extra_amount AS extraAmount
         FROM b_visa_official
         WHERE code = #{code};
     </select>
@@ -454,7 +458,8 @@
             calculation,
             predict_commissionAmount AS predictCommissionAmount,
             predict_commission_CNY AS predictCommissionCNY,
-            official_region AS officialRegion
+            official_region AS officialRegion,
+            extra_amount AS extraAmount
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>
@@ -511,7 +516,8 @@
             calculation,
             predict_commissionAmount AS predictCommissionAmount,
             predict_commission_CNY AS predictCommissionCNY,
-            official_region AS officialRegion
+            official_region AS officialRegion,
+            extra_amount AS extraAmount
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId}
         ORDER BY gmt_create DESC

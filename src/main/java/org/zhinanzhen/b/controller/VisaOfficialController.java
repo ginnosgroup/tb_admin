@@ -778,6 +778,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             List<String> exlceTitleNumberList = new ArrayList<>();
             exlceTitleNumberList.add("绑定订单金额");
             exlceTitleNumberList.add("退款金额");
+            exlceTitleNumberList.add("basic rate");
+            exlceTitleNumberList.add("extra rate");
             exlceTitleNumberList.add("total（AUD）");
             exlceTitleNumberList.add("total（CNY）");
             exlceTitleNumberList.add("total（AUD）");
@@ -871,7 +873,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             htmlBuilder.append("\">");
             htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
             htmlBuilder.append("</a>");
-            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -949,6 +951,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         jsonObjectFILEDTITLE.put("预估佣金（澳币）", so.getPredictCommission() == null ? 0 : so.getPredictCommission());
         // 预估佣金（人民币）
         jsonObjectFILEDTITLE.put("预估佣金（人民币）", so.getPredictCommissionCNY() == null ? 0 : so.getPredictCommissionCNY());
+        // basic rate
+        jsonObjectFILEDTITLE.put("basic rate", so.getExtraAmount() == null ? 0 : so.getCommissionAmount() - so.getExtraAmount());
+        // extra rate
+        jsonObjectFILEDTITLE.put("extra rate", so.getExtraAmount() == null ? 0 : so.getExtraAmount());
         double additionalAmount2A = 0.00; // 带配偶
         double additionalAmountXA = 0.00; // 带孩子
         if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
@@ -1045,6 +1051,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             excelTitle.add("带配偶（CNY）");
             excelTitle.add("带孩子（CNY）");
         }
+        excelTitle.add("basic rate");
+        excelTitle.add("extra rate");
         excelTitle.add("预估佣金（人民币）");
         excelTitle.add("预估佣金（澳币）");
         excelTitle.add("计入佣金提点金额（确认）");

@@ -129,4 +129,6 @@ public class VisaOfficialDO {
 
     private ServiceOrderDO serviceOrderDO;
 
+    private Double extraAmount;
+
 }

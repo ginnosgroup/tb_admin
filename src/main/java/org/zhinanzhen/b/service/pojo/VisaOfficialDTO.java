@@ -204,5 +204,7 @@ public class VisaOfficialDTO {
 
     private Double bingDingAmount; // 绑定金额
 
+    private Double extraAmount; // 额外金额
+
 }
 
