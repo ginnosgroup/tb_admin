@@ -911,6 +911,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             Integer getBindingOrderId = -1;
             if (isSIV || isNSV) {
                 getBindingOrderId = serviceOrderByParentId.getId();
+                amount = amount * 0.5;
             }
             if (longTermVisa) {
                 amount = amount * 0.5;

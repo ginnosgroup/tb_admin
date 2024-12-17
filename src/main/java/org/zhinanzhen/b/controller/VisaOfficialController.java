@@ -908,7 +908,27 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         // 服务项目
         String servicePackageType = "";
         if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
-            servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
+            String type = so.getServiceOrder().getServicePackage().getType();
+                switch (type) {
+                    case "CA":
+                        type =  "职业评估";
+                        break;
+                    case "EOI":
+                        type = "EOI";
+                    break;
+                    case "VA":
+                        type = "签证申请";
+                        break;
+                    case "TM":
+                        type = "提名";
+                        break;
+                    case "ZD":
+                        type = "州担";
+                        break;
+                    default:
+                        type = type;
+                }
+            servicePackageType = "-" + type;
         }
         buildJsonobjectRow(StringUtil.merge(so.getServiceOrder().getService().getName(), "-", so.getServiceCode(), servicePackageType), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 所属顾问
