@@ -49,6 +49,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -255,6 +256,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "isMerged", required = false) String isMerged,
             @RequestParam(value = "pageNum") Integer pageNum,
             @RequestParam(value = "pageSize") Integer pageSize,
+            @RequestParam(value = "currency", required = false) String currency,
             @RequestParam(value = "sorter", required = false) String sorter, HttpServletResponse response,
             HttpServletRequest request) {
         super.setGetHeader(response);
@@ -302,12 +304,15 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             if (StringUtil.isNotEmpty(applicantName)) {
                 name = applicantName.replaceAll("\\s", "");
             }
-            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged);
+            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged, currency);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
-                    endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null);
-
-
-            return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
+                    endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null, currency);
+            if (officialDTOList == null) {
+                officialDTOList = new ArrayList<>();
+                return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
+            } else {
+                return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");
+            }
         } catch (ServiceException e) {
             return new ListResponse<>(false, pageSize, 0, null, e.getMessage());
         }
@@ -424,11 +429,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
 //                }
                 System.out.println("当前id--------------------------" + visaDTO.getId());
-                if (visaDTO.getServiceOrder().getApplicantParentId() > 0) {
-                    ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId());
-                    if (serviceOrderById!= null && "SIV".equals(serviceOrderById.getType())) {
-                        servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
-                    }
+                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
+                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
                 }
                 row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
@@ -457,6 +459,200 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             return;
         }
     }
+
+//    @RequestMapping(value = "/downOfficialCommission_V2", method = RequestMethod.GET)
+//    @ResponseBody
+//    public Response<String> downOfficialCommission_V2(
+//            @RequestParam(value = "id", required = false) Integer id,
+//            @RequestParam(value = "state", required = false) String state,
+//            @RequestParam(value = "startDate", required = false) String startDate,
+//            @RequestParam(value = "endDate", required = false) String endDate,
+//            @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+//            @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+//            @RequestParam(value = "regionId", required = false) Integer regionId,
+//            @RequestParam(value = "officialId", required = false) Integer officialId,
+//            @RequestParam(value = "userName", required = false) String userName,
+//            @RequestParam(value = "applicantName", required = false) String applicantName,
+//            HttpServletResponse response, HttpServletRequest request) {
+//        try {
+//            List<Integer> regionIdList = null;
+//            if (regionId != null) {
+//                regionIdList = new ArrayList<>();
+//                regionIdList.add(regionId);
+//            }
+//            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//            Integer newOfficialId = getOfficialId(request);
+////            if ("WA".equals(adminUserLoginInfo.getApList())) {
+////                officialId = adminUserLoginInfo.getOfficialId();
+////            }
+//
+//            if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
+//                    && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
+//                int regionIdCurrent = officialService.getOfficialById(newOfficialId).getRegionId();
+//                List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
+//                regionIdList = ListUtil.buildArrayList(regionIdCurrent);
+//                for (RegionDTO region : regionList)
+//                    regionIdList.add(region.getId());
+//                if (officialId != null) {
+//                    OfficialDTO officialById = officialService.getOfficialById(officialId);
+//                    if (officialById.getRegionId() != regionIdCurrent) {
+//                        String s = "该文案管理员不能查询该地区，请核验地区";
+//                    }
+//                }
+//            } else {
+//                // 更改当前文案编号
+//                if (newOfficialId != null)
+//                    officialId = newOfficialId;
+////                if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
+//            }
+//            String name = applicantName;
+//            if (StringUtil.isNotEmpty(applicantName)) {
+//                name = applicantName.replaceAll("\\s", "");
+//            }
+//            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
+//                    startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
+//
+//            // 获取token
+//            Map<String, Object> tokenMap = wxWorkService.getToken(WXWorkAPI.SECRET_EXCEL);
+//            if ((int) tokenMap.get("errcode") != 0) {
+//                throw new RuntimeException(tokenMap.get("errmsg").toString());
+//            }
+//            String customerToken = (String) tokenMap.get("access_token");
+//
+//            // 创建表格
+//            String setupExcelAccessToken = WXWorkAPI.SETUP_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//            final JSONObject[] parm = {new JSONObject()};
+//            parm[0].put("doc_type", 4);
+//            parm[0].put("doc_name", "ServiceOrderTemplate-" + sdf.format(new Date()));
+////            String[] userIds = {"XuShiYi"};
+////            parm[0].put("admin_users", userIds);
+//            JSONObject setupExcelJsonObject = WXWorkAPI.sendPostBody_Map(setupExcelAccessToken, parm[0]);
+//            String url = "";
+//            if ("0".equals(setupExcelJsonObject.get("errcode").toString())) {
+//                url = setupExcelJsonObject.get("url").toString();
+//                String docId = setupExcelJsonObject.get("docid").toString();
+//                SetupExcelDO setupExcelDO = new SetupExcelDO();
+//                setupExcelDO.setUrl(url);
+//                setupExcelDO.setDocId(docId);
+//                String informationExcelAccessToken = WXWorkAPI.INFORMATION_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//                parm[0] = new JSONObject();
+//                parm[0].put("docid", docId);
+//                JSONObject informationExcelJsonObject = WXWorkAPI.sendPostBody_Map(informationExcelAccessToken, parm[0]);
+//                List<VisaOfficialDTO> finalServiceOrderList = officialList;
+//                Thread thread1 = new Thread(() -> {
+//                    try {
+//                        // 线程1的任务
+//                        if ("0".equals(informationExcelJsonObject.get("errcode").toString())) {
+//                            JSONArray propertiesObjects = JSONArray.parseArray(JSONObject.toJSONString(informationExcelJsonObject.get("properties")));
+//                            Iterator<Object> iterator = propertiesObjects.iterator();
+//                            String sheetId = JSONObject.parseObject(iterator.next().toString()).get("sheet_id").toString();
+//                            setupExcelDO.setSheetId(sheetId);
+//                            int i = wxWorkService.addExcel(setupExcelDO);
+//                            if (i > 0) {
+//                                String redactExcelAccessToken = WXWorkAPI.REDACT_EXCEL.replace("ACCESS_TOKEN", customerToken);
+//                                parm[0] = new JSONObject();
+//                                parm[0].put("docid", docId);
+//
+//                                List<JSONObject> requests = new ArrayList<>();
+//                                JSONObject requestsJson = new JSONObject();
+//                                JSONObject updateRangeRequest = new JSONObject();
+//                                JSONObject gridData = new JSONObject();
+//                                int count = 0;
+//
+//                                List<String> excelTitle = new ArrayList<>();
+//                                excelTitle.add("文案佣金ID");
+//                                excelTitle.add("服务订单ID");
+//                                excelTitle.add("提交移民局申请时间");
+//                                excelTitle.add("服务订单创建日期");
+//                                excelTitle.add("客户姓名");
+//                                excelTitle.add("申请人姓名");
+//                                excelTitle.add("客户支付日期");
+//                                excelTitle.add("支付币种");
+//                                excelTitle.add("创建订单时汇率");
+//                                excelTitle.add("收款方式");
+//                                excelTitle.add("服务项目");
+//                                excelTitle.add("所属顾问");
+//                                excelTitle.add("所属文案");
+//                                excelTitle.add("MARA");
+//                                excelTitle.add("总计应收澳币");
+//                                excelTitle.add("总计应收人民币");
+//                                excelTitle.add("计入佣金提点金额（预估）");
+//                                excelTitle.add("计入佣金提点金额（确认）");
+//                                excelTitle.add("预估佣金（澳币）");
+//                                excelTitle.add("预估佣金（人民币）");
+//                                excelTitle.add("是否合账");
+//                                excelTitle.add("状态");
+//
+//                                for (VisaOfficialDTO serviceOrderDTO : finalServiceOrderList) {
+//                                    if (count == 0) {
+//                                        gridData.put("start_row", 0);
+//                                        gridData.put("start_column", 0);
+//                                        List<JSONObject> rows = new ArrayList<>();
+//                                        for (String title : excelTitle) {
+//                                            JSONObject jsonObject = new JSONObject();
+//                                            JSONObject text = new JSONObject();
+//                                            text.put("text", title);
+//                                            jsonObject.put("cell_value", text);
+//                                            rows.add(jsonObject);
+//                                        }
+//                                        List<JSONObject> objects = new ArrayList<>();
+//                                        JSONObject rowsValue = new JSONObject();
+//                                        rowsValue.put("values", rows);
+//                                        objects.add(rowsValue);
+//                                        gridData.put("rows", objects);
+//                                        updateRangeRequest.put("sheet_id", sheetId);
+//                                        updateRangeRequest.put("grid_data", gridData);
+//                                        requestsJson.put("update_range_request", updateRangeRequest);
+//                                        requests.add(requestsJson);
+//                                        parm[0].put("requests", requests);
+//                                        count++;
+//                                        WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//                                        parm[0] = new JSONObject();
+//                                        requests.remove(0);
+//                                    }
+//                                    parm[0].put("docid", docId);
+//                                    gridData.put("start_row", count);
+//                                    gridData.put("start_column", 0);
+//                                    List<JSONObject> rows = build(serviceOrderDTO);
+//                                    List<JSONObject> objects = new ArrayList<>();
+//                                    JSONObject rowsValue = new JSONObject();
+//                                    rowsValue.put("values", rows);
+//                                    objects.add(rowsValue);
+//                                    gridData.put("rows", objects);
+//                                    updateRangeRequest.put("sheet_id", sheetId);
+//                                    updateRangeRequest.put("grid_data", gridData);
+//                                    requestsJson.put("update_range_request", updateRangeRequest);
+//                                    requests.add(requestsJson);
+//                                    parm[0].put("requests", requests);
+//                                    count++;
+//                                    WXWorkAPI.sendPostBody_Map(redactExcelAccessToken, parm[0]);
+//                                    parm[0] = new JSONObject();
+//                                    requests.remove(0);
+//                                }
+//                            }
+//                        }
+//                    } catch (Exception e) {
+//                        // 处理异常，例如记录日志
+//                        e.printStackTrace();
+//                    }
+//                });
+//                thread1.start();
+//            }
+//            // 使用StringBuilder来构建HTML字符串
+//            StringBuilder htmlBuilder = new StringBuilder();
+//            htmlBuilder.append("<a href=\"");
+//            htmlBuilder.append(url + "\""); // 插入链接的URL
+//            htmlBuilder.append(" target=\"_blank");
+//            htmlBuilder.append("\">");
+//            htmlBuilder.append("点击打开Excel链接"); // 插入链接的显示文本
+//            htmlBuilder.append("</a>");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "导出文案佣金订单信息");
+//            return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return new Response<>(0, "生成Excel成功， excel链接为：");
+//    }
 
     @RequestMapping(value = "/downOfficialCommission_V2", method = RequestMethod.GET)
     @ResponseBody
@@ -945,31 +1141,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         rows.add(jsonObject9);
         // 服务项目");
         String servicePackageType = "";
-        if (so.getServiceOrder().getApplicantParentId() > 0) {
-            ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId());
-            if (serviceOrderById!= null && "SIV".equals(serviceOrderById.getType())) {
-                String type = so.getServiceOrder().getServicePackage().getType();
-                switch (type) {
-                    case "CA":
-                        type =  "职业评估";
-                        break;
-                    case "EOI":
-                        type = "EOI";
-                        break;
-                    case "VA":
-                        type = "签证申请";
-                        break;
-                    case "TM":
-                        type = "提名";
-                        break;
-                    case "ZD":
-                        type = "州担";
-                        break;
-                    default:
-                        type = type;
-                }
-                servicePackageType = "-" + type;
-            }
+        if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
+            servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
         }
         JSONObject jsonObject10 = new JSONObject();
         JSONObject text10 = new JSONObject();
@@ -1030,36 +1203,6 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         text19.put("text", so.getPredictCommissionCNY() == null ? "" : String.valueOf(so.getPredictCommissionCNY()));
         jsonObject19.put("cell_value", text19);
         rows.add(jsonObject19);
-        // 是否购买保险
-        ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(so.getServiceOrderId());
-        if ("1".equalsIgnoreCase(serviceOrderById.getIsInsuranceCompany())) {
-            ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyService.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderById.getId());
-            List<InsuranceCompanyDO> list = insuranceCompanyService.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 10);
-            JSONObject jsonObject22 = new JSONObject();
-            JSONObject text22 = new JSONObject();
-            text22.put("text", "是");
-            jsonObject22.put("cell_value", text22);
-            rows.add(jsonObject22);
-
-            JSONObject jsonObject23 = new JSONObject();
-            JSONObject text23 = new JSONObject();
-            text23.put("text", list.get(0).getName());
-            jsonObject23.put("cell_value", text23);
-            rows.add(jsonObject23);
-        } else {
-            JSONObject jsonObject22 = new JSONObject();
-            JSONObject text22 = new JSONObject();
-            text22.put("text", "否");
-            jsonObject22.put("cell_value", text22);
-            rows.add(jsonObject22);
-
-            JSONObject jsonObject23 = new JSONObject();
-            JSONObject text23 = new JSONObject();
-            text23.put("text", "");
-            jsonObject23.put("cell_value", text23);
-            rows.add(jsonObject23);
-        }
-
         // 是否合账");
         JSONObject jsonObject20 = new JSONObject();
         JSONObject text20 = new JSONObject();
@@ -1088,7 +1231,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         int n = 0;
         Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
         try (InputStream is = new FileInputStream("/data" + r.getData())) {
-            jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
+            Workbook wb = Workbook.getWorkbook(is);
             Sheet sheet = wb.getSheet(0);
             for (int i = 1; i < sheet.getRows(); i++) {
                 Cell[] cells = sheet.getRow(i);
