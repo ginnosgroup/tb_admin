@@ -418,6 +418,9 @@
         <if test='isInsuranceCompany != null and isInsuranceCompany != "" '>
             ,is_insurance_company = #{isInsuranceCompany}
         </if>
+        <if test='transferRemarks != null and transferRemarks != "" '>
+            ,transfer_remarks = #{transferRemarks}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -633,7 +636,8 @@
         so.expect_time_enrollment AS expectTimeEnrollment,
         so.is_apply_visa AS isApplyVisa,
         so.visa_number AS visaNumber,
-        so.is_insurance_company AS isInsuranceCompany
+        so.is_insurance_company AS isInsuranceCompany,
+        so.transfer_remarks AS transferRemarks
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
@@ -743,8 +747,11 @@
         <if test="isSettle != null">
             AND so.is_settle = #{isSettle}
         </if>
-        <if test="servicePackageId">
+        <if test="servicePackageId != null">
             AND so.service_package_id = #{servicePackageId}
+        </if>
+        <if test="bindingOrder != null">
+            AND so.binding_order = #{bindingOrder}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
@@ -1057,7 +1064,8 @@
             verify_code AS verifyCode ,
             readcommitted_date AS readcommittedDate,
             ref_no AS refNo,
-            is_insurance_company AS isInsuranceCompany
+            is_insurance_company AS isInsuranceCompany,
+            transfer_remarks AS transferRemarks
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1330,7 +1338,7 @@
     </select>
     <select id="OfficialHandoverServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
-            id
+            id,official_id
         FROM
             `b_service_order`
         WHERE

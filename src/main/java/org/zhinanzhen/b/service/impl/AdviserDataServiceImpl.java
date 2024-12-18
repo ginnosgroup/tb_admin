@@ -1,23 +1,21 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.AdviserDataDAO;
-import org.zhinanzhen.b.dao.pojo.AdviserCommissionOrderDO;
-import org.zhinanzhen.b.dao.pojo.AdviserServiceOrderDO;
-import org.zhinanzhen.b.dao.pojo.AdviserUserDO;
-import org.zhinanzhen.b.dao.pojo.AdviserVisaDO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServiceOrderOriginallyDAO;
+import org.zhinanzhen.b.dao.WebLogDAO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AdviserDataService;
-import org.zhinanzhen.b.service.pojo.AdviserCommissionOrderDTO;
-import org.zhinanzhen.b.service.pojo.AdviserServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.AdviserUserDTO;
-import org.zhinanzhen.b.service.pojo.AdviserVisaDTO;
+import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -29,6 +27,15 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 
 	@Resource
 	private AdviserDataDAO adviserDataDao;
+
+	@Resource
+	private ServiceOrderOriginallyDAO serviceOrderOriginallyDAO;
+
+	@Resource
+	private ServiceOrderDAO serviceOrderDAO;
+
+	@Resource
+	private WebLogDAO webLogDAO;
 
 	@Override
 	public List<AdviserServiceOrderDTO> listServiceOrder(Integer adviserId) throws ServiceException {
@@ -114,8 +121,67 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
-	public Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList)
+	public Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList, Integer operateUserId, String apList)
 			throws ServiceException {
+		switch (apList) {
+                case "GW":
+                    apList = "顾问";
+                    break;
+                case "WA":
+                    apList = "文案";
+                    break;
+                case "KJ":
+                    apList = "会计";
+                    break;
+                case "SUPERAD":
+                    apList = "超级管理员";
+                    break;
+                default: apList = apList;
+		}
+		for (Integer userId : userIdList) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			WebLogDTO webLogDTOTmp = new WebLogDTO();
+			webLogDTOTmp.setUserId(operateUserId);
+			webLogDTOTmp.setRole(apList);
+			webLogDTOTmp.setOperatedUser(userId);
+			webLogDTOTmp.setStartTime(sdf.format(new Date()));
+			webLogDTOTmp.setUri("/admin_v2.1/user/adviserDataMigration");
+			webLogDAO.addWebLogs(webLogDTOTmp);
+
+			ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
+			serviceOrderOriginallyDO.setAdviserId(adviserId);
+			serviceOrderOriginallyDO.setNewAdviserId(newAdviserId);
+			serviceOrderOriginallyDO.setUserId(userId);
+			serviceOrderOriginallyDO.setWebLogId(webLogDTOTmp.getId());
+			serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
+			List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null, null, null,
+					null, null, null, null,
+					null, null, null,
+					null, null, null, null, userId,
+					null, null, null, null, null, null
+					, null, null, null, null, null
+					, null, null, null,null, 0, 9999, null);
+			for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+				WebLogDTO webLogDTO = new WebLogDTO();
+				webLogDTO.setUserId(operateUserId);
+				webLogDTO.setRole(apList);
+				webLogDTO.setServiceOrderId(serviceOrderDO.getId());
+				webLogDTO.setStartTime(sdf.format(new Date()));
+				webLogDTO.setUri("/admin_v2.1/adviserData/adviserDataMigration");
+				webLogDAO.addWebLogs(webLogDTO);
+
+				serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
+				serviceOrderOriginallyDO.setServiceOrderId(serviceOrderDO.getId());
+				serviceOrderOriginallyDO.setAdviserId(serviceOrderDO.getAdviserId());
+				serviceOrderOriginallyDO.setUserId(userId);
+				serviceOrderOriginallyDO.setNewAdviserId(newAdviserId);
+				serviceOrderOriginallyDO.setWebLogId(webLogDTO.getId());
+				serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
+			}
+		}
+
+
 		Map<String, Integer> map = MapUtil.buildHashMap("ud",
 				adviserDataDao.userDataMigration(newAdviserId, adviserId, userIdList), "uad",
 				adviserDataDao.userAdviserDataMigration(newAdviserId, adviserId, userIdList), "ad",

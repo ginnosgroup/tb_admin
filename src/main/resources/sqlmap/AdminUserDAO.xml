@@ -204,5 +204,15 @@
         FROM tb_admin_user
         WHERE ap_list LIKE '%${ap}%';
     </select>
+    <select id="getUserByAdviserId" resultType="org.zhinanzhen.tb.dao.pojo.AdminUserDO">
+        select * from tb_admin_user where
+        1 = 1
+        <if test='adviserId != null and adviserId != ""'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='officialId != null and officialId != ""'>
+            AND official_id = #{officialId}
+        </if>
+    </select>
 
 </mapper>

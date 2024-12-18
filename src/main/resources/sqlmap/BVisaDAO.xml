@@ -217,8 +217,8 @@
 
     <select id="countVisa" resultType="java.lang.Integer">
         SELECT count(*)
-        FROM b_visa bv, tb_adviser a, b_service_order so LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
-        WHERE a.id = bv.adviser_id AND bv.service_order_id = so.id
+        FROM b_visa bv, tb_user tbu, tb_adviser a, b_service_order so LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
+        WHERE bv.user_id = tbu.id AND a.id = bv.adviser_id AND bv.service_order_id = so.id
         <if test='id != null and id > 0'>
             AND bv.id = #{id}
         </if>
@@ -228,18 +228,14 @@
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND bv.handling_date > #{startHandlingDate} AND bv.handling_date < #{endHandlingDate} ]]>
         </if>
+
         <if test='stateList != null'>
             AND bv.state IN
             <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
                 #{stateList}
             </foreach>
         </if>
-        <if test='commissionStateList != null'>
-            AND bv.commission_state IN
-            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
-                #{commissionStateList}
-            </foreach>
-        </if>
+
         <if test='state == "PENDING" or state == "WAIT"'>
             <![CDATA[ AND (bv.state="PENDING" OR bv.state="WAIT") ]]>
         </if>
@@ -247,6 +243,12 @@
             <![CDATA[ AND (bv.state="COMPLETE" OR bv.state="REVIEW") ]]>
         </if>
 
+        <if test='commissionStateList != null'>
+            AND bv.commission_state IN
+            <foreach collection="commissionStateList" item="commissionStateList" index="index" open="(" close=")" separator=",">
+                #{commissionStateList}
+            </foreach>
+        </if>
         <if test='startKjApprovalDate != null and startKjApprovalDate != "" and endKjApprovalDate != null and endKjApprovalDate != ""'>
             <![CDATA[ AND bv.kj_approval_date > #{startKjApprovalDate} AND bv.kj_approval_date < #{endKjApprovalDate} ]]>
         </if>
@@ -267,6 +269,9 @@
         </if>
         <if test='userId != null and userId != ""'>
             AND bv.user_id = #{userId}
+        </if>
+        <if test='userName != null and userName != ""'>
+            AND tbu.name LIKE '%${userName}%'
         </if>
         <if test='applicantName != null and applicantName != ""'>
             AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname, ' ', ap.surname) = #{applicantName})
@@ -496,7 +501,7 @@
             bank_date AS bankDate,
             is_close AS isClose,
             invoice_create AS invoiceCreate
-        FROM b_visa WHERE service_order_id = #{serviceOrderId};
+        FROM b_visa WHERE service_order_id = #{serviceOrderId} order by installment_num ASC;
     </select>
     
     <select id="listVisaReport" resultType="org.zhinanzhen.b.dao.pojo.VisaReportDO">

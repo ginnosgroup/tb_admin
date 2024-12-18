@@ -33,7 +33,9 @@ public interface VisaOfficialDao {
                                  @Param("offset")Integer offset,
                                  @Param("pageSize")Integer pageSize,
                                  @Param("orderBy") String orderBy,
-                                  @Param("serviceOrderType")String serviceOrderType);
+                                  @Param("serviceOrderType")String serviceOrderType,
+                                  @Param("serviceOrderId") Integer serviceOrderId,
+                                  @Param("currency") String currency);
 
     int count(@Param("officialId")Integer officialId,
               @Param("regionIdList")List<Integer> regionIdList,
@@ -45,13 +47,16 @@ public interface VisaOfficialDao {
               @Param("endDate")String endDate,
               @Param("userName")String userName,
               @Param("applicantName")String applicantName,
-              @Param("isMerged") Boolean isMerged);
+              @Param("isMerged") Boolean isMerged,
+                @Param("currency") String currency);
     VisaOfficialDO getOne(@Param("id")Integer id
     );
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
 
     VisaOfficialDO getByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
+    VisaOfficialDO getByServiceOrderIdOne(@Param("serviceOrderId") int serviceOrderId);
 
     void update(@Param("id")Integer id,
                 @Param("handling_date")String handling_date,
@@ -71,4 +76,23 @@ public interface VisaOfficialDao {
 
     @Select("select * from b_visa_official where service_order_id = #{serviceOrderId}")
     List<VisaOfficialDTO> getAllvisaOfficialByServiceOrderId(Integer serviceOrderId);
+
+
+    @Select("SELECT * FROM b_visa_official WHERE service_order_id IN (1030522,1039680,\n" +
+            "1039679,1039656,1039655,1039654,1042554,\n" +
+            "1042276,1042829,1038426,1044434,1044298,\n" +
+            "1039902,1044498,1044152,1045406,1045408,\n" +
+            "1044840,1044805,1044964,1043105,1037639,\n" +
+            "1045373,1044966,1045577,1045383,1045170,\n" +
+            "1045511,1045631,1045641,1033232,1044938,\n" +
+            "1045522,1045521,1044363,1045520,1046013,\n" +
+            "1045407,1045958,1046087,1043186,1044385,\n" +
+            "1046193,1046220,1046376,1045840,1045841,\n" +
+            "1046322,1046017,1046554,1046166,1046509,\n" +
+            "1046508,1046221,1046370)")
+    List<VisaOfficialDO> listLinShi();
+
+
+    int getCountvisaOfficialByServiceOrderPatrentId(@Param("applicantParentId")int applicantParentId);
+
 }

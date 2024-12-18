@@ -306,10 +306,13 @@ public class UserController extends BaseController {
 			@RequestParam(value = "firstControllerContents", required = false) String firstControllerContents,
 			@RequestParam(value = "visaCode", required = false) String visaCode,
 			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
-			@RequestParam(value = "source", required = false) String source, HttpServletRequest request,
+			@RequestParam(value = "source", required = false) String source,
+			@RequestParam(value = "adviserId", required = false) String adviserId,
+			HttpServletRequest request,
 			HttpServletResponse response) throws ServiceException {
 		super.setPostHeader(response);
-		if (ObjectUtil.isNull(getAdminUserLoginInfo(request)))
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (ObjectUtil.isNull(adminUserLoginInfo))
 			return new Response<Boolean>(1, "No permission !", false);
 		Date _birthday = null;
 		if (birthday != null)
@@ -320,7 +323,7 @@ public class UserController extends BaseController {
 		if (name != null)
 			name = name.trim().replace("  ", " "); // 处理多余空格问题
 		return new Response<Boolean>(0, userService.update(id, name, authNickname, _birthday, phone, email, areaCode,
-				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source, null, null));
+				wechatUsername, firstControllerContents, visaCode, _visaExpirationDate, source, null, null, adviserId, adminUserLoginInfo.getApList(), adminUserLoginInfo.getId()));
 	}
 
 	@RequestMapping(value = "/updateAdviser", method = RequestMethod.POST)

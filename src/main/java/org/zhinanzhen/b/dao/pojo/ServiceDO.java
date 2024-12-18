@@ -21,6 +21,10 @@ public class ServiceDO implements Serializable {
 	private boolean isZx;
 	
 	private boolean isDelete;
+
+	private boolean settlementNew;
+
+	private boolean isLongTime; // 判断是否为长期签证
 	
 	private List<ServicePackagePriceDO> ServicePackagePirceList;
 }

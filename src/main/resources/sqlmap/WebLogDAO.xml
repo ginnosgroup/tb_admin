@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.WebLogDAO">
+    <insert id="addWebLogs" parameterType="org.zhinanzhen.b.service.pojo.WebLogDTO" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT
+        INTO b_web_log (
+            user_id,
+            role,
+            start_time,
+            spend_time,
+            base_path,
+            uri,
+            url,
+            method,
+            ip,
+            parameter,
+            result,
+            description,
+            service_order_id,
+            operated_user)
+        VALUES (
+            #{userId},
+            #{role},
+            #{startTime},
+            #{spendTime},
+            #{basePath},
+            #{uri},
+            #{url},
+            #{method},
+            #{ip},
+            #{parameter},
+            #{result},
+            #{description},
+            #{serviceOrderId},
+            #{operatedUser}
+                );
+    </insert>
+    <select id="listWebLogs" resultType="org.zhinanzhen.b.service.pojo.WebLogDTO">
+        select id,user_id,role,start_time,spend_time,base_path,uri,url,method,ip,parameter,result,description,service_order_id,operated_user
+        from b_web_log
+        where 1 = 1
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='userId != null and userId != ""'>
+            AND user_id = #{userId}
+        </if>
+        <if test='operatedUser != null and operatedUser != ""'>
+            AND operated_user = #{operatedUser}
+        </if>
+        LIMIT #{offset}, #{rows};
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        select count(*) from b_web_log
+        where 1 = 1
+        <if test='serviceOrderId != null and serviceOrderId != ""'>
+            AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='operatedUser != null and operatedUser != ""'>
+            AND operated_user = #{operatedUser}
+        </if>
+    </select>
+
+
+</mapper>

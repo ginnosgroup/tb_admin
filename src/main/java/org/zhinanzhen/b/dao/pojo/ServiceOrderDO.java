@@ -195,4 +195,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String isInsuranceCompany; // 是否购买保险
 
+	private String transferRemarks; // 中转备注
+
 }

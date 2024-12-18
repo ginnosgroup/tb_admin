@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.zhinanzhen.b.dao.pojo.AdviserUserDO;
 import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
@@ -45,7 +44,8 @@ public interface UserDAO {
 			@Param("areaCode") String areaCode, @Param("wechatUsername") String wechatUsername,
 			@Param("firstControllerContents") String firstControllerContents, @Param("visaCode") String visaCode,
 			@Param("visaExpirationDate") Date visaExpirationDate, @Param("source") String source,
-			@Param("stateText") String stateText, @Param("channelSource") String channelSource);
+			@Param("stateText") String stateText, @Param("channelSource") String channelSource,
+		   @Param("adviserId") String adviserId);
 
 	boolean updateAdviserById(@Param("adviserId") int adviserId, @Param("id") int id);
 
@@ -64,13 +64,8 @@ public interface UserDAO {
 	@Select("select  * from tb_user where auth_type = 'WECHAT_WORK'")
 	List<UserDO> getUserByWxWrok();
 
-	@Select("select * from tb_user2")
-	List<UserDO> getUser2();
+	int updateUserAdviserById(@Param("userId") Integer userId, @Param("adviserId") String adviserId);
 
-	@Select("SELECT * FROM tb_user_adviser WHERE user_id IN (SELECT user_id FROM tb_user_adviser GROUP BY user_id HAVING COUNT(user_id) > 1 ) AND is_creater = 1 AND gmt_modify > '2024-05-01 00:00:00' ORDER BY gmt_modify ASC")
-	List<UserAdviserDO> listADviserUder();
-
-	@Select("select * from tb_user_adviser where user_id = #{userId} ORDER BY gmt_modify ASC")
-	List<UserAdviserDO> listADviserUder2(Integer userId);
+	int updateUserApplicationById(@Param("userId") Integer userId, @Param("adviserId") String adviserId);
 
 }

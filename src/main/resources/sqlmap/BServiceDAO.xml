@@ -118,7 +118,8 @@
             code,
             role,
             is_zx AS isZx,
-            is_delete AS isDelete
+            is_delete AS isDelete,
+            is_long_time AS isLongTime
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
     

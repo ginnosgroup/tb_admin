@@ -25,7 +25,7 @@ public class OfficialGradeController extends BaseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public Response<List<OfficialGradeDTO>> get(@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+    public Response<List<OfficialGradeDTO>> get(@RequestParam(value = "pageNum", required = false) int pageNum, @RequestParam(value = "pageSize", required = false) int pageSize,
                                                 HttpServletRequest request, HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo != null)
@@ -41,9 +41,9 @@ public class OfficialGradeController extends BaseController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> addGrade(@RequestParam(value = "grade") String grade,
-                                      @RequestParam(value = "rate") String rate,
-                                      @RequestParam(value = "ruler") Integer ruler,
+    public Response<Integer> addGrade(@RequestParam(value = "grade", required = false) String grade,
+                                      @RequestParam(value = "rate", required = false) String rate,
+                                      @RequestParam(value = "ruler", required = false) Integer ruler,
                                       HttpServletRequest request, HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo != null)
@@ -53,8 +53,8 @@ public class OfficialGradeController extends BaseController {
             super.setPostHeader(response);
             OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
             officialGradeDTO.setGrade(grade);
-            officialGradeDTO.setRate(Double.parseDouble(rate));
-            officialGradeDTO.setRuler(ruler);
+//            officialGradeDTO.setRate(Double.parseDouble(rate));
+//            officialGradeDTO.setRuler(ruler);
             if (officialGradeService.addOfficialGrade(officialGradeDTO) > 0)
                 return new Response<Integer>(0, "添加成功", 0);
             else
@@ -69,9 +69,9 @@ public class OfficialGradeController extends BaseController {
     @ResponseBody
     public Response<Integer> updateGrade(
             @RequestParam(value = "id") Integer id,
-            @RequestParam(value = "grade") String grade,
-            @RequestParam(value = "rate") String rate,
-            @RequestParam(value = "ruler") Integer ruler,
+            @RequestParam(value = "grade", required = false) String grade,
+            @RequestParam(value = "rate", required = false) String rate,
+            @RequestParam(value = "ruler", required = false) Integer ruler,
             HttpServletRequest request, HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo != null)
@@ -82,8 +82,8 @@ public class OfficialGradeController extends BaseController {
             OfficialGradeDTO officialGradeDTO = new OfficialGradeDTO();
             officialGradeDTO.setId(id);
             officialGradeDTO.setGrade(grade);
-            officialGradeDTO.setRate(Double.parseDouble(rate));
-            officialGradeDTO.setRuler(ruler);
+//            officialGradeDTO.setRate(Double.parseDouble(rate));
+//            officialGradeDTO.setRuler(ruler);
             if (officialGradeService.updateOfficialGradeById(officialGradeDTO) > 0)
                 return new Response<Integer>(0, "修改成功", 0);
             else

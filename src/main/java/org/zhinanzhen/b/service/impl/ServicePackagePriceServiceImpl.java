@@ -96,6 +96,11 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 				objects.add(a);
 			}
 		}
+		for (ServicePackagePriceV2DTO servicePackagePriceV2DTO : collect) {
+			if (servicePackagePriceV2DTO.getRuler() == 1) {
+				servicePackagePriceV2DTO.setRate(1.4);
+			}
+		}
 		objects.addAll(collect);
 		servicePackagePriceDto.setRulerV2(JSONObject.toJSONString(objects));
 

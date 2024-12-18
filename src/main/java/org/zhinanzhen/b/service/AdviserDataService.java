@@ -7,6 +7,7 @@ import org.zhinanzhen.b.service.pojo.AdviserCommissionOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.AdviserUserDTO;
 import org.zhinanzhen.b.service.pojo.AdviserVisaDTO;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface AdviserDataService {
@@ -19,7 +20,7 @@ public interface AdviserDataService {
 
 	List<AdviserUserDTO> listUser(Integer adviserId) throws ServiceException;
 	
-	Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList) throws ServiceException;
+	Map<String, Integer> adviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList, Integer userId, String apList) throws ServiceException;
 	
 	Map<String, Integer> checkAdviserDataMigration(Integer newAdviserId, Integer adviserId, List<Integer> userIdList) throws ServiceException;
 

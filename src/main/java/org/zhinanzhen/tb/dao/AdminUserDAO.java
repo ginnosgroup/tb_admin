@@ -41,7 +41,6 @@ public interface AdminUserDAO {
 
 	boolean updateOperUserId(@Param("id")int id ,@Param("operUserId") String operUserId);
 
-	@Select("select * from tb_admin_user where adviser_id = #{adviserId}")
-	AdminUserDO getUserByAdviserId(int id);
+	AdminUserDO getUserByAdviserId(@Param("adviserId")Integer adviserId, @Param("officialId")Integer officialId);
 
 }

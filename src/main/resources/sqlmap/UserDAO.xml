@@ -316,6 +316,9 @@
         <if test='stateText != null and stateText != ""'>
             , state_text = #{stateText}
         </if>
+        <if test='adviserId != null and adviserId != ""'>
+            , adviser_id = #{adviserId}
+        </if>
         <if test='channelSource != null and channelSource != ""'>
             , channel_source = #{channelSource}
         </if>
@@ -430,5 +433,21 @@
             , source = #{source}
         </if>
         WHERE auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
+    </update>
+    <update id="updateUserAdviserById">
+        UPDATE tb_user_adviser
+        SET gmt_modify = now()
+        <if test='adviserId != null'>
+            , adviser_id = #{adviserId}
+        </if>
+        WHERE user_id = #{userId};
+    </update>
+    <update id="updateUserApplicationById">
+        UPDATE b_applicant
+        SET gmt_modify = now()
+        <if test='adviserId != null'>
+            , adviser_id = #{adviserId}
+        </if>
+        WHERE user_id = #{userId};
     </update>
 </mapper>

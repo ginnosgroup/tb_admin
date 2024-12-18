@@ -154,7 +154,7 @@ public class QywxExternalUserController extends BaseController {
 				}
 				userService.update(userDto.getId(), null, null, null, null,
 						null, null, null, null, null,
-						null, null, qywxExternalUserDto.getStateText(), qywxExternalUserDto.getChannelSource());
+						null, null, qywxExternalUserDto.getStateText(), qywxExternalUserDto.getChannelSource(), null, null, null);
 				return new Response<Integer>(0, qywxExternalUserDto.getId());
 			} else {
 				return new Response<Integer>(1, "修改失败.", 0);

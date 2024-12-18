@@ -32,6 +32,7 @@ public class SONodeFactory implements NodeFactory {
 				new ServiceOrderReceivedNode(serviceOrderService),
 				new ServiceOrderApplyFailedNode(serviceOrderService),
 				new ServiceOrderApplyNode(serviceOrderService),
+				new ServiceOrderTransferNode(serviceOrderService),
 				new SuspendNode())) {
 			if (name.equals(node.getName()))
 				return node;

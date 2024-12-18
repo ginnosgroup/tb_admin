@@ -88,6 +88,19 @@ public class WXWorkAPI {
     //编辑表格
     public static final String REDACT_EXCEL = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/spreadsheet/batch_update?access_token=ACCESS_TOKEN";
 
+    // 智能表格创建子表
+    public static final String CREATE_CHILE_TABLE = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_sheet?access_token=ACCESS_TOKEN";
+    // 智能表格查询默认字段信息
+    public static final String GET_DEFAULT_FIELD = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/get_fields?access_token=ACCESS_TOKEN";
+    // 智能表格更新字段
+    public static final String UPDATE_FIELD = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_fields?access_token=ACCESS_TOKEN";
+    // 智能表格删除字段
+    public static final String DELETE_FIELD = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/delete_fields?access_token=ACCESS_TOKEN";
+    // 添加行记录
+    public static final String INSERT_ROW = "https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/add_records?access_token=ACCESS_TOKEN";
+
+
+
     //发送GET请求
     public static JSONObject sendGet(String url) {
 

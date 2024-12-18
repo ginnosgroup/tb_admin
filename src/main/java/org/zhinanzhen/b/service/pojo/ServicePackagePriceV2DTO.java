@@ -16,6 +16,12 @@ public class ServicePackagePriceV2DTO {
 
     private Integer parentId;
 
+    // 文案等级id集合
+    private String officialGrades;
+
+    // 固定比例
+    private Double rate;
+
     // 城市
     private Integer areaId;
 

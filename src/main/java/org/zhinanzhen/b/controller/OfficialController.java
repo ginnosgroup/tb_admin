@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,15 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
-import org.zhinanzhen.b.service.OfficialGradeService;
-import org.zhinanzhen.b.service.OfficialService;
-import org.zhinanzhen.b.service.OfficialStateEnum;
-import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.OfficialGradeDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
@@ -47,8 +48,14 @@ public class OfficialController extends BaseController {
 	@Resource
 	ServiceOrderService serviceOrderService;
 
+	@Resource
+	private ServiceOrderOriginallyService serviceOrderOriginallyService;
+
+	@Resource
+	private WebLogService webLogService;
+
 	public enum OfficialWorkStateEnum{
-		NORMAL ("正常"), BUSY ("忙碌");
+		NORMAL ("正常"), BUSY ("忙碌"), RESIGN("离职");
 		private String comment;
 		private OfficialWorkStateEnum(String comment){
 			this.comment = comment;
@@ -296,9 +303,42 @@ public class OfficialController extends BaseController {
 		if (adminUserLoginInfo == null ){
 			return new Response(1,"No permission !");
 		}
+		String apList = adminUserLoginInfo.getApList();
+		switch (apList) {
+			case "GW":
+				apList = "顾问";
+				break;
+			case "WA":
+				apList = "文案";
+				break;
+			case "KJ":
+				apList = "会计";
+				break;
+			case "SUPERAD":
+				apList = "超级管理员";
+				break;
+			default: apList = apList;
+		}
+
 		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			List<ServiceOrderDTO> serviceOrderLongVisa = serviceOrderService.OfficialHandoverServiceOrder(officialId);
 			for (ServiceOrderDTO s : serviceOrderLongVisa) {
+				WebLogDTO webLogDTO = new WebLogDTO();
+				webLogDTO.setUserId(adminUserLoginInfo.getId());
+				webLogDTO.setRole(apList);
+				webLogDTO.setServiceOrderId(s.getId());
+				webLogDTO.setStartTime(sdf.format(new Date()));
+				webLogDTO.setUri("/admin_v2.1/adviserData/officialHandover");
+				webLogService.addWebLogs(webLogDTO);
+
+				ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
+				serviceOrderOriginallyDO.setServiceOrderId(s.getId());
+				serviceOrderOriginallyDO.setOfficialId(s.getOfficialId());
+				serviceOrderOriginallyDO.setNewOfficialId(newOfficialId);
+				serviceOrderOriginallyDO.setWebLogId(webLogDTO.getId());
+				serviceOrderOriginallyService.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
+
 				s.setOfficialId(newOfficialId);
 				serviceOrderService.updateOfficial(s.getId(),officialId,newOfficialId);
 			}

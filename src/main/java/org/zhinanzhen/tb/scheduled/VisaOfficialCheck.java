@@ -230,7 +230,7 @@ public class VisaOfficialCheck {
                 EndOfLastMonth, null, null, null, null,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, 0, 9999, null);
+                , null, null, null, null, 0, 9999, null);
         for (ServiceOrderDO e : serviceOrderDOS) {
             try {
                 if ("PAID".equals(e.getState()) || "COMPLETE".equals(e.getState()) || "CLOSE".equals(e.getState())) {
@@ -333,7 +333,7 @@ public class VisaOfficialCheck {
                     null, null, null, null, null,
                     null, null, null, null, null, null
                     , null, 0, null, null, null
-                    , null, null, null, 0, 9999, null);
+                    , null, null, null, null, 0, 9999, null);
             Map<String, List<ServiceOrderDO>> eoiCountHashMap = new HashMap<>(); // eoi计算容器
             Map<String, List<ServiceOrderDO>> careerAssessmentHashMap = new HashMap<>(); // 职业评估计算容器
             List<ServiceOrderDO> collect = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
@@ -468,7 +468,7 @@ public class VisaOfficialCheck {
                 List<AdviserDO> adviserDOS = adviserDAO.listAdviser(null, null, 0, 10000);
                 List<AdviserDO> newAdviserDOs = new ArrayList<>();
                 for (AdviserDO a : adviserDOS) {
-                    AdminUserDO userDO = adminUserDAO.getUserByAdviserId(a.getId());
+                    AdminUserDO userDO = adminUserDAO.getUserByAdviserId(a.getId(), null);
                     if (ObjectUtil.isNotNull(userDO) && StringUtil.isNotEmpty(userDO.getOperUserId()) && "ENABLED".equals(a.getState())) {
                         a.setOperUserId(userDO.getOperUserId());
                         newAdviserDOs.add(a);

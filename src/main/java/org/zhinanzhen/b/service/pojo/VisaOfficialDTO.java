@@ -200,6 +200,11 @@ public class VisaOfficialDTO {
 
     private Boolean isRefund = false;
 
+    private Double refundAmount; // 退款金额
+
+    private Double bingDingAmount; // 绑定金额
+
+    private Double extraAmount; // 额外金额
 
 }
 

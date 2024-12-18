@@ -365,10 +365,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
                          List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
                          String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,
-                         Integer userId, String applicantName, String state) throws ServiceException {
+                         Integer userId, String userName, String applicantName, String state) throws ServiceException {
 		return visaDao.countVisa(id, keyword, startHandlingDate, theDateTo23_59_59(endHandlingDate), stateList,
 				commissionStateList, theDateTo00_00_00(startKjApprovalDate), theDateTo23_59_59(endKjApprovalDate), startDate,
-				theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),regionIdList, adviserId, userId, applicantName, state);
+				theDateTo23_59_59(endDate), startInvoiceCreate,theDateTo23_59_59(endInvoiceCreate),regionIdList, adviserId, userId, userName, applicantName, state);
 	}
 
 	@Override

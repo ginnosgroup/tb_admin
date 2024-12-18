@@ -54,7 +54,8 @@
             predict_commissionAmount,
             verify_code,
             official_region,
-            predict_commission_CNY)
+            predict_commission_CNY,
+            extra_amount)
         VALUES (
                    now(),
                    now(),
@@ -105,7 +106,8 @@
                    #{predictCommissionAmount},
                    #{verifyCode},
                #{officialRegion},
-                #{predictCommissionCNY});
+                #{predictCommissionCNY},
+                #{extraAmount});
     </insert>
     <update id="update">
         UPDATE b_visa_official
@@ -212,7 +214,8 @@
         bv.predict_commission predictCommission,
         ifnull(br.amount,0.0) as refund,
         bv.calculation,
-        bv.predict_commissionAmount  as predictCommissionAmount
+        bv.predict_commissionAmount  as predictCommissionAmount,
+        bv.extra_amount AS extraAmount
         from b_visa_official bv
         JOIN b_service_order so ON bv.service_order_id = so.id
         left JOIN tb_user tu ON bv.user_id = tu.id
@@ -260,10 +263,17 @@
         <if test='serviceOrderType != null and serviceOrderType != ""'>
             AND so.type = #{serviceOrderType}
         </if>
+        <if test='serviceOrderId !=null and  serviceOrderId !=""'>
+            and bv.service_order_id = #{serviceOrderId}
+        </if>
+        <if test='currency !=null and  currency !=""'>
+            and bv.currency = #{currency}
+        </if>
         ${orderBy}
         <if test="offset !=null and pageSize!=null">
             limit #{offset} ,#{pageSize}
         </if>
+
 
 
     </select>
@@ -303,6 +313,9 @@
         </if>
         <if test='isMerged != null'>
             AND co.is_merged = #{isMerged}
+        </if>
+        <if test='currency != null and currency != ""'>
+            AND co.currency = #{currency}
         </if>
         <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
             <![CDATA[ AND co.handling_date > #{startHandlingDate} AND co.handling_date < #{endHandlingDate} ]]>
@@ -386,7 +399,8 @@
             verify_code AS verifyCode,
             bank_date AS bankDate,
             is_close AS isClose,
-            invoice_create AS invoiceCreate
+            invoice_create AS invoiceCreate,
+            extra_amount AS extraAmount
         FROM b_visa_official
         WHERE code = #{code};
     </select>
@@ -444,9 +458,78 @@
             calculation,
             predict_commissionAmount AS predictCommissionAmount,
             predict_commission_CNY AS predictCommissionCNY,
-            official_region AS officialRegion
+            official_region AS officialRegion,
+            extra_amount AS extraAmount
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
+    </select>
+    <select id="getByServiceOrderIdOne" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
+            discount,
+            invoice_number AS invoiceNumber,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            is_merged AS isMerged,
+            remarks,
+            refuse_reason AS refuseReason,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose,
+            invoice_create AS invoiceCreate,
+            predict_commission AS predictCommission,
+            commissionAmount,
+            calculation,
+            predict_commissionAmount AS predictCommissionAmount,
+            predict_commission_CNY AS predictCommissionCNY,
+            official_region AS officialRegion,
+            extra_amount AS extraAmount
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
+        ORDER BY gmt_create DESC
+--         ORDER BY predict_commission DESC
+            LIMIT 1;
+    </select>
+
+    <select id="getCountvisaOfficialByServiceOrderPatrentId" resultType="java.lang.Integer">
+        SELECT count(*) FROM b_visa_official WHERE service_order_id IN (
+            SELECT id FROM b_service_order WHERE applicant_parent_id = #{applicantParentId}
+        )
+
     </select>
 
     <update id="updateVisaOfficial" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
