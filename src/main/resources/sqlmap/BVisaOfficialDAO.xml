@@ -676,6 +676,12 @@
         <if test='predictCommissionCNY != null'>
             , predict_commission_CNY = #{predictCommissionCNY}
         </if>
+        <if test='officialRegion != null'>
+            , official_region = #{officialRegion}
+        </if>
+        <if test='extraAmount != null'>
+            , extra_amount = #{extraAmount}
+        </if>
         WHERE id = #{id};
     </update>
 </mapper>

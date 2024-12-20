@@ -21,11 +21,14 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.*;
@@ -84,6 +87,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @Resource
     private WXWorkService wxWorkService;
+    @Autowired
+    private ServiceDAO serviceDAO;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -315,6 +320,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
         } catch (ServiceException e) {
             return new ListResponse<>(false, pageSize, 0, null, e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -957,33 +964,36 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         jsonObjectFILEDTITLE.put("extra rate", so.getExtraAmount() == null ? 0 : so.getExtraAmount());
         double additionalAmount2A = 0.00; // 带配偶
         double additionalAmountXA = 0.00; // 带孩子
-        if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-            additionalAmount2A = 50.00;
-        }
-        if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-            additionalAmountXA = 25.00;
-        }
-        if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-            additionalAmount2A = 50.00;
-            additionalAmountXA = 25.00;
-        }
-        if ("CNY".equalsIgnoreCase(currency)) {
-            // 带孩子（CNY）
-            // 带配偶（CNY）
-            jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
-            jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
-        }
-        if ("AUD".equalsIgnoreCase(currency)) {
-            // 带孩子（AUD）
-            // 带配偶（AUD）
-            jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
-            jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
-        }
-        if ("ALL".equalsIgnoreCase(currency)) {
-            jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
-            jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
-            jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
-            jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
+        ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
+        if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
+            if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                additionalAmount2A = 50.00;
+            }
+            if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                additionalAmountXA = 25.00;
+            }
+            if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                additionalAmount2A = 50.00;
+                additionalAmountXA = 25.00;
+            }
+            if ("CNY".equalsIgnoreCase(currency)) {
+                // 带孩子（CNY）
+                // 带配偶（CNY）
+                jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+                jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
+            }
+            if ("AUD".equalsIgnoreCase(currency)) {
+                // 带孩子（AUD）
+                // 带配偶（AUD）
+                jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+                jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
+            }
+            if ("ALL".equalsIgnoreCase(currency)) {
+                jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+                jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
+                jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+                jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
+            }
         }
         // 买保险
         buildJsonobjectRow(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"), "买保险", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
