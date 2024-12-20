@@ -994,6 +994,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
                 jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
             }
+        } else {
+            jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+            jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
+            jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+            jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
         }
         // 买保险
         buildJsonobjectRow(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"), "买保险", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
