@@ -21,11 +21,14 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
+import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.*;
@@ -84,6 +87,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @Resource
     private WXWorkService wxWorkService;
+    @Autowired
+    private ServiceDAO serviceDAO;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -315,6 +320,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
         } catch (ServiceException e) {
             return new ListResponse<>(false, pageSize, 0, null, e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -443,11 +450,41 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
                 row.createCell(19).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
-                row.createCell(20).setCellValue(visaDTO.isMerged() ? "是" : "否");
+
+                row.createCell(20).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount());
+                row.createCell(21).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getCommissionAmount() - visaDTO.getExtraAmount());
+
+                ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+                double additionalAmount2A = 0.00; // 带配偶
+                double additionalAmountXA = 0.00; // 带孩子
+                ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
+                if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
+                    if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                    }
+                    if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmountXA = 25.00;
+                    }
+                    if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                        additionalAmountXA = 25.00;
+                    }
+                }
+                row.createCell(22).setCellValue(additionalAmountXA);
+                row.createCell(23).setCellValue(additionalAmount2A);
+                row.createCell(24).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
+                row.createCell(25).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
+                String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
+                row.createCell(26).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
+                row.createCell(27).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(28).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(29).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(30).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(31).setCellValue(visaDTO.isMerged() ? "是" : "否");
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(21).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(32).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
                 i++;
             }
             wb.write(os);
@@ -957,29 +994,37 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         jsonObjectFILEDTITLE.put("extra rate", so.getExtraAmount() == null ? 0 : so.getExtraAmount());
         double additionalAmount2A = 0.00; // 带配偶
         double additionalAmountXA = 0.00; // 带孩子
-        if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-            additionalAmount2A = 50.00;
-        }
-        if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-            additionalAmountXA = 25.00;
-        }
-        if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-            additionalAmount2A = 50.00;
-            additionalAmountXA = 25.00;
-        }
-        if ("CNY".equalsIgnoreCase(currency)) {
-            // 带孩子（CNY）
-            // 带配偶（CNY）
-            jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
-            jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
-        }
-        if ("AUD".equalsIgnoreCase(currency)) {
-            // 带孩子（AUD）
-            // 带配偶（AUD）
-            jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
-            jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
-        }
-        if ("ALL".equalsIgnoreCase(currency)) {
+        ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
+        if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
+            if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                additionalAmount2A = 50.00;
+            }
+            if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                additionalAmountXA = 25.00;
+            }
+            if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                additionalAmount2A = 50.00;
+                additionalAmountXA = 25.00;
+            }
+            if ("CNY".equalsIgnoreCase(currency)) {
+                // 带孩子（CNY）
+                // 带配偶（CNY）
+                jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+                jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
+            }
+            if ("AUD".equalsIgnoreCase(currency)) {
+                // 带孩子（AUD）
+                // 带配偶（AUD）
+                jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+                jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
+            }
+            if ("ALL".equalsIgnoreCase(currency)) {
+                jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
+                jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
+                jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());
+                jsonObjectFILEDTITLE.put("带配偶（AUD）", additionalAmount2A / so.getExchangeRate());
+            }
+        } else {
             jsonObjectFILEDTITLE.put("带孩子（CNY）", additionalAmountXA);
             jsonObjectFILEDTITLE.put("带配偶（CNY）", additionalAmount2A);
             jsonObjectFILEDTITLE.put("带孩子（AUD）", additionalAmountXA / so.getExchangeRate());

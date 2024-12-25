@@ -2386,7 +2386,15 @@ public class ServiceOrderController extends BaseController {
                  * }
                  */
                 sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
-                sheet.addCell(new Label(18, i, so.getRemarks(), cellFormat));
+                if (so.getOfferType() != null) {
+                    sheet.addCell(new Label(18, i, so.getOfferType() + "", cellFormat));
+                }
+                if (StringUtil.isNotEmpty(so.getIsInsuranceCompany())) {
+                    sheet.addCell(new Label(19, i, so.getIsInsuranceCompany().equalsIgnoreCase("0") ? "是" : "否", cellFormat));
+                } else {
+                    sheet.addCell(new Label(19, i, "否", cellFormat));
+                }
+                sheet.addCell(new Label(20, i, so.getRemarks(), cellFormat));
                 i++;
             }
             wbe.write();

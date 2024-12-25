@@ -93,6 +93,6 @@ public interface VisaOfficialDao {
     List<VisaOfficialDO> listLinShi();
 
 
-    int getCountvisaOfficialByServiceOrderPatrentId(@Param("applicantParentId")int applicantParentId);
+    List<VisaOfficialDO> getCountvisaOfficialByServiceOrderPatrentId(@Param("applicantParentId")int applicantParentId);
 
 }

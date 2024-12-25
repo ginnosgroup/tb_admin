@@ -19,7 +19,7 @@ public interface VisaOfficialService {
                                                 String endHandlingDate, String state,  String startDate, String endDate,
                                                 String firstSettlementMonth,String lastSettlementMonth, String userName,
                                                 String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize,
-                                                Sorter sorter, String serviceOrderType, String currency)throws ServiceException;
+                                                Sorter sorter, String serviceOrderType, String currency) throws ServiceException, InterruptedException;
     
     VisaOfficialDTO getByServiceOrderId(Integer serviceOrderId)throws ServiceException;
     

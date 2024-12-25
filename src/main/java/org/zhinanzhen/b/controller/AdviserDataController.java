@@ -48,6 +48,7 @@ import jxl.WorkbookSettings;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import org.zhinanzhen.tb.utils.Base64Util;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -250,7 +251,27 @@ public class AdviserDataController extends BaseController {
 			for (AdviserUserDTO u : userList) {
 				sheet3.addCell(new Label(0, l, u.getId() + "", cellFormat));
 				sheet3.addCell(new Label(1, l, u.getName(), cellFormat));
-				sheet3.addCell(new Label(2, l, u.getNickname(), cellFormat));
+				String nickname = u.getNickname();
+				if (StringUtil.isNotEmpty(nickname) && nickname.contains("�")) {
+					sheet3.addCell(new Label(2, l, u.getName(), cellFormat));
+				} else {
+					byte[] bytes = Base64Util.decodeBase64(nickname);
+					if (bytes != null) {
+						nickname = new String(bytes, "utf-8");
+						nickname = nickname.replaceAll("[\\p{C}]", "");
+					}
+					if (StringUtil.isNotEmpty(nickname) && nickname.contains("�")) {
+						sheet3.addCell(new Label(2, l, u.getName(), cellFormat));
+					} else {
+						sheet3.addCell(new Label(2, l, nickname, cellFormat));
+					}
+//					boolean matches = nickname.matches(".*[^\\x20-\\x7E]+.*");
+//					if (matches) {
+//						sheet3.addCell(new Label(2, l, u.getName(), cellFormat));
+//					} else {
+//						sheet3.addCell(new Label(2, l, nickname, cellFormat));
+//					}
+				}
 				sheet3.addCell(new Label(3, l, u.getWeichatUsername(), cellFormat));
 				sheet3.addCell(new Label(4, l, u.getApplicantId() + "", cellFormat));
 				sheet3.addCell(new Label(5, l, u.getApplicantName(), cellFormat));

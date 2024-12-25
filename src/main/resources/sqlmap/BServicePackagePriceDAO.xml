@@ -108,10 +108,10 @@
                     r.name AS regionName
         FROM b_service_package_price spp
                     left join tb_region r on spp.region_id=r.id
-        WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}
-                <if test='regionId != null and regionId > 0'>
-                    AND spp.region_id = #{regionId}
-                </if>
+<!--        WHERE spp.service_id = #{serviceId, jdbcType=INTEGER}-->
+<!--                <if test='regionId != null and regionId > 0'>-->
+<!--                    AND spp.region_id = #{regionId}-->
+<!--                </if>-->
         ORDER BY spp.gmt_create ASC
         LIMIT #{offset}, #{rows};
     </select>
