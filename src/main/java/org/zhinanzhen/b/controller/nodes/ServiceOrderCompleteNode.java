@@ -390,8 +390,10 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                 String officialGrades = packagePriceV2DTO.getOfficialGrades();
                 if (StringUtil.isNotEmpty(officialGrades)) {
                     String[] split = officialGrades.split(",");
-                    if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
-                        servicePackagePriceV2DTO = packagePriceV2DTO;
+                    if (ObjectUtil.isNotNull(officialDO)) {
+                        if (Arrays.asList(split).contains(String.valueOf(officialDO.getGradeId()))) {
+                            servicePackagePriceV2DTO = packagePriceV2DTO;
+                        }
                     }
                 }
             }
