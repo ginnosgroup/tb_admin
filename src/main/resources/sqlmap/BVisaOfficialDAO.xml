@@ -525,8 +525,8 @@
             LIMIT 1;
     </select>
 
-    <select id="getCountvisaOfficialByServiceOrderPatrentId" resultType="java.lang.Integer">
-        SELECT count(*) FROM b_visa_official WHERE service_order_id IN (
+    <select id="getCountvisaOfficialByServiceOrderPatrentId" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        SELECT * FROM b_visa_official WHERE service_order_id IN (
             SELECT id FROM b_service_order WHERE applicant_parent_id = #{applicantParentId}
         )
 

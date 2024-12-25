@@ -7,6 +7,7 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -468,76 +469,73 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 serviceList = serviceDao.listExtraAmount();
             }
         }
+        // 计算退款
+        for (VisaDO visaDO : visaDOS) {
+            RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDO.getId());
+            if (ObjectUtil.isNotNull(refundByVisaId)) {
+                visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount());
+            }
+        }
         OfficialDO officialById = officialDAO.getOfficialById(serviceOrderById.getOfficialId());
-        if (!visaDOS.isEmpty()) {
-            if (1000034 == officialById.getRegionId()) {
-                // 计算extra金额
-                amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
-                if (isSIV || isNSV) {
-                    ServicePackagePriceDO packagePriceDAOByServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderByParentId.getServiceId());
-                    if (amount > packagePriceDAOByServiceId.getMaxPrice()) {
-                        extraAmount = amount - packagePriceDAOByServiceId.getMaxPrice();
-                    }
-                } else if (serviceList.contains(serviceType)) {
-                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
-                    if (byServiceId.getMaxPrice() < amount) {
-                        extraAmount = amount - byServiceId.getMaxPrice();
-                    }
+        if (1000034 == officialById.getRegionId()) {
+            // 计算extra金额
+            amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+            if (isSIV || isNSV) {
+//            if (isNSV) {
+//                ServicePackagePriceDO packagePriceDAOByServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderByParentId.getServiceId());
+//                if (amount > packagePriceDAOByServiceId.getMaxPrice()) {
+//                    extraAmount = amount - packagePriceDAOByServiceId.getMaxPrice();
+//                }
+//            } else if (isSIV) {
+                double serviceOrderByParentIdAmount = serviceOrderByParentId.getReceivable();
+                if (serviceOrderByParentIdAmount > serviceOrderById.getReceivable()) {
+                    extraAmount = serviceOrderByParentIdAmount - serviceOrderById.getReceivable();
+                }
+            } else if (serviceList.contains(serviceType)) {
+                ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+                if (byServiceId.getMaxPrice() < amount) {
+                    extraAmount = amount - byServiceId.getMaxPrice();
                 }
             }
+        }
+        if (!visaDOS.isEmpty()) {
             if (visaDOS.size() == 1) {
                 amount = visaDOS.get(0).getAmount(); // 收款总额
                 calculateProportion = 1.00;
-                // 计算退款
-                RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDOS.get(0).getId());
-                if (ObjectUtil.isNotNull(refundByVisaId)) {
-                    refundDOS.add(refundByVisaId);
-                }
-                if (!refundDOS.isEmpty()) {
-                    refund = refundDOS.stream().mapToDouble(RefundDO::getAmount).sum();
-                }
-                amount = amount - refund; // 金额计算
                 amount = amount - extraAmount;
             }
             if (visaDOS.size() > 1) {
                 installment = true;
                 amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
                 if (suborder && (isSIV || isNSV)) {
-                    if (extraAmount > 0) {
-                        amount = amount - refundDOS.stream().mapToDouble(RefundDO::getAmount).sum() - extraAmount;
+                    List<VisaOfficialDO> countvisaOfficialByServiceOrderPatrentId = visaOfficialDao.getCountvisaOfficialByServiceOrderPatrentId(serviceOrderById.getApplicantParentId());
+                    if (visaOfficialDTO.getIsRefund()) {
+                        if (CollectionUtils.isEmpty(countvisaOfficialByServiceOrderPatrentId)) {
+                            List<VisaOfficialDO> collect = countvisaOfficialByServiceOrderPatrentId.stream().sorted(Comparator.comparing(VisaOfficialDO::getGmtCreate)).collect(Collectors.toList());
+                            amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+                            if (visaOfficialDTO.getGmtCreate() == collect.get(0).getGmtCreate()) {
+                                calculateProportion = visaDOS.get(0).getAmount() / amount;
+//                                amount = visaDOS.get(0).getAmount() - extraAmount;
+                            } else {
+//                                visaDOS.remove(0);
+                                calculateProportion = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() / amount;
+//                                amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() - extraAmount; // 收款总额
+                            }
+
+                        }
                     } else {
-                        int visaOfficialCount = visaOfficialDao.getCountvisaOfficialByServiceOrderPatrentId(serviceOrderById.getApplicantParentId());
-                        if (visaOfficialCount == 0) {
+                        amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() - extraAmount;
+                        if (CollectionUtils.isEmpty(countvisaOfficialByServiceOrderPatrentId)) {
                             calculateProportion = visaDOS.get(0).getAmount() / amount;
-                            amount = visaDOS.get(0).getAmount();
-                            // 计算退款
-                            RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDOS.get(0).getId());
-                            if (ObjectUtil.isNotNull(refundByVisaId)) {
-                                refundDOS.add(refundByVisaId);
-                            }
-                            if (!refundDOS.isEmpty()) {
-                                refund = refundDOS.stream().mapToDouble(RefundDO::getAmount).sum();
-                            }
-                            amount = amount - refund; // 金额计算
+//                            amount = visaDOS.get(0).getAmount();
                         } else {
-                            visaDOS.remove(0);
+//                            visaDOS.remove(0);
                             calculateProportion = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() / amount;
-                            amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
-                            // 计算退款
-                            for (VisaDO visaDO : visaDOS) {
-                                RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDO.getId());
-                                if (ObjectUtil.isNotNull(refundByVisaId)) {
-                                    refundDOS.add(refundByVisaId);
-                                }
-                                if (!refundDOS.isEmpty()) {
-                                    refund = refundDOS.stream().mapToDouble(RefundDO::getAmount).sum();
-                                }
-                            }
-                            amount = amount - refund; // 金额计算
+//                            amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() - extraAmount; // 收款总额
                         }
                     }
                 } else {
-                    amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+                    amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() - extraAmount; // 收款总额
                 }
             }
         }
@@ -1045,11 +1043,18 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             } else if (isSIV) {
 //            if (isSIV) {
-                if (!installment && extraAmount == 0) {
-                    predictCommissionAmount = predictCommissionAmount * 0.5;
-                }
-                if (extraAmount > 0) {
-                    predictCommissionAmount = predictCommissionAmount * 0.5;
+//                if (!installment && extraAmount == 0) {
+//                    predictCommissionAmount = predictCommissionAmount * 0.5;
+//                }
+//                if (extraAmount > 0) {
+//                    predictCommissionAmount = predictCommissionAmount * 0.5;
+//                }
+                List<VisaOfficialDO> countvisaOfficialByServiceOrderPatrentId = visaOfficialDao.getCountvisaOfficialByServiceOrderPatrentId(serviceOrderById.getApplicantParentId());
+                if (CollectionUtils.isEmpty(countvisaOfficialByServiceOrderPatrentId)) {
+                    predictCommissionAmount = predictCommissionAmount * 0.6;
+                    extraAmount = extraAmount * 0;
+                } else {
+                    predictCommissionAmount = predictCommissionAmount * 0.4;
                 }
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
@@ -1072,19 +1077,14 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                 }
 //                if (ObjectUtil.isNotNull(servicePackageDO) && "VA".equalsIgnoreCase(servicePackageDO.getType())) {
-//                    predictCommissionAmount = predictCommissionAmount * 0.25; // 打包签证签证申请为总金额的四分之一结算
-//                } else {
-//                    predictCommissionAmount = predictCommissionAmount * 0.5; // 打包签证其他为总金额的一半结算
+//                    predictCommissionAmount = predictCommissionAmount * 0.5; // 打包签证中签证结算为一半金额
+//                    extraAmount = extraAmount / 2;
 //                }
-                if (ObjectUtil.isNotNull(servicePackageDO) && "VA".equalsIgnoreCase(servicePackageDO.getType())) {
-                    predictCommissionAmount = predictCommissionAmount * 0.5; // 打包签证中签证结算为一半金额
-                    extraAmount = extraAmount / 2;
-                }
                 commissionAmountDTO.setPredictCommissionAmount(predictCommissionAmount);
                 if (commissionAmountDTO.getPredictCommissionAmount() <= 0) {
                     commissionAmountDTO.setPredictCommissionAmount(0.00);
                 }
-                extraAmount = extraAmount / 1.1;
+                extraAmount = extraAmount / 1.1; // extraAmount计算比例
                 if (!visaOfficialDOS.isEmpty()) {
                     commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
                     commissionAmountDTO.setCommission((commissionAmountDTO.getCommissionAmount() * (servicePackagePriceV2DTO.getRate() / 100)));
@@ -1096,9 +1096,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     }
                 } else {
                     commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount());
-                    commissionAmountDTO.setCommission((commissionAmountDTO.getCommissionAmount() * (servicePackagePriceV2DTO.getRate() / 100)  + extraAmount / 2 * 1.4 / 100));
-                    commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() + extraAmount / 2);
-                    commissionAmountDTO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() + extraAmount / 2);
+                    commissionAmountDTO.setCommission((commissionAmountDTO.getCommissionAmount() * (servicePackagePriceV2DTO.getRate() / 100)  + extraAmount * 1.4 / 100));
+                    commissionAmountDTO.setCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() + extraAmount);
+                    commissionAmountDTO.setPredictCommissionAmount(commissionAmountDTO.getPredictCommissionAmount() + extraAmount);
                     String calculation = new String();
                     calculation = "0" + "|" + commissionAmountDTO.getThirdPrince() + "|" + dateFormat.format(servicePackagePriceDO == null ? System.currentTimeMillis() : servicePackagePriceDO.getGmtModify()) + "|" + officialGradeById.getGrade() + "," + rate + "%" + "," + dateFormat.format(officialGradeById.getGmtModify());
                     commissionAmountDTO.setCalculation(calculation);
@@ -1108,7 +1108,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
                 visaOfficialDO.setPredictCommission(commissionAmountDTO.getCommission());
                 visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
-                extraAmount = extraAmount / 2; // 独立技术移民文案佣金订单存入时额外金额除以2
+//                extraAmount = extraAmount / 2; // 独立技术移民文案佣金订单存入时额外金额除以2
             } else {
                 extraAmount = extraAmount / 1.1;
                 if (isNSV) {
@@ -1353,7 +1353,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             for (VisaDO visaDO : visaDOS) {
                                 RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
                                 if (refundDO != null) {
-                                    visaOfficialDto.setRefundAmount(refundDO.getAmount());
+                                    visaOfficialDto.setRefundAmount(visaOfficialDto.getRefundAmount() + refundDO.getAmount());
                                 }
                             }
                         }
