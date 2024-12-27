@@ -9,7 +9,12 @@ import com.ikasoa.core.utils.StringUtil;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
+import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableSheet;
+import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -20,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
+import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
@@ -33,6 +40,7 @@ import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
@@ -44,12 +52,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -407,96 +413,84 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             response.setHeader("Content-disposition",
                     "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
             response.setContentType("application/msexcel");
-            AtomicInteger i = new AtomicInteger(1);
+            int i = 1;
             OutputStream os = response.getOutputStream();
             //获取模板
             InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
             HSSFWorkbook wb = new HSSFWorkbook(is);
             HSSFSheet sheet = wb.getSheetAt(0);
-            AtomicReference<String> servicePackageType = new AtomicReference<>("");
-            CompletableFuture.runAsync(() -> {
-                try {
-                    for (VisaOfficialDTO visaDTO : officialList) {
-                        HSSFRow row = sheet.createRow(i.get());
-                        row.createCell(0).setCellValue(visaDTO.getId());
-                        row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
-                        row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
-                        row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
-                        row.createCell(4).setCellValue(visaDTO.getUserName());
-                        row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
-                        row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
-                        row.createCell(7).setCellValue(visaDTO.getCurrency());
-                        row.createCell(8).setCellValue(visaDTO.getExchangeRate());
-                        row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
+            String servicePackageType = "";
+            for (VisaOfficialDTO visaDTO : officialList) {
+                HSSFRow row = sheet.createRow(i);
+                row.createCell(0).setCellValue(visaDTO.getId());
+                row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
+                row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
+                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+                row.createCell(4).setCellValue(visaDTO.getUserName());
+                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
+                row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
+                row.createCell(7).setCellValue(visaDTO.getCurrency());
+                row.createCell(8).setCellValue(visaDTO.getExchangeRate());
+                row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
 //                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage()) && visaDTO.getServiceOrder().getApplicantParentId() > 0) {
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
 //                }
-                        System.out.println("当前id--------------------------" + visaDTO.getId());
-                        if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
-                            servicePackageType.set("-" + visaDTO.getServiceOrder().getServicePackage().getType());
-                        }
-                        row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
-                        servicePackageType.set("");
-                        row.createCell(11).setCellValue(visaDTO.getAdviserName());
-                        row.createCell(12).setCellValue(visaDTO.getOfficialName());
-                        row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
-                        row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
-                        row.createCell(15).setCellValue(visaDTO.getTotalAmountCNY());
-                        row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
-                        row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
-                        row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
-                        row.createCell(19).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
-
-                        row.createCell(20).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount());
-                        row.createCell(21).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getCommissionAmount() - visaDTO.getExtraAmount());
-
-                        ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
-                        double additionalAmount2A = 0.00; // 带配偶
-                        double additionalAmountXA = 0.00; // 带孩子
-                        ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
-                        if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
-                            if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-                                additionalAmount2A = 50.00;
-                            }
-                            if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-                                additionalAmountXA = 25.00;
-                            }
-                            if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
-                                additionalAmount2A = 50.00;
-                                additionalAmountXA = 25.00;
-                            }
-                        }
-                        row.createCell(22).setCellValue(additionalAmountXA);
-                        row.createCell(23).setCellValue(additionalAmount2A);
-                        row.createCell(24).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
-                        row.createCell(25).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
-                        String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
-                        row.createCell(26).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
-                        row.createCell(27).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
-                        row.createCell(28).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
-                        row.createCell(29).setCellValue(visaDTO.getRefundAmount());
-                        row.createCell(30).setCellValue(visaDTO.getBingDingAmount());
-                        row.createCell(31).setCellValue(visaDTO.isMerged() ? "是" : "否");
-                        String states = visaDTO.getState() == null ? "" : visaDTO.getState();
-                        if (states.equalsIgnoreCase("REVIEW"))
-                            states = "待确认";
-                        row.createCell(32).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
-                        i.getAndIncrement();
-                    }
-                    wb.write(os);
-                    os.flush();
-                    os.close();
-                } catch (IOException e) {
-                    if (e instanceof java.net.SocketException && "Connection reset by peer".equals(e.getMessage())) {
-                        // 客户端中断连接，这里可以记录日志等操作
-                        System.err.println("Client aborted the connection during download.");
-                    } else {
-                        e.printStackTrace();
-                    }
-                } catch (ServiceException e) {
-                    throw new RuntimeException(e);
+                System.out.println("当前id--------------------------" + visaDTO.getId());
+                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
+                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
                 }
-            });
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                servicePackageType = "";
+                row.createCell(11).setCellValue(visaDTO.getAdviserName());
+                row.createCell(12).setCellValue(visaDTO.getOfficialName());
+                row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
+                row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
+                row.createCell(15).setCellValue(visaDTO.getTotalAmountCNY());
+                row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
+                row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
+                row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                row.createCell(19).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
+
+                row.createCell(20).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount());
+                row.createCell(21).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getCommissionAmount() - visaDTO.getExtraAmount());
+
+                ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+                double additionalAmount2A = 0.00; // 带配偶
+                double additionalAmountXA = 0.00; // 带孩子
+                ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
+                if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
+                    if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                    }
+                    if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmountXA = 25.00;
+                    }
+                    if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                        additionalAmountXA = 25.00;
+                    }
+                }
+                row.createCell(22).setCellValue(additionalAmountXA);
+                row.createCell(23).setCellValue(additionalAmount2A);
+                row.createCell(24).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
+                row.createCell(25).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
+                String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
+                row.createCell(26).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
+                row.createCell(27).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(28).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(29).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(30).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(31).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                String states = visaDTO.getState() == null ? "" : visaDTO.getState();
+                if (states.equalsIgnoreCase("REVIEW"))
+                    states = "待确认";
+                row.createCell(32).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                i++;
+            }
+            wb.write(os);
+            os.flush();
+            os.close();
+
         } catch (Exception e) {
             e.printStackTrace();
             return;
