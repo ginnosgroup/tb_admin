@@ -81,7 +81,10 @@ public class ServiceOrderApplyFailedNode extends SODecisionNode{
             Boolean isSiv = Boolean.FALSE;
             ServiceOrderDTO serviceOrderDto = serviceOrderApplyFailedNode.serviceOrderService.getServiceOrderById(getServiceOrderId(context));
             ServicePackagePriceDO servicePackagePriceDO = serviceOrderApplyFailedNode.servicePackagePriceDAO.getByServiceId(serviceOrderDto.getServiceId());
-            ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugdNew(serviceOrderDto.getOfficialId(), servicePackagePriceDO);
+            ServicePackagePriceV2DTO servicePackagePriceV2DTO = new ServicePackagePriceV2DTO();
+            if (!"OVST".equalsIgnoreCase(serviceOrderDto.getType())) {
+                servicePackagePriceV2DTO = closeJugdNew(serviceOrderDto.getOfficialId(), servicePackagePriceDO);
+            }
             if (!"WA".equalsIgnoreCase(getAp(context))){
                 context.putParameter("response", new Response<ServiceOrderDTO>(1, "仅限文案操作!", null));
                 return null;
