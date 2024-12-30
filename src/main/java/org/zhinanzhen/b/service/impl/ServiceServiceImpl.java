@@ -2,12 +2,14 @@ package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.ikasoa.core.utils.ObjectUtil;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
@@ -119,6 +121,8 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 
 	@Override
 	public List<ServiceDTO> listAllService(String name, int pageNum, int pageSize) throws ServiceException {
+		// 创建一个线程池，核心线程数为5，最大线程数为10，队列容量为20
+		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5, 10, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<>(20));
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
@@ -127,20 +131,40 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
 		try {
 			serviceDoList = serviceDao.listAllService(name, pageNum * pageSize, pageSize);
-			if (serviceDoList == null)
+			// 定义一个CountDownLatch，用于等待所有任务完成
+			CountDownLatch latch = new CountDownLatch(serviceDoList.size());
+			List<ServiceDO> finalServiceDoList = serviceDoList;
+			if (finalServiceDoList == null) {
 				return null;
-			for (ServiceDO serviceDo : serviceDoList) {
-				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
-				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
-						0, 0, 999);
-				if (servicePackagePriceDoList != null) {
-					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
-					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
-						servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
-					});
-					serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
+			} else {
+
+				threadPoolExecutor.submit(new Runnable() {
+					@Override
+					public void run() {
+						for (ServiceDO serviceDo : finalServiceDoList) {
+							ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
+							List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
+									0, 0, 999);
+							if (servicePackagePriceDoList != null) {
+								List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+								servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
+									servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+								});
+								serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
+							}
+							serviceDtoList.add(serviceDto);
+						}
+					}
+				}, latch);
+				// 关闭线程池，不再接受新任务
+				threadPoolExecutor.shutdown();
+				try {
+					// 等待所有任务完成
+					latch.await();
+					System.out.println("所有任务已完成");
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-				serviceDtoList.add(serviceDto);
 			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
