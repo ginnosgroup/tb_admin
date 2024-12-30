@@ -85,8 +85,6 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
 				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
 						0, 0, 999);
-				if (servicePackagePriceDoList == null) {
-				}
 				if (servicePackagePriceDoList != null) {
 					List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
 					servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
