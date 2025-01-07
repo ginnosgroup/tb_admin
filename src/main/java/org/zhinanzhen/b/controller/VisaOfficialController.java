@@ -9,12 +9,7 @@ import com.ikasoa.core.utils.StringUtil;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
-import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
-import jxl.write.Label;
-import jxl.write.WritableCellFormat;
-import jxl.write.WritableSheet;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -25,14 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.zhinanzhen.b.controller.BaseCommissionOrderController.CommissionStateEnum;
-import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.*;
-import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.b.service.pojo.OfficialDTO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaDTO;
+import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -40,7 +36,6 @@ import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
-import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
@@ -52,7 +47,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -84,6 +78,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     @Resource
     UserService userService;
+
+    @Resource
+    private ServiceService serviceService;
 
     @Resource
     private WXWorkService wxWorkService;
@@ -437,7 +434,32 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //                }
                 System.out.println("当前id--------------------------" + visaDTO.getId());
                 if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
-                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                    String type = visaDTO.getServiceOrder().getServicePackage().getType();
+                    switch (type) {
+                        case "CA":
+                            type = "职业评估";
+                            break;
+                        case "EOI":
+                            type = "EOI";
+                            break;
+                        case "VA":
+                            type = "签证申请";
+                            break;
+                        case "TM":
+                            type = "提名";
+                            break;
+                        case "ZD":
+                            type = "州担";
+                            break;
+                        default:
+                            type = type;
+                    }
+                    if ("EOI".equalsIgnoreCase(type)) {
+                        ServiceDO serviceById = serviceDAO.getServiceById(visaDTO.getServiceOrder().getServicePackage().getServiceId());
+                        type = type + "-" + serviceById.getCode();
+                    }
+                    servicePackageType = "-" + type;
+//                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
                 }
                 row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
@@ -948,25 +970,29 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         String servicePackageType = "";
         if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
             String type = so.getServiceOrder().getServicePackage().getType();
-                switch (type) {
-                    case "CA":
-                        type =  "职业评估";
-                        break;
-                    case "EOI":
-                        type = "EOI";
+            switch (type) {
+                case "CA":
+                    type = "职业评估";
                     break;
-                    case "VA":
-                        type = "签证申请";
-                        break;
-                    case "TM":
-                        type = "提名";
-                        break;
-                    case "ZD":
-                        type = "州担";
-                        break;
-                    default:
-                        type = type;
-                }
+                case "EOI":
+                    type = "EOI";
+                    break;
+                case "VA":
+                    type = "签证申请";
+                    break;
+                case "TM":
+                    type = "提名";
+                    break;
+                case "ZD":
+                    type = "州担";
+                    break;
+                default:
+                    type = type;
+            }
+            if ("EOI".equalsIgnoreCase(type)) {
+                ServiceDO serviceById = serviceDAO.getServiceById(so.getServiceOrder().getServicePackage().getServiceId());
+                type = type + "-" + serviceById.getCode();
+            }
             servicePackageType = "-" + type;
         }
         buildJsonobjectRow(StringUtil.merge(so.getServiceOrder().getService().getName(), "-", so.getServiceCode(), servicePackageType), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
@@ -1309,7 +1335,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     @RequestMapping(value = "/monthlyStatement", method = RequestMethod.GET)
     @ResponseBody
     public Response<Integer> monthlyStatement(HttpServletRequest request,
-                                                      HttpServletResponse response) throws IllegalStateException, IOException {
+                                              HttpServletResponse response) throws IllegalStateException, IOException {
         super.setPostHeader(response);
         try {
             List<VisaOfficialDO> visaOfficialDOs = visaOfficialService.monthlyStatement();
