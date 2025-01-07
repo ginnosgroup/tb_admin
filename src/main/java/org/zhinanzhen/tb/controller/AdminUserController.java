@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,6 +68,9 @@ public class AdminUserController extends BaseController {
 	
 	@Autowired
     private RestTemplate restTemplate;
+
+	@Value("${defaultExchangeRate}")
+	private String defaultExchangeRate;
 
 	@RequestMapping(value = "/captcha")
 	public void getCaptcha(HttpServletRequest request, HttpServletResponse response) {
@@ -113,6 +117,7 @@ public class AdminUserController extends BaseController {
 			@RequestParam(value = "password") String password, @RequestParam(value = "captcha") String captcha,
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
 		log.info("[" + username + "]正在尝试登录系统!");
+		log.info("当前季度汇率" + defaultExchangeRate);
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
 		if (StringUtil.isEmpty(captcha))
