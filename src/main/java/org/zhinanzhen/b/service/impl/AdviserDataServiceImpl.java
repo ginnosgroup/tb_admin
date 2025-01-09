@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.AdviserDataDAO;
@@ -15,7 +16,9 @@ import org.zhinanzhen.b.dao.WebLogDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AdviserDataService;
 import org.zhinanzhen.b.service.pojo.*;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -36,6 +39,8 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 
 	@Resource
 	private WebLogDAO webLogDAO;
+    @Autowired
+    private UserDAO userDAO;
 
 	@Override
 	public List<AdviserServiceOrderDTO> listServiceOrder(Integer adviserId) throws ServiceException {
@@ -137,6 +142,12 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
                     apList = "超级管理员";
                     break;
                 default: apList = apList;
+		}
+		if (userIdList == null) {
+			List<UserDO> userDOS = userDAO.listUser(null, null, null, null,
+					null, null, null, adviserId, null, null,
+					null, null, null, 0, 9999);
+			userIdList = userDOS.stream().map(UserDO::getId).collect(Collectors.toList());
 		}
 		for (Integer userId : userIdList) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
