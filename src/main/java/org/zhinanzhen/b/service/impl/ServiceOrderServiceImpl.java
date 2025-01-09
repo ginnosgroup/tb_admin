@@ -181,7 +181,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
             // 免费订单与收费订单绑定
             if (serviceOrderDo.getBindingOrder() != null) {
-                String code = serviceById.getCode().replaceAll("\\D", "");
+                String code = serviceById.getCode().replaceAll("[^a-zA-Z0-9]", "");
                 if (code.contains("485") || code.contains("500")) {
                     serviceOrderDo.setBindingOrder(0);
                 }
@@ -189,6 +189,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 double costPrince = 0.00;
                 if (serviceOrderDo.getBindingOrder() > 0) {
                     serviceOrderByIdTmp = serviceOrderDao.getServiceOrderById(serviceOrderDo.getBindingOrder());
+                    if (code.equalsIgnoreCase("EOI") && !"SIV".equalsIgnoreCase(serviceOrderByIdTmp.getType())) {
+                        return -2;
+                    }
                     bybindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderDo.getBindingOrder());
                     bybindingOrder.add(serviceOrderDo.getServiceId());
                     for (Integer a : bybindingOrder) {

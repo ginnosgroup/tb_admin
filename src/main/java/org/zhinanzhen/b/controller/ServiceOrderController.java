@@ -684,6 +684,8 @@ public class ServiceOrderController extends BaseController {
                 return new Response<Integer>(0, msg, serviceOrderDto.getId());
             } else if (addResult == -1) {
                 return new Response<Integer>(1, "当前订单可分配额度不足，请选择其他订单绑定", 0);
+            } else if (addResult == -2) {
+                return new Response<Integer>(1, "绑定失败，EOI订单只可绑定独立技术移民订单，请核实", 0);
             } else {
                 return new Response<Integer>(1, "创建失败.", 0);
             }
