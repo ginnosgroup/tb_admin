@@ -677,17 +677,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (bindingList != null && bindingList) {
             if ("OVST".equals(type)) {
                 type = "bindingList2";
+            } else if ("SIV".equals(type)) {
+                type = "bindingList3";
             } else {
                 type = "bindingList";
             }
         }
-        int i = serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+        return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
                 reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                 theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                 theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                 officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle);
-        return i;
     }
 
     @Override
@@ -714,8 +715,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         try {
             if (bindingList != null && bindingList) {
-                if ("OVST".equals(type)) {
+                if ("OVST".equalsIgnoreCase(type)) {
                     type = "bindingList2";
+                } else if ("SIV".equalsIgnoreCase(type)) {
+                    type = "bindingList3";
                 } else {
                     type = "bindingList";
                 }

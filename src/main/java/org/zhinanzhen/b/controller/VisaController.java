@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -981,7 +982,8 @@ public class VisaController extends BaseCommissionOrderController {
 				WritableCellFormat cellFormat = new WritableCellFormat();
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
-				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
+				CompletableFuture<List<ServiceDTO>> listCompletableFuture = serviceService.listAllService(null, 0, 999);
+				List<ServiceDTO> serviceDTOS = listCompletableFuture.get();
 				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
 				int i = 1;
 				for (VisaDTO visaDto : list) {
@@ -1259,7 +1261,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
-				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
+				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999).get();
 				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
 
 

@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -17,7 +18,7 @@ public interface ServiceService {
 
 	public int countAllService(String name) throws ServiceException;
 
-	public List<ServiceDTO> listAllService(String name, int pageNum, int pageSize) throws ServiceException;
+	public CompletableFuture<List<ServiceDTO>> listAllService(String name, int pageNum, int pageSize) throws ServiceException;
 
 	public ServiceDTO getServiceById(int id) throws ServiceException;
 

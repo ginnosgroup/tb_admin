@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.social.config.annotation.EnableSocial;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactoryLocator;
@@ -25,6 +26,7 @@ import com.ikasoa.core.utils.StringUtil;
 @EnableSocial
 @MapperScan({ "org.zhinanzhen.tb.dao", "org.zhinanzhen.b.dao" })
 @Import(WecomAutoConfiguration.class)
+@EnableAsync
 public class Application extends WebMvcConfigurerAdapter {
 
 	public final static String DOMAIN = "https://yongjinbiao.zhinanzhen.org";

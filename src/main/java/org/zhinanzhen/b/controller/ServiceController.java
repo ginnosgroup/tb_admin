@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -97,9 +99,10 @@ public class ServiceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			CompletableFuture<List<ServiceDTO>> listCompletableFuture = serviceService.listAllService(name, pageNum, pageSize);
 			return new ListResponse<List<ServiceDTO>>(true, pageSize, serviceService.countAllService(name),
-					serviceService.listAllService(name, pageNum, pageSize), "");
-		} catch (ServiceException e) {
+					listCompletableFuture.get(), "");
+		} catch (ServiceException | InterruptedException | ExecutionException e) {
 			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
