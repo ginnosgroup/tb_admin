@@ -131,4 +131,5 @@ public class VisaOfficialDO {
 
     private Double extraAmount;
 
+    private String stage;
 }

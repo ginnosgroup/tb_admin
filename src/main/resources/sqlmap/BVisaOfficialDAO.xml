@@ -55,7 +55,8 @@
             verify_code,
             official_region,
             predict_commission_CNY,
-            extra_amount)
+            extra_amount,
+            stage)
         VALUES (
                    now(),
                    now(),
@@ -107,7 +108,8 @@
                    #{verifyCode},
                #{officialRegion},
                 #{predictCommissionCNY},
-                #{extraAmount});
+                #{extraAmount},
+                #{stage});
     </insert>
     <update id="update">
         UPDATE b_visa_official
@@ -119,11 +121,14 @@
         <if test='commissionAmount !=null and commissionAmount !="" or commissionAmount ==0.0'>
             , commissionAmount = #{commissionAmount}
         </if>
-        <if test='state!=null and state !=""'>
+        <if test='state != null and state !=""'>
             , state = #{state}
         </if>
-        <if test='serviceId!=null and serviceId !=""'>
+        <if test='serviceId != null and serviceId !=""'>
             , service_id = #{serviceId}
+        </if>
+        <if test='stage != null and stage !=""'>
+            , stage = #{stage}
         </if>
         where id = #{id}
     </update>
@@ -215,7 +220,8 @@
         ifnull(br.amount,0.0) as refund,
         bv.calculation,
         bv.predict_commissionAmount  as predictCommissionAmount,
-        bv.extra_amount AS extraAmount
+        bv.extra_amount AS extraAmount,
+        bv.stage
         from b_visa_official bv
         JOIN b_service_order so ON bv.service_order_id = so.id
         left JOIN tb_user tu ON bv.user_id = tu.id
@@ -400,7 +406,8 @@
             bank_date AS bankDate,
             is_close AS isClose,
             invoice_create AS invoiceCreate,
-            extra_amount AS extraAmount
+            extra_amount AS extraAmount,
+            stage
         FROM b_visa_official
         WHERE code = #{code};
     </select>
@@ -459,7 +466,8 @@
             predict_commissionAmount AS predictCommissionAmount,
             predict_commission_CNY AS predictCommissionCNY,
             official_region AS officialRegion,
-            extra_amount AS extraAmount
+            extra_amount AS extraAmount,
+            stage
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId};
     </select>
@@ -517,7 +525,8 @@
             predict_commissionAmount AS predictCommissionAmount,
             predict_commission_CNY AS predictCommissionCNY,
             official_region AS officialRegion,
-            extra_amount AS extraAmount
+            extra_amount AS extraAmount,
+            stage
         FROM b_visa_official
         WHERE service_order_id = #{serviceOrderId}
         ORDER BY gmt_create DESC
@@ -681,6 +690,9 @@
         </if>
         <if test='extraAmount != null'>
             , extra_amount = #{extraAmount}
+        </if>
+        <if test='stage != null'>
+            , stage = #{stage}
         </if>
         WHERE id = #{id};
     </update>

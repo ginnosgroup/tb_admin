@@ -507,6 +507,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
                 row.createCell(32).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(33).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
                 i++;
             }
             wb.write(os);
@@ -1079,6 +1080,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         // 状态
         String states = so.getState() == null ? "" : so.getState();
         buildJsonobjectRow(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states, "状态", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 结算阶段
+        buildJsonobjectRow(so.getStage() == null ? "" : so.getStage(), "结算阶段", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         return jsonObjectFILEDTITLE;
     }
 
@@ -1093,6 +1096,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
     public List<String> buildExlceTitle(String currency) {
         List<String> excelTitle = new ArrayList<>();
+        excelTitle.add("结算阶段");
         excelTitle.add("状态");
         excelTitle.add("绑定订单金额");
         excelTitle.add("退款金额");

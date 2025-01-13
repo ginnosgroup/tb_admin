@@ -206,5 +206,7 @@ public class VisaOfficialDTO {
 
     private Double extraAmount; // 额外金额
 
+    private String stage; // 结算阶段
+
 }
 

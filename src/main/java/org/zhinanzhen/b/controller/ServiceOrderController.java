@@ -815,7 +815,6 @@ public class ServiceOrderController extends BaseController {
 				});
                 if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) && StringUtil.isNotEmpty(servicePackageIdsEOI)) {
                     List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
-//                    ServiceOrderDTO serviceOrderDTO = cList.stream().max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
                     ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
                     Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
                     servicePackageIdsEOIs.forEach(e->{
@@ -825,12 +824,17 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDTO.setState("PENDING");
                             serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
                             try {
+                                if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
+                                    serviceOrderDTO.setIsInsuranceCompany(null);
+                                }
                                 serviceOrderService.addServiceOrder(serviceOrderDTO);
                             } catch (ServiceException ex) {
                                 throw new RuntimeException(ex);
                             }
                         }
                     });
+                    serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
+                    serviceOrderService.updateServiceOrder(serviceOrderDto);
                 }
             }
             return res;
@@ -838,6 +842,57 @@ public class ServiceOrderController extends BaseController {
             return new Response<Integer>(e.getCode(), e.getMessage(), null);
         }
 
+    }
+
+    /*
+    * 独立技术移民添加EOI数量
+    *
+    * */
+    @RequestMapping(value = "/sivUpdateEOI", method = RequestMethod.POST)
+    @ResponseBody
+    Response<Integer> sivUpdateEOI(@RequestParam(value = "id") int id,
+                                   @RequestParam(value = "servicePackageIdsEOI") String servicePackageIdsEOI, HttpServletResponse response) {
+        super.setPostHeader(response);
+        ServiceOrderDTO serviceOrderDto;
+        try {
+            serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+            if (serviceOrderDto == null)
+                return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+            List<ServiceOrderDTO> cList = new ArrayList<>();
+            cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                        null, id, 0, false, 0, 100, null, null, null, null, null, null, null);
+            List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+            ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
+            Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
+            servicePackageIdsEOIs.forEach(e->{
+                int i = Integer.parseInt(e);
+                if (ObjectUtil.isNull(collect.get(i))) {
+                    serviceOrderDTO.setServicePackageId(Integer.parseInt(e));
+                    serviceOrderDTO.setState("PENDING");
+                    serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
+                    try {
+                        if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
+                            serviceOrderDTO.setIsInsuranceCompany(null);
+                        }
+                        int i1 = serviceOrderService.addServiceOrder(serviceOrderDTO);
+                        if (i1 > 0) {
+                            ServiceOrderApplicantDTO serviceOrderApplicantDO = new ServiceOrderApplicantDTO();
+                            serviceOrderApplicantDO.setApplicantId(serviceOrderDTO.getApplicantId());
+                            serviceOrderApplicantDO.setServiceOrderId(serviceOrderDTO.getId());
+                            serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDO);
+                        }
+                    } catch (ServiceException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
+            serviceOrderService.updateServiceOrder(serviceOrderDto);
+            return new Response<Integer>(0, id);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), null);
+        }
     }
 
     private Response<Integer> updateOne(ServiceOrderDTO serviceOrderDto, String type, Integer peopleNumber,

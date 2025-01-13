@@ -224,6 +224,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                     visaOfficialDO.setInstallmentNum(2);
                     visaOfficialDO.setInstallment(2);
                     visaOfficialDO.setKjApprovalDate(null);
+                    visaOfficialDO.setStage(visaOfficialDO.getStage() + "-2");
                     serviceOrderCompleteNode.visaOfficialDao.addVisa(visaOfficialDO);
                 }
 //                if (isSiv) {
