@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import com.alibaba.fastjson.JSONArray;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
@@ -118,8 +119,7 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	@Async("taskExecutor")
-	public CompletableFuture<List<ServiceDTO>> listAllService(String name, int pageNum, int pageSize) throws ServiceException {
+	public List<ServiceDTO> listAllService(String name, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
@@ -127,34 +127,40 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		int finalPageNum = pageNum;
 		int finalPageSize = pageSize;
-		return CompletableFuture.supplyAsync(() -> {
-			List<ServiceDO> serviceDoList = new ArrayList<>();
-			try {
-				serviceDoList = serviceDao.listAllService(name, finalPageNum * finalPageSize, finalPageSize);
-				if (serviceDoList == null) {
-					return null;
-				}
-				long startTime = System.currentTimeMillis();
-				for (ServiceDO serviceDo : serviceDoList) {
-					ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
-					List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(), 0, 0, 999);
-					if (servicePackagePriceDoList!= null) {
-						List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
-						servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
-							servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
-						});
-						serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
-					}
-					serviceDtoList.add(serviceDto);
-				}
-				long endTime = System.currentTimeMillis();
-				long executionTime = endTime - startTime;
-				System.out.println("代码执行时间为: " + executionTime + " 毫秒");
-				return serviceDtoList;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+		List<ServiceDO> serviceDoList = new ArrayList<>();
+		try {
+			serviceDoList = serviceDao.listAllService(name, finalPageNum * finalPageSize, finalPageSize);
+			if (serviceDoList == null) {
+				return null;
 			}
-		});
+			CountDownLatch latch = new CountDownLatch(serviceDoList.size());
+			for (ServiceDO serviceDo : serviceDoList) {
+				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
+				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(), 0, 0, 999);
+				ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+				executor.submit(() -> {
+					try {
+						if (servicePackagePriceDoList!= null) {
+							List<ServicePackagePriceDTO> servicePackagePriceDtoList = new ArrayList<>();
+							servicePackagePriceDoList.forEach(servicePackagePriceDo -> {
+								servicePackagePriceDtoList.add(mapper.map(servicePackagePriceDo, ServicePackagePriceDTO.class));
+							});
+							serviceDto.setServicePackagePirceList(servicePackagePriceDtoList);
+						}
+						serviceDtoList.add(serviceDto);
+						// 只有在成功执行了任务后才减少计数器
+						latch.countDown(); // 完成任务，计数器减一
+					} catch (Exception e) {
+						latch.countDown();
+						e.printStackTrace();
+					}
+				});
+			}
+			latch.await();
+			return serviceDtoList;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

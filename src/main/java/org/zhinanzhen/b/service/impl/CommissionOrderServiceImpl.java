@@ -6,6 +6,7 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController.ReviewKjStateEnum;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -27,10 +28,10 @@ import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Service("CommissionOrderService")
 public class CommissionOrderServiceImpl extends BaseService implements CommissionOrderService {
@@ -177,7 +178,7 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
                                                             String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
                                                             List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
                                                             String endDate, String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState,
-                                                            int pageNum, int pageSize, Sorter sorter) throws ServiceException {
+                                                            int pageNum, int pageSize, Sorter sorter) throws ServiceException, InterruptedException {
         if (pageNum < 0) {
             pageNum = DEFAULT_PAGE_NUM;
         }
@@ -209,9 +210,21 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
             se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
             throw se;
         }
-        commissionOrderListDoList.forEach(commissionOrderListDo -> commissionOrderListDtoList
-                .add(buildCommissionOrderListDto(commissionOrderListDo)));
-        return commissionOrderListDtoList;
+        CountDownLatch latch = new CountDownLatch(commissionOrderListDoList.size());
+        for (CommissionOrderListDO commissionOrderListDo : commissionOrderListDoList) {
+            ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+            executor.submit(() -> {
+                try {
+                    commissionOrderListDtoList.add(buildCommissionOrderListDto(commissionOrderListDo));
+                    latch.countDown(); // 完成任务，计数器减一
+                } catch (Exception e) {
+                    latch.countDown();
+                    e.printStackTrace();
+                }
+            });
+        }
+        latch.await();
+        return commissionOrderListDtoList.stream().sorted(Comparator.comparing(CommissionOrderListDTO::getId).reversed()).collect(Collectors.toList());
     }
 
     @Override

@@ -186,6 +186,9 @@ public class WebLogAspect extends BaseController{
             }
 
 
+            if (adminUserLoginInfo == null) {
+                return null;
+            }
             String apList = adminUserLoginInfo.getApList();
             switch (apList) {
                 case "GW":

@@ -5,7 +5,9 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Synchronized;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -29,6 +31,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Service("VisaService")
@@ -401,37 +404,27 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					state, pageNum * pageSize, pageSize, orderBy);
 			if (visaListDoList == null)
 				return null;
-
-			List<List<VisaListDO>> lists = new ArrayList<>();
-
-			if (visaListDoList != null && visaListDoList.size() > 50) {
-				lists = splitList(visaListDoList, (int) Math.ceil((double) visaListDoList.size() / 20));
-			} else {
-				lists = splitList(visaListDoList, 5);
-			}
-			CountDownLatch latch = new CountDownLatch(lists.size());
-			for (List<VisaListDO> list : lists) {
-				Thread thread1 = new Thread(() -> {
-					for (VisaListDO visaListDo : list) {
-						VisaDTO visaDto = null;
-						try {
-							visaDto = putVisaDTO(visaListDo);
-							List<Date> remindDateList = new ArrayList<>();
-							List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
-									AbleStateEnum.ENABLED.toString());
-							for (RemindDO remindDo : remindDoList) {
-								remindDateList.add(remindDo.getRemindDate());
-							}
-							visaDto.setRemindDateList(remindDateList);
-							visaDtoList.add(visaDto);
-						} catch (ServiceException e) {
-							e.printStackTrace();
+			CountDownLatch latch = new CountDownLatch(visaListDoList.size());
+			for (VisaListDO visaListDo : visaListDoList) {
+				ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+				executor.submit(() -> {
+					VisaDTO visaDto = null;
+					try {
+						visaDto = putVisaDTO(visaListDo);
+						List<Date> remindDateList = new ArrayList<>();
+						List<RemindDO> remindDoList = remindDao.listRemindByVisaId(visaDto.getId(), adviserId,
+								AbleStateEnum.ENABLED.toString());
+						for (RemindDO remindDo : remindDoList) {
+							remindDateList.add(remindDo.getRemindDate());
 						}
+						visaDto.setRemindDateList(remindDateList);
+						visaDtoList.add(visaDto);
+						latch.countDown(); // 完成任务，计数器减一
+					} catch (ServiceException e) {
+						latch.countDown(); // 完成任务，计数器减一
+						e.printStackTrace();
 					}
-					// 只有在成功执行了任务后才减少计数器
-					latch.countDown(); // 完成任务，计数器减一
 				});
-				thread1.start();
 			}
 			latch.await();
 		} catch (Exception e) {

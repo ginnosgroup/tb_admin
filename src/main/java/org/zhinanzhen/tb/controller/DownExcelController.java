@@ -558,7 +558,7 @@ public class DownExcelController extends BaseController {
         }
 	}
 
-	public HSSFWorkbook  exportDataToExcel(Map.Entry<String, List<CommissionReport>> entry, Integer regionId,  String startDate, String endDate) throws IOException, ServiceException {
+	public HSSFWorkbook  exportDataToExcel(Map.Entry<String, List<CommissionReport>> entry, Integer regionId,  String startDate, String endDate) throws IOException, ServiceException, InterruptedException {
 		boolean isCn = regionService.isCN(regionId);
 
 			int i = 1;

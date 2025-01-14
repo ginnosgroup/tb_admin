@@ -19,6 +19,7 @@ import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -1083,6 +1084,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 							}
 						}
 					} catch (ServiceException e) {
+						e.printStackTrace();
 					}
 				try {
 					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),newOfficialId,getKjId(request),
@@ -1096,7 +1098,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				list = new ArrayList<>();
 			}
 			return new ListResponse<List<CommissionOrderListDTO>>(true, pageSize, total, list, "");
-		} catch (ServiceException e) {
+		} catch (ServiceException | InterruptedException e) {
 			return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}

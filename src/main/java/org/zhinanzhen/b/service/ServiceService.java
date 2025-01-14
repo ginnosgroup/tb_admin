@@ -18,7 +18,7 @@ public interface ServiceService {
 
 	public int countAllService(String name) throws ServiceException;
 
-	public CompletableFuture<List<ServiceDTO>> listAllService(String name, int pageNum, int pageSize) throws ServiceException;
+	public List<ServiceDTO> listAllService(String name, int pageNum, int pageSize) throws ServiceException;
 
 	public ServiceDTO getServiceById(int id) throws ServiceException;
 

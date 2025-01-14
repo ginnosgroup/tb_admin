@@ -279,9 +279,6 @@
         <if test="offset !=null and pageSize!=null">
             limit #{offset} ,#{pageSize}
         </if>
-
-
-
     </select>
     <select id="count" resultType="java.lang.Integer">
         SELECT

@@ -99,10 +99,9 @@ public class ServiceController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			CompletableFuture<List<ServiceDTO>> listCompletableFuture = serviceService.listAllService(name, pageNum, pageSize);
 			return new ListResponse<List<ServiceDTO>>(true, pageSize, serviceService.countAllService(name),
-					listCompletableFuture.get(), "");
-		} catch (ServiceException | InterruptedException | ExecutionException e) {
+					serviceService.listAllService(name, pageNum, pageSize), "");
+		} catch (ServiceException e) {
 			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}

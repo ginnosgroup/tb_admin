@@ -113,4 +113,5 @@ public class VisaDO implements Serializable {
 
 	private Double predictCommission;//预估佣金
 
+	private Double maxPrice;// 服务定价
 }

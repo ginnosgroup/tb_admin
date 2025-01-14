@@ -172,7 +172,7 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 					null, null, null, null, userId,
 					null, null, null, null, null, null
 					, null, null, null, null, null
-					, null, null, null,null, 0, 9999, null);
+					, null, null, null,null, 0, 9999, null, null, null, null);
 			for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
 				WebLogDTO webLogDTO = new WebLogDTO();
 				webLogDTO.setUserId(operateUserId);

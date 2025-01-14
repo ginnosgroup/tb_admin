@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -39,6 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -1108,52 +1110,52 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 } else {
                     predictCommissionAmount = predictCommissionAmount * 0.4;
                 }
-                Integer VACount = 0;
-                Integer nowEOICount = 0;
-                String eoiStrage = "";
-                Map<Integer, Integer> collectTmp = deriveOrder.stream().collect(Collectors.toMap(ServiceOrderDTO::getId, ServiceOrderDTO::getServicePackageId));
-                if (CollectionUtils.isNotEmpty(countvisaOfficialByServiceOrderPatrentId)) {
-                    for (VisaOfficialDO officialDO : countvisaOfficialByServiceOrderPatrentId) {
-                        Integer i = collectTmp.get(officialDO.getServiceOrderId());
-                        ServicePackageDO byId = servicePackageDAO.getById(i);
-                        if ("VA".equalsIgnoreCase(byId.getType())) {
-                            VACount++;
-                        }
-                        if ("EOI".equalsIgnoreCase(byId.getType())) {
-                            eoiStrage = officialDO.getStage();
-                            nowEOICount++;
-                        }
-                    }
-                    Integer i = collectTmp.get(visaOfficialDO.getServiceOrderId());
-                    ServicePackageDO byId = servicePackageDAO.getById(i);
-                    if (VACount == 0) {
-                        if ("VA".equalsIgnoreCase(byId.getType())) {
-                            visaOfficialDO.setStage("2");
-                        }
-                        if ("EOI".equalsIgnoreCase(byId.getType())) {
-                            visaOfficialDO.setStage("2-" + (nowEOICount + 1));
-                        }
-                    }
-                    if (nowEOICount == 0) {
-                        if ("EOI".equalsIgnoreCase(byId.getType())) {
-                            visaOfficialDO.setStage("2-" + (nowEOICount + 1));
-                        }
-                    }
-                    if (VACount > 0 && nowEOICount > 0) {
-                        if ("EOI".equalsIgnoreCase(byId.getType())) {
-                            visaOfficialDO.setStage(eoiStrage.substring(0,2) + (nowEOICount + 1));
-                        }
-                    }
-                } else {
-                    Integer i = collectTmp.get(visaOfficialDO.getServiceOrderId());
-                    ServicePackageDO byId = servicePackageDAO.getById(i);
-                    if ("VA".equalsIgnoreCase(byId.getType())) {
-                        visaOfficialDO.setStage("1");
-                    }
-                    if ("EOI".equalsIgnoreCase(byId.getType())) {
-                        visaOfficialDO.setStage("1-1");
-                    }
-                }
+//                Integer VACount = 0;
+//                Integer nowEOICount = 0;
+//                String eoiStrage = "";
+//                Map<Integer, Integer> collectTmp = deriveOrder.stream().collect(Collectors.toMap(ServiceOrderDTO::getId, ServiceOrderDTO::getServicePackageId));
+//                if (CollectionUtils.isNotEmpty(countvisaOfficialByServiceOrderPatrentId)) {
+//                    for (VisaOfficialDO officialDO : countvisaOfficialByServiceOrderPatrentId) {
+//                        Integer i = collectTmp.get(officialDO.getServiceOrderId());
+//                        ServicePackageDO byId = servicePackageDAO.getById(i);
+//                        if ("VA".equalsIgnoreCase(byId.getType())) {
+//                            VACount++;
+//                        }
+//                        if ("EOI".equalsIgnoreCase(byId.getType())) {
+//                            eoiStrage = officialDO.getStage();
+//                            nowEOICount++;
+//                        }
+//                    }
+//                    Integer i = collectTmp.get(visaOfficialDO.getServiceOrderId());
+//                    ServicePackageDO byId = servicePackageDAO.getById(i);
+//                    if (VACount == 0) {
+//                        if ("VA".equalsIgnoreCase(byId.getType())) {
+//                            visaOfficialDO.setStage("2");
+//                        }
+//                        if ("EOI".equalsIgnoreCase(byId.getType())) {
+//                            visaOfficialDO.setStage("2-" + (nowEOICount + 1));
+//                        }
+//                    }
+//                    if (nowEOICount == 0) {
+//                        if ("EOI".equalsIgnoreCase(byId.getType())) {
+//                            visaOfficialDO.setStage("2-" + (nowEOICount + 1));
+//                        }
+//                    }
+//                    if (VACount > 0 && nowEOICount > 0) {
+//                        if ("EOI".equalsIgnoreCase(byId.getType())) {
+//                            visaOfficialDO.setStage(eoiStrage.substring(0,2) + (nowEOICount + 1));
+//                        }
+//                    }
+//                } else {
+//                    Integer i = collectTmp.get(visaOfficialDO.getServiceOrderId());
+//                    ServicePackageDO byId = servicePackageDAO.getById(i);
+//                    if ("VA".equalsIgnoreCase(byId.getType())) {
+//                        visaOfficialDO.setStage("1");
+//                    }
+//                    if ("EOI".equalsIgnoreCase(byId.getType())) {
+//                        visaOfficialDO.setStage("1-1");
+//                    }
+//                }
 
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
@@ -1356,7 +1358,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         CountDownLatch latch = new CountDownLatch(list.size()); // 等待两个线程完成
         for (VisaOfficialListDO visaListDo : list) {
-            Thread thread1 = new Thread(() -> {
+            ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+            executor.submit(() -> {
                 try {
                     // 线程1的任务
                     VisaOfficialDTO visaOfficialDto = null;
@@ -1463,7 +1466,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                 null, null, null, null, null,
                                 null, null, null, null, null, null, null, null,
                                 null, null, null, null, null, null, null,
-                                null, null, parentOrder.getId(), 0, 20, null);
+                                null, null, parentOrder.getId(), 0, 20, null, null, null, null);
                         if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
                             for (ServiceOrderDO orderDO : serviceOrderDOS) {
                                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServiceId());
@@ -1488,7 +1491,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                 null, null, null, null, null,
                                 null, null, null, null, null, null, null, null,
                                 null, null, null, null, null, null, null,
-                                null, null, visaOfficialDto.getServiceOrderId(), 0, 20, null);
+                                null, null, visaOfficialDto.getServiceOrderId(), 0, 20, null, null, null ,null);
                         if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
                             for (ServiceOrderDO orderDO : serviceOrderDOS) {
                                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
@@ -1509,7 +1512,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     latch.countDown();
                 }
             });
-            thread1.start();
         }
         latch.await();
         return visaOfficialDtoList.stream().sorted(Comparator.comparing(VisaOfficialDTO::getId).reversed()).collect(Collectors.toList());
@@ -1617,7 +1619,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 EndOfLastMonth, null, null, null, null,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, null, 0, 9999, null);
+                , null, null, null, null, 0, 9999, null, null, null, null);
         List<VisaOfficialDO> visaOfficialDOs = new ArrayList<>();
         int count = 0;
         for (ServiceOrderDO e : serviceOrderDOS) {

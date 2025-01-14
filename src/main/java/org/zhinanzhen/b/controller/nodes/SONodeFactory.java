@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.controller.nodes;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.service.ServiceOrderService;
 
@@ -10,11 +12,16 @@ import com.ikasoa.web.workflow.nodes.SuspendNode;
 
 import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
+//@AllArgsConstructor
 @Component
 public class SONodeFactory implements NodeFactory {
 
-	private ServiceOrderService serviceOrderService;
+	private final ServiceOrderService serviceOrderService;
+
+	@Autowired
+	public SONodeFactory(@Lazy ServiceOrderService serviceOrderService) {
+		this.serviceOrderService = serviceOrderService;
+	}
 
 	public Node getNode(String name) {
 		for (Node node : ListUtil.buildArrayList(

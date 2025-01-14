@@ -982,8 +982,7 @@ public class VisaController extends BaseCommissionOrderController {
 				WritableCellFormat cellFormat = new WritableCellFormat();
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
-				CompletableFuture<List<ServiceDTO>> listCompletableFuture = serviceService.listAllService(null, 0, 999);
-				List<ServiceDTO> serviceDTOS = listCompletableFuture.get();
+				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
 				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
 				int i = 1;
 				for (VisaDTO visaDto : list) {
@@ -1261,7 +1260,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
-				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999).get();
+				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
 				Map<Integer, ServiceDTO> serviceMap = serviceDTOS.stream().collect(Collectors.toMap(ServiceDTO::getId, Function.identity()));
 
 

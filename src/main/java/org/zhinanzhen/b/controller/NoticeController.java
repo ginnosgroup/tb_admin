@@ -64,7 +64,7 @@ public class NoticeController extends BaseController {
 
 			List<ServiceOrderDTO> allServiceOrderList = serviceOrderService.listServiceOrder(null, null, null, null,
 					null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, 0, 0, 0, 0, 0, 0, false,
-					0, 1000, null, 0, null, 0, null, null, null);
+					0, 1000, null, 0, null, 0, null, null, null, null, null, null);
 			for (ServiceOrderDTO serviceOrder : allServiceOrderList) {
 				int days = getDateDays(serviceOrder.getGmtModify(), new Date());
 				try {
@@ -132,8 +132,10 @@ public class NoticeController extends BaseController {
 			return new Response<Integer>(0, "发送成功.", 1);
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
-		}
-	}
+		} catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	private int getDateDays(Date date1, Date date2) {
 		return (int) ((date2.getTime() - date1.getTime() + 1000000) / (3600 * 24 * 1000));

@@ -8,6 +8,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface ServiceOrderService {
 
@@ -25,16 +26,16 @@ public interface ServiceOrderService {
 						  String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate, List<Integer> regionIdList, Integer userId,
 						  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
 						  Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
-						  Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException;
+						  Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, List<String> excludeTypeList, String excludeState,
-			List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
-			String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-			String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate,
-			List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
-			Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
-			boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
-			Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException;
+															  List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
+															  String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
+															  String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate,
+															  List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
+															  Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
+															  boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
+															  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 

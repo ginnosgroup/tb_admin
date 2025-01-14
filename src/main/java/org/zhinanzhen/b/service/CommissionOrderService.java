@@ -33,7 +33,7 @@ public interface CommissionOrderService {
 															String wechatUsername, Integer schoolId, Boolean isSettle, List<String> stateList,
 															List<String> commissionStateList, String startKjApprovalDate, String endKjApprovalDate, String startDate,
 															String endDate, String startInvoiceCreate, String endInvoiceCreate, Boolean isYzyAndYjy, String applyState,
-															int pageNum, int pageSize, Sorter sorter) throws ServiceException;
+															int pageNum, int pageSize, Sorter sorter) throws ServiceException, InterruptedException;
 
 	List<CommissionOrderListDTO> listThisMonthCommissionOrder(Integer adviserId, Integer officialId)
 			throws ServiceException;

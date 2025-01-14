@@ -548,6 +548,15 @@
         <if test="servicePackageId">
             AND so.service_package_id = #{servicePackageId}
         </if>
+        <if test="courseId != null">
+            AND so.course_id = #{courseId}
+        </if>
+        <if test='schoolLocation != null'>
+            AND so.school_institution_location_id = #{schoolLocation}
+        </if>
+        <if test='tradingName != null and tradingName != "" '>
+            AND so.institution_trading_name = #{tradingName}
+        </if>
         ;
     </select>
 
@@ -758,6 +767,15 @@
         </if>
         <if test="bindingOrder != null">
             AND so.binding_order = #{bindingOrder}
+        </if>
+        <if test="courseId != null">
+            AND so.course_id = #{courseId}
+        </if>
+        <if test='schoolLocation != null'>
+            AND so.school_institution_location_id = #{schoolLocation}
+        </if>
+        <if test='tradingName != null and tradingName != "" '>
+            AND so.institution_trading_name = #{tradingName}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};

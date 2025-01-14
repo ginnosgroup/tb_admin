@@ -5,10 +5,12 @@ import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
+import jdk.nashorn.internal.objects.Global;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -31,6 +33,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 @Service("ServiceOrderService")
@@ -673,7 +677,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                  String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate, List<Integer> regionIdList, Integer userId,
                                  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
                                  Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
-                                 Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException {
+                                 Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation) throws ServiceException {
         if (bindingList != null && bindingList) {
             if ("OVST".equals(type)) {
                 type = "bindingList2";
@@ -688,7 +692,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                 theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                 theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
-                officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle);
+                officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle, courseId, tradingName, schoolLocation);
     }
 
     @Override
@@ -699,7 +703,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                   List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
                                                   Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
                                                   boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
-                                                  Boolean isPay, Boolean isSettle, Boolean bindingList) throws ServiceException {
+                                                  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation) throws ServiceException {
+        schoolId = null;
         List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
         List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
         if (pageNum < 0)
@@ -727,7 +732,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                     theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy);
+                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
             if (serviceOrderDoList == null)
                 return null;
 
@@ -736,10 +741,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if ("bindingList".equals(type)) {
                 collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
             } else {
-    //            count = serviceOrderDoList.stream().filter(ServiceOrderDO -> "OVST".equals(ServiceOrderDO.getType())).count();
                 collect = serviceOrderDoList;
             }
-            CountDownLatch latch = new CountDownLatch(collect.size()); // 等待两个线程完成
+            CountDownLatch latch = new CountDownLatch(collect.size());
             for (int i = 0; i < collect.size(); i++) {
                 ServiceOrderDO serviceOrderDo = collect.get(i);
                 if (bindingList != null) {
@@ -758,20 +762,17 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         }
                     }
                 }
-                Thread thread1 = new Thread(() -> {
+                ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+                executor.submit(() -> {
                     try {
-                        // 线程1的任务
                         serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
                         // 只有在成功执行了任务后才减少计数器
                         latch.countDown(); // 完成任务，计数器减一
                     } catch (Exception e) {
-                        // 处理异常，例如记录日志
-                        e.printStackTrace();
-                        // 尽管出错，也应减少计数器以避免死锁
                         latch.countDown();
+                        e.printStackTrace();
                     }
                 });
-                thread1.start();
             }
             latch.await();
             if (!serviceOrderDtoList.isEmpty()) {
@@ -2672,8 +2673,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         for (VisaDO visa : list) {
             // 查询收款方式
             ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visa.getReceiveTypeId());
-            if (receiveTypeDo != null)
+            if (receiveTypeDo != null) {
                 visa.setReceiveTypeDTO(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+            }
+            ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(visa.getServiceId());
+            if (byServiceId != null) {
+                visa.setMaxPrice(byServiceId.getMaxPrice());
+            }
         }
         return list;
     }
@@ -2729,7 +2735,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 null, null, null, null, userId,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, null, 0, 9999, null);
+                , null, null, null, null, 0, 9999, null, null, null, null);
         ViewBalanceDTO viewBalanceDTO = new ViewBalanceDTO();
         double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).filter(ServiceOrderDO -> ServiceOrderDO.getBindingOrder() == null).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getPerAmount).sum();
         double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
