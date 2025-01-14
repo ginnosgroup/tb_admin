@@ -878,6 +878,9 @@ public class ServiceOrderController extends BaseController {
                         null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                         null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
             List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+            if (servicePackageIdsEOIs.size() > 6) {
+                return new Response<Integer>(1, "单个打包签证EOI数量最多允许6个，请核实", null);
+            }
             ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
             Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
             servicePackageIdsEOIs.forEach(e->{
