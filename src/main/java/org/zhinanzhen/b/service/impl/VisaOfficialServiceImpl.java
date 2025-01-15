@@ -907,7 +907,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             commissionAmountDTO.setRuler(3);
         } else {
             ServicePackagePriceV2DTO servicePackagePriceV2DTO1 = closeJugdNew(serviceOrderById.getOfficialId(), servicePackagePriceDO);
-            if (ObjectUtil.isNotNull(servicePackagePriceV2DTO1) && servicePackagePriceV2DTO1.getRuler() == 1) {
+            if (ObjectUtil.isNotNull(servicePackagePriceV2DTO1) && servicePackagePriceV2DTO1.getRuler() == 0) {
                 rate = rate + servicePackagePriceV2DTO1.getRate();
             }
             servicePackagePriceV2DTO = closeJugd(serviceOrderById.getOfficialId(), servicePackagePriceDO);

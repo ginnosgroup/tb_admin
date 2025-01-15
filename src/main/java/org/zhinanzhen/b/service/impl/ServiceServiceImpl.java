@@ -93,7 +93,7 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 						List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
 						List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOTmp = new ArrayList<>();
 						for (ServicePackagePriceV2DTO a : servicePackagePriceV2DTOS) {
-							if ("Australia".equals(a.getCountry()) || "China".equals(a.getCountry())) {
+							if (a.getOfficialGrades() == null || ("Australia".equals(a.getCountry()) || "China".equals(a.getCountry()))) {
 								continue;
 							}
 							servicePackagePriceV2DTOTmp.add(a);
