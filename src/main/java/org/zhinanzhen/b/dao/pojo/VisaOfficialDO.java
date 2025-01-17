@@ -132,4 +132,6 @@ public class VisaOfficialDO {
     private Double extraAmount;
 
     private String stage;
+
+    private Boolean isRefund = false;
 }

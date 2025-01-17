@@ -122,7 +122,7 @@ public class VisaOfficialCheck {
                         ServicePackageDO servicePackageDO = servicePackageDAO.getById(e.getServicePackageId());
                         if (ObjectUtil.isNotNull(servicePackageDO)) {
                             String type = servicePackageDO.getType();
-                            if (!"CA".equalsIgnoreCase(type) && !"EOI".equalsIgnoreCase(type)) {
+                            if (!"VA".equalsIgnoreCase(type) && !"EOI".equalsIgnoreCase(type)) {
                                 continue;
                             }
                         }
