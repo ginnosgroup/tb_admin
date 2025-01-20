@@ -472,10 +472,19 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
                 row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
                 row.createCell(19).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
-
-                row.createCell(20).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount());
-                row.createCell(21).setCellValue(visaDTO.getExtraAmount() == null ? 0 : visaDTO.getCommissionAmount() - visaDTO.getExtraAmount());
-
+                double extraAmount = 0.00;
+                extraAmount = visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount();
+                row.createCell(20).setCellValue(extraAmount);
+                if (extraAmount == 0) {
+                    row.createCell(21).setCellValue(0);
+                } else {
+                    double basicAmount = 0.00;
+                    basicAmount = visaDTO.getCommissionAmount() - visaDTO.getExtraAmount();
+                    if (basicAmount < 0) {
+                        basicAmount = 0.00;
+                    }
+                    row.createCell(21).setCellValue(basicAmount);
+                }
                 ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                 double additionalAmount2A = 0.00; // 带配偶
                 double additionalAmountXA = 0.00; // 带孩子
@@ -1015,10 +1024,22 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         jsonObjectFILEDTITLE.put("预估佣金（澳币）", so.getPredictCommission() == null ? 0 : so.getPredictCommission());
         // 预估佣金（人民币）
         jsonObjectFILEDTITLE.put("预估佣金（人民币）", so.getPredictCommissionCNY() == null ? 0 : so.getPredictCommissionCNY());
+
+        double extraAmount = 0.00;
+        extraAmount = so.getExtraAmount() == null ? 0 : so.getExtraAmount();
         // basic rate
-        jsonObjectFILEDTITLE.put("basic rate", so.getExtraAmount() == null ? 0 : so.getCommissionAmount() - so.getExtraAmount());
-        // extra rate
-        jsonObjectFILEDTITLE.put("extra rate", so.getExtraAmount() == null ? 0 : so.getExtraAmount());
+        jsonObjectFILEDTITLE.put("basic rate", extraAmount);
+        if (extraAmount == 0) {
+            // extra rate
+            jsonObjectFILEDTITLE.put("extra rate", 0);
+        } else {
+            double basicAmount = 0.00;
+            basicAmount = so.getCommissionAmount() - so.getExtraAmount();
+            if (basicAmount < 0) {
+                basicAmount = 0.00;
+            }
+            jsonObjectFILEDTITLE.put("extra rate", basicAmount);
+        }
         double additionalAmount2A = 0.00; // 带配偶
         double additionalAmountXA = 0.00; // 带孩子
         ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
