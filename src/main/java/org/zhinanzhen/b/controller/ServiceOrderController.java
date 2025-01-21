@@ -806,11 +806,11 @@ public class ServiceOrderController extends BaseController {
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
 						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())) {
                     cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
-                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                             null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
                 } else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
                     cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
-                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                             null, 0, id, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
                 }
 				cList.forEach(cServiceOrderDto -> {
@@ -875,7 +875,7 @@ public class ServiceOrderController extends BaseController {
                 return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
             List<ServiceOrderDTO> cList = new ArrayList<>();
             cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                         null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
             List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
             if (servicePackageIdsEOIs.size() > 6) {
@@ -1457,7 +1457,7 @@ public class ServiceOrderController extends BaseController {
             return new Response<Integer>(0, serviceOrderService.countServiceOrder(type, null, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
-                    regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
+                    regionIdList, null, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
                     isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, null, null, null, null, null));
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), null);
@@ -1481,7 +1481,8 @@ public class ServiceOrderController extends BaseController {
             @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
             @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
             @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
-            @RequestParam(value = "regionId", required = false) Integer regionId,
+            @RequestParam(value = "adviserRegionId", required = false) Integer adviserRegionId,
+            @RequestParam(value = "officialRegionId", required = false) Integer officialRegionId,
             @RequestParam(value = "userId", required = false) Integer userId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
@@ -1529,9 +1530,13 @@ public class ServiceOrderController extends BaseController {
             excludeState = ReviewAdviserStateEnum.PENDING.toString();
         }
 
-        List<Integer> regionIdList = null;
-        if (regionId != null && regionId > 0)
-            regionIdList = ListUtil.buildArrayList(regionId);
+        List<Integer> adviserRegionIdList = null;
+        if (adviserRegionId != null && adviserRegionId > 0)
+            adviserRegionIdList = ListUtil.buildArrayList(adviserRegionId);
+
+        List<Integer> officialRegionIdList = null;
+        if (officialRegionId != null && officialRegionId > 0)
+            officialRegionIdList = ListUtil.buildArrayList(officialRegionId);
 
         Sorter _sorter = null;
         if (sorter != null)
@@ -1544,13 +1549,13 @@ public class ServiceOrderController extends BaseController {
             if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
                 List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                adviserRegionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
                 for (RegionDTO region : regionList) {
-                    regionIdList.add(region.getId());
+                    adviserRegionIdList.add(region.getId());
                 }
                 if (bindingList != null && bindingList) {
-                    regionIdList.clear();
-                    regionIdList.add(adminUserLoginInfo.getRegionId());
+                    adviserRegionIdList.clear();
+                    adviserRegionIdList.add(adminUserLoginInfo.getRegionId());
                 }
             } else {
                 Integer newAdviserId = getAdviserId(request);
@@ -1577,12 +1582,12 @@ public class ServiceOrderController extends BaseController {
             int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
-                    regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
+                    adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
                     isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, isSettle, bindingList, courseId, tradingName, schoolLocation);
             List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
                     excludeState, stateList, auditingState, reviewStateList, urgentState, startMaraApprovalDate,
                     endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
-                    endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
+                    endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                     officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter,
                     serviceId, servicePackageId, schoolId, null, isSettle, bindingList, courseId, tradingName, schoolLocation);
             if (bindingList != null && bindingList && "OVST".equals(type)) {
@@ -2214,7 +2219,8 @@ public class ServiceOrderController extends BaseController {
                      @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
                      @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
                      @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
-                     @RequestParam(value = "regionId", required = false) Integer regionId,
+                     @RequestParam(value = "adviserRegionId", required = false) Integer adviserRegionId,
+                     @RequestParam(value = "officialRegionId", required = false) Integer officialRegionId,
                      @RequestParam(value = "userId", required = false) Integer userId,
                      @RequestParam(value = "userName", required = false) String userName,
                      @RequestParam(value = "applicantName", required = false) String applicantName,
@@ -2256,9 +2262,13 @@ public class ServiceOrderController extends BaseController {
             excludeState = ReviewAdviserStateEnum.PENDING.toString();
         }
 
-        List<Integer> regionIdList = null;
-        if (regionId != null && regionId > 0)
-            regionIdList = ListUtil.buildArrayList(regionId);
+        List<Integer> adviserRegionIdList = null;
+        if (adviserRegionId != null && adviserRegionId > 0)
+            adviserRegionIdList = ListUtil.buildArrayList(adviserRegionId);
+
+        List<Integer> officialRegionIdList = null;
+        if (officialRegionId != null && officialRegionId > 0)
+            officialRegionIdList = ListUtil.buildArrayList(officialRegionId);
 
         try {
             super.setGetHeader(response);
@@ -2267,9 +2277,9 @@ public class ServiceOrderController extends BaseController {
             if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
                 List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                adviserRegionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
                 for (RegionDTO region : regionList)
-                    regionIdList.add(region.getId());
+                    adviserRegionIdList.add(region.getId());
             } else {
                 Integer newAdviserId = getAdviserId(request);
                 if (newAdviserId != null)
@@ -2288,7 +2298,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
-                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId,
+                        endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
                         serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
 
@@ -2838,7 +2848,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
-                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, userId, userName, applicantName, maraId, adviserId,
+                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, null, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
                         serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
 
@@ -3608,7 +3618,7 @@ public class ServiceOrderController extends BaseController {
         // jxl.write.WritableWorkbook wbe = null;
 
         List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null, null,
-                null, null, null, null, startOfficialApprovalDate, endOfficialApprovalDate, null, null, null, null, null, null,
+                null, null, null, null, startOfficialApprovalDate, endOfficialApprovalDate, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, 0, 0, false, 0, 9999, null, null, null, null, isPay, null, null, null, null, null);
         try {
             super.setGetHeader(response);
@@ -4185,7 +4195,7 @@ public class ServiceOrderController extends BaseController {
                     filename + ".xlsx");
             // 查询要导出的数据
             ListResponse<List<ServiceOrderDTO>> listListResponse = this.listServiceOrder(id, type, state, auditingState, reviewState, urgentState, startMaraApprovalDate, endMaraApprovalDate,
-                    startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate, regionId, userId,
+                    startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate, regionId, null, userId,
                     userName, applicantName, maraId, adviserId, officialId, officialTagId, isNotApproved, serviceId, servicePackageId, schoolId, isSettle, null,
                     null, null, null, pageNum, pageSize, sorter, request, response);
             if (listListResponse.getMessage().equals("No permission !")) {

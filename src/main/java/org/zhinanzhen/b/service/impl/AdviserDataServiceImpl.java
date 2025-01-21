@@ -169,7 +169,7 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 			List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null, null, null,
 					null, null, null, null,
 					null, null, null,
-					null, null, null, null, userId,
+					null, null, null, null, null, userId,
 					null, null, null, null, null, null
 					, null, null, null, null, null
 					, null, null, null,null, 0, 9999, null, null, null, null);

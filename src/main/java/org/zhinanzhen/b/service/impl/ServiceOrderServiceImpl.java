@@ -674,7 +674,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     public int countServiceOrder(String type, List<String> excludeTypeList, String excludeState, List<String> stateList,
                                  String auditingState, List<String> reviewStateList, String urgentState, String startMaraApprovalDate,
                                  String endMaraApprovalDate, String startOfficialApprovalDate, String endOfficialApprovalDate,
-                                 String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate, List<Integer> regionIdList, Integer userId,
+                                 String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate, List<Integer> adviserRegionIdList,List<Integer> officialRegionIdList, Integer userId,
                                  String userName, String applicantName, Integer maraId, Integer adviserId, Integer officialId,
                                  Integer officialTagId, int parentId, int applicantParentId, boolean isNotApproved, Integer serviceId, Integer servicePackageId,
                                  Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation) throws ServiceException {
@@ -691,7 +691,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                 theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                 theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-                theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
+                theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                 officialTagId, parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle, courseId, tradingName, schoolLocation);
     }
 
@@ -700,7 +700,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                   List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
                                                   String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
                                                   String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate,
-                                                  List<Integer> regionIdList, Integer userId, String userName, String applicantName, Integer maraId,
+                                                  List<Integer> adviserRegionIdList, List<Integer> officialRegionIdList, Integer userId, String userName, String applicantName, Integer maraId,
                                                   Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
                                                   boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
                                                   Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation) throws ServiceException {
@@ -731,7 +731,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), regionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
+                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
             if (serviceOrderDoList == null)
                 return null;
@@ -2732,7 +2732,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null, null, null,
                 null, null, null, null,
                 null, null, null,
-                null, null, null, null, userId,
+                null, null, null, null, null, userId,
                 null, null, null, null, null, null
                 , null, null, null, null, null
                 , null, null, null, null, 0, 9999, null, null, null, null);

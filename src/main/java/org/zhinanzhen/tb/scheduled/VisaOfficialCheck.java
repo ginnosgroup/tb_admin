@@ -227,7 +227,7 @@ public class VisaOfficialCheck {
         List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, "OVST", null, null, null, null,
                 null, null, null, null,
                 null, null, StartOfLastMonth,
-                EndOfLastMonth, null, null, null, null,
+                EndOfLastMonth, null, null, null, null, null,
                 null, null, null, null, null, null
                 , null, null, null, null, null
                 , null, null, null, null, 0, 9999, null, null, null, null);
@@ -330,7 +330,7 @@ public class VisaOfficialCheck {
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(startOfLastMonth, endOfLastMonth, null, null, null, null, null,
                     null, null, null, null,
                     null, null, null,
-                    null, null, null, null, null,
+                    null, null, null, null, null, null,
                     null, null, null, null, null, null
                     , null, 0, null, null, null
                     , null, null, null, null, 0, 9999, null, null, null, null);

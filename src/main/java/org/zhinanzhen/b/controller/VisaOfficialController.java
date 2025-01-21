@@ -21,7 +21,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceDO;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
 import org.zhinanzhen.b.service.*;
@@ -50,6 +52,8 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -86,6 +90,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     private WXWorkService wxWorkService;
     @Autowired
     private ServiceDAO serviceDAO;
+    @Autowired
+    private ServicePackagePriceDAO servicePackagePriceDAO;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -417,6 +423,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             HSSFWorkbook wb = new HSSFWorkbook(is);
             HSSFSheet sheet = wb.getSheetAt(0);
             String servicePackageType = "";
+            List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
+            Map<Integer, ServicePackagePriceDO> servicePackagePriceDOMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId, Function.identity()));
             for (VisaOfficialDTO visaDTO : officialList) {
                 HSSFRow row = sheet.createRow(i);
                 row.createCell(0).setCellValue(visaDTO.getId());
@@ -463,27 +471,31 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 }
                 row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
-                row.createCell(11).setCellValue(visaDTO.getAdviserName());
-                row.createCell(12).setCellValue(visaDTO.getOfficialName());
-                row.createCell(13).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
-                row.createCell(14).setCellValue(visaDTO.getTotalPerAmountAUD());
-                row.createCell(15).setCellValue(visaDTO.getTotalAmountCNY());
-                row.createCell(16).setCellValue(visaDTO.getPredictCommissionAmount() + "");
-                row.createCell(17).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
-                row.createCell(18).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
-                row.createCell(19).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
+                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
+                if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
+                    row.createCell(11).setCellValue(servicePackagePriceDO.getMaxPrice());
+                }
+                row.createCell(12).setCellValue(visaDTO.getAdviserName());
+                row.createCell(13).setCellValue(visaDTO.getOfficialName());
+                row.createCell(14).setCellValue(visaDTO.getMaraDTO() == null || visaDTO.getMaraDTO().getName() == null ? "" : visaDTO.getMaraDTO().getName());
+                row.createCell(15).setCellValue(visaDTO.getTotalPerAmountAUD());
+                row.createCell(16).setCellValue(visaDTO.getTotalAmountCNY());
+                row.createCell(17).setCellValue(visaDTO.getPredictCommissionAmount() + "");
+                row.createCell(18).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
+                row.createCell(19).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                row.createCell(20).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
                 double extraAmount = 0.00;
                 extraAmount = visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount();
-                row.createCell(20).setCellValue(extraAmount);
+                row.createCell(21).setCellValue(extraAmount);
                 if (extraAmount == 0) {
-                    row.createCell(21).setCellValue(0);
+                    row.createCell(22).setCellValue(0);
                 } else {
                     double basicAmount = 0.00;
                     basicAmount = visaDTO.getCommissionAmount() - visaDTO.getExtraAmount();
                     if (basicAmount < 0) {
                         basicAmount = 0.00;
                     }
-                    row.createCell(21).setCellValue(basicAmount);
+                    row.createCell(22).setCellValue(basicAmount);
                 }
                 ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                 double additionalAmount2A = 0.00; // 带配偶
@@ -501,22 +513,22 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                         additionalAmountXA = 25.00;
                     }
                 }
-                row.createCell(22).setCellValue(additionalAmountXA);
-                row.createCell(23).setCellValue(additionalAmount2A);
-                row.createCell(24).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
-                row.createCell(25).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
+                row.createCell(23).setCellValue(additionalAmountXA);
+                row.createCell(24).setCellValue(additionalAmount2A);
+                row.createCell(25).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
+                row.createCell(26).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
                 String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
-                row.createCell(26).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
-                row.createCell(27).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
-                row.createCell(28).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
-                row.createCell(29).setCellValue(visaDTO.getRefundAmount());
-                row.createCell(30).setCellValue(visaDTO.getBingDingAmount());
-                row.createCell(31).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                row.createCell(27).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
+                row.createCell(28).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(29).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(30).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(31).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(32).setCellValue(visaDTO.isMerged() ? "是" : "否");
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(32).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
-                row.createCell(33).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
+                row.createCell(33).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(34).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
                 i++;
             }
             wb.write(os);
@@ -900,6 +912,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 
             String url = "";
             if ("0".equals(jsonObject2.get("errcode").toString())) {
+                List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
+                Map<Integer, ServicePackagePriceDO> servicePackagePriceDOMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId, Function.identity()));
                 url = setupExcelJsonObject.get("url").toString();
                 String docId = setupExcelJsonObject.get("docid").toString();
                 SetupExcelDO setupExcelDO = new SetupExcelDO();
@@ -916,7 +930,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                         parmJiLu[0].put("sheet_id", sheetId);
                         for (VisaOfficialDTO visaOfficialDTO : finalServiceOrderList) {
                             ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
-                            JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(visaOfficialDTO, finalCurrency, serviceOrderById);
+                            JSONObject jsonObjectFILEDTITLE = buileExcelJsonObject(visaOfficialDTO, finalCurrency, serviceOrderById, servicePackagePriceDOMap);
                             List<JSONObject> recordsList = new ArrayList<>();
                             JSONObject jsonObjectValue = new JSONObject();
                             jsonObjectValue.put("values", jsonObjectFILEDTITLE);
@@ -950,7 +964,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         return new Response<>(0, "生成Excel成功， excel链接为：");
     }
 
-    private JSONObject buileExcelJsonObject(VisaOfficialDTO so, String currency, ServiceOrderDTO serviceOrderById) throws ServiceException {
+    private JSONObject buileExcelJsonObject(VisaOfficialDTO so, String currency, ServiceOrderDTO serviceOrderById, Map<Integer, ServicePackagePriceDO> servicePackagePriceDOMap) throws ServiceException {
         List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
         JSONObject jsonObjectFILEDTITLE = new JSONObject();
         JSONObject jsonObject = new JSONObject();
@@ -1006,6 +1020,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             servicePackageType = "-" + type;
         }
         buildJsonobjectRow(StringUtil.merge(so.getServiceOrder().getService().getName(), "-", so.getServiceCode(), servicePackageType), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        // 服务定价
+        ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(so.getServiceId());
+        if (servicePackagePriceDO != null) {
+            jsonObjectFILEDTITLE.put("服务定价", so.getTotalAmountCNY());
+        }
         // 所属顾问
         buildJsonobjectRow(so.getAdviserName(), "所属顾问", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 所属文案
@@ -1158,6 +1177,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         excelTitle.add("MARA");
         excelTitle.add("所属文案");
         excelTitle.add("所属顾问");
+        excelTitle.add("服务定价");
         excelTitle.add("服务项目");
         excelTitle.add("收款方式");
         excelTitle.add("创建订单时汇率");
