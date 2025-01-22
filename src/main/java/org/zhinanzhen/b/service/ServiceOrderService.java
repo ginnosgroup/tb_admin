@@ -1,14 +1,11 @@
 package org.zhinanzhen.b.service;
 
-import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public interface ServiceOrderService {
 
@@ -39,7 +36,7 @@ public interface ServiceOrderService {
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
-	int deleteServiceOrderById(int id) throws ServiceException;
+	int deleteServiceOrderById(List<Integer> id) throws ServiceException;
 
 	int finish(int id) throws ServiceException;
 

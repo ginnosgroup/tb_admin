@@ -490,12 +490,16 @@ public class ServiceOrderController extends BaseController {
 //					ServiceOrderApplicantDTO serviceOrderApplicantDto = serviceOrderApplicantList.get(0);
                         serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
                         if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
-                            serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
+                            List<Integer> ids = new ArrayList<>();
+                            ids.add(serviceOrderDto.getId());
+                            serviceOrderService.deleteServiceOrderById(ids);
                             return new Response<Integer>(1, "申请人关联失败.", null);
                         }
                     }
                 } else {
-                    serviceOrderService.deleteServiceOrderById(serviceOrderDto.getId());
+                    List<Integer> ids = new ArrayList<>();
+                    ids.add(serviceOrderDto.getId());
+                    serviceOrderService.deleteServiceOrderById(ids);
                     return new Response<Integer>(1, "申请人参数错误.", null);
                 }
                 for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
@@ -1649,10 +1653,21 @@ public class ServiceOrderController extends BaseController {
 
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
-    public Response<Integer> deleteServiceOrder(@RequestParam(value = "id") int id, HttpServletResponse response) {
+    public Response<Integer> deleteServiceOrder(@RequestParam(value = "ids") String ids, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(id));
+            List<Integer> idList = new ArrayList<>();
+            if (ids != null) {
+                String[] split = ids.split(",");
+                for (String s : split) {
+                    try {
+                        idList.add(Integer.valueOf(s));
+                    } catch (Exception e) {
+                        return new Response<Integer>(1, e.getMessage(), 0);
+                    }
+                }
+            }
+            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(idList));
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), 0);
         }
