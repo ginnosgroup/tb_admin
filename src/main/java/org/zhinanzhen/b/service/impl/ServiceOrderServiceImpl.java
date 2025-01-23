@@ -1902,7 +1902,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 detail += "/类型:" + service.getName() + "(" + service.getCode() + ")";
                 String servicePackageType = "";
                 if (serviceOrderDo.getServicePackageId() != 0 && serviceOrderDo.getServicePackageId() > 0) {
-                    servicePackageType = "-" + servicePackageDao.getById(serviceOrderDo.getServicePackageId()).getType();
+                    ServicePackageDO servicePackageDO = servicePackageDao.getById(serviceOrderDo.getServicePackageId());
+                    String typeTmp = servicePackageDO.getType();
+                    servicePackageType = "-" + typeTmp;
+                    if ("独立技术移民".equalsIgnoreCase(service.getName()) && "EOI".equals(typeTmp)) {
+                        ServiceDO serviceById = serviceDao.getServiceById(servicePackageDO.getServiceId());
+                        servicePackageType += "-" + serviceById.getCode();
+                    }
                 }
                 type += "(" + service.getCode() + servicePackageType + ")";
 
@@ -1912,8 +1918,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         String _type = servicePackageDo.getType();
                         if ("CA".equals(_type))
                             detail += " - 职业评估";
-                        if ("EOI".equals(_type))
+                        if ("EOI".equals(_type)) {
                             detail += " - EOI";
+                            if ("独立技术移民".equalsIgnoreCase(service.getName())) {
+                                ServiceDO serviceById = serviceDao.getServiceById(servicePackageDo.getServiceId());
+                                detail += " - " + serviceById.getCode();
+                            }
+                        }
                         if ("SA".equals(_type))
                             detail += " - 学校申请";
                         if ("VA".equals(_type))
