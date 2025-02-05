@@ -375,10 +375,13 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         List<CommissionInfoDTO> commissionInfoDTOS = null;
         try {
             List<CommissionInfoDO> commissionInfoDOList = commissionOrderDao.getCommissionInfoById(id, adviserId);
-            if (commissionInfoDOList.size() == 0) {
+            if (commissionInfoDOList == null) {
                 ServiceException se = new ServiceException("没有找到相应的佣金记录");
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                 throw se;
+            }
+            if (!commissionInfoDOList.isEmpty() && commissionInfoDOList.size() != commissionInfoDOList.get(0).getInstallment()) {
+                commissionInfoDOList = commissionOrderDao.getCommissionInfoById(id, 0);
             }
             commissionInfoDTOS = buildCommissionInfoDto(commissionInfoDOList);
         } catch (Exception e) {

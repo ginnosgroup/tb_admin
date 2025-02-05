@@ -39,6 +39,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -203,17 +204,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             double totalPerAmount = 0.00;
             double totalAmount = 0.00;
             for (VisaOfficialDO visaOfficialDo : list) {
-                ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(visaOfficialDo.getServiceOrderId());
                 totalPerAmount += visaOfficialDo.getPerAmount();
                 if (visaOfficialDo.getPaymentVoucherImageUrl1() != null || visaOfficialDo.getPaymentVoucherImageUrl2() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl3() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl4() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl5() != null)
                     totalAmount += visaOfficialDo.getAmount();
-//                if (serviceOrderById.getServiceId() == 15) {
-//                    totalPerAmount = visaOfficialDo.getPerAmount();
-//                    totalAmount = visaOfficialDo.getAmount();
-//                }
             }
             visaOfficialDto.setTotalPerAmount(totalPerAmount);
             visaOfficialDto.setTotalAmount(totalAmount);
@@ -1332,9 +1328,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
                     }
                     // 查询职业名称
-                    ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
-                    if (serviceAssessDO != null)
-                        serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+                    if (serviceOrderDto.getServiceAssessId() != null) {
+                        ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+                        if (serviceAssessDO != null)
+                            serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+                    }
                     // 查询服务包类型
                     if (serviceOrderDto.getServicePackageId() > 0) {
                         ServicePackageDO servicePackageDAOById = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
@@ -1395,7 +1393,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaOfficialDto.setRemindDateList(remindDateList);
                     // 计算EOI数量及排序
                     if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
-//            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
                         List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
                         List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
                         visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
@@ -1861,7 +1858,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         String rulerV2 = servicePackagePriceDO.getRulerV2();
         List<ServicePackagePriceV2DTO> servicePackagePriceV2DTOS = JSONArray.parseArray(rulerV2, ServicePackagePriceV2DTO.class);
         for (ServicePackagePriceV2DTO e : servicePackagePriceV2DTOS) {
-            if (e.getAreaId().equals(regionById.getId())) {
+            if (e.getAreaId() != null && e.getAreaId().equals(regionById.getId())) {
                 servicePackagePriceV2DTO = e;
             }
         }
