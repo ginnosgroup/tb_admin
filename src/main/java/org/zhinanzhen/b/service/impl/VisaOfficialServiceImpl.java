@@ -505,6 +505,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (visaDOS.size() > 1) {
                 installment = true;
                 amount = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum(); // 收款总额
+                if (!longTermVisa && (visaOfficialDO.getPerAmount() != amount)) {
+                    visaOfficialDO.setPerAmount(amount);
+                }
                 if (suborder && (isSIV || isNSV)) {
                     if (serviceOrderByParentId.getPerAmount() != visaOfficialDO.getPerAmount()) {
                         visaOfficialDO.setPerAmount(serviceOrderByParentId.getPerAmount());
@@ -929,7 +932,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         visaOfficialDOS.add(byServiceOrderId);
                     }
                 }
-                EOICount = 6;
+//                EOICount = 6;
                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
                 if (visaOfficialDOS.isEmpty()) {
 //                    predictCommissionAmount = ((amount - commissionAmountDTO.getRefund()) / 1.1 - byServiceId.getMaxPrice() - bingdingOrderAmount) + byServiceId.getMaxPrice() / EOICount;
@@ -1312,15 +1315,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 try {
                     // 线程1的任务
                     VisaOfficialDTO visaOfficialDto = null;
-                    try {
-                        visaOfficialDto = putVisaOfficialDTO(visaListDo);
-                    } catch (ServiceException e) {
-                        e.printStackTrace();
-                    }
+                    visaOfficialDto = putVisaOfficialDTO(visaListDo);
 
                     List<Date> remindDateList = new ArrayList<>();
-                    List<RemindDO> remindDoList = remindDao.listRemindByVisaOfficialId(visaOfficialDto.getId(), officialId,
-                            AbleStateEnum.ENABLED.toString());
+                    List<RemindDO> remindDoList = remindDao.listRemindByVisaOfficialId(visaOfficialDto.getId(), officialId,AbleStateEnum.ENABLED.toString());
                     ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDto.getServiceOrderId());
                     ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
                     ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDO.getServiceId());

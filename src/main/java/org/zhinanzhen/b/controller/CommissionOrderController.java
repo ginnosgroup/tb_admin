@@ -155,6 +155,30 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
 			@RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
 			@RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+			@RequestParam(value = "installmentDueDate13", required = false) String installmentDueDate13,
+			@RequestParam(value = "installmentDueDate14", required = false) String installmentDueDate14,
+			@RequestParam(value = "installmentDueDate15", required = false) String installmentDueDate15,
+			@RequestParam(value = "installmentDueDate16", required = false) String installmentDueDate16,
+			@RequestParam(value = "installmentDueDate17", required = false) String installmentDueDate17,
+			@RequestParam(value = "installmentDueDate18", required = false) String installmentDueDate18,
+			@RequestParam(value = "installmentDueDate19", required = false) String installmentDueDate19,
+			@RequestParam(value = "installmentDueDate20", required = false) String installmentDueDate20,
+			@RequestParam(value = "installmentDueDate21", required = false) String installmentDueDate21,
+			@RequestParam(value = "installmentDueDate22", required = false) String installmentDueDate22,
+			@RequestParam(value = "installmentDueDate23", required = false) String installmentDueDate23,
+			@RequestParam(value = "installmentDueDate24", required = false) String installmentDueDate24,
+			@RequestParam(value = "installmentDueDate25", required = false) String installmentDueDate25,
+			@RequestParam(value = "installmentDueDate26", required = false) String installmentDueDate26,
+			@RequestParam(value = "installmentDueDate27", required = false) String installmentDueDate27,
+			@RequestParam(value = "installmentDueDate28", required = false) String installmentDueDate28,
+			@RequestParam(value = "installmentDueDate29", required = false) String installmentDueDate29,
+			@RequestParam(value = "installmentDueDate30", required = false) String installmentDueDate30,
+			@RequestParam(value = "installmentDueDate31", required = false) String installmentDueDate31,
+			@RequestParam(value = "installmentDueDate32", required = false) String installmentDueDate32,
+			@RequestParam(value = "installmentDueDate33", required = false) String installmentDueDate33,
+			@RequestParam(value = "installmentDueDate34", required = false) String installmentDueDate34,
+			@RequestParam(value = "installmentDueDate35", required = false) String installmentDueDate35,
+			@RequestParam(value = "installmentDueDate36", required = false) String installmentDueDate36,
 			@RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 			@RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 			@RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
@@ -368,6 +392,54 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate11)));
 					} else if (installmentNum == 12 && installmentDueDate12 != null) {
 						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate12)));
+					} else if (installmentNum == 13 && installmentDueDate13 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate13)));
+					} else if (installmentNum == 14 && installmentDueDate14 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate14)));
+					} else if (installmentNum == 15 && installmentDueDate15 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate15)));
+					} else if (installmentNum == 16 && installmentDueDate16 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate16)));
+					} else if (installmentNum == 17 && installmentDueDate17 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate17)));
+					} else if (installmentNum == 18 && installmentDueDate18 != null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate18)));
+					} else if (installmentNum == 19 && installmentDueDate19!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate19)));
+					} else if (installmentNum == 20 && installmentDueDate20!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate20)));
+					} else if (installmentNum == 21 && installmentDueDate21!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate21)));
+					} else if (installmentNum == 22 && installmentDueDate22!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate22)));
+					} else if (installmentNum == 23 && installmentDueDate23!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate23)));
+					} else if (installmentNum == 24 && installmentDueDate24!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate24)));
+					} else if (installmentNum == 25 && installmentDueDate25!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate25)));
+					} else if (installmentNum == 26 && installmentDueDate26!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate26)));
+					} else if (installmentNum == 27 && installmentDueDate27!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate27)));
+					} else if (installmentNum == 28 && installmentDueDate28!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate28)));
+					} else if (installmentNum == 29 && installmentDueDate29!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate29)));
+					} else if (installmentNum == 30 && installmentDueDate30!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate30)));
+					} else if (installmentNum == 31 && installmentDueDate31!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate31)));
+					} else if (installmentNum == 32 && installmentDueDate32!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate32)));
+					} else if (installmentNum == 33 && installmentDueDate33!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate33)));
+					} else if (installmentNum == 34 && installmentDueDate34!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate34)));
+					} else if (installmentNum == 35 && installmentDueDate35!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate35)));
+					} else if (installmentNum == 36 && installmentDueDate36!= null) {
+						commissionOrderDto.setInstallmentDueDate(new Date(Long.parseLong(installmentDueDate36)));
 					} else
 						break;
 					commissionOrderDto.setState(ReviewKjStateEnum.PENDING.toString());
@@ -2619,6 +2691,24 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 										 @RequestParam(value = "installmentDueDate16", required = false) String installmentDueDate16,
 										 @RequestParam(value = "installmentDueDate17", required = false) String installmentDueDate17,
 										 @RequestParam(value = "installmentDueDate18", required = false) String installmentDueDate18,
+										 @RequestParam(value = "installmentDueDate19", required = false) String installmentDueDate19,
+										 @RequestParam(value = "installmentDueDate20", required = false) String installmentDueDate20,
+										 @RequestParam(value = "installmentDueDate21", required = false) String installmentDueDate21,
+										 @RequestParam(value = "installmentDueDate22", required = false) String installmentDueDate22,
+										 @RequestParam(value = "installmentDueDate23", required = false) String installmentDueDate23,
+										 @RequestParam(value = "installmentDueDate24", required = false) String installmentDueDate24,
+										 @RequestParam(value = "installmentDueDate25", required = false) String installmentDueDate25,
+										 @RequestParam(value = "installmentDueDate26", required = false) String installmentDueDate26,
+										 @RequestParam(value = "installmentDueDate27", required = false) String installmentDueDate27,
+										 @RequestParam(value = "installmentDueDate28", required = false) String installmentDueDate28,
+										 @RequestParam(value = "installmentDueDate29", required = false) String installmentDueDate29,
+										 @RequestParam(value = "installmentDueDate30", required = false) String installmentDueDate30,
+										 @RequestParam(value = "installmentDueDate31", required = false) String installmentDueDate31,
+										 @RequestParam(value = "installmentDueDate32", required = false) String installmentDueDate32,
+										 @RequestParam(value = "installmentDueDate33", required = false) String installmentDueDate33,
+										 @RequestParam(value = "installmentDueDate34", required = false) String installmentDueDate34,
+										 @RequestParam(value = "installmentDueDate35", required = false) String installmentDueDate35,
+										 @RequestParam(value = "installmentDueDate36", required = false) String installmentDueDate36,
 									  HttpServletRequest request, HttpServletResponse response)
 	{
 		try {
@@ -2645,6 +2735,24 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			if (installmentDueDate16!=null){installmentDueDates.add(Long.parseLong(installmentDueDate16));}
 			if (installmentDueDate17!=null){installmentDueDates.add(Long.parseLong(installmentDueDate17));}
 			if (installmentDueDate18!=null){installmentDueDates.add(Long.parseLong(installmentDueDate18));}
+			if (installmentDueDate19!=null){installmentDueDates.add(Long.parseLong(installmentDueDate19));}
+			if (installmentDueDate20!=null){installmentDueDates.add(Long.parseLong(installmentDueDate20));}
+			if (installmentDueDate21!=null){installmentDueDates.add(Long.parseLong(installmentDueDate21));}
+			if (installmentDueDate22!=null){installmentDueDates.add(Long.parseLong(installmentDueDate22));}
+			if (installmentDueDate23!=null){installmentDueDates.add(Long.parseLong(installmentDueDate23));}
+			if (installmentDueDate24!=null){installmentDueDates.add(Long.parseLong(installmentDueDate24));}
+			if (installmentDueDate25!=null){installmentDueDates.add(Long.parseLong(installmentDueDate25));}
+			if (installmentDueDate26!=null){installmentDueDates.add(Long.parseLong(installmentDueDate26));}
+			if (installmentDueDate27!=null){installmentDueDates.add(Long.parseLong(installmentDueDate27));}
+			if (installmentDueDate28!=null){installmentDueDates.add(Long.parseLong(installmentDueDate28));}
+			if (installmentDueDate29!=null){installmentDueDates.add(Long.parseLong(installmentDueDate29));}
+			if (installmentDueDate30!=null){installmentDueDates.add(Long.parseLong(installmentDueDate30));}
+			if (installmentDueDate31!=null){installmentDueDates.add(Long.parseLong(installmentDueDate31));}
+			if (installmentDueDate32!=null){installmentDueDates.add(Long.parseLong(installmentDueDate32));}
+			if (installmentDueDate33!=null){installmentDueDates.add(Long.parseLong(installmentDueDate33));}
+			if (installmentDueDate34!=null){installmentDueDates.add(Long.parseLong(installmentDueDate34));}
+			if (installmentDueDate35!=null){installmentDueDates.add(Long.parseLong(installmentDueDate35));}
+			if (installmentDueDate36!=null){installmentDueDates.add(Long.parseLong(installmentDueDate36));}
 			if (info.size()>installment){
 				for (CommissionInfoDTO commissionInfoDTO : info) {
 					if (commissionInfoDTO.getInstallmentNum()>installment && commissionInfoDTO.getState().equals("PENDING")){

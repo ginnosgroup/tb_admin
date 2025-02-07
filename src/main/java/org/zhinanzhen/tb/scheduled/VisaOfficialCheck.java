@@ -94,12 +94,12 @@ public class VisaOfficialCheck {
     }
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 3 * * ?")
-    public void visaOfficialCheckEverDay() throws ServiceException {
+    public void visaOfficialCheckEverDay() {
         executor.execute(() -> {
             // 获取当前日期
             LocalDate currentDate = LocalDate.now();
             // 计算三天前的日期
-            LocalDate threeDaysAgo = currentDate.minusDays(3);
+            LocalDate threeDaysAgo = currentDate.minusDays(30);
             LocalDate localDate = currentDate.plusDays(1);
             // 创建一个 DateTimeFormatter 对象来格式化日期
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
