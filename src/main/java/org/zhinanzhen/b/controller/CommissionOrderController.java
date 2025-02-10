@@ -3087,6 +3087,30 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		   @RequestParam(value = "installmentDueDate10", required = false) String installmentDueDate10,
 		   @RequestParam(value = "installmentDueDate11", required = false) String installmentDueDate11,
 		   @RequestParam(value = "installmentDueDate12", required = false) String installmentDueDate12,
+		   @RequestParam(value = "installmentDueDate13", required = false) String installmentDueDate13,
+		   @RequestParam(value = "installmentDueDate14", required = false) String installmentDueDate14,
+		   @RequestParam(value = "installmentDueDate15", required = false) String installmentDueDate15,
+		   @RequestParam(value = "installmentDueDate16", required = false) String installmentDueDate16,
+		   @RequestParam(value = "installmentDueDate17", required = false) String installmentDueDate17,
+		   @RequestParam(value = "installmentDueDate18", required = false) String installmentDueDate18,
+		   @RequestParam(value = "installmentDueDate19", required = false) String installmentDueDate19,
+		   @RequestParam(value = "installmentDueDate20", required = false) String installmentDueDate20,
+		   @RequestParam(value = "installmentDueDate21", required = false) String installmentDueDate21,
+		   @RequestParam(value = "installmentDueDate22", required = false) String installmentDueDate22,
+		   @RequestParam(value = "installmentDueDate23", required = false) String installmentDueDate23,
+		   @RequestParam(value = "installmentDueDate24", required = false) String installmentDueDate24,
+		   @RequestParam(value = "installmentDueDate25", required = false) String installmentDueDate25,
+		   @RequestParam(value = "installmentDueDate26", required = false) String installmentDueDate26,
+		   @RequestParam(value = "installmentDueDate27", required = false) String installmentDueDate27,
+		   @RequestParam(value = "installmentDueDate28", required = false) String installmentDueDate28,
+		   @RequestParam(value = "installmentDueDate29", required = false) String installmentDueDate29,
+		   @RequestParam(value = "installmentDueDate30", required = false) String installmentDueDate30,
+		   @RequestParam(value = "installmentDueDate31", required = false) String installmentDueDate31,
+		   @RequestParam(value = "installmentDueDate32", required = false) String installmentDueDate32,
+		   @RequestParam(value = "installmentDueDate33", required = false) String installmentDueDate33,
+		   @RequestParam(value = "installmentDueDate34", required = false) String installmentDueDate34,
+		   @RequestParam(value = "installmentDueDate35", required = false) String installmentDueDate35,
+		   @RequestParam(value = "installmentDueDate36", required = false) String installmentDueDate36,
 		   @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 		   @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
 		   @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
@@ -3162,7 +3186,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				tempDTO.setVerifyCode(verifyCode);
 			if (StringUtil.isNotEmpty(remarks))
 				tempDTO.setRemarks(remarks);
-			if (installment == null || installment <= 0 || installment > 12)
+			if (installment == null || installment <= 0 || installment > 36)
 				return new Response(1,"installment = " + installment);
 			tempDTO.setInstallment(installment);
 			if (StringUtil.isNotEmpty(installmentDueDate1))
@@ -3189,6 +3213,54 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				tempDTO.setInstallmentDueDate11(new Date(Long.parseLong(installmentDueDate11)));
 			if (StringUtil.isNotEmpty(installmentDueDate12))
 				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate12)));
+			if (StringUtil.isNotEmpty(installmentDueDate13))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate13)));
+			if (StringUtil.isNotEmpty(installmentDueDate14))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate14)));
+			if (StringUtil.isNotEmpty(installmentDueDate15))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate15)));
+			if (StringUtil.isNotEmpty(installmentDueDate16))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate16)));
+			if (StringUtil.isNotEmpty(installmentDueDate17))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate17)));
+			if (StringUtil.isNotEmpty(installmentDueDate18))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate18)));
+			if (StringUtil.isNotEmpty(installmentDueDate19))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate19)));
+			if (StringUtil.isNotEmpty(installmentDueDate20))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate20)));
+			if (StringUtil.isNotEmpty(installmentDueDate21))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate21)));
+			if (StringUtil.isNotEmpty(installmentDueDate22))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate22)));
+			if (StringUtil.isNotEmpty(installmentDueDate23))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate23)));
+			if (StringUtil.isNotEmpty(installmentDueDate24))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate24)));
+			if (StringUtil.isNotEmpty(installmentDueDate25))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate25)));
+			if (StringUtil.isNotEmpty(installmentDueDate26))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate26)));
+			if (StringUtil.isNotEmpty(installmentDueDate27))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate27)));
+			if (StringUtil.isNotEmpty(installmentDueDate28))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate28)));
+			if (StringUtil.isNotEmpty(installmentDueDate29))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate29)));
+			if (StringUtil.isNotEmpty(installmentDueDate30))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate30)));
+			if (StringUtil.isNotEmpty(installmentDueDate31))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate31)));
+			if (StringUtil.isNotEmpty(installmentDueDate32))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate32)));
+			if (StringUtil.isNotEmpty(installmentDueDate33))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate33)));
+			if (StringUtil.isNotEmpty(installmentDueDate34))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate34)));
+			if (StringUtil.isNotEmpty(installmentDueDate35))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate35)));
+			if (StringUtil.isNotEmpty(installmentDueDate36))
+				tempDTO.setInstallmentDueDate12(new Date(Long.parseLong(installmentDueDate36)));
 			
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1)){
 				tempDTO.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
