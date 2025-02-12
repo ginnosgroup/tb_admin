@@ -2692,6 +2692,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (byServiceId != null) {
                 visa.setMaxPrice(byServiceId.getMaxPrice());
             }
+            RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visa.getId());
+            if (refundByVisaId != null) {
+                visa.setRefundDO(refundByVisaId);
+            }
         }
         return list;
     }
