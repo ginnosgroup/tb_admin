@@ -40,6 +40,8 @@ public class RefundDO implements Serializable {
 
 	private int maraId;
 
+	private String maraName;
+
 	private int officialId;
 
 	private String officialName;

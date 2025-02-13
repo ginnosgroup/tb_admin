@@ -2694,6 +2694,40 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
             RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visa.getId());
             if (refundByVisaId != null) {
+                OfficialDO officialById = officialDao.getOfficialById(refundByVisaId.getOfficialId());
+                if (officialById != null) {refundByVisaId.setOfficialName(officialById.getName());}
+                AdviserDO adviserById = adviserDao.getAdviserById(refundByVisaId.getAdviserId());
+                if (adviserById != null) {refundByVisaId.setAdviserName(adviserById.getName());}
+                MaraDO maraById = maraDao.getMaraById(refundByVisaId.getMaraId());
+                if (maraById!= null) {refundByVisaId.setMaraName(maraById.getName());}
+                UserDO userById = userDao.getUserById(refundByVisaId.getUserId());
+                if (userById!= null) {refundByVisaId.setUserName(userById.getName());}
+                int refundDetailId = refundByVisaId.getRefundDetailId();
+                if (refundByVisaId.getRefundDetail() == null) {
+                    switch (refundDetailId) {
+                        case 1:
+                            refundByVisaId.setRefundDetail("业务未成功办理，客户要求退款");
+                            break;
+                        case 2:
+                            refundByVisaId.setRefundDetail("客户取消业务");
+                            break;
+                        case 3:
+                            refundByVisaId.setRefundDetail("押金退款");
+                            break;
+                        case 4:
+                            refundByVisaId.setRefundDetail("referfee");
+                            break;
+                        case 5:
+                            refundByVisaId.setRefundDetail("Subagent结算");
+                            break;
+                        case 6:
+                            refundByVisaId.setRefundDetail("返佣");
+                            break;
+                        case 7:
+                            refundByVisaId.setRefundDetail("客户转错钱,全款退还");
+                            break;
+                    }
+                }
                 visa.setRefundDO(refundByVisaId);
             }
         }
