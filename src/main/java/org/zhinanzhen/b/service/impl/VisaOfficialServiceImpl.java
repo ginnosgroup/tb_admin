@@ -474,6 +474,41 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount());
             }
         }
+        // EOI数量判断
+        int EOICount = 0;
+        List<ServiceOrderDTO> deriveOrder = new ArrayList<>();
+        if (suborder) {
+            deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getApplicantParentId());
+            for (ServiceOrderDTO a : deriveOrder) {
+                ServicePackageDO byId = servicePackageDAO.getById(a.getServicePackageId());
+                if ("EOI".equals(byId.getType())) {
+                    EOICount++;
+                }
+            }
+        }
+        if (EOICount == 0 || !"EOI".equals(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
+            EOICount = 1;
+        }
+        if ("VISA".equals(packType)) {
+            if (suborder) {
+                // 签证600和870计算
+                ServiceDO serviceById = serviceDao.getServiceById(serviceOrderById.getServiceId());
+                if ("600".equals(serviceById.getCode()) || "870".equals(serviceById.getCode())) {
+                    EOICount = 0;
+                    deriveOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
+                    for (ServiceOrderDTO a : deriveOrder) {
+                        ServiceDO serviceByIdTmp = serviceDao.getServiceById(a.getServiceId());
+                        if ("600".equals(serviceByIdTmp.getCode())) {
+                            EOICount++;
+                        }
+                    }
+                }
+            }
+            List<String> arrayList = serviceDao.listLongTimeVisa();
+            if (arrayList.contains(serviceType)) {
+                longTermVisa = true;
+            }
+        }
         OfficialDO officialById = officialDAO.getOfficialById(serviceOrderById.getOfficialId());
         if (region == 1) {
             // 计算extra金额
@@ -491,6 +526,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 }
             } else if (serviceList.contains(serviceType)) {
                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
+                if (serviceType.contains("600")) {
+                    amount = amount / EOICount;
+                }
                 if (byServiceId.getMaxPrice() < amount) {
                     extraAmount = amount - byServiceId.getMaxPrice();
                 }
@@ -556,41 +594,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (monthlist.contains(month)) {
 //                rate = rate + 3;
                 rate = 3;
-            }
-        }
-        // EOI数量判断
-        int EOICount = 0;
-        List<ServiceOrderDTO> deriveOrder = new ArrayList<>();
-        if (suborder) {
-            deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getApplicantParentId());
-            for (ServiceOrderDTO a : deriveOrder) {
-                ServicePackageDO byId = servicePackageDAO.getById(a.getServicePackageId());
-                if ("EOI".equals(byId.getType())) {
-                    EOICount++;
-                }
-            }
-        }
-        if (EOICount == 0 || !"EOI".equals(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
-            EOICount = 1;
-        }
-        if ("VISA".equals(packType)) {
-            if (suborder) {
-                // 签证600和870计算
-                ServiceDO serviceById = serviceDao.getServiceById(serviceOrderById.getServiceId());
-                if ("600".equals(serviceById.getCode()) || "870".equals(serviceById.getCode())) {
-                    EOICount = 0;
-                    deriveOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
-                    for (ServiceOrderDTO a : deriveOrder) {
-                        ServiceDO serviceByIdTmp = serviceDao.getServiceById(a.getServiceId());
-                        if ("600".equals(serviceByIdTmp.getCode())) {
-                            EOICount++;
-                        }
-                    }
-                }
-            }
-            List<String> arrayList = serviceDao.listLongTimeVisa();
-            if (arrayList.contains(serviceType)) {
-                longTermVisa = true;
             }
         }
         ServiceOrderDO serviceParentOrderById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
@@ -895,7 +898,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             servicePackagePriceV2DTO.setRate(servicePackagePriceV2DTO.getRate());
             log.info("当前服务计算规则-----------------------" + servicePackagePriceV2DTO);
             commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
-            servicePackagePriceDO.setAmount(servicePackagePriceV2DTO.getAmount());
+            Double priceV2DTOAmount = servicePackagePriceV2DTO.getAmount();
+            if (priceV2DTOAmount != null) {servicePackagePriceDO.setAmount(servicePackagePriceV2DTO.getAmount());}
             commissionAmountDTO.setRuler(3);
         } else {
             ServicePackagePriceV2DTO servicePackagePriceV2DTO1 = closeJugdNew(serviceOrderById.getOfficialId(), servicePackagePriceDO);

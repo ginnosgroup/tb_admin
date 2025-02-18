@@ -82,6 +82,9 @@ public class VisaOfficialCheck {
     @Value("${weiban.secret}")
     private String weibanSecret;
 
+    @Value("${currentEnvironment}")
+    private String currentEnvironment;
+
     @Resource
     private RestTemplate restTemplate;
 
@@ -437,9 +440,9 @@ public class VisaOfficialCheck {
             System.out.println(orderWeektTopStr);
             System.out.println(careerAssessmentWeektStr);
             System.out.println(eoiWeektStr);
-
-        WXWorkAPI.sendWecomRotMsg(orderWeekCountStr + "\n" + "\n" + orderWeektTopStr + "\n" + "\n" + careerAssessmentWeektStr + "\n" + eoiWeektStr);
-
+            if (!currentEnvironment.equalsIgnoreCase("test")) {
+                WXWorkAPI.sendWecomRotMsg(orderWeekCountStr + "\n" + "\n" + orderWeektTopStr + "\n" + "\n" + careerAssessmentWeektStr + "\n" + eoiWeektStr);
+            }
         });
     }
 
