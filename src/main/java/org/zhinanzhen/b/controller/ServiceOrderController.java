@@ -2300,15 +2300,13 @@ public class ServiceOrderController extends BaseController {
                 if (newAdviserId != null)
                     adviserId = newAdviserId;
             }
-
+            List<ServiceOrderDTO> serviceOrderLists = new ArrayList<>();
             List<ServiceOrderDTO> serviceOrderList = null;
             if (id != null && id > 0) {
-                serviceOrderList = new ArrayList<ServiceOrderDTO>();
                 ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
                 if (serviceOrder != null)
-                    serviceOrderList.add(serviceOrder);
+                    serviceOrderLists.add(serviceOrder);
             }
-            List<ServiceOrderDTO> serviceOrderLists = new ArrayList<>();
             if (id == null) {
                 serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
@@ -2326,7 +2324,6 @@ public class ServiceOrderController extends BaseController {
                     for (ServiceOrderDTO so : serviceOrderList)
                         so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
             }
-
             response.reset();// 清空输出流
             String tableName = "ServiceOrderInformation";
             response.setHeader("Content-disposition",
