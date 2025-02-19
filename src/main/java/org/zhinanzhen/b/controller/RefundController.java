@@ -29,6 +29,7 @@ import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -45,6 +46,7 @@ import jxl.WorkbookSettings;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 
@@ -80,6 +82,15 @@ public class RefundController extends BaseController {
 
 	@Resource
 	private OfficialService officialService;
+
+	@Resource
+	private ApplicantService applicantService;
+
+	@Resource
+	private ServiceService serviceService;
+
+	@Resource
+	private AdviserService adviserService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -505,17 +516,34 @@ public class RefundController extends BaseController {
 						});
 					}
 				}
+				// 发送邮件给文案和jiaheng
+				ServiceDTO serviceById = serviceService.getServiceById(visaById.getServiceId());
+				ApplicantDTO applicantDTO = applicantService.getById(visaById.getApplicantId());
 				OfficialDTO officialById = officialService.getOfficialById(visaById.getOfficialId());
-				String visaOfficailIds = visaOfficailId.get();
-				String substring = visaOfficailIds.substring(1);
+				AdviserDTO adviserById = adviserService.getAdviserById(visaById.getAdviserId());
+//				String visaOfficailIds = visaOfficailId.get();
+//				String substring = visaOfficailIds.substring(1);
 				String email = "jiaheng.xu@zhinanzhen.org";
-				String title = "服务订单：" + visaById.getServiceOrderId()  + "退款信息：";
-				String message = "<h1>订单退款信息</h1>"
-						+ "<table border='1'>"
-						+ "<tr><th>退款ID</th><th>佣金订单ID</th><th>服务订单ID</th><th>文案佣金订单ID</th><th>顾问名称</th></tr>"
-						+ "<tr><td>" + refundDto.getId() + "</td><td>" + visaById.getId() + "</td><td>" + visaById.getServiceOrderId() + "</td><td>" + substring + "</td><td>" + officialById.getName() +"</td></tr>"
-						+ "</table>";
-				SendEmailUtil.send(email, title, message);
+				String officialEmail = officialById.getEmail();
+//				String title = "服务订单：" + visaById.getServiceOrderId()  + "退款信息：";
+				String title = "你的订单ID：" + visaById.getServiceOrderId()  + "产生退款";
+//				String message = "<h1>订单退款信息</h1>"
+//						+ "<table border='1'>"
+//						+ "<tr><th>退款ID</th><th>佣金订单ID</th><th>服务订单ID</th><th>文案佣金订单ID</th><th>文案名称</th></tr>"
+//						+ "<tr><td>" + refundDto.getId() + "</td><td>" + visaById.getId() + "</td><td>" + visaById.getServiceOrderId() + "</td><td>" + substring + "</td><td>" + officialById.getName() +"</td></tr>"
+//						+ "</table>";
+				// 构建 HTML 格式的邮件正文
+				StringBuilder emailBody = new StringBuilder();
+				emailBody.append("<p>亲爱的").append(officialById.getName()).append(" 你的订单产生退款：</p>");
+				emailBody.append("<p>订单号：").append(visaById.getServiceOrderId()).append("</p>");
+				emailBody.append("<p>申请人名称：").append(applicantDTO.getFirstname()).append(" ").append(applicantDTO.getSurname()).append("</p>");
+				emailBody.append("<p>服务项目：").append(serviceById.getName()).append("-").append(serviceById.getCode()).append("</p>");
+				emailBody.append("<p>顾问：").append(adviserById.getName()).append("</p>");
+				emailBody.append("<p>文案：").append(officialById.getName()).append("</p>");
+				emailBody.append("<p>申请退款金额：$").append(refundById.getAmount()).append("</p>");
+				emailBody.append("<p>温馨提示：退款影响结算请与顾问及时沟通</p>");
+				SendEmailUtil.send(officialEmail, title, emailBody.toString());
+				SendEmailUtil.send(email, title, emailBody.toString());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
