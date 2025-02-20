@@ -3,9 +3,11 @@ package org.zhinanzhen.b.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -44,6 +46,9 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 	@Resource
 	ServiceDAO serviceDao;
 
+	@Value("${defaultExchangeRate}")
+	private double quarterExchangeRate;
+
 	@Override
 	public int addRefund(RefundDTO refundDto) throws ServiceException {
 		if (ObjectUtil.isNull(refundDto)) {
@@ -70,6 +75,18 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 						.getCommissionOrderById(refundDo.getCommissionOrderId());
 				if (commissionOrderListDo != null)
 					refundDo.setCourseId(commissionOrderListDo.getCourseId());
+			}
+			// 更新该退款单的实付金额
+			VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
+			List<VisaDO> visaDOS = visaDao.listVisaByServiceOrderId(visaById.getServiceOrderId());
+			if (visaDOS != null) {
+				double refundDoAmount = refundDo.getAmount();
+				double sum = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+				if ("CNY".equalsIgnoreCase(visaDOS.get(0).getCurrency())) {
+					sum = sum / quarterExchangeRate;
+					refundDoAmount = refundDoAmount / quarterExchangeRate;
+				}
+				refundDo.setReceived(sum - refundDoAmount);
 			}
 			if (refundDao.addRefund(refundDo) > 0) {
 				refundDto.setId(refundDo.getId());
