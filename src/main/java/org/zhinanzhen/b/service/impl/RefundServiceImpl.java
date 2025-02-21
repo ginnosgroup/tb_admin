@@ -77,16 +77,18 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 					refundDo.setCourseId(commissionOrderListDo.getCourseId());
 			}
 			// 更新该退款单的实付金额
-			VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
-			List<VisaDO> visaDOS = visaDao.listVisaByServiceOrderId(visaById.getServiceOrderId());
-			if (visaDOS != null) {
-				double refundDoAmount = refundDo.getAmount();
-				double sum = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
-				if ("CNY".equalsIgnoreCase(visaDOS.get(0).getCurrency())) {
-					sum = sum / quarterExchangeRate;
-					refundDoAmount = refundDoAmount / quarterExchangeRate;
+			if ("VISA".equalsIgnoreCase(refundDto.getType())) {
+				VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
+				List<VisaDO> visaDOS = visaDao.listVisaByServiceOrderId(visaById.getServiceOrderId());
+				if (visaDOS != null) {
+					double refundDoAmount = refundDo.getAmount();
+					double sum = visaDOS.stream().mapToDouble(VisaDO::getAmount).sum();
+					if ("CNY".equalsIgnoreCase(visaDOS.get(0).getCurrency())) {
+						sum = sum / quarterExchangeRate;
+						refundDoAmount = refundDoAmount / quarterExchangeRate;
+					}
+					refundDo.setReceived(sum - refundDoAmount);
 				}
-				refundDo.setReceived(sum - refundDoAmount);
 			}
 			if (refundDao.addRefund(refundDo) > 0) {
 				refundDto.setId(refundDo.getId());
