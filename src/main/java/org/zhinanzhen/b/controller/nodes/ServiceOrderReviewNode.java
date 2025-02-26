@@ -54,7 +54,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 
 	// 文案审核白名单
 	private static Map<Integer, List<String>> wOfficialReviewPermissions = buildPermissions("1000005:1000002;" +
-			"1000005:1000003;" + "1000005:1000006;" + "1000005:1000039;" + "1000005:1000040;" +  "1000005:1000041;" + "1000005:1000104;");
+			"1000005:1000003;" + "1000005:1000006;" + "1000005:1000039;" + "1000005:1000040;" + "1000005:1000041;" + "1000005:1000104;" + "1000005:1000105;");
 
 	private static Map<Integer, List<String>> buildPermissions(String value) {
 		Map<Integer, List<String>> map = MapUtil.newHashMap();

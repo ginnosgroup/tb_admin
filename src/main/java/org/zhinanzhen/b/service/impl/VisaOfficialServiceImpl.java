@@ -498,7 +498,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     deriveOrder = serviceOrderDao.getZiOrder(serviceOrderById.getApplicantParentId());
                     for (ServiceOrderDTO a : deriveOrder) {
                         ServiceDO serviceByIdTmp = serviceDao.getServiceById(a.getServiceId());
-                        if ("600".equals(serviceByIdTmp.getCode())) {
+                        if ("600".equals(serviceByIdTmp.getCode()) || "870".equals(serviceById.getCode())) {
                             EOICount++;
                         }
                     }
