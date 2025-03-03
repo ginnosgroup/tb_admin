@@ -2316,9 +2316,9 @@ public class ServiceOrderController extends BaseController {
                         serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
 
                 for (ServiceOrderDTO serviceOrderDTO : serviceOrderList) {
-                    if (serviceOrderDTO.getState().equalsIgnoreCase("COMPLETE") || serviceOrderDTO.getState().equalsIgnoreCase("PAID")) {
+//                    if (serviceOrderDTO.getState().equalsIgnoreCase("COMPLETE") || serviceOrderDTO.getState().equalsIgnoreCase("PAID")) {
                         serviceOrderLists.add(serviceOrderDTO);
-                    }
+//                    }
                 }
                 if (newOfficialId != null)
                     for (ServiceOrderDTO so : serviceOrderList)

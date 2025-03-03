@@ -77,7 +77,7 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 					refundDo.setCourseId(commissionOrderListDo.getCourseId());
 			}
 			// 更新该退款单的实付金额
-			if ("VISA".equalsIgnoreCase(refundDto.getType())) {
+			if (refundDo.getVisaId() != null && "VISA".equalsIgnoreCase(refundDto.getType())) {
 				VisaDO visaById = visaDao.getVisaById(refundDo.getVisaId());
 				List<VisaDO> visaDOS = visaDao.listVisaByServiceOrderId(visaById.getServiceOrderId());
 				if (visaDOS != null) {
