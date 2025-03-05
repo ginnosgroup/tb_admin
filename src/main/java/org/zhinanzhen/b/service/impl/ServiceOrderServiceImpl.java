@@ -384,13 +384,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         }
                     }
                     int stateValue = stateDecision(serviceOrderDto.getState());
-//                    if (stateValue < 1) {
-//                        if (!code.contains("500")) {
-//                            if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
-//                                return -1;
-//                            }
-//                        }
-//                    }
+                    if (stateValue < 1) {
+                        if (!code.contains("500")) {
+                            if ((serviceOrderByIdTmp.getReceivable() * 0.6 - costPrince) < 0) {
+                                return -1;
+                            }
+                        }
+                    }
 //                    serviceOrderDo.setCurrency(serviceOrderByIdTmp.getCurrency());
                     serviceOrderDo.setReceived(servicePackagePriceDO.getCostPrince());
                     serviceOrderDo.setReceivable(servicePackagePriceDO.getCostPrince());
