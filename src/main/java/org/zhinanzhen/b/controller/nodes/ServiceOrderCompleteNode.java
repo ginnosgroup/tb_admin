@@ -194,7 +194,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                     return SUSPEND_NODE;
                 }
             }
-            if (serviceOrderDto.getApplicantParentId() > 0 && (ObjectUtil.isNotNull(officialById) && 1000034 == officialById.getRegionId())) {
+            if (!"OVST".equalsIgnoreCase(serviceOrderDto.getType()) && serviceOrderDto.getApplicantParentId() > 0 && (ObjectUtil.isNotNull(officialById) && 1000034 == officialById.getRegionId())) {
                 ServiceOrderDTO serviceOrderParent = serviceOrderCompleteNode.serviceOrderService.getServiceOrderById(serviceOrderDto.getApplicantParentId());
                 isSiv = "SIV".equalsIgnoreCase(serviceOrderParent.getType());
                 if (isSiv) {
