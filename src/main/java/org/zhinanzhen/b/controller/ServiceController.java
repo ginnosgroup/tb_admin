@@ -79,13 +79,14 @@ public class ServiceController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<ServiceDTO>> listService(@RequestParam(value = "name", required = false) String name,
+													  @RequestParam(value = "isbuiltOrder", required = false) boolean isbuiltOrder,
 			@RequestParam(value = "isZx", required = false) String isZx, @RequestParam(value = "pageNum") int pageNum,
 			@RequestParam(value = "pageSize") int pageSize, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			return new ListResponse<List<ServiceDTO>>(true, pageSize,
 					serviceService.countService(name, isZx != null && "true".equalsIgnoreCase(isZx)),
-					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), pageNum, pageSize),
+					serviceService.listService(name, isZx != null && "true".equalsIgnoreCase(isZx), isbuiltOrder, pageNum, pageSize),
 					"");
 		} catch (ServiceException e) {
 			return new ListResponse<List<ServiceDTO>>(false, pageSize, 0, null, e.getMessage());

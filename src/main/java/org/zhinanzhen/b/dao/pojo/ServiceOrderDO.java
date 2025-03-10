@@ -197,4 +197,5 @@ public class ServiceOrderDO implements Serializable {
 
 	private String transferRemarks; // 中转备注
 
+	private Integer serviceAssessCategoryId; // 职业二级分类id
 }

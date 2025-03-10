@@ -71,7 +71,7 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public List<ServiceDTO> listService(String name, boolean isZx, int pageNum, int pageSize) throws ServiceException {
+	public List<ServiceDTO> listService(String name, boolean isZx, boolean isbuiltOrder, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
@@ -83,6 +83,12 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 			if (serviceDoList == null)
 				return null;
 			for (ServiceDO serviceDo : serviceDoList) {
+				if (isbuiltOrder) {
+					String code = serviceDo.getCode();
+					if ("485 PSW".equalsIgnoreCase(code) || "485 Graduate work".equalsIgnoreCase(code)) {
+						continue;
+					}
+				}
 				ServiceDTO serviceDto = mapper.map(serviceDo, ServiceDTO.class);
 				List<ServicePackagePriceDO> servicePackagePriceDoList = servicePackagePriceDao.list(serviceDto.getId(),
 						0, 0, 999);

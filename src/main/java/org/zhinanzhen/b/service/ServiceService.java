@@ -14,7 +14,7 @@ public interface ServiceService {
 
 	public int countService(String name, boolean isZx) throws ServiceException;
 
-	public List<ServiceDTO> listService(String name, boolean isZx, int pageNum, int pageSize) throws ServiceException;
+	public List<ServiceDTO> listService(String name, boolean isZx, boolean isbuiltOrder, int pageNum, int pageSize) throws ServiceException;
 
 	public int countAllService(String name) throws ServiceException;
 

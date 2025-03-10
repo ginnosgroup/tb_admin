@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.tb.controller.Response;
@@ -42,10 +43,26 @@ public class ServiceAssessController {
         return new Response(1,"fail");
     }
 
+    @RequestMapping(value = "/addCategory",method = RequestMethod.POST)
+    @ResponseBody
+    public Response addCategory(@RequestParam(value = "category") String category,
+                                @RequestParam(value = "fixPrice") String fixPrice) throws ServiceException {
+        if (serviceAssessService.addCategory(category, fixPrice) > 0 )
+            return new Response(0,"success");
+        return new Response(1,"fail");
+    }
+
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     @ResponseBody
     public Response list(@RequestParam(value = "serviceId",required = false) Integer  serviceId){
         List<ServiceAssessDO> lists = serviceAssessService.list(serviceId);
+        return new Response(0,lists);
+    }
+
+    @RequestMapping(value = "/listCategory",method = RequestMethod.GET)
+    @ResponseBody
+    public Response listCategory(@RequestParam(value = "level",required = false) Integer  level){
+        List<ServiceCategory> lists = serviceAssessService.listCategory(level);
         return new Response(0,lists);
     }
 
@@ -58,10 +75,28 @@ public class ServiceAssessController {
         return new Response(1,"fail");
     }
 
+    @RequestMapping(value = "/updateCategory",method = RequestMethod.POST)
+    @ResponseBody
+    public  Response updateCategory(@RequestParam(value = "category") String category,
+                                    @RequestParam(value = "fixPrice") String fixPrice,
+                            @RequestParam(value = "id")Integer id){
+        if (serviceAssessService.updateCategory(id,category, fixPrice) > 0 )
+            return new Response(0,"success");
+        return new Response(1,"fail");
+    }
+
     @RequestMapping(value = "delete", method = RequestMethod.POST)
     @ResponseBody
     public Response delete(@RequestParam(value = "id")Integer id){
         if (serviceAssessService.delete(id) > 0 )
+            return new Response(0,"success");
+        return new Response(1,"fail");
+    }
+
+    @RequestMapping(value = "deleteCategory", method = RequestMethod.POST)
+    @ResponseBody
+    public Response deleteCategory(@RequestParam(value = "id")Integer id){
+        if (serviceAssessService.deleteCategory(id) > 0 )
             return new Response(0,"success");
         return new Response(1,"fail");
     }

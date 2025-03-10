@@ -2,6 +2,7 @@ package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 
 import java.util.List;
 
@@ -25,4 +26,19 @@ public interface ServiceAssessDao {
     ServiceAssessDO seleteAssessById(@Param("id") String id);
 
     List<ServiceAssessDO> seleteAssessByServiceId(@Param("serviceId") String serviceId);
+
+    int addCategory(@Param("category") String category, @Param("fixPrice") String fixPrice);
+
+    List<ServiceCategory> listCategory(@Param("level") Integer level);
+
+    int updateCategory(@Param("id") Integer id, @Param("category") String category, @Param("fixPrice") String fixPrice);
+
+    int deleteCategory(@Param("id") Integer id);
+
+    int addServiceAssessCategory(@Param("serviceAssessCategoryId") Integer serviceAssessCategoryId, @Param("serviceAssessId") String serviceAssessId,
+            @Param("serviceOrderId") Integer serviceOrderId);
+
+
+    String getCategoryIdByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
 }

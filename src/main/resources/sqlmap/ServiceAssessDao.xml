@@ -2,6 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.ServiceAssessDao">
+    <delete id="deleteCategory">
+        DELETE FROM `b_service_category` where id = #{id}
+    </delete>
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
         select id,name,service_id as serviceId from `b_service_assess` where  is_delete = 0
         <if test=" serviceId != null ">
@@ -14,6 +17,13 @@
         insert into `b_service_assess` (name,gmt_create,gmt_modify,service_id,is_delete) values (#{name},now(),now(),#{serviceId},false)
     </insert>
 
+    <insert id="addCategory">
+        insert into `b_service_category` (gmt_create, category, fix_price) values (now(), #{category}, #{fixPrice})
+    </insert>
+    <insert id="addServiceAssessCategory">
+        INSERT INTO `b_assess_category` (gmt_create, service_assess_category_id, service_assess_id, service_order_id) VALUES (now(), #{serviceAssessCategoryId}, #{serviceAssessId}, #{serviceOrderId})
+    </insert>
+
     <update id="update">
         update `b_service_assess` set name = #{name} , gmt_modify = now() where id = #{id};
     </update>
@@ -22,11 +32,25 @@
         update `b_service_assess` set is_delete =  true , gmt_modify = now() where id = #{id};
     </update>
 
+    <update id="updateCategory">
+        update `b_service_category` set category = #{category}, fix_price = #{fixPrice} where id = #{id};
+    </update>
+
     <select id="seleteAssessById" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
         select  id,name,service_id as serviceId from `b_service_assess` where id = #{id} and is_delete = false;
     </select>
 
     <select id="seleteAssessByServiceId" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
         select id,name,service_id AS serviceId from `b_service_assess` where service_id  = #{serviceId} and is_delete = false;
+    </select>
+    <select id="listCategory" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
+        select id,category,fix_price as fixPrice from `b_service_category` where level >= #{level} and is_delete = false;
+    </select>
+    <select id="getCategoryIdByServiceOrderId" resultType="java.lang.Integer">
+        SELECT bac.category FROM b_service_category bac LEFT JOIN b_service_category bsc ON bac.service_assess_category_id = bsc.id
+        where bac.is_delete = 0
+        <if test=" serviceOrderId != null ">
+            and bsc.serviceOrder_Id = #{serviceOrderId}
+        </if>
     </select>
 </mapper>

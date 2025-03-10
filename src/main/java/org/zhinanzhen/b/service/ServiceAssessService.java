@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service;
 
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public interface ServiceAssessService {
 
     int add(String name, Integer serviceId);
 
+    int addCategory(String category, String fixPrice);
+
     int update(Integer id, String name);
 
     int delete(Integer id);
@@ -24,4 +27,11 @@ public interface ServiceAssessService {
     ServiceAssessDO seleteAssessById(String serviceAssessId);
 
     List<ServiceAssessDO> seleteAssessByServiceId(String serviceId);
+
+    List<ServiceCategory> listCategory(Integer level);
+
+    int updateCategory(Integer id, String category, String fixPrice);
+
+    int deleteCategory(Integer id);
+
 }

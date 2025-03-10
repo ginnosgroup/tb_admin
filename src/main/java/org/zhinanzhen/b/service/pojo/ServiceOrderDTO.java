@@ -286,4 +286,6 @@ public class ServiceOrderDTO {
 	private Double refundAmount; // 退款金额
 
 	private Double bingDingAmount; // 绑定金额
+
+	private Integer serviceAssessCategoryId; // 职业二级分类id
 }

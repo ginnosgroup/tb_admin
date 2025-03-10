@@ -251,6 +251,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
+                // 添加职评中间表
+                Integer serviceAssessCategoryId = serviceOrderDo.getServiceAssessCategoryId();
+                if (serviceAssessCategoryId != null || ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServiceAssessId() != null)) {
+                    serviceAssessDao.addServiceAssessCategory(serviceAssessCategoryId, serviceOrderDo.getServiceAssessId(), serviceOrderDo.getId());
+                }
                 if (ObjectUtil.isNotNull(serviceOrderByIdTmp)) {
                     AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderByIdTmp.getAdviserId());
                     ApplicantDTO applicantDto = null;
@@ -1070,8 +1075,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
         // 查询职业名称
         ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
-        if (serviceAssessDO != null)
+        if (serviceAssessDO != null) {
             serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+            if (serviceOrderDto.getServiceAssessCategoryId() != null) {
+                String categoryName =  serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+                if (StringUtil.isNotEmpty(categoryName)) {
+                    serviceAssessDO.setCategoryName(categoryName);
+                }
+            }
+        }
 
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
         if (mailRemindDOS.size() > 0) {
