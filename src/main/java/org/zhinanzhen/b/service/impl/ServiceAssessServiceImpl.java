@@ -59,8 +59,8 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     }
 
     @Override
-    public List<ServiceCategory> listCategory(Integer level) {
-        return serviceAssessDao.listCategory(level);
+    public List<ServiceCategory> listCategory() {
+        return serviceAssessDao.listCategory();
     }
 
     @Override

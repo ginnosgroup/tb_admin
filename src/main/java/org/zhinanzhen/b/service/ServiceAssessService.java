@@ -28,7 +28,7 @@ public interface ServiceAssessService {
 
     List<ServiceAssessDO> seleteAssessByServiceId(String serviceId);
 
-    List<ServiceCategory> listCategory(Integer level);
+    List<ServiceCategory> listCategory();
 
     int updateCategory(Integer id, String category, String fixPrice);
 

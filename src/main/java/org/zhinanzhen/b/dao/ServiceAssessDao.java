@@ -29,7 +29,7 @@ public interface ServiceAssessDao {
 
     int addCategory(@Param("category") String category, @Param("fixPrice") String fixPrice);
 
-    List<ServiceCategory> listCategory(@Param("level") Integer level);
+    List<ServiceCategory> listCategory();
 
     int updateCategory(@Param("id") Integer id, @Param("category") String category, @Param("fixPrice") String fixPrice);
 

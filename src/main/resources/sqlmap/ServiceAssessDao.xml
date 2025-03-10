@@ -44,7 +44,7 @@
         select id,name,service_id AS serviceId from `b_service_assess` where service_id  = #{serviceId} and is_delete = false;
     </select>
     <select id="listCategory" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
-        select id,category,fix_price as fixPrice from `b_service_category` where level >= #{level} and is_delete = false;
+        select id,category,fix_price as fixPrice from `b_service_category` where is_delete = false;
     </select>
     <select id="getCategoryIdByServiceOrderId" resultType="java.lang.Integer">
         SELECT bac.category FROM b_service_category bac LEFT JOIN b_service_category bsc ON bac.service_assess_category_id = bsc.id

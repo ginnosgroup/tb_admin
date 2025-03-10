@@ -61,8 +61,8 @@ public class ServiceAssessController {
 
     @RequestMapping(value = "/listCategory",method = RequestMethod.GET)
     @ResponseBody
-    public Response listCategory(@RequestParam(value = "level",required = false) Integer  level){
-        List<ServiceCategory> lists = serviceAssessService.listCategory(level);
+    public Response listCategory(){
+        List<ServiceCategory> lists = serviceAssessService.listCategory();
         return new Response(0,lists);
     }
 
