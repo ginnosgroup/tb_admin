@@ -544,11 +544,15 @@ public class ServiceOrderController extends BaseController {
                         for (String servicePackageId : servicePackageIdsEOIList) {
                             int id = 0;
                             String[] split = null;
-                            if (servicePackageId.contains("-")) {
-                                split = servicePackageId.split("-");
-                            }
-                            if (split != null && split.length > 1) {
-                                id = StringUtil.toInt(split[0]);
+                            if (!"SIV".equalsIgnoreCase(type)) {
+                                if (servicePackageId.contains("-")) {
+                                    split = servicePackageId.split("-");
+                                }
+                                if (split != null && split.length > 1) {
+                                    id = StringUtil.toInt(split[0]);
+                                }
+                            } else {
+                                id = StringUtil.toInt(servicePackageId);
                             }
                             ServicePackageDTO servicePackageDTO = servicePackageService.getById(id);
                             if (servicePackageDTO == null) {
@@ -793,6 +797,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
                                                 @RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
                                                 @RequestParam(value = "servicePackageIdsEOI", required = false) String servicePackageIdsEOI,
+                                                @RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
                                                 @RequestParam(value = "maraId", required = false) String maraId,
                                                 @RequestParam(value = "adviserId", required = false) String adviserId,
                                                 @RequestParam(value = "officialId", required = false) String officialId,
@@ -838,36 +843,17 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds);
             if (res != null && res.getCode() == 0) {
-				List<ServiceOrderDTO> cList = new ArrayList<>();
-				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
-						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())) {
+                List<ServiceOrderDTO> cList = new ArrayList<>();
+                if (StringUtil.isNotEmpty(servicePackageIds) && 25 == serviceOrderDto.getServiceId()) {
                     cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
                             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                             null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
-                } else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
-                    cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
-                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                            null, 0, id, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
-                }
-				cList.forEach(cServiceOrderDto -> {
-					Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType, peopleRemarks,
-							serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
-							receiveTypeId, receiveDate, receivable, discount, received, installment,
-							paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
-							paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-							invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
-							invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
-							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
-							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
-							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks);
-					if (cRes.getCode() > 0)
-						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
-				});
-                if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) && StringUtil.isNotEmpty(servicePackageIdsEOI)) {
-                    List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+                    List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
+                    if (servicePackageIdsEOIs.size() > 6) {
+                        return new Response<Integer>(1, "单个打包签证EOI数量最多允许6个，请核实", null);
+                    }
                     ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
                     Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
                     servicePackageIdsEOIs.forEach(e->{
@@ -880,7 +866,13 @@ public class ServiceOrderController extends BaseController {
                                 if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
                                     serviceOrderDTO.setIsInsuranceCompany(null);
                                 }
-                                serviceOrderService.addServiceOrder(serviceOrderDTO);
+                                int i1 = serviceOrderService.addServiceOrder(serviceOrderDTO);
+                                if (i1 > 0) {
+                                    ServiceOrderApplicantDTO serviceOrderApplicantDO = new ServiceOrderApplicantDTO();
+                                    serviceOrderApplicantDO.setApplicantId(serviceOrderDTO.getApplicantId());
+                                    serviceOrderApplicantDO.setServiceOrderId(serviceOrderDTO.getId());
+                                    serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDO);
+                                }
                             } catch (ServiceException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -888,6 +880,55 @@ public class ServiceOrderController extends BaseController {
                     });
                     serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
                     serviceOrderService.updateServiceOrder(serviceOrderDto);
+                } else {
+                    if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+                            || "NSV".equalsIgnoreCase(serviceOrderDto.getType())) {
+                        cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                                null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+                    } else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
+                        cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                                null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                                null, 0, id, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+                    }
+                    cList.forEach(cServiceOrderDto -> {
+                        Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType, peopleRemarks,
+                                serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
+                                receiveTypeId, receiveDate, receivable, discount, received, installment,
+                                paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
+                                paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
+                                invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
+                                invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
+                                perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
+                                null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
+                                isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
+                                schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds);
+                        if (cRes.getCode() > 0)
+                            res.setMessage(res.getMessage() + ";" + cRes.getMessage());
+                    });
+                    if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) && StringUtil.isNotEmpty(servicePackageIdsEOI)) {
+                        List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+                        ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
+                        Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
+                        servicePackageIdsEOIs.forEach(e->{
+                            int i = Integer.parseInt(e);
+                            if (ObjectUtil.isNull(collect.get(i))) {
+                                serviceOrderDTO.setServicePackageId(Integer.parseInt(e));
+                                serviceOrderDTO.setState("PENDING");
+                                serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
+                                try {
+                                    if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
+                                        serviceOrderDTO.setIsInsuranceCompany(null);
+                                    }
+                                    serviceOrderService.addServiceOrder(serviceOrderDTO);
+                                } catch (ServiceException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                            }
+                        });
+                        serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
+                        serviceOrderService.updateServiceOrder(serviceOrderDto);
+                    }
                 }
             }
             return res;
@@ -966,7 +1007,7 @@ public class ServiceOrderController extends BaseController {
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
-                                        String isTransfer, String transferRemarks) {
+                                        String isTransfer, String transferRemarks, String servicePackageIds) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1059,8 +1100,9 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setBonus(Double.parseDouble(bonus));
             if (StringUtil.isNotEmpty(userId))
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
-            if (StringUtil.isNotEmpty(applicantId))
+            if (StringUtil.isEmpty(servicePackageIds) && StringUtil.isNotEmpty(applicantId)) {
                 serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
+            }
             if (StringUtil.isNotEmpty(maraId) && !"0".equals(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
