@@ -441,9 +441,11 @@ public class ServiceOrderController extends BaseController {
                 if ((!type.equalsIgnoreCase("SIV") && !type.equalsIgnoreCase("NSV"))
                         && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
                     return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
+
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
                 if (serviceAssessCategoryId != null) {
-                    serviceAssessCategorysplit = serviceAssessCategoryId.split(",");
+                    serviceAssessCategorysplit = serviceAssessId.split(",");
+                    serviceOrderDto.setServiceAssessId("0");
                     if (serviceAssessCategorysplit.length == 1) {
                         serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategorysplit[0]));
                     }
@@ -594,9 +596,10 @@ public class ServiceOrderController extends BaseController {
                             break;
                     } else if (serviceAssessCategorysplit != null && serviceAssessCategorysplit.length > 1) {
                         for (String s : serviceAssessCategorysplit) {
-                            serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(s));
-                            serviceOrderService.addServiceOrder(serviceOrderDto);
-                            if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                            serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
+                            serviceOrderDto.setServiceAssessId(s);
+                            int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                            if (i > 0 && adminUserLoginInfo != null) {
                                 serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                         ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
                                 serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
