@@ -45,9 +45,9 @@ public class ServiceAssessController {
 
     @RequestMapping(value = "/addCategory",method = RequestMethod.POST)
     @ResponseBody
-    public Response addCategory(@RequestParam(value = "category") String category,
+    public Response addCategory(@RequestParam(value = "name") String name,
                                 @RequestParam(value = "fixPrice") String fixPrice) throws ServiceException {
-        if (serviceAssessService.addCategory(category, fixPrice) > 0 )
+        if (serviceAssessService.addCategory(name, fixPrice) > 0 )
             return new Response(0,"success");
         return new Response(1,"fail");
     }
@@ -77,10 +77,10 @@ public class ServiceAssessController {
 
     @RequestMapping(value = "/updateCategory",method = RequestMethod.POST)
     @ResponseBody
-    public  Response updateCategory(@RequestParam(value = "category") String category,
+    public  Response updateCategory(@RequestParam(value = "name") String name,
                                     @RequestParam(value = "fixPrice") String fixPrice,
                             @RequestParam(value = "id")Integer id){
-        if (serviceAssessService.updateCategory(id,category, fixPrice) > 0 )
+        if (serviceAssessService.updateCategory(id,name, fixPrice) > 0 )
             return new Response(0,"success");
         return new Response(1,"fail");
     }

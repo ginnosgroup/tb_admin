@@ -34,8 +34,8 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     }
 
     @Override
-    public int addCategory(String category, String fixPrice) {
-        return serviceAssessDao.addCategory(category, fixPrice);
+    public int addCategory(String name, String fixPrice) {
+        return serviceAssessDao.addCategory(name, fixPrice);
     }
 
     @Override
@@ -64,8 +64,8 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     }
 
     @Override
-    public int updateCategory(Integer id, String category, String fixPrice) {
-        return serviceAssessDao.updateCategory(id,category,fixPrice);
+    public int updateCategory(Integer id, String name, String fixPrice) {
+        return serviceAssessDao.updateCategory(id,name,fixPrice);
     }
 
     @Override

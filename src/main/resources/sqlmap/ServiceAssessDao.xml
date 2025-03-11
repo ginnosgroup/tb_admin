@@ -18,7 +18,7 @@
     </insert>
 
     <insert id="addCategory">
-        insert into `b_service_category` (gmt_create, category, fix_price) values (now(), #{category}, #{fixPrice})
+        insert into `b_service_category` (gmt_create, name, fix_price) values (now(), #{name}, #{fixPrice})
     </insert>
     <insert id="addServiceAssessCategory">
         INSERT INTO `b_assess_category` (gmt_create, service_assess_category_id, service_assess_id, service_order_id) VALUES (now(), #{serviceAssessCategoryId}, #{serviceAssessId}, #{serviceOrderId})
@@ -33,7 +33,7 @@
     </update>
 
     <update id="updateCategory">
-        update `b_service_category` set category = #{category}, fix_price = #{fixPrice} where id = #{id};
+        update `b_service_category` set name = #{name}, fix_price = #{fixPrice} where id = #{id};
     </update>
 
     <select id="seleteAssessById" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
@@ -44,7 +44,7 @@
         select id,name,service_id AS serviceId from `b_service_assess` where service_id  = #{serviceId} and is_delete = false;
     </select>
     <select id="listCategory" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
-        select id,category,fix_price as fixPrice from `b_service_category` where is_delete = false;
+        select id,name,fix_price as fixPrice from `b_service_category` where is_delete = false;
     </select>
     <select id="getCategoryIdByServiceOrderId" resultType="java.lang.Integer">
         SELECT bac.category FROM b_service_category bac LEFT JOIN b_service_category bsc ON bac.service_assess_category_id = bsc.id

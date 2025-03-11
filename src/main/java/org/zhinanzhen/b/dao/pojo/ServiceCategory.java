@@ -12,7 +12,7 @@ public class ServiceCategory {
 
     private  int id;
 
-    private String category;
+    private String name;
 
     private  double  fixPrice;
 }

@@ -18,7 +18,7 @@ public interface ServiceAssessService {
 
     int add(String name, Integer serviceId);
 
-    int addCategory(String category, String fixPrice);
+    int addCategory(String name, String fixPrice);
 
     int update(Integer id, String name);
 
@@ -30,7 +30,7 @@ public interface ServiceAssessService {
 
     List<ServiceCategory> listCategory();
 
-    int updateCategory(Integer id, String category, String fixPrice);
+    int updateCategory(Integer id, String name, String fixPrice);
 
     int deleteCategory(Integer id);
 

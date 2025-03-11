@@ -27,11 +27,11 @@ public interface ServiceAssessDao {
 
     List<ServiceAssessDO> seleteAssessByServiceId(@Param("serviceId") String serviceId);
 
-    int addCategory(@Param("category") String category, @Param("fixPrice") String fixPrice);
+    int addCategory(@Param("name") String name, @Param("fixPrice") String fixPrice);
 
     List<ServiceCategory> listCategory();
 
-    int updateCategory(@Param("id") Integer id, @Param("category") String category, @Param("fixPrice") String fixPrice);
+    int updateCategory(@Param("id") Integer id, @Param("name") String name, @Param("fixPrice") String fixPrice);
 
     int deleteCategory(@Param("id") Integer id);
 
