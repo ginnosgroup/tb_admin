@@ -39,6 +39,6 @@ public interface ServiceAssessDao {
             @Param("serviceOrderId") Integer serviceOrderId);
 
 
-    String getCategoryIdByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+    ServiceCategory getCategoryIdByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
 }

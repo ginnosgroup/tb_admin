@@ -288,4 +288,6 @@ public class ServiceOrderDTO {
 	private Double bingDingAmount; // 绑定金额
 
 	private Integer serviceAssessCategoryId; // 职业二级分类id
+
+	private ServiceCategory serviceCategory;
 }

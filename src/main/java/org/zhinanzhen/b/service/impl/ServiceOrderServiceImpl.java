@@ -1042,7 +1042,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         ChildrenServiceOrderDTO.class);
                 ServicePackageDO servicePackageDo = servicePackageDao
                         .getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-                // 又偷懒了，性能比较差哦：）
                 if (servicePackageDo != null)
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
@@ -1077,11 +1076,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
         if (serviceAssessDO != null) {
             serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-            if (serviceOrderDto.getServiceAssessCategoryId() != null) {
-                String categoryName =  serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
-                if (StringUtil.isNotEmpty(categoryName)) {
-                    serviceAssessDO.setCategoryName(categoryName);
-                }
+            ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+            if (categoryIdByServiceOrderId != null) {
+                serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
             }
         }
 

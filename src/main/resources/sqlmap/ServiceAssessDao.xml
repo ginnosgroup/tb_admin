@@ -46,11 +46,14 @@
     <select id="listCategory" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
         select id,name,fix_price as fixPrice from `b_service_category` where is_delete = false;
     </select>
-    <select id="getCategoryIdByServiceOrderId" resultType="java.lang.Integer">
-        SELECT bac.category FROM b_service_category bac LEFT JOIN b_service_category bsc ON bac.service_assess_category_id = bsc.id
+    <select id="getCategoryIdByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
+        SELECT bac.name name,
+             bac.id id,
+             bac.fix_price fixPrice
+        FROM b_service_category bac LEFT JOIN b_assess_category bsc ON bsc.service_assess_category_id = bac.id
         where bac.is_delete = 0
         <if test=" serviceOrderId != null ">
-            and bsc.serviceOrder_Id = #{serviceOrderId}
+            and bsc.service_order_id = #{serviceOrderId}
         </if>
     </select>
 </mapper>
