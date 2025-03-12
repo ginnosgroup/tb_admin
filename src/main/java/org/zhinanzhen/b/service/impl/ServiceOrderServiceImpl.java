@@ -960,7 +960,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 for (ServiceOrderDTO serviceOrderDTO : v) {
                                     eoiNum.append(",").append(serviceOrderDTO.getServicePackageId());
                                 }
-                                serviceAssessAndEOI.setEoiServicePackgeId(eoiNum.substring(1, eoiNum.length() - 1));
+                                serviceAssessAndEOI.setEoiServicePackageId(eoiNum.substring(1, eoiNum.length() - 1));
                                 serviceAssessAndEOIList.add(serviceAssessAndEOI);
                             }
                         });

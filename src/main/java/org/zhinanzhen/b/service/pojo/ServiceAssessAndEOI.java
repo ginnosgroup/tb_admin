@@ -12,5 +12,5 @@ public class ServiceAssessAndEOI {
 
     private String assessId;
 
-    private String eoiServicePackgeId;
+    private String eoiServicePackageId;
 }
