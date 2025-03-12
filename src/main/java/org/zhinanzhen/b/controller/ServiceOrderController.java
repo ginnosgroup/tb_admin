@@ -432,10 +432,12 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
-                if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
+                if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1 && !servicePackageIds.contains("-")) {
                     serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-            } else
+                }
+            } else {
                 return new Response<Integer>(1, "请选择申请人.", null);
+            }
             String[] serviceAssessCategorysplit = null;
             if (StringUtil.isNotEmpty(serviceAssessId)) {
                 if ((!type.equalsIgnoreCase("SIV") && !type.equalsIgnoreCase("NSV"))
@@ -600,6 +602,7 @@ public class ServiceOrderController extends BaseController {
                             break;
                     } else if (serviceAssessCategorysplit != null && serviceAssessCategorysplit.length > 1) {
                         for (String s : serviceAssessCategorysplit) {
+                            serviceOrderDto.setParentId(serviceOrderDto.getId());
                             serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
                             serviceOrderDto.setServiceAssessId(s);
                             int i = serviceOrderService.addServiceOrder(serviceOrderDto);
