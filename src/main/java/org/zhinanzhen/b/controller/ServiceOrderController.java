@@ -432,9 +432,16 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
-                if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1 && !servicePackageIds.contains("-")) {
-                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                if (servicePackageIds != null) {
+                    if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1 && !servicePackageIds.contains("-")) {
+                        serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                    }
+                } else {
+                    if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1) {
+                        serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                    }
                 }
+
             } else {
                 return new Response<Integer>(1, "请选择申请人.", null);
             }
@@ -852,7 +859,7 @@ public class ServiceOrderController extends BaseController {
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds);
             if (res != null && res.getCode() == 0) {
                 List<ServiceOrderDTO> cList = new ArrayList<>();
-                if (StringUtil.isNotEmpty(servicePackageIds) && 25 == serviceOrderDto.getServiceId()) {
+                if (StringUtil.isNotEmpty(servicePackageIds) && 25 == serviceOrderDto.getServiceId() && servicePackageIds.contains("-")) {
                     cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
                             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                             null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);

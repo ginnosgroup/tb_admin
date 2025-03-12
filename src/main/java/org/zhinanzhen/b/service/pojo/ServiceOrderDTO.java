@@ -290,4 +290,6 @@ public class ServiceOrderDTO {
 	private Integer serviceAssessCategoryId; // 职业二级分类id
 
 	private ServiceCategory serviceCategory;
+
+	private List<ServiceAssessAndEOI> serviceAssessAndEOIList;
 }
