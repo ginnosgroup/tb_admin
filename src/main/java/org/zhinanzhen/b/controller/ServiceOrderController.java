@@ -1042,6 +1042,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderDTO.setServicePackageId(Integer.parseInt(split[0]));
                     serviceOrderDTO.setState("PENDING");
                     serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
+                    serviceOrderDTO.setServiceAssessId(split[1]);
                     if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
                         serviceOrderDTO.setIsInsuranceCompany(null);
                     }
