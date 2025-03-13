@@ -56,6 +56,11 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	private static Map<Integer, List<String>> wOfficialReviewPermissions = buildPermissions("1000005:1000002;" +
 			"1000005:1000003;" + "1000005:1000006;" + "1000005:1000039;" + "1000005:1000040;" + "1000005:1000041;" + "1000005:1000104;" + "1000005:1000105;");
 
+	// 服务白名单
+	private static Map<Integer, List<String>> fOfficialReviewPermissions = buildPermissions("10:1000043,1000046;" +
+			"1000014:1000043,1000046;" + "1000052:1000043,1000046;" + "1000106:1000043,1000046;" + "1000125:1000043,1000046;" +
+			"1000126:1000043,1000046;" + "1000127:1000043,1000046;" + "1000131:1000043,1000046;" + "1000132:1000043,1000046;");
+
 	private static Map<Integer, List<String>> buildPermissions(String value) {
 		Map<Integer, List<String>> map = MapUtil.newHashMap();
 		if (value == null || "".equals(value))
@@ -69,7 +74,7 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 		}
 		return map;
 	}
-	
+
 	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService) {
 		super.serviceOrderService = serviceOrderService;
 	}
@@ -126,6 +131,16 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
 									serviceOrderDto));
 					return null;
+				}
+				List<String> fList = fOfficialReviewPermissions.get(serviceId);
+				if (officialDto.getRegionId() == 1000034) {
+					if (ObjectUtil.isNotNull(fList) && !fList.contains(String.valueOf(officialDto.getId()))) {
+						context.putParameter("response",
+								new Response<ServiceOrderDTO>(1,
+										StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
+										serviceOrderDto));
+						return null;
+					}
 				}
 			}
 			// 提交审核时更新汇率
