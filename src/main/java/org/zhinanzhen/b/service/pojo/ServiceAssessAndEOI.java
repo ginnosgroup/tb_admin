@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceAssessAndEOI {
-    private String assessName;
+    private String label;
 
-    private String assessId;
+    private String value;
+
+    private String key;
 
     private String eoiServicePackageId;
 }

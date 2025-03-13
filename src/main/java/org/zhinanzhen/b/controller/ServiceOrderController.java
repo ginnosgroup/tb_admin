@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.*;
@@ -140,6 +141,8 @@ public class ServiceOrderController extends BaseController {
     private AdviserDAO adviserDAO;
     @Autowired
     private MaraDAO maraDAO;
+    @Autowired
+    private ServiceDAO serviceDAO;
 
     public enum ReviewAdviserStateEnum {
         PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
@@ -997,6 +1000,60 @@ public class ServiceOrderController extends BaseController {
                     }
                 }
             });
+            serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
+            serviceOrderService.updateServiceOrder(serviceOrderDto);
+            return new Response<Integer>(0, id);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), null);
+        }
+    }
+
+    /*
+     * 独立技术移民添加EOI数量
+     *
+     * */
+    @RequestMapping(value = "/visaUpdateEOI", method = RequestMethod.POST)
+    @ResponseBody
+    Response<Integer> visaUpdateEOI(@RequestParam(value = "id") int id,
+                                   @RequestParam(value = "servicePackageIdsEOI") String servicePackageIdsEOI, HttpServletResponse response) {
+        super.setPostHeader(response);
+        ServiceOrderDTO serviceOrderDto;
+        try {
+            serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+            if (serviceOrderDto == null)
+                return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+            List<ServiceOrderDTO> cList = new ArrayList<>();
+            cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                    null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                    null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+            ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
+            ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderDto.getServiceId());
+            List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+            if ("EOI - Offshore".equalsIgnoreCase(serviceById.getCode()) && servicePackageIdsEOIs.size() > 15) {
+                return new Response<Integer>(1, "签证EOI - Offshore数量最多允许15个，请核实", null);
+            }
+            if (!"EOI - Offshore".equalsIgnoreCase(serviceById.getCode()) && servicePackageIdsEOIs.size() > 6) {
+                return new Response<Integer>(1, "签证EOI数量最多允许6个，请核实", null);
+            }
+            for (String packageIdsEOIs : servicePackageIdsEOIs) {
+                String[] split = packageIdsEOIs.split("-");
+                ServiceOrderDO serviceOrderDO = serviceOrderDAO.getServiceForAssessId(StringUtil.toInt(split[0]),StringUtil.toInt(split[1]),id);
+                if (serviceOrderDO == null) {
+                    serviceOrderDTO.setServicePackageId(Integer.parseInt(split[0]));
+                    serviceOrderDTO.setState("PENDING");
+                    serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
+                    if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
+                        serviceOrderDTO.setIsInsuranceCompany(null);
+                    }
+                    int i1 = serviceOrderService.addServiceOrder(serviceOrderDTO);
+                    if (i1 > 0) {
+                        ServiceOrderApplicantDTO serviceOrderApplicantDO = new ServiceOrderApplicantDTO();
+                        serviceOrderApplicantDO.setApplicantId(serviceOrderDTO.getApplicantId());
+                        serviceOrderApplicantDO.setServiceOrderId(serviceOrderDTO.getId());
+                        serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDO);
+                    }
+                }
+            }
             serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
             serviceOrderService.updateServiceOrder(serviceOrderDto);
             return new Response<Integer>(0, id);

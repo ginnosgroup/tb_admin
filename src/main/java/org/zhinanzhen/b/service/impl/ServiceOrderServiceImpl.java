@@ -955,12 +955,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(k);
                             if (serviceAssessDO != null) {
                                 StringBuilder eoiNum = new StringBuilder();
-                                serviceAssessAndEOI.setAssessName(serviceAssessDO.getName());
-                                serviceAssessAndEOI.setAssessId(k);
+                                serviceAssessAndEOI.setLabel(serviceAssessDO.getName());
+                                serviceAssessAndEOI.setValue(k);
+                                serviceAssessAndEOI.setKey(k);
                                 for (ServiceOrderDTO serviceOrderDTO : v) {
                                     eoiNum.append(",").append(serviceOrderDTO.getServicePackageId());
                                 }
-                                serviceAssessAndEOI.setEoiServicePackageId(eoiNum.substring(1, eoiNum.length() - 1));
+                                serviceAssessAndEOI.setEoiServicePackageId(eoiNum.substring(1, eoiNum.length()));
                                 serviceAssessAndEOIList.add(serviceAssessAndEOI);
                             }
                         });

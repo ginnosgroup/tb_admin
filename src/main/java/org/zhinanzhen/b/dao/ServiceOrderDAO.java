@@ -138,4 +138,6 @@ public interface ServiceOrderDAO {
 
     @Select("SELECT * FROM `tbdb`.`b_service_order` WHERE `type` LIKE '%SIV%' AND `gmt_create` >= '2023-01-01 00:00:00' LIMIT 0,100000")
     List<ServiceOrderDO> linlinshi();
+
+    ServiceOrderDO getServiceForAssessId(@Param("servicePackageId") int servicePackageId, @Param("serviceAssessId") int assessId,@Param("applicantParentId") int applicantParentId);
 }
