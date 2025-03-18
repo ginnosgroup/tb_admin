@@ -2819,6 +2819,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 null, null, null, null, null, null
                 , null, null, null, null, null
                 , null, null, null, null, 0, 9999, null, null, null, null);
+        for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+            if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
+                serviceOrderDO.setPerAmount(serviceOrderDO.getPerAmount() / serviceOrderDO.getExchangeRate());
+            }
+        }
         ViewBalanceDTO viewBalanceDTO = new ViewBalanceDTO();
         double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).filter(ServiceOrderDO -> ServiceOrderDO.getBindingOrder() == null).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getPerAmount).sum();
         double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
