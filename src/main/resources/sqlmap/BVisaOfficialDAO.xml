@@ -537,6 +537,113 @@
         )
 
     </select>
+    <select id="listVisaForDown"  resultMap="VisaOfficialResultMap">
+        SELECT
+            bvo.id id,
+            bvo.service_order_id serviceOrderId,
+            bvo.handling_date handlingDate,
+            bvo.receive_date receiveDate,
+            bvo.currency currency,
+            bvo.exchange_rate exchangeRate,
+            bvo.amount amount,
+            bvo.per_amount perAmount,
+            bvo.expect_amount expectAmount,
+            bvo.sure_expect_amount sureExpectAmount,
+            bvo.discount discount,
+            bvo.gst gst,
+            bvo.deduct_gst deductGst,
+            bvo.bonus bonus,
+            bvo.commissionAmount commissionAmount,
+            bvo.predict_commission predictCommission,
+            bvo.predict_commission_CNY predictCommissionCNY,
+            bvo.extra_amount extraAmount,
+            bvo.is_merged isMerged,
+            bvo.stage stage,
+            bso.people_type peopleType,
+            bso.applicant_parent_id applicantParentId,
+            bso.is_insurance_company isInsuranceCompany,
+            bso.service_package_id servicePackageId,
+            bso.gmt_create gmtCreate,
+            tbu.`name` username,
+            ba.firstname firstName,
+            ba.surname surname,
+            brt.`name` receiveTypeName,
+            bs.`name` serviceName,
+            bs.`code` serviceCode,
+            tba.`name` adviserName,
+            bo.`name` officialName,
+            bm.`name` maraName
+        FROM
+            b_visa_official bvo
+                LEFT JOIN b_service_order bso ON bvo.service_order_id = bso.id
+                LEFT JOIN tb_adviser tba ON bvo.adviser_id = tba.id
+                LEFT JOIN b_official bo ON bvo.official_id = bo.id
+                LEFT JOIN tb_user tbu ON bvo.user_id = tbu.id
+                LEFT JOIN b_applicant ba ON bso.adviser_id = ba.id
+                LEFT JOIN b_mara bm ON bvo.mara_id = bm.id
+                LEFT JOIN b_receive_type brt ON bvo.receive_type_id = brt.id
+                LEFT JOIN b_service bs ON bvo.service_id = bs.id
+        WHERE 1=1
+        <if test='officialId !=null and  officialId !=""'>
+            and bvo.official_id = #{officialId}
+        </if>
+        <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
+            <![CDATA[ AND bvo.gmt_create > #{startDate} AND bvo.gmt_create < #{endDate} ]]>
+        </if>
+        <if test="id !=null">
+            and bvo.id = #{id}
+        </if>
+        <if test='regionIdList != null'>
+            AND bo.region_id IN
+            <foreach collection="regionIdList" item="regionIdList" index="index" open="(" close=")" separator=",">
+                #{regionIdList}
+            </foreach>
+        </if>
+        <if test='userName!=null and userName!=""'>
+            and tbu.name LIKE '%${userName}%'
+        </if>
+        <if test='applicantName!=null and applicantName!=""'>
+            AND (ba.surname LIKE '%${applicantName}%' OR ba.firstname LIKE '%${applicantName}%' OR CONCAT(ba.firstname, ba.surname) LIKE '%${applicantName}%')
+        </if>
+        <if test='startHandlingDate != null and startHandlingDate != "" and endHandlingDate != null and endHandlingDate != ""'>
+            <![CDATA[ AND bvo.handling_date > #{startHandlingDate} AND bvo.handling_date < #{endHandlingDate} ]]>
+        </if>
+    </select>
+
+    <!-- 定义 ServiceOrderDTO 的 ResultMap -->
+    <resultMap id="ServiceOrderResultMap" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
+        <id property="id" column="serviceOrderId" />
+        <result property="peopleType" column="peopleType" />
+        <result property="isInsuranceCompany" column="isInsuranceCompany" />
+        <result property="gmtCreate" column="gmtCreate" />
+        <result property="applicantParentId" column="applicantParentId" />
+        <result property="servicePackageId" column="servicePackageId" />
+    </resultMap>
+
+    <!-- 定义 VisaOfficialDTO 的 ResultMap，包含嵌套映射 -->
+    <resultMap id="VisaOfficialResultMap" type="org.zhinanzhen.b.service.pojo.VisaOfficialDTO">
+        <id property="id" column="id" />
+        <result property="serviceOrderId" column="serviceOrderId" />
+        <result property="handlingDate" column="handlingDate" />
+        <result property="receiveDate" column="receiveDate" />
+        <result property="currency" column="currency" />
+        <result property="exchangeRate" column="exchangeRate" />
+        <result property="amount" column="amount" />
+        <result property="perAmount" column="perAmount" />
+        <result property="expectAmount" column="expectAmount" />
+        <result property="sureExpectAmount" column="sureExpectAmount" />
+        <result property="discount" column="discount" />
+        <result property="gst" column="gst" />
+        <result property="deductGst" column="deductGst" />
+        <result property="bonus" column="bonus" />
+        <result property="commissionAmount" column="commissionAmount" />
+        <result property="predictCommission" column="predictCommission" />
+        <result property="predictCommissionCNY" column="predictCommissionCNY" />
+        <result property="extraAmount" column="extraAmount" />
+        <result property="isMerged" column="isMerged" />
+        <result property="stage" column="stage" />
+        <association property="serviceOrderDTO" resultMap="ServiceOrderResultMap" />
+    </resultMap>
 
     <update id="updateVisaOfficial" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
         UPDATE b_visa_official

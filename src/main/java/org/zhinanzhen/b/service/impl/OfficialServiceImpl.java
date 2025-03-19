@@ -89,7 +89,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	}
 
 	@Override
-	public List<OfficialDTO> listOfficial(String name, Integer regionId, Integer gradeId, int pageNum, int pageSize)
+	public List<OfficialDTO> listOfficial(String name, Integer regionId, Integer gradeId, boolean isbuiltOrder, int pageNum, int pageSize)
 			throws ServiceException {
 		if (pageNum < 0) {
 			pageNum = DEFAULT_PAGE_NUM;
@@ -110,6 +110,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			throw se;
 		}
 		for (OfficialDO officialDo : officialDoList) {
+			if (isbuiltOrder) {
+				if (officialDo.getWorkState() != null && officialDo.getWorkState().equalsIgnoreCase("RESIGN"))
+					continue;
+			}
 			OfficialDTO officialDto = mapper.map(officialDo, OfficialDTO.class);
 			if (StringUtil.isNotEmpty(officialDo.getState())) {
 				officialDto.setState(OfficialStateEnum.get(officialDo.getState()));

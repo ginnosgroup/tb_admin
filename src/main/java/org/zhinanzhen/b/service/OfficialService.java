@@ -13,7 +13,7 @@ public interface OfficialService {
 
 	public int countOfficial(String name, Integer regionId, Integer gradeId) throws ServiceException;
 
-	public List<OfficialDTO> listOfficial(String name, Integer regionId, Integer gradeId, int pageNum, int pageSize)
+	public List<OfficialDTO> listOfficial(String name, Integer regionId, Integer gradeId, boolean isbuiltOrder, int pageNum, int pageSize)
 			throws ServiceException;
 
 	public OfficialDTO getOfficialById(int id) throws ServiceException;

@@ -96,4 +96,7 @@ public interface VisaOfficialDao {
 
     List<VisaOfficialDO> getCountvisaOfficialByServiceOrderPatrentId(@Param("applicantParentId")int applicantParentId);
 
+    List<VisaOfficialDTO> listVisaForDown(@Param("officialId") Integer officialId,@Param("regionIdList") List<Integer> regionIdList,@Param("id") Integer id,@Param("startHandlingDate") String startHandlingDate,@Param("endHandlingDate") String endHandlingDate,
+                                             @Param("state") String state,@Param("startDate") String startDate,@Param("endDate") String endDate,@Param("userName") String userName,@Param("applicantName") String applicantName);
+
 }

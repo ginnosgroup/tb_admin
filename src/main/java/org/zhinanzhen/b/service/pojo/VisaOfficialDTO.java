@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.service.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 
 import java.math.BigDecimal;
@@ -14,6 +16,8 @@ import java.util.List;
  * @Version: 1.0
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class VisaOfficialDTO {
 
     private int id;
@@ -54,7 +58,7 @@ public class VisaOfficialDTO {
 
     private int serviceOrderId;
 
-    private ServiceOrderDTO serviceOrder;
+    private ServiceOrderDTO serviceOrderDTO;
 
     private String serviceCode;
 

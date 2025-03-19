@@ -409,8 +409,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             if (StringUtil.isNotEmpty(applicantName)) {
                 name = applicantName.replaceAll("\\s", "");
             }
-            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
-                    startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
+//            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
+//                    startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaForDown(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
+                    startDate, endDate, userName, name);
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";
             response.setHeader("Content-disposition",
@@ -430,7 +432,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(0).setCellValue(visaDTO.getId());
                 row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
                 row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
-                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrderDTO().getGmtCreate()));
                 row.createCell(4).setCellValue(visaDTO.getUserName());
                 row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
                 row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
@@ -441,8 +443,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
 //                }
                 System.out.println("当前id--------------------------" + visaDTO.getId());
-                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
-                    String type = visaDTO.getServiceOrder().getServicePackage().getType();
+                if (visaDTO.getServiceOrderDTO().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderDTO().getApplicantParentId()).getType())) {
+                    String type = visaDTO.getServiceOrderDTO().getServicePackage().getType();
                     switch (type) {
                         case "CA":
                             type = "职业评估";
@@ -463,13 +465,13 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                             type = type;
                     }
                     if ("EOI".equalsIgnoreCase(type)) {
-                        ServiceDO serviceById = serviceDAO.getServiceById(visaDTO.getServiceOrder().getServicePackage().getServiceId());
+                        ServiceDO serviceById = serviceDAO.getServiceById(visaDTO.getServiceOrderDTO().getServicePackage().getServiceId());
                         type = type + "-" + serviceById.getCode();
                     }
                     servicePackageType = "-" + type;
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
                 }
-                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrderDTO().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
                 if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
@@ -977,7 +979,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         // 提交移民局申请时间
         buildJsonobjectRow(so.getHandlingDate() == null ? "" : sdf.format(so.getHandlingDate()), "提交移民局申请时间", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 服务订单创建日期
-        buildJsonobjectRow(sdf.format(so.getServiceOrder().getGmtCreate()), "服务订单创建日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        buildJsonobjectRow(sdf.format(so.getServiceOrderDTO().getGmtCreate()), "服务订单创建日期", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 客户姓名
         buildJsonobjectRow(so.getUserName(), "客户姓名", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 申请人姓名
@@ -992,8 +994,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         buildJsonobjectRow(so.getReceiveTypeName() == null ? "" : so.getReceiveTypeName(), "收款方式", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 服务项目
         String servicePackageType = "";
-        if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
-            String type = so.getServiceOrder().getServicePackage().getType();
+        if (so.getServiceOrderDTO().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrderDTO().getApplicantParentId()).getType())) {
+            String type = so.getServiceOrderDTO().getServicePackage().getType();
             switch (type) {
                 case "CA":
                     type = "职业评估";
@@ -1014,12 +1016,12 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     type = type;
             }
             if ("EOI".equalsIgnoreCase(type)) {
-                ServiceDO serviceById = serviceDAO.getServiceById(so.getServiceOrder().getServicePackage().getServiceId());
+                ServiceDO serviceById = serviceDAO.getServiceById(so.getServiceOrderDTO().getServicePackage().getServiceId());
                 type = type + "-" + serviceById.getCode();
             }
             servicePackageType = "-" + type;
         }
-        buildJsonobjectRow(StringUtil.merge(so.getServiceOrder().getService().getName(), "-", so.getServiceCode(), servicePackageType), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+        buildJsonobjectRow(StringUtil.merge(so.getServiceOrderDTO().getService().getName(), "-", so.getServiceCode(), servicePackageType), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
         // 服务定价
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(so.getServiceId());
         if (servicePackagePriceDO != null) {
@@ -1216,7 +1218,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         // 服务订单创建日期");
         JSONObject jsonObject3 = new JSONObject();
         JSONObject text3 = new JSONObject();
-        text3.put("text", sdf.format(so.getServiceOrder().getGmtCreate()));
+        text3.put("text", sdf.format(so.getServiceOrderDTO().getGmtCreate()));
         jsonObject3.put("cell_value", text3);
         rows.add(jsonObject3);
         // 客户姓名");
@@ -1257,12 +1259,12 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         rows.add(jsonObject9);
         // 服务项目");
         String servicePackageType = "";
-        if (so.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrder().getApplicantParentId()).getType())) {
-            servicePackageType = "-" + so.getServiceOrder().getServicePackage().getType();
+        if (so.getServiceOrderDTO().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(so.getServiceOrderDTO().getApplicantParentId()).getType())) {
+            servicePackageType = "-" + so.getServiceOrderDTO().getServicePackage().getType();
         }
         JSONObject jsonObject10 = new JSONObject();
         JSONObject text10 = new JSONObject();
-        text10.put("text", StringUtil.merge(so.getServiceOrder().getService().getName(), "-", so.getServiceCode(), servicePackageType));
+        text10.put("text", StringUtil.merge(so.getServiceOrderDTO().getService().getName(), "-", so.getServiceCode(), servicePackageType));
         jsonObject10.put("cell_value", text10);
         rows.add(jsonObject10);
         // 所属顾问");

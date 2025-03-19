@@ -43,4 +43,8 @@ public interface VisaOfficialService {
     void visaServiceupdateVisaOfficial(VisaOfficialDO visaOfficialDO1);
 
 
+    List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id,
+                         String startHandlingDate, String endHandlingDate, String state,
+                         String startDate, String endDate, String userName, String applicantName);
+
 }

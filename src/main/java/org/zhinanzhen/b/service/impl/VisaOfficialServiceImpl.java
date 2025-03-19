@@ -9,6 +9,7 @@ import com.ikasoa.core.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.config.GlobalThreadPool;
@@ -217,6 +218,92 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
         // 是否退款
         RefundDO refundDo = refundDao.getRefundByVisaId(visaListDo.getId());
+        visaOfficialDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
+
+        // 汇率币种计算金额
+        Double exchangeRate = visaOfficialDto.getExchangeRate();
+        if ("AUD".equalsIgnoreCase(visaOfficialDto.getCurrency())) {
+            visaOfficialDto.setAmountAUD(visaOfficialDto.getAmount());
+            visaOfficialDto.setAmountCNY(roundHalfUp2(visaOfficialDto.getAmount() * exchangeRate));
+            visaOfficialDto.setPerAmountAUD(visaOfficialDto.getPerAmount());
+            visaOfficialDto.setPerAmountCNY(roundHalfUp2(visaOfficialDto.getPerAmount() * exchangeRate));
+            visaOfficialDto.setTotalAmountAUD(visaOfficialDto.getTotalAmount());
+            visaOfficialDto.setTotalAmountCNY(roundHalfUp2(visaOfficialDto.getTotalAmount() * exchangeRate));
+            visaOfficialDto.setTotalPerAmountAUD(visaOfficialDto.getTotalPerAmount());
+            visaOfficialDto.setTotalPerAmountCNY(roundHalfUp2(visaOfficialDto.getTotalPerAmount() * exchangeRate));
+            visaOfficialDto.setExpectAmountAUD(visaOfficialDto.getExpectAmount());
+            visaOfficialDto.setExpectAmountCNY(roundHalfUp2(visaOfficialDto.getExpectAmount() * exchangeRate));
+            visaOfficialDto.setSureExpectAmountAUD(visaOfficialDto.getSureExpectAmount());
+            visaOfficialDto.setSureExpectAmountCNY(roundHalfUp2(visaOfficialDto.getSureExpectAmount() * exchangeRate));
+            visaOfficialDto.setDiscountAUD(visaOfficialDto.getDiscount());
+            visaOfficialDto.setGstAUD(visaOfficialDto.getGst());
+            visaOfficialDto.setDeductGstAUD(visaOfficialDto.getDeductGst());
+            visaOfficialDto.setBonusAUD(visaOfficialDto.getBonus());
+        }
+        if ("CNY".equalsIgnoreCase(visaOfficialDto.getCurrency())) {
+            visaOfficialDto.setAmountAUD(roundHalfUp2(visaOfficialDto.getAmount() / exchangeRate));
+            visaOfficialDto.setAmountCNY(visaOfficialDto.getAmount());
+            visaOfficialDto.setPerAmountAUD(roundHalfUp2(visaOfficialDto.getPerAmount() / exchangeRate));
+            visaOfficialDto.setPerAmountCNY(visaOfficialDto.getPerAmount());
+            visaOfficialDto.setTotalAmountAUD(roundHalfUp2(visaOfficialDto.getTotalAmount() / exchangeRate));
+            visaOfficialDto.setTotalAmountCNY(visaOfficialDto.getTotalAmount());
+            visaOfficialDto.setTotalPerAmountAUD(roundHalfUp2(visaOfficialDto.getTotalPerAmount() / exchangeRate));
+            visaOfficialDto.setTotalPerAmountCNY(visaOfficialDto.getTotalPerAmount());
+            visaOfficialDto.setExpectAmountAUD(roundHalfUp2(visaOfficialDto.getExpectAmount() / exchangeRate));
+            visaOfficialDto.setExpectAmountCNY(visaOfficialDto.getExpectAmount());
+            visaOfficialDto.setSureExpectAmountAUD(roundHalfUp2(visaOfficialDto.getSureExpectAmount() / exchangeRate));
+            visaOfficialDto.setSureExpectAmountCNY(visaOfficialDto.getSureExpectAmount());
+            visaOfficialDto.setDiscountAUD(roundHalfUp2(visaOfficialDto.getDiscount() / exchangeRate));
+            visaOfficialDto.setGstAUD(roundHalfUp2(visaOfficialDto.getGst() / exchangeRate));
+            visaOfficialDto.setDeductGstAUD(roundHalfUp2(visaOfficialDto.getDeductGst() / exchangeRate));
+            visaOfficialDto.setBonusAUD(roundHalfUp2(visaOfficialDto.getBonus() / exchangeRate));
+        }
+
+        return visaOfficialDto;
+    }
+
+    public VisaOfficialDTO putVisaOfficialDTOV2(VisaOfficialDTO visaOfficialDto) throws ServiceException {
+        if (visaOfficialDto.getUserId() > 0) {
+            UserDO userDo = userDao.getUserById(visaOfficialDto.getUserId());
+            visaOfficialDto.setUserName(userDo.getName());
+            visaOfficialDto.setPhone(userDo.getPhone());
+            visaOfficialDto.setBirthday(userDo.getBirthday());
+            visaOfficialDto.setUser(mapper.map(userDo, UserDTO.class));
+        }
+        AdviserDO adviserDo = adviserDao.getAdviserById(visaOfficialDto.getAdviserId());
+        if (adviserDo != null) {
+            visaOfficialDto.setAdviserName(adviserDo.getName());
+        }
+        OfficialDO officialDo = officialDao.getOfficialById(visaOfficialDto.getOfficialId());
+        if (officialDo != null) {
+            visaOfficialDto.setOfficialName(officialDo.getName());
+        }
+        ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaOfficialDto.getReceiveTypeId());
+        if (receiveTypeDo != null) {
+            visaOfficialDto.setReceiveTypeName(receiveTypeDo.getName());
+        }
+        ServiceDO serviceDo = serviceDao.getServiceById(visaOfficialDto.getServiceId());
+        if (serviceDo != null) {
+            visaOfficialDto.setServiceCode(serviceDo.getCode());
+        }
+        List<VisaOfficialDO> list = visaOfficialDao.listVisaByCode(visaOfficialDto.getCode());
+        if (list != null) {
+            double totalPerAmount = 0.00;
+            double totalAmount = 0.00;
+            for (VisaOfficialDO visaOfficialDo : list) {
+                totalPerAmount += visaOfficialDo.getPerAmount();
+                if (visaOfficialDo.getPaymentVoucherImageUrl1() != null || visaOfficialDo.getPaymentVoucherImageUrl2() != null
+                        || visaOfficialDo.getPaymentVoucherImageUrl3() != null
+                        || visaOfficialDo.getPaymentVoucherImageUrl4() != null
+                        || visaOfficialDo.getPaymentVoucherImageUrl5() != null)
+                    totalAmount += visaOfficialDo.getAmount();
+            }
+            visaOfficialDto.setTotalPerAmount(totalPerAmount);
+            visaOfficialDto.setTotalAmount(totalAmount);
+        }
+
+        // 是否退款
+        RefundDO refundDo = refundDao.getRefundByVisaId(visaOfficialDto.getId());
         visaOfficialDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
 
         // 汇率币种计算金额
@@ -1380,7 +1467,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         }
                     }
 
-                    visaOfficialDto.setServiceOrder(serviceOrderDto);
+                    visaOfficialDto.setServiceOrderDTO(serviceOrderDto);
                     ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId());
                     if(servicePackagePriceDO!=null) {
                         visaOfficialDto.setServicePackagePriceDO(servicePackagePriceDO);
@@ -1664,6 +1751,41 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Override
     public void visaServiceupdateVisaOfficial(VisaOfficialDO visaOfficialDO1) {
         visaOfficialDao.updateVisaOfficial(visaOfficialDO1);
+    }
+
+    @Override
+    public List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName) {
+        List<VisaOfficialDTO> visaOfficialListDOS = visaOfficialDao.listVisaForDown(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
+//        List<List<VisaOfficialListDO>> chunks = new ArrayList<>();
+//        for (int i = 0; i < visaOfficialListDOS.size(); i += 20) {
+//            int end = Math.min(i + 20, visaOfficialListDOS.size());
+//            chunks.add(visaOfficialListDOS.subList(i, end));
+//        }
+//        for (List<VisaOfficialListDO> chunk : chunks) {
+//
+//        }
+        List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
+        for (VisaOfficialDTO e : visaOfficialListDOS) {
+            int applicantId = e.getApplicantId();
+            try {
+                List<ApplicantDTO> applicantDOS = new ArrayList<>();
+                ApplicantDO applicantDO = applicantDao.getById(applicantId);
+                if(ObjectUtil.isNotNull(applicantDO)) {
+                    applicantDOS.add(mapper.map(applicantDO, ApplicantDTO.class));
+                }
+                VisaOfficialDTO visaOfficialDTO = putVisaOfficialDTOV2(e);
+                visaOfficialDTO.setApplicant(applicantDOS);
+                int servicePackageId = e.getServiceOrderDTO().getServicePackageId();
+                if (servicePackageId != 0) {
+                    ServicePackageDO servicePackageDO = servicePackageDAO.getById(servicePackageId);
+                    visaOfficialDTO.getServiceOrderDTO().setServicePackage(mapper.map(servicePackageDO, ServicePackageDTO.class));
+                }
+                visaOfficialDTOList.add(visaOfficialDTO);
+            } catch (ServiceException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return visaOfficialDTOList;
     }
 
     private VisaOfficialDO buildVisaOfficialDo(ServiceOrderDO e) throws ServiceException {

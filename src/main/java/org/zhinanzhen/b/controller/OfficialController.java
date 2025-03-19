@@ -92,7 +92,7 @@ public class OfficialController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			List<OfficialDTO> officialDtoList = officialService.listOfficial(null, null, null, 0, 1000);
+			List<OfficialDTO> officialDtoList = officialService.listOfficial(null, null, null, false,0, 1000);
 			for (OfficialDTO officialDto : officialDtoList) {
 				if (officialDto.getPhone().equals(phone)) {
 					return new Response<Integer>(1, "该电话号已被使用,添加失败.", 0);
@@ -222,12 +222,13 @@ public class OfficialController extends BaseController {
 	public ListResponse<List<OfficialDTO>> listOfficial(@RequestParam(value = "name", required = false) String name,
 														@RequestParam(value = "regionId", required = false) Integer regionId,
 														@RequestParam(value = "gradeId", required = false) Integer gradeId,
+														@RequestParam(value = "isbuiltOrder", required = false) boolean isbuiltOrder,
 														@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 														HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			int total = officialService.countOfficial(name, regionId, gradeId);
-			return new ListResponse<List<OfficialDTO>>(true,pageSize, total,officialService.listOfficial(name, regionId, gradeId, pageNum, pageSize), "success");
+			return new ListResponse<List<OfficialDTO>>(true,pageSize, total,officialService.listOfficial(name, regionId, gradeId, isbuiltOrder, pageNum, pageSize), "success");
 		} catch (ServiceException e) {
 			return new ListResponse<List<OfficialDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
@@ -250,7 +251,7 @@ public class OfficialController extends BaseController {
 		try {
 			super.setPostHeader(response);
 			int num = 0;
-			List<OfficialDTO> officialDtoList = officialService.listOfficial(null, null, null,0, 1000);
+			List<OfficialDTO> officialDtoList = officialService.listOfficial(null, null, null, false,0, 1000);
 			for (OfficialDTO officialDto : officialDtoList) {
 				AdminUserDTO adminUser = adminUserService.getAdminUserByUsername(officialDto.getEmail());
 				if (adminUser == null) {
