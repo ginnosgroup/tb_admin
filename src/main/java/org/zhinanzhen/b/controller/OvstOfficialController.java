@@ -136,8 +136,8 @@ public class OvstOfficialController extends BaseController {
                 // 使用SimpleDateFormat的format方法将Date对象格式化为字符串
                 String gmtCreate = sdf.format(e.getGmtCreate()); // 创建日期
                 String kjApprovalDate = sdf.format(e.getKjApprovalDate()); // 提交申请时间
-                String officialApprovalDate = sdf.format(e.getServiceOrderDTO().getOfficialApprovalDate()); // 提交审核时间
-                String finishDate = sdf.format(e.getServiceOrderDTO().getFinishDate()); // 办理完成时间
+                String officialApprovalDate = sdf.format(e.getServiceOrder().getOfficialApprovalDate()); // 提交审核时间
+                String finishDate = sdf.format(e.getServiceOrder().getFinishDate()); // 办理完成时间
                 row.createCell(0).setCellValue(e.getId());
                 row.createCell(1).setCellValue(gmtCreate);
                 row.createCell(2).setCellValue(e.getServiceOrderId());

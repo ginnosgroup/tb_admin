@@ -556,15 +556,25 @@
             bvo.commissionAmount commissionAmount,
             bvo.predict_commission predictCommission,
             bvo.predict_commission_CNY predictCommissionCNY,
+            bvo.predict_commissionAmount predictCommissionAmount,
             bvo.extra_amount extraAmount,
             bvo.is_merged isMerged,
+            bvo.state state,
             bvo.stage stage,
+            bvo.payment_voucher_image_url_1 paymentVoucherImageUrl1,
+            bvo.payment_voucher_image_url_1 paymentVoucherImageUrl2,
+            bvo.payment_voucher_image_url_1 paymentVoucherImageUrl3,
+            bvo.payment_voucher_image_url_1 paymentVoucherImageUrl4,
+            bvo.payment_voucher_image_url_1 paymentVoucherImageUrl5,
+            bvo.code code,
             bso.people_type peopleType,
             bso.applicant_parent_id applicantParentId,
             bso.is_insurance_company isInsuranceCompany,
             bso.service_package_id servicePackageId,
             bso.gmt_create gmtCreate,
-            tbu.`name` username,
+            bso.applicant_id applicantId,
+            bso.service_id serviceId,
+            tbu.`name` userName,
             ba.firstname firstName,
             ba.surname surname,
             brt.`name` receiveTypeName,
@@ -618,6 +628,8 @@
         <result property="gmtCreate" column="gmtCreate" />
         <result property="applicantParentId" column="applicantParentId" />
         <result property="servicePackageId" column="servicePackageId" />
+        <result property="applicantId" column="applicantId" />
+        <result property="serviceId" column="serviceId" />
     </resultMap>
 
     <!-- 定义 VisaOfficialDTO 的 ResultMap，包含嵌套映射 -->
@@ -642,7 +654,22 @@
         <result property="extraAmount" column="extraAmount" />
         <result property="isMerged" column="isMerged" />
         <result property="stage" column="stage" />
-        <association property="serviceOrderDTO" resultMap="ServiceOrderResultMap" />
+        <result property="serviceCode" column="serviceCode" />
+        <result property="userName" column="userName" />
+        <result property="adviserName" column="adviserName" />
+        <result property="officialName" column="officialName" />
+        <result property="maraName" column="maraName" />
+        <result property="predictCommissionAmount" column="predictCommissionAmount" />
+        <result property="state" column="state" />
+        <result property="paymentVoucherImageUrl1" column="paymentVoucherImageUrl1" />
+        <result property="paymentVoucherImageUrl2" column="paymentVoucherImageUrl2" />
+        <result property="paymentVoucherImageUrl3" column="paymentVoucherImageUrl3" />
+        <result property="paymentVoucherImageUrl4" column="paymentVoucherImageUrl4" />
+        <result property="paymentVoucherImageUrl5" column="paymentVoucherImageUrl5" />
+        <result property="receiveTypeName" column="receiveTypeName" />
+        <result property="serviceId" column="serviceId" />
+        <result property="code" column="code" />
+        <association property="serviceOrder" resultMap="ServiceOrderResultMap" />
     </resultMap>
 
     <update id="updateVisaOfficial" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">

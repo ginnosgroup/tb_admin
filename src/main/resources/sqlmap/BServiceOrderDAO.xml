@@ -912,7 +912,8 @@
             binding_order AS bindingOrder,
             offer_type AS offerType,
             offer_url AS offerUrl,
-            is_insurance_company AS isInsuranceCompany
+            is_insurance_company AS isInsuranceCompany,
+            applicant_parent_id AS applicantParentId
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1500,7 +1501,8 @@
 
     <select id="getTmpServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         select * from b_service_order
-                        where readcommitted_date between #{beforeFormat} and #{nowDate}
+                        where readcommitted_date IS NOT NULL
+                          and  readcommitted_date between #{beforeFormat} and #{nowDate}
                           and (state = 'APPLY' OR state = 'COMPLETE')
                             and official_id != 0 and type != 'OVST'
     </select>

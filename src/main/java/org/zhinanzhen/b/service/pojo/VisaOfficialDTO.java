@@ -58,7 +58,7 @@ public class VisaOfficialDTO {
 
     private int serviceOrderId;
 
-    private ServiceOrderDTO serviceOrderDTO;
+    private ServiceOrderDTO serviceOrder;
 
     private String serviceCode;
 
@@ -195,6 +195,8 @@ public class VisaOfficialDTO {
     private ServicePackagePriceDO servicePackagePriceDO;
 
     private MaraDTO maraDTO;
+
+    private String maraName;
 
     private Integer officialRegion;
 

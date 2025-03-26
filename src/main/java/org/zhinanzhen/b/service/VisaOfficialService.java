@@ -45,6 +45,6 @@ public interface VisaOfficialService {
 
     List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id,
                          String startHandlingDate, String endHandlingDate, String state,
-                         String startDate, String endDate, String userName, String applicantName);
+                         String startDate, String endDate, String userName, String applicantName) throws InterruptedException;
 
 }

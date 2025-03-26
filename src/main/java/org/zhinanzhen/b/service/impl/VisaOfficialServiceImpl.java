@@ -634,7 +634,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaOfficialDO.setPerAmount(amount);
                 }
                 if (suborder && (isSIV || isNSV)) {
-                    if (serviceOrderByParentId.getPerAmount() != visaOfficialDO.getPerAmount()) {
+                    if (visaDOS.stream().mapToDouble(VisaDO::getAmount).sum() != visaOfficialDO.getPerAmount()) {
                         visaOfficialDO.setPerAmount(serviceOrderByParentId.getPerAmount());
                     }
                     List<VisaOfficialDO> countvisaOfficialByServiceOrderPatrentId = visaOfficialDao.getCountvisaOfficialByServiceOrderPatrentId(serviceOrderById.getApplicantParentId());
@@ -1467,7 +1467,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         }
                     }
 
-                    visaOfficialDto.setServiceOrderDTO(serviceOrderDto);
+                    visaOfficialDto.setServiceOrder(serviceOrderDto);
                     ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId());
                     if(servicePackagePriceDO!=null) {
                         visaOfficialDto.setServicePackagePriceDO(servicePackagePriceDO);
@@ -1754,37 +1754,104 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName) {
-        List<VisaOfficialDTO> visaOfficialListDOS = visaOfficialDao.listVisaForDown(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, applicantName);
-//        List<List<VisaOfficialListDO>> chunks = new ArrayList<>();
-//        for (int i = 0; i < visaOfficialListDOS.size(); i += 20) {
-//            int end = Math.min(i + 20, visaOfficialListDOS.size());
-//            chunks.add(visaOfficialListDOS.subList(i, end));
-//        }
-//        for (List<VisaOfficialListDO> chunk : chunks) {
-//
-//        }
-        List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
-        for (VisaOfficialDTO e : visaOfficialListDOS) {
-            int applicantId = e.getApplicantId();
-            try {
-                List<ApplicantDTO> applicantDOS = new ArrayList<>();
-                ApplicantDO applicantDO = applicantDao.getById(applicantId);
-                if(ObjectUtil.isNotNull(applicantDO)) {
-                    applicantDOS.add(mapper.map(applicantDO, ApplicantDTO.class));
-                }
-                VisaOfficialDTO visaOfficialDTO = putVisaOfficialDTOV2(e);
-                visaOfficialDTO.setApplicant(applicantDOS);
-                int servicePackageId = e.getServiceOrderDTO().getServicePackageId();
-                if (servicePackageId != 0) {
-                    ServicePackageDO servicePackageDO = servicePackageDAO.getById(servicePackageId);
-                    visaOfficialDTO.getServiceOrderDTO().setServicePackage(mapper.map(servicePackageDO, ServicePackageDTO.class));
-                }
-                visaOfficialDTOList.add(visaOfficialDTO);
-            } catch (ServiceException ex) {
-                throw new RuntimeException(ex);
-            }
+    public List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName) throws InterruptedException {
+        List<VisaOfficialDTO> visaOfficialListDOS = visaOfficialDao.listVisaForDown(officialId, regionIdList, id, theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName);
+        List<List<VisaOfficialDTO>> chunks = new ArrayList<>();
+        for (int i = 0; i < visaOfficialListDOS.size(); i += 20) {
+            int end = Math.min(i + 20, visaOfficialListDOS.size());
+            chunks.add(visaOfficialListDOS.subList(i, end));
         }
+        List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
+        CountDownLatch latch = new CountDownLatch(chunks.size()); // 等待两个线程完成
+        ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+        for (List<VisaOfficialDTO> chunk : chunks) {
+            executor.submit(() -> {
+                for (VisaOfficialDTO e : chunk) {
+                    int applicantId = e.getServiceOrder().getApplicantId();
+                    try {
+                        List<ApplicantDTO> applicantDOS = new ArrayList<>();
+                        ApplicantDO applicantDO = applicantDao.getById(applicantId);
+                        if(ObjectUtil.isNotNull(applicantDO)) {
+                            applicantDOS.add(mapper.map(applicantDO, ApplicantDTO.class));
+                        }
+                        VisaOfficialDTO visaOfficialDTO = putVisaOfficialDTOV2(e);
+                        visaOfficialDTO.setApplicant(applicantDOS);
+                        int servicePackageId = e.getServiceOrder().getServicePackageId();
+                        int serviceId = e.getServiceOrder().getServiceId();
+                        if (servicePackageId != 0) {
+                            ServicePackageDO servicePackageDO = servicePackageDAO.getById(servicePackageId);
+                            visaOfficialDTO.getServiceOrder().setServicePackage(mapper.map(servicePackageDO, ServicePackageDTO.class));
+                        }
+                        if (serviceId != 0) {
+                            ServiceDO serviceById = serviceDao.getServiceById(serviceId);
+                            visaOfficialDTO.getServiceOrder().setService(mapper.map(serviceById, ServiceDTO.class));
+                        }
+                        // 查询当前订单退款金额以及绑定订单金额
+                        ServiceOrderDTO serviceOrderDto = e.getServiceOrder();
+                        e.setRefundAmount(0.00);
+                        e.setBingDingAmount(0.00);
+                        if (serviceOrderDto.getApplicantParentId() > 0) {
+                            ServiceOrderDO parentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId());
+                            List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(parentOrder.getId());
+                            if (visaDOS != null && !visaDOS.isEmpty()) {
+                                for (VisaDO visaDO : visaDOS) {
+                                    RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
+                                    if (refundDO != null) {
+                                        e.setRefundAmount(e.getRefundAmount() + refundDO.getAmount());
+                                    }
+                                }
+                            }
+                            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
+                                    null, null, null, null, null, null,
+                                    null, null, null, null, null,
+                                    null, null, null, null, null, null, null, null, null,
+                                    null, null, null, null, null, null, null,
+                                    null, null, parentOrder.getId(), 0, 20, null, null, null, null);
+                            if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
+                                for (ServiceOrderDO orderDO : serviceOrderDOS) {
+                                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServiceId());
+                                    if (byServiceId!= null) {
+                                        Double bingDingAmount = e.getBingDingAmount();
+                                        e.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
+                                    }
+                                }
+                            }
+                        } else {
+                            List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderDto.getId());
+                            if (visaDOS != null && !visaDOS.isEmpty()) {
+                                for (VisaDO visaDO : visaDOS) {
+                                    RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
+                                    if (refundDO != null) {
+                                        e.setRefundAmount(refundDO.getAmount());
+                                    }
+                                }
+                            }
+                            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
+                                    null, null, null, null, null, null,
+                                    null, null, null, null, null,
+                                    null, null, null, null, null, null, null, null, null,
+                                    null, null, null, null, null, null, null,
+                                    null, null, e.getServiceOrderId(), 0, 20, null, null, null ,null);
+                            if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
+                                for (ServiceOrderDO orderDO : serviceOrderDOS) {
+                                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
+                                    if (byServiceId!= null) {
+                                        Double bingDingAmount = e.getBingDingAmount();
+                                        e.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
+                                    }
+                                }
+                            }
+                        }
+                        visaOfficialDTOList.add(visaOfficialDTO);
+                    } catch (ServiceException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                // 只有在成功执行了任务后才减少计数器
+                latch.countDown(); // 完成任务，计数器减一
+            });
+        }
+        latch.await();
         return visaOfficialDTOList;
     }
 

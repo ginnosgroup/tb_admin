@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
+import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
 
 import java.util.List;
 
@@ -138,4 +139,8 @@ public interface ServiceOrderDAO {
 
     @Select("SELECT * FROM `tbdb`.`b_service_order` WHERE `type` LIKE '%SIV%' AND `gmt_create` >= '2023-01-01 00:00:00' LIMIT 0,100000")
     List<ServiceOrderDO> linlinshi();
+
+    @Select("SELECT * FROM b_visa_official WHERE service_order_id IN (1049730,1043858,1049731,1045584,1049645,1049644,1045588,1044066,1049124,1049704,1026388,1049703,\n" +
+            "1050383,1049702,1050389,1050388,1046231,1046230,1049324,1034487,1047333,1049889,1050048,1040669,1049040,1049750,1040966,1036280,1035904)")
+    List<VisaOfficialDTO> linshi123();
 }
