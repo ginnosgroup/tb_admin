@@ -15,4 +15,8 @@ public class ServiceCategory {
     private String name;
 
     private  double  fixPrice;
+
+    private boolean isDelete;
+
+
 }

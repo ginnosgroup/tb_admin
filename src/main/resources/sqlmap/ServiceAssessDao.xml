@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.ServiceAssessDao">
     <delete id="deleteCategory">
-        DELETE FROM `b_service_category` where id = #{id}
+        update `b_service_category` set is_delete = 1 where id = #{id};
     </delete>
     <select id="list" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
         select id,name,service_id as serviceId from `b_service_assess` where  is_delete = 0
@@ -18,7 +18,7 @@
     </insert>
 
     <insert id="addCategory">
-        insert into `b_service_category` (gmt_create, name, fix_price) values (now(), #{name}, #{fixPrice})
+        insert into `b_service_category` (gmt_create, name, fix_price, is_delete, level) values (now(), #{name}, #{fixPrice}, 0, 1)
     </insert>
     <insert id="addServiceAssessCategory">
         INSERT INTO `b_assess_category` (gmt_create, service_assess_category_id, service_assess_id, service_order_id) VALUES (now(), #{serviceAssessCategoryId}, #{serviceAssessId}, #{serviceOrderId})
@@ -44,7 +44,7 @@
         select id,name,service_id AS serviceId from `b_service_assess` where service_id  = #{serviceId} and is_delete = false;
     </select>
     <select id="listCategory" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
-        select id,name,fix_price as fixPrice from `b_service_category` where is_delete = false LIMIT #{offset}, #{rows};
+        select id,name,fix_price  as fixPrice, is_delete as isDelete from `b_service_category` where is_delete = false LIMIT #{offset}, #{rows};
     </select>
     <select id="getCategoryIdByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
         SELECT bac.name name,

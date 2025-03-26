@@ -22,4 +22,6 @@ public class ServiceAssessDO  {
     private  int  serviceId;
 
     private String categoryName;
+
+    private boolean isDelete;
 }

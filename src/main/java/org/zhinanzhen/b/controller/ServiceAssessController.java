@@ -50,9 +50,10 @@ public class ServiceAssessController extends BaseController {
     @ResponseBody
     public Response addCategory(@RequestParam(value = "name") String name,
                                 @RequestParam(value = "fixPrice") String fixPrice) throws ServiceException {
-        if (serviceAssessService.addCategory(name, fixPrice) > 0 )
-            return new Response(0,"success");
-        return new Response(1,"fail");
+        int i = serviceAssessService.addCategory(name, fixPrice);
+        if (i > 0 )
+            return new Response(0,"success", i);
+        return new Response(1,"fail", 0);
     }
 
     @RequestMapping(value = "/list",method = RequestMethod.GET)
@@ -103,9 +104,10 @@ public class ServiceAssessController extends BaseController {
     @RequestMapping(value = "deleteCategory", method = RequestMethod.POST)
     @ResponseBody
     public Response deleteCategory(@RequestParam(value = "id")Integer id){
-        if (serviceAssessService.deleteCategory(id) > 0 )
-            return new Response(0,"success");
-        return new Response(1,"fail");
+        int i = serviceAssessService.deleteCategory(id);
+        if (i > 0 )
+            return new Response(0,"success", i);
+        return new Response(1,"fail", 0);
     }
 
 }
