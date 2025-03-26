@@ -44,7 +44,7 @@
         select id,name,service_id AS serviceId from `b_service_assess` where service_id  = #{serviceId} and is_delete = false;
     </select>
     <select id="listCategory" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
-        select id,name,fix_price as fixPrice from `b_service_category` where is_delete = false;
+        select id,name,fix_price as fixPrice from `b_service_category` where is_delete = false LIMIT #{offset}, #{rows};
     </select>
     <select id="getCategoryIdByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.ServiceCategory">
         SELECT bac.name name,
@@ -55,5 +55,9 @@
         <if test=" serviceOrderId != null ">
             and bsc.service_order_id = #{serviceOrderId}
         </if>
+    </select>
+    <select id="countCategory" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM b_service_category;
     </select>
 </mapper>

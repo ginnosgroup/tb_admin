@@ -59,8 +59,8 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     }
 
     @Override
-    public List<ServiceCategory> listCategory() {
-        return serviceAssessDao.listCategory();
+    public List<ServiceCategory> listCategory(int pageNum,int pageSize) {
+        return serviceAssessDao.listCategory(pageNum * pageSize, pageSize);
     }
 
     @Override
@@ -71,5 +71,10 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     @Override
     public int deleteCategory(Integer id) {
         return serviceAssessDao.deleteCategory(id);
+    }
+
+    @Override
+    public int countCategory() {
+        return serviceAssessDao.countCategory();
     }
 }

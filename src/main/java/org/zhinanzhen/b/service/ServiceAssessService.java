@@ -28,10 +28,11 @@ public interface ServiceAssessService {
 
     List<ServiceAssessDO> seleteAssessByServiceId(String serviceId);
 
-    List<ServiceCategory> listCategory();
+    List<ServiceCategory> listCategory(int pageNum,int pageSize);
 
     int updateCategory(Integer id, String name, String fixPrice);
 
     int deleteCategory(Integer id);
 
+    int countCategory();
 }

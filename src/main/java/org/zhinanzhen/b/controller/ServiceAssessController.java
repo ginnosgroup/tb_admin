@@ -6,10 +6,13 @@ import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
 import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServiceService;
+import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -22,7 +25,7 @@ import java.util.List;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/serviceAssess")
-public class ServiceAssessController {
+public class ServiceAssessController extends BaseController {
 
 
     @Resource
@@ -61,9 +64,13 @@ public class ServiceAssessController {
 
     @RequestMapping(value = "/listCategory",method = RequestMethod.GET)
     @ResponseBody
-    public Response listCategory(){
-        List<ServiceCategory> lists = serviceAssessService.listCategory();
-        return new Response(0,lists);
+    public ListResponse<List<ServiceCategory>> listCategory(@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+                                 HttpServletResponse response){
+        super.setGetHeader(response);
+        int countCategory = serviceAssessService.countCategory();
+        List<ServiceCategory> lists = serviceAssessService.listCategory(pageNum, pageSize);
+        return new ListResponse<List<ServiceCategory>>(true, pageSize, countCategory,
+                lists, "");
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)

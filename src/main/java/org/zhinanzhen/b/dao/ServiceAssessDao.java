@@ -29,7 +29,8 @@ public interface ServiceAssessDao {
 
     int addCategory(@Param("name") String name, @Param("fixPrice") String fixPrice);
 
-    List<ServiceCategory> listCategory();
+    List<ServiceCategory> listCategory(@Param("offset") int offset,
+                                       @Param("rows") int rows);
 
     int updateCategory(@Param("id") Integer id, @Param("name") String name, @Param("fixPrice") String fixPrice);
 
@@ -40,5 +41,7 @@ public interface ServiceAssessDao {
 
 
     ServiceCategory getCategoryIdByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+
+    int countCategory();
 
 }
