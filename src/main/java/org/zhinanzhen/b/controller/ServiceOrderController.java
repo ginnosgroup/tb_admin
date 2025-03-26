@@ -457,7 +457,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
                 if (serviceAssessCategoryId != null) {
                     serviceAssessCategorysplit = serviceAssessId.split(",");
-                    serviceOrderDto.setServiceAssessId("0");
+//                    serviceOrderDto.setServiceAssessId("0");
                     if (serviceAssessCategorysplit.length == 1) {
                         serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategorysplit[0]));
                     }
