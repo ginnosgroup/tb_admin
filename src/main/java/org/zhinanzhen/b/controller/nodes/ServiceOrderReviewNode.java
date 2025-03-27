@@ -124,14 +124,14 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 									serviceOrderDto));
 					return null;
 				}
-				List<String> whiteList = wOfficialReviewPermissions.get(officialDto.getId());
-				if (ObjectUtil.isNotNull(whiteList) && !whiteList.contains(String.valueOf(serviceId))) {
-					context.putParameter("response",
-							new Response<ServiceOrderDTO>(1,
-									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
-									serviceOrderDto));
-					return null;
-				}
+//				List<String> whiteList = wOfficialReviewPermissions.get(officialDto.getId());
+//				if (ObjectUtil.isNotNull(whiteList) && !whiteList.contains(String.valueOf(serviceId))) {
+//					context.putParameter("response",
+//							new Response<ServiceOrderDTO>(1,
+//									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
+//									serviceOrderDto));
+//					return null;
+//				}
 //				List<String> fList = fOfficialReviewPermissions.get(serviceId);
 //				if (officialDto.getRegionId() == 1000034) {
 //					if (ObjectUtil.isNotNull(fList) && !fList.contains(String.valueOf(officialDto.getId()))) {
