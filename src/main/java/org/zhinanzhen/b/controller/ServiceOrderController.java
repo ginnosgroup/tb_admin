@@ -320,6 +320,11 @@ public class ServiceOrderController extends BaseController {
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+            if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
+                if (isPay.equalsIgnoreCase("false")) {
+                    return new Response<Integer>(1, "打包签证及雇主担保不能选择未支付，请核实.", 0);
+                }
+            }
             ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
             serviceOrderDto.setCode(UUID.randomUUID().toString());
             if (StringUtil.isNotEmpty(type))
