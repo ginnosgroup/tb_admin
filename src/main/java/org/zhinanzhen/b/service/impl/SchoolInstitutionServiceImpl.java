@@ -398,7 +398,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException {
         if (commissionOrderListDto == null || commissionOrderListDto.getCourseId() == 0)
             return -1;
-        SchoolSettingNewDO schoolSettingNewDO = returnSetting(commissionOrderListDto.getCourseId(),commissionOrderListDto.getGmtCreate());
+//        SchoolSettingNewDO schoolSettingNewDO = returnSetting(commissionOrderListDto.getCourseId(),commissionOrderListDto.getGmtCreate());
+        SchoolSettingNewDO schoolSettingNewDO = returnSetting(commissionOrderListDto.getCourseId(),new Date());
         if (schoolSettingNewDO == null)
             return -2;
         Date startDate = schoolSettingNewDO.getStartDate();
@@ -410,9 +411,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         Integer courseId = schoolSettingNewDO.getCourseId();
         int level = schoolSettingNewDO.getLevel();
         // 如果不在设置的时间内就不操作
-        if (commissionOrderListDto.getGmtCreate().before(startDate)
-                || commissionOrderListDto.getGmtCreate().after(endDate))
-            return -3;
+//        if (commissionOrderListDto.getGmtCreate().before(startDate)
+//                || commissionOrderListDto.getGmtCreate().after(endDate))
+//            return -3;
 
         List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
         CommissionOrderListDO co = mapper.map(commissionOrderListDto,CommissionOrderListDO.class);
