@@ -563,7 +563,7 @@ public class ServiceOrderController extends BaseController {
                         for (String servicePackageId : servicePackageIdsEOIList) {
                             int id = 0;
                             String[] split = null;
-                            if (!"SIV".equalsIgnoreCase(type)) {
+                            if (!"SIV".equalsIgnoreCase(type) && !"NSV".equalsIgnoreCase(type)) {
                                 if (servicePackageId.contains("-")) {
                                     split = servicePackageId.split("-");
                                 }
