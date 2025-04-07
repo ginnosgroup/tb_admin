@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
@@ -102,6 +104,8 @@ public class VisaController extends BaseCommissionOrderController {
 	WXWorkService wxWorkService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @Autowired
+    private ServiceDAO serviceDAO;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -240,9 +244,11 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-//			visaDto.setExpectAmount(commission);
-			visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
-
+			visaDto.setExpectAmount(commission);
+			ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
+			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
+				visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
+			}
 			double _perAmount = 0.00;
 			double _amount = 0.00;
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
@@ -268,7 +274,10 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setGst(commission / 11);
 					visaDto.setDeductGst(commission - visaDto.getGst());
 					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-					visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
+					visaDto.setExpectAmount(commission);
+					if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
+						visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
+					}
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
 //					else
