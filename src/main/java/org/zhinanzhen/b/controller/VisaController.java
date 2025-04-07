@@ -240,7 +240,8 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setGst(commission / 11);
 			visaDto.setDeductGst(commission - visaDto.getGst());
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-			visaDto.setExpectAmount(commission);
+//			visaDto.setExpectAmount(commission);
+			visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
 
 			double _perAmount = 0.00;
 			double _amount = 0.00;
@@ -267,7 +268,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setGst(commission / 11);
 					visaDto.setDeductGst(commission - visaDto.getGst());
 					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
-					visaDto.setExpectAmount(commission);
+					visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
 //					else
