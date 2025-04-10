@@ -325,6 +325,20 @@ public class ServiceOrderController extends BaseController {
                     return new Response<Integer>(1, "打包签证及雇主担保不能选择未支付，请核实.", 0);
                 }
             }
+            if ("SIV".equalsIgnoreCase(type)) {
+                String[] split = servicePackageIds.split(",");
+                int count = 0;
+                for (String s : split) {
+                    ServicePackageDTO servicePackageDTO = servicePackageService.getById(Integer.valueOf(s));
+                    String servicePackageDTOType = servicePackageDTO.getType();
+                    if ("VA".equalsIgnoreCase(servicePackageDTOType) || "EOI".equalsIgnoreCase(servicePackageDTOType) || "MAT".equalsIgnoreCase(servicePackageDTOType)) {
+                        count++;
+                    }
+                }
+                if (count < 2) {
+                    return new Response<Integer>(1, "打包签证服务必须包含签证以及EOI或者Matrix，请核实.", 0);
+                }
+            }
             ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
             serviceOrderDto.setCode(UUID.randomUUID().toString());
             if (StringUtil.isNotEmpty(type))

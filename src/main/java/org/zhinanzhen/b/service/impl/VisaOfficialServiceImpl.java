@@ -1191,7 +1191,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 // 区分阶段结算
                 if (ObjectUtil.isNotNull(servicePackageDO) && ("EOI".equalsIgnoreCase(servicePackageDO.getType()) || "ROI".equalsIgnoreCase(servicePackageDO.getType()))) {
                     predictCommissionAmount = predictCommissionAmount * 0.6;
-                    extraAmount = extraAmount * 0;
+                    extraAmount = extraAmount * 0.6;
                     for (ServiceOrderDTO a : deriveOrder) {
                         ServicePackageDO servicePackageDO1 = servicePackageDAO.getById(a.getServicePackageId());
                         if ("VA".equalsIgnoreCase(servicePackageDO1.getType())) {
