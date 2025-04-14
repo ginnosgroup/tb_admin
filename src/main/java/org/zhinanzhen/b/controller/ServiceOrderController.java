@@ -462,7 +462,9 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
                 if (serviceAssessCategoryId != null) {
                     serviceAssessCategorysplit = serviceAssessId.split(",");
-//                    serviceOrderDto.setServiceAssessId("0");
+                    if (serviceAssessId.contains(",")) {
+                        serviceOrderDto.setServiceAssessId("0");
+                    }
                     if (serviceAssessCategorysplit.length == 1) {
                         serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
                     }
@@ -617,7 +619,9 @@ public class ServiceOrderController extends BaseController {
                             break;
                     } else if (serviceAssessCategorysplit != null && serviceAssessCategorysplit.length > 1) {
                         for (String s : serviceAssessCategorysplit) {
-                            serviceOrderDto.setParentId(serviceOrderDto.getId());
+                            if (serviceAssessCategoryId == null) {
+                                serviceOrderDto.setParentId(serviceOrderDto.getId());
+                            }
                             serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
                             serviceOrderDto.setServiceAssessId(s);
                             int i = serviceOrderService.addServiceOrder(serviceOrderDto);
