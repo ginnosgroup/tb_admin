@@ -3890,6 +3890,8 @@ public class ServiceOrderController extends BaseController {
                     se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                     throw se;
                 }
+            }
+            if ("PAID".equals(state) && "OVST".equals(serviceOrderDto.getType()) && StringUtil.isEmpty(stateMark) && !serviceOrderDto.isSettle()) {
                 if (StringUtil.isEmpty(offerUrl)) {
                     ServiceException se = new ServiceException(
                             "当前留学订单" + serviceOrderDto.getId() + "没有上传Offer文件，请核实");

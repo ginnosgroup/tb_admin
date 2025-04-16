@@ -1003,6 +1003,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             double predictCommissionAmount = 0.00;
             double bingdingOrderAmount = 0.00;
             Integer getBindingOrderId = -1;
+            getBindingOrderId = serviceOrderById.getId();
+            if (ObjectUtil.isNotNull(serviceOrderByParentId) && serviceOrderByParentId.getId() > 0) {
+                getBindingOrderId = serviceOrderByParentId.getId();
+            }
             if (isSIV || isNSV) {
                 getBindingOrderId = serviceOrderByParentId.getId();
                 amount = amount * 0.5;
@@ -1319,41 +1323,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
     private double getBingdingOrderAmount(ServiceOrderDO serviceOrderById, boolean installment, boolean longTermVisa, Integer getBindingOrderId, double bingdingOrderAmount, boolean isSIV, boolean isNSV, double calculateProportion, boolean isChengDu) {
         List<Integer> integers = serviceOrderDao.listBybindingOrder(getBindingOrderId);
-        List<Integer> listbindingOrder = new ArrayList<>();
         if ((serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) || !integers.isEmpty()) {
-            if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
-                listbindingOrder = serviceOrderDao.listBybindingOrder(serviceOrderById.getId());
-            }
             if (!integers.isEmpty()) {
                 for (Integer a : integers) {
                     bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
                 }
-                bingdingOrderAmount = bingdingOrderAmount * calculateProportion;
-//                if (installment) {
-//                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
-//                }
-//                if (longTermVisa) {
-//                    if (isChengDu) {
-//                        bingdingOrderAmount = bingdingOrderAmount * 0.4;
-//                    } else {
-//                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
-//                    }
-//                }
-//                if (isSIV || isNSV) {
-//                    bingdingOrderAmount = bingdingOrderAmount * calculateProportion;
-//                    if (calculateProportion == 1.00) {
-//                        bingdingOrderAmount = bingdingOrderAmount * 0.5;
-//                    }
-//                }
             }
-//            if (!listbindingOrder.isEmpty()) {
-//                for (Integer a : listbindingOrder) {
-//                    bingdingOrderAmount += servicePackagePriceDAO.getByServiceId(a).getCostPrince();
-//                }
-//                if (installment) {
-//                    bingdingOrderAmount = bingdingOrderAmount * 0.5;
-//                }
-//            }
         }
         return bingdingOrderAmount;
     }
