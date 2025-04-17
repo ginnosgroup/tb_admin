@@ -801,6 +801,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "isTransfer", required = false) String isTransfer, // 是否为中转订单
                                                 @RequestParam(value = "transferRemarks", required = false) String transferRemarks, // 是否为中转订单
                                                 @RequestParam(value = "offerUrl", required = false) String offerUrl, // 是否为中转订单
+                                                @RequestParam(value = "offerType", required = false) String offerType, // 是否为中转订单
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -824,7 +825,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, offerUrl);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, offerUrl, offerType);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -848,7 +849,7 @@ public class ServiceOrderController extends BaseController {
 							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks);
+							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks, offerType);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -952,7 +953,7 @@ public class ServiceOrderController extends BaseController {
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
-                                        String isTransfer, String transferRemarks, String offerUrl) {
+                                        String isTransfer, String transferRemarks, String offerUrl, String offerType) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1111,6 +1112,9 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(offerUrl)) {
                 serviceOrderDto.setOfferUrl(offerUrl);
+            }
+            if (StringUtil.isNotEmpty(offerType)) {
+                serviceOrderDto.setOfferType(offerType);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
