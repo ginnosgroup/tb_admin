@@ -138,7 +138,16 @@ public interface ServiceOrderDAO {
     List<ServiceOrderDO> linshi22();
 
     @Select("SELECT * FROM `tbdb`.`b_service_order`")
-    List<ServiceOrderDTO> linlinshi();
+    List<ServiceOrderDO> linlinshi();
+
+    @Select("SELECT * FROM `tbdb`.`b_visa`")
+    List<VisaDO> linlinshivisa();
+
+    @Select("SELECT * FROM `tbdb`.`b_commission_order`")
+    List<CommissionOrderDO> linlinshiCommisson();
+
+    @Select("SELECT * FROM `tbdb`.`b_applicant`")
+    List<ApplicantDO> linshiApplicant();
 
     @Select("SELECT * FROM b_visa_official WHERE service_order_id IN (1049730,1043858,1049731,1045584,1049645,1049644,1045588,1044066,1049124,1049704,1026388,1049703,\n" +
             "1050383,1049702,1050389,1050388,1046231,1046230,1049324,1034487,1047333,1049889,1050048,1040669,1049040,1049750,1040966,1036280,1035904)")
