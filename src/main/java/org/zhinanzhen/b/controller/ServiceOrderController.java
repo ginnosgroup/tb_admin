@@ -907,7 +907,7 @@ public class ServiceOrderController extends BaseController {
 							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks, offerUrl, offerType);
+							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
