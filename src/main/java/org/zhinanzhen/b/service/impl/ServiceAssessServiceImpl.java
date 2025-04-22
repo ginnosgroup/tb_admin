@@ -3,9 +3,11 @@ package org.zhinanzhen.b.service.impl;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.ServiceAssessDao;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 import org.zhinanzhen.b.service.ServiceAssessService;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,6 +34,11 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     }
 
     @Override
+    public int addCategory(String name, String fixPrice) {
+        return serviceAssessDao.addCategory(name, fixPrice);
+    }
+
+    @Override
     public int update(Integer id, String name) {
         return serviceAssessDao.update(id,name);
     }
@@ -49,5 +56,25 @@ public class ServiceAssessServiceImpl implements ServiceAssessService {
     @Override
     public List<ServiceAssessDO> seleteAssessByServiceId(String serviceId) {
         return serviceAssessDao.seleteAssessByServiceId(serviceId);
+    }
+
+    @Override
+    public List<ServiceCategory> listCategory(int pageNum,int pageSize) {
+        return serviceAssessDao.listCategory(pageNum * pageSize, pageSize);
+    }
+
+    @Override
+    public int updateCategory(Integer id, String name, String fixPrice) {
+        return serviceAssessDao.updateCategory(id,name,fixPrice);
+    }
+
+    @Override
+    public int deleteCategory(Integer id) {
+        return serviceAssessDao.deleteCategory(id);
+    }
+
+    @Override
+    public int countCategory() {
+        return serviceAssessDao.countCategory();
     }
 }

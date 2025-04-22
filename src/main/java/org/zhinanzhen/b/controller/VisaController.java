@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
@@ -102,6 +104,8 @@ public class VisaController extends BaseCommissionOrderController {
 	WXWorkService wxWorkService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @Autowired
+    private ServiceDAO serviceDAO;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody

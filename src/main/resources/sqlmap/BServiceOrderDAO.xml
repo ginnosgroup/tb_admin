@@ -1506,6 +1506,13 @@
                           and (state = 'APPLY' OR state = 'COMPLETE')
                             and official_id != 0 and type != 'OVST'
     </select>
+    <select id="getServiceForAssessId" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        select * from b_service_order
+        where
+            service_assess_id = #{serviceAssessId}
+          and service_package_id = #{servicePackageId}
+          and applicant_parent_id = #{applicantParentId}
+    </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>

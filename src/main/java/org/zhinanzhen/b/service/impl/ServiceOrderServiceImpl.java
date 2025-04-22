@@ -251,6 +251,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             if (serviceOrderDao.addServiceOrder(serviceOrderDo) > 0) {
+                // 添加职评中间表
+                Integer serviceAssessCategoryId = serviceOrderDo.getServiceAssessCategoryId();
+                if (!"OVST".equalsIgnoreCase(serviceOrderDo.getType())) {
+                    if (serviceAssessCategoryId != null || ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServiceAssessId() != null)) {
+                        serviceAssessDao.addServiceAssessCategory(serviceAssessCategoryId, serviceOrderDo.getServiceAssessId(), serviceOrderDo.getId());
+                    }
+                }
                 if (ObjectUtil.isNotNull(serviceOrderByIdTmp)) {
                     AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderByIdTmp.getAdviserId());
                     ApplicantDTO applicantDto = null;
@@ -925,7 +932,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         // 查询服务
         ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
         if (serviceDo != null) {
-            if ("EOI".equals(serviceDo.getCode())) {
+            if (serviceDo.getCode().contains("EOI")) {
                 if (serviceOrderDto.getServicePackageId() == 0) {
                     StringBuilder eoiList = new StringBuilder();
                     List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
@@ -937,6 +944,28 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     }
                     if (StringUtils.isNotBlank(String.valueOf(eoiList))) {
                         serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+                    }
+                }
+                if (serviceOrderDto.getApplicantId() == 0 && serviceOrderDto.getApplicantParentId() == 0) {
+                    List<ServiceAssessAndEOI> serviceAssessAndEOIList = new ArrayList<>();
+                    List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
+                    if (deriveOrder != null && !deriveOrder.isEmpty()) {
+                        deriveOrder.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getServiceAssessId)).forEach((k, v) -> {
+                            ServiceAssessAndEOI serviceAssessAndEOI = new ServiceAssessAndEOI();
+                            ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(k);
+                            if (serviceAssessDO != null) {
+                                StringBuilder eoiNum = new StringBuilder();
+                                serviceAssessAndEOI.setLabel(serviceAssessDO.getName());
+                                serviceAssessAndEOI.setValue(k);
+                                serviceAssessAndEOI.setKey(k);
+                                for (ServiceOrderDTO serviceOrderDTO : v) {
+                                    eoiNum.append(",").append(serviceOrderDTO.getServicePackageId());
+                                }
+                                serviceAssessAndEOI.setEoiServicePackageId(eoiNum.substring(1, eoiNum.length()));
+                                serviceAssessAndEOIList.add(serviceAssessAndEOI);
+                            }
+                        });
+                        serviceOrderDto.setServiceAssessAndEOIList(serviceAssessAndEOIList);
                     }
                 }
                 ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(serviceOrderDto.getServicePackageId());
@@ -1038,7 +1067,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         ChildrenServiceOrderDTO.class);
                 ServicePackageDO servicePackageDo = servicePackageDao
                         .getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-                // 又偷懒了，性能比较差哦：）
                 if (servicePackageDo != null)
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
@@ -1071,8 +1099,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
         // 查询职业名称
         ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
-        if (serviceAssessDO != null)
+        if (serviceAssessDO != null) {
             serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+            ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+            if (categoryIdByServiceOrderId != null) {
+                serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
+            }
+        }
 
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
         if (mailRemindDOS.size() > 0) {

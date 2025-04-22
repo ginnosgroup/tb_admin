@@ -3,12 +3,16 @@ package org.zhinanzhen.b.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.ServiceAssessDO;
+import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 import org.zhinanzhen.b.service.ServiceAssessService;
 import org.zhinanzhen.b.service.ServiceService;
+import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -21,7 +25,7 @@ import java.util.List;
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/serviceAssess")
-public class ServiceAssessController {
+public class ServiceAssessController extends BaseController {
 
 
     @Resource
@@ -42,11 +46,32 @@ public class ServiceAssessController {
         return new Response(1,"fail");
     }
 
+    @RequestMapping(value = "/addCategory",method = RequestMethod.POST)
+    @ResponseBody
+    public Response addCategory(@RequestParam(value = "name") String name,
+                                @RequestParam(value = "fixPrice") String fixPrice) throws ServiceException {
+        int i = serviceAssessService.addCategory(name, fixPrice);
+        if (i > 0 )
+            return new Response(0,"success", i);
+        return new Response(1,"fail", 0);
+    }
+
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     @ResponseBody
     public Response list(@RequestParam(value = "serviceId",required = false) Integer  serviceId){
         List<ServiceAssessDO> lists = serviceAssessService.list(serviceId);
         return new Response(0,lists);
+    }
+
+    @RequestMapping(value = "/listCategory",method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<ServiceCategory>> listCategory(@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+                                 HttpServletResponse response){
+        super.setGetHeader(response);
+        int countCategory = serviceAssessService.countCategory();
+        List<ServiceCategory> lists = serviceAssessService.listCategory(pageNum, pageSize);
+        return new ListResponse<List<ServiceCategory>>(true, pageSize, countCategory,
+                lists, "");
     }
 
     @RequestMapping(value = "/update",method = RequestMethod.POST)
@@ -58,12 +83,31 @@ public class ServiceAssessController {
         return new Response(1,"fail");
     }
 
+    @RequestMapping(value = "/updateCategory",method = RequestMethod.POST)
+    @ResponseBody
+    public  Response updateCategory(@RequestParam(value = "name") String name,
+                                    @RequestParam(value = "fixPrice") String fixPrice,
+                            @RequestParam(value = "id")Integer id){
+        if (serviceAssessService.updateCategory(id,name, fixPrice) > 0 )
+            return new Response(0,"success");
+        return new Response(1,"fail");
+    }
+
     @RequestMapping(value = "delete", method = RequestMethod.POST)
     @ResponseBody
     public Response delete(@RequestParam(value = "id")Integer id){
         if (serviceAssessService.delete(id) > 0 )
             return new Response(0,"success");
         return new Response(1,"fail");
+    }
+
+    @RequestMapping(value = "deleteCategory", method = RequestMethod.POST)
+    @ResponseBody
+    public Response deleteCategory(@RequestParam(value = "id")Integer id){
+        int i = serviceAssessService.deleteCategory(id);
+        if (i > 0 )
+            return new Response(0,"success", i);
+        return new Response(1,"fail", 0);
     }
 
 }

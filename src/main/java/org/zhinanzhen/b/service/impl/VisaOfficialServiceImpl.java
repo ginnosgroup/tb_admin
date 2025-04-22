@@ -1559,11 +1559,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         Integer region = 0;
         VisaOfficialDO one = visaOfficialDao.getOne(id);
         VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(one.getServiceOrderId());
+        ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(byServiceOrderId.getServiceId());
 
         if (StringUtil.isEmpty(submitIbDate)) {
             OfficialDO officialById = officialDao.getOfficialById(byServiceOrderId.getOfficialId());
+            ServicePackagePriceV2DTO servicePackagePriceV2DTO = closeJugdNew(officialById.getId(), byServiceId);
             OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
-            Double rate = officialGradeById.getRate();
+            Double rate = servicePackagePriceV2DTO.getRate();
             // 判断当前文案地区为澳洲还是中国
             RegionDO regionById = regionDAO.getRegionById(officialById.getRegionId());
             String regionName = regionById.getName().replaceAll("[^\u4e00-\u9fa5]", "");

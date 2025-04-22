@@ -914,6 +914,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         // setExpectAmount 预收业绩
         if (subagencyDo != null) {
             if ("AU".equals(subagencyDo.getCountry())) {
+                if (co.getInstallmentNum() != 1) {
+                    registerFee = 0;
+                }
                 co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1 + registerFee + bookFee);//预收业绩
                 System.out.println(co.getId() + "(澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
                         + subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());

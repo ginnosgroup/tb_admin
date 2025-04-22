@@ -20,4 +20,8 @@ public class ServiceAssessDO  {
     private String name;
 
     private  int  serviceId;
+
+    private String categoryName;
+
+    private boolean isDelete;
 }
