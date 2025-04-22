@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
+import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.*;
@@ -140,6 +141,8 @@ public class ServiceOrderController extends BaseController {
     private AdviserDAO adviserDAO;
     @Autowired
     private MaraDAO maraDAO;
+    @Autowired
+    private ServiceDAO serviceDAO;
 
     public enum ReviewAdviserStateEnum {
         PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
@@ -310,9 +313,10 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "institutionTradingName4", required = false) String institutionTradingName4,
                                              @RequestParam(value = "institutionTradingName5", required = false) String institutionTradingName5,
                                              @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrderId,
-                                              @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
+                                             @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
                                              @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
                                              @RequestParam(value = "visaNumber", required = false) String visaNumber,
+                                             @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -446,11 +450,41 @@ public class ServiceOrderController extends BaseController {
                     && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
                 return new Response(1, "没有选择职业!");
             }
+            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
+            if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
+                serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
+                        ServiceOrderApplicantDTO.class);
+                if (servicePackageIds != null) {
+                    if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1 && !servicePackageIds.contains("-")) {
+                        serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                    }
+                } else {
+                    if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1) {
+                        serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                    }
+                }
+
+            } else {
+                return new Response<Integer>(1, "请选择申请人.", null);
+            }
+            String[] serviceAssessCategorysplit = null;
             if (StringUtil.isNotEmpty(serviceAssessId)) {
                 if ((!type.equalsIgnoreCase("SIV") && !type.equalsIgnoreCase("NSV"))
                         && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
                     return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
+                if (serviceAssessCategoryId != null) {
+                    serviceAssessCategorysplit = serviceAssessId.split(",");
+                    if (serviceAssessId.contains(",")) {
+                        serviceOrderDto.setServiceAssessId("0");
+                    }
+                    if (serviceAssessCategorysplit.length == 1) {
+                        serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
+                    }
+                    if (serviceAssessCategorysplit.length > 1) {
+                        serviceOrderDto.setApplicantId(0);
+                    }
+                }
             }
             if (isHistory != null && "true".equalsIgnoreCase(isHistory))
                 serviceOrderDto.setRealPeopleNumber(0);
@@ -468,14 +502,6 @@ public class ServiceOrderController extends BaseController {
             }
             if (schoolInstitutionLocationId != null && schoolInstitutionLocationId > 0)
                 serviceOrderDto.setSchoolInstitutionLocationId(schoolInstitutionLocationId);
-            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
-            if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
-                serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
-                        ServiceOrderApplicantDTO.class);
-                if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1)
-                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-            } else
-                return new Response<Integer>(1, "请选择申请人.", null);
             if (StringUtil.isNotEmpty(servicePackageIds)) {
                 String[] split = servicePackageIds.split(",");
                 serviceOrderDto.setEOINumber(split.length);
@@ -550,7 +576,18 @@ public class ServiceOrderController extends BaseController {
                         serviceOrderDto.setId(0);
                         int EOICount = 0;
                         for (String servicePackageId : servicePackageIdsEOIList) {
-                            int id = StringUtil.toInt(servicePackageId);
+                            int id = 0;
+                            String[] split = null;
+                            if (!"SIV".equalsIgnoreCase(type) && !"NSV".equalsIgnoreCase(type)) {
+                                if (servicePackageId.contains("-")) {
+                                    split = servicePackageId.split("-");
+                                }
+                                if (split != null && split.length > 1) {
+                                    id = StringUtil.toInt(split[0]);
+                                }
+                            } else {
+                                id = StringUtil.toInt(servicePackageId);
+                            }
                             ServicePackageDTO servicePackageDTO = servicePackageService.getById(id);
                             if (servicePackageDTO == null) {
                                 msg += "服务包不存在(" + id + "),请检查参数. ";
@@ -570,6 +607,9 @@ public class ServiceOrderController extends BaseController {
                                 return new Response<Integer>(1, "服务包不存在.", null);
                             serviceOrderDto.setServiceAssessId(
                                     "CA".equalsIgnoreCase(servicePackageDto.getType()) ? serviceAssessId : null);
+                            if (split != null && split.length > 1) {
+                                serviceOrderDto.setServiceAssessId(split[1]);
+                            }
                             serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 //                            serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
                             serviceOrderDto.setVerifyCode(null); // 独立技术移民子订单都没有对账Code
@@ -590,6 +630,23 @@ public class ServiceOrderController extends BaseController {
                         }
                         if (serviceOrderApplicantList.size() == 1)
                             break;
+                    } else if (serviceAssessCategorysplit != null && serviceAssessCategorysplit.length > 1) {
+                        for (String s : serviceAssessCategorysplit) {
+                            if (serviceAssessCategoryId == null) {
+                                serviceOrderDto.setParentId(serviceOrderDto.getId());
+                            }
+                            serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
+                            serviceOrderDto.setServiceAssessId(s);
+                            int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                            if (i > 0 && adminUserLoginInfo != null) {
+                                serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
+                                        ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+                                serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+                                if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
+                                    msg += "申请人子服务订单创建失败(" + serviceOrderApplicantDto + "). ";
+                            } else
+                                msg += "服务订单创建失败(" + serviceOrderDto + "). ";
+                        }
                     } else if (serviceOrderApplicantList.size() > 1) {
                         serviceOrderDto.setId(0);
                         serviceOrderDto.setVerifyCode(null);
@@ -778,6 +835,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
                                                 @RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
                                                 @RequestParam(value = "servicePackageIdsEOI", required = false) String servicePackageIdsEOI,
+                                                @RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
                                                 @RequestParam(value = "maraId", required = false) String maraId,
                                                 @RequestParam(value = "adviserId", required = false) String adviserId,
                                                 @RequestParam(value = "officialId", required = false) String officialId,
@@ -825,7 +883,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, offerUrl, offerType);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -953,7 +1011,7 @@ public class ServiceOrderController extends BaseController {
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
-                                        String isTransfer, String transferRemarks, String offerUrl, String offerType) {
+                                        String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl, String offerType) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1046,8 +1104,9 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setBonus(Double.parseDouble(bonus));
             if (StringUtil.isNotEmpty(userId))
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
-            if (StringUtil.isNotEmpty(applicantId))
+            if (StringUtil.isEmpty(servicePackageIds) && StringUtil.isNotEmpty(applicantId)) {
                 serviceOrderDto.setApplicantId(StringUtil.toInt(applicantId));
+            }
             if (StringUtil.isNotEmpty(maraId) && !"0".equals(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
