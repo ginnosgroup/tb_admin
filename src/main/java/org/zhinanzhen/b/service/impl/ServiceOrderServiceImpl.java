@@ -949,7 +949,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 if (serviceOrderDto.getApplicantId() == 0 && serviceOrderDto.getApplicantParentId() == 0) {
                     List<ServiceAssessAndEOI> serviceAssessAndEOIList = new ArrayList<>();
                     List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
-                    if (deriveOrder != null && !deriveOrder.isEmpty()) {
+                    if (deriveOrder != null && !deriveOrder.isEmpty() && deriveOrder.get(0).getServiceAssessId() != null) {
                         deriveOrder.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getServiceAssessId)).forEach((k, v) -> {
                             ServiceAssessAndEOI serviceAssessAndEOI = new ServiceAssessAndEOI();
                             ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(k);
