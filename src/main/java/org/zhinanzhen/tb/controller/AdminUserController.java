@@ -121,18 +121,18 @@ public class AdminUserController extends BaseController {
 		super.setPostHeader(response);
 		HttpSession session = request.getSession();
 		if (StringUtil.isEmpty(captcha))
-			return new Response<Boolean>(0, "请输入验证码.", false);
+			return new Response<Boolean>(0, "请输入验证码。", false);
 		try {
 			String i = (String) session.getAttribute("captcha");
 			String e = encrypt.encrypt(username, KEY).substring(0, 4) + i;
 			if (!captcha.equalsIgnoreCase(e) && !"znz24qwe".equalsIgnoreCase(captcha))
-				return new Response<Boolean>(0, "验证码错误,登录失败.", false);
+				return new Response<Boolean>(0, "验证码错误，登录失败。", false);
 		} catch (Exception e) {
 			return new Response<Boolean>(0, "验证码异常:" + e.getMessage(), false);
 		}
 		int id = adminUserService.login(username, password);
 		if (id == 0)
-			return new Response<Boolean>(0, "", false);
+			return new Response<Boolean>(0, "账户或者密码不正确。", false);
 		if (id == -1)
 			return new Response<Boolean>(-1, "该帐号可能已被禁用！", false);
 		String uid = (String) session.getAttribute("uid");
