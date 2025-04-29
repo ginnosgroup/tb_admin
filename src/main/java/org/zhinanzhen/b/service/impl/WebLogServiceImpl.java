@@ -110,14 +110,20 @@ public class WebLogServiceImpl implements WebLogService {
                     }
                     if ("update".equalsIgnoreCase(split[split.length - 1])) {
                         List<ServiceOrderOriginallyDO> serviceOrderOriginallyDOS = serviceOrderOriginallyDAO.listServiceOrderOriginallyDO(webLogDTO.getServiceOrderId(), null, null);
-                        for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
-                            if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() == null) {
-                                Integer officialId = serviceOrderOriginallyDO.getOfficialId();
-                                OfficialDO officialDO = officialDAO.getOfficialById(officialId);
-                                OfficialDO officialById = officialDAO.getOfficialById(Integer.valueOf(JSONObject.parseObject(standardJson).get("officialId").toString()));
-                                serviceOrderOriginallyDOList.add(startTime + "    文案" + ":"  + officialDO.getName() + "    更换为" + "    文案" + ":"  + officialById.getName() + "    操作人:" + userName);
+                        if (serviceOrderOriginallyDOS != null && serviceOrderOriginallyDOS.size() > 0) {
+                            for (ServiceOrderOriginallyDO serviceOrderOriginallyDO : serviceOrderOriginallyDOS) {
+                                if (serviceOrderOriginallyDO.getOfficialId() != null && serviceOrderOriginallyDO.getNewOfficialId() != null && serviceOrderOriginallyDO.getWebLogId() == null) {
+                                    Integer officialId = serviceOrderOriginallyDO.getOfficialId();
+                                    OfficialDO officialDO = officialDAO.getOfficialById(officialId);
+                                    OfficialDO officialById = officialDAO.getOfficialById(Integer.valueOf(JSONObject.parseObject(standardJson).get("officialId").toString()));
+                                    serviceOrderOriginallyDOList.add(startTime + "    文案" + ":"  + officialDO.getName() + "    更换为" + "    文案" + ":"  + officialById.getName() + "    操作人:" + userName);
+                                }
                             }
+                        } else {
+                            AdviserDO adviserDOOld = adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
+                            serviceOrderOriginallyDOList.add(startTime + "    顾问" + ":"  + adviserDOOld.getName() + "    提交并修改订单" + "    操作人:" + userName);
                         }
+
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                     }
                     if ("finish".equalsIgnoreCase(split[split.length - 1])) {

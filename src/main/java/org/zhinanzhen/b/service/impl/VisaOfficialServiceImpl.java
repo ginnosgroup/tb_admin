@@ -670,7 +670,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         // 澳洲地区高峰月份rate处理
         OfficialGradeDO officialGradeById = officialGradeDao.getOfficialGradeById(officialById.getGradeId());
 //        rate = officialGradeById.getRate();
-        if (region == 0 && !"资深".equals(officialGradeById.getGrade())) {
+        if (region == 0 && officialGradeById.getId() != 100001) {
             // 创建一个Calendar对象并设置时间为date对象的时间
             Calendar sss = Calendar.getInstance();
             sss.setTime(serviceOrderById.getReadcommittedDate());
@@ -993,10 +993,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (ObjectUtil.isNotNull(servicePackagePriceV2DTO1) && servicePackagePriceV2DTO1.getRuler() == 0) {
                 rate = rate + servicePackagePriceV2DTO1.getRate();
             }
-            servicePackagePriceV2DTO = closeJugd(serviceOrderById.getOfficialId(), servicePackagePriceDO);
-            commissionAmountDTO.setThirdPrince(servicePackagePriceDO.getThirdPrince());
-            servicePackagePriceDO.setAmount(servicePackagePriceV2DTO.getAmount());
-            commissionAmountDTO.setRuler(servicePackagePriceV2DTO.getRuler());
+//            servicePackagePriceV2DTO = closeJugd(serviceOrderById.getOfficialId(), servicePackagePriceDO);
+            if (servicePackagePriceV2DTO1.getRuler() == 1) {
+                servicePackagePriceDO.setAmount(servicePackagePriceV2DTO1.getAmount());
+            }
+            commissionAmountDTO.setRuler(servicePackagePriceV2DTO1.getRuler());
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (commissionAmountDTO.getRuler() == 0) {
