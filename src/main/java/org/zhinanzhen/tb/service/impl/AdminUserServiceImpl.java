@@ -46,8 +46,8 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 			if (isAdded > 0) {
 				if (StringUtil.equals(apList, "GW"))
 					sendMail(username, "佣金系统帐号已经开通",
-							StringUtil.merge("登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号:",
-									username, "<br/>登录密码:", password));
+							StringUtil.merge("Hi 顾问老师: <br/>您的佣金系统帐号已经开通．<br/>登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号:",
+									username, "<br/>登录密码:", password, "请查看顾问佣金系统培训资料:https://doc.weixin.qq.com/doc/w2_AEYAdQbUANwQps2udu8TPiXRT7a8C?scode=ALMA7AfIAA4JFhNyzpAEYAdQbUANw&version=4.1.36.6011&platform=win"));
 				if (StringUtil.equals(apList, "WA"))
 					sendMail(username, "佣金系统帐号已经开通", StringUtil.merge(
 							"Hi 文案老师: <br/>您的佣金系统帐号已经开通．<br/>登录网址:https://yongjinbiao.zhinanzhen.org/webroot_new/welcome<br/>登录帐号是你的企业邮箱，登录密码:",

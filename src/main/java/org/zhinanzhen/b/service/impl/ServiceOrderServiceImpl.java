@@ -344,18 +344,22 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
         int adviserId = serviceOrderById.getAdviserId();
         int officialId = serviceOrderById.getOfficialId();
+        int co = 0;
         if (adviserId != serviceOrderDto.getAdviserId()) {
             serviceOrderOriginallyDO.setServiceOrderId(serviceOrderById.getId());
             serviceOrderOriginallyDO.setAdviserId(adviserId);
             serviceOrderOriginallyDO.setNewAdviserId(adviserId);
+            co++;
         }
         if (officialId != serviceOrderDto.getOfficialId()) {
             serviceOrderOriginallyDO.setServiceOrderId(serviceOrderById.getId());
             serviceOrderOriginallyDO.setOfficialId(officialId);
             serviceOrderOriginallyDO.setNewOfficialId(officialId);
+            co++;
         }
-        serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
-
+        if (co > 0) {
+            serviceOrderOriginallyDAO.addServiceOrderOriginallyDO(serviceOrderOriginallyDO);
+        }
         String offerType1 = serviceOrderById.getOfferType();
         long time = serviceOrderDto.getGmtCreate().getTime();
         long timeTmp = 1721577600000L;
@@ -1106,7 +1110,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
             }
         }
-
+        if (serviceOrderDto.getServiceAssessId() != null && "0".equalsIgnoreCase(serviceOrderDto.getServiceAssessId())) {
+            serviceOrderDto.setServiceAssessDO(new ServiceAssessDO());
+        }
         List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
         if (mailRemindDOS.size() > 0) {
             List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
