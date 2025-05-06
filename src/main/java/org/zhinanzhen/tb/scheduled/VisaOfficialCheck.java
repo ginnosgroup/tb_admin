@@ -117,8 +117,8 @@ public class VisaOfficialCheck {
             if (e.getApplicantParentId() > 0) {
                 ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(e.getApplicantParentId());
                 if (ObjectUtil.isNotNull(serviceOrderById)) {
-                    isSIV = "SIV".equalsIgnoreCase(e.getType());
-                    isNSV = "NSV".equalsIgnoreCase(e.getType());
+                    isSIV = "SIV".equalsIgnoreCase(serviceOrderById.getType());
+                    isNSV = "NSV".equalsIgnoreCase(serviceOrderById.getType());
                 }
                 if (isSIV) {
                     ServicePackageDO servicePackageDO = servicePackageDAO.getById(e.getServicePackageId());

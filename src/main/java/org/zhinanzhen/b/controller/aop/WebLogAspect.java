@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.WebLogDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -52,6 +54,9 @@ public class WebLogAspect extends BaseController{
 
     @Autowired
     private AdminUserDAO adminUserDAO;
+
+    @Autowired
+    private ServiceOrderDAO serviceOrderDAO;
 
     //定义切点表达式,指定通知功能被应用的范围
 //                "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
@@ -233,7 +238,15 @@ public class WebLogAspect extends BaseController{
 
             if (!StringUtils.isEmpty(methodName)) {
                 if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
-                    webLogDAO.addWebLogs(webLog);
+                    int i = webLogDAO.addWebLogs(webLog);
+                    if (i > 0) {
+                        Integer serviceOrderId = webLog.getServiceOrderId();
+                        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.getWebLogServiceOrder(serviceOrderId);
+                        for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+                            webLog.setServiceOrderId(serviceOrderDO.getId());
+                            webLogDAO.addWebLogs(webLog);
+                        }
+                    }
                 }
             }
             log.info("{}", JSONUtil.parse(webLog));

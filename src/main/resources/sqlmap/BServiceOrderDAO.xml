@@ -1513,6 +1513,12 @@
           and service_package_id = #{servicePackageId}
           and applicant_parent_id = #{applicantParentId}
     </select>
+    <select id="getWebLogServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        select * from b_service_order
+        where (id = (SELECT applicant_parent_id FROM `tbdb`.`b_service_order` WHERE `id` = #{serviceOrderId})
+           or applicant_parent_id = (SELECT applicant_parent_id FROM `tbdb`.`b_service_order` WHERE `id` = #{serviceOrderId}))
+        and (id != #{serviceOrderId})
+    </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>

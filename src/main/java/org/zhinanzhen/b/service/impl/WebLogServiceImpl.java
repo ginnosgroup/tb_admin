@@ -52,7 +52,8 @@ public class WebLogServiceImpl implements WebLogService {
         try {
             List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, userId, operatedUser, offset, rows);
             String userName = "";
-            for (WebLogDTO webLogDTO : webLogDTOS) {
+            for (int i = 0; i < webLogDTOS.size(); i++) {
+                WebLogDTO webLogDTO = webLogDTOS.get(i);
                 String uri = webLogDTO.getUri();
                 String[] split = uri.split("/");
                 String originalDateFormat = "yyyy-MM-dd HH:mm:ss";
@@ -127,6 +128,7 @@ public class WebLogServiceImpl implements WebLogService {
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                     }
                     if ("finish".equalsIgnoreCase(split[split.length - 1])) {
+                        webLogDTOS.remove(i);
                         continue;
                     }
                 }

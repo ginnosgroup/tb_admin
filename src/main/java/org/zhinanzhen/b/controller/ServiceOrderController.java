@@ -632,6 +632,8 @@ public class ServiceOrderController extends BaseController {
                             break;
                     } else if (serviceAssessCategorysplit != null && serviceAssessCategorysplit.length > 1) {
                         for (String s : serviceAssessCategorysplit) {
+                            serviceOrderDto.setId(0);
+                            serviceOrderDto.setVerifyCode(null);
                             if (serviceAssessCategoryId == null) {
                                 serviceOrderDto.setParentId(serviceOrderDto.getId());
                             }

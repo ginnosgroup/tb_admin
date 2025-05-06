@@ -4,7 +4,6 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.*;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 import java.util.List;
 
@@ -141,4 +140,7 @@ public interface ServiceOrderDAO {
     List<ServiceOrderDO> linlinshi();
 
     ServiceOrderDO getServiceForAssessId(@Param("servicePackageId") int servicePackageId, @Param("serviceAssessId") int assessId,@Param("applicantParentId") int applicantParentId);
+
+    List<ServiceOrderDO> getWebLogServiceOrder(@Param("serviceOrderId") Integer serviceOrderId);
+
 }
