@@ -242,18 +242,20 @@ public class WebLogAspect extends BaseController{
                     int i = webLogDAO.addWebLogs(webLog);
                     if (i > 0) {
                         Integer serviceOrderId = webLog.getServiceOrderId();
-                        ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
-                        if (serviceOrderById.getApplicantParentId() > 0) {
-                            ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
-                            List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
-                            webLog.setServiceOrderId(serviceOrderByParent.getId());
-                            webLogDAO.addWebLogs(webLog);
-                            for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
-                                if (serviceOrderDO.getId() == serviceOrderId) {
-                                    continue;
-                                }
-                                webLog.setServiceOrderId(serviceOrderDO.getId());
+                        if (serviceOrderId != null) {
+                            ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+                            if (serviceOrderById.getApplicantParentId() > 0) {
+                                ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
+                                List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
+                                webLog.setServiceOrderId(serviceOrderByParent.getId());
                                 webLogDAO.addWebLogs(webLog);
+                                for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
+                                    if (serviceOrderDO.getId() == serviceOrderId) {
+                                        continue;
+                                    }
+                                    webLog.setServiceOrderId(serviceOrderDO.getId());
+                                    webLogDAO.addWebLogs(webLog);
+                                }
                             }
                         }
                     }
