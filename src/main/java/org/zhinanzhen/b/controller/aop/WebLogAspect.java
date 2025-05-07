@@ -20,6 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.WebLogDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
@@ -241,8 +242,14 @@ public class WebLogAspect extends BaseController{
                     int i = webLogDAO.addWebLogs(webLog);
                     if (i > 0) {
                         Integer serviceOrderId = webLog.getServiceOrderId();
-                        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.getWebLogServiceOrder(serviceOrderId);
-                        for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+                        ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+                        List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderId);
+                        webLog.setServiceOrderId(serviceOrderById.getId());
+                        webLogDAO.addWebLogs(webLog);
+                        for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
+                            if (serviceOrderDO.getId() == serviceOrderId) {
+                                continue;
+                            }
                             webLog.setServiceOrderId(serviceOrderDO.getId());
                             webLogDAO.addWebLogs(webLog);
                         }
