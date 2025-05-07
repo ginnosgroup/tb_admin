@@ -243,15 +243,18 @@ public class WebLogAspect extends BaseController{
                     if (i > 0) {
                         Integer serviceOrderId = webLog.getServiceOrderId();
                         ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
-                        List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderId);
-                        webLog.setServiceOrderId(serviceOrderById.getId());
-                        webLogDAO.addWebLogs(webLog);
-                        for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
-                            if (serviceOrderDO.getId() == serviceOrderId) {
-                                continue;
-                            }
-                            webLog.setServiceOrderId(serviceOrderDO.getId());
+                        if (serviceOrderById.getApplicantParentId() > 0) {
+                            ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
+                            List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
+                            webLog.setServiceOrderId(serviceOrderByParent.getId());
                             webLogDAO.addWebLogs(webLog);
+                            for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
+                                if (serviceOrderDO.getId() == serviceOrderId) {
+                                    continue;
+                                }
+                                webLog.setServiceOrderId(serviceOrderDO.getId());
+                                webLogDAO.addWebLogs(webLog);
+                            }
                         }
                     }
                 }
