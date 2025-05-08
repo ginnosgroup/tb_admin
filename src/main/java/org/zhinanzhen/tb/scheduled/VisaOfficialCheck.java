@@ -7,6 +7,9 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -15,6 +18,8 @@ import org.springframework.web.client.RestTemplate;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
@@ -22,9 +27,14 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
@@ -91,9 +101,187 @@ public class VisaOfficialCheck {
     @Resource
     private QywxExternalUserDAO qywxExternalUserDAO;
 
+    @Resource
+    private ServicePackagePriceDAO servicePackagePriceDAO;
+
+    @Resource
+    private ServiceOrderService serviceOrderService;
+
     @Autowired
     public VisaOfficialCheck(Executor executor) {
         this.executor = executor;
+    }
+
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 4 18 * ?")
+    public void visaOfficialExcel() {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Calendar calendar = Calendar.getInstance();
+
+            // 设置为上个月的第一天 00:00:00
+            calendar.add(Calendar.MONTH, -1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            String startStr = sdf.format(calendar.getTime());
+
+            // 获取上个月的最后一天 23:59:59
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+
+            String endStr = sdf.format(calendar.getTime());
+            List<Integer> regionIdList = new ArrayList<>();
+            regionIdList.add(1000034);
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaForDown(null, null, null, startStr, endStr, null,
+                    null, null, null, null);
+            int i = 1;
+            //获取模板
+            InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
+            HSSFWorkbook wb = new HSSFWorkbook(is);
+            HSSFSheet sheet = wb.getSheetAt(0);
+            String servicePackageType = "";
+            List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
+            Map<Integer, ServicePackagePriceDO> servicePackagePriceDOMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId, Function.identity()));
+
+            for (VisaOfficialDTO visaDTO : officialList) {
+                HSSFRow row = sheet.createRow(i);
+                row.createCell(0).setCellValue(visaDTO.getId());
+                row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
+                row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
+                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+                row.createCell(4).setCellValue(visaDTO.getUserName());
+                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
+                row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
+                row.createCell(7).setCellValue(visaDTO.getCurrency());
+                row.createCell(8).setCellValue(visaDTO.getExchangeRate());
+                row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
+//                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage()) && visaDTO.getServiceOrder().getApplicantParentId() > 0) {
+//                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+//                }
+                System.out.println("当前id--------------------------" + visaDTO.getId());
+                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
+                    String type = visaDTO.getServiceOrder().getServicePackage().getType();
+                    switch (type) {
+                        case "CA":
+                            type = "职业评估";
+                            break;
+                        case "EOI":
+                            type = "EOI";
+                            break;
+                        case "VA":
+                            type = "签证申请";
+                            break;
+                        case "TM":
+                            type = "提名";
+                            break;
+                        case "ZD":
+                            type = "州担";
+                            break;
+                        default:
+                            type = type;
+                    }
+                    if ("EOI".equalsIgnoreCase(type)) {
+                        ServiceDO serviceById = serviceDAO.getServiceById(visaDTO.getServiceOrder().getServicePackage().getServiceId());
+                        type = type + "-" + serviceById.getCode();
+                    }
+                    servicePackageType = "-" + type;
+//                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                }
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                servicePackageType = "";
+                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
+                if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
+                    row.createCell(11).setCellValue(servicePackagePriceDO.getMaxPrice());
+                }
+                row.createCell(12).setCellValue(visaDTO.getAdviserName());
+                row.createCell(13).setCellValue(visaDTO.getOfficialName());
+                row.createCell(14).setCellValue(visaDTO.getMaraName() == null ? "" : visaDTO.getMaraName());
+                row.createCell(15).setCellValue(visaDTO.getTotalPerAmountAUD());
+                row.createCell(16).setCellValue(visaDTO.getTotalAmountCNY());
+                row.createCell(17).setCellValue(visaDTO.getPredictCommissionAmount() + "");
+                row.createCell(18).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
+                row.createCell(19).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                row.createCell(20).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
+                double extraAmount = 0.00;
+                extraAmount = visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount();
+                row.createCell(21).setCellValue(extraAmount);
+                if (extraAmount == 0) {
+                    row.createCell(22).setCellValue(0);
+                } else {
+                    double basicAmount = 0.00;
+                    basicAmount = visaDTO.getCommissionAmount() - visaDTO.getExtraAmount();
+                    if (basicAmount < 0) {
+                        basicAmount = 0.00;
+                    }
+                    row.createCell(22).setCellValue(basicAmount);
+                }
+                ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+                double additionalAmount2A = 0.00; // 带配偶
+                double additionalAmountXA = 0.00; // 带孩子
+                ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
+                if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
+                    if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                    }
+                    if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmountXA = 25.00;
+                    }
+                    if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                        additionalAmountXA = 25.00;
+                    }
+                }
+                row.createCell(23).setCellValue(additionalAmountXA);
+                row.createCell(24).setCellValue(additionalAmount2A);
+                row.createCell(25).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
+                row.createCell(26).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
+                String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
+                row.createCell(27).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
+                row.createCell(28).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(29).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(30).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(31).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(32).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                String states = visaDTO.getState() == null ? "" : visaDTO.getState();
+                if (states.equalsIgnoreCase("REVIEW"))
+                    states = "待确认";
+                row.createCell(33).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(34).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
+                i++;
+            }
+            // 1. 保存文件（使用 .xls 扩展名）
+            String excelFilePath = System.getProperty("java.io.tmpdir") + File.separator + "temp_visa_report.xls";
+            File excelFile = new File(excelFilePath);
+
+            try (FileOutputStream out = new FileOutputStream(excelFile)) {
+                wb.write(out);
+                out.flush();
+                System.out.println("文件已保存至: " + excelFile.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Excel 文件保存失败");
+            } finally {
+                try {
+                    wb.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 3. 发送邮件
+            SendEmailUtil.sendExcel(
+                    "una.jia@zhinanzhen.org",
+                    "VISA 报告",
+                    "附件为最新生成的 VISA 报告，请查阅。",
+                    new File(excelFilePath)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 3 * * ?")

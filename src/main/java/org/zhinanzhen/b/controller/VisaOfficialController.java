@@ -38,15 +38,13 @@ import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -1443,6 +1441,177 @@ public class VisaOfficialController extends BaseCommissionOrderController {
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/downOfficialCommissionT", method = RequestMethod.GET)
+    @ResponseBody
+    public void downOfficialCommissionT(
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "startHandlingDate", required = false) String startHandlingDate,
+            @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
+            @RequestParam(value = "regionId", required = false) Integer regionId,
+            @RequestParam(value = "officialId", required = false) Integer officialId,
+            @RequestParam(value = "userName", required = false) String userName,
+            @RequestParam(value = "applicantName", required = false) String applicantName,
+            HttpServletResponse response, HttpServletRequest request) {
+        try {
+            List<Integer> regionIdList = new ArrayList<>();
+            regionIdList.add(1000034);
+            List<VisaOfficialDTO> officialList = visaOfficialService.listVisaForDown(null, null, null, "2025-03-01", "2025-03-10", null,
+                    null, null, null, null);
+            response.reset();// 清空输出流
+            String tableName = "official_visa_commission";
+            response.setHeader("Content-disposition",
+                    "attachment; filename=" + new String(tableName.getBytes("GB2312"), "8859_1") + ".xls");
+            response.setContentType("application/msexcel");
+            int i = 1;
+            //获取模板
+            InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
+            HSSFWorkbook wb = new HSSFWorkbook(is);
+            HSSFSheet sheet = wb.getSheetAt(0);
+            String servicePackageType = "";
+            List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
+            Map<Integer, ServicePackagePriceDO> servicePackagePriceDOMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId, Function.identity()));
+
+            for (VisaOfficialDTO visaDTO : officialList) {
+                HSSFRow row = sheet.createRow(i);
+                row.createCell(0).setCellValue(visaDTO.getId());
+                row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
+                row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
+                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+                row.createCell(4).setCellValue(visaDTO.getUserName());
+                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
+                row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
+                row.createCell(7).setCellValue(visaDTO.getCurrency());
+                row.createCell(8).setCellValue(visaDTO.getExchangeRate());
+                row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
+//                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage()) && visaDTO.getServiceOrder().getApplicantParentId() > 0) {
+//                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+//                }
+                System.out.println("当前id--------------------------" + visaDTO.getId());
+                if (visaDTO.getServiceOrder().getApplicantParentId() > 0 && "SIV".equals(serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getApplicantParentId()).getType())) {
+                    String type = visaDTO.getServiceOrder().getServicePackage().getType();
+                    switch (type) {
+                        case "CA":
+                            type = "职业评估";
+                            break;
+                        case "EOI":
+                            type = "EOI";
+                            break;
+                        case "VA":
+                            type = "签证申请";
+                            break;
+                        case "TM":
+                            type = "提名";
+                            break;
+                        case "ZD":
+                            type = "州担";
+                            break;
+                        default:
+                            type = type;
+                    }
+                    if ("EOI".equalsIgnoreCase(type)) {
+                        ServiceDO serviceById = serviceDAO.getServiceById(visaDTO.getServiceOrder().getServicePackage().getServiceId());
+                        type = type + "-" + serviceById.getCode();
+                    }
+                    servicePackageType = "-" + type;
+//                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                }
+                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                servicePackageType = "";
+                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
+                if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
+                    row.createCell(11).setCellValue(servicePackagePriceDO.getMaxPrice());
+                }
+                row.createCell(12).setCellValue(visaDTO.getAdviserName());
+                row.createCell(13).setCellValue(visaDTO.getOfficialName());
+                row.createCell(14).setCellValue(visaDTO.getMaraName() == null ? "" : visaDTO.getMaraName());
+                row.createCell(15).setCellValue(visaDTO.getTotalPerAmountAUD());
+                row.createCell(16).setCellValue(visaDTO.getTotalAmountCNY());
+                row.createCell(17).setCellValue(visaDTO.getPredictCommissionAmount() + "");
+                row.createCell(18).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
+                row.createCell(19).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                row.createCell(20).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
+                double extraAmount = 0.00;
+                extraAmount = visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount();
+                row.createCell(21).setCellValue(extraAmount);
+                if (extraAmount == 0) {
+                    row.createCell(22).setCellValue(0);
+                } else {
+                    double basicAmount = 0.00;
+                    basicAmount = visaDTO.getCommissionAmount() - visaDTO.getExtraAmount();
+                    if (basicAmount < 0) {
+                        basicAmount = 0.00;
+                    }
+                    row.createCell(22).setCellValue(basicAmount);
+                }
+                ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+                double additionalAmount2A = 0.00; // 带配偶
+                double additionalAmountXA = 0.00; // 带孩子
+                ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderById.getServiceId());
+                if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("500")) {
+                    if ("2A".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                    }
+                    if ("XA".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmountXA = 25.00;
+                    }
+                    if ("XB".equalsIgnoreCase(serviceOrderById.getPeopleType())) {
+                        additionalAmount2A = 50.00;
+                        additionalAmountXA = 25.00;
+                    }
+                }
+                row.createCell(23).setCellValue(additionalAmountXA);
+                row.createCell(24).setCellValue(additionalAmount2A);
+                row.createCell(25).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
+                row.createCell(26).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
+                String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
+                row.createCell(27).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
+                row.createCell(28).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(29).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(30).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(31).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(32).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                String states = visaDTO.getState() == null ? "" : visaDTO.getState();
+                if (states.equalsIgnoreCase("REVIEW"))
+                    states = "待确认";
+                row.createCell(33).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(34).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
+                i++;
+            }
+            // 1. 保存文件（使用 .xls 扩展名）
+            String excelFilePath = System.getProperty("java.io.tmpdir") + File.separator + "temp_visa_report.xls";
+            File excelFile = new File(excelFilePath);
+
+            try (FileOutputStream out = new FileOutputStream(excelFile)) {
+                wb.write(out);
+                out.flush();
+                System.out.println("文件已保存至: " + excelFile.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Excel 文件保存失败");
+            } finally {
+                try {
+                    wb.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 3. 发送邮件
+            SendEmailUtil.sendExcel(
+                    "una.jia@zhinanzhen.org",
+                    "VISA 报告",
+                    "附件为最新生成的 VISA 报告，请查阅。",
+                    new File(excelFilePath)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
         }
     }
 }

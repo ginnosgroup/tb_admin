@@ -589,7 +589,7 @@
                 LEFT JOIN tb_adviser tba ON bvo.adviser_id = tba.id
                 LEFT JOIN b_official bo ON bvo.official_id = bo.id
                 LEFT JOIN tb_user tbu ON bvo.user_id = tbu.id
-                LEFT JOIN b_applicant ba ON bso.adviser_id = ba.id
+                LEFT JOIN b_applicant ba ON bso.applicant_id = ba.id
                 LEFT JOIN b_mara bm ON bvo.mara_id = bm.id
                 LEFT JOIN b_receive_type brt ON bvo.receive_type_id = brt.id
                 LEFT JOIN b_service bs ON bvo.service_id = bs.id

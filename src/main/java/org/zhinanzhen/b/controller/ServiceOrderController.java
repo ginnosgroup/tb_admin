@@ -15,6 +15,7 @@ import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;

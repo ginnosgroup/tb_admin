@@ -202,10 +202,20 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         List<VisaOfficialDO> list = visaOfficialDao.listVisaByCode(visaOfficialDto.getCode());
         if (list != null) {
+            boolean longTermVisa = false;
+            List<String> arrayList = serviceDao.listLongTimeVisa();
+            String serviceType = serviceDao.getServiceById(visaOfficialDto.getServiceId()).getCode();
+            if (arrayList.contains(serviceType)) {
+                longTermVisa = true;
+            }
             double totalPerAmount = 0.00;
             double totalAmount = 0.00;
             for (VisaOfficialDO visaOfficialDo : list) {
-                totalPerAmount += visaOfficialDo.getPerAmount();
+                if (longTermVisa) {
+                    totalPerAmount = visaOfficialDo.getPerAmount();
+                } else {
+                    totalPerAmount += visaOfficialDo.getPerAmount();
+                }
                 if (visaOfficialDo.getPaymentVoucherImageUrl1() != null || visaOfficialDo.getPaymentVoucherImageUrl2() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl3() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl4() != null
@@ -288,10 +298,20 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         List<VisaOfficialDO> list = visaOfficialDao.listVisaByCode(visaOfficialDto.getCode());
         if (list != null) {
+            boolean longTermVisa = false;
+            List<String> arrayList = serviceDao.listLongTimeVisa();
+            String serviceType = serviceDao.getServiceById(visaOfficialDto.getServiceId()).getCode();
+            if (arrayList.contains(serviceType)) {
+                longTermVisa = true;
+            }
             double totalPerAmount = 0.00;
             double totalAmount = 0.00;
             for (VisaOfficialDO visaOfficialDo : list) {
-                totalPerAmount += visaOfficialDo.getPerAmount();
+                if (longTermVisa) {
+                    totalPerAmount = visaOfficialDo.getPerAmount();
+                } else {
+                    totalPerAmount += visaOfficialDo.getPerAmount();
+                }
                 if (visaOfficialDo.getPaymentVoucherImageUrl1() != null || visaOfficialDo.getPaymentVoucherImageUrl2() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl3() != null
                         || visaOfficialDo.getPaymentVoucherImageUrl4() != null
