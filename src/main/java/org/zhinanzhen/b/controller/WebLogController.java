@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -31,8 +32,12 @@ public class WebLogController extends BaseController {
              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer total = webLogService.count(serviceOrderId, operatedUser);
+            Integer total = 0;
             List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, null, operatedUser, pageNum, pageSize);
+            if (webLogDTOS != null && webLogDTOS.size() > 0) {
+                webLogDTOS = webLogDTOS.stream().filter(WebLogDTO -> WebLogDTO.getOperationDescription() != null).collect(Collectors.toList());
+                total = webLogDTOS.size();
+            }
             return new ListResponse<List<WebLogDTO>>(true, pageSize, total, webLogDTOS, "");
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -127,8 +127,13 @@ public class WebLogServiceImpl implements WebLogService {
 
                         webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                     }
+//                    if (webLogDTO.getParameter() != null && webLogDTO.getParameter().contains("/uploads/")) {
+//                        webLogDTOS.remove(i);
+//                        continue;
+//                    }
                     if ("finish".equalsIgnoreCase(split[split.length - 1])) {
-                        webLogDTOS.remove(i);
+                        serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":"  + userName + "    " + "提交审核通过" + "    " + "操作人" + ":" + userName);
+                        webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                         continue;
                     }
                 }
@@ -209,6 +214,9 @@ public class WebLogServiceImpl implements WebLogService {
                 break;
             case "CLOSE":
                 operationDescription = "关闭申请";
+                break;
+            case "PAID":
+                operationDescription = "COE已下";
                 break;
             default:
                 operationDescription = "";
