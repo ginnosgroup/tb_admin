@@ -247,7 +247,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setExpectAmount(commission);
 			ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
 			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-				visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
+				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
 			}
 			double _perAmount = 0.00;
 			double _amount = 0.00;
@@ -276,7 +276,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 					visaDto.setExpectAmount(commission);
 					if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-						visaDto.setExpectAmount((_receivable - _receivable / 11) * 0.25);
+						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
 					}
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
