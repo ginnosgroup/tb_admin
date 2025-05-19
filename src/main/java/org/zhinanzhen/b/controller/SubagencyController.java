@@ -76,7 +76,7 @@ public class SubagencyController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<SubagencyDTO>> listSubagency(@RequestParam(value = "keyword", required = false) String keyword,
+	public Response<List<SubagencyDTO>> listSubagency(@RequestParam(value = "name", required = false) String keyword,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
