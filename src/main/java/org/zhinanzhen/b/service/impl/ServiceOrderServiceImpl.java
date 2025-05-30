@@ -477,6 +477,29 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     && (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
                     || StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
                 sendEmailOfUpdateServiceId(serviceOrderDo, _serviceOrderDo);
+            if (i > 0 && "WAIT".equalsIgnoreCase(serviceOrderDo.getState())) {
+                ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
+                AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
+                OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
+                MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
+                ApplicantDTO applicantDto = new ApplicantDTO();
+                if (serviceOrderDo.getApplicantId() > 0)
+                    applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
+                applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
+                        serviceOrderDo.getInformation());
+                Date date = serviceOrderDo.getGmtCreate();
+                String email = maraDo.getEmail();
+                if (maraDo.getId() == 1000017) {
+                    email = "maggie@zhinanzhen.org";
+                }
+                sendMail(email, "新任务提醒:",
+                        StringUtil.merge("亲爱的mara:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
+                                serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
+                                adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
+                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
+                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                serviceOrderDo.getRemarks(),"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
+            }
             return i;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
