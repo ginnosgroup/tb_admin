@@ -400,10 +400,10 @@
         <if test="bindingOrder != null">
             ,binding_order = #{bindingOrder}
         </if>
-        <if test="offerType != null">
+        <if test='offerType != null and offerType != ""'>
             ,offer_type = #{offerType}
         </if>
-        <if test="offerUrl != null">
+        <if test='offerUrl != null and offerUrl != ""'>
             ,offer_url = #{offerUrl}
         </if>
         <if test="expectTimeEnrollment != null">
