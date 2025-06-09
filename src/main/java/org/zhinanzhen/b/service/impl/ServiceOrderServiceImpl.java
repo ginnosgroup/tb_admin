@@ -452,6 +452,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     }
                 }
             }
+            if (serviceOrderDto.isSettle() != _serviceOrderDo.isSettle() && serviceOrderDto.isSettle() && _serviceOrderDo.getState().equalsIgnoreCase("PAID")) {
+                serviceOrderDo.setState("COMPLETE");
+            }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
             if (ziOrder != null && ziOrder.size() > 0 && !"OVST".equals(serviceOrderDo.getType())) {
 //                if (serviceOrderDo.getApplicantParentId() == 0) {
