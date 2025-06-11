@@ -292,4 +292,6 @@ public class ServiceOrderDTO {
 	private ServiceCategory serviceCategory;
 
 	private List<ServiceAssessAndEOI> serviceAssessAndEOIList;
+
+	private String applicantData;
 }

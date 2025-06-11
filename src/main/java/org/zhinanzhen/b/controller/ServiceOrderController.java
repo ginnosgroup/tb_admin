@@ -318,6 +318,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
                                              @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                              @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
+                                             @RequestParam(value = "applicantData", required = false) String applicantData,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -447,6 +448,8 @@ public class ServiceOrderController extends BaseController {
             serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
             if (StringUtil.isNotEmpty(nutCloud))
                 serviceOrderDto.setNutCloud(nutCloud);
+            if (StringUtil.isNotEmpty(applicantData))
+                serviceOrderDto.setApplicantData(applicantData);
             if (StringUtil.isEmpty(serviceAssessId)
                     && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
                 return new Response(1, "没有选择职业!");
