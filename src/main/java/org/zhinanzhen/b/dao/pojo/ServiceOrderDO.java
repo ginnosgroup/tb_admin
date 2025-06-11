@@ -199,5 +199,5 @@ public class ServiceOrderDO implements Serializable {
 
 	private Integer serviceAssessCategoryId; // 职业二级分类id
 
-	private String applicantData;
+	private String officialData;
 }
