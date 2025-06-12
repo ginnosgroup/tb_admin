@@ -294,4 +294,6 @@ public class ServiceOrderDTO {
 	private List<ServiceAssessAndEOI> serviceAssessAndEOIList;
 
 	private String applicantData;
+
+	private String officialData;
 }
