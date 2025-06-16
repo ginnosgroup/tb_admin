@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service.pojo;
 import java.util.Date;
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
@@ -109,5 +110,9 @@ public class CommissionOrderListDTO extends CommissionOrderDTO {
 	@Getter
 	@Setter
 	private boolean isCurrentAdvisor = true;
+
+	@Getter
+	@Setter
+	private ServiceOrderDO serviceOrder;
 
 }
