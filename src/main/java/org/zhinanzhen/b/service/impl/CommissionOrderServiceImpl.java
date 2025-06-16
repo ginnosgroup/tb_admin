@@ -96,6 +96,9 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
     @Resource
     private InvoiceDAO invoiceDAO;
 
+    @Resource
+    private ServiceOrderDAO serviceOrderDAO;
+
     @Override
     @Transactional(rollbackFor = ServiceException.class)
     public int addCommissionOrder(CommissionOrderDTO commissionOrderDto) throws ServiceException {
@@ -562,6 +565,12 @@ public class CommissionOrderServiceImpl extends BaseService implements Commissio
         // });
         // commissionOrderListDto.setMailRemindDTOS(mailRemindDTOS);
         // }
+
+        // 添加服务订单信息
+        ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+        if (ObjectUtil.isNotNull(serviceOrderById)) {
+            commissionOrderListDto.setServiceOrder(serviceOrderById);
+        }
 
         // 添加新学校相关
         if (commissionOrderListDo.getCourseId() > 0) {

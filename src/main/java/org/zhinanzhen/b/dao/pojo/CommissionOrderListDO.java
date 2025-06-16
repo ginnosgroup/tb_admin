@@ -28,9 +28,13 @@ public class CommissionOrderListDO extends CommissionOrderDO {
 	@Getter
 	@Setter
 	private String institutionTradingName;
-	
+
 	@Getter
 	@Setter
 	private int applicantId;
+
+	@Getter
+	@Setter
+	private ServiceOrderDO serviceOrderDO;
 
 }
