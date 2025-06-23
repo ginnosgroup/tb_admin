@@ -1,0 +1,373 @@
+package org.zhinanzhen.b.service.impl;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.aliyun.auth.credentials.Credential;
+import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
+import com.aliyun.sdk.service.pds20220301.AsyncClient;
+import com.aliyun.sdk.service.pds20220301.models.*;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.ikasoa.core.utils.ObjectUtil;
+import darabonba.core.client.ClientOverrideConfiguration;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import org.junit.Assert;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.CloudDiskFileDAO;
+import org.zhinanzhen.b.service.CloudDiskService;
+import org.zhinanzhen.b.service.UploadResponseData;
+import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.PartInfo;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+@Service
+@Slf4j
+public class CloudDiskServiceImpl implements CloudDiskService {
+    @Value("${aliyun.ACCESSKEYID}")
+    private String ACCESS_KEY_ID;
+
+    @Value("${aliyun.ACCESSKEYSECRET}")
+    private String ACCESS_KEY_SECRET;
+
+    @Resource
+    private CloudDiskFileDAO cloudDiskFileDAO;
+
+    @Override
+    public int addAndUpdate(MultipartFile file, String type, int applicantId, String parentFileId, Integer adviserId, Integer id){
+        if (file != null) {
+            String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
+            log.info("上传的文件原名称:" + fileName);
+            // 判断文件类型
+            String fileType = fileName.indexOf(".") != -1
+                    ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+                    : null;
+            if (ObjectUtil.isNull(fileType))
+                throw new RuntimeException("文件类型为空");
+
+            try {
+                CloudDiskFile cloudDiskFile = new CloudDiskFile();
+                // 创建上传文件的请求并获取上传链接
+                // Configure Credentials authentication information, including ak, secret, token
+                AsyncClient client = getAsyncClient();
+
+                File fileTmp = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
+                file.transferTo(fileTmp);
+                // Parameter settings for API request
+                CreateFileRequest.ParallelSha1Ctx partInfoList0ParallelSha1Ctx = CreateFileRequest.ParallelSha1Ctx.builder()
+                        .partOffset(fileTmp.length())
+                        .build();
+                CreateFileRequest.PartInfoList partInfoList0 = CreateFileRequest.PartInfoList.builder()
+                        .partNumber(1)
+                        .parallelSha1Ctx(partInfoList0ParallelSha1Ctx)
+                        .build();
+
+                CreateFileRequest createFileRequest = null;
+                if (id == null) {
+                    createFileRequest = CreateFileRequest.builder()
+                            .name(fileName)
+                            .type(type)
+                            .parentFileId(parentFileId)
+                            .driveId("1020")
+                            .size(fileTmp.length())
+                            .partInfoList(java.util.Arrays.asList(
+                                    partInfoList0
+                            ))
+                            .build();
+                }
+                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+                if (id != null) {
+                    createFileRequest = CreateFileRequest.builder()
+                            .name(fileName)
+                            .type(type)
+                            .parentFileId(parentFileId)
+                            .driveId("1020")
+                            .size(fileTmp.length())
+                            .fileId(cloudDiskFile.getFileId())
+                            .partInfoList(java.util.Arrays.asList(
+                                    partInfoList0
+                            ))
+                            .build();
+                }
+
+
+
+                // Asynchronously get the return value of the API request
+                CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
+                // Synchronously get the return value of the API request
+                CreateFileResponse resp = response.get();
+                System.out.println(new Gson().toJson(resp));
+                // Asynchronous processing of return values
+                String json = new Gson().toJson(resp);
+                JSONObject jsonObject = JSON.parseObject(json);
+                JSONObject body1 = jsonObject.getJSONObject("body");
+
+                // 文件进行上传
+                String jsonString = JSONObject.toJSONString(body1);
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                UploadResponseData responseData = objectMapper.readValue(jsonString, UploadResponseData.class);
+                List<PartInfo> partInfoList = responseData.getPartInfoList();
+                String fileId = body1.get("fileId").toString();
+                System.out.println(fileId);
+                String uploadId = body1.get("uploadId").toString();
+
+                // 遍历所有分片
+                for (PartInfo uploadPartInfo : partInfoList) {
+
+                    // 计算分片在本地文件中的位置
+                    int number = uploadPartInfo.getPartNumber();
+                    long pos = (number - 1) * fileTmp.length();
+                    //            long size = Math.min(length - pos, file.length());
+                    long size = fileTmp.length();
+                    byte[] partContent = new byte[(int) size];
+
+                    // 从本地文件中读取分片内容到内存中
+                    RandomAccessFile randomAccessFile = new RandomAccessFile(fileTmp, "r");
+                    randomAccessFile.seek(pos);
+                    randomAccessFile.readFully(partContent, 0, (int) size);
+                    randomAccessFile.close();
+
+                    // 上传分片
+                    RequestBody body = RequestBody.create(null, partContent);
+                    Request request = new Request.Builder()
+                            .url(uploadPartInfo.getUploadUrl())
+                            .header("Content-Length", String.valueOf(size))
+                            .put(body)
+                            .build();
+
+                    OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+                    okhttp3.Response response1 = okHttpClient.newCall(request).execute();
+
+                    // 判断分片是否上传成功
+                    if (!response1.isSuccessful()) {
+                        System.out.println(response1.body().string() + "\n");
+                        Assert.fail("upload part failed, partNumber:" + number);
+                    }
+                    System.out.println("upload part success, partNumber:" + number);
+                }
+                // 完成文件上传
+
+                CompleteFileRequest completeFileRequest = CompleteFileRequest.builder()
+                        .driveId("1020")
+                        .fileId(fileId)
+                        .uploadId(uploadId)
+                        // Request-level configuration rewrite, can set Http request parameters, etc.
+                        // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                        .build();
+
+                CompletableFuture<CompleteFileResponse> responseT = client.completeFile(completeFileRequest);
+                CompleteFileResponse respt = responseT.get();
+                String json1 = new Gson().toJson(respt);
+                JSONObject jsonObject1 = JSON.parseObject(json1);
+                JSONObject body = jsonObject1.getJSONObject("body");
+                String fileIdTmp = body.get("fileId").toString();
+                String parentFileIdTmp = body.get("parentFileId").toString();
+                String driveId = body.get("driveId").toString();
+                // Finally, close the client
+                client.close();
+
+                if (id == null) {
+                    cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
+                            domainId("bj21743").name(fileName).type(type).driveId(driveId).applicantId(applicantId).adviserId(adviserId).build();
+                    int add = cloudDiskFileDAO.add(cloudDiskFile);
+                    if (add > 0) {
+                        return add;
+                    }
+                }
+            } catch (ExecutionException | InterruptedException ex) {
+                ex.printStackTrace();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (JsonParseException e) {
+                throw new RuntimeException(e);
+            } catch (JsonMappingException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int deleteById(Integer id, String fileId) {
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+        if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
+            throw new RuntimeException("文件信息错误或不存在");
+        }
+        int delete = 0;
+        try {
+            AsyncClient client = getAsyncClient();
+            // Parameter settings for API request
+            DeleteFileRequest deleteFileRequest = DeleteFileRequest.builder()
+                    .fileId(fileId)
+                    .driveId("1020")
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+
+            // Asynchronously get the return value of the API request
+            CompletableFuture<DeleteFileResponse> response = client.deleteFile(deleteFileRequest);
+            // Synchronously get the return value of the API request
+            DeleteFileResponse resp = response.get();
+            String json = new Gson().toJson(resp);
+            JSONObject jsonObject = JSON.parseObject(json);
+            client.close();
+            delete = cloudDiskFileDAO.update(cloudDiskFile);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return delete;
+    }
+
+    @Override
+    public List<CloudDiskFile> list(Integer id, String parentFileId, String name, int pageNum, int pageSize) {
+        return cloudDiskFileDAO.listByParentFileId(id, parentFileId, name, pageNum, pageSize);
+    }
+
+    @Override
+    public int count(Integer id, String parentFileId, String name) {
+        return cloudDiskFileDAO.count(id, parentFileId, name);
+    }
+
+    @Override
+    public String getShareUrl(String userCode, String parentFileId) {
+        if (parentFileId == null) {
+            throw new RuntimeException("所选文件夹错误，请核实");
+        }
+        try {
+            AsyncClient client = getAsyncClient();
+            // Parameter settings for API request
+            CreateShareLinkRequest createShareLinkRequest = CreateShareLinkRequest.builder()
+                    .driveId("1020")
+                    .shareAllFiles(false)
+                    .fileIdList(java.util.Arrays.asList(
+                            parentFileId
+                    ))
+                    .userId(userCode)
+                    .officeEditable(true)
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+            // Asynchronously get the return value of the API request
+            CompletableFuture<CreateShareLinkResponse> response = client.createShareLink(createShareLinkRequest);
+            // Synchronously get the return value of the API request
+            CreateShareLinkResponse resp = response.get();
+            String json = new Gson().toJson(resp);
+            JSONObject jsonObject = JSON.parseObject(json);
+            JSONObject body = jsonObject.getJSONObject("body");
+            String shareId = body.get("shareId").toString();
+            String shareUrl = "https://bj21743.apps.aliyunfile.com/disk/s/" + shareId;
+            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null);
+            cloudDiskFile.setUrl(shareUrl);
+            cloudDiskFileDAO.update(cloudDiskFile);
+            return shareUrl;
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int getFileStructure(String parentFileStructures) {
+        if (parentFileStructures == null || parentFileStructures.trim().isEmpty()) {
+            return 0; // 递归终止条件
+        }
+        String[] split = parentFileStructures.split(",");
+        StringBuilder newObjects = new StringBuilder(); // 改用局部变量，避免全局污染
+        for (String s : split) {
+            try {
+                AsyncClient client = getAsyncClient();
+                ListFileRequest listFileRequest = ListFileRequest.builder()
+                        .driveId("1020")
+                        .parentFileId(s)
+                        .limit(100)
+                        .fields("user_tags")
+                        .build();
+                ListFileResponse resp = client.listFile(listFileRequest).get();
+                String json = new Gson().toJson(resp);
+                JsonNode jsonNode = new ObjectMapper().readTree(json);
+                JsonNode items = jsonNode.path("body").path("items");
+                for (JsonNode node : items) {
+                    String fileId = node.get("fileId").asText();
+                    String type = node.get("type").asText();
+                    String parentFileId = node.get("parentFileId").asText();
+                    String name = node.get("name").asText();
+                    String driveId = node.get("driveId").asText();
+
+                    CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId);
+                    if (type.equalsIgnoreCase("folder")) {
+                        newObjects.append(fileId).append(","); // 只收集新的 folderId
+                    }
+                    if (cloudDiskFile == null) {
+                        cloudDiskFile = CloudDiskFile.builder()
+                                .fileId(fileId)
+                                .parentFileId(parentFileId)
+                                .domainId("bj21743")
+                                .name(name)
+                                .type(type)
+                                .driveId(driveId)
+                                .build();
+                        cloudDiskFileDAO.add(cloudDiskFile);
+                    }
+                }
+                client.close();
+            } catch (IOException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // 递归处理新发现的文件夹
+        if (newObjects.length() > 0) {
+            // 去掉末尾的 ","
+            String nextLevelFolders = newObjects.substring(0, newObjects.length() - 1);
+            getFileStructure(nextLevelFolders);
+        }
+        return 0;
+    }
+
+    private AsyncClient getAsyncClient() {
+        // Configure Credentials authentication information, including ak, secret, token
+        StaticCredentialProvider provider = StaticCredentialProvider.create(Credential.builder()
+                // Please ensure that the environment variables ALIBABA_CLOUD_ACCESS_KEY_ID and ALIBABA_CLOUD_ACCESS_KEY_SECRET are set.
+                .accessKeyId(ACCESS_KEY_ID)
+                .accessKeySecret(ACCESS_KEY_SECRET)
+                //.securityToken(System.getenv("ALIBABA_CLOUD_SECURITY_TOKEN")) // use STS token
+                .build());
+
+        // Configure the Client
+        AsyncClient client = AsyncClient.builder()
+                .region("cn-beijing") // Region ID
+                //.httpClient(httpClient) // Use the configured HttpClient, otherwise use the default HttpClient (Apache HttpClient)
+                .credentialsProvider(provider)
+                //.serviceConfiguration(Configuration.create()) // Service-level configuration
+                // Client-level configuration rewrite, can set Endpoint, Http request parameters, etc.
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.create()
+                                // Endpoint 请参考 https://api.aliyun.com/product/pds
+                                .setEndpointOverride("bj21743.api.aliyunpds.com")
+                        //.setConnectTimeout(Duration.ofSeconds(30))
+                )
+                .build();
+        return client;
+    }
+}
