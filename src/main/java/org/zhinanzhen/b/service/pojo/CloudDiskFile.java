@@ -38,4 +38,8 @@ public class CloudDiskFile {
     private String fileId;
 
     private int isDelete;
+
+    private Integer officialId;
+
+    private Integer userId;
 }

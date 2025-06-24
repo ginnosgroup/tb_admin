@@ -29,14 +29,17 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "id", required = false) Integer id,
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "type") String type,
-            @RequestParam(value = "applicantId") Integer applicantId,
+            @RequestParam(value = "applicantId", required = false) Integer applicantId,
+            @RequestParam(value = "applicantId") Integer userId,
             @RequestParam(value = "parentFileId") String parentFileId,
+            @RequestParam(value = "folderName", required = false) String folderName,
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         Integer adviserId = adminUserLoginInfo.getAdviserId();
+        Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
-            int add = cloudDiskService.addAndUpdate(file, type, applicantId, parentFileId, adviserId, id);
+            int add = cloudDiskService.addAndUpdate(file, type, userId, applicantId, parentFileId, adviserId, id, folderName, officialId);
             if (add == -1) {
                 return new Response<String>(-2, "文件或文件夹已存在已存在", null);
             }
@@ -75,12 +78,14 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "id", required = false) Integer id,
             @RequestParam(value = "parentFileId", required = false) String parentFileId,
             @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "applicantId", required = false) Integer applicantId,
+            @RequestParam(value = "userId", required = false) Integer userId,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
             HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            int total = cloudDiskService.count(id, parentFileId, name);
-            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, pageNum, pageSize);
+            int total = cloudDiskService.count(id, parentFileId, name, applicantId, userId);
+            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize);
             return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, "");
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,6 +123,25 @@ public class CloudDiskController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/initializationFolder", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> initializationFloder(
+            @RequestParam(value = "applicantId") Integer userId,
+            @RequestParam(value = "applicantId") Integer applicantId,
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        Integer adviserId = adminUserLoginInfo.getAdviserId();
+        Integer officialId = adminUserLoginInfo.getOfficialId();
+        try {
+
+            List<CloudDiskFile> cloudDiskFileList = cloudDiskService.initializationFolder(userId, applicantId, adviserId, officialId);
+            return new Response<String>(0, "上传成功", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(-1, "上传失败", null);
+        }
+    }
 
 
 }

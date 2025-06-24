@@ -17,7 +17,9 @@
             domain_id,
             driver_id,
             file_id,
-            is_delete)
+            is_delete,
+            official_id,
+            user_id)
         values (
             now(),
             now(),
@@ -30,7 +32,9 @@
             #{domainId},
             #{driveId},
             #{fileId},
-            0)
+            0.
+            #{officialId},
+            #{userId})
     </insert>
 
     <update id="update">
@@ -63,6 +67,12 @@
         <if test='isDelete != null and isDelete != ""'>
             , is_delete = #{isDelete}
         </if>
+        <if test='officialId != null'>
+            , official_id = #{officialId}
+        </if>
+        <if test='userId != null'>
+            , user_id = #{userId}
+        </if>
         WHERE id = #{id}
     </update>
 
@@ -89,6 +99,12 @@
         </if>
         <if test='name != null and name != ""'>
             AND name like '${name}%'
+        </if>
+        <if test='applicantId != null'>
+            AND applicant_id = #{applicantId}
+        </if>
+        <if test='userId != null'>
+            AND user_id = #{userId}
         </if>
         and is_delete = 0
         GROUP BY id
