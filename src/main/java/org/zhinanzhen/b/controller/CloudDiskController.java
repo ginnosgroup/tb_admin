@@ -27,7 +27,7 @@ public class CloudDiskController extends BaseController {
     @ResponseBody
     public Response<String> put(
             @RequestParam(value = "id", required = false) Integer id,
-            @RequestParam(value = "file") MultipartFile file,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "type") String type,
             @RequestParam(value = "applicantId") Integer applicantId,
             @RequestParam(value = "parentFileId") String parentFileId,
@@ -37,6 +37,9 @@ public class CloudDiskController extends BaseController {
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         try {
             int add = cloudDiskService.addAndUpdate(file, type, applicantId, parentFileId, adviserId, id);
+            if (add == -1) {
+                return new Response<String>(-2, "文件或文件夹已存在已存在", null);
+            }
             if (add > 0) {
                 return new Response<String>(0, "上传成功", null);
             }
