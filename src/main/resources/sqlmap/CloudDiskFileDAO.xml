@@ -32,7 +32,7 @@
             #{domainId},
             #{driveId},
             #{fileId},
-            0.
+            0,
             #{officialId},
             #{userId})
     </insert>

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.apache.poi.ss.formula.functions.T;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,16 +28,21 @@ import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.UploadResponseData;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.PartInfo;
+import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -50,8 +56,12 @@ public class CloudDiskServiceImpl implements CloudDiskService {
     @Resource
     private CloudDiskFileDAO cloudDiskFileDAO;
 
+    @Resource
+    private UserDAO userDAO;
+
     @Override
-    public int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId, Integer adviserId, Integer id, String folderName, Integer officialId) {
+    public int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId,
+                            Integer adviserId, Integer id, String folderName, Integer officialId) {
         if ("file".equalsIgnoreCase(type) && file == null) {
             throw new RuntimeException("上传文件为空");
         }
@@ -353,9 +363,10 @@ public class CloudDiskServiceImpl implements CloudDiskService {
                         .driveId("1020")
                         .parentFileId(s)
                         .limit(100)
-                        .fields("user_tags")
+                        .fields("user_name")
                         .build();
-                ListFileResponse resp = client.listFile(listFileRequest).get();
+                CompletableFuture<ListFileResponse> listFileResponseCompletableFuture = client.listFile(listFileRequest);
+                ListFileResponse resp = listFileResponseCompletableFuture.get();
                 String json = new Gson().toJson(resp);
                 JsonNode jsonNode = new ObjectMapper().readTree(json);
                 JsonNode items = jsonNode.path("body").path("items");
@@ -397,38 +408,199 @@ public class CloudDiskServiceImpl implements CloudDiskService {
     }
 
     @Override
-    public List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException {
-        List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, null, null, applicantId, userId, 0, 20);
-        if (cloudDiskFileList == null) {
-            CloudDiskFile cloudDiskFile = new CloudDiskFile();
-            // 创建上传文件的请求并获取上传链接
-            // Configure Credentials authentication information, including ak, secret, token
-            AsyncClient client = getAsyncClient();
+    public List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) {
+        List<CloudDiskFile> cloudDiskFileList = new ArrayList<>();
+        cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, null, null, applicantId, userId, 0, 20);
+        int add = -1;
+        try {
+            if (cloudDiskFileList.isEmpty()) {
+                CloudDiskFile cloudDiskFile = new CloudDiskFile();
+                // 创建上传文件的请求并获取上传链接
+                // Configure Credentials authentication information, including ak, secret, token
+                AsyncClient client = getAsyncClient();
+                UserDO userById = userDAO.getUserById(userId);
+                CreateFileRequest createFileRequest = null;
+                createFileRequest = CreateFileRequest.builder()
+                        .name(userById.getName())
+                        .type("folder")
+                        .parentFileId("root")
+                        .driveId("1020")
+                        .build();
+                // Asynchronously get the return value of the API request
+                CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
+                // Synchronously get the return value of the API request
+                CreateFileResponse resp = response.get();
+                System.out.println(new Gson().toJson(resp));
+                // Asynchronous processing of return values
+                String json = new Gson().toJson(resp);
+                JSONObject jsonObject = JSON.parseObject(json);
+                JSONObject body1 = jsonObject.getJSONObject("body");
+                String fileId = body1.get("fileId").toString();
 
-            CreateFileRequest createFileRequest = null;
-            createFileRequest = CreateFileRequest.builder()
-                    .name("文案资料")
-                    .type("folder")
-                    .parentFileId("root")
-                    .driveId("1020")
-                    .build();
-            // Asynchronously get the return value of the API request
-            CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
-            // Synchronously get the return value of the API request
-            CreateFileResponse resp = response.get();
-            System.out.println(new Gson().toJson(resp));
-            // Asynchronous processing of return values
-            String json = new Gson().toJson(resp);
-            JSONObject jsonObject = JSON.parseObject(json);
-            JSONObject body1 = jsonObject.getJSONObject("body");
-            String fileId = body1.get("fileId").toString();
-            client.close();
+                cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId("root").
+                        domainId("bj21743").name(userById.getName()).type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                cloudDiskFileDAO.add(cloudDiskFile);
 
-            cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId("root").
-                    domainId("bj21743").name("文案资料").type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
-            cloudDiskFileDAO.add(cloudDiskFile);
+                // 创建客户文件夹下面的顾问资料文件夹和文案资料文件夹
+                createFileRequest = CreateFileRequest.builder()
+                        .name("顾问资料")
+                        .type("folder")
+                        .parentFileId(fileId)
+                        .driveId("1020")
+                        .build();
+                // Asynchronously get the return value of the API request
+                CompletableFuture<CreateFileResponse> responseT = client.createFile(createFileRequest);
+                // Synchronously get the return value of the API request
+                CreateFileResponse respT = responseT.get();
+                System.out.println(new Gson().toJson(respT));
+                // Asynchronous processing of return values
+                String jsonT = new Gson().toJson(respT);
+                JSONObject jsonObjectT = JSON.parseObject(jsonT);
+                JSONObject bodyT = jsonObjectT.getJSONObject("body");
+                String fileIdT = bodyT.get("fileId").toString();
+
+                cloudDiskFile = CloudDiskFile.builder().fileId(fileIdT).parentFileId(fileId).
+                        domainId("bj21743").name("顾问资料").type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                cloudDiskFileList.add(cloudDiskFile);
+                cloudDiskFileDAO.add(cloudDiskFile);
+
+                createFileRequest = CreateFileRequest.builder()
+                        .name("文案资料")
+                        .type("folder")
+                        .parentFileId(fileId)
+                        .driveId("1020")
+                        .build();
+                // Asynchronously get the return value of the API request
+                CompletableFuture<CreateFileResponse> responseW = client.createFile(createFileRequest);
+                // Synchronously get the return value of the API request
+                CreateFileResponse respW = responseW.get();
+                System.out.println(new Gson().toJson(respW));
+                // Asynchronous processing of return values
+                String jsonW = new Gson().toJson(respW);
+                JSONObject jsonObjectW = JSON.parseObject(jsonW);
+                JSONObject bodyW = jsonObjectW.getJSONObject("body");
+                String fileIdW = bodyW.get("fileId").toString();
+                client.close();
+
+                cloudDiskFile = CloudDiskFile.builder().fileId(fileIdW).parentFileId(fileId).
+                        domainId("bj21743").name("文案资料").type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                cloudDiskFileList.add(cloudDiskFile);
+                cloudDiskFileDAO.add(cloudDiskFile);
+            } else {
+                String parentFildT = new String();
+                List<CloudDiskFile> collect = cloudDiskFileList.stream().sorted(Comparator.comparing(p -> "root".equalsIgnoreCase(p.getParentFileId()) ? 0 : 1)).collect(Collectors.toList());
+                for (CloudDiskFile cloudDiskFile : collect) {
+                    if (!"root".equalsIgnoreCase(cloudDiskFile.getParentFileId())) {
+                        cloudDiskFile.setParentFileId(parentFildT);
+                    }
+                    AsyncClient client = getAsyncClient();
+                    // Parameter settings for API request
+                    GetFileRequest getFileRequest = GetFileRequest.builder()
+                            .driveId("1020")
+                            .fileId(cloudDiskFile.getFileId())
+                            // Request-level configuration rewrite, can set Http request parameters, etc.
+                            // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                            .build();
+                    try {
+                        // Asynchronously get the return value of the API request
+                        CompletableFuture<GetFileResponse> response = client.getFile(getFileRequest);
+                        // Synchronously get the return value of the API request
+                        GetFileResponse resp = response.get();
+                        String json = new Gson().toJson(resp);
+                        JSONObject jsonObject = JSON.parseObject(json);
+                        String string = jsonObject.get("statusCode").toString();
+                        if ("200".equalsIgnoreCase(string)) {
+                            continue;
+                        }
+                    } catch (Exception e) {
+                        AsyncClient clientT = getAsyncClient();
+                        CreateFileRequest createFileRequest = CreateFileRequest.builder()
+                                .name(cloudDiskFile.getName())
+                                .type("folder")
+                                .parentFileId(cloudDiskFile.getParentFileId())
+                                .driveId("1020")
+                                .build();
+                        // Asynchronously get the return value of the API request
+                        CompletableFuture<CreateFileResponse> response = clientT.createFile(createFileRequest);
+                        // Synchronously get the return value of the API request
+                        CreateFileResponse resp = response.get();
+                        System.out.println(new Gson().toJson(resp));
+                        // Asynchronous processing of return values
+                        String json = new Gson().toJson(resp);
+                        JSONObject jsonObject = JSON.parseObject(json);
+                        JSONObject body1 = jsonObject.getJSONObject("body");
+                        String fileId = body1.get("fileId").toString();
+                        cloudDiskFile.setFileId(fileId);
+                        cloudDiskFile.setAdviserId(adviserId);
+                        cloudDiskFile.setOfficialId(officialId);
+                        cloudDiskFileDAO.update(cloudDiskFile);
+                        if ("root".equalsIgnoreCase(cloudDiskFile.getParentFileId())) {
+                            parentFildT = cloudDiskFile.getFileId();
+                        }
+                        clientT.close();
+                    }
+                }
+            }
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+        return cloudDiskFileList;
+    }
+
+    @Override
+    public int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId) {
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+        AsyncClient client = getAsyncClient();
+        try {
+            // Parameter settings for API request
+            GetFileRequest getFileRequest = GetFileRequest.builder()
+                    .driveId("1020")
+                    .fileId(cloudDiskFile.getFileId())
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+            CompletableFuture<GetFileResponse> response = client.getFile(getFileRequest);
+//            GetFileResponse resp = response.get();
+//            String json = new Gson().toJson(resp);
+//            JSONObject jsonObject = JSON.parseObject(json);
+            JSONObject jsonObject = convertToJsonObject(response);
+            String string = jsonObject.get("statusCode").toString();
+            if (!"200".equalsIgnoreCase(string)) {
+                return -1;
+            }
+            // Parameter settings for API request
+            UpdateFileRequest updateFileRequest = UpdateFileRequest.builder()
+                    .driveId("1020")
+                    .fileId(fileId)
+                    .name(name)
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+
+            // Asynchronously get the return value of the API request
+            CompletableFuture<UpdateFileResponse> responseT = client.updateFile(updateFileRequest);
+            JSONObject jsonObjectT = convertToJsonObject(responseT);
+            // Synchronously get the return value of the API request
+            String string1 = jsonObjectT.get("statusCode").toString();
+            if ("200".equalsIgnoreCase(string1)) {
+                cloudDiskFile.setName(name);
+                cloudDiskFile.setFileId(fileId);
+                cloudDiskFileDAO.update(cloudDiskFile);
+                return 1;
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            return -1;
+        }
+        return 0;
+    }
+
+    private <T> JSONObject convertToJsonObject(CompletableFuture<T> response) throws ExecutionException, InterruptedException {
+        T resp = response.get();
+        String json = new Gson().toJson(resp);
+        return JSON.parseObject(json);
     }
 
 

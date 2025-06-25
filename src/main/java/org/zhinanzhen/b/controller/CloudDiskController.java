@@ -30,7 +30,7 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "type") String type,
             @RequestParam(value = "applicantId", required = false) Integer applicantId,
-            @RequestParam(value = "applicantId") Integer userId,
+            @RequestParam(value = "applicantId", required = false) Integer userId,
             @RequestParam(value = "parentFileId") String parentFileId,
             @RequestParam(value = "folderName", required = false) String folderName,
             HttpServletRequest request, HttpServletResponse response) {
@@ -41,7 +41,7 @@ public class CloudDiskController extends BaseController {
         try {
             int add = cloudDiskService.addAndUpdate(file, type, userId, applicantId, parentFileId, adviserId, id, folderName, officialId);
             if (add == -1) {
-                return new Response<String>(-2, "文件或文件夹已存在已存在", null);
+                return new Response<String>(-2, "文件或文件夹已存在", null);
             }
             if (add > 0) {
                 return new Response<String>(0, "上传成功", null);
@@ -52,6 +52,36 @@ public class CloudDiskController extends BaseController {
         }
         return new Response<String>(0, "上传成功", null);
     }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> update(
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "fileId", required = false) String fileId,
+            @RequestParam(value = "type") String type,
+            @RequestParam(value = "applicantId", required = false) Integer applicantId,
+            @RequestParam(value = "applicantId", required = false) Integer userId,
+            @RequestParam(value = "name", required = false) String name,
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        Integer adviserId = adminUserLoginInfo.getAdviserId();
+        Integer officialId = adminUserLoginInfo.getOfficialId();
+        try {
+            int add = cloudDiskService.update(fileId, type, userId, applicantId, adviserId, id, name, officialId);
+            if (add == -1) {
+                return new Response<String>(-1, "文件或文件夹不存在", null);
+            }
+            if (add > 0) {
+                return new Response<String>(0, "修改成功", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(-1, "修改失败", null);
+        }
+        return new Response<String>(0, "修改成功", null);
+    }
+
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
@@ -125,8 +155,8 @@ public class CloudDiskController extends BaseController {
 
     @RequestMapping(value = "/initializationFolder", method = RequestMethod.POST)
     @ResponseBody
-    public Response<String> initializationFloder(
-            @RequestParam(value = "applicantId") Integer userId,
+    public Response<List<CloudDiskFile>> initializationFloder(
+            @RequestParam(value = "userId") Integer userId,
             @RequestParam(value = "applicantId") Integer applicantId,
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
@@ -136,10 +166,14 @@ public class CloudDiskController extends BaseController {
         try {
 
             List<CloudDiskFile> cloudDiskFileList = cloudDiskService.initializationFolder(userId, applicantId, adviserId, officialId);
-            return new Response<String>(0, "上传成功", null);
+            if (cloudDiskFileList.isEmpty()) {
+                return new Response<List<CloudDiskFile>>(-1, "初始化失败", null);
+            } else {
+                return new Response<List<CloudDiskFile>>(0, "已初始化", cloudDiskFileList);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response<String>(-1, "上传失败", null);
+            return new Response<List<CloudDiskFile>>(-1, "初始化失败", null);
         }
     }
 

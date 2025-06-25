@@ -22,4 +22,7 @@ public interface CloudDiskService {
     int getFileStructure(String parentFileStructures);
 
     List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException;
+
+    int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId);
+
 }
