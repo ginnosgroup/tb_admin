@@ -13,7 +13,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -166,10 +168,12 @@ public class CloudDiskController extends BaseController {
         try {
 
             List<CloudDiskFile> cloudDiskFileList = cloudDiskService.initializationFolder(userId, applicantId, adviserId, officialId);
+            List<CloudDiskFile> collect = cloudDiskFileList.stream().sorted(Comparator.comparing(p -> "文案资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
+            List<CloudDiskFile> collectT = collect.stream().sorted(Comparator.comparing(p -> "顾问资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
             if (cloudDiskFileList.isEmpty()) {
                 return new Response<List<CloudDiskFile>>(-1, "初始化失败", null);
             } else {
-                return new Response<List<CloudDiskFile>>(0, "已初始化", cloudDiskFileList);
+                return new Response<List<CloudDiskFile>>(0, "已初始化", collectT);
             }
         } catch (Exception e) {
             e.printStackTrace();
