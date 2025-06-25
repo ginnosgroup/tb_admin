@@ -85,7 +85,7 @@ public class CloudDiskController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
     public Response<String> delete(
             @RequestParam(value = "id") Integer id,
@@ -104,7 +104,7 @@ public class CloudDiskController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
     public ListResponse<List<CloudDiskFile>> list(
             @RequestParam(value = "id", required = false) Integer id,
@@ -125,7 +125,7 @@ public class CloudDiskController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/getUrl", method = RequestMethod.POST)
+    @RequestMapping(value = "/getUrl", method = RequestMethod.GET)
     @ResponseBody
     public Response<String> getUrl(
             @RequestParam(value = "userCode", required = false) String userCode,
