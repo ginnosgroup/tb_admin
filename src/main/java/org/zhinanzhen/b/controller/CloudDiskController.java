@@ -128,7 +128,7 @@ public class CloudDiskController extends BaseController {
     @RequestMapping(value = "/getUrl", method = RequestMethod.POST)
     @ResponseBody
     public Response<String> getUrl(
-            @RequestParam(value = "userCode") String userCode,
+            @RequestParam(value = "userCode", required = false) String userCode,
             @RequestParam(value = "parentFileId") String parentFileId,
             HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -155,11 +155,11 @@ public class CloudDiskController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/initializationFolder", method = RequestMethod.POST)
+    @RequestMapping(value = "/initializationFolder", method = RequestMethod.GET)
     @ResponseBody
     public Response<List<CloudDiskFile>> initializationFloder(
             @RequestParam(value = "userId") Integer userId,
-            @RequestParam(value = "applicantId") Integer applicantId,
+            @RequestParam(value = "applicantId", required = false) Integer applicantId,
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
