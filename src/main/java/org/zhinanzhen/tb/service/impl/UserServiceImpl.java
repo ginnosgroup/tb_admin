@@ -18,6 +18,7 @@ import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.TagDO;
 import org.zhinanzhen.b.dao.pojo.UserTagDO;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
+import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -60,6 +61,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private ServiceOrderOriginallyDAO serviceOrderOriginallyDAO;
 	@Resource
 	private WebLogDAO webLogDAO;
+	@Resource
+	private CloudDiskFileDAO cloudDiskFileDAO;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -222,6 +225,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
+			List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
+			if (cloudDiskFileList != null) {
+				userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
+			}
 			if(!buildUserAdviserDto(userDto, adviserId))
 				continue;
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
