@@ -226,7 +226,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
 			List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
-			if (cloudDiskFileList != null) {
+			if (!cloudDiskFileList.isEmpty()) {
 				userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
 			}
 			if(!buildUserAdviserDto(userDto, adviserId))
