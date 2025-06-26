@@ -18,17 +18,23 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.apache.poi.ss.formula.functions.T;
 import org.junit.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.CloudDiskFileDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.box.ListFileResponse;
+import org.zhinanzhen.b.dao.pojo.box.MyAsyncClient;
 import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.UploadResponseData;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.PartInfo;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 import javax.annotation.Resource;
@@ -37,16 +43,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class CloudDiskServiceImpl implements CloudDiskService {
+public class CloudDiskServiceImpl implements CloudDiskService  {
     @Value("${aliyun.ACCESSKEYID}")
     private String ACCESS_KEY_ID;
 
@@ -58,6 +64,10 @@ public class CloudDiskServiceImpl implements CloudDiskService {
 
     @Resource
     private UserDAO userDAO;
+    @Autowired
+    private AdviserDAO adviserDAO;
+    @Autowired
+    private OfficialDAO officialDAO;
 
     @Override
     public int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId,
@@ -358,25 +368,50 @@ public class CloudDiskServiceImpl implements CloudDiskService {
         StringBuilder newObjects = new StringBuilder(); // 改用局部变量，避免全局污染
         for (String s : split) {
             try {
-                AsyncClient client = getAsyncClient();
+                StaticCredentialProvider provider = StaticCredentialProvider.create(Credential.builder()
+                        .accessKeyId("LTAI5tLov73MZ92VARfLNgrH")
+                        .accessKeySecret("gLYhLvlnpb1OHGaEBbyD94B9QfJRWe")
+                        .build());
+
+                MyAsyncClient client = MyAsyncClient.builder()
+                        .region("cn-beijing")
+                        .credentialsProvider(provider)
+                        .overrideConfiguration(
+                                ClientOverrideConfiguration.create()
+                                        .setEndpointOverride("bj21743.api.aliyunpds.com")
+                        )
+                        .build();
                 ListFileRequest listFileRequest = ListFileRequest.builder()
                         .driveId("1020")
                         .parentFileId(s)
                         .limit(100)
-                        .fields("user_name")
                         .build();
-                CompletableFuture<ListFileResponse> listFileResponseCompletableFuture = client.listFile(listFileRequest);
-                ListFileResponse resp = listFileResponseCompletableFuture.get();
+                CompletableFuture<org.zhinanzhen.b.dao.pojo.box.ListFileResponse> listFileResponseCompletableFuture = client.listFile(listFileRequest);
+                org.zhinanzhen.b.dao.pojo.box.ListFileResponse resp = listFileResponseCompletableFuture.get();
                 String json = new Gson().toJson(resp);
                 JsonNode jsonNode = new ObjectMapper().readTree(json);
                 JsonNode items = jsonNode.path("body").path("items");
                 for (JsonNode node : items) {
+                    Integer adviserId = 0;
+                    Integer officialId = 0;
                     String fileId = node.get("fileId").asText();
                     String type = node.get("type").asText();
                     String parentFileId = node.get("parentFileId").asText();
                     String name = node.get("name").asText();
                     String driveId = node.get("driveId").asText();
-
+                    JsonNode creatorNameT = node.get("creatorName");
+                    String creatorName = "";
+                    if (creatorNameT != null) {
+                        creatorName = creatorNameT.asText();
+                    }
+                    List<AdviserDO> adviserDOS = adviserDAO.listAdviser(creatorName, null, 0, 20);
+                    List<OfficialDO> officialDOS = officialDAO.getOfficialByName(creatorName);
+                    if (adviserDOS != null && adviserDOS.size() > 0) {
+                        adviserId = adviserDOS.get(0).getId();
+                    }
+                    if (adviserDOS != null && officialDOS.size() > 0) {
+                        officialId = officialDOS.get(0).getId();
+                    }
                     CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId);
                     if (type.equalsIgnoreCase("folder")) {
                         newObjects.append(fileId).append(","); // 只收集新的 folderId
@@ -389,6 +424,8 @@ public class CloudDiskServiceImpl implements CloudDiskService {
                                 .name(name)
                                 .type(type)
                                 .driveId(driveId)
+                                .adviserId(adviserId)
+                                .officialId(officialId)
                                 .build();
                         cloudDiskFileDAO.add(cloudDiskFile);
                     }
@@ -490,7 +527,7 @@ public class CloudDiskServiceImpl implements CloudDiskService {
                 String parentFildT = new String();
                 List<CloudDiskFile> collect = cloudDiskFileList.stream().sorted(Comparator.comparing(p -> "root".equalsIgnoreCase(p.getParentFileId()) ? 0 : 1)).collect(Collectors.toList());
                 for (CloudDiskFile cloudDiskFile : collect) {
-                    if (!"root".equalsIgnoreCase(cloudDiskFile.getParentFileId())) {
+                    if (!"root".equalsIgnoreCase(cloudDiskFile.getParentFileId()) && !Objects.equals(parentFildT, "")) {
                         cloudDiskFile.setParentFileId(parentFildT);
                     }
                     AsyncClient client = getAsyncClient();

@@ -25,4 +25,5 @@ public interface CloudDiskService {
 
     int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId);
 
+
 }
