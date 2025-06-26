@@ -167,13 +167,13 @@ public class CloudDiskController extends BaseController {
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
             List<CloudDiskFile> cloudDiskFileList = cloudDiskService.initializationFolder(userId, applicantId, adviserId, officialId);
-            List<CloudDiskFile> collect1 = cloudDiskFileList.stream().filter(p -> !"root".equalsIgnoreCase(p.getParentFileId())).collect(Collectors.toList());
-            List<CloudDiskFile> collect = collect1.stream().sorted(Comparator.comparing(p -> "文案资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
-            List<CloudDiskFile> collectT = collect.stream().sorted(Comparator.comparing(p -> "顾问资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
+            List<CloudDiskFile> collect1 = cloudDiskFileList.stream().filter(p -> "root".equalsIgnoreCase(p.getParentFileId())).collect(Collectors.toList());
+//            List<CloudDiskFile> collect = collect1.stream().sorted(Comparator.comparing(p -> "文案资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
+//            List<CloudDiskFile> collectT = collect.stream().sorted(Comparator.comparing(p -> "顾问资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
             if (cloudDiskFileList.isEmpty()) {
                 return new Response<List<CloudDiskFile>>(-1, "初始化失败", null);
             } else {
-                return new Response<List<CloudDiskFile>>(0, "已初始化", collectT);
+                return new Response<List<CloudDiskFile>>(0, "已初始化", collect1);
             }
         } catch (Exception e) {
             e.printStackTrace();
