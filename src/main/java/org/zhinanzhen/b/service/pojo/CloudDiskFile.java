@@ -42,4 +42,6 @@ public class CloudDiskFile {
     private Integer officialId;
 
     private Integer userId;
+
+    private String operator;
 }
