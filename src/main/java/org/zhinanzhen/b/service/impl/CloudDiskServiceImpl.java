@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,12 +43,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,6 +67,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     private AdviserDAO adviserDAO;
     @Autowired
     private OfficialDAO officialDAO;
+
+    List<CloudDiskFile> cloudDiskFileList = new ArrayList<>();
 
     @Override
     public int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId,
@@ -428,6 +429,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .officialId(officialId)
                                 .build();
                         cloudDiskFileDAO.add(cloudDiskFile);
+                        cloudDiskFileList.add(cloudDiskFile);
                     }
                 }
                 client.close();
@@ -441,6 +443,28 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             String nextLevelFolders = newObjects.substring(0, newObjects.length() - 1);
             getFileStructure(nextLevelFolders);
         }
+        if (CollectionUtils.isNotEmpty(cloudDiskFileList)) {
+            List<CloudDiskFile> collect = cloudDiskFileList.stream().filter(cloudDiskFile -> "root".equalsIgnoreCase(cloudDiskFile.getParentFileId())).collect(Collectors.toList());
+            Map<String, CloudDiskFile> cloudDiskFileMap = collect.stream().collect(Collectors.toMap(CloudDiskFile::getFileId, Function.identity()));
+            for (CloudDiskFile cloudDiskFile : collect) {
+                UserDO userDO = userDAO.getUserByName(cloudDiskFile.getName());
+                if (ObjectUtil.isNotNull(userDO) && userDO.getName().equalsIgnoreCase(cloudDiskFile.getName())) {
+                    cloudDiskFile.setUserId(userDO.getId());
+                    cloudDiskFileDAO.update(cloudDiskFile);
+                }
+            }
+            for (CloudDiskFile cloudDiskFile : cloudDiskFileList) {
+                CloudDiskFile cloudDiskFileT = cloudDiskFileMap.get(cloudDiskFile.getParentFileId());
+                if (cloudDiskFileT != null) {
+                    Integer userId = cloudDiskFileT.getUserId();
+                    if (userId != null) {
+                        cloudDiskFile.setUserId(userId);
+                        cloudDiskFileDAO.update(cloudDiskFile);
+                    }
+                }
+            }
+        }
+        cloudDiskFileList.clear();
         return 0;
     }
 
