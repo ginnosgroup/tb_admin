@@ -323,9 +323,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 }
             }
             if (name1.contains("文案")) {
-                OfficialDO officialById = officialDAO.getOfficialById(cloudDiskFile.getOfficialId());
-                if (ObjectUtil.isNotNull(officialById)) {
-                    cloudDiskFile.setOperator(officialById.getName());
+                Integer officialId = cloudDiskFile.getOfficialId();
+                if (officialId != null) {
+                    OfficialDO officialById = officialDAO.getOfficialById(cloudDiskFile.getOfficialId());
+                    if (ObjectUtil.isNotNull(officialById)) {
+                        cloudDiskFile.setOperator(officialById.getName());
+                    }
                 }
             }
         }
@@ -459,28 +462,34 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             String nextLevelFolders = newObjects.substring(0, newObjects.length() - 1);
             getFileStructure(nextLevelFolders);
         }
-        if (CollectionUtils.isNotEmpty(cloudDiskFileList)) {
-            List<CloudDiskFile> collect = cloudDiskFileList.stream().filter(cloudDiskFile -> "root".equalsIgnoreCase(cloudDiskFile.getParentFileId())).collect(Collectors.toList());
-            Map<String, CloudDiskFile> cloudDiskFileMap = collect.stream().collect(Collectors.toMap(CloudDiskFile::getFileId, Function.identity()));
-            for (CloudDiskFile cloudDiskFile : collect) {
-                UserDO userDO = userDAO.getUserByName(cloudDiskFile.getName());
-                if (ObjectUtil.isNotNull(userDO) && userDO.getName().equalsIgnoreCase(cloudDiskFile.getName())) {
-                    cloudDiskFile.setUserId(userDO.getId());
-                    cloudDiskFileDAO.update(cloudDiskFile);
-                }
-            }
-            for (CloudDiskFile cloudDiskFile : cloudDiskFileList) {
-                CloudDiskFile cloudDiskFileT = cloudDiskFileMap.get(cloudDiskFile.getParentFileId());
-                if (cloudDiskFileT != null) {
-                    Integer userId = cloudDiskFileT.getUserId();
-                    if (userId != null) {
-                        cloudDiskFile.setUserId(userId);
+        try {
+            if (CollectionUtils.isNotEmpty(cloudDiskFileList)) {
+                List<CloudDiskFile> collect = cloudDiskFileList.stream().filter(cloudDiskFile -> "root".equalsIgnoreCase(cloudDiskFile.getParentFileId())).collect(Collectors.toList());
+                Map<String, CloudDiskFile> cloudDiskFileMap = collect.stream().collect(Collectors.toMap(CloudDiskFile::getFileId, Function.identity()));
+                for (CloudDiskFile cloudDiskFile : collect) {
+                    UserDO userDO = userDAO.getUserByName(cloudDiskFile.getName());
+                    if (ObjectUtil.isNotNull(userDO) && userDO.getName().equalsIgnoreCase(cloudDiskFile.getName())) {
+                        cloudDiskFile.setUserId(userDO.getId());
                         cloudDiskFileDAO.update(cloudDiskFile);
                     }
                 }
+                for (CloudDiskFile cloudDiskFile : cloudDiskFileList) {
+                    CloudDiskFile cloudDiskFileT = cloudDiskFileMap.get(cloudDiskFile.getParentFileId());
+                    if (cloudDiskFileT != null) {
+                        Integer userId = cloudDiskFileT.getUserId();
+                        if (userId != null) {
+                            cloudDiskFile.setUserId(userId);
+                            cloudDiskFileDAO.update(cloudDiskFile);
+                        }
+                    }
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            cloudDiskFileList.clear();
+        } finally {
+            cloudDiskFileList.clear();
         }
-        cloudDiskFileList.clear();
         return 0;
     }
 

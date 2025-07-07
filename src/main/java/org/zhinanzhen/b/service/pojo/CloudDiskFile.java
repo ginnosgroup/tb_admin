@@ -44,4 +44,6 @@ public class CloudDiskFile {
     private Integer userId;
 
     private String operator;
+
+    private String folderHierarchy;
 }
