@@ -68,4 +68,6 @@ public interface UserDAO {
 
 	int updateUserApplicationById(@Param("userId") Integer userId, @Param("adviserId") String adviserId);
 
+	@Select("select * from tb_user where name = #{name}")
+    UserDO getUserByName(String name);
 }

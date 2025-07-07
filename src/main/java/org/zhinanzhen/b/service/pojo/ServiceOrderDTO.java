@@ -296,4 +296,6 @@ public class ServiceOrderDTO {
 	private String applicantData;
 
 	private String officialData;
+
+	private Boolean isInsertEoi = false;
 }

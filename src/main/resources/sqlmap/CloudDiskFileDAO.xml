@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.CloudDiskFileDAO">
+
+
+    <insert id="add" parameterType="org.zhinanzhen.b.service.pojo.CloudDiskFile" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into b_cloud_disk_file (
+            gmt_create,
+            gmt_modify,
+            applicant_id,
+            adviser_id,
+            name,
+            type,
+            url,
+            parent_file_id,
+            domain_id,
+            driver_id,
+            file_id,
+            is_delete,
+            official_id,
+            user_id)
+        values (
+            now(),
+            now(),
+            #{applicantId},
+            #{adviserId},
+            #{name},
+            #{type},
+            #{url},
+            #{parentFileId},
+            #{domainId},
+            #{driveId},
+            #{fileId},
+            0,
+            #{officialId},
+            #{userId})
+    </insert>
+
+    <update id="update">
+        UPDATE b_cloud_disk_file
+        SET gmt_modify = now()
+        <if test='applicantId != null'>
+            , applicant_id = #{applicantId}
+        </if>
+        <if test='adviserId != null'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
+        <if test='url != null and url != ""'>
+            , url = #{url}
+        </if>
+        <if test='parentFileId != null and parentFileId != ""'>
+            , parent_file_id = #{parentFileId}
+        </if>
+        <if test='domainId != null and domainId != ""'>
+            , domain_id = #{domainId}
+        </if>
+        <if test='fileId != null and fileId != ""'>
+            , file_id = #{fileId}
+        </if>
+        <if test='isDelete != null and isDelete != ""'>
+            , is_delete = #{isDelete}
+        </if>
+        <if test='officialId != null'>
+            , official_id = #{officialId}
+        </if>
+        <if test='userId != null'>
+            , user_id = #{userId}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+    <select id="getById" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_cloud_disk_file where 1=1
+        <if test='id != null'>
+           AND id = #{id}
+        </if>
+        <if test='parentFileId != null and parentFileId != ""'>
+           AND parent_file_id = #{parentFileId}
+        </if>
+        <if test='fileId != null and fileId != ""'>
+            AND file_id = #{fileId}
+        </if>
+
+    </select>
+    <select id="listByParentFileId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_cloud_disk_file where 1=1
+        <if test='parentFileId != null and parentFileId != ""'>
+            AND parent_file_id = #{parentFileId}
+        </if>
+        <if test='id != null'>
+            AND id = #{id}
+        </if>
+        <if test='name != null and name != ""'>
+            AND name like '${name}%'
+        </if>
+        <if test='applicantId != null'>
+            AND applicant_id = #{applicantId}
+        </if>
+        <if test='userId != null'>
+            AND user_id = #{userId}
+        </if>
+        and is_delete = 0
+        GROUP BY id
+        LIMIT #{offset}, #{rows};
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        select count(*) from b_cloud_disk_file where 1=1
+        <if test='parentFileId != null and parentFileId != ""'>
+            AND parent_file_id = #{parentFileId}
+        </if>
+        <if test='id != null'>
+            AND id = #{id}
+        </if>
+        <if test='name != null and name != ""'>
+            AND name like '${name}%'
+        </if>
+         and is_delete = 0
+    </select>
+
+
+</mapper>

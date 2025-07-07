@@ -71,5 +71,7 @@ public class UserDTO {
 	private String stateText; // 添加方式
 
 	private String channelSource; // 渠道来源
+
+	private String firstFileId;
 	
 }

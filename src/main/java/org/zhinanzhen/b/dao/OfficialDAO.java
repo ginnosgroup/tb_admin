@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 
 public interface OfficialDAO {
@@ -20,4 +21,7 @@ public interface OfficialDAO {
 
 	List<OfficialDO> getOfficialByGradeId(int gradeId);
 	Integer getOfficialAdmin (int id);
+
+	@Select("select * from b_official where name = #{creatorName} limit 0,1")
+	List<OfficialDO> getOfficialByName(String creatorName);
 }

@@ -242,7 +242,7 @@ public class WebLogAspect extends BaseController{
                     int i = webLogDAO.addWebLogs(webLog);
                     if (i > 0) {
                         Integer serviceOrderId = webLog.getServiceOrderId();
-                        if (serviceOrderId != null) {
+                        if (serviceOrderId != null && serviceOrderId != 0) {
                             ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
                             if (serviceOrderById.getApplicantParentId() > 0 && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
                                 ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());

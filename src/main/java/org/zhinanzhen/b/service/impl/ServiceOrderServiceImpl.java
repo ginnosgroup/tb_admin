@@ -169,8 +169,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     .listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
             List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
             List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(serviceOrderDto.getVerifyCode());
-            if (commissionOrderDOS.size() > 0 || serviceOrderDao.listByVerifyCode(serviceOrderDto.getVerifyCode()).size() > 0
-                    || visaDOS.size() > 0 || list.size() > 0) {
+            if ((commissionOrderDOS.size() > 0 || serviceOrderDao.listByVerifyCode(serviceOrderDto.getVerifyCode()).size() > 0
+                    || visaDOS.size() > 0 || list.size() > 0) && !serviceOrderDto.getIsInsertEoi()) {
                 ServiceException se = new ServiceException(
                         "对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
@@ -324,14 +324,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     .listCommissionOrderByVerifyCode(serviceOrderDto.getVerifyCode());
             List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceOrderDto.getVerifyCode());
             List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(serviceOrderDto.getVerifyCode());
-            if (commissionOrderDOS.size() > 0 || list.size() > 0) {
+            if ((commissionOrderDOS.size() > 0 || list.size() > 0) && !serviceOrderDto.getIsInsertEoi()) {
                 ServiceException se = new ServiceException(
                         "对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
                 se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
                 throw se;
             }
             for (VisaDO visaDO : visaDOS) {
-                if (visaDO.getServiceOrderId() != serviceOrderDto.getId() && visaDO.getServiceOrderId() != serviceOrderDto.getApplicantParentId()) {
+                if ((visaDO.getServiceOrderId() != serviceOrderDto.getId() && visaDO.getServiceOrderId() != serviceOrderDto.getApplicantParentId()) && !serviceOrderDto.getIsInsertEoi()) {
                     ServiceException se = new ServiceException(
                             "对账code:" + serviceOrderDto.getVerifyCode() + "已经存在,请重新创建新的code!");
                     se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
