@@ -87,6 +87,9 @@
         <if test='fileId != null and fileId != ""'>
             AND file_id = #{fileId}
         </if>
+        <if test='folderName != null and folderName != ""'>
+            AND name = #{folderName}
+        </if>
 
     </select>
     <select id="listByParentFileId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">

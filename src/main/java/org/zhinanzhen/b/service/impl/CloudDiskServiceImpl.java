@@ -93,7 +93,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             .driveId("1020")
                             .build();
                 }
-                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+                cloudDiskFile = cloudDiskFileDAO.getById(id, parentFileId, null, folderName);
                 if (cloudDiskFile != null && cloudDiskFile.getName().equals(folderName)) {
                     return -1;
                 }
@@ -160,7 +160,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             ))
                             .build();
                 }
-                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, folderName);
                 if (id != null) {
                     if (cloudDiskFile.getName().equals(fileName)) {
                         return -1;
@@ -280,7 +280,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int deleteById(Integer id, String fileId) {
-        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, null);
         if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
             throw new RuntimeException("文件信息错误或不存在");
         }
@@ -365,7 +365,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             JSONObject body = jsonObject.getJSONObject("body");
             String shareId = body.get("shareId").toString();
             String shareUrl = "https://bj21743.apps.aliyunfile.com/disk/s/" + shareId;
-            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null);
+            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, null);
             cloudDiskFile.setUrl(shareUrl);
             cloudDiskFileDAO.update(cloudDiskFile);
             return shareUrl;
@@ -429,7 +429,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     if (adviserDOS != null && officialDOS.size() > 0) {
                         officialId = officialDOS.get(0).getId();
                     }
-                    CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId);
+                    CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null);
                     if (type.equalsIgnoreCase("folder")) {
                         newObjects.append(fileId).append(","); // 只收集新的 folderId
                     }
@@ -628,7 +628,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId) {
-        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null);
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, null);
         AsyncClient client = getAsyncClient();
         try {
             // Parameter settings for API request

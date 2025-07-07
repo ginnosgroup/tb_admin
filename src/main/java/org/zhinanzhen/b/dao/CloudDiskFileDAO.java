@@ -9,7 +9,7 @@ public interface CloudDiskFileDAO {
 
     int add(CloudDiskFile cloudDiskFile);
 
-    CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId);
+    CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId, @Param("folderName") String folderName);
 
     int update(CloudDiskFile cloudDiskFile);
 

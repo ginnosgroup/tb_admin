@@ -32,7 +32,7 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "type") String type,
             @RequestParam(value = "applicantId", required = false) Integer applicantId,
-            @RequestParam(value = "applicantId", required = false) Integer userId,
+            @RequestParam(value = "userId", required = false) Integer userId,
             @RequestParam(value = "parentFileId") String parentFileId,
             @RequestParam(value = "folderName", required = false) String folderName,
             HttpServletRequest request, HttpServletResponse response) {
