@@ -526,6 +526,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId("root").
                         domainId("bj21743").name(userById.getName()).type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
                 cloudDiskFileDAO.add(cloudDiskFile);
+                cloudDiskFileList.add(cloudDiskFile);
 
                 // 创建客户文件夹下面的顾问资料文件夹和文案资料文件夹
                 createFileRequest = CreateFileRequest.builder()
