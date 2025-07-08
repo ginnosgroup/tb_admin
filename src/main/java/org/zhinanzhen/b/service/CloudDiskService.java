@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface CloudDiskService {
 
-    int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId, Integer adviserId, Integer id, String folderName, Integer officialId) throws ExecutionException, InterruptedException;
+    int addAndUpdate(MultipartFile file, String type, Integer applicantId,Integer userId, String parentFileId, Integer adviserId, Integer id, String folderName, Integer officialId) throws ExecutionException, InterruptedException;
 
 
     int deleteById(Integer id, String fileId);

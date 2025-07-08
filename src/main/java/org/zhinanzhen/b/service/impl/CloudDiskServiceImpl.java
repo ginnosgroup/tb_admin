@@ -71,7 +71,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     List<CloudDiskFile> cloudDiskFileList = new ArrayList<>();
 
     @Override
-    public int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId,
+    public int addAndUpdate(MultipartFile file, String type, Integer applicantId,Integer userId, String parentFileId,
                             Integer adviserId, Integer id, String folderName, Integer officialId) {
         if ("file".equalsIgnoreCase(type) && file == null) {
             throw new RuntimeException("上传文件为空");

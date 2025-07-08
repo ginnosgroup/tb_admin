@@ -41,7 +41,7 @@ public class CloudDiskController extends BaseController {
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
-            int add = cloudDiskService.addAndUpdate(file, type, userId, applicantId, parentFileId, adviserId, id, folderName, officialId);
+            int add = cloudDiskService.addAndUpdate(file, type, applicantId, userId, parentFileId, adviserId, id, folderName, officialId);
             if (add == -1) {
                 return new Response<String>(-2, "文件或文件夹已存在", null);
             }
