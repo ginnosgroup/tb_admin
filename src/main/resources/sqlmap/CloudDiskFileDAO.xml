@@ -19,7 +19,8 @@
             file_id,
             is_delete,
             official_id,
-            user_id)
+            user_id,
+            operator)
         values (
             now(),
             now(),
@@ -34,7 +35,8 @@
             #{fileId},
             0,
             #{officialId},
-            #{userId})
+            #{userId},
+            #{operator})
     </insert>
 
     <update id="update">

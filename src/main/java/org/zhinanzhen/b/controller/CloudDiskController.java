@@ -147,7 +147,10 @@ public class CloudDiskController extends BaseController {
     public Response<String> getFileStructure(@RequestParam(value = "parentFileStructures") String parentFileStructures,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
-            cloudDiskService.getFileStructure(parentFileStructures);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            Integer adviserId = adminUserLoginInfo.getAdviserId();
+            Integer officialId = adminUserLoginInfo.getOfficialId();
+            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();

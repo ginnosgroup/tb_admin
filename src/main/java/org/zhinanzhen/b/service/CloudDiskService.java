@@ -19,7 +19,7 @@ public interface CloudDiskService {
 
     String getShareUrl(String userId, String parentFileId);
 
-    int getFileStructure(String parentFileStructures);
+    int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId);
 
     List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException;
 

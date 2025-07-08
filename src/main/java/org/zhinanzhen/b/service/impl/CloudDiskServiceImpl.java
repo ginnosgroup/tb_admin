@@ -76,7 +76,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         if ("file".equalsIgnoreCase(type) && file == null) {
             throw new RuntimeException("上传文件为空");
         }
-
         if ("folder".equalsIgnoreCase(type)) {
             try {
                 CloudDiskFile cloudDiskFile = new CloudDiskFile();
@@ -112,6 +111,14 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 if (id == null) {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId(parentFileId).
                             domainId("bj21743").name(folderName).type(type).driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                    if (adviserId != null) {
+                        AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                        cloudDiskFile.setOperator(adviserById.getName());
+                    }
+                    if (officialId != null) {
+                        OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                        cloudDiskFile.setOperator(officialById.getName());
+                    }
                     int add = cloudDiskFileDAO.add(cloudDiskFile);
                     if (add > 0) {
                         return add;
@@ -258,6 +265,14 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 if (id == null) {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
                             domainId("bj21743").name(fileName).type(type).driveId(driveId).applicantId(applicantId).userId(userId).adviserId(adviserId).officialId(officialId).build();
+                    if (adviserId != null) {
+                        AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                        cloudDiskFile.setOperator(adviserById.getName());
+                    }
+                    if (officialId != null) {
+                        OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                        cloudDiskFile.setOperator(officialById.getName());
+                    }
                     int add = cloudDiskFileDAO.add(cloudDiskFile);
                     if (add > 0) {
                         return add;
@@ -380,7 +395,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
-    public int getFileStructure(String parentFileStructures) {
+    public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId) {
         if (parentFileStructures == null || parentFileStructures.trim().isEmpty()) {
             return 0; // 递归终止条件
         }
@@ -412,8 +427,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 JsonNode jsonNode = new ObjectMapper().readTree(json);
                 JsonNode items = jsonNode.path("body").path("items");
                 for (JsonNode node : items) {
-                    Integer adviserId = 0;
-                    Integer officialId = 0;
+                    Integer adviserIdT = 0;
+                    Integer officialIdT = 0;
                     String fileId = node.get("fileId").asText();
                     String type = node.get("type").asText();
                     String parentFileId = node.get("parentFileId").asText();
@@ -427,10 +442,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     List<AdviserDO> adviserDOS = adviserDAO.listAdviser(creatorName, null, 0, 20);
                     List<OfficialDO> officialDOS = officialDAO.getOfficialByName(creatorName);
                     if (adviserDOS != null && adviserDOS.size() > 0) {
-                        adviserId = adviserDOS.get(0).getId();
+                        adviserIdT = adviserDOS.get(0).getId();
                     }
                     if (adviserDOS != null && officialDOS.size() > 0) {
-                        officialId = officialDOS.get(0).getId();
+                        officialIdT = officialDOS.get(0).getId();
                     }
                     CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null);
                     if (type.equalsIgnoreCase("folder")) {
@@ -444,9 +459,17 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .name(name)
                                 .type(type)
                                 .driveId(driveId)
-                                .adviserId(adviserId)
-                                .officialId(officialId)
+                                .adviserId(adviserIdT)
+                                .officialId(officialIdT)
                                 .build();
+                        if (adviserId != null) {
+                            AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                            cloudDiskFile.setOperator(adviserById.getName());
+                        }
+                        if (officialId != null) {
+                            OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                            cloudDiskFile.setOperator(officialById.getName());
+                        }
                         cloudDiskFileDAO.add(cloudDiskFile);
                         cloudDiskFileList.add(cloudDiskFile);
                     }
@@ -460,7 +483,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         if (newObjects.length() > 0) {
             // 去掉末尾的 ","
             String nextLevelFolders = newObjects.substring(0, newObjects.length() - 1);
-            getFileStructure(nextLevelFolders);
+            getFileStructure(nextLevelFolders, adviserId, officialId);
         }
         try {
             if (CollectionUtils.isNotEmpty(cloudDiskFileList)) {
@@ -525,6 +548,14 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
                 cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId("root").
                         domainId("bj21743").name(userById.getName()).type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                if (adviserId != null) {
+                    AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                    cloudDiskFile.setOperator(adviserById.getName());
+                }
+                if (officialId != null) {
+                    OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                    cloudDiskFile.setOperator(officialById.getName());
+                }
                 cloudDiskFileDAO.add(cloudDiskFile);
                 cloudDiskFileList.add(cloudDiskFile);
 
@@ -548,6 +579,14 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
                 cloudDiskFile = CloudDiskFile.builder().fileId(fileIdT).parentFileId(fileId).
                         domainId("bj21743").name("顾问资料").type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                if (adviserId != null) {
+                    AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                    cloudDiskFile.setOperator(adviserById.getName());
+                }
+                if (officialId != null) {
+                    OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                    cloudDiskFile.setOperator(officialById.getName());
+                }
                 cloudDiskFileList.add(cloudDiskFile);
                 cloudDiskFileDAO.add(cloudDiskFile);
 
@@ -571,6 +610,14 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
                 cloudDiskFile = CloudDiskFile.builder().fileId(fileIdW).parentFileId(fileId).
                         domainId("bj21743").name("文案资料").type("folder").driveId("1020").userId(userId).applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
+                if (adviserId != null) {
+                    AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                    cloudDiskFile.setOperator(adviserById.getName());
+                }
+                if (officialId != null) {
+                    OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                    cloudDiskFile.setOperator(officialById.getName());
+                }
                 cloudDiskFileList.add(cloudDiskFile);
                 cloudDiskFileDAO.add(cloudDiskFile);
             } else {
