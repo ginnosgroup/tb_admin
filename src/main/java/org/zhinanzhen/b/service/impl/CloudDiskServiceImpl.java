@@ -513,6 +513,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) {
+        log.info("key值为----------------------{}", ACCESS_KEY_ID);
         List<CloudDiskFile> cloudDiskFileList = new ArrayList<>();
         cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, null, null, applicantId, userId, 0, 20);
         int add = -1;
