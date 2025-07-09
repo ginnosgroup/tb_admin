@@ -43,16 +43,16 @@ public class CloudDiskController extends BaseController {
         try {
             int add = cloudDiskService.addAndUpdate(file, type, applicantId, userId, parentFileId, adviserId, id, folderName, officialId);
             if (add == -1) {
-                return new Response<String>(-2, "文件或文件夹已存在", null);
+                return new Response<String>(1, "文件或文件夹已存在", "");
             }
             if (add > 0) {
-                return new Response<String>(0, "上传成功", null);
+                return new Response<String>(0, "上传成功", "");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response<String>(-1, "上传失败", null);
+            return new Response<String>(1, "上传失败", "");
         }
-        return new Response<String>(0, "上传成功", null);
+        return new Response<String>(0, "上传成功", "");
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -95,12 +95,12 @@ public class CloudDiskController extends BaseController {
             super.setPostHeader(response);
             int a = cloudDiskService.deleteById(id, fileId);
             if (a < 0) {
-                return new Response<String>(-1, "删除失败", null);
+                return new Response<String>(1, "删除失败", null);
             }
-            return new Response<String>(0, "上传成功", null);
+            return new Response<String>(0, "删除成功", null);
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response<String>(-1, "上传失败", null);
+            return new Response<String>(1, "上传失败", null);
         }
     }
 

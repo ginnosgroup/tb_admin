@@ -167,26 +167,21 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             ))
                             .build();
                 }
-                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, folderName);
-                if (id != null) {
-                    if (cloudDiskFile.getName().equals(fileName)) {
+                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, fileName);
+                if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
                         return -1;
-                    }
-                    createFileRequest = CreateFileRequest.builder()
-                            .name(fileName)
-                            .type(type)
-                            .parentFileId(parentFileId)
-                            .driveId("1020")
-                            .size(fileTmp.length())
-                            .fileId(cloudDiskFile.getFileId())
-                            .partInfoList(java.util.Arrays.asList(
-                                    partInfoList0
-                            ))
-                            .build();
+//                    createFileRequest = CreateFileRequest.builder()
+//                            .name(fileName)
+//                            .type(type)
+//                            .parentFileId(parentFileId)
+//                            .driveId("1020")
+//                            .size(fileTmp.length())
+//                            .fileId(cloudDiskFile.getFileId())
+//                            .partInfoList(java.util.Arrays.asList(
+//                                    partInfoList0
+//                            ))
+//                            .build();
                 }
-
-
-
                 // Asynchronously get the return value of the API request
                 CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
                 // Synchronously get the return value of the API request
