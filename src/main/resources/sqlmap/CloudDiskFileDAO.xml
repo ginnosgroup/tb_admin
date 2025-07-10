@@ -21,7 +21,7 @@
             official_id,
             user_id,
             operator,
-            folder_hierarchy)
+            relative_path)
         values (
             now(),
             now(),
@@ -38,7 +38,7 @@
             #{officialId},
             #{userId},
             #{operator},
-            #{folderHierarchy})
+            #{relativePath})
     </insert>
 
     <update id="update">
@@ -80,8 +80,8 @@
         <if test='operator != null and operator != ""'>
             , operator = #{operator}
         </if>
-        <if test='folderHierarchy != null and folderHierarchy != ""'>
-            , folder_hierarchy = #{folderHierarchy}
+        <if test='relativePath != null and relativePath != ""'>
+            , relative_path = #{relativePath}
         </if>
         WHERE id = #{id}
     </update>

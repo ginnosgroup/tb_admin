@@ -113,10 +113,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             domainId("bj21743").name(folderName).type(type).driveId("1020").userId(userId).
                             applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
                     if ("root".equalsIgnoreCase(parentFileId)) {
-                        cloudDiskFile.setFolderHierarchy("/root" + "/" + folderName);
+                        cloudDiskFile.setRelativePath("/root" + "/" + folderName);
                     } else {
                         CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
-                        cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + folderName);
+                        cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + folderName);
                     }
                     if (adviserId != null) {
                         AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -268,10 +268,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
                             domainId("bj21743").name(fileName).type(type).driveId(driveId).applicantId(applicantId).userId(userId).adviserId(adviserId).officialId(officialId).build();
                     if ("root".equalsIgnoreCase(parentFileId)) {
-                        cloudDiskFile.setFolderHierarchy("/root" + "/" + folderName);
+                        cloudDiskFile.setRelativePath("/root" + "/" + folderName);
                     } else {
                         CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
-                        cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + fileName);
+                        cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + fileName);
                     }
                     if (adviserId != null) {
                         AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -340,10 +340,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             domainId("bj21743").name(split[i]).type("folder").driveId("1020").userId(userId)
                             .adviserId(adviserId).officialId(officialId).build();
                     if ("root".equalsIgnoreCase(parentFileId)) {
-                        cloudDiskFile.setFolderHierarchy("/root" + "/" + split[i]);
+                        cloudDiskFile.setRelativePath("/root" + "/" + split[i]);
                     } else {
                         CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
-                        cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + split[i]);
+                        cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + split[i]);
                     }
                     if (adviserId != null) {
                         AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -489,10 +489,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
                             domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).build();
                     if ("root".equalsIgnoreCase(parentFileId)) {
-                        cloudDiskFile.setFolderHierarchy("/root" + "/" + fileName);
+                        cloudDiskFile.setRelativePath("/root" + "/" + fileName);
                     } else {
                         CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
-                        cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + fileName);
+                        cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + fileName);
                     }
                     if (adviserId != null) {
                         AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -692,10 +692,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .officialId(officialIdT)
                                 .build();
                         if ("root".equalsIgnoreCase(parentFileId)) {
-                            cloudDiskFile.setFolderHierarchy("/root" + "/" + name);
+                            cloudDiskFile.setRelativePath("/root" + "/" + name);
                         } else {
                             CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, fileId, null);
-                            cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + "顾问资料");
+                            cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + "顾问资料");
                         }
                         if (adviserId != null) {
                             AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -784,7 +784,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
                 cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId("root").
                         domainId("bj21743").name(userById.getName()).type("folder").driveId("1020").userId(userId).applicantId(applicantId)
-                        .adviserId(adviserId).folderHierarchy("/root" + "/" + userById.getName()).officialId(officialId).build();
+                        .adviserId(adviserId).relativePath("/root" + "/" + userById.getName()).officialId(officialId).build();
                 if (adviserId != null) {
                     AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
                     cloudDiskFile.setOperator(adviserById.getName());
@@ -818,10 +818,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         domainId("bj21743").name("顾问资料").type("folder").driveId("1020").userId(userId)
                         .applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
                 if ("root".equalsIgnoreCase(fileId)) {
-                    cloudDiskFile.setFolderHierarchy("/root" + "/" + "顾问资料");
+                    cloudDiskFile.setRelativePath("/root" + "/" + "顾问资料");
                 } else {
                     CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, fileId, null);
-                    cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + "顾问资料");
+                    cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + "顾问资料");
                 }
                 if (adviserId != null) {
                     AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -856,10 +856,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         domainId("bj21743").name("文案资料").type("folder").driveId("1020").userId(userId)
                         .applicantId(applicantId).adviserId(adviserId).officialId(officialId).build();
                 if ("root".equalsIgnoreCase(fileId)) {
-                    cloudDiskFile.setFolderHierarchy("/root" + "/" + "文案资料");
+                    cloudDiskFile.setRelativePath("/root" + "/" + "文案资料");
                 } else {
                     CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, fileId, null);
-                    cloudDiskFile.setFolderHierarchy(byId.getFolderHierarchy() + "/" + "文案资料");
+                    cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + "文案资料");
                 }
                 if (adviserId != null) {
                     AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
