@@ -47,5 +47,5 @@ public class CloudDiskFile {
 
     private String relativePath; // 文件路径
 
-    private Integer fileSize; // 文件大小
+    private Long fileSize; // 文件大小
 }

@@ -136,6 +136,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             }
         } else if ("file".equalsIgnoreCase(type)) {
             String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
+            Long fileSize = 0L;
+            fileSize = file.getSize();
             log.info("上传的文件原名称:" + fileName);
             // 判断文件类型
             String fileType = fileName.indexOf(".") != -1
@@ -266,7 +268,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
                 if (id == null) {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
-                            domainId("bj21743").name(fileName).type(type).driveId(driveId).applicantId(applicantId).userId(userId).adviserId(adviserId).officialId(officialId).build();
+                            domainId("bj21743").name(fileName).type(type).driveId(driveId).applicantId(applicantId)
+                            .userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
                     if ("root".equalsIgnoreCase(parentFileId)) {
                         cloudDiskFile.setRelativePath("/root" + "/" + folderName);
                     } else {
@@ -360,6 +363,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 }
             } else {
                 String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
+                Long fileSize = 0L;
+                fileSize = file.getSize();
                 log.info("上传的文件原名称:" + fileName);
                 // 判断文件类型
                 String fileType = fileName.indexOf(".") != -1
@@ -487,7 +492,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     client.close();
 
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
-                            domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).build();
+                            domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
                     if ("root".equalsIgnoreCase(parentFileId)) {
                         cloudDiskFile.setRelativePath("/root" + "/" + fileName);
                     } else {
@@ -664,6 +669,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     String name = node.get("name").asText();
                     String driveId = node.get("driveId").asText();
                     JsonNode creatorNameT = node.get("creatorName");
+                    Long fileSize = 0L;
+                    if ("file".equalsIgnoreCase(type)) {
+                        fileSize = node.get("size").asLong();
+                    }
                     String creatorName = "";
                     if (creatorNameT != null) {
                         creatorName = creatorNameT.asText();
@@ -690,6 +699,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .driveId(driveId)
                                 .adviserId(adviserIdT)
                                 .officialId(officialIdT)
+                                .fileSize(fileSize)
                                 .build();
                         if ("root".equalsIgnoreCase(parentFileId)) {
                             cloudDiskFile.setRelativePath("/root" + "/" + name);
