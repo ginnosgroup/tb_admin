@@ -45,5 +45,7 @@ public class CloudDiskFile {
 
     private String operator;
 
-    private String folderHierarchy;
+    private String folderHierarchy; // 文件路径
+
+    private Integer fileSize; // 文件大小
 }

@@ -35,13 +35,19 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "userId", required = false) Integer userId,
             @RequestParam(value = "parentFileId") String parentFileId,
             @RequestParam(value = "folderName", required = false) String folderName,
+            @RequestParam(value = "relativePath", required = false) String relativePath,
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
-            int add = cloudDiskService.addAndUpdate(file, type, applicantId, userId, parentFileId, adviserId, id, folderName, officialId);
+            int add = 0;
+            if (relativePath == null) {
+                add = cloudDiskService.addAndUpdate(file, type, applicantId, userId, parentFileId, adviserId, id, folderName, officialId, relativePath);
+            } else {
+                add = cloudDiskService.addAndUpdate(file, userId, parentFileId, adviserId, officialId, relativePath);
+            }
             if (add == -1) {
                 return new Response<String>(1, "文件或文件夹已存在", "");
             }
