@@ -22,7 +22,8 @@
             user_id,
             operator,
             relative_path,
-            file_size)
+            file_size,
+            download_url)
         values (
             now(),
             now(),
@@ -40,7 +41,8 @@
             #{userId},
             #{operator},
             #{relativePath},
-            #{fileSize})
+            #{fileSize},
+            #{downloadUrl})
     </insert>
 
     <update id="update">
@@ -87,6 +89,9 @@
         </if>
         <if test='fileSize != null and fileSize != ""'>
             , file_size = #{fileSize}
+        </if>
+        <if test='downloadUrl != null and downloadUrl != ""'>
+            , download_url = #{downloadUrl}
         </if>
         WHERE id = #{id}
     </update>
