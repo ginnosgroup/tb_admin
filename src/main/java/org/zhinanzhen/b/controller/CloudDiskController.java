@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +44,7 @@ public class CloudDiskController extends BaseController {
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
             int add = 0;
-            if (relativePath == null) {
+            if (StringUtils.isEmpty(relativePath)) {
                 add = cloudDiskService.addAndUpdate(file, type, applicantId, userId, parentFileId, adviserId, id, folderName, officialId, relativePath);
             } else {
                 add = cloudDiskService.addAndUpdate(file, userId, parentFileId, adviserId, officialId, relativePath);

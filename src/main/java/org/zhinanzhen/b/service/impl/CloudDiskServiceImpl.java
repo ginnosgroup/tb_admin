@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -176,7 +177,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             ))
                             .build();
                 }
-                cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, fileName);
+                cloudDiskFile = cloudDiskFileDAO.getById(id, parentFileId, null, fileName);
                 if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
                     return -1;
 //                    createFileRequest = CreateFileRequest.builder()
@@ -310,100 +311,110 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         for (int i = 0; i < split.length; i++) {
             if (i < split.length - 1) {
                 try {
-                    CloudDiskFile cloudDiskFile = new CloudDiskFile();
-                    // 创建上传文件的请求并获取上传链接
-                    // Configure Credentials authentication information, including ak, secret, token
-                    AsyncClient client = getAsyncClient();
+                    // 使用组合键作为锁对象
+                    String lockKey = (parentFileId + ":" + split[i]).intern();
+                    synchronized (lockKey) {
+                        CloudDiskFile cloudDiskFile = new CloudDiskFile();
+                        // 创建上传文件的请求并获取上传链接
+                        // Configure Credentials authentication information, including ak, secret, token
+                        AsyncClient client = getAsyncClient();
 
-                    CreateFileRequest createFileRequest = null;
-                    createFileRequest = CreateFileRequest.builder()
-                            .name(split[i])
-                            .type("folder")
-                            .parentFileId(parentFileId)
-                            .driveId("1020")
-                            .build();
-                    cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, split[i]);
-                    if (cloudDiskFile != null && cloudDiskFile.getName().equals(split[i])) {
-                        parentFileId = cloudDiskFile.getFileId();
-                        continue;
-                    }
-                    // Asynchronously get the return value of the API request
-                    CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
-                    // Synchronously get the return value of the API request
-                    CreateFileResponse resp = response.get();
-                    System.out.println(new Gson().toJson(resp));
-                    // Asynchronous processing of return values
-                    String json = new Gson().toJson(resp);
-                    JSONObject jsonObject = JSON.parseObject(json);
-                    JSONObject body1 = jsonObject.getJSONObject("body");
-                    String fileId = body1.get("fileId").toString();
-                    client.close();
+                        CreateFileRequest createFileRequest = null;
+                        createFileRequest = CreateFileRequest.builder()
+                                .name(split[i])
+                                .type("folder")
+                                .parentFileId(parentFileId)
+                                .driveId("1020")
+                                .build();
+                        cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, split[i]);
+                        if (cloudDiskFile != null && cloudDiskFile.getName().equals(split[i])) {
+                            parentFileId = cloudDiskFile.getFileId();
+                            continue;
+                        }
+                        // Asynchronously get the return value of the API request
+                        CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
+                        // Synchronously get the return value of the API request
+                        CreateFileResponse resp = response.get();
+                        System.out.println(new Gson().toJson(resp));
+                        // Asynchronous processing of return values
+                        String json = new Gson().toJson(resp);
+                        JSONObject jsonObject = JSON.parseObject(json);
+                        JSONObject body1 = jsonObject.getJSONObject("body");
+                        String fileId = body1.get("fileId").toString();
+                        client.close();
 
-                    cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId(parentFileId).
-                            domainId("bj21743").name(split[i]).type("folder").driveId("1020").userId(userId)
-                            .adviserId(adviserId).officialId(officialId).build();
-                    if ("root".equalsIgnoreCase(parentFileId)) {
-                        cloudDiskFile.setRelativePath("/root" + "/" + split[i]);
-                    } else {
-                        CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
-                        cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + split[i]);
+                        cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId(parentFileId).
+                                domainId("bj21743").name(split[i]).type("folder").driveId("1020").userId(userId)
+                                .adviserId(adviserId).officialId(officialId).build();
+                        if ("root".equalsIgnoreCase(parentFileId)) {
+                            cloudDiskFile.setRelativePath("/root" + "/" + split[i]);
+                        } else {
+                            CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
+                            cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + split[i]);
+                        }
+                        if (adviserId != null) {
+                            AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                            cloudDiskFile.setOperator(adviserById.getName());
+                        }
+                        if (officialId != null) {
+                            OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                            cloudDiskFile.setOperator(officialById.getName());
+                        }
+                        int add = cloudDiskFileDAO.add(cloudDiskFile);
+                        parentFileId = fileId;
                     }
-                    if (adviserId != null) {
-                        AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
-                        cloudDiskFile.setOperator(adviserById.getName());
-                    }
-                    if (officialId != null) {
-                        OfficialDO officialById = officialDAO.getOfficialById(officialId);
-                        cloudDiskFile.setOperator(officialById.getName());
-                    }
-                    int add = cloudDiskFileDAO.add(cloudDiskFile);
-                    parentFileId = fileId;
                 } catch (ExecutionException | InterruptedException ex) {
                     ex.printStackTrace();
                 }
             } else {
-                String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
-                Long fileSize = 0L;
-                fileSize = file.getSize();
-                log.info("上传的文件原名称:" + fileName);
-                // 判断文件类型
-                String fileType = fileName.indexOf(".") != -1
-                        ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
-                        : null;
-                if (ObjectUtil.isNull(fileType))
-                    throw new RuntimeException("文件类型为空");
+                String lockKey = (parentFileId + ":" + split[i]).intern();
+                synchronized (lockKey) {
+                    String fileName = file.getOriginalFilename().replace(" ", "_").replace("%20", "_");// 文件原名称
+                    Long fileSize = 0L;
+                    fileSize = file.getSize();
+                    log.info("上传的文件原名称:" + fileName);
+                    // 判断文件类型
+                    String fileType = fileName.indexOf(".") != -1
+                            ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length())
+                            : null;
+                    if (ObjectUtil.isNull(fileType))
+                        throw new RuntimeException("文件类型为空");
 
-                try {
-                    CloudDiskFile cloudDiskFile = new CloudDiskFile();
-                    // 创建上传文件的请求并获取上传链接
-                    // Configure Credentials authentication information, including ak, secret, token
-                    AsyncClient client = getAsyncClient();
+                    try {
+                        CloudDiskFile cloudDiskFile = new CloudDiskFile();
+                        cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, fileName);
+                        if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
+                            return -1;
+                        }
+                        // 创建上传文件的请求并获取上传链接
+                        // Configure Credentials authentication information, including ak, secret, token
+                        AsyncClient client = getAsyncClient();
 
-                    File fileTmp = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
-                    file.transferTo(fileTmp);
-                    // Parameter settings for API request
-                    CreateFileRequest.ParallelSha1Ctx partInfoList0ParallelSha1Ctx = CreateFileRequest.ParallelSha1Ctx.builder()
-                            .partOffset(fileTmp.length())
-                            .build();
-                    CreateFileRequest.PartInfoList partInfoList0 = CreateFileRequest.PartInfoList.builder()
-                            .partNumber(1)
-                            .parallelSha1Ctx(partInfoList0ParallelSha1Ctx)
-                            .build();
+                        File fileTmp = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
+                        file.transferTo(fileTmp);
+                        // Parameter settings for API request
+                        CreateFileRequest.ParallelSha1Ctx partInfoList0ParallelSha1Ctx = CreateFileRequest.ParallelSha1Ctx.builder()
+                                .partOffset(fileTmp.length())
+                                .build();
+                        CreateFileRequest.PartInfoList partInfoList0 = CreateFileRequest.PartInfoList.builder()
+                                .partNumber(1)
+                                .parallelSha1Ctx(partInfoList0ParallelSha1Ctx)
+                                .build();
 
-                    CreateFileRequest createFileRequest = null;
-                    createFileRequest = CreateFileRequest.builder()
-                            .name(fileName)
-                            .type("file")
-                            .parentFileId(parentFileId)
-                            .driveId("1020")
-                            .size(fileTmp.length())
-                            .partInfoList(java.util.Arrays.asList(
-                                    partInfoList0
-                            ))
-                            .build();
-                    cloudDiskFile = cloudDiskFileDAO.getById(null, null, null, fileName);
-                    if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
-                        return -1;
+                        CreateFileRequest createFileRequest = null;
+                        createFileRequest = CreateFileRequest.builder()
+                                .name(fileName)
+                                .type("file")
+                                .parentFileId(parentFileId)
+                                .driveId("1020")
+                                .size(fileTmp.length())
+                                .partInfoList(java.util.Arrays.asList(
+                                        partInfoList0
+                                ))
+                                .build();
+                        cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, fileName);
+                        if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
+                            return -1;
 //                    createFileRequest = CreateFileRequest.builder()
 //                            .name(fileName)
 //                            .type(type)
@@ -415,112 +426,113 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 //                                    partInfoList0
 //                            ))
 //                            .build();
-                    }
-                    // Asynchronously get the return value of the API request
-                    CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
-                    // Synchronously get the return value of the API request
-                    CreateFileResponse resp = response.get();
-                    System.out.println(new Gson().toJson(resp));
-                    // Asynchronous processing of return values
-                    String json = new Gson().toJson(resp);
-                    JSONObject jsonObject = JSON.parseObject(json);
-                    JSONObject body1 = jsonObject.getJSONObject("body");
+                        }
+                        // Asynchronously get the return value of the API request
+                        CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
+                        // Synchronously get the return value of the API request
+                        CreateFileResponse resp = response.get();
+                        System.out.println(new Gson().toJson(resp));
+                        // Asynchronous processing of return values
+                        String json = new Gson().toJson(resp);
+                        JSONObject jsonObject = JSON.parseObject(json);
+                        JSONObject body1 = jsonObject.getJSONObject("body");
 
-                    // 文件进行上传
-                    String jsonString = JSONObject.toJSONString(body1);
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                    UploadResponseData responseData = objectMapper.readValue(jsonString, UploadResponseData.class);
-                    List<PartInfo> partInfoList = responseData.getPartInfoList();
-                    String fileId = body1.get("fileId").toString();
-                    System.out.println(fileId);
-                    String uploadId = body1.get("uploadId").toString();
+                        // 文件进行上传
+                        String jsonString = JSONObject.toJSONString(body1);
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                        UploadResponseData responseData = objectMapper.readValue(jsonString, UploadResponseData.class);
+                        List<PartInfo> partInfoList = responseData.getPartInfoList();
+                        String fileId = body1.get("fileId").toString();
+                        System.out.println(fileId);
+                        String uploadId = body1.get("uploadId").toString();
 
-                    // 遍历所有分片
-                    for (PartInfo uploadPartInfo : partInfoList) {
+                        // 遍历所有分片
+                        for (PartInfo uploadPartInfo : partInfoList) {
 
-                        // 计算分片在本地文件中的位置
-                        int number = uploadPartInfo.getPartNumber();
-                        long pos = (number - 1) * fileTmp.length();
-                        //            long size = Math.min(length - pos, file.length());
-                        long size = fileTmp.length();
-                        byte[] partContent = new byte[(int) size];
+                            // 计算分片在本地文件中的位置
+                            int number = uploadPartInfo.getPartNumber();
+                            long pos = (number - 1) * fileTmp.length();
+                            //            long size = Math.min(length - pos, file.length());
+                            long size = fileTmp.length();
+                            byte[] partContent = new byte[(int) size];
 
-                        // 从本地文件中读取分片内容到内存中
-                        RandomAccessFile randomAccessFile = new RandomAccessFile(fileTmp, "r");
-                        randomAccessFile.seek(pos);
-                        randomAccessFile.readFully(partContent, 0, (int) size);
-                        randomAccessFile.close();
+                            // 从本地文件中读取分片内容到内存中
+                            RandomAccessFile randomAccessFile = new RandomAccessFile(fileTmp, "r");
+                            randomAccessFile.seek(pos);
+                            randomAccessFile.readFully(partContent, 0, (int) size);
+                            randomAccessFile.close();
 
-                        // 上传分片
-                        RequestBody body = RequestBody.create(null, partContent);
-                        Request request = new Request.Builder()
-                                .url(uploadPartInfo.getUploadUrl())
-                                .header("Content-Length", String.valueOf(size))
-                                .put(body)
+                            // 上传分片
+                            RequestBody body = RequestBody.create(null, partContent);
+                            Request request = new Request.Builder()
+                                    .url(uploadPartInfo.getUploadUrl())
+                                    .header("Content-Length", String.valueOf(size))
+                                    .put(body)
+                                    .build();
+
+                            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+                            okhttp3.Response response1 = okHttpClient.newCall(request).execute();
+
+                            // 判断分片是否上传成功
+                            if (!response1.isSuccessful()) {
+                                System.out.println(response1.body().string() + "\n");
+                                Assert.fail("upload part failed, partNumber:" + number);
+                            }
+                            System.out.println("upload part success, partNumber:" + number);
+                        }
+                        // 完成文件上传
+
+                        CompleteFileRequest completeFileRequest = CompleteFileRequest.builder()
+                                .driveId("1020")
+                                .fileId(fileId)
+                                .uploadId(uploadId)
+                                // Request-level configuration rewrite, can set Http request parameters, etc.
+                                // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
                                 .build();
 
-                        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-                        okhttp3.Response response1 = okHttpClient.newCall(request).execute();
+                        CompletableFuture<CompleteFileResponse> responseT = client.completeFile(completeFileRequest);
+                        CompleteFileResponse respt = responseT.get();
+                        String json1 = new Gson().toJson(respt);
+                        JSONObject jsonObject1 = JSON.parseObject(json1);
+                        JSONObject body = jsonObject1.getJSONObject("body");
+                        String fileIdTmp = body.get("fileId").toString();
+                        String parentFileIdTmp = body.get("parentFileId").toString();
+                        String driveId = body.get("driveId").toString();
+                        // Finally, close the client
+                        client.close();
 
-                        // 判断分片是否上传成功
-                        if (!response1.isSuccessful()) {
-                            System.out.println(response1.body().string() + "\n");
-                            Assert.fail("upload part failed, partNumber:" + number);
+                        cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
+                                domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
+                        if ("root".equalsIgnoreCase(parentFileId)) {
+                            cloudDiskFile.setRelativePath("/root" + "/" + fileName);
+                        } else {
+                            CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
+                            cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + fileName);
                         }
-                        System.out.println("upload part success, partNumber:" + number);
+                        if (adviserId != null) {
+                            AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                            cloudDiskFile.setOperator(adviserById.getName());
+                        }
+                        if (officialId != null) {
+                            OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                            cloudDiskFile.setOperator(officialById.getName());
+                        }
+                        int add = cloudDiskFileDAO.add(cloudDiskFile);
+                        if (add > 0) {
+                            return add;
+                        }
+                    } catch (ExecutionException | InterruptedException ex) {
+                        ex.printStackTrace();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    } catch (JsonParseException e) {
+                        throw new RuntimeException(e);
+                    } catch (JsonMappingException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                    // 完成文件上传
-
-                    CompleteFileRequest completeFileRequest = CompleteFileRequest.builder()
-                            .driveId("1020")
-                            .fileId(fileId)
-                            .uploadId(uploadId)
-                            // Request-level configuration rewrite, can set Http request parameters, etc.
-                            // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
-                            .build();
-
-                    CompletableFuture<CompleteFileResponse> responseT = client.completeFile(completeFileRequest);
-                    CompleteFileResponse respt = responseT.get();
-                    String json1 = new Gson().toJson(respt);
-                    JSONObject jsonObject1 = JSON.parseObject(json1);
-                    JSONObject body = jsonObject1.getJSONObject("body");
-                    String fileIdTmp = body.get("fileId").toString();
-                    String parentFileIdTmp = body.get("parentFileId").toString();
-                    String driveId = body.get("driveId").toString();
-                    // Finally, close the client
-                    client.close();
-
-                    cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
-                            domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
-                    if ("root".equalsIgnoreCase(parentFileId)) {
-                        cloudDiskFile.setRelativePath("/root" + "/" + fileName);
-                    } else {
-                        CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
-                        cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + fileName);
-                    }
-                    if (adviserId != null) {
-                        AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
-                        cloudDiskFile.setOperator(adviserById.getName());
-                    }
-                    if (officialId != null) {
-                        OfficialDO officialById = officialDAO.getOfficialById(officialId);
-                        cloudDiskFile.setOperator(officialById.getName());
-                    }
-                    int add = cloudDiskFileDAO.add(cloudDiskFile);
-                    if (add > 0) {
-                        return add;
-                    }
-                } catch (ExecutionException | InterruptedException ex) {
-                    ex.printStackTrace();
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                } catch (JsonParseException e) {
-                    throw new RuntimeException(e);
-                } catch (JsonMappingException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
