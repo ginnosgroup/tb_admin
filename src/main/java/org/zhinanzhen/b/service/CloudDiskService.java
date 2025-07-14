@@ -27,4 +27,6 @@ public interface CloudDiskService {
 
 
     int addAndUpdate(MultipartFile file, Integer userId, String parentFileId, Integer adviserId, Integer officialId, String relativePath);
+
+    String getDownLink(Integer id, String fileId);
 }

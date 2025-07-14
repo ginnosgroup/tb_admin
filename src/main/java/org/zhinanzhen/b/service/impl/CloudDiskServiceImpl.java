@@ -544,6 +544,49 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
+    public String getDownLink(Integer id, String fileId) {
+        String downloadUrl = "";
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, fileId, null);
+        if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
+            throw new RuntimeException("文件信息错误或不存在");
+        }
+        if ("file".equalsIgnoreCase(cloudDiskFile.getType())) {
+            downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
+        }
+        if ("folder".equalsIgnoreCase(cloudDiskFile.getType())) {
+            try {
+                AsyncClient client = getAsyncClient();
+                // Parameter settings for API request
+                CreateShareLinkRequest createShareLinkRequest = CreateShareLinkRequest.builder()
+                        .driveId("1020")
+                        .shareAllFiles(false)
+                        .fileIdList(java.util.Arrays.asList(
+                                fileId
+                        ))
+                        .userId("1cc43dd77f0e4cdb9e382890e52e954c")
+                        .officeEditable(true)
+                        // Request-level configuration rewrite, can set Http request parameters, etc.
+                        // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                        .build();
+                // Asynchronously get the return value of the API request
+                CompletableFuture<CreateShareLinkResponse> response = client.createShareLink(createShareLinkRequest);
+                // Synchronously get the return value of the API request
+                CreateShareLinkResponse resp = response.get();
+                String json = new Gson().toJson(resp);
+                JSONObject jsonObject = JSON.parseObject(json);
+                JSONObject body = jsonObject.getJSONObject("body");
+                String shareId = body.get("shareId").toString();
+                downloadUrl = "https://bj21743.apps.aliyunfile.com/disk/s/" + shareId;
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return downloadUrl;
+    }
+
+    @Override
     public int deleteById(Integer id, String fileId) {
         CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, fileId, null);
         if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {

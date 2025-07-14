@@ -80,14 +80,14 @@ public class CloudDiskController extends BaseController {
         try {
             int add = cloudDiskService.update(fileId, type, userId, applicantId, adviserId, id, name, officialId, relativePath);
             if (add == -1) {
-                return new Response<String>(-1, "文件或文件夹不存在", null);
+                return new Response<String>(1, "文件或文件夹不存在", null);
             }
             if (add > 0) {
                 return new Response<String>(0, "修改成功", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response<String>(-1, "修改失败", null);
+            return new Response<String>(1, "修改失败", null);
         }
         return new Response<String>(0, "修改成功", null);
     }
@@ -195,29 +195,19 @@ public class CloudDiskController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/down", method = RequestMethod.GET)
+    @RequestMapping(value = "/getDownLink", method = RequestMethod.GET)
     @ResponseBody
-    public Response<List<CloudDiskFile>> down(
-            @RequestParam(value = "userId") Integer userId,
-            @RequestParam(value = "applicantId", required = false) Integer applicantId,
+    public Response<String> getDownLink(
+            @RequestParam(value = "id") Integer id,
+            @RequestParam(value = "fileId", required = false) String fileId,
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
-        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        Integer adviserId = adminUserLoginInfo.getAdviserId();
-        Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
-            List<CloudDiskFile> cloudDiskFileList = cloudDiskService.initializationFolder(userId, applicantId, adviserId, officialId);
-            List<CloudDiskFile> collect1 = cloudDiskFileList.stream().filter(p -> "root".equalsIgnoreCase(p.getParentFileId())).collect(Collectors.toList());
-//            List<CloudDiskFile> collect = collect1.stream().sorted(Comparator.comparing(p -> "文案资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
-//            List<CloudDiskFile> collectT = collect.stream().sorted(Comparator.comparing(p -> "顾问资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
-            if (cloudDiskFileList.isEmpty()) {
-                return new Response<List<CloudDiskFile>>(1, "初始化失败", null);
-            } else {
-                return new Response<List<CloudDiskFile>>(0, "已初始化", collect1);
-            }
+            String downLink = cloudDiskService.getDownLink(id, fileId);
+            return new Response<String>(0, "获取成功", downLink);
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response<List<CloudDiskFile>>(1, "初始化失败", null);
+            return new Response<String>(1, "获取失败", e.getMessage());
         }
     }
 
