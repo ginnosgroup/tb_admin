@@ -545,7 +545,11 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int deleteById(Integer id, String fileId) {
-        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, null);
+        List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, null, 0, 100);
+        if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
+            return -2;
+        }
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, fileId, null);
         if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
             throw new RuntimeException("文件信息错误或不存在");
         }
@@ -722,7 +726,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         } else {
                             CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
                             cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + name);
-                            cloudDiskFile.setUserId(byId.getUserId());
                         }
                         if (adviserId != null) {
                             AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
@@ -759,9 +762,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     }
                 }
                 for (CloudDiskFile cloudDiskFile : cloudDiskFileList) {
-                    CloudDiskFile cloudDiskFileT = cloudDiskFileMap.get(cloudDiskFile.getParentFileId());
-                    if (cloudDiskFileT != null) {
-                        Integer userId = cloudDiskFileT.getUserId();
+                    CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, cloudDiskFile.getParentFileId(), null);
+                    if (byId != null) {
+                        Integer userId = byId.getUserId();
                         if (userId != null) {
                             cloudDiskFile.setUserId(userId);
                             cloudDiskFileDAO.update(cloudDiskFile);
@@ -962,7 +965,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
-    public int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId) {
+    public int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId, String relativePath) {
         CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, null);
         AsyncClient client = getAsyncClient();
         try {
@@ -999,6 +1002,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             if ("200".equalsIgnoreCase(string1)) {
                 cloudDiskFile.setName(name);
                 cloudDiskFile.setFileId(fileId);
+                cloudDiskFile.setRelativePath(relativePath);
                 cloudDiskFileDAO.update(cloudDiskFile);
                 return 1;
             }

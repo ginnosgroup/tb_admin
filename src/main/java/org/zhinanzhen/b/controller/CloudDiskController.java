@@ -62,7 +62,7 @@ public class CloudDiskController extends BaseController {
         return new Response<String>(0, "上传成功", "");
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/update", method = RequestMethod.GET)
     @ResponseBody
     public Response<String> update(
             @RequestParam(value = "id", required = false) Integer id,
@@ -71,13 +71,14 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "applicantId", required = false) Integer applicantId,
             @RequestParam(value = "applicantId", required = false) Integer userId,
             @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "relativePath", required = false) String relativePath,
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
-            int add = cloudDiskService.update(fileId, type, userId, applicantId, adviserId, id, name, officialId);
+            int add = cloudDiskService.update(fileId, type, userId, applicantId, adviserId, id, name, officialId, relativePath);
             if (add == -1) {
                 return new Response<String>(-1, "文件或文件夹不存在", null);
             }
@@ -101,6 +102,9 @@ public class CloudDiskController extends BaseController {
         try {
             super.setPostHeader(response);
             int a = cloudDiskService.deleteById(id, fileId);
+            if (a == -2) {
+                return new Response<String>(1, "请清空文件夹后操作", null);
+            }
             if (a < 0) {
                 return new Response<String>(1, "删除失败", null);
             }
@@ -168,6 +172,32 @@ public class CloudDiskController extends BaseController {
     @RequestMapping(value = "/initializationFolder", method = RequestMethod.GET)
     @ResponseBody
     public Response<List<CloudDiskFile>> initializationFloder(
+            @RequestParam(value = "userId") Integer userId,
+            @RequestParam(value = "applicantId", required = false) Integer applicantId,
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        Integer adviserId = adminUserLoginInfo.getAdviserId();
+        Integer officialId = adminUserLoginInfo.getOfficialId();
+        try {
+            List<CloudDiskFile> cloudDiskFileList = cloudDiskService.initializationFolder(userId, applicantId, adviserId, officialId);
+            List<CloudDiskFile> collect1 = cloudDiskFileList.stream().filter(p -> "root".equalsIgnoreCase(p.getParentFileId())).collect(Collectors.toList());
+//            List<CloudDiskFile> collect = collect1.stream().sorted(Comparator.comparing(p -> "文案资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
+//            List<CloudDiskFile> collectT = collect.stream().sorted(Comparator.comparing(p -> "顾问资料".equalsIgnoreCase(p.getName()) ? 0 : 2)).collect(Collectors.toList());
+            if (cloudDiskFileList.isEmpty()) {
+                return new Response<List<CloudDiskFile>>(1, "初始化失败", null);
+            } else {
+                return new Response<List<CloudDiskFile>>(0, "已初始化", collect1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<List<CloudDiskFile>>(1, "初始化失败", null);
+        }
+    }
+
+    @RequestMapping(value = "/down", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<List<CloudDiskFile>> down(
             @RequestParam(value = "userId") Integer userId,
             @RequestParam(value = "applicantId", required = false) Integer applicantId,
             HttpServletRequest request, HttpServletResponse response) {
