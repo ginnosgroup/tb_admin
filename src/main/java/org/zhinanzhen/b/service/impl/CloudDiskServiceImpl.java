@@ -588,6 +588,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int deleteById(Integer id, String fileId) {
+        List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, null, 0, 100);
+        if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
+            return -2;
+        }
         CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, fileId, null);
         if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
             throw new RuntimeException("文件信息错误或不存在");
