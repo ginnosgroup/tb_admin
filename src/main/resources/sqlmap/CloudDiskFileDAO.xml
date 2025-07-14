@@ -146,6 +146,12 @@
         </if>
          and is_delete = 0
     </select>
+    <select id="listByRelativePath" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_cloud_disk_file where 1=1
+        <if test='oldRelativePath!= null and oldRelativePath!= ""'>
+            AND relative_path like '${oldRelativePath}%'
+        </if>
+    </select>
 
 
 </mapper>

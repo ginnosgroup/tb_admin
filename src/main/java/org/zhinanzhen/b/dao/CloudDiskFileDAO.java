@@ -19,4 +19,6 @@ public interface CloudDiskFileDAO {
 
     int count(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("name") String name,@Param("applicantId") Integer applicantId,@Param("userId") Integer userId);
 
+    List<CloudDiskFile> listByRelativePath(@Param("oldRelativePath") String oldRelativePath);
+
 }

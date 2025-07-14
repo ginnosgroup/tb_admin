@@ -48,6 +48,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -1012,6 +1013,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     public int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId, String relativePath) {
         CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, null);
         AsyncClient client = getAsyncClient();
+        String oldPart = cloudDiskFile.getName();
+        String oldRelativePath = cloudDiskFile.getRelativePath();
         try {
             // Parameter settings for API request
             GetFileRequest getFileRequest = GetFileRequest.builder()
@@ -1046,11 +1049,24 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             if ("200".equalsIgnoreCase(string1)) {
                 cloudDiskFile.setName(name);
                 cloudDiskFile.setFileId(fileId);
-                String relativePath1 = cloudDiskFile.getRelativePath();
-                int lastIndexOf = relativePath1.lastIndexOf("/");
-                String s = relativePath1.substring(0, lastIndexOf + 1) + name;
+                CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, cloudDiskFile.getParentFileId(), null);
+                String relativePath1 = byId.getRelativePath();
+                String s = relativePath1 + "/" + name;
                 cloudDiskFile.setRelativePath(s);
                 cloudDiskFileDAO.update(cloudDiskFile);
+                if ("folder".equalsIgnoreCase(cloudDiskFile.getType())) {
+                    List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByRelativePath(oldRelativePath);
+                    if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
+                        for (CloudDiskFile diskFile : cloudDiskFileList1) {
+                            String relativePath2 = diskFile.getRelativePath();
+                            if (relativePath2.contains(oldPart)) {
+                                String s1 = relativePath2.replaceAll("(?<=/)" + Pattern.quote(oldPart) + "(?=/|$)", cloudDiskFile.getName());
+                                diskFile.setRelativePath(s1);
+                                cloudDiskFileDAO.update(diskFile);
+                            }
+                        }
+                    }
+                }
                 return 1;
             }
         } catch (ExecutionException | InterruptedException e) {
