@@ -545,10 +545,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int deleteById(Integer id, String fileId) {
-        List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, null, 0, 100);
-        if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
-            return -2;
-        }
         CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, fileId, null);
         if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
             throw new RuntimeException("文件信息错误或不存在");
@@ -571,6 +567,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             String json = new Gson().toJson(resp);
             JSONObject jsonObject = JSON.parseObject(json);
             client.close();
+            cloudDiskFile.setIsDelete(1);
             delete = cloudDiskFileDAO.update(cloudDiskFile);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
@@ -1002,7 +999,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             if ("200".equalsIgnoreCase(string1)) {
                 cloudDiskFile.setName(name);
                 cloudDiskFile.setFileId(fileId);
-                cloudDiskFile.setRelativePath(relativePath);
+                String relativePath1 = cloudDiskFile.getRelativePath();
+                int lastIndexOf = relativePath1.lastIndexOf("/");
+                String s = relativePath1.substring(0, lastIndexOf + 1) + name;
+                cloudDiskFile.setRelativePath(s);
                 cloudDiskFileDAO.update(cloudDiskFile);
                 return 1;
             }

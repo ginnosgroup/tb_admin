@@ -110,7 +110,7 @@
         <if test='folderName != null and folderName != ""'>
             AND name = #{folderName}
         </if>
-
+        and is_delete = 0
     </select>
     <select id="listByParentFileId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
         select * from b_cloud_disk_file where 1=1
