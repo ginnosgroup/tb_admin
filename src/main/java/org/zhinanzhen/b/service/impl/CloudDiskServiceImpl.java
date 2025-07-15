@@ -628,24 +628,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     @Override
     public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize) {
         List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(id, parentFileId, name, applicantId, userId, pageNum, pageSize);
-        for (CloudDiskFile cloudDiskFile : cloudDiskFileList) {
-            String name1 = cloudDiskFile.getName();
-            if (name1.contains("顾问")) {
-                AdviserDO adviserById = adviserDAO.getAdviserById(cloudDiskFile.getAdviserId());
-                if (ObjectUtil.isNotNull(adviserById)) {
-                    cloudDiskFile.setOperator(adviserById.getName());
-                }
-            }
-            if (name1.contains("文案")) {
-                Integer officialId = cloudDiskFile.getOfficialId();
-                if (officialId != null) {
-                    OfficialDO officialById = officialDAO.getOfficialById(cloudDiskFile.getOfficialId());
-                    if (ObjectUtil.isNotNull(officialById)) {
-                        cloudDiskFile.setOperator(officialById.getName());
-                    }
-                }
-            }
-        }
         return cloudDiskFileList;
     }
 
