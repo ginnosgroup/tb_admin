@@ -246,14 +246,18 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(commission);
 			ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
-			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
-				visaDto.setBonus(visaDto.getBonus() * 0.25);
+			if (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482")) {
+				visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
+				visaDto.setBonus(visaDto.getBonus() * 0.4);
 			}
-			if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
-				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
-				visaDto.setBonus(visaDto.getBonus() * 0.25);
-			}
+//			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
+//				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
+//				visaDto.setBonus(visaDto.getBonus() * 0.25);
+//			}
+//			if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
+//				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
+//				visaDto.setBonus(visaDto.getBonus() * 0.25);
+//			}
 			double _perAmount = 0.00;
 			double _amount = 0.00;
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
@@ -280,14 +284,18 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setDeductGst(commission - visaDto.getGst());
 					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 					visaDto.setExpectAmount(commission);
-					if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
-						visaDto.setBonus(visaDto.getBonus() * 0.25);
+					if (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482")) {
+						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount()) * 0.4);
+						visaDto.setBonus(visaDto.getBonus() * 0.4);
 					}
-					if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
-						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
-						visaDto.setBonus(visaDto.getBonus() * 0.25);
-					}
+//					if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
+//						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
+//						visaDto.setBonus(visaDto.getBonus() * 0.25);
+//					}
+//					if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
+//						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
+//						visaDto.setBonus(visaDto.getBonus() * 0.25);
+//					}
 //					if (_received > 0.00)
 //						visaDto.setAmount(_received > _amount ? _received - _amount : 0.00);
 //					else

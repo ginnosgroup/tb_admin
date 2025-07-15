@@ -144,6 +144,9 @@
         <if test='name != null and name != ""'>
             AND name like '${name}%'
         </if>
+        <if test='userId != null and userId != ""'>
+            AND user_id like '${userId}'
+        </if>
          and is_delete = 0
     </select>
     <select id="listByRelativePath" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
