@@ -157,6 +157,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private RefundDAO refundDAO;
 
+    @Resource
+    private CloudDiskFileDAO cloudDiskFileDAO;
+
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -1048,6 +1051,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 				if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
 					applicantDtoList.add(serviceOrderDto.getApplicant());
                 userDto.setApplicantList(applicantDtoList);
+            }
+            List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
+            if (!cloudDiskFileList.isEmpty()) {
+                userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
             }
             serviceOrderDto.setUser(userDto);
         }
