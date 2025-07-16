@@ -19,7 +19,11 @@
             file_id,
             is_delete,
             official_id,
-            user_id)
+            user_id,
+            operator,
+            relative_path,
+            file_size,
+            download_url)
         values (
             now(),
             now(),
@@ -34,7 +38,11 @@
             #{fileId},
             0,
             #{officialId},
-            #{userId})
+            #{userId},
+            #{operator},
+            #{relativePath},
+            #{fileSize},
+            #{downloadUrl})
     </insert>
 
     <update id="update">
@@ -73,6 +81,18 @@
         <if test='userId != null'>
             , user_id = #{userId}
         </if>
+        <if test='operator != null and operator != ""'>
+            , operator = #{operator}
+        </if>
+        <if test='relativePath != null and relativePath != ""'>
+            , relative_path = #{relativePath}
+        </if>
+        <if test='fileSize != null and fileSize != ""'>
+            , file_size = #{fileSize}
+        </if>
+        <if test='downloadUrl != null and downloadUrl != ""'>
+            , download_url = #{downloadUrl}
+        </if>
         WHERE id = #{id}
     </update>
 
@@ -87,7 +107,10 @@
         <if test='fileId != null and fileId != ""'>
             AND file_id = #{fileId}
         </if>
-
+        <if test='folderName != null and folderName != ""'>
+            AND name = #{folderName}
+        </if>
+        and is_delete = 0
     </select>
     <select id="listByParentFileId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
         select * from b_cloud_disk_file where 1=1
@@ -121,7 +144,16 @@
         <if test='name != null and name != ""'>
             AND name like '${name}%'
         </if>
+        <if test='userId != null and userId != ""'>
+            AND user_id like '${userId}'
+        </if>
          and is_delete = 0
+    </select>
+    <select id="listByRelativePath" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_cloud_disk_file where 1=1
+        <if test='oldRelativePath!= null and oldRelativePath!= ""'>
+            AND relative_path like '${oldRelativePath}%'
+        </if>
     </select>
 
 

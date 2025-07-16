@@ -44,4 +44,10 @@ public class CloudDiskFile {
     private Integer userId;
 
     private String operator;
+
+    private String relativePath; // 文件路径
+
+    private Long fileSize; // 文件大小
+
+    private String downloadUrl;
 }

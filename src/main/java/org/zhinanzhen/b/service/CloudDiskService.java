@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutionException;
 
 public interface CloudDiskService {
 
-    int addAndUpdate(MultipartFile file, String type, int applicantId,Integer userId, String parentFileId, Integer adviserId, Integer id, String folderName, Integer officialId) throws ExecutionException, InterruptedException;
+    int addAndUpdate(MultipartFile file, String type, Integer applicantId,Integer userId, String parentFileId, Integer adviserId, Integer id, String folderName, Integer officialId, String relativePath) throws ExecutionException, InterruptedException;
 
 
     int deleteById(Integer id, String fileId);
@@ -19,11 +19,14 @@ public interface CloudDiskService {
 
     String getShareUrl(String userId, String parentFileId);
 
-    int getFileStructure(String parentFileStructures);
+    int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId);
 
     List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException;
 
-    int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId);
+    int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId, String relativePath);
 
 
+    int addAndUpdate(MultipartFile file, Integer userId, String parentFileId, Integer adviserId, Integer officialId, String relativePath);
+
+    String getDownLink(Integer id, String fileId);
 }
