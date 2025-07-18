@@ -1096,7 +1096,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             AsyncClient asyncClient = getAsyncClient();
             GetFileRequest getFileRequest = GetFileRequest.builder()
                     .driveId("1020")
-                    .fileId("686f8509a18c39e6d86547b2af46055cc1ff0280")
+                    .fileId(fileId)
                     // Request-level configuration rewrite, can set Http request parameters, etc.
                     // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
                     .build();
