@@ -60,6 +60,10 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 			}
 			String type = serviceOrderDto.getType();
 			if ("VISA".equals(type)) { // 签证
+				String officialData = serviceOrderDto.getOfficialData();
+				if ("APPLY".equalsIgnoreCase(context.getParameter("state").toString()) && StringUtil.isEmpty(officialData)) {
+					return false;
+				}
 				ServiceDTO serviceById = soDecisionNode.serviceService.getServiceById(serviceOrderDto.getServiceId());
 				if (serviceById != null && (serviceById.getCode().contains("485") || serviceById.getCode().contains("500"))) {
 					Object insuranceCompanyTmp = context.getParameter("insuranceCompany");

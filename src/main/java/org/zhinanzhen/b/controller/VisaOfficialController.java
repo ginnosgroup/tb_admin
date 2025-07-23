@@ -130,6 +130,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
             if (serviceOrderDto == null)
                 return new Response<>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+            String officialData = serviceOrderDto.getOfficialData();
+            if (StringUtil.isEmpty(officialData)) {
+                return new Response<>(1, "服务订单(ID:" + serviceOrderId + ")未上传文案资料!", null);
+            }
             List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
             VisaOfficialDTO visaDto = new VisaOfficialDTO();
             double _receivable = 0.00;
