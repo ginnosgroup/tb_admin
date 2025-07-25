@@ -21,4 +21,6 @@ public interface CloudDiskFileDAO {
 
     List<CloudDiskFile> listByRelativePath(@Param("oldRelativePath") String oldRelativePath);
 
+    CloudDiskFile getCloudDisk(String relativePath);
+
 }

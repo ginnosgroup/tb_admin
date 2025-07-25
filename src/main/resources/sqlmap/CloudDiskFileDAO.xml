@@ -155,6 +155,9 @@
             AND relative_path like '${oldRelativePath}%'
         </if>
     </select>
+    <select id="getCloudDisk" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_cloud_disk_file where is_delete = 0 and relative_path = #{relativePath}
+    </select>
 
 
 </mapper>
