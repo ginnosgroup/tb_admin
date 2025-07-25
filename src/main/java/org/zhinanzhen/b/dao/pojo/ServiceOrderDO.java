@@ -200,4 +200,6 @@ public class ServiceOrderDO implements Serializable {
 	private Integer serviceAssessCategoryId; // 职业二级分类id
 
 	private String officialData;
+
+	private String scoreOptions;
 }
