@@ -85,7 +85,8 @@
                 is_apply_visa,
                 visa_number,
                 is_insurance_company,
-                official_data)
+                official_data,
+                score_options)
             VALUES (
                 now(),
                 now(),
@@ -165,7 +166,8 @@
                 #{isApplyVisa},
                 #{visaNumber},
                 #{isInsuranceCompany},
-                #{officialData});
+                #{officialData},
+                #{scoreOptions});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -426,6 +428,9 @@
         <if test='officialData != null and officialData != "" '>
             ,official_data = #{officialData}
         </if>
+        <if test='scoreOptions != null and scoreOptions != "" '>
+            ,score_options = #{scoreOptions}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -664,7 +669,8 @@
         so.visa_number AS visaNumber,
         so.is_insurance_company AS isInsuranceCompany,
         so.transfer_remarks AS transferRemarks,
-        so.official_data AS officialData
+        so.official_data AS officialData,
+        so.score_options AS scoreOptions
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -920,7 +926,8 @@
             offer_url AS offerUrl,
             is_insurance_company AS isInsuranceCompany,
             applicant_parent_id AS applicantParentId,
-            official_data AS officialData
+            official_data AS officialData,
+            score_options AS scoreOptions
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1116,7 +1123,8 @@
             ref_no AS refNo,
             is_insurance_company AS isInsuranceCompany,
             transfer_remarks AS transferRemarks,
-            official_data AS officialData
+            official_data AS officialData,
+            score_options AS scoreOptions
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1221,7 +1229,8 @@
         so.ref_no AS refNo,
         so.is_insurance_company AS isInsuranceCompany,
         so.applicant_parent_id AS applicantParentId,
-        so.official_data AS officialData
+        so.official_data AS officialData,
+        so.score_options AS scoreOptions
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'

@@ -4,6 +4,9 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -318,6 +321,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
                                              @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                              @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
+                                             @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -523,6 +527,13 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(visaNumber)) {
                 serviceOrderDto.setVisaNumber(visaNumber);
             }
+            // 评估订单需要评估分数
+            if (StringUtil.isNotEmpty(scoreOptions)) {
+                serviceOrderDto.setScoreOptions(scoreOptions);
+            }
+//            if (serviceService.getServiceById(serviceOrderDto.getServiceId()).getCode().contains("500")) {
+//                isScore(serviceOrderDto, score);
+//            }
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 int serviceOrderId = serviceOrderDto.getId();
@@ -864,6 +875,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "offerUrl", required = false) String offerUrl, // 是否为中转订单
                                                 @RequestParam(value = "offerType", required = false) String offerType, // 是否为中转订单
                                                 @RequestParam(value = "officialData", required = false) String officialData,
+                                                @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -887,7 +899,7 @@ public class ServiceOrderController extends BaseController {
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData);
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -911,7 +923,7 @@ public class ServiceOrderController extends BaseController {
 							perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
-							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData);
+							schoolInstitutionLocationId, institutionTradingName, null, null, null, null, insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1072,7 +1084,7 @@ public class ServiceOrderController extends BaseController {
                                         String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
-                                        String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl, String offerType, String officialData) {
+                                        String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl, String offerType, String officialData, String scoreOptions) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1237,6 +1249,9 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(offerType)) {
                 serviceOrderDto.setOfferType(offerType);
+            }
+            if (StringUtil.isNotEmpty(scoreOptions)) {
+                serviceOrderDto.setScoreOptions(scoreOptions);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
@@ -5381,4 +5396,46 @@ public class ServiceOrderController extends BaseController {
         }
         return servicePackagePriceV2DTO;
     }
+
+//    private void isScore(ServiceOrderDTO serviceOrderDTO, String score) {
+//        try {
+//            double scoreInt = 0;
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            JsonNode jsonNode = objectMapper.readTree(score);
+//            ScoreDO scoreDO = objectMapper.treeToValue(jsonNode, ScoreDO.class);
+//            if (scoreDO.getSecondMaster() != null && scoreDO.getSecondMaster().equals("1")) {
+//                scoreInt += 0.5;
+//            }
+//            if (scoreDO.getReadBackwards() != null && scoreDO.getReadBackwards().equals("1")) {
+//                scoreInt += 1.0;
+//            }
+//            if (scoreDO.getRelatedLearningBackground() != null && scoreDO.getRelatedLearningBackground().equals("1")) {
+//                scoreInt += 1.0;
+//            }
+//            if (scoreDO.getRelatedWorkBackground() != null && scoreDO.getRelatedWorkBackground().equals("1")) {
+//                scoreInt += 1.0;
+//            }
+//            if (scoreDO.getYearGap() != null && scoreDO.getYearGap().equals("1")) {
+//                scoreInt += 1.5;
+//            }
+//            if (scoreDO.getEnglishGrades() != null && scoreDO.getEnglishGrades().equals("1")) {
+//                scoreInt += 0.5;
+//            }
+//            if (scoreDO.getIncomeBelow400Thousand() != null && scoreDO.getIncomeBelow400Thousand().equals("1")) {
+//                scoreInt += 1.0;
+//            }
+//            if (scoreDO.getIncomeReasonable() != null && scoreDO.getIncomeReasonable().equals("1")) {
+//                scoreInt += 1.0;
+//            }
+//            if (scoreDO.getSpouseOrChildren() != null && scoreDO.getSpouseOrChildren().equals("1")) {
+//                scoreInt += 0.5;
+//            }
+//            scoreDO.setTotalScore(String.valueOf(scoreInt));
+//            serviceOrderDTO.setScore(JSONObject.toJSONString(scoreDO));
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

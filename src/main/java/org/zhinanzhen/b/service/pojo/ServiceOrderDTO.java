@@ -298,4 +298,8 @@ public class ServiceOrderDTO {
 	private String officialData;
 
 	private Boolean isInsertEoi = false;
+
+	private String scoreOptions;
+
+//	private ScoreDO scoreDO;
 }

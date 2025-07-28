@@ -1,5 +1,9 @@
 package org.zhinanzhen.b.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.MapUtil;
@@ -28,6 +32,7 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -1313,6 +1318,19 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         } else {
             serviceOrderDto.setIsInsuranceCompany("");
         }
+//        // 打分转换
+//        if (serviceOrderDto.getScore() != null) {
+//            try {
+//                ObjectMapper objectMapper = new ObjectMapper();
+//                JsonNode rootNode = objectMapper.readTree(JSONObject.toJSONString(serviceOrderDto.getScore()));
+//                ScoreDO scoreDO = objectMapper.treeToValue(rootNode, ScoreDO.class);
+//                serviceOrderDto.setScoreDO(scoreDO);
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
 //        // 判断退款金额以及绑定订单金额
 //        if (serviceOrderDto.getApplicantParentId() > 0) {
 //            ServiceOrderDO parentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId());
