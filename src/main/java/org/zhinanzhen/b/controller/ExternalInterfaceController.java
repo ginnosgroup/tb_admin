@@ -34,11 +34,11 @@ public class ExternalInterfaceController extends BaseController {
     public Response<Integer> addCloudDiskFile(@RequestParam(value = "applicantId", required = false) Integer applicantId,
                                               @RequestParam(value = "adviserId", required = false) Integer adviserId,
                                               @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type") String type,
-                                              @RequestParam(value = "url") String url, @RequestParam(value = "parentFileId") String parentFileId,
-                                              @RequestParam(value = "domainId") String domainId, @RequestParam(value = "driveId") String driveId,
-                                              @RequestParam(value = "fileId") String fileId, @RequestParam(value = "officialId") Integer officialId,
-                                              @RequestParam(value = "userId") Integer userId, @RequestParam(value = "operator") String operator,
-                                              @RequestParam(value = "relativePath") String relativePath, @RequestParam(value = "fileSize") String fileSize,
+                                              @RequestParam(value = "url", required = false) String url, @RequestParam(value = "parentFileId", required = false) String parentFileId,
+                                              @RequestParam(value = "domainId", required = false) String domainId, @RequestParam(value = "driveId", required = false) String driveId,
+                                              @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) Integer officialId,
+                                              @RequestParam(value = "userId", required = false) Integer userId, @RequestParam(value = "operator", required = false) String operator,
+                                              @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
                                               @RequestParam(value = "downloadUrl") String downloadUrl, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
@@ -53,8 +53,8 @@ public class ExternalInterfaceController extends BaseController {
     @ResponseBody
     public Response<CloudDiskFile> getCloudDiskFileById(@RequestParam(value = "id", required = false) Integer id,
                                               @RequestParam(value = "adviserId", required = false) Integer adviserId,
-                                              @RequestParam(value = "parentFileId") String parentFileId,
-                                              @RequestParam(value = "fileId") String fileId, @RequestParam(value = "folderName") String folderName,
+                                              @RequestParam(value = "parentFileId", required = false) String parentFileId,
+                                              @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "folderName", required = false) String folderName,
                                               HttpServletResponse response) {
         try {
             super.setGetHeader(response);
@@ -69,13 +69,13 @@ public class ExternalInterfaceController extends BaseController {
     @ResponseBody
     public Response<Integer> updateCloudDiskFile(@RequestParam(value = "applicantId", required = false) Integer applicantId,
                                                  @RequestParam(value = "adviserId", required = false) Integer adviserId,
-                                                 @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type") String type,
-                                                 @RequestParam(value = "url") String url, @RequestParam(value = "parentFileId") String parentFileId,
-                                                 @RequestParam(value = "domainId") String domainId, @RequestParam(value = "driveId") String driveId,
-                                                 @RequestParam(value = "fileId") String fileId, @RequestParam(value = "officialId") Integer officialId,
-                                                 @RequestParam(value = "userId") Integer userId, @RequestParam(value = "operator") String operator,
-                                                 @RequestParam(value = "relativePath") String relativePath, @RequestParam(value = "fileSize") String fileSize,
-                                                 @RequestParam(value = "downloadUrl") String downloadUrl, HttpServletResponse response) {
+                                                 @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) String type,
+                                                 @RequestParam(value = "url", required = false) String url, @RequestParam(value = "parentFileId", required = false) String parentFileId,
+                                                 @RequestParam(value = "domainId", required = false) String domainId, @RequestParam(value = "driveId", required = false) String driveId,
+                                                 @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) Integer officialId,
+                                                 @RequestParam(value = "userId", required = false) Integer userId, @RequestParam(value = "operator", required = false) String operator,
+                                                 @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
+                                                 @RequestParam(value = "downloadUrl", required = false) String downloadUrl, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
             Integer id = externalInterfaceService.updateCloudDiskFile(applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl);
@@ -88,8 +88,8 @@ public class ExternalInterfaceController extends BaseController {
     @RequestMapping(value = "/listCloudDiskFile", method = RequestMethod.GET)
     @ResponseBody
     public ListResponse<List<CloudDiskFile>> listCloudDiskFile(@RequestParam(value = "parentFileId", required = false) String parentFileId, @RequestParam(value = "id", required = false) Integer id,
-                                                 @RequestParam(value = "name", required = false) String name, @RequestParam(value = "applicantId") Integer applicantId,
-                                                 @RequestParam(value = "userId") Integer userId, HttpServletResponse response) {
+                                                 @RequestParam(value = "name", required = false) String name, @RequestParam(value = "applicantId", required = false) Integer applicantId,
+                                                 @RequestParam(value = "userId", required = false) Integer userId, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
             List<CloudDiskFile> cloudDiskFileList = externalInterfaceService.listCloudDiskFile(parentFileId, id, name, applicantId, userId);
