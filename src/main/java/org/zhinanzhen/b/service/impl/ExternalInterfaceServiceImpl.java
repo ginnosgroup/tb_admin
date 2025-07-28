@@ -37,19 +37,53 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     private AdminUserDAO adminUserDAO;
 
     @Override
-    public Integer addCloudDiskFile(Integer applicantId, Integer adviserId, String name, String type, String url, String parentFileId, String domainId, String driveId, String fileId, Integer officialId, Integer userId, String operator, String relativePath, String fileSize, String downloadUrl) {
+    public Integer addCloudDiskFile(String applicantId, String adviserId, String name, String type, String url, String parentFileId, String domainId, String driveId, String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
-        cloudDiskFile.setApplicantId(applicantId);
-        cloudDiskFile.setAdviserId(adviserId);
-        cloudDiskFile.setName(name);
-        cloudDiskFile.setType(type);
-        cloudDiskFile.setUrl(url);
-        cloudDiskFile.setParentFileId(parentFileId);
-        cloudDiskFile.setDomainId(domainId);
-        cloudDiskFile.setDriveId(driveId);
-        cloudDiskFile.setFileId(fileId);
-        cloudDiskFile.setOfficialId(officialId);
-        cloudDiskFile.setUserId(userId);
+        if (applicantId != null && !"null".equals(applicantId)) {
+            cloudDiskFile.setApplicantId(Integer.valueOf(applicantId));
+        }
+        if (adviserId != null && !"null".equals(adviserId)) {
+            cloudDiskFile.setAdviserId(Integer.valueOf(adviserId));
+        }
+        if (name != null && !"null".equals(name)) {
+            cloudDiskFile.setName(name);
+        }
+        if (type != null && !"null".equals(type)) {
+            cloudDiskFile.setType(type);
+        }
+        if (url != null && !"null".equals(url)) {
+            cloudDiskFile.setUrl(url);
+        }
+        if (parentFileId != null && !"null".equals(parentFileId)) {
+            cloudDiskFile.setParentFileId(parentFileId);
+        }
+        if (domainId != null && !"null".equals(domainId)) {
+            cloudDiskFile.setDomainId(domainId);
+        }
+        if (driveId != null && !"null".equals(driveId)) {
+            cloudDiskFile.setDriveId(driveId);
+        }
+        if (fileId != null && !"null".equals(fileId)) {
+            cloudDiskFile.setFileId(fileId);
+        }
+        if (officialId != null && !"null".equals(officialId)) {
+            cloudDiskFile.setOfficialId(Integer.valueOf(officialId));
+        }
+        if (operator != null && !"null".equals(operator)) {
+            cloudDiskFile.setOperator(operator);
+        }
+        if (relativePath != null && !"null".equals(relativePath)) {
+            cloudDiskFile.setRelativePath(relativePath);
+        }
+        if (fileSize != null && !"null".equals(fileSize)) {
+            cloudDiskFile.setFileSize(Long.parseLong(fileSize));
+        }
+        if (downloadUrl != null && !"null".equals(downloadUrl)) {
+            cloudDiskFile.setDownloadUrl(downloadUrl);
+        }
+        if (userId != null && !"null".equals(userId)) {
+            cloudDiskFile.setUserId(Integer.valueOf(userId));
+        }
         return cloudDiskFileDAO.add(cloudDiskFile);
     }
 
@@ -59,53 +93,59 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     }
 
     @Override
-    public Integer updateCloudDiskFile(Integer applicantId, Integer adviserId, String name, String type, String url,
-                                       String parentFileId, String domainId, String driveId, String fileId, Integer officialId,
-                                       Integer userId, String operator, String relativePath, String fileSize, String downloadUrl) {
+    public Integer updateCloudDiskFile(String id, String isDelete, String applicantId, String adviserId, String name,
+                                       String type, String url, String parentFileId, String domainId, String driveId,
+                                       String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
-        if (applicantId != null) {
-            cloudDiskFile.setApplicantId(applicantId);
+        if (id != null && !"null".equals(id)) {
+            cloudDiskFile.setId(Integer.valueOf(id));
         }
-        if (adviserId != null) {
-            cloudDiskFile.setAdviserId(adviserId);
+        if (isDelete != null && !"null".equals(isDelete)) {
+            cloudDiskFile.setIsDelete("0".equals(isDelete) ? 0 : 1);
         }
-        if (name != null) {
+        if (applicantId != null && !"null".equals(applicantId)) {
+            cloudDiskFile.setApplicantId(Integer.valueOf(applicantId));
+        }
+        if (adviserId != null && !"null".equals(adviserId)) {
+            cloudDiskFile.setAdviserId(Integer.valueOf(adviserId));
+        }
+        if (name != null && !"null".equals(name)) {
             cloudDiskFile.setName(name);
         }
-        if (type != null) {
+        if (type != null && !"null".equals(type)) {
             cloudDiskFile.setType(type);
         }
-        if (url != null) {
+        if (url != null && !"null".equals(url)) {
             cloudDiskFile.setUrl(url);
         }
-        if (parentFileId != null) {
+        if (parentFileId != null && !"null".equals(parentFileId)) {
             cloudDiskFile.setParentFileId(parentFileId);
         }
-        if (domainId != null) {
+        if (domainId != null && !"null".equals(domainId)) {
             cloudDiskFile.setDomainId(domainId);
         }
-        if (driveId != null) {
+        if (driveId != null && !"null".equals(driveId)) {
             cloudDiskFile.setDriveId(driveId);
         }
-        if (fileId != null) {
+        if (fileId != null && !"null".equals(fileId)) {
             cloudDiskFile.setFileId(fileId);
         }
-        if (officialId != null) {
-            cloudDiskFile.setOfficialId(officialId);
+        if (officialId != null && !"null".equals(officialId)) {
+            cloudDiskFile.setOfficialId(Integer.valueOf(officialId));
         }
-        if (userId != null) {
-            cloudDiskFile.setUserId(userId);
+        if (userId != null && !"null".equals(userId)) {
+            cloudDiskFile.setUserId(Integer.valueOf(userId));
         }
-        if (operator != null) {
+        if (operator != null && !"null".equals(operator)) {
             cloudDiskFile.setOperator(operator);
         }
-        if (relativePath != null) {
+        if (relativePath != null && !"null".equals(relativePath)) {
             cloudDiskFile.setRelativePath(relativePath);
         }
-        if (fileSize != null) {
+        if (fileSize != null && !"null".equals(fileSize)) {
             cloudDiskFile.setFileSize(Long.parseLong(fileSize));
         }
-        if (downloadUrl != null) {
+        if (downloadUrl != null && !"null".equals(downloadUrl)) {
             cloudDiskFile.setDownloadUrl(downloadUrl);
         }
         return cloudDiskFileDAO.update(cloudDiskFile);

@@ -12,16 +12,16 @@ import java.util.List;
 
 public interface ExternalInterfaceService {
 
-    Integer addCloudDiskFile(Integer applicantId, Integer adviserId, String name,
+    Integer addCloudDiskFile(String applicantId, String adviserId, String name,
                              String type, String url, String parentFileId, String domainId,
-                             String driveId, String fileId, Integer officialId, Integer userId,
+                             String driveId, String fileId, String officialId, String userId,
                              String operator, String relativePath, String fileSize, String downloadUrl);
 
     CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName);
 
-    Integer updateCloudDiskFile(Integer applicantId, Integer adviserId, String name,
+    Integer updateCloudDiskFile(String id, String isDelete, String applicantId, String adviserId, String name,
                                 String type, String url, String parentFileId, String domainId, String driveId,
-                                String fileId, Integer officialId, Integer userId, String operator, String relativePath, String fileSize, String downloadUrl);
+                                String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl);
 
     List<CloudDiskFile> listCloudDiskFile(String parentFileId, Integer id, String name, Integer applicantId, Integer userId);
 

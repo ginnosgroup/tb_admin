@@ -4,18 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
-import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.ExternalInterfaceService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
-import org.zhinanzhen.b.service.pojo.ServiceDTO;
-import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
-import org.zhinanzhen.tb.service.ServiceException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -31,15 +27,15 @@ public class ExternalInterfaceController extends BaseController {
 
     @RequestMapping(value = "/addCloudDiskFile", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> addCloudDiskFile(@RequestParam(value = "applicantId", required = false) Integer applicantId,
-                                              @RequestParam(value = "adviserId", required = false) Integer adviserId,
-                                              @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type") String type,
+    public Response<Integer> addCloudDiskFile(@RequestParam(value = "applicantId", required = false) String applicantId,
+                                              @RequestParam(value = "adviserId", required = false) String adviserId,
+                                              @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) String type,
                                               @RequestParam(value = "url", required = false) String url, @RequestParam(value = "parentFileId", required = false) String parentFileId,
                                               @RequestParam(value = "domainId", required = false) String domainId, @RequestParam(value = "driveId", required = false) String driveId,
-                                              @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) Integer officialId,
-                                              @RequestParam(value = "userId", required = false) Integer userId, @RequestParam(value = "operator", required = false) String operator,
+                                              @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) String officialId,
+                                              @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
                                               @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
-                                              @RequestParam(value = "downloadUrl") String downloadUrl, HttpServletResponse response) {
+                                              @RequestParam(value = "downloadUrl", required = false) String downloadUrl, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
             Integer id = externalInterfaceService.addCloudDiskFile(applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl);
@@ -67,19 +63,19 @@ public class ExternalInterfaceController extends BaseController {
 
     @RequestMapping(value = "/updateCloudDiskFile", method = RequestMethod.GET)
     @ResponseBody
-    public Response<Integer> updateCloudDiskFile(@RequestParam(value = "applicantId", required = false) Integer applicantId,
-                                                 @RequestParam(value = "adviserId", required = false) Integer adviserId,
+    public Response<Integer> updateCloudDiskFile(@RequestParam(value = "id", required = false) String id, @RequestParam(value = "applicantId", required = false) String applicantId,
+                                                 @RequestParam(value = "adviserId", required = false) String adviserId, @RequestParam(value = "isDelete", required = false) String isDelete,
                                                  @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) String type,
                                                  @RequestParam(value = "url", required = false) String url, @RequestParam(value = "parentFileId", required = false) String parentFileId,
                                                  @RequestParam(value = "domainId", required = false) String domainId, @RequestParam(value = "driveId", required = false) String driveId,
-                                                 @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) Integer officialId,
-                                                 @RequestParam(value = "userId", required = false) Integer userId, @RequestParam(value = "operator", required = false) String operator,
+                                                 @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) String officialId,
+                                                 @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
                                                  @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
                                                  @RequestParam(value = "downloadUrl", required = false) String downloadUrl, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer id = externalInterfaceService.updateCloudDiskFile(applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl);
-            return new Response<Integer>(0, "更新成功", id);
+            Integer idT = externalInterfaceService.updateCloudDiskFile(id, isDelete, applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl);
+            return new Response<Integer>(0, "更新成功", idT);
         } catch (Exception e) {
             return new Response<Integer>(1, "更新失败:" + e.getMessage(), 1);
         }
