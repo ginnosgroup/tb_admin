@@ -23,7 +23,9 @@
             operator,
             relative_path,
             file_size,
-            download_url)
+            download_url,
+            hash_code
+        )
         values (
             now(),
             now(),
@@ -42,7 +44,9 @@
             #{operator},
             #{relativePath},
             #{fileSize},
-            #{downloadUrl})
+            #{downloadUrl},
+            #{hashCode}
+        )
     </insert>
 
     <update id="update">
@@ -92,6 +96,9 @@
         </if>
         <if test='downloadUrl != null and downloadUrl != ""'>
             , download_url = #{downloadUrl}
+        </if>
+        <if test='hashCode != null and hashCode != ""'>
+            , hash_code = #{hashCode}
         </if>
         WHERE id = #{id}
     </update>

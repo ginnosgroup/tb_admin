@@ -35,10 +35,11 @@ public class ExternalInterfaceController extends BaseController {
                                               @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) String officialId,
                                               @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
                                               @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
+                                              @RequestParam(value = "hashCode", required = false) String hashCode,
                                               @RequestParam(value = "downloadUrl", required = false) String downloadUrl, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer id = externalInterfaceService.addCloudDiskFile(applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl);
+            Integer id = externalInterfaceService.addCloudDiskFile(applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode);
             return new Response<Integer>(0, "添加成功", id);
         } catch (Exception e) {
             return new Response<Integer>(1, "添加失败:" + e.getMessage(), 1);
@@ -71,10 +72,12 @@ public class ExternalInterfaceController extends BaseController {
                                                  @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) String officialId,
                                                  @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
                                                  @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
-                                                 @RequestParam(value = "downloadUrl", required = false) String downloadUrl, HttpServletResponse response) {
+                                                 @RequestParam(value = "downloadUrl", required = false) String downloadUrl, @RequestParam(value = "hashCode", required = false) String hashCode,
+                                                 HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer idT = externalInterfaceService.updateCloudDiskFile(id, isDelete, applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl);
+            Integer idT = externalInterfaceService.updateCloudDiskFile(id, isDelete, applicantId, adviserId, name, type, url,
+                    parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode);
             return new Response<Integer>(0, "更新成功", idT);
         } catch (Exception e) {
             return new Response<Integer>(1, "更新失败:" + e.getMessage(), 1);

@@ -37,7 +37,9 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     private AdminUserDAO adminUserDAO;
 
     @Override
-    public Integer addCloudDiskFile(String applicantId, String adviserId, String name, String type, String url, String parentFileId, String domainId, String driveId, String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl) {
+    public Integer addCloudDiskFile(String applicantId, String adviserId, String name, String type, String url,
+                                    String parentFileId, String domainId, String driveId, String fileId, String officialId,
+                                    String userId, String operator, String relativePath, String fileSize, String downloadUrl, String hashCode) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
         if (applicantId != null && !"null".equals(applicantId)) {
             cloudDiskFile.setApplicantId(Integer.valueOf(applicantId));
@@ -84,6 +86,9 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
         if (userId != null && !"null".equals(userId)) {
             cloudDiskFile.setUserId(Integer.valueOf(userId));
         }
+        if (hashCode != null && !"null".equals(hashCode)) {
+            cloudDiskFile.setHashCode(hashCode);
+        }
         return cloudDiskFileDAO.add(cloudDiskFile);
     }
 
@@ -95,7 +100,7 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     @Override
     public Integer updateCloudDiskFile(String id, String isDelete, String applicantId, String adviserId, String name,
                                        String type, String url, String parentFileId, String domainId, String driveId,
-                                       String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl) {
+                                       String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl, String hashCode) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
         if (id != null && !"null".equals(id)) {
             cloudDiskFile.setId(Integer.valueOf(id));
@@ -147,6 +152,9 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
         }
         if (downloadUrl != null && !"null".equals(downloadUrl)) {
             cloudDiskFile.setDownloadUrl(downloadUrl);
+        }
+        if (hashCode != null && !"null".equals(hashCode)) {
+            cloudDiskFile.setHashCode(hashCode);
         }
         int update = cloudDiskFileDAO.update(cloudDiskFile);
         if (update > 0 && "folder".equalsIgnoreCase(cloudDiskFile.getType()) && cloudDiskFile.getIsDelete() == 1) {

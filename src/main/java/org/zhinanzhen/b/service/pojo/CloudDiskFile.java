@@ -50,4 +50,6 @@ public class CloudDiskFile {
     private Long fileSize; // 文件大小
 
     private String downloadUrl;
+
+    private String hashCode;
 }
