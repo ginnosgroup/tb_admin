@@ -148,6 +148,16 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
         if (downloadUrl != null && !"null".equals(downloadUrl)) {
             cloudDiskFile.setDownloadUrl(downloadUrl);
         }
+        int update = cloudDiskFileDAO.update(cloudDiskFile);
+        if (update > 0 && "folder".equalsIgnoreCase(cloudDiskFile.getType()) && cloudDiskFile.getIsDelete() == 1) {
+            List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByRelativePath(cloudDiskFile.getRelativePath());
+            if (cloudDiskFileList1 != null && !cloudDiskFileList1.isEmpty()) {
+                for (CloudDiskFile cloudDiskFile1 : cloudDiskFileList1) {
+                    cloudDiskFile1.setIsDelete(1);
+                    cloudDiskFileDAO.update(cloudDiskFile1);
+                }
+            }
+        }
         return cloudDiskFileDAO.update(cloudDiskFile);
     }
 
@@ -179,5 +189,10 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     @Override
     public CloudDiskFile getCloudDisk(String relativePath) {
         return cloudDiskFileDAO.getCloudDisk(relativePath);
+    }
+
+    @Override
+    public List<CloudDiskFile> listByRelativePath(String relativePath) {
+        return cloudDiskFileDAO.listByRelativePath(relativePath);
     }
 }

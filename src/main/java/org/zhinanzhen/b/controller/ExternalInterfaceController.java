@@ -61,7 +61,7 @@ public class ExternalInterfaceController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/updateCloudDiskFile", method = RequestMethod.GET)
+    @RequestMapping(value = "/updateCloudDiskFile", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> updateCloudDiskFile(@RequestParam(value = "id", required = false) String id, @RequestParam(value = "applicantId", required = false) String applicantId,
                                                  @RequestParam(value = "adviserId", required = false) String adviserId, @RequestParam(value = "isDelete", required = false) String isDelete,
@@ -152,6 +152,18 @@ public class ExternalInterfaceController extends BaseController {
             return new Response<CloudDiskFile>(0, "获取成功", cloudDiskFile);
         } catch (Exception e) {
             return new Response<CloudDiskFile>(1, "获取失败:" + e.getMessage(), null);
+        }
+    }
+
+    @RequestMapping(value = "/listByRelativePath", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<CloudDiskFile>> listByRelativePath(@RequestParam(value = "relativePath", required = false) String relativePath, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            List<CloudDiskFile> cloudDiskFileList = externalInterfaceService.listByRelativePath(relativePath);
+            return new ListResponse<List<CloudDiskFile>>(true, cloudDiskFileList.size(), cloudDiskFileList.size(), cloudDiskFileList, "获取成功");
+        } catch (Exception e) {
+            return new ListResponse<List<CloudDiskFile>>(false, 0, 0, null, e.getMessage());
         }
     }
 

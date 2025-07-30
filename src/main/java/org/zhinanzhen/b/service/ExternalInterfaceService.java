@@ -35,4 +35,6 @@ public interface ExternalInterfaceService {
 
     CloudDiskFile getCloudDisk(String relativePath);
 
+    List<CloudDiskFile> listByRelativePath(String relativePath);
+
 }
