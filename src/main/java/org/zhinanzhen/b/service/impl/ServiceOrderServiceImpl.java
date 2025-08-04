@@ -1318,6 +1318,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         } else {
             serviceOrderDto.setIsInsuranceCompany("");
         }
+        // 顾问以及文案资料大小合计
+        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(serviceOrderDto.getOfficialId(), serviceOrderDto.getUserId());
+        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
+
+        serviceOrderDto.setAdviserDataSize(adviserDataSize);
+        serviceOrderDto.setOfficialDataSize(officialDataSize);
+
 //        // 打分转换
 //        if (serviceOrderDto.getScore() != null) {
 //            try {
