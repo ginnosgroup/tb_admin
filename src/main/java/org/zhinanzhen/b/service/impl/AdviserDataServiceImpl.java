@@ -201,6 +201,7 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 				adviserDataDao.visaDataMigration(newAdviserId, adviserId, userIdList), "cod",
 				adviserDataDao.commissionOrderDataMigration(newAdviserId, adviserId, userIdList));
 		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId + "(" + userIdList + "):" + map);
+		adviserDataDao.userBoxDataMigration(newAdviserId, adviserId, userIdList);
 		return map;
 	}
 

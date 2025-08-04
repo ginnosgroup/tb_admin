@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.CloudDiskFileDAO;
@@ -17,6 +18,7 @@ import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
@@ -100,7 +102,7 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     @Override
     public Integer updateCloudDiskFile(String id, String isDelete, String applicantId, String adviserId, String name,
                                        String type, String url, String parentFileId, String domainId, String driveId,
-                                       String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl, String hashCode) {
+                                       String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl, String hashCode, String oldRelativePath, String oldPart) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
         if (id != null && !"null".equals(id)) {
             cloudDiskFile.setId(Integer.valueOf(id));
@@ -163,6 +165,19 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
                 for (CloudDiskFile cloudDiskFile1 : cloudDiskFileList1) {
                     cloudDiskFile1.setIsDelete(1);
                     cloudDiskFileDAO.update(cloudDiskFile1);
+                }
+            }
+        }
+        if (update > 0 && "folder".equalsIgnoreCase(cloudDiskFile.getType())) {
+            List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByRelativePath(oldRelativePath);
+            if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
+                for (CloudDiskFile diskFile : cloudDiskFileList1) {
+                    String relativePath2 = diskFile.getRelativePath();
+                    if (relativePath2.contains(oldPart)) {
+                        String s1 = relativePath2.replaceAll("(?<=/)" + Pattern.quote(oldPart) + "(?=/|$)", cloudDiskFile.getName());
+                        diskFile.setRelativePath(s1);
+                        cloudDiskFileDAO.update(diskFile);
+                    }
                 }
             }
         }

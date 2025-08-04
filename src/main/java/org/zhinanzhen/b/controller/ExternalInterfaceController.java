@@ -73,11 +73,12 @@ public class ExternalInterfaceController extends BaseController {
                                                  @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
                                                  @RequestParam(value = "relativePath", required = false) String relativePath, @RequestParam(value = "fileSize", required = false) String fileSize,
                                                  @RequestParam(value = "downloadUrl", required = false) String downloadUrl, @RequestParam(value = "hashCode", required = false) String hashCode,
+                                                 @RequestParam(value = "oldRelativePath", required = false) String oldRelativePath, @RequestParam(value = "oldPart", required = false) String oldPart,
                                                  HttpServletResponse response) {
         try {
             super.setGetHeader(response);
             Integer idT = externalInterfaceService.updateCloudDiskFile(id, isDelete, applicantId, adviserId, name, type, url,
-                    parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode);
+                    parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode, oldRelativePath, oldPart);
             return new Response<Integer>(0, "更新成功", idT);
         } catch (Exception e) {
             return new Response<Integer>(1, "更新失败:" + e.getMessage(), 1);

@@ -54,4 +54,5 @@ public interface AdviserDataDAO {
 	int countCommissionOrderDataMigration(@Param("newAdviserId") Integer newAdviserId,
 			@Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
 
+	void userBoxDataMigration(@Param("newAdviserId")Integer newAdviserId, @Param("adviserId") Integer adviserId, @Param("userIdList") List<Integer> userIdList);
 }
