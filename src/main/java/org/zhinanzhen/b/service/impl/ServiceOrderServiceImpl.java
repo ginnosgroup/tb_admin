@@ -1057,10 +1057,10 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 					applicantDtoList.add(serviceOrderDto.getApplicant());
                 userDto.setApplicantList(applicantDtoList);
             }
-            List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
-            if (!cloudDiskFileList.isEmpty()) {
-                userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
-            }
+//            List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
+//            if (!cloudDiskFileList.isEmpty()) {
+//                userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
+//            }
             serviceOrderDto.setUser(userDto);
         }
         if (serviceOrderDto.getApplicantId() > 0) {

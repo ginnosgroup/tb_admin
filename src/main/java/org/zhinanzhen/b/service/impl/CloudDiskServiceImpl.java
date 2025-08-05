@@ -627,6 +627,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize) {
+        if (userId != null && parentFileId == null) {
+            return cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userId, pageNum, pageSize);
+        }
         List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(id, parentFileId, name, applicantId, userId, pageNum, pageSize);
         return cloudDiskFileList;
     }
