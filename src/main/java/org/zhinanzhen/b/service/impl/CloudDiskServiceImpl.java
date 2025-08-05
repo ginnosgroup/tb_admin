@@ -629,6 +629,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize) {
         if (userId != null && parentFileId == null) {
             List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userId, pageNum, pageSize);
+            log.info("当前查询用户id----------------------" + userId);
+            log.info("当前查询用户资料----------------------" + cloudDiskFileList1);
             if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
                 String fileId = cloudDiskFileList1.get(0).getFileId();
                 List<CloudDiskFile> cloudDiskFileList2 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, userId, pageNum, pageSize);
