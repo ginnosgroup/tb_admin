@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -627,7 +628,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize) {
-        if (userId != null && parentFileId == null) {
+        if (userId != null && StringUtils.isEmpty(parentFileId)) {
             List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userId, pageNum, pageSize);
             log.info("当前查询用户id----------------------" + userId);
             log.info("当前查询用户资料----------------------" + cloudDiskFileList1);
