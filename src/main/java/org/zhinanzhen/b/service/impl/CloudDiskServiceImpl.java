@@ -589,6 +589,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
+    public int updateofficialId(Integer officialId1, Integer integer) {
+        int update = cloudDiskFileDAO.updateofficialId(officialId1, integer);
+        return 0;
+    }
+
+    @Override
     public int deleteById(Integer id, String fileId) {
         List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, null, 0, 100);
         if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {

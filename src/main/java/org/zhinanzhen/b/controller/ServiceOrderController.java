@@ -134,6 +134,9 @@ public class ServiceOrderController extends BaseController {
     private InsuranceCompanyDAO insuranceCompanyDAO;
 
     @Resource
+    private CloudDiskService cloudDiskService;
+
+    @Resource
     private OfficialService officialService;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1347,6 +1350,9 @@ public class ServiceOrderController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
+                if (!String.valueOf(officialId1).equals(officialId)) {
+                    int v = cloudDiskService.updateofficialId(officialId1,Integer.valueOf(officialId));
+                }
                 if ("OVST".equalsIgnoreCase(serviceOrderDto.getType())) {
                     // 如果留学订单有佣金订单同步更改
                     CommissionOrderDTO commissionOrderByServiceOrderId = commissionOrderService.getCommissionOrderByServiceOrderId(serviceOrderDto.getId());

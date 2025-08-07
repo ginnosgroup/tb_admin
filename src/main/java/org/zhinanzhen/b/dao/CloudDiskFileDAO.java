@@ -29,4 +29,7 @@ public interface CloudDiskFileDAO {
 
     @Select("select sum(file_size) from b_cloud_disk_file where adviser_id = #{adviserId} and user_id = #{userId}")
     Long listByAdviserId(@Param("adviserId")int adviserId, @Param("userId") int userId);
+
+    int updateofficialId(@Param("oldOfficialId") Integer oldOfficialId, @Param("newOfficialId") Integer newOfficialId);
+
 }

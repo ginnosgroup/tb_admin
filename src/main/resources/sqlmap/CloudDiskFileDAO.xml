@@ -103,6 +103,10 @@
         WHERE id = #{id}
     </update>
 
+    <update id="updateofficialId">
+        update b_cloud_disk_file set official_id = #{newOfficialId} where official_id = #{oldOfficialId}
+    </update>
+
     <select id="getById" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
         select * from b_cloud_disk_file where 1=1
         <if test='id != null'>
