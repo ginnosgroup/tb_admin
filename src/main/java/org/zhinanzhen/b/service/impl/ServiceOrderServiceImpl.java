@@ -1284,7 +1284,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     ChildrenServiceOrderDTO childrenServiceOrderDTO = new ChildrenServiceOrderDTO();
                     childrenServiceOrderDTO.setServicePackageId(e.getId());
                     childrenServiceOrderDTO.setServicePackageType(e.getType());
-                    childrenServiceOrders.add(childrenServiceOrderDTO);
+                    if (childrenServiceOrderDTO.getId() != 0) {
+                        childrenServiceOrders.add(childrenServiceOrderDTO);
+                    }
                     serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
                 }
             });

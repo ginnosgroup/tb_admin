@@ -476,7 +476,7 @@ public class ServiceOrderController extends BaseController {
                 return new Response<Integer>(1, "请选择申请人.", null);
             }
             String[] serviceAssessCategorysplit = null;
-            if (StringUtil.isNotEmpty(serviceAssessId)) {
+            if (StringUtil.isNotEmpty(serviceAssessId) && !type.equalsIgnoreCase("SIV")) {
                 if ((!type.equalsIgnoreCase("SIV") && !type.equalsIgnoreCase("NSV"))
                         && serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
                     return new Response(1, "当前服务编号不是评估(" + serviceId + ")，创建失败.", 0);
@@ -1354,7 +1354,7 @@ public class ServiceOrderController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
-                if (!String.valueOf(officialId1).equals(officialId)) {
+                if (officialId != null &&!String.valueOf(officialId1).equals(officialId)) {
                     int v = cloudDiskService.updateofficialId(officialId1,Integer.valueOf(officialId));
                 }
                 if ("OVST".equalsIgnoreCase(serviceOrderDto.getType())) {
