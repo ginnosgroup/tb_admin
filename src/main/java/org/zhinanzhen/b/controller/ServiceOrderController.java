@@ -625,6 +625,9 @@ public class ServiceOrderController extends BaseController {
                             if (split != null && split.length > 1) {
                                 serviceOrderDto.setServiceAssessId(split[1]);
                             }
+                            if (StringUtil.isNotEmpty(serviceAssessId) && "SIV".equalsIgnoreCase(type)) {
+                                serviceOrderDto.setServiceAssessId(serviceAssessId);
+                            }
                             serviceOrderDto.setType("VISA"); // 独立技术移民子订单为VISA
 //                            serviceOrderDto.setPay(false); // 独立技术移民子订单都未支付
                             serviceOrderDto.setVerifyCode(null); // 独立技术移民子订单都没有对账Code
@@ -632,6 +635,7 @@ public class ServiceOrderController extends BaseController {
                                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
                             if (StringUtil.isNotEmpty(officialId))
                                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
+
                             if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0
                                     && adminUserLoginInfo != null) {
                                 serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
