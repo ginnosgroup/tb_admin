@@ -1354,7 +1354,7 @@ public class ServiceOrderController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
-                if (!String.valueOf(officialId1).equals(officialId)) {
+                if (officialId != null &&!String.valueOf(officialId1).equals(officialId)) {
                     int v = cloudDiskService.updateofficialId(officialId1,Integer.valueOf(officialId));
                 }
                 if ("OVST".equalsIgnoreCase(serviceOrderDto.getType())) {
