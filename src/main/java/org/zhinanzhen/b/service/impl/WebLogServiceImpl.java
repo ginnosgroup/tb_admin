@@ -51,7 +51,7 @@ public class WebLogServiceImpl implements WebLogService {
     public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer userId, Integer isLogin, Integer operatedUser, Integer offset, Integer rows) {
         try {
             String login = "";
-            if (isLogin == 1) {
+            if (isLogin != null && isLogin == 1) {
                 login = "login";
             }
             List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, userId, login, operatedUser, offset, rows);
@@ -173,6 +173,16 @@ public class WebLogServiceImpl implements WebLogService {
                             webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                         }
                     }
+                }
+                if ("login".equalsIgnoreCase(split[3])) {
+                    List<String> serviceOrderOriginallyDOList = new ArrayList<>();
+                    serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    " + "登录");
+                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
+                }
+                if ("out".equalsIgnoreCase(split[3])) {
+                    List<String> serviceOrderOriginallyDOList = new ArrayList<>();
+                    serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    " + "登出");
+                    webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                 }
             }
             return webLogDTOS;

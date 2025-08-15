@@ -65,7 +65,8 @@ public class WebLogAspect extends BaseController{
 //    "execution(public * org.zhinanzhen.tb.controller.UserController.update(..))"
     @Pointcut("execution(public * org.zhinanzhen.b.controller.ServiceOrderController.*(..)) || " +
             "execution(public * org.zhinanzhen.tb.controller.UserController.addUser(..)) || " +
-            "execution(public * org.zhinanzhen.tb.controller.AdminUserController.login(..))"
+            "execution(public * org.zhinanzhen.tb.controller.AdminUserController.login(..)) ||" +
+            "execution(public * org.zhinanzhen.tb.controller.AdminUserController.outLogin(..))"
     )
     public void webLog() {
 
@@ -79,13 +80,192 @@ public class WebLogAspect extends BaseController{
      * returning 自定义的变量，标识目标方法的返回值,自定义变量名必须和通知方法的形参一样
      * 特点：在目标方法之后执行的,能够获取到目标方法的返回值，可以根据这个返回值做不同的处理
      */     
-    @AfterReturning(value = "webLog()", returning = "ret")
-    public void doAfterReturning(Object ret) throws Throwable {
+    @AfterReturning(value = "webLog()", returning = "result")
+    public void doAfterReturning(JoinPoint joinPoint, Object result) throws Throwable {
+        // 检查是否是登录方法
+        Signature signature = joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) signature;
+        Method method = methodSignature.getMethod();
+        String methodName = method.getName();
+        if ("login".equals(methodName)) {
+            try {
+                long startTime = System.currentTimeMillis();
+                //获取当前请求对象
+                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                HttpServletRequest request = attributes.getRequest();
+
+                AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+                AdminUserDO adminUserById = new AdminUserDO();
+                if (adminUserLoginInfo != null) {
+                    adminUserById = adminUserDAO.getAdminUserById(adminUserLoginInfo.getId());
+                }
+                //记录请求信息
+                WebLogDTO webLog = new WebLogDTO();
+
+                long endTime = System.currentTimeMillis();
+                String urlStr = request.getRequestURL().toString();
+                webLog.setBasePath(StrUtil.removeSuffix(urlStr, URLUtil.url(urlStr).getPath()));
+                webLog.setIp(request.getRemoteUser());
+                webLog.setUserId(adminUserById.getId());
+                webLog.setMethod(request.getMethod());
+
+                webLog.setSpendTime((int) (endTime - startTime));
+
+                // 使用java.time包
+                Instant instant = Instant.ofEpochMilli(startTime);
+                ZonedDateTime dateTime = instant.atZone(ZoneId.systemDefault()); // 使用系统默认时区
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String formattedDate = dateTime.format(formatter);
+
+                webLog.setStartTime(formattedDate);
+                String requestURI = request.getRequestURI();
+                webLog.setUri(requestURI);
+                webLog.setUrl(request.getRequestURL().toString());
+                String[] split = requestURI.split("/");
+                String methodNameT = split[split.length - 1];
+                List<Object> parameter = getParameter(method, joinPoint.getArgs());
+                if (parameter != null && !methodNameT.contains("upload") && !methodNameT.equalsIgnoreCase("add")) {
+                    for (Object o : parameter) {
+                        if (o.toString().contains("id")) {
+                            // 定义正则表达式来匹配id后面的数字
+                            // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
+                            String regex = "\\{id=(\\d+)\\}";
+                            // 创建Pattern对象
+                            Pattern pattern = Pattern.compile(regex);
+                            // 创建Matcher对象
+                            Matcher matcher = pattern.matcher(o.toString());
+                            // 查找匹配项
+                            if (matcher.find()) {
+                                // 提取匹配的数字
+                                String id = matcher.group(1);
+                                if (urlStr.contains("user")) {
+                                    webLog.setOperatedUser(Integer.valueOf(id));
+                                } else {
+                                    webLog.setServiceOrderId(Integer.valueOf(id));
+                                }
+                                log.info("ID: " + id);
+                            } else {
+                                System.out.println("未找到ID");
+                            }
+                        }
+                        if (o.toString().contains("serviceOrderId")) {
+                            // 定义正则表达式来匹配id后面的数字
+                            // 注意：这个正则表达式假设id后面紧跟着等号，然后是数字，且数字可能有多位
+                            String regex = "\\{serviceOrderId=(\\d+)\\}";
+                            // 创建Pattern对象
+                            Pattern pattern = Pattern.compile(regex);
+                            // 创建Matcher对象
+                            Matcher matcher = pattern.matcher(o.toString());
+                            // 查找匹配项
+                            if (matcher.find()) {
+                                // 提取匹配的数字
+                                String id = matcher.group(1);
+                                webLog.setServiceOrderId(Integer.valueOf(id));
+                                log.info("ID: " + id);
+                            } else {
+                                System.out.println("未找到ID");
+                            }
+                        }
+
+                    }
+                }
+                if (parameter != null && methodName.equalsIgnoreCase("add")) {
+                    Response<Integer> integerResponse = (Response) result;
+                    if (urlStr.contains("serviceOrder")) {
+                        webLog.setServiceOrderId(integerResponse.getData());
+                    }
+                    if (urlStr.contains("user")) {
+                        webLog.setOperatedUser(integerResponse.getData());
+                    }
+                }
+                webLog.setParameter(parameter.toString());
+                String resultString = result.toString();
+                if (resultString.length() >= 2000) {
+                    webLog.setResult(resultString.substring(0, 1999));
+                } else {
+                    webLog.setResult(resultString);
+                }
+
+
+                if (adminUserLoginInfo == null) {
+                    return;
+                }
+                String apList = adminUserLoginInfo.getApList();
+                switch (apList) {
+                    case "GW":
+                        apList = "顾问";
+                        break;
+                    case "WA":
+                        apList = "文案";
+                        break;
+                    case "KJ":
+                        apList = "会计";
+                        break;
+                    case "SUPERAD":
+                        apList = "超级管理员";
+                        break;
+                    default: apList = apList;
+                }
+                webLog.setRole(apList);
+
+//        if (parameter != null && methodName.contains("userIds") && !methodName.equalsIgnoreCase("newAdviserId")) {
+//            String regexUserIds = "\\{userIds=(\\d+)\\}";
+//            for (Object o : parameter) {
+//                // 创建Pattern对象
+//                Pattern pattern = Pattern.compile(regexUserIds);
+//                // 创建Matcher对象
+//                Matcher matcher = pattern.matcher(o.toString());
+//                // 查找匹配项
+//                if (matcher.find()) {
+//                    // 提取匹配的数字
+//                    String userIds = matcher.group(1);
+//                    String[] split1 = userIds.split(";");
+//                    for (int i = 0; i < split1.length; i++) {
+//                        webLog.setOperatedUser(Integer.valueOf(split1[i]));
+//                        webLogDAO.addWebLogs(webLog);
+//                    }
+//                } else {
+//                    System.out.println("未找到修改用户id");
+//                }
+//            }
+//            return result;
+//        }
+
+
+                if (!StringUtils.isEmpty(methodName)) {
+                    if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
+                        int i = webLogDAO.addWebLogs(webLog);
+                        if (i > 0) {
+                            Integer serviceOrderId = webLog.getServiceOrderId();
+                            if (serviceOrderId != null && serviceOrderId != 0) {
+                                ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+                                if (serviceOrderById.getApplicantParentId() > 0 && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
+                                    ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
+                                    List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
+                                    webLog.setServiceOrderId(serviceOrderByParent.getId());
+                                    webLogDAO.addWebLogs(webLog);
+                                    for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
+                                        if (serviceOrderDO.getId() == serviceOrderId) {
+                                            continue;
+                                        }
+                                        webLog.setServiceOrderId(serviceOrderDO.getId());
+                                        webLogDAO.addWebLogs(webLog);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                log.info("{}", JSONUtil.parse(webLog));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
  
     //通知包裹了目标方法，在目标方法调用之前和之后执行自定义的行为
     //ProceedingJoinPoint切入点可以获取切入点方法上的名字、参数、注解和对象
-    @Around("webLog()")
+    @Around("webLog() && !execution(public * org.zhinanzhen.tb.controller.AdminUserController.login(..))")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable 
     {
         try {
@@ -184,7 +364,9 @@ public class WebLogAspect extends BaseController{
                     webLog.setOperatedUser(integerResponse.getData());
                 }
             }
-            webLog.setParameter(parameter.toString());
+            if (parameter != null) {
+                webLog.setParameter(parameter.toString());
+            }
             String resultString = result.toString();
             if (resultString.length() >= 2000) {
                 webLog.setResult(resultString.substring(0, 1999));
