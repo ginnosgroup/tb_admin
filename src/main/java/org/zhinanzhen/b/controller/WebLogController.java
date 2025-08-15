@@ -29,12 +29,13 @@ public class WebLogController extends BaseController {
             @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
             @RequestParam(value = "operatedUser", required = false) Integer operatedUser,
             @RequestParam(value = "isLogin", required = false) Integer isLogin,
+            @RequestParam(value = "userId", required = false) Integer userId,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
             Integer total = 0;
-            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, null, isLogin, operatedUser, pageNum, pageSize);
+            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, userId, isLogin, operatedUser, pageNum, pageSize);
             if (webLogDTOS != null && webLogDTOS.size() > 0 && isLogin == null) {
                 webLogDTOS = webLogDTOS.stream().filter(WebLogDTO -> WebLogDTO.getOperationDescription() != null).collect(Collectors.toList());
             }
