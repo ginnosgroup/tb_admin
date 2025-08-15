@@ -50,6 +50,9 @@
         <if test='operatedUser != null and operatedUser != ""'>
             AND operated_user = #{operatedUser}
         </if>
+        <if test='isLogin != null and isLogin != ""'>
+            AND uri LIKE '%${isLogin}'
+        </if>
         LIMIT #{offset}, #{rows};
     </select>
     <select id="count" resultType="java.lang.Integer">
@@ -60,6 +63,9 @@
         </if>
         <if test='operatedUser != null and operatedUser != ""'>
             AND operated_user = #{operatedUser}
+        </if>
+        <if test='isLogin != null and isLogin != ""'>
+            AND uri LIKE '%${isLogin}'
         </if>
     </select>
 

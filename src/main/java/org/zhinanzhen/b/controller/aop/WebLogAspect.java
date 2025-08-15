@@ -64,7 +64,8 @@ public class WebLogAspect extends BaseController{
 //                        "execution(public * org.zhinanzhen.b.controller.OfficialController.officialHandover(..)) || " +
 //    "execution(public * org.zhinanzhen.tb.controller.UserController.update(..))"
     @Pointcut("execution(public * org.zhinanzhen.b.controller.ServiceOrderController.*(..)) || " +
-            "execution(public * org.zhinanzhen.tb.controller.UserController.addUser(..))"
+            "execution(public * org.zhinanzhen.tb.controller.UserController.addUser(..)) || " +
+            "execution(public * org.zhinanzhen.tb.controller.AdminUserController.login(..))"
     )
     public void webLog() {
 

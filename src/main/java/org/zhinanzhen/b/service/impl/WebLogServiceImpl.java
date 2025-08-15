@@ -48,9 +48,13 @@ public class WebLogServiceImpl implements WebLogService {
     private ServiceOrderDAO serviceOrderDAO;
 
     @Override
-    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer userId, Integer operatedUser, Integer offset, Integer rows) {
+    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer userId, Integer isLogin, Integer operatedUser, Integer offset, Integer rows) {
         try {
-            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, userId, operatedUser, offset, rows);
+            String login = "";
+            if (isLogin == 1) {
+                login = "login";
+            }
+            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, userId, login, operatedUser, offset, rows);
             String userName = "";
             for (int i = 0; i < webLogDTOS.size(); i++) {
                 WebLogDTO webLogDTO = webLogDTOS.get(i);
@@ -179,8 +183,12 @@ public class WebLogServiceImpl implements WebLogService {
     }
 
     @Override
-    public Integer count(Integer serviceOrderId, Integer operatedUser) {
-        return webLogDAO.count(serviceOrderId, operatedUser);
+    public Integer count(Integer serviceOrderId, Integer isLogin, Integer operatedUser) {
+        String login = "";
+        if (isLogin == 1) {
+            login = "login";
+        }
+        return webLogDAO.count(serviceOrderId, login, operatedUser);
     }
 
     @Override
