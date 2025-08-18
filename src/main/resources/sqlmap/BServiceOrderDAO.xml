@@ -539,8 +539,8 @@
         <if test='serviceId != null and serviceId > 0'>
             AND so.service_id = #{serviceId}
         </if>
-        <if test='schoolId != null and schoolId > 0'>
-            AND so.school_id = #{schoolId}
+        <if test="schoolId != null and  schoolId > 0">
+            AND so.course_id IN (SELECT id FROM b_school_course WHERE provider_id = #{schoolId})
         </if>
         <if test='isNotApproved == true'>
             <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
@@ -774,7 +774,7 @@
             <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") > 0 ]]>
         </if>
         <if test="schoolId != null and  schoolId > 0">
-            AND so.school_id = #{schoolId}
+            AND so.course_id IN (SELECT id FROM b_school_course WHERE provider_id = #{schoolId})
         </if>
         <if test="serviceId != null and  serviceId > 0">
             AND so.service_id = #{serviceId}
