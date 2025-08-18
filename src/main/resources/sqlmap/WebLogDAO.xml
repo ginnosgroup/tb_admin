@@ -51,7 +51,7 @@
             AND operated_user = #{operatedUser}
         </if>
         <if test='isLogin != null and isLogin != ""'>
-            AND uri LIKE '%login' or uri LIKE '%out'
+            AND (uri LIKE '%login' or uri LIKE '%out')
         </if>
         LIMIT #{offset}, #{rows};
     </select>

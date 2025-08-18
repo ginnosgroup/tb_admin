@@ -11,6 +11,7 @@ import org.zhinanzhen.tb.controller.ListResponse;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,8 +40,9 @@ public class WebLogController extends BaseController {
             if (webLogDTOS != null && webLogDTOS.size() > 0 && isLogin == null) {
                 webLogDTOS = webLogDTOS.stream().filter(WebLogDTO -> WebLogDTO.getOperationDescription() != null).collect(Collectors.toList());
             }
-            total = webLogDTOS.size();
-            return new ListResponse<List<WebLogDTO>>(true, pageSize, total, webLogDTOS, "");
+            List<WebLogDTO> collect = webLogDTOS.stream().sorted(Comparator.comparing(WebLogDTO::getId).reversed()).collect(Collectors.toList());
+            total = collect.size();
+            return new ListResponse<List<WebLogDTO>>(true, pageSize, total, collect, "");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
