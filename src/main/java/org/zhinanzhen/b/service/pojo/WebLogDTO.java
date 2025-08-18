@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.service.pojo;
 
 import lombok.Data;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
+import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 
 import java.util.Date;
 import java.util.List;
@@ -72,5 +74,7 @@ public class WebLogDTO {
     private List<String> operationDescription;
 
     private String role;
+
+    private AdminUserDO adminUserDO;
  
 }

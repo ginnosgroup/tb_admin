@@ -177,11 +177,19 @@ public class WebLogServiceImpl implements WebLogService {
                 if ("login".equalsIgnoreCase(split[3])) {
                     List<String> serviceOrderOriginallyDOList = new ArrayList<>();
                     serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    " + "登录");
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        webLogDTO.setAdminUserDO(adminUserById);
+                    }
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                 }
                 if ("out".equalsIgnoreCase(split[3])) {
                     List<String> serviceOrderOriginallyDOList = new ArrayList<>();
                     serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    " + "登出");
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        webLogDTO.setAdminUserDO(adminUserById);
+                    }
                     webLogDTO.setOperationDescription(serviceOrderOriginallyDOList);
                 }
             }
