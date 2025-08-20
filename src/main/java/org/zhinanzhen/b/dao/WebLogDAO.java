@@ -10,6 +10,6 @@ public interface WebLogDAO {
 
     List<WebLogDTO> listWebLogs (@Param("serviceOrderId") Integer serviceOrderId,@Param("userId") Integer userId, @Param("isLogin") String isLogin, @Param("operatedUser") Integer operatedUser, @Param("offset") Integer offset, @Param("rows") Integer rows);
 
-    Integer count(@Param("serviceOrderId") Integer serviceOrderId, @Param("isLogin") String isLogin, @Param("operatedUser") Integer operatedUser);
+    Integer count(@Param("serviceOrderId") Integer serviceOrderId, @Param("userId") Integer userId, @Param("isLogin") String isLogin, @Param("operatedUser") Integer operatedUser);
 
 }

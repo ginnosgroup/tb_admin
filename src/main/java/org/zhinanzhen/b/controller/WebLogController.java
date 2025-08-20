@@ -36,12 +36,12 @@ public class WebLogController extends BaseController {
         try {
             super.setGetHeader(response);
             Integer total = 0;
-            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, userId, isLogin, operatedUser, pageNum, pageSize);
+            total = webLogService.count(serviceOrderId, userId, isLogin, operatedUser);
+            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, userId, isLogin, operatedUser, pageNum * pageSize, pageSize);
             if (webLogDTOS != null && webLogDTOS.size() > 0 && isLogin == null) {
                 webLogDTOS = webLogDTOS.stream().filter(WebLogDTO -> WebLogDTO.getOperationDescription() != null).collect(Collectors.toList());
             }
             List<WebLogDTO> collect = webLogDTOS.stream().sorted(Comparator.comparing(WebLogDTO::getId).reversed()).collect(Collectors.toList());
-            total = collect.size();
             return new ListResponse<List<WebLogDTO>>(true, pageSize, total, collect, "");
         } catch (Exception e) {
             throw new RuntimeException(e);

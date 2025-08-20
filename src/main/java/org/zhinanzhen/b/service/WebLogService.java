@@ -8,7 +8,7 @@ import java.util.List;
 public interface WebLogService {
     List<WebLogDTO> listByServiceOrderId(@Param("serviceOrderId") Integer serviceOrderId, @Param("userId") Integer userId, @Param("isLogin") Integer isLogin, @Param("operatedUser") Integer operatedUser, @Param("offset") Integer offset, @Param("rows") Integer rows);
 
-    Integer count(Integer serviceOrderId, Integer isLogin, Integer operatedUser);
+    Integer count(Integer serviceOrderId, Integer userId, Integer isLogin, Integer operatedUser);
 
     int addWebLogs (WebLogDTO webLog);
 

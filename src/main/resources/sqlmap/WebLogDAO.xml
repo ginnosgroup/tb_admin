@@ -61,11 +61,14 @@
         <if test='serviceOrderId != null and serviceOrderId != ""'>
             AND service_order_id = #{serviceOrderId}
         </if>
+        <if test='userId != null and userId != ""'>
+            AND user_id = #{userId}
+        </if>
         <if test='operatedUser != null and operatedUser != ""'>
             AND operated_user = #{operatedUser}
         </if>
         <if test='isLogin != null and isLogin != ""'>
-            AND uri LIKE '%${isLogin}'
+            AND (uri LIKE '%login' or uri LIKE '%out')
         </if>
     </select>
 
