@@ -2284,6 +2284,14 @@ public class ServiceOrderController extends BaseController {
     public Response<List<VisaDO>> getCommissionOrderList(@RequestParam(value = "id") int id,
                                                          HttpServletRequest request) {
         try {
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo == null) {
+                return new Response<>(1, "当前未登录", null);
+            }
+            String apList = adminUserLoginInfo.getApList();
+            if ("MA".equalsIgnoreCase(apList)) {
+                return new Response<>(1, "当前账号没有查询权限", null);
+            }
             List<VisaDO> commissionOrderList = serviceOrderService.getCommissionOrderList(id);
             return new Response<>(0, commissionOrderList);
         } catch (ServiceException e) {
