@@ -16,6 +16,6 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
 
     @Override
     public int addServiceOrderAndManage(ServiceOrderAndManage serviceOrderAndManage) {
-        return 0;
+        return serviceOrderManageDAO.addServiceOrderAndManage(serviceOrderAndManage);
     }
 }
