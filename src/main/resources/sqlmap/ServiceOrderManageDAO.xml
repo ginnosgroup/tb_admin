@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.ServiceOrderManageDAO">
+
+    <insert id="addServiceOrderAndManage">
+        insert into tb_service_order (
+            gmt_create,
+            service_order_id,
+            service_order_manage_id
+        )
+        values (
+            now(),
+            #{serviceOrderId},
+            #{serviceOrderManageId}
+        );
+    </insert>
+</mapper>
