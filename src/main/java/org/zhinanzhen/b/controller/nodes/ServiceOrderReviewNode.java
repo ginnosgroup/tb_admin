@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.OfficialController.OfficialWorkStateEnum;
 import org.zhinanzhen.b.service.ExchangeRateService;
+import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
@@ -75,8 +76,9 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 		return map;
 	}
 
-	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService) {
+	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService, ServiceOrderManageService serviceOrderManageService) {
 		super.serviceOrderService = serviceOrderService;
+		super.serviceOrderManageService = serviceOrderManageService;
 	}
 
 	@Override
@@ -92,36 +94,39 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 //			return SUSPEND_NODE;
 //		}
 		try {
+			ServiceOrderDTO serviceOrderDtoT = new ServiceOrderDTO();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
-			if (serviceOrderDto == null) {
+			ServiceOrderDTO serviceorderManageDto = serviceOrderManageService.getServiceOrderById(getServiceOrderId(context));
+			if (serviceOrderDto == null && serviceorderManageDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));
 				return null;
 			}
-			if (serviceOrderDto.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
-					|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())
-					|| "MT".equalsIgnoreCase(serviceOrderDto.getType()))) {
+			serviceOrderDtoT = serviceOrderDto != null ? serviceOrderDto : serviceorderManageDto;
+			if (serviceOrderDtoT.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDtoT.getType())
+					|| "NSV".equalsIgnoreCase(serviceOrderDtoT.getType())
+					|| "MT".equalsIgnoreCase(serviceOrderDtoT.getType()))) {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
 				return null;
 			}
-			OfficialDTO officialDto = serviceOrderDto.getOfficial();
+			OfficialDTO officialDto = serviceOrderDtoT.getOfficial();
 			// 判断文案状态
 			if (ObjectUtil.isNotNull(officialDto)
 					&& OfficialWorkStateEnum.BUSY.name().equalsIgnoreCase(officialDto.getWorkState())) {
 				context.putParameter("response",
-						new Response<ServiceOrderDTO>(1, "你选择的文案已经设置为忙碌状态,请重新选择.", serviceOrderDto));
+						new Response<ServiceOrderDTO>(1, "你选择的文案已经设置为忙碌状态,请重新选择.", serviceOrderDtoT));
 				return null;
 			}
 			// 判断文案服务项目匹配
 			if (ObjectUtil.isNotNull(officialDto)) {
-				int serviceId = serviceOrderDto.getServiceId();
+				int serviceId = serviceOrderDtoT.getServiceId();
 				String officialIdStr = officialDto.getId() + "";
 				List<String> blackList = bOfficialReviewPermissions.get(serviceId);
 				if (ObjectUtil.isNotNull(blackList) && blackList.contains(officialIdStr)) {
 					context.putParameter("response",
 							new Response<ServiceOrderDTO>(1,
 									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
-									serviceOrderDto));
+									serviceOrderDtoT));
 					return null;
 				}
 //				List<String> whiteList = wOfficialReviewPermissions.get(officialDto.getId());
@@ -145,14 +150,14 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			}
 			// 提交审核时更新汇率
 			if (exchangeRateService != null) {
-				if (regionService.isCNByAdviserId(serviceOrderDto.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
+				if (regionService.isCNByAdviserId(serviceOrderDtoT.getAdviserId())) { // 如果是中国地区则使用季度固定汇率
 					double qRate = exchangeRateService.getQuarterExchangeRate();
-					log.info(StringUtil.merge("为服务订单(", serviceOrderDto.getId(), ")设置季度固定汇率:", qRate));
-					serviceOrderDto.setExchangeRate(qRate);
+					log.info(StringUtil.merge("为服务订单(", serviceOrderDtoT.getId(), ")设置季度固定汇率:", qRate));
+					serviceOrderDtoT.setExchangeRate(qRate);
 				} else {
 					ExchangeRateDTO rate = exchangeRateService.getExchangeRate();
 					if (ObjectUtil.isNotNull(rate) && rate.getRate() > 0)
-						serviceOrderDto.setExchangeRate(rate.getRate());
+						serviceOrderDtoT.setExchangeRate(rate.getRate());
 				}
 			}
 		} catch (ServiceException e) {

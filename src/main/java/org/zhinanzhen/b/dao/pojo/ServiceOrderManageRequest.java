@@ -1,9 +1,9 @@
 package org.zhinanzhen.b.dao.pojo;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.zhinanzhen.b.service.pojo.ServiceOrderApplicantDTO;
 
 import java.util.List;
@@ -11,8 +11,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ServiceOrderJsonRequest {
-    private Integer id;
+public class ServiceOrderManageRequest {
     private String type;
     private Integer peopleNumber;
     private String peopleType;
@@ -23,6 +22,8 @@ public class ServiceOrderJsonRequest {
     private Integer schoolId3;
     private Integer schoolId4;
     private Integer schoolId5;
+    private String servicePackageIds;
+    private String servicePackageIdsEOI;
     private String urgentState;
     private String isSettle;
     private String isDepositUser;
@@ -39,13 +40,6 @@ public class ServiceOrderJsonRequest {
     private String paymentVoucherImageUrl3;
     private String paymentVoucherImageUrl4;
     private String paymentVoucherImageUrl5;
-    private String invoiceVoucherImageUrl1;
-    private String invoiceVoucherImageUrl2;
-    private String invoiceVoucherImageUrl3;
-    private String invoiceVoucherImageUrl4;
-    private String invoiceVoucherImageUrl5;
-    private String kjPaymentImageUrl1;
-    private String kjPaymentImageUrl2;
     private String lowPriceImageUrl;
     private String perAmount;
     private String amount;
@@ -56,50 +50,40 @@ public class ServiceOrderJsonRequest {
     private String deductGst;
     private String bonus;
     private String userId;
-    private String applicantId;
-    private String applicantBirthday;
-    private String servicePackageIdsEOI;
-    private String servicePackageIds;
+    // 修改这里：从String改为List
+    private List<ServiceOrderApplicantDTO> serviceOrderApplicantList;
     private String maraId;
     private String adviserId;
     private String officialId;
     private String remarks;
-    private String information;
     private String closedReason;
+    private String information;
     private String isHistory;
     private String nutCloud;
     private String serviceAssessId;
     private String verifyCode;
     private String refNo;
     private Integer courseId;
-    private Integer courseId2;
-    private Integer courseId3;
-    private Integer courseId4;
-    private Integer courseId5;
     private Integer schoolInstitutionLocationId;
+    private Integer courseId2;
     private Integer schoolInstitutionLocationId2;
+    private Integer courseId3;
     private Integer schoolInstitutionLocationId3;
+    private Integer courseId4;
     private Integer schoolInstitutionLocationId4;
+    private Integer courseId5;
     private Integer schoolInstitutionLocationId5;
     private String institutionTradingName;
     private String institutionTradingName2;
     private String institutionTradingName3;
     private String institutionTradingName4;
     private String institutionTradingName5;
-    private Integer bindingOrder;
+    private Integer bindingOrderId;
     private String expectTimeEnrollment;
     private Boolean isApplyVisa;
     private String visaNumber;
-    private String insuranceCompany; // 保险公司id
-    private String hasInsurance; // 是否购买保险
-    private String isTransfer; // 是否为中转订单
-    private String transferRemarks; // 是否为中转订单
-    private String offerUrl; // 是否为中转订单
-    private String offerType; // 是否为中转订单
-    private String officialData;
-    private String scoreOptions;
     private String serviceAssessCategoryId;
-    private Integer bindingOrderId;
-    private Integer manageId;
-    private List<ServiceOrderApplicantDTO> serviceOrderApplicantList;
+    private String scoreOptions;
+    private List<ServiceOrderJsonRequest> serviceOrderJson;
+
 }

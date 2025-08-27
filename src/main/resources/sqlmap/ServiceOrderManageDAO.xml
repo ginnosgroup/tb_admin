@@ -4,7 +4,7 @@
 <mapper namespace="org.zhinanzhen.b.dao.ServiceOrderManageDAO">
 
     <insert id="addServiceOrderAndManage">
-        insert into tb_service_order (
+        insert into b_service_order_and_manage (
             gmt_create,
             service_order_id,
             service_order_manage_id
@@ -15,4 +15,631 @@
             #{serviceOrderManageId}
         );
     </insert>
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+        INTO b_service_order_manage (
+            gmt_create,
+            gmt_modify,
+            code,
+            finish_date,
+            type,
+            people_number,
+            people_type,
+            people_remarks,
+            service_id,
+            parent_id,
+            applicant_parent_id,
+            service_package_id,
+            school_id,
+            course_id,
+            school_institution_location_id,
+            institution_trading_name,
+            state,
+            state_mark,
+            state_mark2,
+            urgent_state,
+            mara_approval_date,
+            official_approval_date,
+            is_settle,
+            is_deposit_user,
+            is_submitted,
+            subagency_id,
+            is_pay,
+            receive_type_id,
+            receive_date,
+            receivable,
+            discount,
+            received,
+            installment,
+            payment_voucher_image_url_1,
+            payment_voucher_image_url_2,
+            payment_voucher_image_url_3,
+            payment_voucher_image_url_4,
+            payment_voucher_image_url_5,
+            coe_payment_voucher_image_url_1,
+            coe_payment_voucher_image_url_2,
+            coe_payment_voucher_image_url_3,
+            coe_payment_voucher_image_url_4,
+            coe_payment_voucher_image_url_5,
+            visa_voucher_image_url,
+            low_price_image_url,
+            per_amount,
+            amount,
+            expect_amount,
+            currency,
+            exchange_rate,
+            gst,
+            deduct_gst,
+            bonus,
+            user_id,
+            applicant_id,
+            mara_id,
+            adviser_id,
+            adviser_id_2,
+            official_id,
+            remarks,
+            refuse_reason,
+            closed_reason,
+            is_delete,
+            information,
+            is_history,
+            nut_cloud,
+            service_assess_id,
+            real_people_number,
+            verify_code,
+            ref_no,
+            EOI_number,
+            binding_order,
+            offer_type,
+            offer_url,
+            expect_time_enrollment,
+            is_apply_visa,
+            visa_number,
+            is_insurance_company,
+            official_data,
+            score_options)
+        VALUES (
+                   now(),
+                   now(),
+                   #{code},
+                   NULL,
+                   #{type},
+                   #{peopleNumber},
+                   #{peopleType},
+                   #{peopleRemarks},
+                   #{serviceId},
+                   #{parentId},
+                   #{applicantParentId},
+                   #{servicePackageId},
+                   #{schoolId},
+                   #{courseId},
+                   #{schoolInstitutionLocationId},
+                   #{institutionTradingName},
+                   #{state},
+                   #{stateMark},
+                   #{stateMark2},
+                   #{urgentState},
+                   NULL,
+                   NULL,
+                   #{isSettle},
+                   #{isDepositUser},
+                   #{isSubmitted},
+                   #{subagencyId},
+                   #{isPay},
+                   #{receiveTypeId},
+                   #{receiveDate},
+                   #{receivable},
+                   #{discount},
+                   #{received},
+                   #{installment},
+                   #{paymentVoucherImageUrl1},
+                   #{paymentVoucherImageUrl2},
+                   #{paymentVoucherImageUrl3},
+                   #{paymentVoucherImageUrl4},
+                   #{paymentVoucherImageUrl5},
+                   #{coePaymentVoucherImageUrl1},
+                   #{coePaymentVoucherImageUrl2},
+                   #{coePaymentVoucherImageUrl3},
+                   #{coePaymentVoucherImageUrl4},
+                   #{coePaymentVoucherImageUrl5},
+                   #{visaVoucherImageUrl},
+                   #{lowPriceImageUrl},
+                   #{perAmount},
+                   #{amount},
+                   #{expectAmount},
+                   #{currency},
+                   #{exchangeRate},
+                   #{gst},
+                   #{deductGst},
+                   #{bonus},
+                   #{userId},
+                   #{applicantId},
+                   #{maraId},
+                   #{adviserId},
+                   #{adviserId2},
+                   #{officialId},
+                   #{remarks},
+                   #{refuseReason},
+                   #{closedReason},
+                   0,
+                   #{information},
+                   #{isHistory},
+                   #{nutCloud},
+                   #{serviceAssessId},
+                   #{realPeopleNumber},
+                   #{verifyCode},
+                   #{refNo},
+                   #{EOINumber},
+                   #{bindingOrder},
+                   #{offerType},
+                   #{offerUrl},
+                   #{expectTimeEnrollment},
+                   #{isApplyVisa},
+                   #{visaNumber},
+                   #{isInsuranceCompany},
+                   #{officialData},
+                   #{scoreOptions});
+    </insert>
+    <select id="countServiceOrder" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM tb_user u, b_service_order_manage so
+        LEFT JOIN tb_adviser a ON so.adviser_id = a.id
+        LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
+        LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
+        LEFT JOIN b_official b ON so.official_id = b.id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        <if test='type != null and type != "" and type != "VISAZX" and type != "bindingList" and type != "bindingList2" and type != "bindingList3"'>
+            AND so.type = #{type}
+        </if>
+        <if test='type == "VISAZX"'>
+            AND so.type in("VISA","ZX")
+        </if>
+        <if test='type != null and type != "" and type == "bindingList"'>
+            AND so.type != 'OVST' AND so.applicant_parent_id = 0 AND binding_order IS NULL
+        </if>
+        <if test='type != null and type != "" and type == "bindingList2"'>
+            AND so.applicant_parent_id = 0 AND binding_order IS NULL
+        </if>
+        <if test='type != null and type != "" and type == "bindingList3"'>
+            AND so.type = 'SIV' AND so.applicant_parent_id = 0 AND binding_order IS NULL
+        </if>
+        <if test='excludeState != null and excludeState != ""'>
+            AND so.state != #{excludeState}
+        </if>
+        <if test='stateList != null'>
+            AND so.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='reviewStateList != null'>
+            AND so.review_state IN
+            <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
+                #{reviewStateList}
+            </foreach>
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
+        </if>
+        <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
+            <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
+        </if>
+        <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
+            <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
+        <if test='startReadcommittedDate != null and startReadcommittedDate != "" and endReadcommittedDate != null and endReadcommittedDate != ""'>
+            <![CDATA[ AND so.readcommitted_date > #{startReadcommittedDate} AND so.readcommitted_date < #{endReadcommittedDate} ]]>
+        </if>
+        <if test='startFinishDate != null and startFinishDate != "" and endFinishDate != null and endFinishDate != ""'>
+            <![CDATA[ AND so.finish_date > #{startFinishDate} AND so.finish_date < #{endFinishDate} ]]>
+        </if>
+        <if test='adviserRegionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="adviserRegionIdList" item="adviserRegionIdList" index="index" open="(" close=")" separator=",">
+                #{adviserRegionIdList}
+            </foreach>
+        </if>
+        <if test='officialRegionIdList != null'>
+            AND b.region_id IN
+            <foreach collection="officialRegionIdList" item="officialRegionIdList" index="index" open="(" close=")" separator=",">
+                #{officialRegionIdList}
+            </foreach>
+        </if>
+        <if test='userId != null and userId > 0'>
+            AND so.user_id = #{userId}
+        </if>
+        <if test='maraId != null and maraId > 0'>
+            AND so.mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
+        </if>
+        <if test='officialId != null and officialId > 0'>
+            AND so.official_id = #{officialId}
+        </if>
+        <if test='officialTagId != null and officialTagId > 0'>
+            AND soot.official_tag_id = #{officialTagId}
+        </if>
+        <if test='parentId != null and parentId > 0'>
+            AND so.parent_id = #{parentId}
+        </if>
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            AND so.applicant_parent_id = #{applicantParentId}
+        </if>
+        <if test='serviceId != null and serviceId > 0'>
+            AND so.service_id = #{serviceId}
+        </if>
+        <if test="schoolId != null and  schoolId > 0">
+            AND so.course_id IN (SELECT id FROM b_school_course WHERE provider_id = #{schoolId})
+        </if>
+        <if test='isNotApproved == true'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
+        </if>
+        <if test='auditingState == "MAWAIT"'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="WAIT" AND mara_state="WAIT") > 0 AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") <= 0 ]]>
+        </if>
+        <if test='auditingState == "MAFINISH"'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") > 0 ]]>
+        </if>
+        <if test='userName != null and userName != ""'>
+            AND u.name LIKE '%${userName}%'
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname,
+            ' ', ap.surname) = #{applicantName})
+        </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
+        <if test="isSettle != null">
+            AND so.is_settle = #{isSettle}
+        </if>
+        <if test="servicePackageId">
+            AND so.service_package_id = #{servicePackageId}
+        </if>
+        <if test="courseId != null">
+            AND so.course_id = #{courseId}
+        </if>
+        <if test='schoolLocation != null'>
+            AND so.school_institution_location_id = #{schoolLocation}
+        </if>
+        <if test='tradingName != null and tradingName != "" '>
+            AND so.institution_trading_name = #{tradingName}
+        </if>
+        ;
+    </select>
+    <select id="listServiceOrder" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+        so.id AS id,
+        so.gmt_create AS gmtCreate,
+        so.gmt_modify AS gmtModify,
+        so.code AS code,
+        so.finish_date AS finishDate,
+        so.type AS type,
+        so.people_number AS peopleNumber,
+        so.people_type AS peopleType,
+        so.people_remarks AS peopleRemarks,
+        so.service_id AS serviceId,
+        so.parent_id AS parentId,
+        so.applicant_parent_id AS applicantParentId,
+        so.service_package_id AS servicePackageId,
+        so.school_id AS schoolId,
+        so.course_id AS courseId,
+        so.school_institution_location_id AS schoolInstitutionLocationId,
+        so.institution_trading_name AS institutionTradingName,
+        so.state AS state,
+        so.state_mark AS stateMark,
+        so.state_mark2 AS stateMark2,
+        so.urgent_state AS urgentState,
+        so.mara_approval_date AS maraApprovalDate,
+        so.submit_mara_approval_date AS submitMaraApprovalDate,
+        so.official_approval_date AS officialApprovalDate,
+        so.is_settle AS isSettle,
+        so.is_deposit_user AS isDepositUser,
+        so.is_submitted AS isSubmitted,
+        so.subagency_id AS subagencyId,
+        so.is_pay AS isPay,
+        so.receive_type_id AS receiveTypeId,
+        so.receive_date AS receiveDate,
+        so.receivable AS receivable,
+        so.discount AS discount,
+        so.received AS received,
+        so.installment AS installment,
+        so.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+        so.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+        so.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+        so.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+        so.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+        so.coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+        so.coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+        so.coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+        so.coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+        so.coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
+        so.visa_voucher_image_url AS visaVoucherImageUrl,
+        so.invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+        so.invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+        so.invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+        so.invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+        so.invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
+        so.kj_payment_image_url1 AS kjPaymentImageUrl1,
+        so.kj_payment_image_url2 AS kjPaymentImageUrl2,
+        so.low_price_image_url AS lowPriceImageUrl,
+        so.per_amount AS perAmount,
+        so.amount AS amount,
+        so.expect_amount AS expectAmount,
+        so.currency,
+        so.exchange_rate AS exchangeRate,
+        so.gst AS gst,
+        so.deduct_gst AS deductGst,
+        so.bonus AS bonus,
+        so.user_id AS userId,
+        so.applicant_id AS applicantId,
+        so.mara_id AS maraId,
+        so.adviser_id AS adviserId,
+        so.adviser_id_2 AS adviserId2,
+        so.official_id AS officialId,
+        so.remarks AS remarks,
+        so.refuse_reason AS refuseReason,
+        so.closed_reason AS closedReason,
+        so.information AS information ,
+        so.is_history AS isHistory,
+        so.nut_cloud AS nutCloud,
+        so.service_assess_id AS serviceAssessId ,
+        so.real_people_number AS realPeopleNumber ,
+        so.verify_code AS verifyCode ,
+        so.readcommitted_date AS readcommittedDate,
+        so.ref_no AS refNo,
+        so.EOI_number AS EOINumber,
+        so.binding_order AS bindingOrder,
+        so.offer_type AS offerType,
+        so.offer_url AS offerUrl,
+        so.expect_time_enrollment AS expectTimeEnrollment,
+        so.is_apply_visa AS isApplyVisa,
+        so.visa_number AS visaNumber,
+        so.is_insurance_company AS isInsuranceCompany,
+        so.transfer_remarks AS transferRemarks,
+        so.official_data AS officialData,
+        so.score_options AS scoreOptions
+        FROM tb_user u, b_service_order_manage so
+        LEFT JOIN tb_adviser a ON so.adviser_id = a.id
+        LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
+        LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
+        LEFT JOIN b_official b ON so.official_id = b.id
+        WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
+        <if test='startGmtCreate != null and startGmtCreate != "" and endGmtCreate != null and endGmtCreate != ""'>
+            <![CDATA[ AND so.gmt_create > #{startGmtCreate} AND so.gmt_create < #{endGmtCreate} ]]>
+        </if>
+        <if test='type != null and type != "" and type != "VISAZX" and type != "SIV" and type != "NSV" and type != "bindingList" and type != "bindingList2" and type != "bindingList3"'>
+            AND so.type = #{type}
+        </if>
+        <if test='type != null and type != "" and type == "bindingList"'>
+            AND so.type != 'OVST' AND (so.applicant_parent_id = 0 OR ISNULL(so.applicant_parent_id) ) AND binding_order IS NULL
+        </if>
+        <if test='type != null and type != "" and type == "bindingList2"'>
+            AND so.applicant_parent_id = 0 AND binding_order IS NULL
+        </if>
+        <if test='type != null and type != "" and type == "bindingList3"'>
+            AND so.type = 'SIV' AND (so.applicant_parent_id = 0 OR ISNULL(so.applicant_parent_id) ) AND binding_order IS NULL
+        </if>
+        <if test='type == "VISAZX"'>
+            AND so.type in ("VISA","ZX")
+        </if>
+        <if test='type == "SIV"'>
+            AND so.`code` in (SELECT `code` FROM b_service_order WHERE type="SIV")
+        </if>
+        <if test='type == "NSV"'>
+            AND so.`code` in (SELECT `code` FROM b_service_order WHERE type="NSV")
+        </if>
+        <if test='excludeState != null and excludeState != ""'>
+            AND so.state != #{excludeState}
+        </if>
+        <if test='stateList != null'>
+            AND so.state IN
+            <foreach collection="stateList" item="stateList" index="index" open="(" close=")" separator=",">
+                #{stateList}
+            </foreach>
+        </if>
+        <if test='reviewStateList != null'>
+            AND so.review_state IN
+            <foreach collection="reviewStateList" item="reviewStateList" index="index" open="(" close=")" separator=",">
+                #{reviewStateList}
+            </foreach>
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            AND so.urgent_state != #{urgentState}
+        </if>
+        <if test='startMaraApprovalDate != null and startMaraApprovalDate != "" and endMaraApprovalDate != null and endMaraApprovalDate != ""'>
+            <![CDATA[ AND so.mara_approval_date > #{startMaraApprovalDate} AND so.mara_approval_date < #{endMaraApprovalDate} ]]>
+        </if>
+        <if test='startOfficialApprovalDate != null and startOfficialApprovalDate != "" and endOfficialApprovalDate != null and endOfficialApprovalDate != ""'>
+            <![CDATA[ AND so.official_approval_date > #{startOfficialApprovalDate} AND so.official_approval_date < #{endOfficialApprovalDate} ]]>
+        </if>
+        <if test='startReadcommittedDate != null and startReadcommittedDate != "" and endReadcommittedDate != null and endReadcommittedDate != ""'>
+            <![CDATA[ AND so.readcommitted_date > #{startReadcommittedDate} AND so.readcommitted_date < #{endReadcommittedDate} ]]>
+        </if>
+        <if test='startFinishDate != null and startFinishDate != "" and endFinishDate != null and endFinishDate != ""'>
+            <![CDATA[ AND so.finish_date > #{startFinishDate} AND so.finish_date < #{endFinishDate} ]]>
+        </if>
+        <if test='adviserRegionIdList != null'>
+            AND a.region_id IN
+            <foreach collection="adviserRegionIdList" item="adviserRegionIdList" index="index" open="(" close=")" separator=",">
+                #{adviserRegionIdList}
+            </foreach>
+        </if>
+        <if test='officialRegionIdList != null'>
+            AND b.region_id IN
+            <foreach collection="officialRegionIdList" item="officialRegionIdList" index="index" open="(" close=")" separator=",">
+                #{officialRegionIdList}
+            </foreach>
+        </if>
+        <if test='userId != null and userId > 0'>
+            AND so.user_id = #{userId}
+        </if>
+        <if test='maraId != null and maraId > 0'>
+            AND so.mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            AND (so.adviser_id = #{adviserId} OR so.adviser_id_2 = #{adviserId})
+        </if>
+        <if test='officialId != null and officialId > 0'>
+            AND so.official_id = #{officialId}
+        </if>
+        <if test='officialTagId != null and officialTagId > 0'>
+            AND soot.official_tag_id = #{officialTagId}
+        </if>
+        <if test='parentId != null and parentId > 0'>
+            AND so.parent_id = #{parentId}
+        </if>
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            AND so.applicant_parent_id = #{applicantParentId}
+        </if>
+        <if test='isNotApproved == true'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state IS NOT NULL) <= 0 ]]>
+        </if>
+        <if test='auditingState == "MAWAIT"'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="WAIT" AND mara_state="WAIT") > 0 AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") <= 0 ]]>
+        </if>
+        <if test='auditingState == "MAFINISH"'>
+            <![CDATA[ AND (SELECT COUNT(id) FROM b_service_order_review WHERE service_order_id = so.id AND official_state="REVIEW" AND mara_state="FINISH") > 0 ]]>
+        </if>
+        <if test="schoolId != null and  schoolId > 0">
+            AND so.course_id IN (SELECT id FROM b_school_course WHERE provider_id = #{schoolId})
+        </if>
+        <if test="serviceId != null and  serviceId > 0">
+            AND so.service_id = #{serviceId}
+        </if>
+        <if test='userName != null and userName != ""'>
+            AND u.name LIKE '%${userName}%'
+        </if>
+        <if test='applicantName != null and applicantName != ""'>
+            AND (ap.surname LIKE '%${applicantName}%' OR ap.firstname LIKE '%${applicantName}%' OR CONCAT(ap.firstname,
+            ' ', ap.surname) = #{applicantName})
+        </if>
+        <if test="isPay != null">
+            AND so.is_pay = #{isPay}
+        </if>
+        <if test="isSettle != null">
+            AND so.is_settle = #{isSettle}
+        </if>
+        <if test="servicePackageId != null">
+            AND so.service_package_id = #{servicePackageId}
+        </if>
+        <if test="bindingOrder != null">
+            AND so.binding_order = #{bindingOrder}
+        </if>
+        <if test="courseId != null">
+            AND so.course_id = #{courseId}
+        </if>
+        <if test='schoolLocation != null'>
+            AND so.school_institution_location_id = #{schoolLocation}
+        </if>
+        <if test='tradingName != null and tradingName != "" '>
+            AND so.institution_trading_name = #{tradingName}
+        </if>
+        ${orderBy}
+        LIMIT #{offset}, #{rows};
+    </select>
+    <select id="listSub" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            bso.*
+        FROM
+            b_service_order_manage bm
+                LEFT JOIN b_service_order_and_manage bsm ON bm.id = bsm.service_order_manage_id
+                LEFT JOIN b_service_order bso ON bso.id = bsm.service_order_id
+        WHERE bm.id = #{id}
+    </select>
+    <select id="getServiceOrderById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            code,
+            finish_date AS finishDate,
+            type,
+            people_number AS peopleNumber,
+            people_type AS peopleType,
+            people_remarks AS peopleRemarks,
+            service_id AS serviceId,
+            parent_id AS parentId,
+            applicant_parent_id AS applicantParentId,
+            service_package_id AS servicePackageId,
+            school_id AS schoolId,
+            course_id AS courseId,
+            school_institution_location_id AS schoolInstitutionLocationId,
+            institution_trading_name AS institutionTradingName,
+            state,
+            state_mark AS stateMark,
+            state_mark2 AS stateMark2,
+            urgent_state AS urgentState,
+            mara_approval_date AS maraApprovalDate,
+            submit_mara_approval_date AS submitMaraApprovalDate,
+            official_approval_date AS officialApprovalDate,
+            is_settle AS isSettle,
+            is_deposit_user AS isDepositUser,
+            is_submitted AS isSubmitted,
+            subagency_id AS subagencyId,
+            is_pay AS isPay,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            receivable,
+            discount,
+            received,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            coe_payment_voucher_image_url_1 AS coePaymentVoucherImageUrl1,
+            coe_payment_voucher_image_url_2 AS coePaymentVoucherImageUrl2,
+            coe_payment_voucher_image_url_3 AS coePaymentVoucherImageUrl3,
+            coe_payment_voucher_image_url_4 AS coePaymentVoucherImageUrl4,
+            coe_payment_voucher_image_url_5 AS coePaymentVoucherImageUrl5,
+            invoice_voucher_image_url1 AS invoiceVoucherImageUrl1,
+            invoice_voucher_image_url2 AS invoiceVoucherImageUrl2,
+            invoice_voucher_image_url3 AS invoiceVoucherImageUrl3,
+            invoice_voucher_image_url4 AS invoiceVoucherImageUrl4,
+            invoice_voucher_image_url5 AS invoiceVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            kj_payment_image_url1 AS kjPaymentImageUrl1,
+            kj_payment_image_url2 AS kjPaymentImageUrl2,
+            low_price_image_url AS lowPriceImageUrl,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            user_id AS userId,
+            applicant_id AS applicantId,
+            mara_id AS maraId,
+            adviser_id AS adviserId,
+            adviser_id_2 AS adviserId2,
+            official_id AS officialId,
+            remarks,
+            refuse_reason AS refuseReason,
+            closed_reason AS closedReason,
+            information  ,
+            is_history AS isHistory,
+            nut_cloud AS nutCloud,
+            service_assess_id AS serviceAssessId ,
+            real_people_number AS realPeopleNumber ,
+            verify_code AS verifyCode ,
+            readcommitted_date AS readcommittedDate,
+            ref_no AS refNo,
+            EOI_number AS EOINumber,
+            binding_order AS bindingOrder,
+            offer_type AS offerType,
+            offer_url AS offerUrl,
+            is_insurance_company AS isInsuranceCompany,
+            applicant_parent_id AS applicantParentId,
+            official_data AS officialData,
+            score_options AS scoreOptions
+        FROM b_service_order_manage WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+    <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">
+        select * from b_service_order_and_manage where service_order_id = #{id}
+    </select>
 </mapper>

@@ -103,6 +103,9 @@ public class VisaController extends BaseCommissionOrderController {
 	@Resource
 	WXWorkService wxWorkService;
 
+	@Resource
+	private ServiceOrderManageService serviceOrderManageService;
+
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private ServiceDAO serviceDAO;
@@ -123,7 +126,8 @@ public class VisaController extends BaseCommissionOrderController {
 										   @RequestParam(value = "receiveTypeId") String receiveTypeId,
 										   @RequestParam(value = "receiveDate") String receiveDate,
 										   @RequestParam(value = "serviceId") String serviceId,
-										   @RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+										   @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+										   @RequestParam(value = "serviceorderManageId", required = false) Integer serviceorderManageId,
 										   @RequestParam(value = "installment") Integer installment,
 										   @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
 										   @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
@@ -156,8 +160,17 @@ public class VisaController extends BaseCommissionOrderController {
 			// (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 			// && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			// return new Response<List<VisaDTO>>(1, "仅顾问和超级管理员能创建佣金订单.", null);
-			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
-			if (serviceOrderDto == null)
+			ServiceOrderDTO serviceOrderDtoT = new ServiceOrderDTO();
+			ServiceOrderDTO serviceOrderDto = null;
+			ServiceOrderDTO serviceOrderById = null;
+			if (serviceOrderId != null) {
+				serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
+			}
+			if (serviceorderManageId != null) {
+				serviceOrderById = serviceOrderManageService.getServiceOrderById(serviceorderManageId);
+			}
+			serviceOrderDtoT = serviceOrderDto != null ? serviceOrderDto : serviceOrderById;
+			if (serviceOrderDtoT == null)
 				return new Response<List<VisaDTO>>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
 			List<VisaDTO> visaDtoList = new ArrayList<>();
 			VisaDTO visaDto = new VisaDTO();
@@ -181,32 +194,34 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setServiceId(Integer.parseInt(serviceId));
 			if (serviceOrderId != null && serviceOrderId > 0)
 				visaDto.setServiceOrderId(serviceOrderId);
+			if (serviceorderManageId != null && serviceorderManageId > 0)
+				visaDto.setServiceOrderId(serviceorderManageId);
 			if (installment != null)
 				visaDto.setInstallment(installment);
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
 				visaDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
 			else
-				visaDto.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+				visaDto.setPaymentVoucherImageUrl1(serviceOrderDtoT.getPaymentVoucherImageUrl1());
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
 				visaDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
 			else
-				visaDto.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+				visaDto.setPaymentVoucherImageUrl2(serviceOrderDtoT.getPaymentVoucherImageUrl2());
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
 				visaDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
 			else
-				visaDto.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+				visaDto.setPaymentVoucherImageUrl3(serviceOrderDtoT.getPaymentVoucherImageUrl3());
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
 				visaDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
 			else
-				visaDto.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+				visaDto.setPaymentVoucherImageUrl4(serviceOrderDtoT.getPaymentVoucherImageUrl4());
 			if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
 				visaDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
 			else
-				visaDto.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+				visaDto.setPaymentVoucherImageUrl5(serviceOrderDtoT.getPaymentVoucherImageUrl5());
 			if (StringUtil.isNotEmpty(visaVoucherImageUrl))
 				visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
 			else
-				visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
+				visaDto.setVisaVoucherImageUrl(serviceOrderDtoT.getVisaVoucherImageUrl());
 //				visaDto.setReceivable(Double.parseDouble(receivable));
 //			if (StringUtil.isNotEmpty(received))
 //				visaDto.setReceived(Double.parseDouble(received));
@@ -314,26 +329,30 @@ public class VisaController extends BaseCommissionOrderController {
 					_amount += visaDto.getAmount();
 				}
 			}
-			serviceOrderDto.setOfficialApprovalDate(new Date());
-			serviceOrderDto.setSubmitted(true);
-			serviceOrderService.updateServiceOrder(serviceOrderDto);
-			if (serviceOrderDto.getParentId() > 0) {
-				ServiceOrderDTO _serviceOrderDto = serviceOrderService
-						.getServiceOrderById(serviceOrderDto.getParentId());
+			serviceOrderDtoT.setOfficialApprovalDate(new Date());
+			serviceOrderDtoT.setSubmitted(true);
+			if (serviceOrderDto != null) {
+				serviceOrderService.updateServiceOrder(serviceOrderDtoT);
+			}
+			if (serviceOrderById != null) {
+				serviceOrderManageService.updateServiceOrderManage(serviceOrderDtoT);
+			}
+			if (serviceOrderDtoT.getParentId() > 0) {
+				ServiceOrderDTO _serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getParentId());
 				if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
 					_serviceOrderDto.setSubmitted(true);
 					serviceOrderService.updateServiceOrder(_serviceOrderDto);
 				}
 			}
-			ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
+			ApplicantDTO applicantDto = serviceOrderDtoT.getApplicant();
 			String msg = "";
 			if (applicantDto != null && applicantBirthday != null) {
 				applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
 				if (applicantService.update(applicantDto) <= 0)
-					msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+					msg += "申请人生日修改失败! (serviceOrderId:" + serviceOrderDtoT.getId() + ", applicantId:"
 							+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
 				else
-					msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDto.getId() + ", applicantId:"
+					msg += "申请人生日修改成功. (serviceOrderId:" + serviceOrderDtoT.getId() + ", applicantId:"
 							+ applicantDto.getId() + ", applicantBirthday:" + applicantDto.getBirthday() + ");";
 			}
 			return new Response<List<VisaDTO>>(0, msg, visaDtoList);

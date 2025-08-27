@@ -48,7 +48,7 @@ public interface ServiceOrderService {
 	ServiceOrderDTO refuse(int id, int adminUserId, String adviserState, String maraState, String officialState,
 			String kjState) throws ServiceException;
 
-	void sendRemind(int id, String state);
+	void sendRemind(int id, String state) throws ServiceException;
 
 	@Deprecated
 	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;

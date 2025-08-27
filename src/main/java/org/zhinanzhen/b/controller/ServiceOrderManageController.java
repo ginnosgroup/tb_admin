@@ -4,7 +4,6 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -251,78 +250,7 @@ public class ServiceOrderManageController extends BaseController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
-                                             @RequestParam(value = "peopleNumber", required = false) Integer peopleNumber,
-                                             @RequestParam(value = "peopleType", required = false) String peopleType,
-                                             @RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
-                                             @RequestParam(value = "serviceId") String serviceId,
-                                             @RequestParam(value = "schoolId", required = false) Integer schoolId,
-                                             @RequestParam(value = "schoolId2", required = false) Integer schoolId2,
-                                             @RequestParam(value = "schoolId3", required = false) Integer schoolId3,
-                                             @RequestParam(value = "schoolId4", required = false) Integer schoolId4,
-                                             @RequestParam(value = "schoolId5", required = false) Integer schoolId5,
-                                             @RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
-                                             @RequestParam(value = "servicePackageIdsEOI", required = false) String servicePackageIdsEOI,
-                                             @RequestParam(value = "urgentState", required = false) String urgentState,
-                                             @RequestParam(value = "isSettle", required = false) String isSettle,
-                                             @RequestParam(value = "isDepositUser", required = false) String isDepositUser,
-                                             @RequestParam(value = "subagencyId", required = false) String subagencyId,
-                                             @RequestParam(value = "isPay") String isPay,
-                                             @RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
-                                             @RequestParam(value = "receiveDate", required = false) String receiveDate,
-                                             @RequestParam(value = "receivable", required = false) String receivable,
-                                             @RequestParam(value = "discount", required = false) String discount,
-                                             @RequestParam(value = "received", required = false) String received,
-                                             @RequestParam(value = "installment", required = false) Integer installment,
-                                             @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
-                                             @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
-                                             @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
-                                             @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
-                                             @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
-                                             @RequestParam(value = "lowPriceImageUrl", required = false) String lowPriceImageUrl,
-                                             @RequestParam(value = "perAmount", required = false) String perAmount,
-                                             @RequestParam(value = "amount", required = false) String amount,
-                                             @RequestParam(value = "expectAmount", required = false) String expectAmount,
-                                             @RequestParam(value = "currency", required = false) String currency,
-                                             @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
-                                             @RequestParam(value = "gst", required = false) String gst,
-                                             @RequestParam(value = "deductGst", required = false) String deductGst,
-                                             @RequestParam(value = "bonus", required = false) String bonus,
-                                             @RequestParam(value = "userId") String userId,
-                                             @RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
-                                             @RequestParam(value = "maraId", required = false) String maraId,
-                                             @RequestParam(value = "adviserId") String adviserId,
-                                             @RequestParam(value = "officialId", required = false) String officialId,
-                                             @RequestParam(value = "remarks", required = false) String remarks,
-                                             @RequestParam(value = "closedReason", required = false) String closedReason,
-                                             @RequestParam(value = "information", required = false) String information,
-                                             @RequestParam(value = "isHistory", required = false) String isHistory,
-                                             @RequestParam(value = "nutCloud", required = false) String nutCloud,
-                                             @RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
-                                             @RequestParam(value = "verifyCode", required = false) String verifyCode,
-                                             @RequestParam(value = "refNo", required = false) String refNo,
-                                             @RequestParam(value = "courseId", required = false) Integer courseId,
-                                             @RequestParam(value = "schoolInstitutionLocationId", required = false) Integer schoolInstitutionLocationId,
-                                             @RequestParam(value = "courseId2", required = false) Integer courseId2,
-                                             @RequestParam(value = "schoolInstitutionLocationId2", required = false) Integer schoolInstitutionLocationId2,
-                                             @RequestParam(value = "courseId3", required = false) Integer courseId3,
-                                             @RequestParam(value = "schoolInstitutionLocationId3", required = false) Integer schoolInstitutionLocationId3,
-                                             @RequestParam(value = "courseId4", required = false) Integer courseId4,
-                                             @RequestParam(value = "schoolInstitutionLocationId4", required = false) Integer schoolInstitutionLocationId4,
-                                             @RequestParam(value = "courseId5", required = false) Integer courseId5,
-                                             @RequestParam(value = "schoolInstitutionLocationId5", required = false) Integer schoolInstitutionLocationId5,
-                                             @RequestParam(value = "institutionTradingName", required = false) String institutionTradingName,
-                                             @RequestParam(value = "institutionTradingName2", required = false) String institutionTradingName2,
-                                             @RequestParam(value = "institutionTradingName3", required = false) String institutionTradingName3,
-                                             @RequestParam(value = "institutionTradingName4", required = false) String institutionTradingName4,
-                                             @RequestParam(value = "institutionTradingName5", required = false) String institutionTradingName5,
-                                             @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrderId,
-                                             @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
-                                             @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
-                                             @RequestParam(value = "visaNumber", required = false) String visaNumber,
-                                             @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
-                                             @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
-                                             @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJson,
+    public Response<Integer> addServiceOrder(@RequestBody ServiceOrderManageRequest serviceOrderManageRequest,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -330,7 +258,54 @@ public class ServiceOrderManageController extends BaseController {
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
             }
-            if (StringUtil.isEmpty(serviceOrderJson)) {
+            List<ServiceOrderJsonRequest> serviceOrderJson = serviceOrderManageRequest.getServiceOrderJson();
+            String type = serviceOrderManageRequest.getType();
+            Integer peopleNumber = serviceOrderManageRequest.getPeopleNumber();
+            String peopleType = serviceOrderManageRequest.getPeopleType();
+            String peopleRemarks = serviceOrderManageRequest.getPeopleRemarks();
+            String serviceId = serviceOrderManageRequest.getServiceId();
+            String isSettle = serviceOrderManageRequest.getIsSettle();
+            String urgentState = serviceOrderManageRequest.getUrgentState();
+            String isDepositUser = serviceOrderManageRequest.getIsDepositUser();
+            String subagencyId = serviceOrderManageRequest.getSubagencyId();
+            String isPay = serviceOrderManageRequest.getIsPay();
+            String receiveTypeId = serviceOrderManageRequest.getReceiveTypeId();
+            String receiveDate = serviceOrderManageRequest.getReceiveDate();
+            String receivable = serviceOrderManageRequest.getReceivable();
+            String discount = serviceOrderManageRequest.getDiscount();
+            String received = serviceOrderManageRequest.getReceived();
+            Integer installment = serviceOrderManageRequest.getInstallment();
+            String paymentVoucherImageUrl1 = serviceOrderManageRequest.getPaymentVoucherImageUrl1();
+            String paymentVoucherImageUrl2 = serviceOrderManageRequest.getPaymentVoucherImageUrl2();
+            String paymentVoucherImageUrl3 = serviceOrderManageRequest.getPaymentVoucherImageUrl3();
+            String paymentVoucherImageUrl4 = serviceOrderManageRequest.getPaymentVoucherImageUrl4();
+            String paymentVoucherImageUrl5 = serviceOrderManageRequest.getPaymentVoucherImageUrl5();
+            String lowPriceImageUrl = serviceOrderManageRequest.getLowPriceImageUrl();
+            String perAmount = serviceOrderManageRequest.getPerAmount();
+            String amount = serviceOrderManageRequest.getAmount();
+            String expectAmount = serviceOrderManageRequest.getExpectAmount();
+            String exchangeRate = serviceOrderManageRequest.getExchangeRate();
+            String currency = serviceOrderManageRequest.getCurrency();
+            String gst = serviceOrderManageRequest.getGst();
+            String deductGst = serviceOrderManageRequest.getDeductGst();
+            String bonus = serviceOrderManageRequest.getBonus();
+            String userId = serviceOrderManageRequest.getUserId();
+            String maraId = serviceOrderManageRequest.getMaraId();
+            String adviserId = serviceOrderManageRequest.getAdviserId();
+            String officialId = serviceOrderManageRequest.getOfficialId();
+            String remarks = serviceOrderManageRequest.getRemarks();
+            String closedReason = serviceOrderManageRequest.getClosedReason();
+            String information = serviceOrderManageRequest.getInformation();
+            String isHistory = serviceOrderManageRequest.getIsHistory();
+            String nutCloud = serviceOrderManageRequest.getNutCloud();
+            String verifyCode = serviceOrderManageRequest.getVerifyCode();
+            String refNo = serviceOrderManageRequest.getRefNo();
+            String expectTimeEnrollment = serviceOrderManageRequest.getExpectTimeEnrollment();
+            Boolean isApplyVisa = serviceOrderManageRequest.getIsApplyVisa();
+            String visaNumber = serviceOrderManageRequest.getVisaNumber();
+            String scoreOptions = serviceOrderManageRequest.getScoreOptions();
+            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = serviceOrderManageRequest.getServiceOrderApplicantList();
+            if (serviceOrderJson == null) {
                 return new Response<Integer>(1, "服务项目未选定，请选定服务", 0);
             }
             ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
@@ -426,7 +401,6 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(nutCloud)) {
                 serviceOrderDto.setNutCloud(nutCloud);
             }
-            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
             if (isHistory != null && "true".equalsIgnoreCase(isHistory)) {
                 serviceOrderDto.setRealPeopleNumber(0);
             } else {
@@ -451,12 +425,33 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
             }
-            int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
+            if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
+                serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+            } else {
+                return new Response<Integer>(1, "请选择申请人.", null);
+            }
+
+            int addResult = serviceOrderManageService.add(serviceOrderDto);
             if (addResult > 0) {
-                List<ServiceOrderJsonRequest> serviceOrderJsonRequests = JSON.parseObject(serviceOrderJson, new TypeReference<List<ServiceOrderJsonRequest>>() {});
-                if (serviceOrderJsonRequests != null && serviceOrderJsonRequests.size() > 0) {
-                    for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJsonRequests) {
-                        serviceOrderJsonRequest.setManageId(addResult);
+                if (!ListUtil.isEmpty(serviceOrderApplicantList) && !serviceOrderApplicantList.isEmpty()) {
+                    for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
+                        serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
+                        if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
+                            List<Integer> ids = new ArrayList<>();
+                            ids.add(serviceOrderDto.getId());
+                            serviceOrderService.deleteServiceOrderById(ids);
+                            return new Response<Integer>(1, "申请人关联失败.", null);
+                        }
+                    }
+                } else {
+                    List<Integer> ids = new ArrayList<>();
+                    ids.add(serviceOrderDto.getId());
+                    serviceOrderService.deleteServiceOrderById(ids);
+                    return new Response<Integer>(1, "申请人参数错误.", null);
+                }
+                if (serviceOrderJson != null && serviceOrderJson.size() > 0) {
+                    for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
+                        serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                         addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                     }
                 }
@@ -1402,7 +1397,7 @@ public class ServiceOrderManageController extends BaseController {
 
             if (id != null && id > 0) {
                 List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
-                ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+                ServiceOrderDTO serviceOrder = serviceOrderManageService.getServiceOrderById(id);
                 if ((serviceOrder != null && ((adviserId != null && serviceOrder.getAdviserId() == adviserId)
                         || (officialId != null && serviceOrder.getOfficialId() == officialId)))
                         || isSuperAdminUser(request) || getOfficialAdminId(request) != null || getKjId(request) != null)
@@ -1414,12 +1409,12 @@ public class ServiceOrderManageController extends BaseController {
                  */
                 return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
             }
-            int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
+            int total = serviceOrderManageService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
                     adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
                     isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, isSettle, bindingList, courseId, tradingName, schoolLocation);
-            List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
+            List<ServiceOrderDTO> serviceOrderList = serviceOrderManageService.listServiceOrder(type, excludeTypeList,
                     excludeState, stateList, auditingState, reviewStateList, urgentState, startMaraApprovalDate,
                     endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
                     endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
@@ -1430,7 +1425,7 @@ public class ServiceOrderManageController extends BaseController {
             }
             if (newOfficialId != null)
                 for (ServiceOrderDTO so : serviceOrderList)
-                    so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+//                    so.setOfficialNotes(serviceOrderManageService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
             /*
              * if (newOfficialId != null){ for (ServiceOrderDTO so : serviceOrderList) {
              * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.
@@ -3430,7 +3425,7 @@ public class ServiceOrderManageController extends BaseController {
             return new Response<ServiceOrderDTO>(1, "id不正确:" + id, null);
         ServiceOrderDTO serviceOrderDto;
         try {
-            serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+            serviceOrderDto = serviceOrderManageService.getServiceOrderById(id);
             if (ObjectUtil.isNull(serviceOrderDto)) {
                 return new Response<ServiceOrderDTO>(1, "服务订单不存在:" + id, null);
             }
@@ -4813,7 +4808,7 @@ public class ServiceOrderManageController extends BaseController {
             String peopleType = serviceOrderJsonRequest.getPeopleType();
             String peopleRemarks = serviceOrderJsonRequest.getPeopleRemarks();
             String serviceId = serviceOrderJsonRequest.getServiceId();
-            Integer schoolId = Integer.valueOf(serviceOrderJsonRequest.getSchoolId());
+            Integer schoolId = serviceOrderJsonRequest.getSchoolId();
             Integer schoolInstitutionLocationId = serviceOrderJsonRequest.getSchoolInstitutionLocationId();
             String isSettle = serviceOrderJsonRequest.getIsSettle();
             Integer courseId = serviceOrderJsonRequest.getCourseId();
@@ -4854,7 +4849,7 @@ public class ServiceOrderManageController extends BaseController {
             String isHistory = serviceOrderJsonRequest.getIsHistory();
             String nutCloud = serviceOrderJsonRequest.getNutCloud();
             String serviceAssessId = serviceOrderJsonRequest.getServiceAssessId();
-            String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantListJson();
+            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = serviceOrderJsonRequest.getServiceOrderApplicantList();
             String serviceAssessCategoryId = serviceOrderJsonRequest.getServiceAssessCategoryId();
             String verifyCode = serviceOrderJsonRequest.getVerifyCode();
             String refNo = serviceOrderJsonRequest.getRefNo();
@@ -5004,10 +4999,7 @@ public class ServiceOrderManageController extends BaseController {
                     && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
                 return new Response(1, "没有选择职业!");
             }
-            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
-            if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
-                serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
-                        ServiceOrderApplicantDTO.class);
+            if (serviceOrderApplicantList != null) {
                 if (servicePackageIds != null) {
                     if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1 && !servicePackageIds.contains("-")) {
                         serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
@@ -5080,13 +5072,12 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
             }
-//            if (serviceService.getServiceById(serviceOrderDto.getServiceId()).getCode().contains("500")) {
-//                isScore(serviceOrderDto, score);
-//            }
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                serviceOrderAndManage.setServiceOrderManageId(addResult);
+                serviceOrderAndManage.setServiceOrderManageId(manageId);
+                serviceOrderAndManage.setServiceOrderId(addResult);
+                serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
                 if (adminUserLoginInfo != null)
@@ -5210,6 +5201,8 @@ public class ServiceOrderManageController extends BaseController {
                             serviceOrderDto.setServiceAssessId(s);
                             int i = serviceOrderService.addServiceOrder(serviceOrderDto);
                             if (i > 0 && adminUserLoginInfo != null) {
+                                serviceOrderAndManage.setServiceOrderId(i);
+                                int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                                 serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                         ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
                                 serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
@@ -5221,7 +5214,10 @@ public class ServiceOrderManageController extends BaseController {
                     } else if (serviceOrderApplicantList.size() > 1) {
                         serviceOrderDto.setId(0);
                         serviceOrderDto.setVerifyCode(null);
-                        if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                        if (i > 0 && adminUserLoginInfo != null) {
+                            serviceOrderAndManage.setServiceOrderId(i);
+                            int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                             serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                     ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
                             serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
@@ -5247,7 +5243,10 @@ public class ServiceOrderManageController extends BaseController {
                         if (StringUtil.isNotEmpty(institutionTradingName2))
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName2);
                     }
-                    if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                    int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                    if (i > 0 && adminUserLoginInfo != null) {
+                        serviceOrderAndManage.setServiceOrderId(i);
+                        int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -5276,7 +5275,10 @@ public class ServiceOrderManageController extends BaseController {
                         if (StringUtil.isNotEmpty(institutionTradingName3))
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName3);
                     }
-                    if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                    int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                    if (i > 0 && adminUserLoginInfo != null) {
+                        serviceOrderAndManage.setServiceOrderId(i);
+                        int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -5305,7 +5307,10 @@ public class ServiceOrderManageController extends BaseController {
                         if (StringUtil.isNotEmpty(institutionTradingName4))
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName4);
                     }
-                    if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                    int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                    if (i > 0 && adminUserLoginInfo != null) {
+                        serviceOrderAndManage.setServiceOrderId(i);
+                        int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -5334,7 +5339,10 @@ public class ServiceOrderManageController extends BaseController {
                         if (StringUtil.isNotEmpty(institutionTradingName5))
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName5);
                     }
-                    if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                    int i = serviceOrderService.addServiceOrder(serviceOrderDto);
+                    if (i > 0 && adminUserLoginInfo != null) {
+                        serviceOrderAndManage.setServiceOrderId(i);
+                        int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
