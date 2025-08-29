@@ -360,9 +360,9 @@ public class OfficialController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addOfficialEvaluate(@RequestParam(value = "officialId") Integer officialId,
 											 @RequestParam(value = "adviserId") Integer adviserId,
-											 @RequestParam(value = "professionalism") Integer professionalism,
-											 @RequestParam(value = "accuracy") Integer accuracy,
-											 @RequestParam(value = "timelyCommunication") Integer timelyCommunication,
+											 @RequestParam(value = "professionalism") String professionalism,
+											 @RequestParam(value = "accuracy") String accuracy,
+											 @RequestParam(value = "timelyCommunication") String timelyCommunication,
 											 @RequestParam(value = "collaborationTime") String collaborationTime,
 											 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
 											 @RequestParam(value = "remark", required = false) String remark,
@@ -393,6 +393,56 @@ public class OfficialController extends BaseController {
 			officialEvaluate.setRemark(remark);
 		}
 		int addRe = officialService.addOfficialEvaluate(officialEvaluate);
+		if (addRe > 0) {
+			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+		} else {
+			return new Response<Integer>(1, "添加失败.");
+		}
+	}
+
+
+	// 添加文案评分
+	@RequestMapping(value = "/updateOfficialEvaluate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficialEvaluate(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "officialId") Integer officialId,
+												 @RequestParam(value = "adviserId") Integer adviserId,
+												 @RequestParam(value = "professionalism") String professionalism,
+												 @RequestParam(value = "accuracy") String accuracy,
+												 @RequestParam(value = "timelyCommunication") String timelyCommunication,
+												 @RequestParam(value = "collaborationTime") String collaborationTime,
+												 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
+												 @RequestParam(value = "remark", required = false) String remark,
+												 HttpServletRequest request) {
+		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
+		if (id != null) {
+			officialEvaluate.setId(id);
+		}
+		if (officialId != null) {
+			officialEvaluate.setOfficialId(officialId);
+		}
+		if (adviserId != null) {
+			officialEvaluate.setAdviserId(adviserId);
+		}
+		if (professionalism != null) {
+			officialEvaluate.setProfessionalism(professionalism);
+		}
+		if (accuracy != null) {
+			officialEvaluate.setAccuracy(accuracy);
+		}
+		if (timelyCommunication != null) {
+			officialEvaluate.setTimelyCommunication(timelyCommunication);
+		}
+		if (collaborationTime != null) {
+			officialEvaluate.setCollaborationTime(collaborationTime);
+		}
+		if (reasonLowScore != null) {
+			officialEvaluate.setReasonLowScore(reasonLowScore);
+		}
+		if (remark != null) {
+			officialEvaluate.setRemark(remark);
+		}
+		int addRe = officialService.updateOfficialEvaluate(officialEvaluate);
 		if (addRe > 0) {
 			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
 		} else {

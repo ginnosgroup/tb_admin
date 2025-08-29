@@ -17,11 +17,11 @@ public class OfficialEvaluate implements Serializable {
 
     private Integer adviserId;
 
-    private Integer professionalism;
+    private String professionalism;
 
-    private Integer accuracy;
+    private String accuracy;
 
-    private Integer timelyCommunication;
+    private String timelyCommunication;
 
     private String collaborationTime;
 

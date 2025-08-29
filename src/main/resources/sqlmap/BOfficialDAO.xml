@@ -90,6 +90,37 @@
         </if>
         WHERE id = #{id};
     </update>
+    <update id="updateOfficialEvaluate">
+        update b_official_evaluate set SET gmt_modify = now()
+        <if test='officialId != null'>
+            , official_id = #{officialId}
+        </if>
+        <if test='adviserId != null'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='professionalism != null and professionalism != ""'>
+            , professionalism = #{professionalism}
+        </if>
+        <if test='accuracy != null and accuracy != ""'>
+            , accuracy = #{accuracy}
+        </if>
+        <if test='accuracy != null and accuracy != ""'>
+            , accuracy = #{accuracy}
+        </if>
+        <if test='timelyCommunication != null and timelyCommunication != ""'>
+            , timely_communication = #{timelyCommunication}
+        </if>
+        <if test='collaborationTime != null and collaborationTime != ""'>
+            , collaboration_time = #{collaborationTime}
+        </if>
+        <if test='reasonLowScore != null and reasonLowScore != ""'>
+            , reason_low_score = #{reasonLowScore}
+        </if>
+        <if test='remark != null and remark != ""'>
+            , remark = #{remark}
+        </if>
+        where id = #{id}
+    </update>
 
     <select id="countOfficial" resultType="java.lang.Integer">
         SELECT count(*)

@@ -28,4 +28,6 @@ public interface OfficialService {
 	int countOfficialEvaluate(List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime);
 
 
+	int updateOfficialEvaluate(OfficialEvaluate officialEvaluate);
+
 }

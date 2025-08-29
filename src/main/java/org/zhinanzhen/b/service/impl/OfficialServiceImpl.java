@@ -201,4 +201,9 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	public int countOfficialEvaluate(List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime) {
 		return officialDao.countOfficialEvaluate(officialIds, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime));
 	}
+
+	@Override
+	public int updateOfficialEvaluate(OfficialEvaluate officialEvaluate) {
+		return officialDao.updateOfficialEvaluate(officialEvaluate);
+	}
 }

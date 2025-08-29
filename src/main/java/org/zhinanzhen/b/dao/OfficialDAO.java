@@ -34,4 +34,6 @@ public interface OfficialDAO {
 
 	int countOfficialEvaluate(@Param("officialIds")List<Integer> officialIds, @Param("adviserId")Integer adviserId, @Param("startCollaborationTime")String startCollaborationTime, @Param("endCollaborationTime")String endCollaborationTime);
 
+	int updateOfficialEvaluate(OfficialEvaluate officialEvaluate);
+
 }
