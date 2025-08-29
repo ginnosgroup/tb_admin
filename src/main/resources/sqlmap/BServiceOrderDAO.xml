@@ -1538,6 +1538,13 @@
            or applicant_parent_id = (SELECT applicant_parent_id FROM `tbdb`.`b_service_order` WHERE `id` = #{serviceOrderId}))
         and (id != #{serviceOrderId})
     </select>
+    <select id="listCooperationOfficial" resultType="java.lang.Integer">
+        select official_id from b_service_order
+        where
+            adviser_id = #{adviserId}
+        and (gmt_create between #{startCollaborationTime} and #{endCollaborationTime})
+        group by official_id
+    </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>

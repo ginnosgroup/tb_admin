@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service;
 
 import java.util.List;
 
+import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -19,4 +20,12 @@ public interface OfficialService {
 	public OfficialDTO getOfficialById(int id) throws ServiceException;
 
 	int updateWorkState(OfficialDTO officialDTO) throws ServiceException;
+
+    int addOfficialEvaluate(OfficialEvaluate officialEvaluate);
+
+	List<OfficialEvaluate> listOfficialEvaluate(List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime, Integer pageNum, Integer pageSize);
+
+	int countOfficialEvaluate(List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime);
+
+
 }

@@ -32,6 +32,31 @@
                 #{workState},
                 #{gradeId});
     </insert>
+    <insert id="addOfficialEvaluate" parameterType="org.zhinanzhen.b.dao.pojo.OfficialEvaluate" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+        INTO b_official_evaluate (
+            gmt_create,
+            gmt_modify,
+            adviser_id,
+            official_id,
+            professionalism,
+            accuracy,
+            timely_communication,
+            collaboration_time,
+            reason_low_score,
+            remark)
+        VALUES (
+                   now(),
+                   now(),
+                   #{adviserId},
+                   #{officialId},
+                   #{professionalism},
+                   #{accuracy},
+                   #{timelyCommunication},
+                   #{collaborationTime},
+                   #{reasonLowScore},
+                   #{remark});
+    </insert>
 
     <update id="updateOfficial" parameterType="org.zhinanzhen.b.dao.pojo.OfficialDO">
         UPDATE b_official 
@@ -209,6 +234,55 @@
             is_official_admin = 1
           and official_id = #{id, jdbcType=INTEGER};
 
+    </select>
+    <select id="listOfficialEvaluate" resultType="org.zhinanzhen.b.dao.pojo.OfficialEvaluate">
+        SELECT
+            *
+        FROM
+            b_official_evaluate
+        WHERE
+            1 = 1
+        <if test='officialIds != null and officialIds.isEmpty()'>
+            AND official_id IN
+            <foreach item="item" collection="officialIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='startCollaborationTime != null and startCollaborationTime != ""'>
+            AND (gmt_create between #{startCollaborationTime} and #{endCollaborationTime})
+        </if>
+<!--        <if test='endCollaborationTime != null and endCollaborationTime != ""'>-->
+<!--            AND gmt_create <= #{endCollaborationTime}-->
+<!--        </if>-->
+        ORDER BY
+            gmt_create DESC
+        LIMIT #{pageNum}, #{pageSize};
+    </select>
+    <select id="countOfficialEvaluate" resultType="java.lang.Integer">
+        SELECT
+            count(*)
+        FROM
+            b_official_evaluate
+        WHERE
+            1 = 1
+        <if test='officialIds != null and officialIds.isEmpty()'>
+            AND official_id IN
+            <foreach item="item" collection="officialIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test='adviserId != null and adviserId != ""'>
+            AND adviser_id = #{adviserId}
+        </if>
+<!--        <if test='startCollaborationTime != null and startCollaborationTime != ""'>-->
+<!--            AND gmt_create >= #{startCollaborationTime}-->
+<!--        </if>-->
+<!--        <if test='endCollaborationTime != null and endCollaborationTime != ""'>-->
+<!--            AND gmt_create <= #{endCollaborationTime}-->
+<!--        </if>-->
     </select>
 
 

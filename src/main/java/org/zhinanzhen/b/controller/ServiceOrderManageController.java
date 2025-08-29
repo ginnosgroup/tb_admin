@@ -4803,7 +4803,16 @@ public class ServiceOrderManageController extends BaseController {
             Integer manageId = serviceOrderJsonRequest.getManageId();
             String type = serviceOrderJsonRequest.getType();
             String isPay = serviceOrderJsonRequest.getIsPay();
-            String servicePackageIds = serviceOrderJsonRequest.getServicePackageIds();
+            String servicePackageIds = "";
+            List<String> servicePackageIdsList = serviceOrderJsonRequest.getServicePackageIds();
+            if (servicePackageIdsList != null && !servicePackageIdsList.isEmpty()) {
+                servicePackageIds = String.join(",", servicePackageIdsList.stream().map(String::valueOf).toArray(String[]::new));
+            }
+            String servicePackageIdsEOI = "";
+            List<String> servicePackageIdsEOIListT = serviceOrderJsonRequest.getServicePackageIdsEOI();
+            if (servicePackageIdsEOIListT != null && !servicePackageIdsEOIListT.isEmpty()) {
+                servicePackageIdsEOI = String.join(",", servicePackageIdsEOIListT.stream().map(String::valueOf).toArray(String[]::new));
+            }
             Integer peopleNumber = serviceOrderJsonRequest.getPeopleNumber();
             String peopleType = serviceOrderJsonRequest.getPeopleType();
             String peopleRemarks = serviceOrderJsonRequest.getPeopleRemarks();
@@ -4858,7 +4867,6 @@ public class ServiceOrderManageController extends BaseController {
             String institutionTradingName3 = serviceOrderJsonRequest.getInstitutionTradingName3();
             String institutionTradingName4 = serviceOrderJsonRequest.getInstitutionTradingName4();
             String institutionTradingName5 = serviceOrderJsonRequest.getInstitutionTradingName5();
-            String servicePackageIdsEOI = serviceOrderJsonRequest.getServicePackageIdsEOI();
             String expectTimeEnrollment = serviceOrderJsonRequest.getExpectTimeEnrollment();
             Boolean isApplyVisa = serviceOrderJsonRequest.getIsApplyVisa();
             Integer bindingOrderId = serviceOrderJsonRequest.getBindingOrderId();

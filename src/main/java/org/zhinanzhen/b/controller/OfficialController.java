@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.OfficialGradeDTO;
@@ -352,5 +353,73 @@ public class OfficialController extends BaseController {
 			return new Response<>(0, "fail");
 		}
 		return new Response<>(0, "success");
+	}
+
+	// 添加文案评分
+	@RequestMapping(value = "/addOfficialEvaluate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addOfficialEvaluate(@RequestParam(value = "officialId") Integer officialId,
+											 @RequestParam(value = "adviserId") Integer adviserId,
+											 @RequestParam(value = "professionalism") Integer professionalism,
+											 @RequestParam(value = "accuracy") Integer accuracy,
+											 @RequestParam(value = "timelyCommunication") Integer timelyCommunication,
+											 @RequestParam(value = "collaborationTime") String collaborationTime,
+											 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
+											 @RequestParam(value = "remark", required = false) String remark,
+											 HttpServletRequest request) {
+		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
+		if (officialId != null) {
+			officialEvaluate.setOfficialId(officialId);
+		}
+		if (adviserId != null) {
+			officialEvaluate.setAdviserId(adviserId);
+		}
+		if (professionalism != null) {
+			officialEvaluate.setProfessionalism(professionalism);
+		}
+		if (accuracy != null) {
+			officialEvaluate.setAccuracy(accuracy);
+		}
+		if (timelyCommunication != null) {
+			officialEvaluate.setTimelyCommunication(timelyCommunication);
+		}
+		if (collaborationTime != null) {
+			officialEvaluate.setCollaborationTime(collaborationTime);
+		}
+		if (reasonLowScore != null) {
+			officialEvaluate.setReasonLowScore(reasonLowScore);
+		}
+		if (remark != null) {
+			officialEvaluate.setRemark(remark);
+		}
+		int addRe = officialService.addOfficialEvaluate(officialEvaluate);
+		if (addRe > 0) {
+			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+		} else {
+			return new Response<Integer>(1, "添加失败.");
+		}
+	}
+
+
+	@RequestMapping(value = "/listOfficialEvaluate", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<OfficialEvaluate>> addOfficialEvaluate(@RequestParam(value = "officialId", required = false) Integer officialId,
+												 @RequestParam(value = "adviserId", required = false) Integer adviserId,
+												 @RequestParam(value = "startCollaborationTime", required = false) String startCollaborationTime,
+												 @RequestParam(value = "endCollaborationTime", required = false) String endCollaborationTime,
+												 @RequestParam(value = "pageNum") Integer pageNum, @RequestParam(value = "pageSize") Integer pageSize,
+												 HttpServletRequest request) {
+		List<Integer> officialIds = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+		int total = officialService.countOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime);
+		List<OfficialEvaluate> officialEvaluates = officialService.listOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime, pageNum, pageSize);
+		if (officialEvaluates != null) {
+			String isSuccess = "false";
+			if (officialIds.size() == officialEvaluates.size()) {
+				isSuccess = "true";
+			}
+			return new ListResponse<List<OfficialEvaluate>>(true, pageSize, total, officialEvaluates, isSuccess);
+		} else {
+			return new ListResponse<List<OfficialEvaluate>>(false, pageSize, total, null, "");
+		}
 	}
 }

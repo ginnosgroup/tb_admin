@@ -143,4 +143,7 @@ public interface ServiceOrderDAO {
 
     List<ServiceOrderDO> getWebLogServiceOrder(@Param("serviceOrderId") Integer serviceOrderId);
 
+    List<Integer> listCooperationOfficial(@Param("adviserId")Integer adviserId, @Param("startCollaborationTime")String startCollaborationTime, @Param("endCollaborationTime")String endCollaborationTime);
+
+
 }

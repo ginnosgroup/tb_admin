@@ -2965,6 +2965,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         return serviceOrderDao.getZiOrder(serviceOrderId);
     }
 
+    @Override
+    public List<Integer> listCooperationOfficial(Integer adviserId, String startCollaborationTime, String endCollaborationTime) {
+        return serviceOrderDao.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+    }
+
 
     private String getPeopleTypeStr(String peopleType) {
         if ("1A".equalsIgnoreCase(peopleType))

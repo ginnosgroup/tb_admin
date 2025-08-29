@@ -58,8 +58,8 @@ public class ServiceOrderJsonRequest {
     private String userId;
     private String applicantId;
     private String applicantBirthday;
-    private String servicePackageIdsEOI;
-    private String servicePackageIds;
+    private List<String> servicePackageIdsEOI;
+    private List<String> servicePackageIds;
     private String maraId;
     private String adviserId;
     private String officialId;

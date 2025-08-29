@@ -90,4 +90,7 @@ public interface ServiceOrderService {
 	ViewBalanceDTO viewBalance(Integer userId);
 
 	List<ServiceOrderDTO> getZiServiceOrderById(int serviceOrderId);
+
+	List<Integer> listCooperationOfficial(Integer adviserId, String startCollaborationTime, String endCollaborationTime);
+
 }

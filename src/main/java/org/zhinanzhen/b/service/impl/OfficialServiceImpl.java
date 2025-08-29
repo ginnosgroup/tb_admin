@@ -1,14 +1,17 @@
 package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.OfficialGradeDao;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.dao.pojo.OfficialGradeDO;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
@@ -182,5 +185,20 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+    @Override
+    public int addOfficialEvaluate(OfficialEvaluate officialEvaluate) {
+        return officialDao.addOfficialEvaluate(officialEvaluate);
+    }
+
+	@Override
+	public List<OfficialEvaluate> listOfficialEvaluate(@Param("officialIds")List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime, Integer pageNum, Integer pageSize) {
+		return officialDao.listOfficialEvaluate(officialIds, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime), pageNum * pageSize, pageSize);
+	}
+
+	@Override
+	public int countOfficialEvaluate(List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime) {
+		return officialDao.countOfficialEvaluate(officialIds, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime));
 	}
 }
