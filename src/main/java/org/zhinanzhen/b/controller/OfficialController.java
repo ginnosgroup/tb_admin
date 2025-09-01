@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.*;
@@ -450,6 +451,41 @@ public class OfficialController extends BaseController {
 		}
 	}
 
+
+	@RequestMapping(value = "/listcooperationEvaluate", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<OfficialDTO>> listcooperationEvaluate(@RequestParam(value = "adviserId", required = false) Integer adviserId,
+																  @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
+																  HttpServletRequest request) {
+		try {
+			// 解析年月字符串
+			YearMonth yearMonth = YearMonth.parse(collaborationTime, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+			// 获取月初第一天 00:00:00
+			LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+			// 获取月末最后一天 23:59:59
+			LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+			// 创建格式化器
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+			// 格式化为字符串
+			String startCollaborationTime = startOfMonth.format(formatter);
+			String endCollaborationTime = endOfMonth.format(formatter);
+
+			List<OfficialDTO> officialDOS = new ArrayList<>();
+			List<Integer> integers = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+			for (Integer integer : integers) {
+				OfficialDTO officialById = officialService.getOfficialById(integer);
+				officialDOS.add(officialById);
+			}
+			return new Response<List<OfficialDTO>>(0, "", officialDOS);
+		} catch (ServiceException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 	@RequestMapping(value = "/listOfficialEvaluate", method = RequestMethod.GET)
 	@ResponseBody
