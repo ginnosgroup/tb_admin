@@ -488,7 +488,7 @@ public class OfficialController extends BaseController {
 					OfficialDTO officialById = officialService.getOfficialById(integer);
 					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
 					if (officialEvaluate != null) {
-						officialById.setIsEvaluate(true);
+						officialById.setOfficialEvaluate(officialEvaluate);
 						count++;
 					}
 					officialDOS.add(officialById);

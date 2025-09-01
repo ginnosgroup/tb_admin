@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
 
+import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 
@@ -40,5 +41,5 @@ public class OfficialDTO {
 
 	private Boolean isOfficialAdmin;
 
-	private Boolean isEvaluate = false;
+	private OfficialEvaluate officialEvaluate;
 }
