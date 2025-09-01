@@ -315,6 +315,23 @@
 <!--            AND gmt_create <= #{endCollaborationTime}-->
 <!--        </if>-->
     </select>
+    <select id="getOfficialEvaluate" resultType="org.zhinanzhen.b.dao.pojo.OfficialEvaluate">
+        SELECT
+            *
+        FROM
+            b_official_evaluate
+        WHERE
+            1 = 1
+        <if test='officialId != null'>
+            AND official_id = #{officialId}
+        </if>
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='startCollaborationTime != null and startCollaborationTime != ""'>
+            AND (collaboration_time between #{startCollaborationTime} and #{endCollaborationTime})
+        </if>
+    </select>
 
 
 </mapper>

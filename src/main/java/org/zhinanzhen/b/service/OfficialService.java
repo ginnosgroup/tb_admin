@@ -30,4 +30,6 @@ public interface OfficialService {
 
 	int updateOfficialEvaluate(OfficialEvaluate officialEvaluate);
 
+	OfficialEvaluate getOfficialEvaluate(Integer integer, Integer adviserId, String startCollaborationTime, String endCollaborationTime);
+
 }

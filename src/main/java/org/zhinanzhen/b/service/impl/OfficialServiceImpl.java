@@ -1,5 +1,10 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -189,7 +194,28 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 
     @Override
     public int addOfficialEvaluate(OfficialEvaluate officialEvaluate) {
-        return officialDao.addOfficialEvaluate(officialEvaluate);
+		String collaborationTime = officialEvaluate.getCollaborationTime();
+		String dateStr = convertToYearMonth(collaborationTime);
+		// 解析年月字符串
+		YearMonth yearMonth = YearMonth.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+		// 获取月初第一天 00:00:00
+		LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+		// 获取月末最后一天 23:59:59
+		LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+		// 创建格式化器
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+		// 格式化为字符串
+		String startCollaborationTime = startOfMonth.format(formatter);
+		String endCollaborationTime = endOfMonth.format(formatter);
+		OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), startCollaborationTime, endCollaborationTime);
+		if (officialEvaluate1 != null) {
+			return -1;
+		}
+		return officialDao.addOfficialEvaluate(officialEvaluate);
     }
 
 	@Override
@@ -205,5 +231,38 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	@Override
 	public int updateOfficialEvaluate(OfficialEvaluate officialEvaluate) {
 		return officialDao.updateOfficialEvaluate(officialEvaluate);
+	}
+
+	@Override
+	public OfficialEvaluate getOfficialEvaluate(Integer integer, Integer adviserId, String startCollaborationTime, String endCollaborationTime) {
+		return officialDao.getOfficialEvaluate(integer, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime));
+	}
+
+	public String convertToYearMonth(String dateStr) {
+		try {
+			// 尝试解析为日期时间格式
+			DateTimeFormatter[] formatters = {
+					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+					DateTimeFormatter.ofPattern("yyyy-MM-dd")
+			};
+
+			for (DateTimeFormatter formatter : formatters) {
+				try {
+					if (dateStr.length() == 10) { // yyyy-MM-dd
+						LocalDate date = LocalDate.parse(dateStr, formatter);
+						return date.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+					} else { // yyyy-MM-dd HH:mm:ss
+						LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter);
+						return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+					}
+				} catch (DateTimeParseException e) {
+					// 尝试下一种格式
+					continue;
+				}
+			}
+			throw new IllegalArgumentException("不支持的日期格式: " + dateStr);
+		} catch (Exception e) {
+			throw new IllegalArgumentException("日期解析失败: " + dateStr, e);
+		}
 	}
 }

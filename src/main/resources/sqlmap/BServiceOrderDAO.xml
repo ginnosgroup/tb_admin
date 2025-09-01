@@ -1543,6 +1543,7 @@
         where
             adviser_id = #{adviserId}
         and (gmt_create between #{startCollaborationTime} and #{endCollaborationTime})
+        and official_id != 0
         group by official_id
     </select>
 

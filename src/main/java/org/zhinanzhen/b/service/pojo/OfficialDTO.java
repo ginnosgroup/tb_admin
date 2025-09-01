@@ -39,4 +39,6 @@ public class OfficialDTO {
 	private RegionDO regionDo;
 
 	private Boolean isOfficialAdmin;
+
+	private Boolean isEvaluate = false;
 }

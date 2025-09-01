@@ -396,13 +396,15 @@ public class OfficialController extends BaseController {
 		int addRe = officialService.addOfficialEvaluate(officialEvaluate);
 		if (addRe > 0) {
 			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+		} else if (addRe == -1) {
+			return new Response<Integer>(1, "该月已添加评分.");
 		} else {
 			return new Response<Integer>(1, "添加失败.");
 		}
 	}
 
 
-	// 添加文案评分
+	// 修改文案评分
 	@RequestMapping(value = "/updateOfficialEvaluate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateOfficialEvaluate(@RequestParam(value = "id") Integer id,
@@ -452,7 +454,7 @@ public class OfficialController extends BaseController {
 	}
 
 
-	@RequestMapping(value = "/listcooperationEvaluate", method = RequestMethod.GET)
+	@RequestMapping(value = "/listCooperationEvaluate", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<List<OfficialDTO>> listcooperationEvaluate(@RequestParam(value = "adviserId", required = false) Integer adviserId,
 																  @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
@@ -480,14 +482,22 @@ public class OfficialController extends BaseController {
 			List<Integer> officials = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
 			if (officials != null) {
 				for (Integer integer : officials) {
+					if (integer == 0) {
+						continue;
+					}
 					OfficialDTO officialById = officialService.getOfficialById(integer);
+					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
+					if (officialEvaluate != null) {
+						officialById.setIsEvaluate(true);
+						count++;
+					}
 					officialDOS.add(officialById);
 				}
-				int i = officialService.countOfficialEvaluate(officials, adviserId, startCollaborationTime, endCollaborationTime);
-				if (officials.size() == i) {
+				if (count == officials.size() && count != 0) {
 					isAllCooperation = "true";
 				}
 			}
+
 			return new Response<List<OfficialDTO>>(0, isAllCooperation, officialDOS);
 		} catch (ServiceException e) {
             throw new RuntimeException(e);
