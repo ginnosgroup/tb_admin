@@ -2,6 +2,9 @@ package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -454,6 +457,7 @@ public class OfficialController extends BaseController {
 												 @RequestParam(value = "adviserId", required = false) Integer adviserId,
 												 @RequestParam(value = "startCollaborationTime", required = false) String startCollaborationTime,
 												 @RequestParam(value = "endCollaborationTime", required = false) String endCollaborationTime,
+												 @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
 												 @RequestParam(value = "pageNum") Integer pageNum, @RequestParam(value = "pageSize") Integer pageSize,
 												 HttpServletRequest request) {
 		Integer adviserId1 = getAdviserId(request);
@@ -468,6 +472,23 @@ public class OfficialController extends BaseController {
 		}
 		if (officialIds.isEmpty()) {
 			officialIds = null;
+		}
+		if (collaborationTime != null) {
+			// 解析年月字符串
+			YearMonth yearMonth = YearMonth.parse(collaborationTime, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+			// 获取月初第一天 00:00:00
+			LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+			// 获取月末最后一天 23:59:59
+			LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+			// 创建格式化器
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+			// 格式化为字符串
+			startCollaborationTime = startOfMonth.format(formatter);
+			endCollaborationTime = endOfMonth.format(formatter);
 		}
 		int total = officialService.countOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime);
 		List<OfficialEvaluate> officialEvaluates = officialService.listOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime, pageNum, pageSize);
