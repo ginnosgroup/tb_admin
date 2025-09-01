@@ -458,6 +458,8 @@ public class OfficialController extends BaseController {
 																  @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
 																  HttpServletRequest request) {
 		try {
+			String isAllCooperation = "false";
+			int count = 0;
 			// 解析年月字符串
 			YearMonth yearMonth = YearMonth.parse(collaborationTime, DateTimeFormatter.ofPattern("yyyy-MM"));
 
@@ -475,12 +477,18 @@ public class OfficialController extends BaseController {
 			String endCollaborationTime = endOfMonth.format(formatter);
 
 			List<OfficialDTO> officialDOS = new ArrayList<>();
-			List<Integer> integers = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
-			for (Integer integer : integers) {
-				OfficialDTO officialById = officialService.getOfficialById(integer);
-				officialDOS.add(officialById);
+			List<Integer> officials = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+			if (officials != null) {
+				for (Integer integer : officials) {
+					OfficialDTO officialById = officialService.getOfficialById(integer);
+					officialDOS.add(officialById);
+				}
+				int i = officialService.countOfficialEvaluate(officials, adviserId, startCollaborationTime, endCollaborationTime);
+				if (officials.size() == i) {
+					isAllCooperation = "true";
+				}
 			}
-			return new Response<List<OfficialDTO>>(0, "", officialDOS);
+			return new Response<List<OfficialDTO>>(0, isAllCooperation, officialDOS);
 		} catch (ServiceException e) {
             throw new RuntimeException(e);
         }
