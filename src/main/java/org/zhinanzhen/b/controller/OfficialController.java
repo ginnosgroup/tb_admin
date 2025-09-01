@@ -2,10 +2,7 @@ package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -459,12 +456,24 @@ public class OfficialController extends BaseController {
 												 @RequestParam(value = "endCollaborationTime", required = false) String endCollaborationTime,
 												 @RequestParam(value = "pageNum") Integer pageNum, @RequestParam(value = "pageSize") Integer pageSize,
 												 HttpServletRequest request) {
-		List<Integer> officialIds = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+		Integer adviserId1 = getAdviserId(request);
+		if (adviserId1 != null) {
+			adviserId = adviserId1;
+		}
+		List<Integer> officialIds = new ArrayList<>();
+		if (officialId == null) {
+			officialIds = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+		} else {
+			officialIds.add(officialId);
+		}
+		if (officialIds.isEmpty()) {
+			officialIds = null;
+		}
 		int total = officialService.countOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime);
 		List<OfficialEvaluate> officialEvaluates = officialService.listOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime, pageNum, pageSize);
 		if (officialEvaluates != null) {
 			String isSuccess = "false";
-			if (officialIds.size() == officialEvaluates.size()) {
+			if (officialIds != null && officialIds.size() == officialEvaluates.size()) {
 				isSuccess = "true";
 			}
 			return new ListResponse<List<OfficialEvaluate>>(true, pageSize, total, officialEvaluates, isSuccess);

@@ -273,7 +273,7 @@
             b_official_evaluate
         WHERE
             1 = 1
-        <if test='officialIds != null and officialIds.isEmpty()'>
+        <if test='officialIds != null'>
             AND official_id IN
             <foreach item="item" collection="officialIds" open="(" close=")" separator=",">
                 #{item}
@@ -283,11 +283,8 @@
             AND adviser_id = #{adviserId}
         </if>
         <if test='startCollaborationTime != null and startCollaborationTime != ""'>
-            AND (gmt_create between #{startCollaborationTime} and #{endCollaborationTime})
+            AND (collaboration_time between #{startCollaborationTime} and #{endCollaborationTime})
         </if>
-<!--        <if test='endCollaborationTime != null and endCollaborationTime != ""'>-->
-<!--            AND gmt_create <= #{endCollaborationTime}-->
-<!--        </if>-->
         ORDER BY
             gmt_create DESC
         LIMIT #{pageNum}, #{pageSize};
@@ -299,7 +296,7 @@
             b_official_evaluate
         WHERE
             1 = 1
-        <if test='officialIds != null and officialIds.isEmpty()'>
+        <if test='officialIds != null'>
             AND official_id IN
             <foreach item="item" collection="officialIds" open="(" close=")" separator=",">
                 #{item}
@@ -307,6 +304,9 @@
         </if>
         <if test='adviserId != null and adviserId != ""'>
             AND adviser_id = #{adviserId}
+        </if>
+        <if test='startCollaborationTime != null and startCollaborationTime != ""'>
+            AND (collaboration_time between #{startCollaborationTime} and #{endCollaborationTime})
         </if>
 <!--        <if test='startCollaborationTime != null and startCollaborationTime != ""'>-->
 <!--            AND gmt_create >= #{startCollaborationTime}-->
