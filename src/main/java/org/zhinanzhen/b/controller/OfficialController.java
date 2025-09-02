@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
@@ -392,7 +393,15 @@ public class OfficialController extends BaseController {
 //			officialEvaluate.setRemark(remark);
 //		}
 		for (OfficialEvaluate evaluate : officialEvaluateList) {
-			officialService.addOfficialEvaluate(evaluate);
+			int i = officialService.addOfficialEvaluate(evaluate);
+			if (i == evaluate.getOfficialId()) {
+				try {
+					OfficialDTO officialById = officialService.getOfficialById(evaluate.getOfficialId());
+					return new Response<Integer>(1, "该月 " + officialById.getName() + " 已添加评分.", officialEvaluate.getId());
+				} catch (ServiceException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 		}
 		return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
 //		if (addRe > 0) {
