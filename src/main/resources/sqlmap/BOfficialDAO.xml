@@ -332,6 +332,21 @@
             AND (collaboration_time between #{startCollaborationTime} and #{endCollaborationTime})
         </if>
     </select>
+    <select id="getOfficialByEmail" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO">
+        select
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId,
+            specialty AS specialty,
+            work_state AS workState,
+            grade_id AS gradeId
+        from b_official where email = #{userName}
+    </select>
 
 
 </mapper>

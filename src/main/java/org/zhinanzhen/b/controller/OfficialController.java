@@ -13,11 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
@@ -359,48 +355,53 @@ public class OfficialController extends BaseController {
 	// 添加文案评分
 	@RequestMapping(value = "/addOfficialEvaluate", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Integer> addOfficialEvaluate(@RequestParam(value = "officialId") Integer officialId,
-											 @RequestParam(value = "adviserId") Integer adviserId,
-											 @RequestParam(value = "professionalism") String professionalism,
-											 @RequestParam(value = "accuracy") String accuracy,
-											 @RequestParam(value = "timelyCommunication") String timelyCommunication,
-											 @RequestParam(value = "collaborationTime") String collaborationTime,
-											 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
-											 @RequestParam(value = "remark", required = false) String remark,
+	public Response<Integer> addOfficialEvaluate(@RequestBody List<OfficialEvaluate> officialEvaluateList,
+
+//			@RequestParam(value = "officialId") Integer officialId,
+//											 @RequestParam(value = "adviserId") Integer adviserId,
+//											 @RequestParam(value = "professionalism") String professionalism,
+//											 @RequestParam(value = "accuracy") String accuracy,
+//											 @RequestParam(value = "timelyCommunication") String timelyCommunication,
+//											 @RequestParam(value = "collaborationTime") String collaborationTime,
+//											 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
+//											 @RequestParam(value = "remark", required = false) String remark,
 											 HttpServletRequest request) {
 		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
-		if (officialId != null) {
-			officialEvaluate.setOfficialId(officialId);
+//		if (officialId != null) {
+//			officialEvaluate.setOfficialId(officialId);
+//		}
+//		if (adviserId != null) {
+//			officialEvaluate.setAdviserId(adviserId);
+//		}
+//		if (professionalism != null) {
+//			officialEvaluate.setProfessionalism(professionalism);
+//		}
+//		if (accuracy != null) {
+//			officialEvaluate.setAccuracy(accuracy);
+//		}
+//		if (timelyCommunication != null) {
+//			officialEvaluate.setTimelyCommunication(timelyCommunication);
+//		}
+//		if (collaborationTime != null) {
+//			officialEvaluate.setCollaborationTime(collaborationTime);
+//		}
+//		if (reasonLowScore != null) {
+//			officialEvaluate.setReasonLowScore(reasonLowScore);
+//		}
+//		if (remark != null) {
+//			officialEvaluate.setRemark(remark);
+//		}
+		for (OfficialEvaluate evaluate : officialEvaluateList) {
+			officialService.addOfficialEvaluate(evaluate);
 		}
-		if (adviserId != null) {
-			officialEvaluate.setAdviserId(adviserId);
-		}
-		if (professionalism != null) {
-			officialEvaluate.setProfessionalism(professionalism);
-		}
-		if (accuracy != null) {
-			officialEvaluate.setAccuracy(accuracy);
-		}
-		if (timelyCommunication != null) {
-			officialEvaluate.setTimelyCommunication(timelyCommunication);
-		}
-		if (collaborationTime != null) {
-			officialEvaluate.setCollaborationTime(collaborationTime);
-		}
-		if (reasonLowScore != null) {
-			officialEvaluate.setReasonLowScore(reasonLowScore);
-		}
-		if (remark != null) {
-			officialEvaluate.setRemark(remark);
-		}
-		int addRe = officialService.addOfficialEvaluate(officialEvaluate);
-		if (addRe > 0) {
-			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
-		} else if (addRe == -1) {
-			return new Response<Integer>(1, "该月已添加评分.");
-		} else {
-			return new Response<Integer>(1, "添加失败.");
-		}
+		return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+//		if (addRe > 0) {
+//			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+//		} else if (addRe == -1) {
+//			return new Response<Integer>(1, "该月已添加评分.");
+//		} else {
+//			return new Response<Integer>(1, "添加失败.");
+//		}
 	}
 
 
