@@ -213,7 +213,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		String endCollaborationTime = endOfMonth.format(formatter);
 		OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), startCollaborationTime, endCollaborationTime);
 		if (officialEvaluate1 != null) {
-			return -1;
+			return officialEvaluate1.getOfficialId();
 		}
 		return officialDao.addOfficialEvaluate(officialEvaluate);
     }
