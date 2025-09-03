@@ -43,7 +43,6 @@
             accuracy,
             timely_communication,
             collaboration_time,
-            reason_low_score,
             remark)
         VALUES (
                    now(),
@@ -54,7 +53,6 @@
                    #{accuracy},
                    #{timelyCommunication},
                    #{collaborationTime},
-                   #{reasonLowScore},
                    #{remark});
     </insert>
 
@@ -112,9 +110,6 @@
         </if>
         <if test='collaborationTime != null and collaborationTime != ""'>
             , collaboration_time = #{collaborationTime}
-        </if>
-        <if test='reasonLowScore != null and reasonLowScore != ""'>
-            , reason_low_score = #{reasonLowScore}
         </if>
         <if test='remark != null and remark != ""'>
             , remark = #{remark}
