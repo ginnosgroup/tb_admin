@@ -506,7 +506,7 @@ public class OfficialController extends BaseController {
 						if (adviserById != null) {
 							officialById.setEvaluateAdviser(adviserById.getName());
 						}
-						Double averageScore = officialService.getAverageScore(integer, officialEvaluate.getAdviserId() , collaborationTime, 3);
+						Double averageScore = officialService.getAverageScore(integer, officialEvaluate.getAdviserId() , collaborationTime, 3, false);
 						officialById.setAverageScore(DECIMAL_FORMAT.format(averageScore));
 						officialById.setOfficialEvaluate(officialEvaluate);
 						count++;
@@ -568,8 +568,12 @@ public class OfficialController extends BaseController {
 		List<OfficialEvaluate> officialEvaluates = officialService.listOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime, pageNum, pageSize);
 		if (officialEvaluates != null) {
 			for (OfficialEvaluate officialEvaluate : officialEvaluates) {
+				AdviserDTO adviserById = adviserService.getAdviserById(officialEvaluate.getAdviserId());
+				if (adviserById != null) {
+					officialEvaluate.setEvaluateAdviser(adviserById.getName());
+				}
 				OfficialDTO officialById = officialService.getOfficialById(officialEvaluate.getOfficialId());
-                Double averageScore = officialService.getAverageScore(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), collaborationTime, 1);
+                Double averageScore = officialService.getAverageScore(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), collaborationTime, 1, true);
 				officialEvaluate.setAverageScore(DECIMAL_FORMAT.format(averageScore));
                 officialById.setOfficialEvaluate(officialEvaluate);
 			}

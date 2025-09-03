@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -7,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -44,6 +47,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	private OfficialGradeDao officialGradeDao;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
+
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
 	@Override
 	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
@@ -122,6 +127,38 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			throw se;
 		}
 		for (OfficialDO officialDo : officialDoList) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date();
+			String format = sdf.format(date);
+			String dateStr = convertToYearMonth(format);
+			List<String> previousMonths = getPreviousMonths(dateStr, 3);
+			double averageScore = 0;
+			for (String previousMonth : previousMonths) {
+				// 解析年月字符串
+				YearMonth yearMonth = YearMonth.parse(previousMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+				// 获取月初第一天 00:00:00
+				LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+				// 获取月末最后一天 23:59:59
+				LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+				// 创建格式化器
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+				// 格式化为字符串
+				String startCollaborationTime = startOfMonth.format(formatter);
+				String endCollaborationTime = endOfMonth.format(formatter);
+				List<Integer> objects = new ArrayList<>();
+				objects.add(officialDo.getId());
+				List<OfficialEvaluate> officialEvaluates = officialDao.listOfficialEvaluate(objects, null, startCollaborationTime, endCollaborationTime, 0, 9999);
+				if (officialEvaluates != null && !officialEvaluates.isEmpty()) {
+					for (OfficialEvaluate officialEvaluate : officialEvaluates) {
+						averageScore += extractScoreWithJackson(officialEvaluate);
+					}
+					officialDo.setAverageScore(DECIMAL_FORMAT.format(averageScore/officialEvaluates.size()));
+				}
+			}
 			if (isbuiltOrder) {
 				if (officialDo.getWorkState() != null && officialDo.getWorkState().equalsIgnoreCase("RESIGN"))
 					continue;
@@ -244,8 +281,13 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	}
 
 	@Override
-	public Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths) {
-		List<String> previousMonths = getPreviousMonths(collaborationTime, mounths);
+	public Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths, boolean isCurrentMonth) {
+		List<String> previousMonths = new ArrayList<>();
+		if (isCurrentMonth) {
+			previousMonths = getConsecutiveMonths(collaborationTime, mounths);
+		} else {
+			previousMonths = getPreviousMonths(collaborationTime, mounths);
+		}
 		double averageScore = 0;
 		int averageCount = 0;
 		for (String previousMonth : previousMonths) {
@@ -316,11 +358,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			// 将字符串转换为LocalDate（添加日期部分）
 			LocalDate baseDate = LocalDate.parse(baseMonth + "-01", DateTimeFormatter.ISO_LOCAL_DATE);
 
-			// 从当前月份开始，往前推0到count-1个月
-			for (int i = 0; i < monthsAgo; i++) {
-				LocalDate targetDate = baseDate.minusMonths(i);
-				String targetMonth = targetDate.format(FORMATTER);
-				result.add(targetMonth);
+			for (int i = 1; i <= monthsAgo; i++) {
+				LocalDate previousDate = baseDate.minusMonths(i);
+				String previousMonth = previousDate.format(FORMATTER);
+				result.add(previousMonth);
 			}
 
 		} catch (DateTimeParseException e) {
@@ -380,5 +421,32 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			e.printStackTrace();
 		}
 		return 0.00;
+	}
+
+	/**
+	 * 获取包括当前月份在内的连续N个月份
+	 * @param baseMonth 基础月份，格式：yyyy-MM
+	 * @param count 需要获取的月份数量（包括当前月份）
+	 * @return 连续N个月的月份列表
+	 */
+	public static List<String> getConsecutiveMonths(String baseMonth, int count) {
+		List<String> result = new ArrayList<>();
+
+		try {
+			// 将字符串转换为LocalDate（添加日期部分）
+			LocalDate baseDate = LocalDate.parse(baseMonth + "-01", DateTimeFormatter.ISO_LOCAL_DATE);
+
+			// 从当前月份开始，往前推0到count-1个月
+			for (int i = 0; i < count; i++) {
+				LocalDate targetDate = baseDate.minusMonths(i);
+				String targetMonth = targetDate.format(FORMATTER);
+				result.add(targetMonth);
+			}
+
+		} catch (DateTimeParseException e) {
+			throw new IllegalArgumentException("无效的月份格式，请使用 yyyy-MM 格式", e);
+		}
+
+		return result;
 	}
 }

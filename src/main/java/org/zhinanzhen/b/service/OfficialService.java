@@ -32,6 +32,6 @@ public interface OfficialService {
 
 	OfficialEvaluate getOfficialEvaluate(Integer integer, Integer adviserId, String startCollaborationTime, String endCollaborationTime);
 
-	Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths);
+	Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths, boolean isCurrentMonth);
 
 }
