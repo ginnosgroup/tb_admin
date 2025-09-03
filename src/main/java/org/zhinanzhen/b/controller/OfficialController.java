@@ -424,7 +424,6 @@ public class OfficialController extends BaseController {
 												 @RequestParam(value = "accuracy") String accuracy,
 												 @RequestParam(value = "timelyCommunication") String timelyCommunication,
 												 @RequestParam(value = "collaborationTime") String collaborationTime,
-												 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
 												 @RequestParam(value = "remark", required = false) String remark,
 												 HttpServletRequest request) {
 		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
