@@ -30,4 +30,6 @@ public class OfficialEvaluate implements Serializable {
     private String averageScore;
 
     private String evaluateAdviser;
+
+    private String evaluateOfficial;
 }

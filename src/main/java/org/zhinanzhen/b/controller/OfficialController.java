@@ -573,6 +573,7 @@ public class OfficialController extends BaseController {
 					officialEvaluate.setEvaluateAdviser(adviserById.getName());
 				}
 				OfficialDTO officialById = officialService.getOfficialById(officialEvaluate.getOfficialId());
+				officialEvaluate.setEvaluateOfficial(officialById.getName());
                 Double averageScore = officialService.getAverageScore(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), collaborationTime, 1, true);
 				officialEvaluate.setAverageScore(DECIMAL_FORMAT.format(averageScore));
                 officialById.setOfficialEvaluate(officialEvaluate);
