@@ -42,4 +42,7 @@ public class OfficialDTO {
 	private Boolean isOfficialAdmin;
 
 	private OfficialEvaluate officialEvaluate;
+
+	private Integer averageScore;
+
 }

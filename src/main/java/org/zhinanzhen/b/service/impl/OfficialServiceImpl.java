@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OfficialDAO;
@@ -40,6 +42,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	private AdminUserDAO adminUserDao;
 	@Resource
 	private OfficialGradeDao officialGradeDao;
+
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
 	@Override
 	public int addOfficial(OfficialDTO officialDto) throws ServiceException {
@@ -194,8 +198,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 
     @Override
     public int addOfficialEvaluate(OfficialEvaluate officialEvaluate) {
-		String collaborationTime = officialEvaluate.getCollaborationTime();
-		String dateStr = convertToYearMonth(collaborationTime);
+		String dateStr = officialEvaluate.getCollaborationTime();
+//		String dateStr = convertToYearMonth(collaborationTime);
 		// 解析年月字符串
 		YearMonth yearMonth = YearMonth.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM"));
 
@@ -215,6 +219,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		if (officialEvaluate1 != null) {
 			return officialEvaluate1.getOfficialId();
 		}
+		officialEvaluate.setCollaborationTime(officialEvaluate.getCollaborationTime() + "-15 12:00:00");
 		return officialDao.addOfficialEvaluate(officialEvaluate);
     }
 
@@ -238,12 +243,40 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		return officialDao.getOfficialEvaluate(integer, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime));
 	}
 
+	@Override
+	public Integer getAverageScore(Integer integer, Integer adviserId, String collaborationTime) {
+		List<String> previousMonths = getPreviousMonths(collaborationTime, 3);
+		int averageScore = 0;
+		for (String previousMonth : previousMonths) {
+			// 解析年月字符串
+			YearMonth yearMonth = YearMonth.parse(previousMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+			// 获取月初第一天 00:00:00
+			LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+			// 获取月末最后一天 23:59:59
+			LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+			// 创建格式化器
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+			// 格式化为字符串
+			String startCollaborationTime = startOfMonth.format(formatter);
+			String endCollaborationTime = endOfMonth.format(formatter);
+			OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
+			averageScore += extractScoreWithJackson(officialEvaluate1);
+		}
+		return averageScore / 3;
+
+	}
+
 	public String convertToYearMonth(String dateStr) {
 		try {
 			// 尝试解析为日期时间格式
 			DateTimeFormatter[] formatters = {
 					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-					DateTimeFormatter.ofPattern("yyyy-MM-dd")
+					DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+					DateTimeFormatter.ofPattern("yyyy-MM")
 			};
 
 			for (DateTimeFormatter formatter : formatters) {
@@ -264,5 +297,84 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		} catch (Exception e) {
 			throw new IllegalArgumentException("日期解析失败: " + dateStr, e);
 		}
+	}
+
+	/**
+	 * 获取指定月份的前N个月份
+	 * @param baseMonth 基础月份，格式：yyyy-MM
+	 * @param monthsAgo 往前推的月数
+	 * @return 前N个月的月份列表
+	 */
+	public static List<String> getPreviousMonths(String baseMonth, int monthsAgo) {
+		List<String> result = new ArrayList<>();
+
+		try {
+			// 将字符串转换为LocalDate（添加日期部分）
+			LocalDate baseDate = LocalDate.parse(baseMonth + "-01", DateTimeFormatter.ISO_LOCAL_DATE);
+
+			// 从当前月份开始，往前推0到count-1个月
+			for (int i = 0; i < monthsAgo; i++) {
+				LocalDate targetDate = baseDate.minusMonths(i);
+				String targetMonth = targetDate.format(FORMATTER);
+				result.add(targetMonth);
+			}
+
+		} catch (DateTimeParseException e) {
+			throw new IllegalArgumentException("无效的月份格式，请使用 yyyy-MM 格式", e);
+		}
+
+		return result;
+	}
+	// 获取json数值
+	public static Integer extractScoreWithJackson(OfficialEvaluate officialEvaluate1) {
+		try {
+			if (officialEvaluate1 == null) {
+				return 0;
+			}
+			Integer count = 0;
+			String accuracy = officialEvaluate1.getAccuracy();
+			String professionalism = officialEvaluate1.getProfessionalism();
+			String timelyCommunication = officialEvaluate1.getTimelyCommunication();
+			// 确保JSON格式正确
+			accuracy = accuracy
+					.replace("score:", "\"score\":")
+					.replace("remarks:", "\"remarks\":")
+					.replace("'", "\"");
+
+			professionalism = professionalism
+					.replace("score:", "\"score\":")
+					.replace("remarks:", "\"remarks\":")
+					.replace("'", "\"");
+
+			timelyCommunication = timelyCommunication
+					.replace("score:", "\"score\":")
+					.replace("remarks:", "\"remarks\":")
+					.replace("'", "\"");
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode jsonNode = objectMapper.readTree(accuracy);
+
+			// 提取score字段
+			if (jsonNode.has("score")) {
+				count += jsonNode.get("score").asInt();
+			}
+			JsonNode jsonNode1 = objectMapper.readTree(professionalism);
+
+			// 提取score字段
+			if (jsonNode1.has("score")) {
+				count += jsonNode1.get("score").asInt();
+			}
+			JsonNode jsonNode2 = objectMapper.readTree(timelyCommunication);
+
+			// 提取score字段
+			if (jsonNode2.has("score")) {
+				count += jsonNode2.get("score").asInt();
+			}
+			return count / 3;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

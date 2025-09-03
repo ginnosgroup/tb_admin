@@ -25,7 +25,5 @@ public class OfficialEvaluate implements Serializable {
 
     private String collaborationTime;
 
-    private String reasonLowScore;
-
     private String remark;
 }

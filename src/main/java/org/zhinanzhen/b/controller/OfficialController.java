@@ -449,9 +449,6 @@ public class OfficialController extends BaseController {
 		if (collaborationTime != null) {
 			officialEvaluate.setCollaborationTime(collaborationTime);
 		}
-		if (reasonLowScore != null) {
-			officialEvaluate.setReasonLowScore(reasonLowScore);
-		}
 		if (remark != null) {
 			officialEvaluate.setRemark(remark);
 		}
@@ -498,6 +495,8 @@ public class OfficialController extends BaseController {
 					OfficialDTO officialById = officialService.getOfficialById(integer);
 					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
 					if (officialEvaluate != null) {
+						Integer averageScore = officialService.getAverageScore(integer, officialEvaluate.getAdviserId() , collaborationTime);
+						officialById.setAverageScore(averageScore);
 						officialById.setOfficialEvaluate(officialEvaluate);
 						count++;
 					}
