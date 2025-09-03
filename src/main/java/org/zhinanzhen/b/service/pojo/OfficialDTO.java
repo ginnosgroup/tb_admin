@@ -43,6 +43,8 @@ public class OfficialDTO {
 
 	private OfficialEvaluate officialEvaluate;
 
-	private Integer averageScore;
+	private String averageScore;
+
+	private String evaluateAdviser;
 
 }

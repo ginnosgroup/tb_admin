@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -27,11 +28,13 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 
 import com.ikasoa.core.utils.StringUtil;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -52,6 +55,11 @@ public class OfficialController extends BaseController {
 
 	@Resource
 	private WebLogService webLogService;
+
+	@Resource
+	private AdviserService adviserService;
+
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
 	public enum OfficialWorkStateEnum{
 		NORMAL ("正常"), BUSY ("忙碌"), RESIGN("离职");
@@ -494,8 +502,12 @@ public class OfficialController extends BaseController {
 					OfficialDTO officialById = officialService.getOfficialById(integer);
 					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
 					if (officialEvaluate != null) {
-						Integer averageScore = officialService.getAverageScore(integer, officialEvaluate.getAdviserId() , collaborationTime);
-						officialById.setAverageScore(averageScore);
+						AdviserDTO adviserById = adviserService.getAdviserById(officialEvaluate.getAdviserId());
+						if (adviserById != null) {
+							officialById.setEvaluateAdviser(adviserById.getName());
+						}
+						Double averageScore = officialService.getAverageScore(integer, officialEvaluate.getAdviserId() , collaborationTime, 3);
+						officialById.setAverageScore(DECIMAL_FORMAT.format(averageScore));
 						officialById.setOfficialEvaluate(officialEvaluate);
 						count++;
 					}
@@ -521,7 +533,7 @@ public class OfficialController extends BaseController {
 												 @RequestParam(value = "endCollaborationTime", required = false) String endCollaborationTime,
 												 @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
 												 @RequestParam(value = "pageNum") Integer pageNum, @RequestParam(value = "pageSize") Integer pageSize,
-												 HttpServletRequest request) {
+												 HttpServletRequest request) throws ServiceException {
 		Integer adviserId1 = getAdviserId(request);
 		if (adviserId1 != null) {
 			adviserId = adviserId1;
@@ -555,6 +567,12 @@ public class OfficialController extends BaseController {
 		int total = officialService.countOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime);
 		List<OfficialEvaluate> officialEvaluates = officialService.listOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime, pageNum, pageSize);
 		if (officialEvaluates != null) {
+			for (OfficialEvaluate officialEvaluate : officialEvaluates) {
+				OfficialDTO officialById = officialService.getOfficialById(officialEvaluate.getOfficialId());
+                Double averageScore = officialService.getAverageScore(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), collaborationTime, 1);
+				officialEvaluate.setAverageScore(DECIMAL_FORMAT.format(averageScore));
+                officialById.setOfficialEvaluate(officialEvaluate);
+			}
 			String isSuccess = "false";
 			if (officialIds != null && officialIds.size() == officialEvaluates.size()) {
 				isSuccess = "true";

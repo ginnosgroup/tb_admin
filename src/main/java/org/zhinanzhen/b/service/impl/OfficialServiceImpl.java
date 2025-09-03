@@ -244,9 +244,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	}
 
 	@Override
-	public Integer getAverageScore(Integer integer, Integer adviserId, String collaborationTime) {
-		List<String> previousMonths = getPreviousMonths(collaborationTime, 3);
-		int averageScore = 0;
+	public Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths) {
+		List<String> previousMonths = getPreviousMonths(collaborationTime, mounths);
+		double averageScore = 0;
+		int averageCount = 0;
 		for (String previousMonth : previousMonths) {
 			// 解析年月字符串
 			YearMonth yearMonth = YearMonth.parse(previousMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
@@ -264,9 +265,13 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			String startCollaborationTime = startOfMonth.format(formatter);
 			String endCollaborationTime = endOfMonth.format(formatter);
 			OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
+			Double v = extractScoreWithJackson(officialEvaluate1);
+			if (v > 0.00) {
+				averageCount++;
+			}
 			averageScore += extractScoreWithJackson(officialEvaluate1);
 		}
-		return averageScore / 3;
+		return averageScore / (averageCount > 0 ? averageCount : 1);
 
 	}
 
@@ -276,7 +281,6 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			DateTimeFormatter[] formatters = {
 					DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
 					DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-					DateTimeFormatter.ofPattern("yyyy-MM")
 			};
 
 			for (DateTimeFormatter formatter : formatters) {
@@ -326,12 +330,12 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		return result;
 	}
 	// 获取json数值
-	public static Integer extractScoreWithJackson(OfficialEvaluate officialEvaluate1) {
+	public static Double extractScoreWithJackson(OfficialEvaluate officialEvaluate1) {
 		try {
 			if (officialEvaluate1 == null) {
-				return 0;
+				return 0.00;
 			}
-			Integer count = 0;
+			Double count = 0.00;
 			String accuracy = officialEvaluate1.getAccuracy();
 			String professionalism = officialEvaluate1.getProfessionalism();
 			String timelyCommunication = officialEvaluate1.getTimelyCommunication();
@@ -375,6 +379,6 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return 0.00;
 	}
 }
