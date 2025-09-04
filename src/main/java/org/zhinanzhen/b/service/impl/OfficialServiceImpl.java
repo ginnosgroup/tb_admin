@@ -262,7 +262,42 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 
 	@Override
 	public List<OfficialEvaluate> listOfficialEvaluate(@Param("officialIds")List<Integer> officialIds, Integer adviserId, String startCollaborationTime, String endCollaborationTime, Integer pageNum, Integer pageSize) {
-		return officialDao.listOfficialEvaluate(officialIds, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime), pageNum * pageSize, pageSize);
+		List<OfficialEvaluate> officialEvaluates = officialDao.listOfficialEvaluate(officialIds, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime), pageNum * pageSize, pageSize);
+		for (OfficialEvaluate officialEvaluate : officialEvaluates) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date();
+			String format = sdf.format(date);
+			String dateStr = convertToYearMonth(format);
+			double averageScore = 0;
+			List<String> previousMonths = getPreviousMonths(dateStr, 3);
+			for (String previousMonth : previousMonths) {
+				// 解析年月字符串
+				YearMonth yearMonth = YearMonth.parse(previousMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+				// 获取月初第一天 00:00:00
+				LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+				// 获取月末最后一天 23:59:59
+				LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+				// 创建格式化器
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+				// 格式化为字符串
+				String startCollaborationTimeT = startOfMonth.format(formatter);
+				String endCollaborationTimeT = endOfMonth.format(formatter);
+				List<Integer> objects = new ArrayList<>();
+				objects.add(officialEvaluate.getOfficialId());
+				List<OfficialEvaluate> officialEvaluatesT = officialDao.listOfficialEvaluate(objects, null, startCollaborationTimeT, endCollaborationTimeT, 0, 9999);
+				if (officialEvaluatesT != null && !officialEvaluatesT.isEmpty()) {
+					for (OfficialEvaluate officialEvaluate11 : officialEvaluatesT) {
+						averageScore += extractScoreWithJackson(officialEvaluate11);
+					}
+					officialEvaluate.setThreeMonthsAverageScore(DECIMAL_FORMAT.format(averageScore/officialEvaluatesT.size()));
+				}
+			}
+		}
+		return officialEvaluates;
 	}
 
 	@Override
@@ -283,6 +318,12 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	@Override
 	public Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths, boolean isCurrentMonth) {
 		List<String> previousMonths = new ArrayList<>();
+		if (collaborationTime == null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date date = new Date();
+			String format = sdf.format(date);
+			collaborationTime = convertToYearMonth(format);
+		}
 		if (isCurrentMonth) {
 			previousMonths = getConsecutiveMonths(collaborationTime, mounths);
 		} else {
