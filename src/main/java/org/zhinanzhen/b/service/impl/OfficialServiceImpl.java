@@ -269,6 +269,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			String format = sdf.format(date);
 			String dateStr = convertToYearMonth(format);
 			double averageScore = 0;
+			int averageCount = 0;
 			List<String> previousMonths = getPreviousMonths(dateStr, 3);
 			for (String previousMonth : previousMonths) {
 				// 解析年月字符串
@@ -291,9 +292,13 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 				List<OfficialEvaluate> officialEvaluatesT = officialDao.listOfficialEvaluate(objects, null, startCollaborationTimeT, endCollaborationTimeT, 0, 9999);
 				if (officialEvaluatesT != null && !officialEvaluatesT.isEmpty()) {
 					for (OfficialEvaluate officialEvaluate11 : officialEvaluatesT) {
+						Double v = extractScoreWithJackson(officialEvaluate11);
+						if (v > 0.00) {
+							averageCount++;
+						}
 						averageScore += extractScoreWithJackson(officialEvaluate11);
 					}
-					officialEvaluate.setThreeMonthsAverageScore(DECIMAL_FORMAT.format(averageScore/officialEvaluatesT.size()));
+					officialEvaluate.setThreeMonthsAverageScore(DECIMAL_FORMAT.format(averageScore/(averageCount > 0 ? averageCount : 1)));
 				}
 			}
 		}
@@ -316,14 +321,13 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	}
 
 	@Override
-	public Double getAverageScore(Integer integer, Integer adviserId, String collaborationTime, int mounths, boolean isCurrentMonth) {
-		List<String> previousMonths = new ArrayList<>();
+	public Double getAverageScore(OfficialEvaluate officialEvaluate, String collaborationTime, int mounths, boolean isCurrentMonth) {
+		Integer officialId = officialEvaluate.getOfficialId();
+		Integer adviserId = officialEvaluate.getAdviserId();
 		if (collaborationTime == null) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			Date date = new Date();
-			String format = sdf.format(date);
-			collaborationTime = convertToYearMonth(format);
+			collaborationTime = convertToYearMonth(officialEvaluate.getCollaborationTime());
 		}
+		List<String> previousMonths = new ArrayList<>();
 		if (isCurrentMonth) {
 			previousMonths = getConsecutiveMonths(collaborationTime, mounths);
 		} else {
@@ -347,7 +351,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			// 格式化为字符串
 			String startCollaborationTime = startOfMonth.format(formatter);
 			String endCollaborationTime = endOfMonth.format(formatter);
-			OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
+			OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialId, adviserId, startCollaborationTime, endCollaborationTime);
 			Double v = extractScoreWithJackson(officialEvaluate1);
 			if (v > 0.00) {
 				averageCount++;
