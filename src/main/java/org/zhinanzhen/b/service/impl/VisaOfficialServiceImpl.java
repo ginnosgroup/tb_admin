@@ -1052,13 +1052,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
                 if (visaOfficialDOS.isEmpty()) {
 //                    predictCommissionAmount = ((amount - commissionAmountDTO.getRefund()) / 1.1 - byServiceId.getMaxPrice() - bingdingOrderAmount) + byServiceId.getMaxPrice() / EOICount;
-                    predictCommissionAmount = (amount / 1.1 - byServiceId.getMaxPrice() - bingdingOrderAmount) + byServiceId.getMaxPrice() / EOICount;
+                    predictCommissionAmount = ((amount - bingdingOrderAmount) / 1.1 - byServiceId.getMaxPrice()) + byServiceId.getMaxPrice() / EOICount;
                 } else {
                     predictCommissionAmount = byServiceId.getMaxPrice() / EOICount;
                 }
             } else {
 //                predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - bingdingOrderAmount - servicePackagePriceDO.getThirdPrince();
-                predictCommissionAmount = amount / 1.1 - bingdingOrderAmount - servicePackagePriceDO.getThirdPrince();
+                predictCommissionAmount = (amount - bingdingOrderAmount) / 1.1 - servicePackagePriceDO.getThirdPrince();
                 if (serviceOrderById.getBindingOrder() != null && serviceOrderById.getBindingOrder() > 0) {
 //                    predictCommissionAmount = (amount - commissionAmountDTO.getRefund()) / 1.1 - servicePackagePriceDO.getThirdPrince();
                     predictCommissionAmount = amount / 1.1 - servicePackagePriceDO.getThirdPrince();
@@ -1283,7 +1283,16 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             } else {
                 extraAmount = extraAmount / 1.1;
                 if (isNSV) {
-                    predictCommissionAmount = predictCommissionAmount * 0.5;
+                    if (serviceOrderById.getServiceId() == 1000105) {
+                        ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
+                        if ("VA".equalsIgnoreCase(servicePackageDO.getType())) {
+                            predictCommissionAmount = predictCommissionAmount * 0.5;
+                        } else {
+                            predictCommissionAmount = predictCommissionAmount * 0.25;
+                        }
+                    } else {
+                        predictCommissionAmount = predictCommissionAmount * 0.5;
+                    }
                 }
                 if (longTermVisa && !serviceDO.getCode().contains("820") && !serviceDO.getCode().contains("309")) {
                     predictCommissionAmount = predictCommissionAmount * 0.4;
