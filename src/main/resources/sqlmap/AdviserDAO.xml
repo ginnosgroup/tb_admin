@@ -137,4 +137,17 @@
         oper_userid AS operUserId
         FROM tb_adviser WHERE oper_userid is not null;
     </select>
+    <select id="getAdviserByEmail" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+        select
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            phone,
+            email,
+            state,
+            image_url AS imageUrl,
+            region_id AS regionId ,
+            oper_userid AS operUserId
+        from tb_adviser where email = #{userName}
+    </select>
 </mapper>

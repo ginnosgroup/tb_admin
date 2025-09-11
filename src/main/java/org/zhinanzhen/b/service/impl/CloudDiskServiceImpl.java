@@ -7,6 +7,7 @@ import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
 import com.aliyun.sdk.service.pds20220301.AsyncClient;
 import com.aliyun.sdk.service.pds20220301.models.*;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.CloudDiskFileDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.dao.pojo.box.ListFileResponse;
 import org.zhinanzhen.b.dao.pojo.box.MyAsyncClient;
 import org.zhinanzhen.b.service.CloudDiskService;
@@ -39,6 +41,7 @@ import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
+import org.zhinanzhen.tb.utils.PatternMatcherUtil;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -186,7 +189,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 //                            .name(fileName)
 //                            .type(type)
 //                            .parentFileId(parentFileId)
-//                            .driveId("1020")
+//                            .driveId("101")
 //                            .size(fileTmp.length())
 //                            .fileId(cloudDiskFile.getFileId())
 //                            .partInfoList(java.util.Arrays.asList(
@@ -423,7 +426,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 //                            .name(fileName)
 //                            .type(type)
 //                            .parentFileId(parentFileId)
-//                            .driveId("1020")
+//                            .driveId("101")
 //                            .size(fileTmp.length())
 //                            .fileId(cloudDiskFile.getFileId())
 //                            .partInfoList(java.util.Arrays.asList(
@@ -695,12 +698,87 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
-    public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId) {
+    public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName) {
+        if (folderName != null && parentFileStructures == null) {
+            parentFileStructures =  getParentFileId(folderName);
+        }
+        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId);
+        String driveId = userCloud.getDriveId();
         if (parentFileStructures == null || parentFileStructures.trim().isEmpty()) {
+            addCountMap.forEach((k, v) -> {
+                List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByRelativePath("/root/" + k);
+                if (cloudDiskFileList1 != null && cloudDiskFileList1.size() == v) {
+                    return;
+                }
+                for (CloudDiskFile cloudDiskFile : cloudDiskFileList1) {
+                    AsyncClient asyncClient = getAsyncClient();
+                    GetFileRequest build = GetFileRequest.builder()
+                            .driveId(driveId)
+                            .fileId(cloudDiskFile.getFileId())
+                            .build();
+                    CompletableFuture<GetFileResponse> file = asyncClient.getFile(build);
+                    try {
+                        GetFileResponse getFileResponse = file.get();
+                        String json = new Gson().toJson(getFileResponse);
+                        JsonNode jsonNode = new ObjectMapper().readTree(json);
+                        String statusCode = jsonNode.path("statusCode").asText();
+                        if ("200".equalsIgnoreCase(statusCode)) {
+                            continue;
+                        }
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        cloudDiskFile.setIsDelete(1);
+                        cloudDiskFileDAO.update(cloudDiskFile);
+                        log.info("文件" + cloudDiskFile.getName() + ":" + cloudDiskFile.getFileId() + "已删除");
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
             return 0; // 递归终止条件
         }
         String[] split = parentFileStructures.split(",");
         StringBuilder newObjects = new StringBuilder(); // 改用局部变量，避免全局污染
+        if (belongFolderMap!= null && !belongFolderMap.isEmpty()) {
+            AsyncClient client = getAsyncClient();
+            for (String s : split) {
+                try {
+                    String sFildeId = belongFolderMap.get(s);
+                    if (sFildeId == null) {
+                        continue;
+                    }
+                    ListFileRequest build = ListFileRequest.builder()
+                            .driveId(driveId)
+                            .parentFileId(s)
+                            .build();
+                    CompletableFuture<com.aliyun.sdk.service.pds20220301.models.ListFileResponse> listFileResponseCompletableFuture = client.listFile(build);
+                    com.aliyun.sdk.service.pds20220301.models.ListFileResponse listFileResponse = listFileResponseCompletableFuture.get();
+                    String json = new Gson().toJson(listFileResponse);
+                    JsonNode jsonNode = new ObjectMapper().readTree(json);
+                    JsonNode items = jsonNode.path("body").path("items");
+                    for (JsonNode node : items) {
+                        String fileId = node.get("fileId").asText();
+                        if (fileId.equalsIgnoreCase(belongFolderMap.get(s))) {
+                            continue;
+                        }
+                        MoveFileRequest moveFileRequest = MoveFileRequest.builder()
+                                .driveId(driveId)
+                                .fileId(fileId)
+                                .toParentFileId(belongFolderMap.get(s))
+                                .build();
+                        CompletableFuture<MoveFileResponse> moveFileResponseCompletableFuture = client.moveFile(moveFileRequest);
+                        moveFileResponseCompletableFuture.get();
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+//            split = new String[]{parentFileStructures};
+        }
+        belongFolderMap = new HashMap<>();
         for (String s : split) {
             try {
                 StaticCredentialProvider provider = StaticCredentialProvider.create(Credential.builder()
@@ -717,7 +795,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         )
                         .build();
                 ListFileRequest listFileRequest = ListFileRequest.builder()
-                        .driveId("1020")
+                        .driveId(driveId)
                         .parentFileId(s)
                         .limit(100)
                         .build();
@@ -727,31 +805,51 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 JsonNode jsonNode = new ObjectMapper().readTree(json);
                 JsonNode items = jsonNode.path("body").path("items");
                 for (JsonNode node : items) {
-                    Integer adviserIdT = 0;
-                    Integer officialIdT = 0;
+                    boolean isFirstFolder = false;
                     String fileId = node.get("fileId").asText();
                     String type = node.get("type").asText();
                     String parentFileId = node.get("parentFileId").asText();
                     String name = node.get("name").asText();
-                    String driveId = node.get("driveId").asText();
-                    JsonNode creatorNameT = node.get("creatorName");
+//                    String driveId = node.get("driveId").asText();
+//                    JsonNode creatorNameT = node.get("creatorName");
                     Long fileSize = 0L;
+                    if (!"root".equalsIgnoreCase(parentFileId)) {
+                        CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
+                        String insertName = getInsertName(byId.getRelativePath());
+                        Integer i = addCountMap.get(insertName);
+                        if (i == null) {
+                            addCountMap.put(insertName, 1);
+                        } else {
+                            i++;
+                            addCountMap.put(insertName, i);
+                        }
+                    }
+                    CloudDiskFile cloudDiskFileListByParentId = cloudDiskFileDAO.getById(null, null, s, null);
+                    if ("folder".equalsIgnoreCase(type)) {
+                        isFirstFolder = PatternMatcherUtil.containsPattern(name);
+                        if (cloudDiskFileListByParentId == null) {
+                            if (!isFirstFolder) {
+                                continue;
+                            }
+                        }
+                    }
                     if ("file".equalsIgnoreCase(type)) {
+                        if (cloudDiskFileListByParentId == null) {
+                            continue;
+                        }
                         fileSize = node.get("size").asLong();
                     }
-                    String creatorName = "";
-                    if (creatorNameT != null) {
-                        creatorName = creatorNameT.asText();
-                    }
-                    List<AdviserDO> adviserDOS = adviserDAO.listAdviser(creatorName, null, 0, 20);
-                    List<OfficialDO> officialDOS = officialDAO.getOfficialByName(creatorName);
-                    if (adviserDOS != null && adviserDOS.size() > 0) {
-                        adviserIdT = adviserDOS.get(0).getId();
-                    }
-                    if (adviserDOS != null && officialDOS.size() > 0) {
-                        officialIdT = officialDOS.get(0).getId();
-                    }
                     CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null);
+                    Integer userId = 0;
+                    if (isFirstFolder) { // 获取userId
+                        String s1 = PatternMatcherUtil.getAllMatches(name).get(0);
+                        UserDO userById = userDAO.getUserById(Integer.parseInt(s1.substring(1)));
+                        if (userById != null) {
+                            userId = userById.getId();
+                        }
+                    } else {
+                        userId = cloudDiskFileListByParentId.getUserId();
+                    }
                     if (type.equalsIgnoreCase("folder")) {
                         newObjects.append(fileId).append(","); // 只收集新的 folderId
                     }
@@ -763,9 +861,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .name(name)
                                 .type(type)
                                 .driveId(driveId)
-                                .adviserId(adviserIdT)
-                                .officialId(officialIdT)
+                                .adviserId(adviserId)
+                                .officialId(officialId)
                                 .fileSize(fileSize)
+                                .userId(userId)
                                 .build();
                         if ("root".equalsIgnoreCase(parentFileId)) {
                             cloudDiskFile.setRelativePath("/root" + "/" + name);
@@ -784,17 +883,26 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         cloudDiskFileDAO.add(cloudDiskFile);
                         cloudDiskFileList.add(cloudDiskFile);
                     }
+                    if (PatternMatcherUtil.containsPattern(name)) {
+                        Integer i = addCountMap.get(name);
+                        if (i == null) {
+                            addCountMap.put(name, 1);
+                        } else {
+                            i++;
+                            addCountMap.put(name, i);
+                        }
+                        if (adviserId != null) {
+                            belongFolderMap = buildBelongFolder(userId, adviserId, officialId, "顾问资料", driveId, fileId, belongFolderMap);
+                        }
+                        if (officialId != null) {
+                            belongFolderMap = buildBelongFolder(userId, adviserId, officialId, "文案资料", driveId, fileId, belongFolderMap);
+                        }
+                    }
                 }
                 client.close();
             } catch (IOException | ExecutionException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }
-        // 递归处理新发现的文件夹
-        if (newObjects.length() > 0) {
-            // 去掉末尾的 ","
-            String nextLevelFolders = newObjects.substring(0, newObjects.length() - 1);
-            getFileStructure(nextLevelFolders, adviserId, officialId);
         }
         try {
             if (CollectionUtils.isNotEmpty(cloudDiskFileList)) {
@@ -824,8 +932,72 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         } finally {
             cloudDiskFileList.clear();
         }
+        // 递归处理新发现的文件夹
+        if (newObjects.length() > 0) {
+            // 去掉末尾的 ","
+            newObjects = new StringBuilder(newObjects.substring(0, newObjects.length() - 1));
+        }
+        getFileStructure(String.valueOf(newObjects), adviserId, officialId, belongFolderMap, addCountMap, null);
         return 0;
     }
+
+    private String getParentFileId(String folderName) {
+        folderName = "name=\"" + folderName + "\"";
+        String parentFileId = null;
+        AsyncClient asyncClient = getAsyncClient();
+        SearchFileRequest build = SearchFileRequest.builder()
+                .driveId("101")
+                .query(folderName)
+                .build();
+        CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
+        try {
+            SearchFileResponse searchFileResponse = file.get();
+            String json = new Gson().toJson(searchFileResponse);
+            JsonNode jsonNode = new ObjectMapper().readTree(json);
+            JsonNode items = jsonNode.path("body").path("items");
+            for (JsonNode item : items) {
+                parentFileId = item.get("fileId").asText();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return parentFileId;
+    }
+
+//    @Override
+//    public List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException {
+//        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId);
+//        if (userCloud == null) {
+//            return null;
+//        }
+//        String driveId = userCloud.getDriveId();
+//        AsyncClient client = getAsyncClient();
+//        try {
+//            // Parameter settings for API request
+//            ListFileRequest listFileRequest = ListFileRequest.builder()
+//                    .parentFileId("root")
+//                    .driveId(driveId)
+//                    // Request-level configuration rewrite, can set Http request parameters, etc.
+//                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+//                    .build();
+//
+//            // Asynchronously get the return value of the API request
+//            CompletableFuture<com.aliyun.sdk.service.pds20220301.models.ListFileResponse> response = client.listFile(listFileRequest);
+//            // Synchronously get the return value of the API request
+//            com.aliyun.sdk.service.pds20220301.models.ListFileResponse resp = response.get();
+//            String json = new Gson().toJson(resp);
+//        } catch (ExecutionException | InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return null;
+//    }
+
 
     @Override
     public List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) {
@@ -1129,6 +1301,105 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public Map<String, String> buildBelongFolder(Integer userId, Integer adviserId, Integer officialId, String folderName, String driverId, String parentFileId, Map<String, String> belongFolderMap) throws ExecutionException, InterruptedException, IOException {
+        CloudDiskFile cloudDiskFile = null;
+        AsyncClient client = getAsyncClient();
+        ListFileRequest build = ListFileRequest.builder()
+                .driveId(driverId)
+                .parentFileId(parentFileId)
+                .build();
+        CompletableFuture<com.aliyun.sdk.service.pds20220301.models.ListFileResponse> listFileResponseCompletableFuture = client.listFile(build);
+        com.aliyun.sdk.service.pds20220301.models.ListFileResponse listFileResponse = listFileResponseCompletableFuture.get();
+        String json = new Gson().toJson(listFileResponse);
+        JsonNode jsonNode = new ObjectMapper().readTree(json);
+        JsonNode items = jsonNode.path("body").path("items");
+        for (JsonNode item : items) {
+            String name = item.get("name").asText();
+            String type = item.get("type").asText();
+            String fileId = item.get("fileId").asText();
+            if (("folder".equalsIgnoreCase(type)) && name.equalsIgnoreCase(folderName)) {
+                cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, fileId, folderName);
+                if (cloudDiskFile != null) {
+                    belongFolderMap.put(parentFileId, fileId);
+                    return belongFolderMap;
+                }
+                cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, folderName);
+                if (cloudDiskFile != null && !cloudDiskFile.getFileId().equalsIgnoreCase(fileId)) {
+                    cloudDiskFile.setFileId(fileId);
+                    cloudDiskFileDAO.update(cloudDiskFile);
+                    belongFolderMap.put(parentFileId, fileId);
+                    return belongFolderMap;
+                }
+            }
+        }
+        // 创建上传文件的请求并获取上传链接
+        CreateFileRequest createFileRequest = null;
+
+        // 创建客户文件夹下面的顾问资料文件夹和文案资料文件夹
+        createFileRequest = CreateFileRequest.builder()
+                .name(folderName)
+                .type("folder")
+                .parentFileId(parentFileId)
+                .driveId(driverId)
+                .build();
+        // Asynchronously get the return value of the API request
+        CompletableFuture<CreateFileResponse> responseT = client.createFile(createFileRequest);
+        // Synchronously get the return value of the API request
+        CreateFileResponse respT = responseT.get();
+        System.out.println(new Gson().toJson(respT));
+        // Asynchronous processing of return values
+        String jsonT = new Gson().toJson(respT);
+        JSONObject jsonObjectT = JSON.parseObject(jsonT);
+        JSONObject bodyT = jsonObjectT.getJSONObject("body");
+        String fileIdT = bodyT.get("fileId").toString();
+
+        cloudDiskFile = CloudDiskFile.builder().fileId(fileIdT).parentFileId(parentFileId).
+                domainId("bj21743").name(folderName).type("folder").driveId(driverId).userId(userId)
+                .applicantId(0).adviserId(adviserId).officialId(officialId).build();
+        if ("root".equalsIgnoreCase(parentFileId)) {
+            cloudDiskFile.setRelativePath("/root" + "/" + folderName);
+        } else {
+            CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null);
+            cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + folderName);
+        }
+        if (adviserId != null) {
+            AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+            cloudDiskFile.setOperator(adviserById.getName());
+        }
+        if (officialId != null) {
+            OfficialDO officialById = officialDAO.getOfficialById(officialId);
+            cloudDiskFile.setOperator(officialById.getName());
+        }
+        belongFolderMap.put(parentFileId, fileIdT);
+        cloudDiskFileList.add(cloudDiskFile);
+        cloudDiskFileDAO.add(cloudDiskFile);
+
+        return belongFolderMap;
+    }
+
+    public String getInsertName(String path) {
+
+        String prefix = "/root/";
+
+        // 检查是否包含前缀
+        if (!path.startsWith(prefix)) {
+            return "路径格式不正确";
+        }
+
+        int startIndex = prefix.length();
+
+        // 从startIndex开始查找下一个斜杠
+        int endIndex = path.indexOf('/', startIndex);
+
+        if (endIndex == -1) {
+            // 如果没有找到下一个斜杠，返回从startIndex到末尾的内容
+            return path.substring(startIndex);
+        } else {
+            // 如果找到了斜杠，返回两个斜杠之间的内容
+            return path.substring(startIndex, endIndex);
         }
     }
 }

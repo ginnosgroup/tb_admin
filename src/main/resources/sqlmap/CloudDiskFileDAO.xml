@@ -49,6 +49,29 @@
         )
     </insert>
 
+    <insert id="addUserCloud" parameterType="org.zhinanzhen.b.dao.pojo.UserCloud" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into b_user_cloud (
+            gmt_create,
+            gmt_modify,
+            user_name,
+            email,
+            adviser_id,
+            official_id,
+            drive_id,
+            user_id
+        )
+        values (
+            now(),
+            now(),
+            #{userName},
+            #{email},
+            #{adviserId},
+            #{officialId},
+            #{driveId},
+            #{userId}
+               )
+    </insert>
+
     <update id="update">
         UPDATE b_cloud_disk_file
         SET gmt_modify = now()
@@ -161,13 +184,22 @@
          and is_delete = 0
     </select>
     <select id="listByRelativePath" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
-        select * from b_cloud_disk_file where 1=1
+        select * from b_cloud_disk_file where is_delete = 0
         <if test='oldRelativePath!= null and oldRelativePath!= ""'>
             AND relative_path like '${oldRelativePath}%'
         </if>
     </select>
     <select id="getCloudDisk" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
         select * from b_cloud_disk_file where is_delete = 0 and relative_path = #{relativePath}
+    </select>
+    <select id="getUserCloud" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">
+        select * from b_user_cloud where
+            <if test='adviserId != null'>
+                 adviser_id = #{adviserId}
+            </if>
+            <if test='officialId != null'>
+                and official_id = #{officialId}
+            </if>
     </select>
 
 

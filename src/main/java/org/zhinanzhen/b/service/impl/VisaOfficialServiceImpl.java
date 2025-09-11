@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -1302,7 +1303,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             } else {
                 extraAmount = extraAmount / 1.1;
                 if (isNSV) {
-                    if (serviceOrderById.getServiceId() == 1000105) {
+                    LocalDateTime localDateTime = LocalDateTime.of(2025, 9, 1, 0, 0, 0);
+                    Date from = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                    if (serviceOrderById.getServiceId() == 1000105 && serviceOrderById.getGmtCreate().getTime() > from.getTime()) {
                         ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
                         if ("VA".equalsIgnoreCase(servicePackageDO.getType())) {
                             predictCommissionAmount = predictCommissionAmount * 0.5;

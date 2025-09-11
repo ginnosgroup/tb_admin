@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public interface CloudDiskService {
@@ -19,7 +20,7 @@ public interface CloudDiskService {
 
     String getShareUrl(String userId, String parentFileId);
 
-    int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId);
+    int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName);
 
     List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException;
 

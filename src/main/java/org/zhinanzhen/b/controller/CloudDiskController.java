@@ -13,9 +13,7 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -155,13 +153,16 @@ public class CloudDiskController extends BaseController {
 
     @RequestMapping(value = "/getFileStructure", method = RequestMethod.GET)
     @ResponseBody
-    public Response<String> getFileStructure(@RequestParam(value = "parentFileStructures") String parentFileStructures,
+    public Response<String> getFileStructure(@RequestParam(value = "parentFileStructures", required = false) String parentFileStructures,
+                                             @RequestParam(value = "folderName", required = false) String folderName,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             Integer adviserId = adminUserLoginInfo.getAdviserId();
             Integer officialId = adminUserLoginInfo.getOfficialId();
-            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId);
+            Map<String, Integer> addCountMap = new HashMap<>();
+            Map<String, String> belongFolderMap = new HashMap<>();
+            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();
