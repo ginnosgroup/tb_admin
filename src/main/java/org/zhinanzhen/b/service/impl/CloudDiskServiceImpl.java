@@ -699,10 +699,11 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName) {
-        if (folderName != null && parentFileStructures == null) {
-            parentFileStructures =  getParentFileId(folderName);
-        }
         UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId);
+        if (folderName != null && parentFileStructures == null) {
+            parentFileStructures = getParentFileId(folderName, userCloud.getDriveId());
+        }
+
         String driveId = userCloud.getDriveId();
         if (parentFileStructures == null || parentFileStructures.trim().isEmpty()) {
             addCountMap.forEach((k, v) -> {
@@ -941,12 +942,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         return 0;
     }
 
-    private String getParentFileId(String folderName) {
+    private String getParentFileId(String folderName, String driveId) {
         folderName = "name=\"" + folderName + "\"";
         String parentFileId = null;
         AsyncClient asyncClient = getAsyncClient();
         SearchFileRequest build = SearchFileRequest.builder()
-                .driveId("101")
+                .driveId(driveId)
                 .query(folderName)
                 .build();
         CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
