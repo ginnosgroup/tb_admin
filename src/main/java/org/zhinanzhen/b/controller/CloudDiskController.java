@@ -162,7 +162,7 @@ public class CloudDiskController extends BaseController {
             Integer officialId = adminUserLoginInfo.getOfficialId();
             Map<String, Integer> addCountMap = new HashMap<>();
             Map<String, String> belongFolderMap = new HashMap<>();
-            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName);
+            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName, null);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();

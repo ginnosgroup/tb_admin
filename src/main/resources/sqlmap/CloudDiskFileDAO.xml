@@ -15,7 +15,7 @@
             url,
             parent_file_id,
             domain_id,
-            driver_id,
+            drive_id,
             file_id,
             is_delete,
             official_id,
@@ -144,6 +144,9 @@
         <if test='folderName != null and folderName != ""'>
             AND name = #{folderName}
         </if>
+        <if test='userId != null'>
+            AND user_id = #{userId}
+        </if>
         and is_delete = 0
     </select>
     <select id="listByParentFileId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
@@ -200,6 +203,9 @@
             <if test='officialId != null'>
                 and official_id = #{officialId}
             </if>
+    </select>
+    <select id="listUserCloud" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_user_cloud
     </select>
 
 

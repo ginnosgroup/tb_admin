@@ -11,7 +11,7 @@ public interface CloudDiskFileDAO {
 
     int add(CloudDiskFile cloudDiskFile);
 
-    CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId, @Param("folderName") String folderName);
+    CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId, @Param("folderName") String folderName, @Param("userId") Integer userId);
 
     int update(CloudDiskFile cloudDiskFile);
 
@@ -36,5 +36,7 @@ public interface CloudDiskFileDAO {
     void addUserCloud(UserCloud userCloud);
 
     UserCloud getUserCloud(@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId);
+
+    List<UserCloud> listUserCloud();
 
 }
