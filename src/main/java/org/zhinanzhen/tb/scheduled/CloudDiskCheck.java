@@ -22,7 +22,7 @@ public class CloudDiskCheck {
         List<UserCloud> userClouds = cloudDiskService.listUserCloud();
         for (UserCloud userCloud : userClouds) {
             log.info("检查同步用户" + userCloud.getEmail());
-            cloudDiskService.getFileStructure("root", userCloud.getAdviserId(), userCloud.getOfficialId(), null, null, null, null);
+            cloudDiskService.getFileStructure("root", userCloud.getAdviserId(), userCloud.getOfficialId(), null, null, null, null, null);
         }
     }
 }

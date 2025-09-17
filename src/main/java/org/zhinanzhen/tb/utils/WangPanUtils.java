@@ -79,6 +79,20 @@ public class WangPanUtils {
         return new ObjectMapper().readTree(json);
     }
 
+    public JsonNode getFileByName(String driveId, String fileName) throws ExecutionException, InterruptedException, IOException {
+        AsyncClient asyncClient = getAsyncClient();
+        String name = "name=\"" + fileName +  "\"";
+        SearchFileRequest build = SearchFileRequest.builder()
+                .driveId(driveId)
+                .query(name)
+                .build();
+        CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
+        SearchFileResponse searchFileResponse = file.get();
+        String json = new Gson().toJson(searchFileResponse);
+        asyncClient.close();
+        return new ObjectMapper().readTree(json);
+    }
+
     public CloudDiskFile buildCloudDiskFile(JsonNode item) {
         long fileSize = 0L;
         String type = item.get("type").asText();

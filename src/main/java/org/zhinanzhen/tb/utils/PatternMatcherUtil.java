@@ -11,12 +11,17 @@ public class PatternMatcherUtil {
     private static final Pattern AT_SEVEN_DIGITS_PATTERN = Pattern.compile("@\\d{7}");
     private static final Pattern TEXT_AT_SEVEN_DIGITS_PATTERN = Pattern.compile("(.+?)@\\d{7}");
 
+    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z\\s]+@\\d+$");
+
     /**
      * 检查字符串是否包含@加7位数字的模式
      */
-    public static boolean containsPattern(String input) {
-        if (input == null) return false;
-        return AT_SEVEN_DIGITS_PATTERN.matcher(input).find();
+    public static boolean containsPattern(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        Matcher matcher = PATTERN.matcher(str);
+        return matcher.matches();
     }
 
     /**
@@ -35,15 +40,12 @@ public class PatternMatcherUtil {
     /**
      * 获取所有匹配的模式
      */
-    public static List<String> getAllMatches(String input) {
-        List<String> matches = new ArrayList<>();
-        if (input == null) return matches;
-
-        Matcher matcher = AT_SEVEN_DIGITS_PATTERN.matcher(input);
-        while (matcher.find()) {
-            matches.add(matcher.group());
+    public static String getAllMatches(String input) {
+        if (!containsPattern(input)) {
+            throw new IllegalArgumentException("字符串格式无效: " + input);
         }
-        return matches;
+        int atIndex = input.indexOf('@');
+        return input.substring(atIndex + 1);
     }
 
     /**
@@ -73,13 +75,11 @@ public class PatternMatcherUtil {
      * 例如：从"CE Shi@1018775"中获取"CE Shi"
      */
     public static String getTextBeforeAt(String input) {
-        if (input == null) return null;
-
-        Matcher matcher = TEXT_AT_SEVEN_DIGITS_PATTERN.matcher(input);
-        if (matcher.find()) {
-            return matcher.group(1); // 获取第一个捕获组（@前面的内容）
+        if (!containsPattern(input)) {
+            throw new IllegalArgumentException("字符串格式无效: " + input);
         }
-        return null;
+        int atIndex = input.indexOf('@');
+        return input.substring(0, atIndex);
     }
 
     /**

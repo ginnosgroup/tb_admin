@@ -155,6 +155,7 @@ public class CloudDiskController extends BaseController {
     @ResponseBody
     public Response<String> getFileStructure(@RequestParam(value = "parentFileStructures", required = false) String parentFileStructures,
                                              @RequestParam(value = "folderName", required = false) String folderName,
+                                             @RequestParam(value = "synchronizeName", required = false) String synchronizeName,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -162,7 +163,7 @@ public class CloudDiskController extends BaseController {
             Integer officialId = adminUserLoginInfo.getOfficialId();
             Map<String, Integer> addCountMap = new HashMap<>();
             Map<String, String> belongFolderMap = new HashMap<>();
-            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName, null);
+            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName, null, synchronizeName);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();
