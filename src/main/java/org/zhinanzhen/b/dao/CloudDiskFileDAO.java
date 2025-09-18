@@ -37,6 +37,12 @@ public interface CloudDiskFileDAO {
 
     UserCloud getUserCloud(@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId);
 
-    List<UserCloud> listUserCloud();
+    List<UserCloud> listUserCloud(@Param("userName") String userName, @Param("email") String email, @Param("offset") int offset, @Param("rows") int rows);
+
+    List<UserCloud> listUserCloudBycondition(String driveId);
+
+    int countUserCloud(@Param("userName") String userName, @Param("email") String email);
+
+    void deleteUserCloud(Integer id);
 
 }

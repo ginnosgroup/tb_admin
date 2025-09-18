@@ -129,6 +129,9 @@
     <update id="updateofficialId">
         update b_cloud_disk_file set official_id = #{newOfficialId} where official_id = #{oldOfficialId}
     </update>
+    <delete id="deleteUserCloud">
+        delete from b_user_cloud where id = #{id}
+    </delete>
 
     <select id="getById" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
         select * from b_cloud_disk_file where 1=1
@@ -204,8 +207,27 @@
                 and official_id = #{officialId}
             </if>
     </select>
-    <select id="listUserCloud" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+    <select id="listUserCloud" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">
         select * from b_user_cloud
+        <if test='userName != null and userName != ""'>
+            and user_name = #{userName}
+        </if>
+        <if test='email != null and email != ""'>
+            and email = #{email}
+        </if>
+        LIMIT #{offset}, #{rows};
+    </select>
+    <select id="listUserCloudBycondition" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">
+        select * from b_user_cloud where drive_id = #{driveId}
+    </select>
+    <select id="countUserCloud" resultType="java.lang.Integer">
+        select count(*) from b_user_cloud
+        <if test='userName != null and userName != ""'>
+            and user_name = #{userName}
+        </if>
+        <if test='email != null and email != ""'>
+            and email = #{email}
+        </if>
     </select>
 
 

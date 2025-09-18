@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.auth.credentials.Credential;
 import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
@@ -32,6 +33,7 @@ import org.zhinanzhen.b.dao.CloudDiskFileDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
+import org.zhinanzhen.b.dao.pojo.UserInfo;
 import org.zhinanzhen.b.dao.pojo.box.ListFileResponse;
 import org.zhinanzhen.b.dao.pojo.box.MyAsyncClient;
 import org.zhinanzhen.b.service.CloudDiskService;
@@ -79,6 +81,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     
     @Autowired
     private WangPanUtils wangPanUtils;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     List<CloudDiskFile> cloudDiskFileList = new ArrayList<>();
 
@@ -604,8 +608,88 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
-    public List<UserCloud> listUserCloud() {
-        return cloudDiskFileDAO.listUserCloud();
+    public List<UserCloud> listUserCloud(String userName, String email, int pageNum, int pageSize) {
+        return cloudDiskFileDAO.listUserCloud(userName, email, pageNum * pageSize, pageSize);
+    }
+
+    @Override
+    public void synchronizeUserCloud() {
+        try {
+            AsyncClient client = getAsyncClient();
+            // Parameter settings for API request
+            ListUserRequest listUserRequest = ListUserRequest.builder()
+                    .limit(20)
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+            // Asynchronously get the return value of the API request
+            CompletableFuture<ListUserResponse> response = client.listUser(listUserRequest);
+            // Synchronously get the return value of the API request
+            ListUserResponse resp = response.get();
+            String json = new Gson().toJson(resp);
+            JSONObject jsonObject = JSON.parseObject(json);
+            JSONObject body1 = jsonObject.getJSONObject("body");
+            String jsonString = JSONObject.toJSONString(body1.get("items"));
+            List<UserInfo> userInfos = JSONArray.parseArray(jsonString, UserInfo.class);
+            for (UserInfo userInfo : userInfos) {
+                UserCloud userCloud = new UserCloud();
+                userCloud.setUserName(userInfo.getUserName());
+                userCloud.setEmail(userInfo.getUserName());
+                AdviserDO adviserDO = adviserDAO.getAdviserByEmail(userInfo.getUserName());
+                if (adviserDO != null) {
+                    userCloud.setAdviserId(adviserDO.getId());
+                }
+                OfficialDO officialDO = officialDAO.getOfficialByEmail(userInfo.getUserName());
+                if (officialDO != null) {
+                    userCloud.setOfficialId(officialDO.getId());
+                }
+                String userId = userInfo.getUserId();
+                userCloud.setUserId(userId);
+                // Parameter settings for API request
+                SearchDriveRequest searchDriveRequest = SearchDriveRequest.builder()
+                        .owner(userId)
+                        // Request-level configuration rewrite, can set Http request parameters, etc.
+                        // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                        .build();
+                // Asynchronously get the return value of the API request
+                CompletableFuture<SearchDriveResponse> responseT = client.searchDrive(searchDriveRequest);
+                // Synchronously get the return value of the API request
+                SearchDriveResponse respT = responseT.get();
+                String jsonT = new Gson().toJson(respT);
+                JSONObject jsonObjectT = JSON.parseObject(jsonT);
+                JSONObject body1T = jsonObjectT.getJSONObject("body");
+                String string = body1T.get("items").toString();
+                // 解析JSON数组
+                JsonNode rootNode = objectMapper.readTree(string);
+                // 获取第一个元素的driveId
+                if (rootNode.isArray() && rootNode.size() > 0) {
+                    JsonNode firstElement = rootNode.get(0);
+                    String driveId = firstElement.get("driveId").asText();
+                    userCloud.setDriveId(driveId);
+                }
+                List<UserCloud> userCloudList = cloudDiskFileDAO.listUserCloudBycondition(userCloud.getDriveId());
+                if (userCloudList == null) {
+                    cloudDiskFileDAO.addUserCloud(userCloud);
+                }
+            }
+            client.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int countUserCloud(String userName, String email) {
+        return cloudDiskFileDAO.countUserCloud(userName, email);
+    }
+
+    @Override
+    public void deleteUserCloud(Integer id) {
+        cloudDiskFileDAO.deleteUserCloud(id);
     }
 
     @Override
@@ -649,18 +733,18 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     @Override
     public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize) {
         if (userId != null && StringUtils.isEmpty(parentFileId)) {
-            List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userId, pageNum, pageSize);
+            List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userId, pageNum* pageSize, pageSize);
             log.info("当前查询用户id----------------------" + userId);
             log.info("当前查询用户资料----------------------" + cloudDiskFileList1);
             if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
                 String fileId = cloudDiskFileList1.get(0).getFileId();
-                List<CloudDiskFile> cloudDiskFileList2 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, userId, pageNum, pageSize);
+                List<CloudDiskFile> cloudDiskFileList2 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, userId, pageNum * pageSize, pageSize);
                 return cloudDiskFileList2;
             } else {
                 return null;
             }
         }
-        List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(id, parentFileId, name, applicantId, userId, pageNum, pageSize);
+        List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(id, parentFileId, name, applicantId, userId, pageNum * pageSize, pageSize);
         return cloudDiskFileList;
     }
 

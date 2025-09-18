@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -213,5 +214,49 @@ public class CloudDiskController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/synchronizeUserCloud", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> synchronizeUserCloud(
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        try {
+            cloudDiskService.synchronizeUserCloud();
+            return new Response<String>(0, "获取成功", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(1, "获取失败", e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/listUserCloud", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<UserCloud>> listUserCloud(@RequestParam(value = "userName", required = false) String userName,
+                                                   @RequestParam(value = "email", required = false) String email,
+                                                   @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        try {
+            int total = cloudDiskService.countUserCloud(userName, email);
+            List<UserCloud> userClouds = cloudDiskService.listUserCloud(userName, email, pageNum, pageSize);
+            return new ListResponse<List<UserCloud>>(true, pageSize, total, userClouds, "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ListResponse<List<UserCloud>>(false, pageSize, 0, null, e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/deleteUserCloud", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> deleteUserCloud(@RequestParam(value = "id") Integer id,
+                                            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        try {
+            cloudDiskService.deleteUserCloud(id);
+            return new Response<String>(0, "删除成功", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(1, "删除失败", e.getMessage());
+        }
+    }
 
 }

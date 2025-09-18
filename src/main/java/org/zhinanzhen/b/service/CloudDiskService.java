@@ -34,6 +34,12 @@ public interface CloudDiskService {
 
     int updateofficialId(Integer officialId1, Integer integer);
 
-    List<UserCloud> listUserCloud();
+    List<UserCloud> listUserCloud(String userName, String email, int pageNum, int pageSize);
+
+    void synchronizeUserCloud();
+
+    int countUserCloud(String userName, String email);
+
+    void deleteUserCloud(Integer id);
 
 }
