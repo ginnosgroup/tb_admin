@@ -218,7 +218,6 @@ public class CloudDiskController extends BaseController {
     @ResponseBody
     public Response<String> synchronizeUserCloud(
             HttpServletRequest request, HttpServletResponse response) {
-        super.setPostHeader(response);
         try {
             cloudDiskService.synchronizeUserCloud();
             return new Response<String>(0, "获取成功", "");

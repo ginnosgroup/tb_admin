@@ -199,12 +199,15 @@
         select * from b_cloud_disk_file where is_delete = 0 and relative_path = #{relativePath}
     </select>
     <select id="getUserCloud" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">
-        select * from b_user_cloud where
+        select * from b_user_cloud where 1=1
             <if test='adviserId != null'>
-                 adviser_id = #{adviserId}
+                and adviser_id = #{adviserId}
             </if>
             <if test='officialId != null'>
                 and official_id = #{officialId}
+            </if>
+            <if test='id != null'>
+                and id = #{id}
             </if>
     </select>
     <select id="listUserCloud" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">

@@ -56,6 +56,8 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -625,7 +627,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             // Asynchronously get the return value of the API request
             CompletableFuture<ListUserResponse> response = client.listUser(listUserRequest);
             // Synchronously get the return value of the API request
-            ListUserResponse resp = response.get();
+            ListUserResponse resp = response.get(30, TimeUnit.SECONDS);
             String json = new Gson().toJson(resp);
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject body1 = jsonObject.getJSONObject("body");
@@ -668,16 +670,18 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     userCloud.setDriveId(driveId);
                 }
                 List<UserCloud> userCloudList = cloudDiskFileDAO.listUserCloudBycondition(userCloud.getDriveId());
-                if (userCloudList == null) {
+                if (userCloudList.isEmpty()) {
                     cloudDiskFileDAO.addUserCloud(userCloud);
                 }
             }
-            client.close();
+//            client.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
     }
@@ -689,7 +693,27 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public void deleteUserCloud(Integer id) {
-        cloudDiskFileDAO.deleteUserCloud(id);
+        try {
+            AsyncClient asyncClient = getAsyncClient();
+            UserCloud userCloud = cloudDiskFileDAO.getUserCloud(null, null, id);
+            DeleteDriveRequest deleteDriveRequest = DeleteDriveRequest.builder().driveId(userCloud.getDriveId()).build();
+            CompletableFuture<DeleteDriveResponse> deleteDriveResponseCompletableFuture = asyncClient.deleteDrive(deleteDriveRequest);
+            DeleteDriveResponse deleteDriveResponse = deleteDriveResponseCompletableFuture.get();
+            String json = new Gson().toJson(deleteDriveResponse);
+            DeleteUserRequest build = DeleteUserRequest.builder()
+                    .userId(userCloud.getUserId())
+                    .domainId("bj21743")
+                    .build();
+            CompletableFuture<DeleteUserResponse> deleteUserResponseCompletableFuture = asyncClient.deleteUser(build);
+            DeleteUserResponse deleteUserResponse = deleteUserResponseCompletableFuture.get();
+            String jsons = new Gson().toJson(deleteUserResponse);
+            cloudDiskFileDAO.deleteUserCloud(id);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
@@ -1020,7 +1044,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName, Integer userId, String synchronizeName) {
-        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId);
+        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId, null);
         if (folderName != null && parentFileStructures == null) {
             parentFileStructures = getParentFileId(folderName, userCloud.getDriveId());
         }
