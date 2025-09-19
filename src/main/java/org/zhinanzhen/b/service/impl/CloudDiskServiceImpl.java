@@ -48,6 +48,7 @@ import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.utils.PatternMatcherUtil;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WangPanUtils;
 
 import javax.annotation.Resource;
@@ -765,6 +766,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 userCloud.setOfficialId(adminUserByUsername.getOfficialId());
             }
             cloudDiskFileDAO.addUserCloud(userCloud);
+            SendEmailUtil.send("1286559059@qq.com", "添加用户成功", "用户" + userName + "添加成功,请及时修改登录方式");
             asyncClient.close();
             return userCloud;
         } catch (ExecutionException e) {
