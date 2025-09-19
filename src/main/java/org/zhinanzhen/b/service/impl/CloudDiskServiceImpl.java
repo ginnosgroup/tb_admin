@@ -704,8 +704,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         for (String s : split) {
             try {
                 StaticCredentialProvider provider = StaticCredentialProvider.create(Credential.builder()
-                        .accessKeyId("LTAI5tLov73MZ92VARfLNgrH")
-                        .accessKeySecret("gLYhLvlnpb1OHGaEBbyD94B9QfJRWe")
+                        .accessKeyId(ACCESS_KEY_ID)
+                        .accessKeySecret(ACCESS_KEY_SECRET)
                         .build());
 
                 MyAsyncClient client = MyAsyncClient.builder()
