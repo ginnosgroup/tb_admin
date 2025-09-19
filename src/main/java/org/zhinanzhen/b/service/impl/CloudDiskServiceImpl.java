@@ -21,6 +21,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.junit.Assert;
@@ -40,8 +41,10 @@ import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.UploadResponseData;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.PartInfo;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.utils.PatternMatcherUtil;
@@ -87,6 +90,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     List<CloudDiskFile> cloudDiskFileList = new ArrayList<>();
+    @Autowired
+    private AdminUserDAO adminUserDAO;
 
     @Override
     public int addAndUpdate(MultipartFile file, String type, Integer applicantId,Integer userId, String parentFileId,
@@ -695,7 +700,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     public void deleteUserCloud(Integer id) {
         try {
             AsyncClient asyncClient = getAsyncClient();
-            UserCloud userCloud = cloudDiskFileDAO.getUserCloud(null, null, id);
+            UserCloud userCloud = cloudDiskFileDAO.getUserCloud(null, null, id, null);
             DeleteDriveRequest deleteDriveRequest = DeleteDriveRequest.builder().driveId(userCloud.getDriveId()).build();
             CompletableFuture<DeleteDriveResponse> deleteDriveResponseCompletableFuture = asyncClient.deleteDrive(deleteDriveRequest);
             DeleteDriveResponse deleteDriveResponse = deleteDriveResponseCompletableFuture.get();
@@ -714,6 +719,65 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Override
+    public UserCloud addUserCloud(String userName, String email, String role) {
+        try {
+            UserCloud userCloud1 = cloudDiskFileDAO.getUserCloud(null, null, null, email);
+            if (userCloud1 != null) {
+                return null;
+            }
+            String userId = RandomStringUtils.randomAlphanumeric(32);
+            AsyncClient asyncClient = getAsyncClient();
+            UserCloud userCloud = new UserCloud();
+            CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                    .nickName(userName)
+                    .userId(userId)
+                    .role(role)
+                    .email(email)
+                    .userName(userName)
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+            CompletableFuture<CreateUserResponse> createUserResponseCompletableFuture = asyncClient.createUser(createUserRequest);
+            CreateUserResponse createUserResponse = createUserResponseCompletableFuture.get(10, TimeUnit.SECONDS);
+            String json = new Gson().toJson(createUserResponse);
+            JsonNode jsonNode = new ObjectMapper().readTree(json);
+            JsonNode items = jsonNode.path("body");
+            String driveId = items.get("defaultDriveId").asText();
+            if (!StringUtils.isEmpty(driveId)) {
+                userCloud.setDriveId(driveId);
+            }
+            asyncClient.close();
+            asyncClient = getAsyncClient();
+            // 修改空间大小
+            UpdateDriveRequest updateDriveRequest = UpdateDriveRequest.builder().driveId(userCloud.getDriveId()).owner(userId).totalSize(10737418240L).build();
+            CompletableFuture<UpdateDriveResponse> updateDriveResponseCompletableFuture = asyncClient.updateDrive(updateDriveRequest);
+            UpdateDriveResponse updateDriveResponse = updateDriveResponseCompletableFuture.get(10, TimeUnit.SECONDS);
+            userCloud.setUserId(userId);
+            userCloud.setUserName(userName);
+            userCloud.setEmail(email);
+//            userCloud.setDriveId();
+            AdminUserDO adminUserByUsername = adminUserDAO.getAdminUserByUsername(email);
+            if (adminUserByUsername != null) {
+                userCloud.setAdviserId(adminUserByUsername.getAdviserId());
+                userCloud.setOfficialId(adminUserByUsername.getOfficialId());
+            }
+            cloudDiskFileDAO.addUserCloud(userCloud);
+            asyncClient.close();
+            return userCloud;
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -1044,7 +1108,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName, Integer userId, String synchronizeName) {
-        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId, null);
+        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId, null, null);
         if (folderName != null && parentFileStructures == null) {
             parentFileStructures = getParentFileId(folderName, userCloud.getDriveId());
         }

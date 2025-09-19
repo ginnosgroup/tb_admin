@@ -227,6 +227,24 @@ public class CloudDiskController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/addUserCloud", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<UserCloud> addUserCloud(@RequestParam(value = "userName", required = false) String userName,
+                                         @RequestParam(value = "email", required = false) String email,
+                                         @RequestParam(value = "role", required = false) String role,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            UserCloud userCloud = cloudDiskService.addUserCloud(userName, email, role);
+            if (userCloud == null) {
+                return new Response<UserCloud>(1, "用户已存在", null);
+            }
+            return new Response<UserCloud>(0, "获取成功", userCloud);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<UserCloud>(1, "获取失败", null);
+        }
+    }
+
     @RequestMapping(value = "/listUserCloud", method = RequestMethod.GET)
     @ResponseBody
     public ListResponse<List<UserCloud>> listUserCloud(@RequestParam(value = "userName", required = false) String userName,

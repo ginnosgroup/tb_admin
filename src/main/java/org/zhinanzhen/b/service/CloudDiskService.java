@@ -42,4 +42,6 @@ public interface CloudDiskService {
 
     void deleteUserCloud(Integer id);
 
+    UserCloud addUserCloud(String userName, String email, String role);
+
 }
