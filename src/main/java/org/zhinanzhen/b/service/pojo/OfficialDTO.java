@@ -47,4 +47,6 @@ public class OfficialDTO {
 
 	private String evaluateAdviser;
 
+	private boolean isUserCloud = false;
+
 }

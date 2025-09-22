@@ -18,11 +18,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.CloudDiskFileDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.OfficialGradeDao;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.dao.pojo.OfficialGradeDO;
+import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.OfficialService;
 import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
@@ -45,6 +47,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	private AdminUserDAO adminUserDao;
 	@Resource
 	private OfficialGradeDao officialGradeDao;
+	@Resource
+	private CloudDiskFileDAO cloudDiskFileDao;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
 
@@ -180,6 +184,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			OfficialGradeDO grade = officialGradeDao.getOfficialGradeById(officialDo.getGradeId());
 			if (grade!=null)
 				officialDto.setGrade(grade.getGrade());
+			UserCloud userCloud = cloudDiskFileDao.getUserCloud(null, officialDo.getId(), null, null, null);
+			if (userCloud != null) {
+				officialDto.setUserCloud(true);
+			}
 			officialDtoList.add(officialDto);
 		}
 		return officialDtoList;
