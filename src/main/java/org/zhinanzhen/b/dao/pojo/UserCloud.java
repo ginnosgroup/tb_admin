@@ -24,4 +24,5 @@ public class UserCloud implements Serializable {
 
     private String userId;
 
+    private String phone;
 }

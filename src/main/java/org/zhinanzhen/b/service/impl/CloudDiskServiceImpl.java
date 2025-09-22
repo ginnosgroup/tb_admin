@@ -701,7 +701,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     public void deleteUserCloud(Integer id) {
         try {
             AsyncClient asyncClient = getAsyncClient();
-            UserCloud userCloud = cloudDiskFileDAO.getUserCloud(null, null, id, null);
+            UserCloud userCloud = cloudDiskFileDAO.getUserCloud(null, null, id, null, null);
             DeleteDriveRequest deleteDriveRequest = DeleteDriveRequest.builder().driveId(userCloud.getDriveId()).build();
             CompletableFuture<DeleteDriveResponse> deleteDriveResponseCompletableFuture = asyncClient.deleteDrive(deleteDriveRequest);
             DeleteDriveResponse deleteDriveResponse = deleteDriveResponseCompletableFuture.get();
@@ -723,9 +723,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
-    public UserCloud addUserCloud(String userName, String email, String role) {
+    public UserCloud addUserCloud(String userName, String email, String role, String phone) {
         try {
-            UserCloud userCloud1 = cloudDiskFileDAO.getUserCloud(null, null, null, email);
+            UserCloud userCloud1 = cloudDiskFileDAO.getUserCloud(null, null, null, null, phone);
             if (userCloud1 != null) {
                 return null;
             }
@@ -737,6 +737,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     .userId(userId)
                     .role(role)
                     .email(email)
+                    .phone(phone)
                     .userName(userName)
                     // Request-level configuration rewrite, can set Http request parameters, etc.
                     // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
@@ -759,6 +760,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             userCloud.setUserId(userId);
             userCloud.setUserName(userName);
             userCloud.setEmail(email);
+            userCloud.setPhone(phone);
 //            userCloud.setDriveId();
             AdminUserDO adminUserByUsername = adminUserDAO.getAdminUserByUsername(email);
             if (adminUserByUsername != null) {
@@ -766,7 +768,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 userCloud.setOfficialId(adminUserByUsername.getOfficialId());
             }
             cloudDiskFileDAO.addUserCloud(userCloud);
-            SendEmailUtil.send("1286559059@qq.com", "添加用户成功", "用户" + userName + "添加成功,请及时修改登录方式");
+//            SendEmailUtil.send("1286559059@qq.com", "添加用户成功", "用户" + userName + "添加成功,请及时修改登录方式");
             asyncClient.close();
             return userCloud;
         } catch (ExecutionException e) {
@@ -1110,7 +1112,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName, Integer userId, String synchronizeName) {
-        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId, null, null);
+        UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId, null, null, null);
         if (folderName != null && parentFileStructures == null) {
             parentFileStructures = getParentFileId(folderName, userCloud.getDriveId());
         }

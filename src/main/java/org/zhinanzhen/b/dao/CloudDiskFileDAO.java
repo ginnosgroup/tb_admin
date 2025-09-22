@@ -35,7 +35,7 @@ public interface CloudDiskFileDAO {
 
     void addUserCloud(UserCloud userCloud);
 
-    UserCloud getUserCloud(@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("id") Integer id, @Param("email") String email);
+    UserCloud getUserCloud(@Param("adviserId") Integer adviserId, @Param("officialId") Integer officialId, @Param("id") Integer id, @Param("email") String email, @Param("phone") String phone);
 
     List<UserCloud> listUserCloud(@Param("userName") String userName, @Param("email") String email, @Param("offset") int offset, @Param("rows") int rows);
 

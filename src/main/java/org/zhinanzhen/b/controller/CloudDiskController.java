@@ -232,9 +232,10 @@ public class CloudDiskController extends BaseController {
     public Response<UserCloud> addUserCloud(@RequestParam(value = "userName", required = false) String userName,
                                          @RequestParam(value = "email", required = false) String email,
                                          @RequestParam(value = "role", required = false) String role,
+                                            @RequestParam(value = "phone", required = false) String phone,
             HttpServletRequest request, HttpServletResponse response) {
         try {
-            UserCloud userCloud = cloudDiskService.addUserCloud(userName, email, role);
+            UserCloud userCloud = cloudDiskService.addUserCloud(userName, email, role, phone);
             if (userCloud == null) {
                 return new Response<UserCloud>(1, "用户已存在", null);
             }

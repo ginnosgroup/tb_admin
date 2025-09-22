@@ -58,7 +58,8 @@
             adviser_id,
             official_id,
             drive_id,
-            user_id
+            user_id,
+                                    phone
         )
         values (
             now(),
@@ -68,8 +69,9 @@
             #{adviserId},
             #{officialId},
             #{driveId},
-            #{userId}
-               )
+            #{userId},
+                                    #{phone}
+        )
     </insert>
 
     <update id="update">
@@ -211,6 +213,9 @@
             </if>
             <if test='email != null and email != ""'>
                 and email = #{email}
+            </if>
+            <if test='phone != null and phone != ""'>
+                and phone = #{phone}
             </if>
     </select>
     <select id="listUserCloud" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">
