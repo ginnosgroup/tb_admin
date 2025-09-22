@@ -768,7 +768,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 userCloud.setOfficialId(adminUserByUsername.getOfficialId());
             }
             cloudDiskFileDAO.addUserCloud(userCloud);
-//            SendEmailUtil.send("1286559059@qq.com", "添加用户成功", "用户" + userName + "添加成功,请及时修改登录方式");
+            SendEmailUtil.send("1286559059@qq.com", "添加用户成功", "用户" + userName + "添加成功,请及时修改登录方式");
             asyncClient.close();
             return userCloud;
         } catch (ExecutionException e) {
