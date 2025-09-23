@@ -626,7 +626,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             AsyncClient client = getAsyncClient();
             // Parameter settings for API request
             ListUserRequest listUserRequest = ListUserRequest.builder()
-                    .limit(20)
+                    .limit(999)
                     // Request-level configuration rewrite, can set Http request parameters, etc.
                     // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
                     .build();
@@ -739,6 +739,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     .email(email)
                     .phone(phone)
                     .userName(userName)
+                    .status("enabled")
                     // Request-level configuration rewrite, can set Http request parameters, etc.
                     // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
                     .build();
