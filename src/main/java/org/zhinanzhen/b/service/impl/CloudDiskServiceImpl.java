@@ -689,6 +689,30 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             throw new RuntimeException(e);
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
+        } finally {
+            int userId = 0;
+            try {
+                List<UserCloud> userClouds = cloudDiskFileDAO.listUserCloud(null, null, 0, 999);
+                for (UserCloud userCloud : userClouds) {
+                    userId = userCloud.getId();
+                    AsyncClient asyncClient = getAsyncClient();
+                    GetUserRequest getUserRequest = GetUserRequest.builder().userId(userCloud.getUserId()).build();
+                    CompletableFuture<GetUserResponse> user = asyncClient.getUser(getUserRequest);
+                    GetUserResponse getUserResponse = user.get();
+                    String json = new Gson().toJson(getUserResponse);
+                    JsonNode path = new ObjectMapper().readTree(json).path("body");
+                    if (path == null) {
+                        cloudDiskFileDAO.deleteUserCloud(userCloud.getId());
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                cloudDiskFileDAO.deleteUserCloud(userId);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 

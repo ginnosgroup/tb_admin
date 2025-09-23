@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
