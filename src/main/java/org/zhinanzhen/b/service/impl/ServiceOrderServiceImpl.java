@@ -1325,8 +1325,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setIsInsuranceCompany("");
         }
         // 顾问以及文案资料大小合计
-        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(serviceOrderDto.getOfficialId(), serviceOrderDto.getUserId());
-        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
+        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(serviceOrderDto.getUserId());
+        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getUserId());
 
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
