@@ -25,10 +25,8 @@ public interface CloudDiskFileDAO {
 
     CloudDiskFile getCloudDisk(String relativePath);
 
-    @Select("select sum(file_size) from b_cloud_disk_file where official_id = #{officialId} and user_id = #{userId}")
     Long listByOfficialId(@Param("officialId")int officialId, @Param("userId") int userId);
 
-    @Select("select sum(file_size) from b_cloud_disk_file where adviser_id = #{adviserId} and user_id = #{userId}")
     Long listByAdviserId(@Param("adviserId")int adviserId, @Param("userId") int userId);
 
     int updateofficialId(@Param("oldOfficialId") Integer oldOfficialId, @Param("newOfficialId") Integer newOfficialId);

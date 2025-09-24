@@ -240,6 +240,24 @@
             and email = #{email}
         </if>
     </select>
+    <select id="listByOfficialId" resultType="java.lang.Long">
+        select sum(file_size) from b_cloud_disk_file where 1=1
+        <if test='officialId != null and officialId != ""'>
+            and official_id = #{officialId}
+        </if>
+        <if test='userId != null and userId != ""'>
+            and user_id = #{userId}
+        </if>
+    </select>
+    <select id="listByAdviserId" resultType="java.lang.Long">
+        select sum(file_size) from b_cloud_disk_file where 1=1
+        <if test='adviserId != null and adviserId != ""'>
+            and adviser_id = #{adviserId}
+        </if>
+        <if test='userId != null and userId != ""'>
+            and user_id = #{userId}
+        </if>
+    </select>
 
 
 </mapper>
