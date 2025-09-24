@@ -574,6 +574,7 @@
             bso.gmt_create gmtCreate,
             bso.applicant_id applicantId,
             bso.service_id serviceId,
+            bso.binding_order bindingOrder,
             tbu.`name` userName,
             ba.firstname firstName,
             ba.surname surname,
@@ -630,6 +631,7 @@
         <result property="servicePackageId" column="servicePackageId" />
         <result property="applicantId" column="applicantId" />
         <result property="serviceId" column="serviceId" />
+        <result property="bindingOrder" column="bindingOrder" />
     </resultMap>
 
     <!-- 定义 VisaOfficialDTO 的 ResultMap，包含嵌套映射 -->

@@ -23,20 +23,18 @@ import okhttp3.RequestBody;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.CloudDiskFileDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.dao.pojo.UserInfo;
-import org.zhinanzhen.b.dao.pojo.box.ListFileResponse;
-import org.zhinanzhen.b.dao.pojo.box.MyAsyncClient;
 import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.UploadResponseData;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
@@ -58,11 +56,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -639,80 +634,83 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             JSONObject body1 = jsonObject.getJSONObject("body");
             String jsonString = JSONObject.toJSONString(body1.get("items"));
             List<UserInfo> userInfos = JSONArray.parseArray(jsonString, UserInfo.class);
+            ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+            CountDownLatch latch = new CountDownLatch(userInfos.size());
             for (UserInfo userInfo : userInfos) {
-                UserCloud userCloud = new UserCloud();
-                userCloud.setUserName(userInfo.getUserName());
-                userCloud.setEmail(userInfo.getUserName());
-                AdviserDO adviserDO = adviserDAO.getAdviserByEmail(userInfo.getUserName());
-                if (adviserDO != null) {
-                    userCloud.setAdviserId(adviserDO.getId());
-                }
-                OfficialDO officialDO = officialDAO.getOfficialByEmail(userInfo.getUserName());
-                if (officialDO != null) {
-                    userCloud.setOfficialId(officialDO.getId());
-                }
-                String userId = userInfo.getUserId();
-                userCloud.setUserId(userId);
-                // Parameter settings for API request
-                SearchDriveRequest searchDriveRequest = SearchDriveRequest.builder()
-                        .owner(userId)
-                        // Request-level configuration rewrite, can set Http request parameters, etc.
-                        // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
-                        .build();
-                // Asynchronously get the return value of the API request
-                CompletableFuture<SearchDriveResponse> responseT = client.searchDrive(searchDriveRequest);
-                // Synchronously get the return value of the API request
-                SearchDriveResponse respT = responseT.get();
-                String jsonT = new Gson().toJson(respT);
-                JSONObject jsonObjectT = JSON.parseObject(jsonT);
-                JSONObject body1T = jsonObjectT.getJSONObject("body");
-                String string = body1T.get("items").toString();
-                // 解析JSON数组
-                JsonNode rootNode = objectMapper.readTree(string);
-                // 获取第一个元素的driveId
-                if (rootNode.isArray() && rootNode.size() > 0) {
-                    JsonNode firstElement = rootNode.get(0);
-                    String driveId = firstElement.get("driveId").asText();
-                    userCloud.setDriveId(driveId);
-                }
-                List<UserCloud> userCloudList = cloudDiskFileDAO.listUserCloudBycondition(userCloud.getDriveId());
-                if (userCloudList.isEmpty()) {
-                    cloudDiskFileDAO.addUserCloud(userCloud);
-                }
+                executor.submit(() -> {
+                    try {
+                        UserCloud userCloud = new UserCloud();
+                        userCloud.setUserName(userInfo.getUserName());
+                        userCloud.setEmail(userInfo.getUserName());
+                        AdviserDO adviserDO = adviserDAO.getAdviserByEmail(userInfo.getUserName());
+                        if (adviserDO != null) {
+                            userCloud.setAdviserId(adviserDO.getId());
+                        }
+                        OfficialDO officialDO = officialDAO.getOfficialByEmail(userInfo.getUserName());
+                        if (officialDO != null) {
+                            userCloud.setOfficialId(officialDO.getId());
+                        }
+                        String userId = userInfo.getUserId();
+                        userCloud.setUserId(userId);
+                        // Parameter settings for API request
+                        SearchDriveRequest searchDriveRequest = SearchDriveRequest.builder()
+                                .owner(userId)
+                                // Request-level configuration rewrite, can set Http request parameters, etc.
+                                // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                                .build();
+                        // Asynchronously get the return value of the API request
+                        CompletableFuture<SearchDriveResponse> responseT = client.searchDrive(searchDriveRequest);
+                        // Synchronously get the return value of the API request
+                        SearchDriveResponse respT = responseT.get();
+                        String jsonT = new Gson().toJson(respT);
+                        JSONObject jsonObjectT = JSON.parseObject(jsonT);
+                        JSONObject body1T = jsonObjectT.getJSONObject("body");
+                        String string = body1T.get("items").toString();
+                        // 解析JSON数组
+                        JsonNode rootNode = objectMapper.readTree(string);
+                        // 获取第一个元素的driveId
+                        if (rootNode.isArray() && rootNode.size() > 0) {
+                            JsonNode firstElement = rootNode.get(0);
+                            String driveId = firstElement.get("driveId").asText();
+                            userCloud.setDriveId(driveId);
+                        }
+                        List<UserCloud> userCloudList = cloudDiskFileDAO.listUserCloudBycondition(userCloud.getDriveId());
+                        if (userCloudList.isEmpty()) {
+                            latch.countDown();
+                            cloudDiskFileDAO.addUserCloud(userCloud);
+                        }
+                    } catch (InterruptedException | IOException | ExecutionException e) {
+                        latch.countDown();
+                        throw new RuntimeException(e);
+                    }
+                });
             }
-//            client.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (TimeoutException e) {
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException(e);
         } finally {
-            int userId = 0;
-            try {
-                List<UserCloud> userClouds = cloudDiskFileDAO.listUserCloud(null, null, 0, 999);
-                for (UserCloud userCloud : userClouds) {
-                    userId = userCloud.getId();
-                    AsyncClient asyncClient = getAsyncClient();
-                    GetUserRequest getUserRequest = GetUserRequest.builder().userId(userCloud.getUserId()).build();
-                    CompletableFuture<GetUserResponse> user = asyncClient.getUser(getUserRequest);
-                    GetUserResponse getUserResponse = user.get();
-                    String json = new Gson().toJson(getUserResponse);
-                    JsonNode path = new ObjectMapper().readTree(json).path("body");
-                    if (path == null) {
-                        cloudDiskFileDAO.deleteUserCloud(userCloud.getId());
+            AtomicInteger userId = new AtomicInteger();
+            List<UserCloud> userClouds = cloudDiskFileDAO.listUserCloud(null, null, 0, 999);
+            ThreadPoolExecutor executorT = GlobalThreadPool.getInstance();
+            for (UserCloud userCloud : userClouds) {
+                executorT.submit(() -> {
+                    try {
+                        userId.set(userCloud.getId());
+                        AsyncClient asyncClient = getAsyncClient();
+                        GetUserRequest getUserRequest = GetUserRequest.builder().userId(userCloud.getUserId()).build();
+                        CompletableFuture<GetUserResponse> user = asyncClient.getUser(getUserRequest);
+                        GetUserResponse getUserResponse = user.get();
+                        String jsonT = new Gson().toJson(getUserResponse);
+                        JsonNode path = new ObjectMapper().readTree(jsonT).path("body");
+                        if (path == null) {
+                            cloudDiskFileDAO.deleteUserCloud(userCloud.getId());
+                        }
+                    } catch (InterruptedException | IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        cloudDiskFileDAO.deleteUserCloud(userId.get());
                     }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                cloudDiskFileDAO.deleteUserCloud(userId);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                });
             }
-
         }
     }
 
