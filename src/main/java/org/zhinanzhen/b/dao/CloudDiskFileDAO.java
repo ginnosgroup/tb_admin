@@ -1,7 +1,6 @@
 package org.zhinanzhen.b.dao;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 
@@ -25,9 +24,9 @@ public interface CloudDiskFileDAO {
 
     CloudDiskFile getCloudDisk(String relativePath);
 
-    Long listByOfficialId(@Param("officialId")int officialId, @Param("userId") int userId);
+    Long listByOfficialId(@Param("officialId") Integer officialId, @Param("userId") int userId);
 
-    Long listByAdviserId(@Param("adviserId")int adviserId, @Param("userId") int userId);
+    Long listByAdviserId(@Param("adviserId") Integer adviserId, @Param("userId") int userId);
 
     int updateofficialId(@Param("oldOfficialId") Integer oldOfficialId, @Param("newOfficialId") Integer newOfficialId);
 
