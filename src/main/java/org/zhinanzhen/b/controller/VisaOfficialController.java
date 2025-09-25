@@ -21,16 +21,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
-import org.zhinanzhen.b.dao.pojo.ServiceDO;
-import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
-import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
-import org.zhinanzhen.b.dao.pojo.VisaOfficialDO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.*;
-import org.zhinanzhen.b.service.pojo.OfficialDTO;
-import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
-import org.zhinanzhen.b.service.pojo.VisaDTO;
-import org.zhinanzhen.b.service.pojo.VisaOfficialDTO;
+import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -90,6 +85,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     private ServiceDAO serviceDAO;
     @Autowired
     private ServicePackagePriceDAO servicePackagePriceDAO;
+    @Autowired
+    private ServicePackageDAO servicePackageDao;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -472,6 +469,17 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     }
                     servicePackageType = "-" + type;
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
+                }
+                String firstServiceName = "";
+                if (visaDTO.getServiceOrder().getService().getId() == 25 && visaDTO.getServiceOrder().getBindingOrder() != null) {
+                    int servicePackageId = visaDTO.getServiceOrder().getServicePackageId();
+                    ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(servicePackageId);
+                    if (ObjectUtil.isNotNull(servicePackageDo)) {
+                        visaDTO.setServiceCode(servicePackageDo.getType() + "-" + visaDTO.getServiceCode());
+                    }
+                    ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrder().getBindingOrder());
+                    ServiceDTO serviceById = serviceService.getServiceById(serviceOrderById.getServiceId());
+                    visaDTO.getServiceOrder().getService().setName(serviceById.getName());
                 }
                 row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
