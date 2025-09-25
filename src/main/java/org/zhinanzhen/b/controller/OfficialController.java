@@ -1,11 +1,12 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -13,12 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
+import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.OfficialGradeDTO;
@@ -28,11 +28,13 @@ import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
+import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 
 import com.ikasoa.core.utils.StringUtil;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -53,6 +55,11 @@ public class OfficialController extends BaseController {
 
 	@Resource
 	private WebLogService webLogService;
+
+	@Resource
+	private AdviserService adviserService;
+
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
 	public enum OfficialWorkStateEnum{
 		NORMAL ("正常"), BUSY ("忙碌"), RESIGN("离职");
@@ -352,5 +359,232 @@ public class OfficialController extends BaseController {
 			return new Response<>(0, "fail");
 		}
 		return new Response<>(0, "success");
+	}
+
+	// 添加文案评分
+	@RequestMapping(value = "/addOfficialEvaluate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addOfficialEvaluate(@RequestBody List<OfficialEvaluate> officialEvaluateList,
+
+//			@RequestParam(value = "officialId") Integer officialId,
+//											 @RequestParam(value = "adviserId") Integer adviserId,
+//											 @RequestParam(value = "professionalism") String professionalism,
+//											 @RequestParam(value = "accuracy") String accuracy,
+//											 @RequestParam(value = "timelyCommunication") String timelyCommunication,
+//											 @RequestParam(value = "collaborationTime") String collaborationTime,
+//											 @RequestParam(value = "reasonLowScore", required = false) String reasonLowScore,
+//											 @RequestParam(value = "remark", required = false) String remark,
+											 HttpServletRequest request) {
+		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
+//		if (officialId != null) {
+//			officialEvaluate.setOfficialId(officialId);
+//		}
+//		if (adviserId != null) {
+//			officialEvaluate.setAdviserId(adviserId);
+//		}
+//		if (professionalism != null) {
+//			officialEvaluate.setProfessionalism(professionalism);
+//		}
+//		if (accuracy != null) {
+//			officialEvaluate.setAccuracy(accuracy);
+//		}
+//		if (timelyCommunication != null) {
+//			officialEvaluate.setTimelyCommunication(timelyCommunication);
+//		}
+//		if (collaborationTime != null) {
+//			officialEvaluate.setCollaborationTime(collaborationTime);
+//		}
+//		if (reasonLowScore != null) {
+//			officialEvaluate.setReasonLowScore(reasonLowScore);
+//		}
+//		if (remark != null) {
+//			officialEvaluate.setRemark(remark);
+//		}
+		for (OfficialEvaluate evaluate : officialEvaluateList) {
+			int i = officialService.addOfficialEvaluate(evaluate);
+			if (i == evaluate.getOfficialId()) {
+				try {
+					OfficialDTO officialById = officialService.getOfficialById(evaluate.getOfficialId());
+					return new Response<Integer>(1, "该月 " + officialById.getName() + " 已添加评分.", officialEvaluate.getId());
+				} catch (ServiceException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+		}
+		return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+//		if (addRe > 0) {
+//			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+//		} else if (addRe == -1) {
+//			return new Response<Integer>(1, "该月已添加评分.");
+//		} else {
+//			return new Response<Integer>(1, "添加失败.");
+//		}
+	}
+
+
+	// 修改文案评分
+	@RequestMapping(value = "/updateOfficialEvaluate", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> updateOfficialEvaluate(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "officialId") Integer officialId,
+												 @RequestParam(value = "adviserId") Integer adviserId,
+												 @RequestParam(value = "professionalism") String professionalism,
+												 @RequestParam(value = "accuracy") String accuracy,
+												 @RequestParam(value = "timelyCommunication") String timelyCommunication,
+												 @RequestParam(value = "collaborationTime") String collaborationTime,
+												 @RequestParam(value = "remark", required = false) String remark,
+												 HttpServletRequest request) {
+		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
+		if (id != null) {
+			officialEvaluate.setId(id);
+		}
+		if (officialId != null) {
+			officialEvaluate.setOfficialId(officialId);
+		}
+		if (adviserId != null) {
+			officialEvaluate.setAdviserId(adviserId);
+		}
+		if (professionalism != null) {
+			officialEvaluate.setProfessionalism(professionalism);
+		}
+		if (accuracy != null) {
+			officialEvaluate.setAccuracy(accuracy);
+		}
+		if (timelyCommunication != null) {
+			officialEvaluate.setTimelyCommunication(timelyCommunication);
+		}
+		if (collaborationTime != null) {
+			officialEvaluate.setCollaborationTime(collaborationTime);
+		}
+		if (remark != null) {
+			officialEvaluate.setRemark(remark);
+		}
+		int addRe = officialService.updateOfficialEvaluate(officialEvaluate);
+		if (addRe > 0) {
+			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
+		} else {
+			return new Response<Integer>(1, "添加失败.");
+		}
+	}
+
+
+	@RequestMapping(value = "/listCooperationEvaluate", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<OfficialDTO>> listcooperationEvaluate(@RequestParam(value = "adviserId", required = false) Integer adviserId,
+																  @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
+																  HttpServletRequest request) {
+		try {
+			String isAllCooperation = "false";
+			int count = 0;
+			// 解析年月字符串
+			YearMonth yearMonth = YearMonth.parse(collaborationTime, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+			// 获取月初第一天 00:00:00
+			LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+			// 获取月末最后一天 23:59:59
+			LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+			// 创建格式化器
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+			// 格式化为字符串
+			String startCollaborationTime = startOfMonth.format(formatter);
+			String endCollaborationTime = endOfMonth.format(formatter);
+
+			List<OfficialDTO> officialDOS = new ArrayList<>();
+			List<Integer> officials = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+			if (officials != null) {
+				for (Integer integer : officials) {
+					if (integer == 0) {
+						continue;
+					}
+					OfficialDTO officialById = officialService.getOfficialById(integer);
+					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
+					if (officialEvaluate != null) {
+						AdviserDTO adviserById = adviserService.getAdviserById(officialEvaluate.getAdviserId());
+						if (adviserById != null) {
+							officialById.setEvaluateAdviser(adviserById.getName());
+						}
+						Double averageScore = officialService.getAverageScore(officialEvaluate, collaborationTime, 3, false);
+						officialById.setAverageScore(DECIMAL_FORMAT.format(averageScore));
+						officialById.setOfficialEvaluate(officialEvaluate);
+						count++;
+					}
+					officialDOS.add(officialById);
+				}
+				if (count == officials.size() && count != 0) {
+					isAllCooperation = "true";
+				}
+			}
+
+			return new Response<List<OfficialDTO>>(0, isAllCooperation, officialDOS);
+		} catch (ServiceException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+	@RequestMapping(value = "/listOfficialEvaluate", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<OfficialEvaluate>> addOfficialEvaluate(@RequestParam(value = "officialId", required = false) Integer officialId,
+												 @RequestParam(value = "adviserId", required = false) Integer adviserId,
+												 @RequestParam(value = "startCollaborationTime", required = false) String startCollaborationTime,
+												 @RequestParam(value = "endCollaborationTime", required = false) String endCollaborationTime,
+												 @RequestParam(value = "collaborationTime", required = false) String collaborationTime,
+												 @RequestParam(value = "pageNum") Integer pageNum, @RequestParam(value = "pageSize") Integer pageSize,
+												 HttpServletRequest request) throws ServiceException {
+		Integer adviserId1 = getAdviserId(request);
+		if (adviserId1 != null) {
+			adviserId = adviserId1;
+		}
+		List<Integer> officialIds = new ArrayList<>();
+		if (officialId == null) {
+			officialIds = serviceOrderService.listCooperationOfficial(adviserId, startCollaborationTime, endCollaborationTime);
+		} else {
+			officialIds.add(officialId);
+		}
+		if (officialIds.isEmpty()) {
+			officialIds = null;
+		}
+		if (collaborationTime != null) {
+			// 解析年月字符串
+			YearMonth yearMonth = YearMonth.parse(collaborationTime, DateTimeFormatter.ofPattern("yyyy-MM"));
+
+			// 获取月初第一天 00:00:00
+			LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
+
+			// 获取月末最后一天 23:59:59
+			LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
+
+			// 创建格式化器
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+			// 格式化为字符串
+			startCollaborationTime = startOfMonth.format(formatter);
+			endCollaborationTime = endOfMonth.format(formatter);
+		}
+		int total = officialService.countOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime);
+		List<OfficialEvaluate> officialEvaluates = officialService.listOfficialEvaluate(officialIds, adviserId, startCollaborationTime, endCollaborationTime, pageNum, pageSize);
+		if (officialEvaluates != null) {
+			for (OfficialEvaluate officialEvaluate : officialEvaluates) {
+				AdviserDTO adviserById = adviserService.getAdviserById(officialEvaluate.getAdviserId());
+				if (adviserById != null) {
+					officialEvaluate.setEvaluateAdviser(adviserById.getName());
+				}
+				OfficialDTO officialById = officialService.getOfficialById(officialEvaluate.getOfficialId());
+				officialEvaluate.setEvaluateOfficial(officialById.getName());
+                Double averageScore = officialService.getAverageScore(officialEvaluate, collaborationTime, 1, true);
+				officialEvaluate.setAverageScore(DECIMAL_FORMAT.format(averageScore));
+                officialById.setOfficialEvaluate(officialEvaluate);
+			}
+			String isSuccess = "false";
+			if (officialIds != null && officialIds.size() == officialEvaluates.size()) {
+				isSuccess = "true";
+			}
+			return new ListResponse<List<OfficialEvaluate>>(true, pageSize, total, officialEvaluates, isSuccess);
+		} else {
+			return new ListResponse<List<OfficialEvaluate>>(false, pageSize, total, null, "");
+		}
 	}
 }

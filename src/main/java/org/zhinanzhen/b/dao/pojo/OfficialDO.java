@@ -32,4 +32,5 @@ public class OfficialDO implements Serializable {
 
 	private int gradeId;
 
+	private String averageScore;
 }

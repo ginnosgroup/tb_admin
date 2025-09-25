@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zhinanzhen.b.dao.CloudDiskFileDAO;
+import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -27,6 +29,8 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 	private RegionDAO regionDao;
 	@Resource
 	private AdminUserDAO adminUserDao;
+	@Resource
+	private CloudDiskFileDAO cloudDiskFileDao;
 	@Override
 	public int addAdviser(AdviserDTO adviserDto) throws ServiceException {
 		if (adviserDto == null) {
@@ -101,6 +105,10 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 		}
 		for (AdviserDO adviserDo : adviserDoList) {
 			AdviserDTO adviserDto = mapper.map(adviserDo, AdviserDTO.class);
+			UserCloud userCloud = cloudDiskFileDao.getUserCloud(adviserDo.getId(), null, null, null, null);
+			if (userCloud != null) {
+				adviserDto.setUserCloud(true);
+			}
 			if (StringUtil.isNotEmpty(adviserDo.getState())) {
 				adviserDto.setState(AdviserStateEnum.get(adviserDo.getState()));
 			}

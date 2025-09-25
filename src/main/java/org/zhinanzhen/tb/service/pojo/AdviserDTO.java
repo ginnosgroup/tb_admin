@@ -35,4 +35,6 @@ public class AdviserDTO {
 	private Integer adminRegionId;
 	
 	private String adminRegionName;
+
+	private boolean isUserCloud = false;
 }

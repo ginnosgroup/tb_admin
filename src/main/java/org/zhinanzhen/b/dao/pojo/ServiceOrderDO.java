@@ -2,6 +2,7 @@ package org.zhinanzhen.b.dao.pojo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 
@@ -202,4 +203,6 @@ public class ServiceOrderDO implements Serializable {
 	private String officialData;
 
 	private String scoreOptions;
+
+	private List<ServiceOrderDO> subServiceOrders;
 }

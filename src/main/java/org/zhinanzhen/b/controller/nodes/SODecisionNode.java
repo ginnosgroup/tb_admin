@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO;
+import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 import org.zhinanzhen.b.service.ServiceService;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
@@ -42,6 +43,9 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 	@Resource
 	protected InsuranceCompanyDAO insuranceCompanyDAO;
 
+	@Resource
+	protected ServiceOrderManageService serviceOrderManageService;
+
 	public static SODecisionNode soDecisionNode;
 
 	@PostConstruct
@@ -49,22 +53,26 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 		soDecisionNode = this;
 		soDecisionNode.serviceService = this.serviceService;
 		soDecisionNode.insuranceCompanyDAO = this.insuranceCompanyDAO;
+		soDecisionNode.serviceOrderManageService = this.serviceOrderManageService;
 	}
 	@Override
 	protected boolean saveNode(Context context) {
 		try {
+			ServiceOrderDTO serviceOrderDtoT = new ServiceOrderDTO();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
-			if (serviceOrderDto == null) {
+			ServiceOrderDTO serviceorderManageDto = soDecisionNode.serviceOrderManageService.getServiceOrderById(getServiceOrderId(context));
+			if (serviceOrderDto == null && serviceorderManageDto == null) {
 				log.error("未找到服务订单:serviceOrderId=" + getServiceOrderId(context));
 				return false;
 			}
-			String type = serviceOrderDto.getType();
+			serviceOrderDtoT = serviceOrderDto != null ? serviceOrderDto : serviceorderManageDto;
+			String type = serviceOrderDtoT.getType();
 			if ("VISA".equals(type)) { // 签证
 //				String officialData = serviceOrderDto.getOfficialData();
 //				if ("APPLY".equalsIgnoreCase(context.getParameter("state").toString()) && StringUtil.isEmpty(officialData)) {
 //					return false;
 //				}
-				ServiceDTO serviceById = soDecisionNode.serviceService.getServiceById(serviceOrderDto.getServiceId());
+				ServiceDTO serviceById = soDecisionNode.serviceService.getServiceById(serviceOrderDtoT.getServiceId());
 				if (serviceById != null && (serviceById.getCode().contains("485") || serviceById.getCode().contains("500"))) {
 					Object insuranceCompanyTmp = context.getParameter("insuranceCompany");
 					String insuranceCompany = "";
@@ -75,11 +83,11 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 					if (StringUtil.isNotEmpty(insuranceCompany)) {
 						ServiceOrderInsuranceDO serviceOrderInsuranceDO = soDecisionNode.insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
 						if (ObjectUtil.isNull(serviceOrderInsuranceDO)) {
-							soDecisionNode.insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), Integer.valueOf(insuranceCompany));
+							soDecisionNode.insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDtoT.getId(), Integer.valueOf(insuranceCompany));
 						}
 					}
 					if (ObjectUtil.isNotNull(hasInsurance)) {
-						serviceOrderDto.setIsInsuranceCompany((String) hasInsurance);
+						serviceOrderDtoT.setIsInsuranceCompany((String) hasInsurance);
 					}
 				}
 				if ("PAID".equals(getName())) {
@@ -90,10 +98,10 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				Object offerType = context.getParameter("offerType");
 				Object offerUrl = context.getParameter("offerUrl");
 				if (ObjectUtil.isNotNull(offerType)) {
-					serviceOrderDto.setOfferType(offerType.toString());
+					serviceOrderDtoT.setOfferType(offerType.toString());
 				}
 				if (ObjectUtil.isNotNull(offerUrl)) {
-					serviceOrderDto.setOfferUrl(offerUrl.toString());
+					serviceOrderDtoT.setOfferUrl(offerUrl.toString());
 				}
 				if ("WAIT".equals(getName())) {
 					log.error("留学服务订单没有MARA审核流程!");
@@ -107,40 +115,47 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 					return false;
 				}
 			} else {
-				log.error("服务类型错误:serviceOrderId=" + serviceOrderDto.getId() + ",type=" + type);
+				log.error("服务类型错误:serviceOrderId=" + serviceOrderDtoT.getId() + ",type=" + type);
 				return false;
 			}
 			log.info("context:" + context);
-			serviceOrderDto.setState(getName());
+			serviceOrderDtoT.setState(getName());
 			if (context.getParameter("refuseReason") != null) {
-				serviceOrderDto.setRefuseReason(context.getParameter("refuseReason").toString());
-				log.info("写入refuseReason:" + serviceOrderDto.getRefuseReason());
+				serviceOrderDtoT.setRefuseReason(context.getParameter("refuseReason").toString());
+				log.info("写入refuseReason:" + serviceOrderDtoT.getRefuseReason());
 			}
 			if (context.getParameter("closedReason") != null) {
-				serviceOrderDto.setClosedReason(context.getParameter("closedReason").toString());
-				log.info("写入closedReason:" + serviceOrderDto.getClosedReason());
+				serviceOrderDtoT.setClosedReason(context.getParameter("closedReason").toString());
+				log.info("写入closedReason:" + serviceOrderDtoT.getClosedReason());
 			}
 			if (context.getParameter("remarks") != null) {
-				serviceOrderDto.setRemarks(context.getParameter("remarks").toString());
-				log.info("写入remarks:" + serviceOrderDto.getRemarks());
+				serviceOrderDtoT.setRemarks(context.getParameter("remarks").toString());
+				log.info("写入remarks:" + serviceOrderDtoT.getRemarks());
 			}
 			if (context.getParameter("stateMark") != null) {
-				serviceOrderDto.setStateMark(context.getParameter("stateMark").toString());
-				log.info("写入stateMark:" + serviceOrderDto.getStateMark());
+				serviceOrderDtoT.setStateMark(context.getParameter("stateMark").toString());
+				log.info("写入stateMark:" + serviceOrderDtoT.getStateMark());
 			}
 			if (context.getParameter("stateMark2") != null) {
-				serviceOrderDto.setStateMark2(context.getParameter("stateMark2").toString());
-				log.info("写入stateMark2:" + serviceOrderDto.getStateMark2());
+				serviceOrderDtoT.setStateMark2(context.getParameter("stateMark2").toString());
+				log.info("写入stateMark2:" + serviceOrderDtoT.getStateMark2());
 			}
 			if (StringUtil.equals(getName(), "APPLY") || StringUtil.equals(getName(), "COMPLETE")
 					|| StringUtil.equals(getName(), "PAID") || StringUtil.equals(getName(), "APPLY_FAILED")) {
-				if (serviceOrderDto.getReadcommittedDate() == null)
-					serviceOrderDto.setReadcommittedDate(new Date());
+				if (serviceOrderDtoT.getReadcommittedDate() == null)
+					serviceOrderDtoT.setReadcommittedDate(new Date());
 			}
-			if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0)
-				log.info("保存流程状态成功:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
+			int coun = 0;
+			if (serviceOrderDto != null) {
+				coun = serviceOrderService.updateServiceOrder(serviceOrderDtoT);
+			}
+			if (serviceorderManageDto != null) {
+				coun = soDecisionNode.serviceOrderManageService.updateServiceOrderManage(serviceorderManageDto);
+			}
+			if (coun > 0)
+				log.info("保存流程状态成功:serviceOrderId=" + serviceOrderDtoT.getId() + ",state=" + getName());
 			else
-				log.info("保存流程状态失败:serviceOrderId=" + serviceOrderDto.getId() + ",state=" + getName());
+				log.info("保存流程状态失败:serviceOrderId=" + serviceOrderDtoT.getId() + ",state=" + getName());
 		} catch (ServiceException e) {
 			log.error("流程节点更新失败:" + e.getMessage());
 			return false;

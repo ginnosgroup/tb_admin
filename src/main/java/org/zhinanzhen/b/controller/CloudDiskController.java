@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -13,9 +14,7 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -155,13 +154,17 @@ public class CloudDiskController extends BaseController {
 
     @RequestMapping(value = "/getFileStructure", method = RequestMethod.GET)
     @ResponseBody
-    public Response<String> getFileStructure(@RequestParam(value = "parentFileStructures") String parentFileStructures,
+    public Response<String> getFileStructure(@RequestParam(value = "parentFileStructures", required = false) String parentFileStructures,
+                                             @RequestParam(value = "folderName", required = false) String folderName,
+                                             @RequestParam(value = "synchronizeName", required = false) String synchronizeName,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             Integer adviserId = adminUserLoginInfo.getAdviserId();
             Integer officialId = adminUserLoginInfo.getOfficialId();
-            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId);
+            Map<String, Integer> addCountMap = new HashMap<>();
+            Map<String, String> belongFolderMap = new HashMap<>();
+            cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName, null, synchronizeName);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();
@@ -211,5 +214,67 @@ public class CloudDiskController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/synchronizeUserCloud", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> synchronizeUserCloud(
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            cloudDiskService.synchronizeUserCloud();
+            return new Response<String>(0, "获取成功", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(1, "获取失败", e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/addUserCloud", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<UserCloud> addUserCloud(@RequestParam(value = "userName", required = false) String userName,
+                                         @RequestParam(value = "email", required = false) String email,
+                                         @RequestParam(value = "role", required = false) String role,
+                                            @RequestParam(value = "phone", required = false) String phone,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            UserCloud userCloud = cloudDiskService.addUserCloud(userName, email, role, phone);
+            if (userCloud == null) {
+                return new Response<UserCloud>(1, "用户已存在", null);
+            }
+            return new Response<UserCloud>(0, "获取成功", userCloud);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<UserCloud>(1, "获取失败", null);
+        }
+    }
+
+    @RequestMapping(value = "/listUserCloud", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<UserCloud>> listUserCloud(@RequestParam(value = "userName", required = false) String userName,
+                                                   @RequestParam(value = "email", required = false) String email,
+                                                   @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        try {
+            int total = cloudDiskService.countUserCloud(userName, email);
+            List<UserCloud> userClouds = cloudDiskService.listUserCloud(userName, email, pageNum, pageSize);
+            return new ListResponse<List<UserCloud>>(true, pageSize, total, userClouds, "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ListResponse<List<UserCloud>>(false, pageSize, 0, null, e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/deleteUserCloud", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> deleteUserCloud(@RequestParam(value = "id") Integer id,
+                                            HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        try {
+            cloudDiskService.deleteUserCloud(id);
+            return new Response<String>(0, "删除成功", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(1, "删除失败", e.getMessage());
+        }
+    }
 
 }

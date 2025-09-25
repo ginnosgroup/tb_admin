@@ -121,34 +121,17 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			VisaDO visaDo = mapper.map(visaDto, VisaDO.class);
 			if (visaDao.addVisa(visaDo) > 0) {
 				visaDto.setId(visaDo.getId());
-//				// EOI创建子订单的文案佣金订单
-//				ServiceOrderDO mainServiceOrder = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
-//				if (ObjectUtil.isNotNull(mainServiceOrder) && "EOI".equals(serviceDao.getServiceById(mainServiceOrder.getServiceId()).getCode())) {
-//					List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(mainServiceOrder.getId());
-//					if (deriveOrder != null && deriveOrder.size() > 0) {
-//						deriveOrder.forEach(e->{
-//							visaDo.setServiceOrderId(e.getId());
-//							VisaOfficialDTO visaDTO = BuildVisaDTO(visaDo, e);
-//							try {
-//								VisaOfficialDTO byServiceOrderId1 = visaOfficialService.getByServiceOrderId(e.getId());
-//								if (ObjectUtil.isNull(byServiceOrderId1)) {
-//									int i = visaOfficialService.addVisa(visaDTO);
-//								}
-//							} catch (ServiceException ex) {
-//								throw new RuntimeException(ex);
-//							}
-//						});
-//					}
-//				}
 				// 分期付款订单订单总应收款修改
 				ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(visaDo.getServiceOrderId());
-				List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getId());
-				if (visaDo.getInstallment() == 2 && !CollectionUtils.isEmpty(deriveOrder)) {
-					deriveOrder.forEach(e->{
-						e.setPerAmount(e.getReceivable());
-						ServiceOrderDO serviceOrderDO = mapper.map(e, ServiceOrderDO.class);
-						serviceOrderDao.updateServiceOrder(serviceOrderDO);
-					});
+				if (serviceOrderById != null) {
+					List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getId());
+					if (visaDo.getInstallment() == 2 && !CollectionUtils.isEmpty(deriveOrder)) {
+						deriveOrder.forEach(e->{
+							e.setPerAmount(e.getReceivable());
+							ServiceOrderDO serviceOrderDO = mapper.map(e, ServiceOrderDO.class);
+							serviceOrderDao.updateServiceOrder(serviceOrderDO);
+						});
+					}
 				}
 				return visaDo.getId();
 			} else {

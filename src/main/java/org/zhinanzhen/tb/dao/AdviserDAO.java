@@ -22,4 +22,6 @@ public interface AdviserDAO {
 
 	List<AdviserDO> listAdviserOperUserIdIsNull();
 
+    AdviserDO getAdviserByEmail(@Param("userName") String userName);
+
 }

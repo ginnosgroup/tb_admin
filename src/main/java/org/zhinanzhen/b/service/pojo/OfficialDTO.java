@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
 
+import org.zhinanzhen.b.dao.pojo.OfficialEvaluate;
 import org.zhinanzhen.b.service.OfficialStateEnum;
 import org.zhinanzhen.tb.dao.pojo.RegionDO;
 
@@ -39,4 +40,13 @@ public class OfficialDTO {
 	private RegionDO regionDo;
 
 	private Boolean isOfficialAdmin;
+
+	private OfficialEvaluate officialEvaluate;
+
+	private String averageScore;
+
+	private String evaluateAdviser;
+
+	private boolean isUserCloud = false;
+
 }

@@ -142,6 +142,9 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Resource
     private InsuranceCompanyDAO insuranceCompanyDAO;
 
+    @Resource
+    private ServiceOrderManageDAO serviceOrderManageDAO;
+
     public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
         List<ApplicantListDO> applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaListDo.getServiceOrderId());
@@ -556,6 +559,22 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             int id = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId()).getId();
             visaDOS = visaDAO.listVisaByServiceOrderId(id);
         }
+        double proportion = 0.00;
+        if (visaDOS.isEmpty()) {
+            ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderById.getId());
+            if (serviceOrderAndManageById != null) {
+                ServiceOrderDO serviceOrderManage = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+                proportion = serviceOrderById.getAmount() / serviceOrderManage.getAmount();
+                visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderAndManageById.getServiceOrderManageId());
+                for (VisaDO visaDO : visaDOS) {
+                    visaDO.setReceivable(visaDO.getReceivable() * proportion);
+                    visaDO.setReceived(visaDO.getReceived() * proportion);
+                    visaDO.setAmount(visaDO.getAmount() * proportion);
+                    visaDO.setPerAmount(visaDO.getPerAmount() * proportion);
+                    visaDO.setExpectAmount(visaDO.getExpectAmount() * proportion);
+                }
+            }
+        }
         // 设置amount金额
         List<RefundDO> refundDOS = new ArrayList<>();
         boolean isSIV = false;
@@ -579,7 +598,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         for (VisaDO visaDO : visaDOS) {
             RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDO.getId());
             if (ObjectUtil.isNotNull(refundByVisaId)) {
-                visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount());
+                visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount() * proportion);
             }
         }
         // EOI数量判断

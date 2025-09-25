@@ -301,9 +301,9 @@ public class ServiceOrderDTO {
 
 	private String scoreOptions;
 
-//	private ScoreDO scoreDO;
-
 	private Long officialDataSize;
 
 	private Long adviserDataSize;
+
+	private List<ServiceOrderDTO> subServiceOrders;
 }

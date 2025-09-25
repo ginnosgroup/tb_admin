@@ -1,9 +1,12 @@
 package org.zhinanzhen.b.service;
 
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public interface CloudDiskService {
@@ -19,7 +22,7 @@ public interface CloudDiskService {
 
     String getShareUrl(String userId, String parentFileId);
 
-    int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId);
+    int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName, Integer userId, String synchronizeName);
 
     List<CloudDiskFile> initializationFolder(Integer userId, Integer applicantId, Integer adviserId, Integer officialId) throws ExecutionException, InterruptedException;
 
@@ -31,5 +34,15 @@ public interface CloudDiskService {
     String getDownLink(Integer id, String fileId);
 
     int updateofficialId(Integer officialId1, Integer integer);
+
+    List<UserCloud> listUserCloud(String userName, String email, int pageNum, int pageSize);
+
+    void synchronizeUserCloud();
+
+    int countUserCloud(String userName, String email);
+
+    void deleteUserCloud(Integer id);
+
+    UserCloud addUserCloud(String userName, String email, String role, String phone);
 
 }
