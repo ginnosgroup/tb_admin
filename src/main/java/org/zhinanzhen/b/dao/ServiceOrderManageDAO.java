@@ -70,4 +70,6 @@ public interface ServiceOrderManageDAO {
 
     ServiceOrderAndManage getServiceOrderAndManageById(Integer id);
 
+    int updateServiceOrder(ServiceOrderDO serviceOrderDo);
+
 }

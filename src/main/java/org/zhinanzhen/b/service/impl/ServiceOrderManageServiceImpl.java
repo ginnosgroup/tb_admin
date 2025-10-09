@@ -355,7 +355,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 serviceOrderDo.setState("COMPLETE");
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
-            int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
+            int i = serviceOrderManageDAO.updateServiceOrder(serviceOrderDo);
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())

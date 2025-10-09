@@ -180,6 +180,269 @@
                    #{officialData},
                    #{scoreOptions});
     </insert>
+    <update id="updateServiceOrder">
+        UPDATE b_service_order_manage
+        SET gmt_modify = now()
+        <if test='type != null and type != ""'>
+            , type = #{type}
+        </if>
+        <if test='peopleNumber != null and peopleNumber != ""'>
+            , people_number = #{peopleNumber}
+        </if>
+        <if test='peopleType != null and peopleType != ""'>
+            , people_type = #{peopleType}
+        </if>
+        <if test='peopleRemarks != null and peopleRemarks != ""'>
+            , people_remarks = #{peopleRemarks}
+        </if>
+        <if test='serviceId != null and serviceId > 0'>
+            , service_id = #{serviceId}
+        </if>
+        <if test='parentId != null and parentId > 0'>
+            , parent_id = #{parentId}
+        </if>
+        <if test='applicantParentId != null and applicantParentId > 0'>
+            , applicant_parent_id = #{applicantParentId}
+        </if>
+        <if test='servicePackageId != null and servicePackageId > 0'>
+            , service_package_id = #{servicePackageId}
+        </if>
+        <if test='schoolId != null and schoolId > 0'>
+            , school_id = #{schoolId}
+        </if>
+        <if test="courseId != null and courseId > 0">
+            , course_id = #{courseId}
+        </if>
+        <if test="schoolInstitutionLocationId != null and schoolInstitutionLocationId > 0">
+            , school_institution_location_id = #{schoolInstitutionLocationId}
+        </if>
+        <if test='institutionTradingName != null and institutionTradingName != ""'>
+            , institution_trading_name = #{institutionTradingName}
+        </if>
+        <if test='state != null and state != ""'>
+            , state = #{state}
+        </if>
+        <if test='stateMark != null'>
+            , state_mark = #{stateMark}
+        </if>
+        <if test='stateMark2 != null'>
+            , state_mark2 = #{stateMark2}
+        </if>
+        <if test='urgentState != null and urgentState != ""'>
+            , urgent_state = #{urgentState}
+        </if>
+        <if test='urgentState == ""'>
+            , urgent_state = NULL
+        </if>
+        <if test='maraApprovalDate != null'>
+            , mara_approval_date = #{maraApprovalDate}
+        </if>
+        <if test='submitMaraApprovalDate != null'>
+            , submit_mara_approval_date = #{submitMaraApprovalDate}
+        </if>
+        <if test='officialApprovalDate != null'>
+            , official_approval_date = #{officialApprovalDate}
+        </if>
+        <if test='isSettle != null'>
+            , is_settle = #{isSettle}
+        </if>
+        <if test='isDepositUser != null'>
+            , is_deposit_user = #{isDepositUser}
+        </if>
+        <if test='isSubmitted != null'>
+            , is_submitted = #{isSubmitted}
+        </if>
+        <if test='subagencyId != null and subagencyId > 0'>
+            , subagency_id = #{subagencyId}
+        </if>
+        <if test='isPay != null'>
+            , is_pay = #{isPay}
+        </if>
+        <if test='receiveTypeId != null and receiveTypeId > 0'>
+            , receive_type_id = #{receiveTypeId}
+        </if>
+        <if test='receiveDate != null'>
+            , receive_date = #{receiveDate}
+        </if>
+        <if test='receivable != null and receivable != ""'>
+            , receivable = #{receivable}
+        </if>
+        <if test='discount != null and discount != ""'>
+            , discount = #{discount}
+        </if>
+        <if test='received != null and received != ""'>
+            , received = #{received}
+        </if>
+        <if test='installment != null and installment > 0'>
+            , installment = #{installment}
+        </if>
+        <if test='paymentVoucherImageUrl1 != null'>
+            , payment_voucher_image_url_1 = #{paymentVoucherImageUrl1}
+        </if>
+        <if test='paymentVoucherImageUrl2 != null'>
+            , payment_voucher_image_url_2 = #{paymentVoucherImageUrl2}
+        </if>
+        <if test='paymentVoucherImageUrl3 != null'>
+            , payment_voucher_image_url_3 = #{paymentVoucherImageUrl3}
+        </if>
+        <if test='paymentVoucherImageUrl4 != null'>
+            , payment_voucher_image_url_4 = #{paymentVoucherImageUrl4}
+        </if>
+        <if test='paymentVoucherImageUrl5 != null'>
+            , payment_voucher_image_url_5 = #{paymentVoucherImageUrl5}
+        </if>
+        <if test='coePaymentVoucherImageUrl1 != null'>
+            , coe_payment_voucher_image_url_1 = #{coePaymentVoucherImageUrl1}
+        </if>
+        <if test='coePaymentVoucherImageUrl2 != null'>
+            , coe_payment_voucher_image_url_2 = #{coePaymentVoucherImageUrl2}
+        </if>
+        <if test='coePaymentVoucherImageUrl3 != null'>
+            , coe_payment_voucher_image_url_3 = #{coePaymentVoucherImageUrl3}
+        </if>
+        <if test='coePaymentVoucherImageUrl4 != null'>
+            , coe_payment_voucher_image_url_4 = #{coePaymentVoucherImageUrl4}
+        </if>
+        <if test='coePaymentVoucherImageUrl5 != null'>
+            , coe_payment_voucher_image_url_5 = #{coePaymentVoucherImageUrl5}
+        </if>
+        <if test='visaVoucherImageUrl != null'>
+            , visa_voucher_image_url = #{visaVoucherImageUrl}
+        </if>
+        <if test='invoiceVoucherImageUrl1 != null'>
+            , invoice_voucher_image_url1 = #{invoiceVoucherImageUrl1}
+        </if>
+        <if test='invoiceVoucherImageUrl2 != null'>
+            , invoice_voucher_image_url2 = #{invoiceVoucherImageUrl2}
+        </if>
+        <if test='invoiceVoucherImageUrl3 != null'>
+            , invoice_voucher_image_url3 = #{invoiceVoucherImageUrl3}
+        </if>
+        <if test='invoiceVoucherImageUrl4 != null'>
+            , invoice_voucher_image_url4 = #{invoiceVoucherImageUrl4}
+        </if>
+        <if test='invoiceVoucherImageUrl5 != null'>
+            , invoice_voucher_image_url5 = #{invoiceVoucherImageUrl5}
+        </if>
+        <if test='kjPaymentImageUrl1 != null'>
+            , kj_payment_image_url1 = #{kjPaymentImageUrl1}
+        </if>
+        <if test='kjPaymentImageUrl2 != null'>
+            , kj_payment_image_url2 = #{kjPaymentImageUrl2}
+        </if>
+        <if test='lowPriceImageUrl != null'>
+            , low_price_image_url = #{lowPriceImageUrl}
+        </if>
+        <if test='perAmount > 0'>
+            , per_amount = #{perAmount}
+        </if>
+        <if test='amount > 0'>
+            , amount = #{amount}
+        </if>
+        <if test='expectAmount > 0'>
+            , expect_amount = #{expectAmount}
+        </if>
+        <if test='currency != null and currency != ""'>
+            , currency = #{currency}
+        </if>
+        <if test='exchangeRate != null and exchangeRate != ""'>
+            , exchange_rate = #{exchangeRate}
+        </if>
+        <if test='gst != null'>
+            , gst = #{gst}
+        </if>
+        <if test='deductGst != null'>
+            , deduct_gst = #{deductGst}
+        </if>
+        <if test='bonus != null'>
+            , bonus = #{bonus}
+        </if>
+        <if test='userId != null and userId > 0'>
+            , user_id = #{userId}
+        </if>
+        <if test='applicantId != null'>
+            , applicant_id = #{applicantId}
+        </if>
+        <if test='maraId != null and maraId > 0'>
+            , mara_id = #{maraId}
+        </if>
+        <if test='adviserId != null and adviserId > 0'>
+            , adviser_id = #{adviserId}
+        </if>
+        <if test='adviserId2 != null and adviserId2 > 0'>
+            , adviser_id_2 = #{adviserId2}
+        </if>
+        <if test='officialId != null'>
+            , official_id = #{officialId}
+        </if>
+        <if test='remarks != null'>
+            , remarks = #{remarks}
+        </if>
+        <if test='refuseReason != null'>
+            , refuse_reason = #{refuseReason}
+        </if>
+        <if test='closedReason != null'>
+            , closed_reason = #{closedReason}
+        </if>
+        <if test="information != null">
+            , information = #{information}
+        </if>
+        <if test="isHistory != null">
+            , is_history = #{isHistory}
+        </if>
+        <if test="nutCloud != null">
+            , nut_cloud = #{nutCloud}
+        </if>
+        <if test="serviceAssessId != null">
+            , service_assess_id = #{serviceAssessId}
+        </if>
+        <if test=" realPeopleNumber != null  and realPeopleNumber > 0 ">
+            , real_People_Number = #{realPeopleNumber}
+        </if>
+        <if test="verifyCode != null">
+            ,verify_code = #{verifyCode}
+        </if>
+        <if test="readcommittedDate != null">
+            ,readcommitted_date = #{readcommittedDate}
+        </if>
+        <if test="refNo != null">
+            ,ref_no = #{refNo}
+        </if>
+        <if test="EOINumber != null">
+            ,EOI_number = #{EOINumber}
+        </if>
+        <if test="bindingOrder != null">
+            ,binding_order = #{bindingOrder}
+        </if>
+        <if test='offerType != null and offerType != ""'>
+            ,offer_type = #{offerType}
+        </if>
+        <if test='offerUrl != null and offerUrl != ""'>
+            ,offer_url = #{offerUrl}
+        </if>
+        <if test="expectTimeEnrollment != null">
+            ,expect_time_enrollment = #{expectTimeEnrollment}
+        </if>
+        <if test="isApplyVisa != null">
+            ,is_apply_visa = #{isApplyVisa}
+        </if>
+        <if test="visaNumber != null">
+            ,visa_number = #{visaNumber}
+        </if>
+        <if test='isInsuranceCompany != null and isInsuranceCompany != "" '>
+            ,is_insurance_company = #{isInsuranceCompany}
+        </if>
+        <if test='transferRemarks != null and transferRemarks != "" '>
+            ,transfer_remarks = #{transferRemarks}
+        </if>
+        <if test='officialData != null and officialData != "" '>
+            ,official_data = #{officialData}
+        </if>
+        <if test='scoreOptions != null and scoreOptions != "" '>
+            ,score_options = #{scoreOptions}
+        </if>
+        WHERE id = #{id};
+    </update>
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT count(*)
         FROM tb_user u, b_service_order_manage so

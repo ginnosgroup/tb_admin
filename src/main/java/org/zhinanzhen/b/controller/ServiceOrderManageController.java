@@ -305,6 +305,14 @@ public class ServiceOrderManageController extends BaseController {
             String visaNumber = serviceOrderManageRequest.getVisaNumber();
             String scoreOptions = serviceOrderManageRequest.getScoreOptions();
             List<ServiceOrderApplicantDTO> serviceOrderApplicantList = serviceOrderManageRequest.getServiceOrderApplicantList();
+            double totalAmount = 0.00;
+            for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
+                totalAmount += Double.parseDouble(serviceOrderJsonRequest.getAmount());
+            }
+            int compareAmount = compareAmount(serviceOrderJson, amount, perAmount, expectAmount, receivable);
+            if (compareAmount != 0) {
+                return new Response<Integer>(1, swich(compareAmount), 0);
+            }
             if (serviceOrderJson == null) {
                 return new Response<Integer>(1, "服务项目未选定，请选定服务", 0);
             }
@@ -460,6 +468,47 @@ public class ServiceOrderManageController extends BaseController {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
         }
         return null;
+    }
+
+    private String swich(int compareAmount) {
+        switch (compareAmount) {
+            case -1:
+                return "本次收款金额不一致，请重新输入";
+            case -2:
+                return "本次应收款不一致，请重新输入";
+            case -3:
+                return "预收金额不一致，请重新输入";
+            case -4:
+                return "总计应收金额不一致，请重新输入";
+            default:
+                return "订单信息校验通过";
+        }
+    }
+
+    private int compareAmount(List<ServiceOrderJsonRequest> serviceOrderJson, String amount, String perAmount, String expectAmount, String receivable) {
+        double totalAmount = 0.00;
+        double totalPerAmount = 0.00;
+        double totalExpectAmount = 0.00;
+        double totalReceivable = 0.00;
+        for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
+            totalAmount += Double.parseDouble(serviceOrderJsonRequest.getAmount());
+            totalPerAmount += Double.parseDouble(serviceOrderJsonRequest.getPerAmount());
+            totalExpectAmount += Double.parseDouble(serviceOrderJsonRequest.getExpectAmount());
+            totalReceivable += Double.parseDouble(serviceOrderJsonRequest.getReceivable());
+        }
+        if (Double.compare(totalAmount, Double.parseDouble(amount)) != 0) {
+            return -1;
+        }
+        if (Double.compare(totalPerAmount, Double.parseDouble(perAmount)) != 0) {
+            return -2;
+        }
+        if (Double.compare(totalExpectAmount, Double.parseDouble(expectAmount)) != 0) {
+            return -3;
+        }
+        if (Double.compare(totalReceivable, Double.parseDouble(receivable)) != 0) {
+            return -4;
+        }
+        return 0;
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
