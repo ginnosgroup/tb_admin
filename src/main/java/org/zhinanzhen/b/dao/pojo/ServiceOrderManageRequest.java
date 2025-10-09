@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceOrderManageRequest {
+    private Integer id;
     private String type;
     private Integer peopleNumber;
     private String peopleType;
