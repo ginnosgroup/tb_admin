@@ -35,4 +35,8 @@ public interface ServiceOrderManageService {
 
     int updateServiceOrderManage(ServiceOrderDTO serviceorderManageDto) throws ServiceException;
 
+    ServiceOrderDTO getserviceOrderManageByServiceOrderId(int id);
+
+
+    List<ServiceOrderDTO> listChildrenServiceOrder(int id);
 }

@@ -402,6 +402,20 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
 
     }
 
+    @Override
+    public ServiceOrderDTO getserviceOrderManageByServiceOrderId(int id) {
+        ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(id);
+        if (serviceOrderAndManageById != null) {
+            return mapper.map(serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId()), ServiceOrderDTO.class);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ServiceOrderDTO> listChildrenServiceOrder(int id) {
+        return serviceOrderManageDAO.listChildrenServiceOrder(id);
+    }
+
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
         //获取旧文案信息

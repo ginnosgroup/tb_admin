@@ -72,4 +72,6 @@ public interface ServiceOrderManageDAO {
 
     int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
+    List<ServiceOrderDTO> listChildrenServiceOrder(int id);
+
 }

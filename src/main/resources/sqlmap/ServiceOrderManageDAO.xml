@@ -905,4 +905,14 @@
     <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">
         select * from b_service_order_and_manage where service_order_id = #{id}
     </select>
+    <select id="listChildrenServiceOrder" resultType="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
+        SELECT
+            *
+        FROM
+            b_service_order
+        WHERE
+            id IN ( SELECT service_order_id FROM b_service_order_and_manage WHERE service_order_manage_id = #{id, jdbcType=INTEGER} )
+          AND (
+            applicant_parent_id = 0)
+    </select>
 </mapper>
