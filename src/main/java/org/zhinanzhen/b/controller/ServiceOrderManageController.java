@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -1292,7 +1293,7 @@ public class ServiceOrderManageController extends BaseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     @ResponseBody
-    public ListResponse<List<ServiceOrderDTO>> listServiceOrder(
+    public ListResponse<List<ServiceOrderManage>> listServiceOrder(
             @RequestParam(value = "id", required = false) Integer id,
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "state", required = false) String state,
@@ -1388,7 +1389,7 @@ public class ServiceOrderManageController extends BaseController {
                 if (newAdviserId != null)
                     adviserId = newAdviserId;
                 if (adminUserLoginInfo == null)
-                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "No permission !");
+                    return new ListResponse<List<ServiceOrderManage>>(false, pageSize, 0, null, "No permission !");
             }
 
             if (id != null && id > 0) {
@@ -1403,8 +1404,16 @@ public class ServiceOrderManageController extends BaseController {
                  * serviceOrder.setCommissionOrderDTOList(serviceOrderService.
                  * getCommissionOrderList(id));
                  */
-                return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
+                List<ServiceOrderManage> manageList = list.stream()
+                        .map(dto -> {
+                            ServiceOrderManage manage = new ServiceOrderManage();
+                            BeanUtils.copyProperties(dto, manage);
+                            return manage;
+                        })
+                        .collect(Collectors.toList());
+                return new ListResponse<List<ServiceOrderManage>>(true, pageSize, list.size(), manageList, "");
             }
+
             int total = serviceOrderManageService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
@@ -1419,20 +1428,19 @@ public class ServiceOrderManageController extends BaseController {
             if (bindingList != null && bindingList && "OVST".equals(type)) {
                 total = (int) (total - serviceOrderList.get(0).getBindingOrderCount());
             }
-            if (newOfficialId != null)
-                for (ServiceOrderDTO so : serviceOrderList)
-//                    so.setOfficialNotes(serviceOrderManageService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
-            /*
-             * if (newOfficialId != null){ for (ServiceOrderDTO so : serviceOrderList) {
-             * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.
-             * getId())); } }
-             */
+            List<ServiceOrderManage> manageList = serviceOrderList.stream()
+                    .map(dto -> {
+                        ServiceOrderManage manage = new ServiceOrderManage();
+                        BeanUtils.copyProperties(dto, manage);
+                        return manage;
+                    })
+                    .collect(Collectors.toList());
             if (serviceOrderList == null) {
                 serviceOrderList = new ArrayList<>();
             }
-            return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
+            return new ListResponse<List<ServiceOrderManage>>(true, pageSize, total, manageList, "");
         } catch (ServiceException e) {
-            return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
+            return new ListResponse<List<ServiceOrderManage>>(false, pageSize, 0, null, e.getMessage());
         }
     }
 
@@ -3722,140 +3730,140 @@ public class ServiceOrderManageController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/exportList", method = RequestMethod.GET)
-    @ResponseBody
-    public void exportList(@RequestParam(value = "id", required = false) Integer id,
-                                                @RequestParam(value = "type", required = false) String type,
-                                                @RequestParam(value = "state", required = false) String state,
-                                                @RequestParam(value = "auditingState", required = false) String auditingState,
-                                                @RequestParam(value = "reviewState", required = false) String reviewState,
-                                                @RequestParam(value = "urgentState", required = false) String urgentState,
-                                                @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
-                                                @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
-                                                @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
-                                                @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
-                                                @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
-                                                @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
-                                                @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
-                                                @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
-                                                @RequestParam(value = "regionId", required = false) Integer regionId,
-                                                @RequestParam(value = "userId", required = false) Integer userId,
-                                                @RequestParam(value = "userName", required = false) String userName,
-                                                @RequestParam(value = "applicantName", required = false) String applicantName,
-                                                @RequestParam(value = "maraId", required = false) Integer maraId,
-                                                @RequestParam(value = "adviserId", required = false) Integer adviserId,
-                                                @RequestParam(value = "officialId", required = false) Integer officialId,
-                                                @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
-                                                @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
-                                                @RequestParam(value = "serviceId", required = false) Integer serviceId,
-                                                @RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
-                                                @RequestParam(value = "schoolId", required = false) Integer schoolId,
-                                                @RequestParam(value = "isSettle", required = false) Boolean isSettle,
-                                                @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-                                                @RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
-                                                HttpServletResponse response) {
-        try {
-            super.setPostHeader(response);
-            // 设置响应头
-            response.setContentType("application/vnd.ms-excel");
-            response.setCharacterEncoding("utf-8");
-            // 设置防止中文名乱码
-            Date date = new Date();
-            SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
-            String formattedDateTmp = sd.format(date); // 将Date类对象转换为指定格式的字符串
-            String filename = URLEncoder.encode("ServiceOrderExport-" + formattedDateTmp, "UTF-8");
-            // 文件下载方式(附件下载还是在当前浏览器打开)
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-disposition", "attachment;filename=" +
-                    filename + ".xlsx");
-            // 查询要导出的数据
-            ListResponse<List<ServiceOrderDTO>> listListResponse = this.listServiceOrder(id, type, state, auditingState, reviewState, urgentState, startMaraApprovalDate, endMaraApprovalDate,
-                    startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate, regionId, null, userId,
-                    userName, applicantName, maraId, adviserId, officialId, officialTagId, isNotApproved, serviceId, servicePackageId, schoolId, isSettle, null,
-                    null, null, null, pageNum, pageSize, sorter, request, response);
-            if (listListResponse.getMessage().equals("No permission !")) {
-                throw new RuntimeException("当前用户未登录");
-            }
-            List<ServiceOrderDTO> data = listListResponse.getData();
-            // 新建表格数据容器
-            List<ServiceOrderExportDTO> serviceOrderExportDTOS = new ArrayList<>();
-            data.forEach(e->{
-                ServiceOrderExportDTO serviceOrderExportDTO = new ServiceOrderExportDTO();
-                serviceOrderExportDTO.setId(e.getId());
-                if (ObjectUtil.isNotNull(e.getFinishDate())) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
-                    String formattedDate = sdf.format(e.getFinishDate()); // 将Date类对象转换为指定格式的字符串
-                    serviceOrderExportDTO.setFinishDate(formattedDate);
-                }
-                if (ObjectUtil.isNotNull(e.getOfficialApprovalDate())) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
-                    String formattedDate = sdf.format(e.getOfficialApprovalDate()); // 将Date类对象转换为指定格式的字符串
-                    serviceOrderExportDTO.setOfficialApprovalDate(formattedDate);
-                }
-                if (ObjectUtil.isNotNull(e.getReadcommittedDate())) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
-                    String formattedDate = sdf.format(e.getReadcommittedDate()); // 将Date类对象转换为指定格式的字符串
-                    serviceOrderExportDTO.setReadcommittedDate(formattedDate);
-                }
-                if (ObjectUtil.isNotNull(e.getUser())) {
-                    if (StringUtils.isNotBlank(e.getUser().getName())) {
-                        serviceOrderExportDTO.setUserName(e.getUser().getName());
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getApplicant())) {
-                    if (StringUtils.isNotBlank(e.getApplicant().getSurname())) {
-                        serviceOrderExportDTO.setApplicantName(e.getApplicant().getSurname());
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getApplicant())) {
-                    if (ObjectUtil.isNotNull(e.getApplicant().getBirthday())) {
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
-                        String formattedDate = sdf.format(e.getApplicant().getBirthday()); // 将Date类对象转换为指定格式的字符串
-                        serviceOrderExportDTO.setApplicantBirthday(formattedDate);
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getUser())) {
-                    if (StringUtils.isNotBlank(e.getUser().getPhone())) {
-                        serviceOrderExportDTO.setPhone(e.getUser().getPhone());
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getAdviser())) {
-                    if (StringUtils.isNotBlank(e.getAdviser().getName())) {
-                        serviceOrderExportDTO.setAdviserName(e.getAdviser().getName());
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getOfficial())) {
-                    if (StringUtils.isNotBlank(e.getOfficial().getName())) {
-                        serviceOrderExportDTO.setOfficialName(e.getOfficial().getName());
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getMara())) {
-                    if (StringUtils.isNotBlank(e.getMara().getName())) {
-                        serviceOrderExportDTO.setMaraName(e.getMara().getName());
-                    }
-                }
-                if (ObjectUtil.isNotNull(e.getService())) {
-                    if (StringUtils.isNotBlank(e.getService().getName()) && StringUtils.isNotBlank(e.getService().getCode())) {
-                        serviceOrderExportDTO.setServiceCodeAndName(e.getService().getName() + "-" + e.getService().getCode());
-                    }
-                }
-                if (StringUtils.isNotBlank(e.getState())) {
-                    String s = convertOrderStatus(e.getState());
-                    if (s.equals("无状态")) {
-                        System.out.println("无状态的数据为-------------" + e.getId());
-                    }
-                    serviceOrderExportDTO.setState(s);
-                }
-                serviceOrderExportDTOS.add(serviceOrderExportDTO);
-            });
-            // 写入数据到excel
-            EasyExcel.write(response.getOutputStream(), ServiceOrderExportDTO.class)
-                    .sheet("用户信息")
-                    .doWrite(serviceOrderExportDTOS);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @RequestMapping(value = "/exportList", method = RequestMethod.GET)
+//    @ResponseBody
+//    public void exportList(@RequestParam(value = "id", required = false) Integer id,
+//                                                @RequestParam(value = "type", required = false) String type,
+//                                                @RequestParam(value = "state", required = false) String state,
+//                                                @RequestParam(value = "auditingState", required = false) String auditingState,
+//                                                @RequestParam(value = "reviewState", required = false) String reviewState,
+//                                                @RequestParam(value = "urgentState", required = false) String urgentState,
+//                                                @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
+//                                                @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+//                                                @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+//                                                @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+//                                                @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
+//                                                @RequestParam(value = "endReadcommittedDate", required = false) String endReadcommittedDate,
+//                                                @RequestParam(value = "startFinishDate", required = false) String startFinishDate,
+//                                                @RequestParam(value = "endFinishDate", required = false) String endFinishDate,
+//                                                @RequestParam(value = "regionId", required = false) Integer regionId,
+//                                                @RequestParam(value = "userId", required = false) Integer userId,
+//                                                @RequestParam(value = "userName", required = false) String userName,
+//                                                @RequestParam(value = "applicantName", required = false) String applicantName,
+//                                                @RequestParam(value = "maraId", required = false) Integer maraId,
+//                                                @RequestParam(value = "adviserId", required = false) Integer adviserId,
+//                                                @RequestParam(value = "officialId", required = false) Integer officialId,
+//                                                @RequestParam(value = "officialTagId", required = false) Integer officialTagId,
+//                                                @RequestParam(value = "isNotApproved", required = false) Boolean isNotApproved,
+//                                                @RequestParam(value = "serviceId", required = false) Integer serviceId,
+//                                                @RequestParam(value = "servicePackageId", required = false) Integer servicePackageId,
+//                                                @RequestParam(value = "schoolId", required = false) Integer schoolId,
+//                                                @RequestParam(value = "isSettle", required = false) Boolean isSettle,
+//                                                @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+//                                                @RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
+//                                                HttpServletResponse response) {
+//        try {
+//            super.setPostHeader(response);
+//            // 设置响应头
+//            response.setContentType("application/vnd.ms-excel");
+//            response.setCharacterEncoding("utf-8");
+//            // 设置防止中文名乱码
+//            Date date = new Date();
+//            SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+//            String formattedDateTmp = sd.format(date); // 将Date类对象转换为指定格式的字符串
+//            String filename = URLEncoder.encode("ServiceOrderExport-" + formattedDateTmp, "UTF-8");
+//            // 文件下载方式(附件下载还是在当前浏览器打开)
+//            response.setCharacterEncoding("UTF-8");
+//            response.setHeader("Content-disposition", "attachment;filename=" +
+//                    filename + ".xlsx");
+//            // 查询要导出的数据
+//            ListResponse<List<ServiceOrderDTO>> listListResponse = this.listServiceOrder(id, type, state, auditingState, reviewState, urgentState, startMaraApprovalDate, endMaraApprovalDate,
+//                    startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate, regionId, null, userId,
+//                    userName, applicantName, maraId, adviserId, officialId, officialTagId, isNotApproved, serviceId, servicePackageId, schoolId, isSettle, null,
+//                    null, null, null, pageNum, pageSize, sorter, request, response);
+//            if (listListResponse.getMessage().equals("No permission !")) {
+//                throw new RuntimeException("当前用户未登录");
+//            }
+//            List<ServiceOrderDTO> data = listListResponse.getData();
+//            // 新建表格数据容器
+//            List<ServiceOrderExportDTO> serviceOrderExportDTOS = new ArrayList<>();
+//            data.forEach(e->{
+//                ServiceOrderExportDTO serviceOrderExportDTO = new ServiceOrderExportDTO();
+//                serviceOrderExportDTO.setId(e.getId());
+//                if (ObjectUtil.isNotNull(e.getFinishDate())) {
+//                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+//                    String formattedDate = sdf.format(e.getFinishDate()); // 将Date类对象转换为指定格式的字符串
+//                    serviceOrderExportDTO.setFinishDate(formattedDate);
+//                }
+//                if (ObjectUtil.isNotNull(e.getOfficialApprovalDate())) {
+//                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+//                    String formattedDate = sdf.format(e.getOfficialApprovalDate()); // 将Date类对象转换为指定格式的字符串
+//                    serviceOrderExportDTO.setOfficialApprovalDate(formattedDate);
+//                }
+//                if (ObjectUtil.isNotNull(e.getReadcommittedDate())) {
+//                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+//                    String formattedDate = sdf.format(e.getReadcommittedDate()); // 将Date类对象转换为指定格式的字符串
+//                    serviceOrderExportDTO.setReadcommittedDate(formattedDate);
+//                }
+//                if (ObjectUtil.isNotNull(e.getUser())) {
+//                    if (StringUtils.isNotBlank(e.getUser().getName())) {
+//                        serviceOrderExportDTO.setUserName(e.getUser().getName());
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getApplicant())) {
+//                    if (StringUtils.isNotBlank(e.getApplicant().getSurname())) {
+//                        serviceOrderExportDTO.setApplicantName(e.getApplicant().getSurname());
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getApplicant())) {
+//                    if (ObjectUtil.isNotNull(e.getApplicant().getBirthday())) {
+//                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); // 创建一个SimpleDateFormat类对象，指定日期格式为"yyyy/MM/dd HH:mm:ss"
+//                        String formattedDate = sdf.format(e.getApplicant().getBirthday()); // 将Date类对象转换为指定格式的字符串
+//                        serviceOrderExportDTO.setApplicantBirthday(formattedDate);
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getUser())) {
+//                    if (StringUtils.isNotBlank(e.getUser().getPhone())) {
+//                        serviceOrderExportDTO.setPhone(e.getUser().getPhone());
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getAdviser())) {
+//                    if (StringUtils.isNotBlank(e.getAdviser().getName())) {
+//                        serviceOrderExportDTO.setAdviserName(e.getAdviser().getName());
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getOfficial())) {
+//                    if (StringUtils.isNotBlank(e.getOfficial().getName())) {
+//                        serviceOrderExportDTO.setOfficialName(e.getOfficial().getName());
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getMara())) {
+//                    if (StringUtils.isNotBlank(e.getMara().getName())) {
+//                        serviceOrderExportDTO.setMaraName(e.getMara().getName());
+//                    }
+//                }
+//                if (ObjectUtil.isNotNull(e.getService())) {
+//                    if (StringUtils.isNotBlank(e.getService().getName()) && StringUtils.isNotBlank(e.getService().getCode())) {
+//                        serviceOrderExportDTO.setServiceCodeAndName(e.getService().getName() + "-" + e.getService().getCode());
+//                    }
+//                }
+//                if (StringUtils.isNotBlank(e.getState())) {
+//                    String s = convertOrderStatus(e.getState());
+//                    if (s.equals("无状态")) {
+//                        System.out.println("无状态的数据为-------------" + e.getId());
+//                    }
+//                    serviceOrderExportDTO.setState(s);
+//                }
+//                serviceOrderExportDTOS.add(serviceOrderExportDTO);
+//            });
+//            // 写入数据到excel
+//            EasyExcel.write(response.getOutputStream(), ServiceOrderExportDTO.class)
+//                    .sheet("用户信息")
+//                    .doWrite(serviceOrderExportDTOS);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     // 用户支付信息：订单支付金额以及留学订单相关金额
     @RequestMapping(value = "/viewBalance", method = RequestMethod.GET)

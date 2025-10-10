@@ -211,24 +211,31 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     type = "bindingList";
                 }
             }
-            serviceOrderDoList = serviceOrderManageDAO.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
+            List<Integer> serviceOrderManageIds = serviceOrderManageDAO.listserviceOrderManage(null, null, type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                     theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
-            if (serviceOrderDoList == null)
-                return null;
 
-            List<ServiceOrderDO> collect = new ArrayList<>();
-            long count = 0L;
-            if ("bindingList".equals(type)) {
-                collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
-            } else {
-                collect = serviceOrderDoList;
+            for (Integer serviceOrderManageId : serviceOrderManageIds) {
+                serviceOrderDoList.add(serviceOrderManageDAO.getServiceOrderById(serviceOrderManageId));
             }
-            CountDownLatch latch = new CountDownLatch(collect.size());
-            for (int i = 0; i < collect.size(); i++) {
-                ServiceOrderDO serviceOrderDo = collect.get(i);
+
+
+//            serviceOrderDoList = serviceOrderManageDAO.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
+//                    auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
+//                    theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
+//                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
+//                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
+            if (serviceOrderDoList == null) {
+                return null;
+            }
+
+
+            long count = 0L;
+            CountDownLatch latch = new CountDownLatch(serviceOrderDoList.size());
+            for (int i = 0; i < serviceOrderDoList.size(); i++) {
+                ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
                 List<ServiceOrderDO> serviceOrderSubs = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
                 if (serviceOrderSubs != null) {
                     serviceOrderDo.setSubServiceOrders(serviceOrderSubs);
@@ -237,8 +244,10 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 executor.submit(() -> {
                     try {
                         serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
-                        for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
-                            putServiceOrderDTO(serviceOrderSub);
+                        if (serviceOrderSubs != null) {
+                            for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
+                                putServiceOrderDTO(serviceOrderSub);
+                            }
                         }
                         // 只有在成功执行了任务后才减少计数器
                         latch.countDown(); // 完成任务，计数器减一
