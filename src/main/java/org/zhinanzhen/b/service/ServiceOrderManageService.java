@@ -39,4 +39,7 @@ public interface ServiceOrderManageService {
 
 
     List<ServiceOrderDTO> listChildrenServiceOrder(int id);
+
+    ServiceOrderDTO getServiceOrderBySubId(Integer subId) throws ServiceException;
+
 }

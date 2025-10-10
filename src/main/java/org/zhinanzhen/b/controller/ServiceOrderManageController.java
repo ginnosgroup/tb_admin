@@ -1295,6 +1295,7 @@ public class ServiceOrderManageController extends BaseController {
     @ResponseBody
     public ListResponse<List<ServiceOrderManage>> listServiceOrder(
             @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "subId", required = false) Integer subId,
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "auditingState", required = false) String auditingState,
@@ -1395,12 +1396,35 @@ public class ServiceOrderManageController extends BaseController {
             if (id != null && id > 0) {
                 List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
                 ServiceOrderDTO serviceOrder = serviceOrderManageService.getServiceOrderById(id);
-                List<ServiceOrderDTO> subServiceOrders = serviceOrder.getSubServiceOrders();
+//                List<ServiceOrderDTO> subServiceOrders = serviceOrder.getSubServiceOrders();
 //                if ((serviceOrder != null && ((adviserId != null && serviceOrder.getAdviserId() == adviserId)
 //                        || (officialId != null && serviceOrder.getOfficialId() == officialId)))
 //                        || isSuperAdminUser(request) || getOfficialAdminId(request) != null || getKjId(request) != null)
                     if (serviceOrder != null)
                         list.add(serviceOrder);
+                /*
+                 * serviceOrder.setCommissionOrderDTOList(serviceOrderService.
+                 * getCommissionOrderList(id));
+                 */
+                List<ServiceOrderManage> manageList = list.stream()
+                        .map(dto -> {
+                            ServiceOrderManage manage = new ServiceOrderManage();
+                            BeanUtils.copyProperties(dto, manage);
+                            return manage;
+                        })
+                        .collect(Collectors.toList());
+                return new ListResponse<List<ServiceOrderManage>>(true, pageSize, list.size(), manageList, "");
+            }
+
+            if (subId != null && subId > 0) {
+                List<ServiceOrderDTO> list = new ArrayList<ServiceOrderDTO>();
+                ServiceOrderDTO serviceOrder = serviceOrderManageService.getServiceOrderBySubId(subId);
+//                List<ServiceOrderDTO> subServiceOrders = serviceOrder.getSubServiceOrders();
+//                if ((serviceOrder != null && ((adviserId != null && serviceOrder.getAdviserId() == adviserId)
+//                        || (officialId != null && serviceOrder.getOfficialId() == officialId)))
+//                        || isSuperAdminUser(request) || getOfficialAdminId(request) != null || getKjId(request) != null)
+                if (serviceOrder != null)
+                    list.add(serviceOrder);
                 /*
                  * serviceOrder.setCommissionOrderDTOList(serviceOrderService.
                  * getCommissionOrderList(id));
