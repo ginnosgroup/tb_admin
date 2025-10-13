@@ -574,11 +574,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 	}
 
-	@Override
-	public UserOrder userOrder(Integer adviserId, String userId) {
-		serviceOrderDao.userOrder(adviserId, userId);
-		return null;
-	}
+//	@Override
+//	public UserOrder userOrder(Integer adviserId, String userId) {
+//		serviceOrderDao.userOrder(adviserId, userId);
+//		return null;
+//	}
 
 	private boolean buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
 		boolean isBelongToThisAdviser = false;
