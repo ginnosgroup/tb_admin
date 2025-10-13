@@ -11,12 +11,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
-import org.zhinanzhen.b.dao.pojo.ApplicantDO;
-import org.zhinanzhen.b.dao.pojo.MaraDO;
-import org.zhinanzhen.b.dao.pojo.OfficialDO;
-import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
-import org.zhinanzhen.b.dao.pojo.TagDO;
-import org.zhinanzhen.b.dao.pojo.UserTagDO;
+import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
@@ -232,7 +227,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if(!buildUserAdviserDto(userDto, adviserId))
 				continue;
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
-			if (applicantList != null && applicantList.size() < 0)
+			if (applicantList != null && applicantList.size() > 0)
 				userDto.setApplicantList(applicantList);
 			AdviserDO adviserDo = null;
 			if (adviserId > 0) {
@@ -577,6 +572,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public UserOrder userOrder(Integer adviserId, String userId) {
+		serviceOrderDao.userOrder(adviserId, userId);
+		return null;
 	}
 
 	private boolean buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
