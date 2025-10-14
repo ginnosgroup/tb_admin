@@ -542,7 +542,7 @@ public class UserController extends BaseController {
         super.setGetHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         String apList = adminUserLoginInfo.getApList();
-        if (!"GW".equalsIgnoreCase(apList)) {
+        if (!"GW".equalsIgnoreCase(apList) && !"SUPERAD".equalsIgnoreCase(apList)) {
             return new Response<UserOrder>(1, "No permission !", null);
         }
         Integer adviserId = adminUserLoginInfo.getAdviserId();
