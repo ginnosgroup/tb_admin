@@ -6,10 +6,8 @@ import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import lombok.Data;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.config.GlobalThreadPool;
-import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
@@ -285,14 +283,14 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 return null;
             }
             ServiceOrderDO serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(id);
+            if (serviceOrderDo == null)
+                return null;
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
             if (serviceOrderDOS != null) {
                 for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
                     subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO));
                 }
             }
-            if (serviceOrderDo == null)
-                return null;
             serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
             serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
             serviceOrderDto.setSubServiceOrders(subServiceOrderDtos);

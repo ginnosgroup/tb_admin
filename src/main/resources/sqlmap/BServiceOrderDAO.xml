@@ -1546,6 +1546,31 @@
         and official_id != 0
         group by official_id
     </select>
+    <select id="listServiceOrderByUserId" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            *
+        FROM
+            b_service_order bso
+                LEFT JOIN b_service_order_and_manage bsoam ON bso.id = bsoam.service_order_id
+                LEFT JOIN b_service_order_manage bsom ON bsoam.service_order_manage_id = bsom.id
+        WHERE
+            <if test="isManage">
+                bsom.id IS NOT NULL
+            </if>
+            <if test="!isManage">
+                bsom.id IS NULL
+            </if>
+            <if test="adviserId != null">
+                and bso.adviser_id = #{adviserId}
+            </if>
+            <if test="userId != null">
+                and bso.user_id = #{userId}
+            </if>
+        <if test="isManage">
+            GROUP BY
+                bsom.id
+        </if>
+    </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>

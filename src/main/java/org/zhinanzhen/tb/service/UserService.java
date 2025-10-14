@@ -3,9 +3,7 @@ package org.zhinanzhen.tb.service;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.ibatis.annotations.Select;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.zhinanzhen.tb.dao.pojo.UserDO;
+import org.zhinanzhen.b.dao.pojo.UserOrder;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 
@@ -85,5 +83,7 @@ public interface UserService {
 	public int deleteUserTagByTagIdAndUserId(int tagId, int userId) throws ServiceException;
 
 	public int updateDOB(Date dob,int id) throws ServiceException;
+
+    UserOrder userOrder(Integer adviserId, Integer userId);
 
 }

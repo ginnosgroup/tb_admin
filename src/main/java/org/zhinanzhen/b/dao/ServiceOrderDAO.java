@@ -146,4 +146,6 @@ public interface ServiceOrderDAO {
     List<Integer> listCooperationOfficial(@Param("adviserId")Integer adviserId, @Param("startCollaborationTime")String startCollaborationTime, @Param("endCollaborationTime")String endCollaborationTime);
 
 
+    List<ServiceOrderDO> listServiceOrderByUserId(@Param("userId") Integer userId, @Param("adviserId") Integer adviserId, @Param("isManage") boolean isManage);
+
 }

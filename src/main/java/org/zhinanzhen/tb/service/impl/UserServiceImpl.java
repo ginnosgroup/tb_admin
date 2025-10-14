@@ -5,15 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -58,6 +61,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private WebLogDAO webLogDAO;
 	@Resource
 	private CloudDiskFileDAO cloudDiskFileDAO;
+	@Resource
+	private ServiceOrderManageDAO serviceOrderManageDAO;
+	@Resource
+	private VisaDAO visaDAO;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -574,11 +581,64 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 	}
 
-//	@Override
-//	public UserOrder userOrder(Integer adviserId, String userId) {
-//		serviceOrderDao.userOrder(adviserId, userId);
-//		return null;
-//	}
+	@Override
+	public UserOrder userOrder(Integer adviserId, Integer userId) {
+
+		UserOrder userOrder = new UserOrder();
+		double serviceOrderAmount = 0.0;
+		double serviceOrderManageAmount = 0.0;
+		int serviceOrderCount = 0;
+		int serviceOrderManageCount = 0;
+		List<ServiceOrderManage> serviceOrderManageList = new ArrayList<>();
+		List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrderByUserId(userId, adviserId, false);
+		List<ServiceOrderDO> serviceOrderDOSManage = serviceOrderDao.listServiceOrderByUserId(userId, adviserId, true);
+
+		for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+			if (serviceOrderDO.getApplicantParentId() == 0) {
+				serviceOrderAmount += serviceOrderDO.getReceivable();
+				serviceOrderCount++;
+			}
+		}
+
+		for (ServiceOrderDO serviceOrderDO : serviceOrderDOSManage) {
+			ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDO.getId());
+			if (serviceOrderAndManageById != null) {
+				ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+				ServiceOrderManage manage = new ServiceOrderManage();
+				BeanUtils.copyProperties(serviceOrderById, manage);
+				List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(serviceOrderById.getId());
+				List<ServiceOrderDO> collect = serviceOrderDTOS.stream().map(serviceOrderDTO -> mapper.map(serviceOrderDTO, ServiceOrderDO.class)).collect(Collectors.toList());
+				manage.setSubServiceOrders(collect);
+				serviceOrderManageAmount += manage.getReceivable();
+				List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderDO.getId());
+				if (visaDOS != null && !visaDOS.isEmpty()) {
+					if (visaDOS.size() == 1) {
+						manage.setPaidAmount(visaDOS.get(0).getReceivable());
+						manage.setUnPaidAmount(0.00);
+					} else {
+						for (VisaDO visaDO : visaDOS) {
+							if (!visaDO.getState().equalsIgnoreCase("PENDING") || visaDO.getCommissionState().equalsIgnoreCase("YJY")) {
+								manage.setPaidAmount(manage.getPaidAmount() + visaDO.getReceivable());
+							} else {
+								manage.setUnPaidAmount(manage.getUnPaidAmount() + visaDO.getReceivable());
+							}
+						}
+					}
+				} else {
+					manage.setPaidAmount(manage.getReceivable());
+					manage.setUnPaidAmount(manage.getReceivable() - manage.getAmount());
+				}
+				serviceOrderManageList.add(manage);
+			}
+		}
+		serviceOrderManageCount = serviceOrderManageList.size();
+
+		userOrder.setServiceOrderCount(serviceOrderCount + serviceOrderManageCount);
+		userOrder.setServiceOrderList(serviceOrderDOS);
+		userOrder.setServiceOrderAmount(serviceOrderAmount + serviceOrderManageAmount);
+		userOrder.setServiceOrderManageList(serviceOrderManageList);
+		return userOrder;
+	}
 
 	private boolean buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
 		boolean isBelongToThisAdviser = false;
