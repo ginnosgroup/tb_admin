@@ -537,7 +537,10 @@ public class UserController extends BaseController {
 	@RequestMapping(value = "/userOrder", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<UserOrder> untrueCount(@RequestParam(value = "userId", required = false) Integer userId,
+										   @RequestParam(value = "pageNum") int pageNum,
+										   @RequestParam(value = "pageSize") int pageSize,
 										 @RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+
 										 HttpServletResponse response) {
         super.setGetHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -546,7 +549,7 @@ public class UserController extends BaseController {
             return new Response<UserOrder>(1, "No permission !", null);
         }
         Integer adviserId = adminUserLoginInfo.getAdviserId();
-        UserOrder userOrder = userService.userOrder(adviserId, userId);
+        UserOrder userOrder = userService.userOrder(adviserId, userId, pageNum, pageSize);
         return new Response<UserOrder>(0, userOrder);
     }
 

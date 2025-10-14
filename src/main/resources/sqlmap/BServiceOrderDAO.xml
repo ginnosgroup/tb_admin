@@ -1570,6 +1570,8 @@
             GROUP BY
                 bsom.id
         </if>
+        LIMIT
+            #{pageNum}, #{pageSize}
     </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">

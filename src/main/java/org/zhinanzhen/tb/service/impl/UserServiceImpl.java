@@ -582,7 +582,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public UserOrder userOrder(Integer adviserId, Integer userId) {
+	public UserOrder userOrder(Integer adviserId, Integer userId, int pageNum, int pageSize) {
 
 		UserOrder userOrder = new UserOrder();
 		double serviceOrderAmount = 0.0;
@@ -590,8 +590,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		int serviceOrderCount = 0;
 		int serviceOrderManageCount = 0;
 		List<ServiceOrderManage> serviceOrderManageList = new ArrayList<>();
-		List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrderByUserId(userId, adviserId, false);
-		List<ServiceOrderDO> serviceOrderDOSManage = serviceOrderDao.listServiceOrderByUserId(userId, adviserId, true);
+		List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrderByUserId(userId, adviserId, false, pageNum * pageSize, pageSize);
+		List<ServiceOrderDO> serviceOrderDOSManage = serviceOrderDao.listServiceOrderByUserId(userId, adviserId, true, pageNum * pageSize, pageSize);
 
 		for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
 			if (serviceOrderDO.getApplicantParentId() == 0) {

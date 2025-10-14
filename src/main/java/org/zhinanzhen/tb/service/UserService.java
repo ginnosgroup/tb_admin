@@ -84,6 +84,6 @@ public interface UserService {
 
 	public int updateDOB(Date dob,int id) throws ServiceException;
 
-    UserOrder userOrder(Integer adviserId, Integer userId);
+    UserOrder userOrder(Integer adviserId, Integer userId, int pageNum, int pageSize);
 
 }
