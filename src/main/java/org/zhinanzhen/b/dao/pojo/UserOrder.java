@@ -12,11 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserOrder implements Serializable {
-    private Integer serviceOrderCount;
+    private Integer serviceOrderCount; // 订单数量
 
-    private Double serviceOrderAmount;
+    private Double serviceOrderAmount; // 订单金额
 
-    private List<ServiceOrderManage> serviceOrderManageList;
+    private List<ServiceOrderManage> serviceOrderManageList; // 订单管理列表
 
-    private List<ServiceOrderDO> serviceOrderList;
+    private List<ServiceOrderDO> serviceOrderList; // 订单列表
 }
