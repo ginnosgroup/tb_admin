@@ -180,8 +180,8 @@ public class SchoolInstitutionController extends BaseController {
         if (adminUserLoginInfo == null ||
                 (adminUserLoginInfo.getApList().equalsIgnoreCase("GW") && adminUserLoginInfo.getRegionId() == null))
             return new Response<Integer>(1,"No permission !");
-        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(schoolInstitutionDto.getName(),
-                null, null,null,null,0,9999,null,null);
+        List<SchoolInstitutionDTO> listSchoolInstitutionDTO = schoolInstitutionService.listSchoolInstitutionDTO(null,
+                null, schoolInstitutionDto.getCode(),null,null,0,9999,null,null);
         if (listSchoolInstitutionDTO.size() > 0 )
             return new Response<Integer>(1,"学校名字已经存在.");
         if (schoolInstitutionService.getSchoolInstitutionByCode(schoolInstitutionDto.getCode()) != null)

@@ -14,6 +14,7 @@ import java.util.List;
 public class ServiceOrderJsonRequest {
     private Integer id;
     private String type;
+    private String serviceType;
     private Integer peopleNumber;
     private String peopleType;
     private String peopleRemarks;
@@ -58,8 +59,8 @@ public class ServiceOrderJsonRequest {
     private String userId;
     private String applicantId;
     private String applicantBirthday;
-    private List<String> servicePackageIdsEOI;
-    private List<String> servicePackageIds;
+    private String servicePackageIdsEOI;
+    private String servicePackageIds;
     private String maraId;
     private String adviserId;
     private String officialId;
@@ -101,5 +102,5 @@ public class ServiceOrderJsonRequest {
     private String serviceAssessCategoryId;
     private Integer bindingOrderId;
     private Integer manageId;
-    private List<ServiceOrderApplicantDTO> serviceOrderApplicantList;
+    private String serviceOrderApplicantList;
 }

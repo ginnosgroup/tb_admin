@@ -1048,14 +1048,16 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (ObjectUtil.isNotNull(serviceOrderByParentId) && serviceOrderByParentId.getId() > 0) {
                 getBindingOrderId = serviceOrderByParentId.getId();
             }
+            double countB = 1;
             if (isSIV || isNSV) {
                 getBindingOrderId = serviceOrderByParentId.getId();
                 amount = amount * 0.5;
+                countB = 0.5;
             }
             if (longTermVisa) {
                 amount = amount * 0.5;
             }
-            bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV, calculateProportion, 1000034 == officialById.getRegionId());
+            bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV, calculateProportion, 1000034 == officialById.getRegionId()) * countB;
             if (isSIV && "EOI".equalsIgnoreCase(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 for (ServiceOrderDTO a : deriveOrder) {
