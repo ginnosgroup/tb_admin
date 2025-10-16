@@ -250,214 +250,133 @@ public class ServiceOrderManageController extends BaseController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> addServiceOrder(@RequestBody ServiceOrderManageRequest serviceOrderManageRequest,
+    public Response<Integer> addServiceOrder(
+                                             @RequestParam(value = "isPay", required = false) String isPay,
+                                             @RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+                                             @RequestParam(value = "receiveDate", required = false) String receiveDate,
+                                             @RequestParam(value = "receivable", required = false) String receivable,
+                                             @RequestParam(value = "discount", required = false) String discount,
+                                             @RequestParam(value = "received", required = false) String received,
+                                             @RequestParam(value = "installment", required = false) Integer installment,
+                                             @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+                                             @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+                                             @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+                                             @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+                                             @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+                                             @RequestParam(value = "lowPriceImageUrl", required = false) String lowPriceImageUrl,
+                                             @RequestParam(value = "perAmount", required = false) String perAmount,
+                                             @RequestParam(value = "amount", required = false) String amount,
+                                             @RequestParam(value = "expectAmount", required = false) String expectAmount,
+                                             @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+                                             @RequestParam(value = "currency", required = false) String currency,
+                                             @RequestParam(value = "gst", required = false) String gst,
+                                             @RequestParam(value = "deductGst", required = false) String deductGst,
+                                             @RequestParam(value = "bonus", required = false) String bonus,
+                                             @RequestParam(value = "remarks", required = false) String remarks,
+                                             @RequestParam(value = "closedReason", required = false) String closedReason,
+                                             @RequestParam(value = "isHistory", required = false) String isHistory,
+                                             @RequestParam(value = "verifyCode", required = false) String verifyCode,
+                                             @RequestParam(value = "refNo", required = false) String refNo,
+                                             @RequestParam(value = "officialData", required = false) String officialData,
+                                             @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              HttpServletRequest request, HttpServletResponse response) {
+        super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
+            return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+        }
+        List<ServiceOrderJsonRequest> serviceOrderJson = new ArrayList<>();
         try {
-            super.setPostHeader(response);
-            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-            if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
-                return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
-            }
-            List<ServiceOrderJsonRequest> serviceOrderJson = serviceOrderManageRequest.getServiceOrderJson();
-            String type = serviceOrderManageRequest.getType();
-            Integer peopleNumber = serviceOrderManageRequest.getPeopleNumber();
-            String peopleType = serviceOrderManageRequest.getPeopleType();
-            String peopleRemarks = serviceOrderManageRequest.getPeopleRemarks();
-            String serviceId = serviceOrderManageRequest.getServiceId();
-            String isSettle = serviceOrderManageRequest.getIsSettle();
-            String urgentState = serviceOrderManageRequest.getUrgentState();
-            String isDepositUser = serviceOrderManageRequest.getIsDepositUser();
-            String subagencyId = serviceOrderManageRequest.getSubagencyId();
-            String isPay = serviceOrderManageRequest.getIsPay();
-            String receiveTypeId = serviceOrderManageRequest.getReceiveTypeId();
-            String receiveDate = serviceOrderManageRequest.getReceiveDate();
-            String receivable = serviceOrderManageRequest.getReceivable();
-            String discount = serviceOrderManageRequest.getDiscount();
-            String received = serviceOrderManageRequest.getReceived();
-            Integer installment = serviceOrderManageRequest.getInstallment();
-            String paymentVoucherImageUrl1 = serviceOrderManageRequest.getPaymentVoucherImageUrl1();
-            String paymentVoucherImageUrl2 = serviceOrderManageRequest.getPaymentVoucherImageUrl2();
-            String paymentVoucherImageUrl3 = serviceOrderManageRequest.getPaymentVoucherImageUrl3();
-            String paymentVoucherImageUrl4 = serviceOrderManageRequest.getPaymentVoucherImageUrl4();
-            String paymentVoucherImageUrl5 = serviceOrderManageRequest.getPaymentVoucherImageUrl5();
-            String lowPriceImageUrl = serviceOrderManageRequest.getLowPriceImageUrl();
-            String perAmount = serviceOrderManageRequest.getPerAmount();
-            String amount = serviceOrderManageRequest.getAmount();
-            String expectAmount = serviceOrderManageRequest.getExpectAmount();
-            String exchangeRate = serviceOrderManageRequest.getExchangeRate();
-            String currency = serviceOrderManageRequest.getCurrency();
-            String gst = serviceOrderManageRequest.getGst();
-            String deductGst = serviceOrderManageRequest.getDeductGst();
-            String bonus = serviceOrderManageRequest.getBonus();
-            String userId = serviceOrderManageRequest.getUserId();
-            String maraId = serviceOrderManageRequest.getMaraId();
-            String adviserId = serviceOrderManageRequest.getAdviserId();
-            String officialId = serviceOrderManageRequest.getOfficialId();
-            String remarks = serviceOrderManageRequest.getRemarks();
-            String closedReason = serviceOrderManageRequest.getClosedReason();
-            String information = serviceOrderManageRequest.getInformation();
-            String isHistory = serviceOrderManageRequest.getIsHistory();
-            String nutCloud = serviceOrderManageRequest.getNutCloud();
-            String verifyCode = serviceOrderManageRequest.getVerifyCode();
-            String refNo = serviceOrderManageRequest.getRefNo();
-            String expectTimeEnrollment = serviceOrderManageRequest.getExpectTimeEnrollment();
-            Boolean isApplyVisa = serviceOrderManageRequest.getIsApplyVisa();
-            String visaNumber = serviceOrderManageRequest.getVisaNumber();
-            String scoreOptions = serviceOrderManageRequest.getScoreOptions();
-            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = serviceOrderManageRequest.getServiceOrderApplicantList();
-            if (serviceOrderJson == null) {
-                return new Response<Integer>(1, "服务项目未选定，请选定服务", 0);
-            }
-            ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
-            serviceOrderDto.setCode(UUID.randomUUID().toString());
-            if (StringUtil.isNotEmpty(type))
-                serviceOrderDto.setType(type);
-            serviceOrderDto.setPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
-            serviceOrderDto.setPeopleType(StringUtil.isNotEmpty(peopleType) ? peopleType : "1A");
-            if (StringUtil.isNotEmpty(peopleRemarks))
-                serviceOrderDto.setPeopleRemarks(peopleRemarks);
-            if (StringUtil.isNotEmpty(serviceId))
-                serviceOrderDto.setServiceId(StringUtil.toInt(serviceId));
-            serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
-            serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
-            serviceOrderDto.setUrgentState(urgentState);
-            serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
-            if (StringUtil.isNotEmpty(subagencyId))
-                serviceOrderDto.setSubagencyId(StringUtil.toInt(subagencyId));
-            serviceOrderDto.setPay("true".equalsIgnoreCase(isPay));
-            if (StringUtil.isNotEmpty(receiveTypeId))
-                serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
-            if (StringUtil.isNotEmpty(receiveDate))
-                serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
-            if (StringUtil.isNotEmpty(receivable))
-                serviceOrderDto.setReceivable(Double.parseDouble(receivable));
-            if (StringUtil.isNotEmpty(discount))
-                serviceOrderDto.setDiscount(Double.parseDouble(discount));
-            if (StringUtil.isNotEmpty(received))
-                serviceOrderDto.setReceived(Double.parseDouble(received));
-            if (installment != null && installment > 0)
-                serviceOrderDto.setInstallment(installment);
-            if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
-                serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
-            // else if (serviceOrderDto.isPay())
-            // return new Response<Integer>(1, "必须上传支付凭证!", 0);
-            if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
-                serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
-            if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
-                serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
-            if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
-                serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
-            if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
-                serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
-            if (StringUtil.isNotEmpty(lowPriceImageUrl))
-                serviceOrderDto.setLowPriceImageUrl(lowPriceImageUrl);
-            if (StringUtil.isNotEmpty(perAmount))
-                serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
-            if (StringUtil.isNotEmpty(amount))
-                serviceOrderDto.setAmount(Double.parseDouble(amount));
-            if (StringUtil.isNotEmpty(expectAmount))
-                serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
-            if (StringUtil.isNotEmpty(currency))
-                serviceOrderDto.setCurrency(currency);
-            if (StringUtil.isNotEmpty(exchangeRate))
-                serviceOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
-            if (StringUtil.isNotEmpty(gst))
-                serviceOrderDto.setGst(Double.parseDouble(gst));
-            if (StringUtil.isNotEmpty(deductGst))
-                serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
-            if (StringUtil.isNotEmpty(bonus))
-                serviceOrderDto.setBonus(Double.parseDouble(bonus));
-            if (StringUtil.isNotEmpty(userId))
-                if (userService.getUserById(StringUtil.toInt(userId)) == null) {
-                    return new Response<Integer>(1, "用户编号错误(" + userId + ")，创建失败.", 0);
-                } else {
-                    if (userService.getUserById(StringUtil.toInt(userId)).getPhone().equalsIgnoreCase("00000000000")) {
-                        return new Response<Integer>(1,
-                                "用户号码不合法(" + userService.getUserById(StringUtil.toInt(userId)).getPhone() + ")，创建失败.",
-                                0);
-                    } else {
-                        serviceOrderDto.setUserId(StringUtil.toInt(userId));
-                    }
-                }
-            if (maraId != null) {
-                serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
-            }
-            if (StringUtil.isNotEmpty(adviserId)) {
-                serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-            }
-            if (officialId != null) {
-                serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
-            }
-            if (StringUtil.isNotEmpty(remarks)) {
-                serviceOrderDto.setRemarks(remarks);
-            }
-            if (StringUtil.isNotEmpty(closedReason)) {
-                serviceOrderDto.setClosedReason(closedReason);
-            }
-            if (StringUtil.isNotEmpty(information)) {
-                serviceOrderDto.setInformation(information);
-            }
-            serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
-            if (StringUtil.isNotEmpty(nutCloud)) {
-                serviceOrderDto.setNutCloud(nutCloud);
-            }
-            if (isHistory != null && "true".equalsIgnoreCase(isHistory)) {
-                serviceOrderDto.setRealPeopleNumber(0);
-            } else {
-                serviceOrderDto.setRealPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
-            }
-            if (StringUtil.isNotEmpty(verifyCode)) {
-                serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-            }
-            if (StringUtil.isNotEmpty(verifyCode)) {
-                serviceOrderDto.setRefNo(refNo);
-            }
-            if (expectTimeEnrollment != null) {
-                serviceOrderDto.setExpectTimeEnrollment(expectTimeEnrollment);
-            }
-            if (isApplyVisa != null) {
-                serviceOrderDto.setIsApplyVisa(isApplyVisa);
-            }
-            if (StringUtil.isNotEmpty(visaNumber)) {
-                serviceOrderDto.setVisaNumber(visaNumber);
-            }
-            // 评估订单需要评估分数
-            if (StringUtil.isNotEmpty(scoreOptions)) {
-                serviceOrderDto.setScoreOptions(scoreOptions);
-            }
-            if (serviceOrderApplicantList != null && serviceOrderApplicantList.size() > 0) {
-                serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
-            } else {
-                return new Response<Integer>(1, "请选择申请人.", null);
-            }
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.findAndRegisterModules();
+            // 配置忽略未知属性
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            serviceOrderJson = objectMapper.readValue(
+                    serviceOrderJsons,
+                    new TypeReference<List<ServiceOrderJsonRequest>>() {}
+            );
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonParseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            int addResult = serviceOrderManageService.add(serviceOrderDto);
-            if (addResult > 0) {
-                if (!ListUtil.isEmpty(serviceOrderApplicantList) && !serviceOrderApplicantList.isEmpty()) {
-                    for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
-                        serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-                        if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) <= 0) {
-                            List<Integer> ids = new ArrayList<>();
-                            ids.add(serviceOrderDto.getId());
-                            serviceOrderService.deleteServiceOrderById(ids);
-                            return new Response<Integer>(1, "申请人关联失败.", null);
-                        }
-                    }
-                } else {
-                    List<Integer> ids = new ArrayList<>();
-                    ids.add(serviceOrderDto.getId());
-                    serviceOrderService.deleteServiceOrderById(ids);
-                    return new Response<Integer>(1, "申请人参数错误.", null);
-                }
-                if (serviceOrderJson != null && serviceOrderJson.size() > 0) {
-                    for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
-                        serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
-                        addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
-                    }
+        if (serviceOrderJson.isEmpty()) {
+            return new Response<Integer>(1, "服务项目未选定，请选定服务", 0);
+        }
+        ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+        serviceOrderDto.setCode(UUID.randomUUID().toString());
+        serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
+        serviceOrderDto.setPay("true".equalsIgnoreCase(isPay));
+        if (StringUtil.isNotEmpty(receiveTypeId))
+            serviceOrderDto.setReceiveTypeId(StringUtil.toInt(receiveTypeId));
+        if (StringUtil.isNotEmpty(receiveDate))
+            serviceOrderDto.setReceiveDate(new Date(Long.parseLong(receiveDate)));
+        if (StringUtil.isNotEmpty(receivable))
+            serviceOrderDto.setReceivable(Double.parseDouble(receivable));
+        if (StringUtil.isNotEmpty(discount))
+            serviceOrderDto.setDiscount(Double.parseDouble(discount));
+        if (StringUtil.isNotEmpty(received))
+            serviceOrderDto.setReceived(Double.parseDouble(received));
+        if (installment != null && installment > 0)
+            serviceOrderDto.setInstallment(installment);
+        if (StringUtil.isNotEmpty(paymentVoucherImageUrl1))
+            serviceOrderDto.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+        // else if (serviceOrderDto.isPay())
+        // return new Response<Integer>(1, "必须上传支付凭证!", 0);
+        if (StringUtil.isNotEmpty(paymentVoucherImageUrl2))
+            serviceOrderDto.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+        if (StringUtil.isNotEmpty(paymentVoucherImageUrl3))
+            serviceOrderDto.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+        if (StringUtil.isNotEmpty(paymentVoucherImageUrl4))
+            serviceOrderDto.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+        if (StringUtil.isNotEmpty(paymentVoucherImageUrl5))
+            serviceOrderDto.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+        if (StringUtil.isNotEmpty(lowPriceImageUrl))
+            serviceOrderDto.setLowPriceImageUrl(lowPriceImageUrl);
+        if (StringUtil.isNotEmpty(perAmount))
+            serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+        if (StringUtil.isNotEmpty(amount))
+            serviceOrderDto.setAmount(Double.parseDouble(amount));
+        if (StringUtil.isNotEmpty(expectAmount))
+            serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
+        if (StringUtil.isNotEmpty(currency))
+            serviceOrderDto.setCurrency(currency);
+        if (StringUtil.isNotEmpty(exchangeRate))
+            serviceOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
+        if (StringUtil.isNotEmpty(gst))
+            serviceOrderDto.setGst(Double.parseDouble(gst));
+        if (StringUtil.isNotEmpty(deductGst))
+            serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
+        if (StringUtil.isNotEmpty(bonus))
+            serviceOrderDto.setBonus(Double.parseDouble(bonus));
+        if (StringUtil.isNotEmpty(remarks)) {
+            serviceOrderDto.setRemarks(remarks);
+        }
+        if (StringUtil.isNotEmpty(closedReason)) {
+            serviceOrderDto.setClosedReason(closedReason);
+        }
+        serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
+        if (isHistory != null && "true".equalsIgnoreCase(isHistory)) {
+            serviceOrderDto.setRealPeopleNumber(0);
+        }
+        if (StringUtil.isNotEmpty(verifyCode)) {
+            serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
+        }
+        if (StringUtil.isNotEmpty(verifyCode)) {
+            serviceOrderDto.setRefNo(refNo);
+        }
+        int addResult = serviceOrderManageService.add(serviceOrderDto);
+        if (addResult > 0) {
+            if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
+                for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
+                    serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
+                    addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                 }
             }
-        } catch (ServiceException e) {
-            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+            return new Response<Integer>(0, "创建成功.", addResult);
         }
         return null;
     }
@@ -4803,14 +4722,22 @@ public class ServiceOrderManageController extends BaseController {
             Integer manageId = serviceOrderJsonRequest.getManageId();
             String type = serviceOrderJsonRequest.getType();
             String isPay = serviceOrderJsonRequest.getIsPay();
-            String servicePackageIds = "";
-            List<String> servicePackageIdsList = serviceOrderJsonRequest.getServicePackageIds();
-            if (servicePackageIdsList != null && !servicePackageIdsList.isEmpty()) {
-                servicePackageIds = String.join(",", servicePackageIdsList.stream().map(String::valueOf).toArray(String[]::new));
+            String servicePackageIds = serviceOrderJsonRequest.getServicePackageIds();
+            List<String> servicePackageIdListTmp = new ArrayList<>();
+            List<String> servicePackageIdsEOIListT = new ArrayList<>();
+            if (StringUtil.isNotEmpty(servicePackageIds)) {
+                servicePackageIdListTmp = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
+            }
+            if (!servicePackageIdListTmp.isEmpty()) {
+                servicePackageIds = String.join(",", servicePackageIdListTmp.stream().map(String::valueOf).toArray(String[]::new));
             }
             String servicePackageIdsEOI = "";
-            List<String> servicePackageIdsEOIListT = serviceOrderJsonRequest.getServicePackageIdsEOI();
-            if (servicePackageIdsEOIListT != null && !servicePackageIdsEOIListT.isEmpty()) {
+//            List<String> servicePackageIdsEOIListT = serviceOrderJsonRequest.getServicePackageIdsEOI();
+            String servicePackageIdsEOIs = serviceOrderJsonRequest.getServicePackageIdsEOI();
+            if (StringUtil.isNotEmpty(servicePackageIdsEOIs)) {
+                servicePackageIdsEOIListT = new ArrayList<>(Arrays.asList(servicePackageIdsEOIs.split(",")));
+            }
+            if (!servicePackageIdsEOIListT.isEmpty()) {
                 servicePackageIdsEOI = String.join(",", servicePackageIdsEOIListT.stream().map(String::valueOf).toArray(String[]::new));
             }
             Integer peopleNumber = serviceOrderJsonRequest.getPeopleNumber();
@@ -4858,7 +4785,6 @@ public class ServiceOrderManageController extends BaseController {
             String isHistory = serviceOrderJsonRequest.getIsHistory();
             String nutCloud = serviceOrderJsonRequest.getNutCloud();
             String serviceAssessId = serviceOrderJsonRequest.getServiceAssessId();
-            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = serviceOrderJsonRequest.getServiceOrderApplicantList();
             String serviceAssessCategoryId = serviceOrderJsonRequest.getServiceAssessCategoryId();
             String verifyCode = serviceOrderJsonRequest.getVerifyCode();
             String refNo = serviceOrderJsonRequest.getRefNo();
@@ -4880,6 +4806,8 @@ public class ServiceOrderManageController extends BaseController {
             Integer schoolInstitutionLocationId3 = serviceOrderJsonRequest.getSchoolInstitutionLocationId3();
             Integer schoolInstitutionLocationId4 = serviceOrderJsonRequest.getSchoolInstitutionLocationId4();
             Integer schoolInstitutionLocationId5 = serviceOrderJsonRequest.getSchoolInstitutionLocationId5();
+//            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = serviceOrderJsonRequest.getServiceOrderApplicantList();
+            String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
@@ -5007,7 +4935,10 @@ public class ServiceOrderManageController extends BaseController {
                     && serviceAssessService.seleteAssessByServiceId(serviceId).size() > 0) {
                 return new Response(1, "没有选择职业!");
             }
-            if (serviceOrderApplicantList != null) {
+            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
+            if (StringUtil.isNotEmpty(serviceOrderApplicantListJson)) {
+                serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
+                        ServiceOrderApplicantDTO.class);
                 if (servicePackageIds != null) {
                     if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() == 1 && !servicePackageIds.contains("-")) {
                         serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
