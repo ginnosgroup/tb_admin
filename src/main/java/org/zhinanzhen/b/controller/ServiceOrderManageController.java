@@ -4,6 +4,11 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
@@ -278,6 +283,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "verifyCode", required = false) String verifyCode,
                                              @RequestParam(value = "refNo", required = false) String refNo,
                                              @RequestParam(value = "officialData", required = false) String officialData,
+                                             @RequestParam(value = "adviserId", required = false) String adviserId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
@@ -373,6 +379,8 @@ public class ServiceOrderManageController extends BaseController {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
+                    serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
+                    serviceOrderJsonRequest.setAdviserId(adviserId);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                 }
             }
@@ -5011,6 +5019,14 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
             }
+            double received1 = serviceOrderDto.getReceived();
+            serviceOrderDto.setReceivable(received1);
+            serviceOrderDto.setAmount(received1);
+            serviceOrderDto.setGst(received1 / 11);
+            serviceOrderDto.setDeductGst(received1 - serviceOrderDto.getGst());
+            serviceOrderDto.setExpectAmount(received1);
+            serviceOrderDto.setPerAmount(received1);
+            serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
