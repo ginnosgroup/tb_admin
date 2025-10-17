@@ -36,7 +36,7 @@ public interface OfficialDAO {
 
 	int updateOfficialEvaluate(OfficialEvaluate officialEvaluate);
 
-	OfficialEvaluate getOfficialEvaluate(@Param("officialId") Integer officialId, @Param("adviserId")Integer adviserId, @Param("startCollaborationTime")String startCollaborationTime, @Param("endCollaborationTime")String endCollaborationTime);
+	OfficialEvaluate getOfficialEvaluate(@Param("officialId") Integer officialId, @Param("adviserId")Integer adviserId, @Param("startCollaborationTime")String startCollaborationTime, @Param("endCollaborationTime")String endCollaborationTime, @Param("id") Integer id);
 
 	OfficialDO getOfficialByEmail(@Param("userName") String userName);
 
