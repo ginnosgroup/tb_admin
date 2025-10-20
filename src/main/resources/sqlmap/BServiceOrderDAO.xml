@@ -86,7 +86,9 @@
                 visa_number,
                 is_insurance_company,
                 official_data,
-                score_options)
+                score_options,
+                score_state,
+                score_mark)
             VALUES (
                 now(),
                 now(),
@@ -167,7 +169,9 @@
                 #{visaNumber},
                 #{isInsuranceCompany},
                 #{officialData},
-                #{scoreOptions});
+                #{scoreOptions},
+                #{scoreState},
+                #{scoreMark});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -434,6 +438,10 @@
         <if test='scoreState != null and scoreState != "" '>
             ,score_state = #{scoreState}
         </if>
+        <if test='scoreMark != null and scoreMark != "" '>
+            ,score_mark = #{scoreMark}
+        </if>
+
         WHERE id = #{id};
     </update>
 
@@ -674,7 +682,8 @@
         so.transfer_remarks AS transferRemarks,
         so.official_data AS officialData,
         so.score_options AS scoreOptions,
-        so.score_state AS scoreState
+        so.score_state AS scoreState,
+        so.score_mark AS scoreMark
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -932,7 +941,8 @@
             applicant_parent_id AS applicantParentId,
             official_data AS officialData,
             score_options AS scoreOptions,
-            score_state AS scoreState
+            score_state AS scoreState,
+            score_mark AS scoreMark
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1130,7 +1140,8 @@
             transfer_remarks AS transferRemarks,
             official_data AS officialData,
             score_options AS scoreOptions,
-            score_state AS scoreState
+            score_state AS scoreState,
+            score_mark AS scoreMark
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1237,7 +1248,8 @@
         so.applicant_parent_id AS applicantParentId,
         so.official_data AS officialData,
         so.score_options AS scoreOptions,
-        so.score_state AS scoreState
+        so.score_state AS scoreState,
+        so.score_mark AS scoreMark
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1517,7 +1529,8 @@
             so.transfer_remarks AS transferRemarks,
             so.official_data AS officialData,
             so.score_options AS scoreOptions,
-            so.score_state AS scoreState
+            so.score_state AS scoreState,
+            so.score_mark AS scoreMark
         FROM
             b_service_order so, b_service_package bsp
         WHERE
