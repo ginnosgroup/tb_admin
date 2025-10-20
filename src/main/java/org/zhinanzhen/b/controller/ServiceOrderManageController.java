@@ -4807,6 +4807,7 @@ public class ServiceOrderManageController extends BaseController {
             String visaNumber = serviceOrderJsonRequest.getVisaNumber();
             String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
             String scoreState = serviceOrderJsonRequest.getScoreState();
+            String scoreMark = serviceOrderJsonRequest.getScoreMark();
             Integer schoolId2 = serviceOrderJsonRequest.getSchoolId2();
             Integer schoolId3 = serviceOrderJsonRequest.getSchoolId3();
             Integer schoolId4 = serviceOrderJsonRequest.getSchoolId4();
@@ -5022,6 +5023,9 @@ public class ServiceOrderManageController extends BaseController {
             }
             if (StringUtil.isNotEmpty(scoreState)) {
                 serviceOrderDto.setScoreState(scoreState);
+            }
+            if (StringUtil.isNotEmpty(scoreMark)) {
+                serviceOrderDto.setScoreMark(scoreMark);
             }
             double received1 = serviceOrderDto.getReceived();
             serviceOrderDto.setReceivable(received1);
