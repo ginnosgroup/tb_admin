@@ -325,6 +325,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "visaNumber", required = false) String visaNumber,
                                              @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
                                              @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
+                                             @RequestParam(value = "scoreState", required = false) String scoreState,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -533,6 +534,9 @@ public class ServiceOrderController extends BaseController {
             // 评估订单需要评估分数
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
+            }
+            if (StringUtil.isNotEmpty(scoreState)) {
+                serviceOrderDto.setScoreState(scoreState);
             }
 //            if (serviceService.getServiceById(serviceOrderDto.getServiceId()).getCode().contains("500")) {
 //                isScore(serviceOrderDto, score);

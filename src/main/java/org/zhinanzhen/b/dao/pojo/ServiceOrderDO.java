@@ -204,5 +204,7 @@ public class ServiceOrderDO implements Serializable {
 
 	private String scoreOptions;
 
+	private String scoreState;
+
 	private List<ServiceOrderDO> subServiceOrders;
 }

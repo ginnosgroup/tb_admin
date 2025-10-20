@@ -4806,6 +4806,7 @@ public class ServiceOrderManageController extends BaseController {
             Integer bindingOrderId = serviceOrderJsonRequest.getBindingOrderId();
             String visaNumber = serviceOrderJsonRequest.getVisaNumber();
             String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
+            String scoreState = serviceOrderJsonRequest.getScoreState();
             Integer schoolId2 = serviceOrderJsonRequest.getSchoolId2();
             Integer schoolId3 = serviceOrderJsonRequest.getSchoolId3();
             Integer schoolId4 = serviceOrderJsonRequest.getSchoolId4();
@@ -5018,6 +5019,9 @@ public class ServiceOrderManageController extends BaseController {
             // 评估订单需要评估分数
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
+            }
+            if (StringUtil.isNotEmpty(scoreState)) {
+                serviceOrderDto.setScoreState(scoreState);
             }
             double received1 = serviceOrderDto.getReceived();
             serviceOrderDto.setReceivable(received1);

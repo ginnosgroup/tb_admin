@@ -301,6 +301,8 @@ public class ServiceOrderDTO {
 
 	private String scoreOptions;
 
+	private String scoreState;
+
 	private Long officialDataSize;
 
 	private Long adviserDataSize;
