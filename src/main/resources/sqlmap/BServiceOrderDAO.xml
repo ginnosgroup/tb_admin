@@ -438,7 +438,7 @@
         <if test='scoreState != null and scoreState != "" '>
             ,score_state = #{scoreState}
         </if>
-        <if test='scoreMark != null and scoreMark != "" '>
+        <if test='scoreMark != null'>
             ,score_mark = #{scoreMark}
         </if>
 
