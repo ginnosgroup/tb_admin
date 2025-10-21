@@ -8,7 +8,6 @@ import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.config.GlobalThreadPool;
-import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
@@ -211,24 +210,31 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     type = "bindingList";
                 }
             }
-            serviceOrderDoList = serviceOrderManageDAO.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
+            List<Integer> serviceOrderManageIds = serviceOrderManageDAO.listserviceOrderManage(null, null, type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                     theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
-            if (serviceOrderDoList == null)
-                return null;
 
-            List<ServiceOrderDO> collect = new ArrayList<>();
-            long count = 0L;
-            if ("bindingList".equals(type)) {
-                collect = serviceOrderDoList.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
-            } else {
-                collect = serviceOrderDoList;
+            for (Integer serviceOrderManageId : serviceOrderManageIds) {
+                serviceOrderDoList.add(serviceOrderManageDAO.getServiceOrderById(serviceOrderManageId));
             }
-            CountDownLatch latch = new CountDownLatch(collect.size());
-            for (int i = 0; i < collect.size(); i++) {
-                ServiceOrderDO serviceOrderDo = collect.get(i);
+
+
+//            serviceOrderDoList = serviceOrderManageDAO.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
+//                    auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
+//                    theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
+//                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
+//                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
+            if (serviceOrderDoList == null) {
+                return null;
+            }
+
+
+            long count = 0L;
+            CountDownLatch latch = new CountDownLatch(serviceOrderDoList.size());
+            for (int i = 0; i < serviceOrderDoList.size(); i++) {
+                ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
                 List<ServiceOrderDO> serviceOrderSubs = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
                 if (serviceOrderSubs != null) {
                     serviceOrderDo.setSubServiceOrders(serviceOrderSubs);
@@ -237,8 +243,10 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 executor.submit(() -> {
                     try {
                         serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
-                        for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
-                            putServiceOrderDTO(serviceOrderSub);
+                        if (serviceOrderSubs != null) {
+                            for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
+                                putServiceOrderDTO(serviceOrderSub);
+                            }
                         }
                         // 只有在成功执行了任务后才减少计数器
                         latch.countDown(); // 完成任务，计数器减一
@@ -275,14 +283,14 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 return null;
             }
             ServiceOrderDO serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(id);
+            if (serviceOrderDo == null)
+                return null;
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
             if (serviceOrderDOS != null) {
                 for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
                     subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO));
                 }
             }
-            if (serviceOrderDo == null)
-                return null;
             serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
             serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
             serviceOrderDto.setSubServiceOrders(subServiceOrderDtos);
@@ -355,7 +363,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 serviceOrderDo.setState("COMPLETE");
             }
             LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
-            int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
+            int i = serviceOrderManageDAO.updateServiceOrder(serviceOrderDo);
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
@@ -399,6 +407,76 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+
+    }
+
+    @Override
+    public ServiceOrderDTO getserviceOrderManageByServiceOrderId(int id) {
+        ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(id);
+        if (serviceOrderAndManageById != null) {
+            return mapper.map(serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId()), ServiceOrderDTO.class);
+        }
+        return null;
+    }
+
+    @Override
+    public List<ServiceOrderDTO> listChildrenServiceOrder(int id) {
+        return serviceOrderManageDAO.listChildrenServiceOrder(id);
+    }
+
+    @Override
+    public ServiceOrderDTO getServiceOrderBySubId(Integer subId) throws ServiceException {
+        if (subId <= 0) {
+            ServiceException se = new ServiceException("service order id error !");
+            se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+            throw se;
+        }
+        ServiceOrderDTO serviceOrderDto = null;
+        List<ServiceOrderDTO> subServiceOrderDtos = new ArrayList<>();
+        try {
+            ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(subId);
+            if (serviceOrderAndManageById != null) {
+                ServiceOrderDO serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+                List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
+                if (serviceOrderDOS != null) {
+                    for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+                        subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO));
+                    }
+                }
+                if (serviceOrderDo == null)
+                    return null;
+                serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
+                serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
+                serviceOrderDto.setSubServiceOrders(subServiceOrderDtos);
+                // 是否有创建过佣金订单
+                if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
+                    serviceOrderDto.setHasCommissionOrder(commissionOrderDao
+                            .countCommissionOrderByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
+                else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType()))
+                    serviceOrderDto.setHasCommissionOrder(
+                            visaDao.countVisaByServiceOrderIdAndExcludeCode(serviceOrderDto.getId(), null) > 0);
+                else
+                    serviceOrderDto.setHasCommissionOrder(false);
+            }
+//            if (serviceOrderAndManageById != null) {
+//                ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+//                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(serviceOrderById.getId());
+//                if (serviceOrderDTOS != null && !serviceOrderDTOS.isEmpty()) {
+//                    List<ServiceOrderDO> serviceOrderDOS = serviceOrderDTOS.stream().map(dto -> {
+//                        ServiceOrderDO serviceOrderDO = new ServiceOrderDO();
+//                        BeanUtils.copyProperties(dto, serviceOrderDO);
+//                        return serviceOrderDO;
+//                    }).collect(Collectors.toList());
+//                    serviceOrderById.setSubServiceOrders(serviceOrderDOS);
+//                }
+//            }
+
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+        return serviceOrderDto;
 
     }
 

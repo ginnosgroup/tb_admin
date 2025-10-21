@@ -99,6 +99,8 @@ public class ServiceOrderJsonRequest {
     private String offerType; // 是否为中转订单
     private String officialData;
     private String scoreOptions;
+    private String scoreState;
+    private String scoreMark; // 评分备注
     private String serviceAssessCategoryId;
     private Integer bindingOrderId;
     private Integer manageId;

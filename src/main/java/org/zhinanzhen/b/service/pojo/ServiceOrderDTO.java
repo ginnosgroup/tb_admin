@@ -301,6 +301,10 @@ public class ServiceOrderDTO {
 
 	private String scoreOptions;
 
+	private String scoreState; // 成绩状态
+
+	private String scoreMark; // 评分备注
+
 	private Long officialDataSize;
 
 	private Long adviserDataSize;

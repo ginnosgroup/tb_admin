@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.zhinanzhen.b.dao.pojo.UserOrder;
 import org.zhinanzhen.b.service.MailRemindService;
 import org.zhinanzhen.b.service.pojo.MailRemindDTO;
 import org.zhinanzhen.tb.service.RegionService;
@@ -532,6 +533,26 @@ public class UserController extends BaseController {
 			return new Response<Integer>(1, e.getMessage(), null);
 		}
 	}
+
+	@RequestMapping(value = "/userOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<UserOrder> untrueCount(@RequestParam(value = "userId", required = false) Integer userId,
+										   @RequestParam(value = "pageNum") int pageNum,
+										   @RequestParam(value = "pageSize") int pageSize,
+										 @RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
+
+										 HttpServletResponse response) {
+        super.setGetHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        String apList = adminUserLoginInfo.getApList();
+        if (!"GW".equalsIgnoreCase(apList) && !"SUPERAD".equalsIgnoreCase(apList)) {
+            return new Response<UserOrder>(1, "No permission !", null);
+        }
+        Integer adviserId = adminUserLoginInfo.getAdviserId();
+        UserOrder userOrder = userService.userOrder(adviserId, userId, pageNum, pageSize);
+        return new Response<UserOrder>(0, userOrder);
+    }
+
 
 	private static boolean isNumber(String string) {
 		if (StringUtil.isEmpty(string))

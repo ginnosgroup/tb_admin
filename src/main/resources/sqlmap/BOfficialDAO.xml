@@ -89,7 +89,7 @@
         WHERE id = #{id};
     </update>
     <update id="updateOfficialEvaluate">
-        update b_official_evaluate set SET gmt_modify = now()
+        update b_official_evaluate set gmt_modify = now()
         <if test='officialId != null'>
             , official_id = #{officialId}
         </if>
@@ -98,9 +98,6 @@
         </if>
         <if test='professionalism != null and professionalism != ""'>
             , professionalism = #{professionalism}
-        </if>
-        <if test='accuracy != null and accuracy != ""'>
-            , accuracy = #{accuracy}
         </if>
         <if test='accuracy != null and accuracy != ""'>
             , accuracy = #{accuracy}
@@ -317,6 +314,9 @@
             b_official_evaluate
         WHERE
             1 = 1
+        <if test='id != null'>
+            AND id = #{id}
+        </if>
         <if test='officialId != null'>
             AND official_id = #{officialId}
         </if>

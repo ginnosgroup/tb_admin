@@ -283,6 +283,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "verifyCode", required = false) String verifyCode,
                                              @RequestParam(value = "refNo", required = false) String refNo,
                                              @RequestParam(value = "officialData", required = false) String officialData,
+                                             @RequestParam(value = "adviserId", required = false) String adviserId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
@@ -378,6 +379,8 @@ public class ServiceOrderManageController extends BaseController {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
+                    serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
+                    serviceOrderJsonRequest.setAdviserId(adviserId);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                 }
             }
@@ -4803,6 +4806,8 @@ public class ServiceOrderManageController extends BaseController {
             Integer bindingOrderId = serviceOrderJsonRequest.getBindingOrderId();
             String visaNumber = serviceOrderJsonRequest.getVisaNumber();
             String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
+            String scoreState = serviceOrderJsonRequest.getScoreState();
+            String scoreMark = serviceOrderJsonRequest.getScoreMark();
             Integer schoolId2 = serviceOrderJsonRequest.getSchoolId2();
             Integer schoolId3 = serviceOrderJsonRequest.getSchoolId3();
             Integer schoolId4 = serviceOrderJsonRequest.getSchoolId4();
@@ -5016,6 +5021,20 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
             }
+            if (StringUtil.isNotEmpty(scoreState)) {
+                serviceOrderDto.setScoreState(scoreState);
+            }
+            if (StringUtil.isNotEmpty(scoreMark)) {
+                serviceOrderDto.setScoreMark(scoreMark);
+            }
+            double received1 = serviceOrderDto.getReceived();
+            serviceOrderDto.setReceivable(received1);
+            serviceOrderDto.setAmount(received1);
+            serviceOrderDto.setGst(received1 / 11);
+            serviceOrderDto.setDeductGst(received1 - serviceOrderDto.getGst());
+            serviceOrderDto.setExpectAmount(received1);
+            serviceOrderDto.setPerAmount(received1);
+            serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();

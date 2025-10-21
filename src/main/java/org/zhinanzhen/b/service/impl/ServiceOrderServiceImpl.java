@@ -478,6 +478,19 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
+            ServiceOrderDTO serviceOrderManageDto = serviceOrderManageService.getserviceOrderManageByServiceOrderId(serviceOrderDo.getId());
+            if (serviceOrderManageDto != null) {
+                List<ServiceOrderDTO> childrenServiceOrder = serviceOrderManageService.listChildrenServiceOrder(serviceOrderManageDto.getId());
+                serviceOrderManageDto.setAmount(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getAmount).sum());
+                serviceOrderManageDto.setExpectAmount(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getExpectAmount).sum());
+                serviceOrderManageDto.setBonus(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getBonus).sum());
+                serviceOrderManageDto.setReceived(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getReceived).sum());
+                serviceOrderManageDto.setReceivable(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getReceivable).sum());
+                serviceOrderManageDto.setPerAmount(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getPerAmount).sum());
+                serviceOrderManageDto.setGst(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getGst).sum());
+                serviceOrderManageDto.setDeductGst(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getDeductGst).sum());
+                serviceOrderManageService.updateServiceOrderManage(serviceOrderManageDto);
+            }
             if (i > 0
                     && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
                     && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())

@@ -260,7 +260,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 		// 格式化为字符串
 		String startCollaborationTime = startOfMonth.format(formatter);
 		String endCollaborationTime = endOfMonth.format(formatter);
-		OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), startCollaborationTime, endCollaborationTime);
+		OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialEvaluate.getOfficialId(), officialEvaluate.getAdviserId(), startCollaborationTime, endCollaborationTime, null);
 		if (officialEvaluate1 != null) {
 			return officialEvaluate1.getOfficialId();
 		}
@@ -324,8 +324,8 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 	}
 
 	@Override
-	public OfficialEvaluate getOfficialEvaluate(Integer integer, Integer adviserId, String startCollaborationTime, String endCollaborationTime) {
-		return officialDao.getOfficialEvaluate(integer, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime));
+	public OfficialEvaluate getOfficialEvaluate(Integer integer, Integer adviserId, String startCollaborationTime, String endCollaborationTime, Integer id) {
+		return officialDao.getOfficialEvaluate(integer, adviserId, theDateTo00_00_00(startCollaborationTime), theDateTo23_59_59(endCollaborationTime), id);
 	}
 
 	@Override
@@ -359,7 +359,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			// 格式化为字符串
 			String startCollaborationTime = startOfMonth.format(formatter);
 			String endCollaborationTime = endOfMonth.format(formatter);
-			OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialId, adviserId, startCollaborationTime, endCollaborationTime);
+			OfficialEvaluate officialEvaluate1 = officialDao.getOfficialEvaluate(officialId, adviserId, startCollaborationTime, endCollaborationTime, null);
 			Double v = extractScoreWithJackson(officialEvaluate1);
 			if (v > 0.00) {
 				averageCount++;

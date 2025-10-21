@@ -13,6 +13,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -426,44 +429,40 @@ public class OfficialController extends BaseController {
 	@RequestMapping(value = "/updateOfficialEvaluate", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> updateOfficialEvaluate(@RequestParam(value = "id") Integer id,
-			@RequestParam(value = "officialId") Integer officialId,
-												 @RequestParam(value = "adviserId") Integer adviserId,
-												 @RequestParam(value = "professionalism") String professionalism,
-												 @RequestParam(value = "accuracy") String accuracy,
-												 @RequestParam(value = "timelyCommunication") String timelyCommunication,
-												 @RequestParam(value = "collaborationTime") String collaborationTime,
-												 @RequestParam(value = "remark", required = false) String remark,
+			@RequestParam(value = "officialEvaluate", required = false) String officialEvaluateT,
+//			@RequestParam(value = "officialId") Integer officialId,
+//												 @RequestParam(value = "adviserId") Integer adviserId,
+//												 @RequestParam(value = "professionalism") String professionalism,
+//												 @RequestParam(value = "accuracy") String accuracy,
+//												 @RequestParam(value = "timelyCommunication") String timelyCommunication,
+//												 @RequestParam(value = "collaborationTime") String collaborationTime,
+//												 @RequestParam(value = "remark", required = false) String remark,
 												 HttpServletRequest request) {
-		OfficialEvaluate officialEvaluate = new OfficialEvaluate();
-		if (id != null) {
+
+		OfficialEvaluate officialEvaluateN = officialService.getOfficialEvaluate(null, null, null, null, id);
+		if (officialEvaluateN == null) {
+			return new Response<Integer>(1, "该评分不存在.");
+		}
+		try {
+			JSONObject jsonObject = JSONObject.parseObject(officialEvaluateT);
+			OfficialEvaluate officialEvaluate = new OfficialEvaluate();
 			officialEvaluate.setId(id);
-		}
-		if (officialId != null) {
-			officialEvaluate.setOfficialId(officialId);
-		}
-		if (adviserId != null) {
-			officialEvaluate.setAdviserId(adviserId);
-		}
-		if (professionalism != null) {
-			officialEvaluate.setProfessionalism(professionalism);
-		}
-		if (accuracy != null) {
-			officialEvaluate.setAccuracy(accuracy);
-		}
-		if (timelyCommunication != null) {
-			officialEvaluate.setTimelyCommunication(timelyCommunication);
-		}
-		if (collaborationTime != null) {
-			officialEvaluate.setCollaborationTime(collaborationTime);
-		}
-		if (remark != null) {
-			officialEvaluate.setRemark(remark);
-		}
-		int addRe = officialService.updateOfficialEvaluate(officialEvaluate);
-		if (addRe > 0) {
-			return new Response<Integer>(0, "添加成功", officialEvaluate.getId());
-		} else {
-			return new Response<Integer>(1, "添加失败.");
+			officialEvaluate.setOfficialId(jsonObject.getInteger("officialId"));
+			officialEvaluate.setAdviserId(jsonObject.getInteger("adviserId"));
+			officialEvaluate.setProfessionalism(jsonObject.getString("professionalism"));
+			officialEvaluate.setAccuracy(jsonObject.getString("accuracy"));
+			officialEvaluate.setTimelyCommunication(jsonObject.getString("timelyCommunication"));
+			officialEvaluate.setCollaborationTime(jsonObject.getString("collaborationTime") + "-15 12:00:00");
+			officialEvaluate.setRemark(jsonObject.getString("remark"));
+			int addRe = officialService.updateOfficialEvaluate(officialEvaluate);
+			if (addRe > 0) {
+				return new Response<Integer>(0, "修改成功", officialEvaluate.getId());
+			} else {
+				return new Response<Integer>(1, "修改失败.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 
@@ -500,7 +499,7 @@ public class OfficialController extends BaseController {
 						continue;
 					}
 					OfficialDTO officialById = officialService.getOfficialById(integer);
-					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime);
+					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime, null);
 					if (officialEvaluate != null) {
 						AdviserDTO adviserById = adviserService.getAdviserById(officialEvaluate.getAdviserId());
 						if (adviserById != null) {

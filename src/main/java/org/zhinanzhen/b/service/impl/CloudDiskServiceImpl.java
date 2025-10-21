@@ -673,6 +673,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             JsonNode firstElement = rootNode.get(0);
                             String driveId = firstElement.get("driveId").asText();
                             userCloud.setDriveId(driveId);
+                            if (userCloud.getEmail().equalsIgnoreCase("王润")) {
+                                System.out.println("666666");
+                            }
                         }
                         List<UserCloud> userCloudList = cloudDiskFileDAO.listUserCloudBycondition(userCloud.getDriveId());
                         if (userCloudList.isEmpty()) {
