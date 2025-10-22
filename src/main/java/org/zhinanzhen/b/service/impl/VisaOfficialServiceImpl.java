@@ -726,6 +726,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         ServiceOrderDO serviceParentOrderById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
         if ("CNY".equals(serviceOrderById.getCurrency())) {
             amount = amount / serviceOrderById.getExchangeRate();
+            extraAmount = extraAmount / serviceOrderById.getExchangeRate();
         }
 //        commissionAmountDTO.setRefund(refund); // 设置退款金额
         visaOfficiaCalculate(serviceOrderById, region, commissionAmountDTO, amount, rate, EOICount, officialGradeById,

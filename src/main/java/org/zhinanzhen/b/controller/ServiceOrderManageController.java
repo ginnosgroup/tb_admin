@@ -5030,9 +5030,15 @@ public class ServiceOrderManageController extends BaseController {
             double received1 = serviceOrderDto.getReceived();
             serviceOrderDto.setReceivable(received1);
             serviceOrderDto.setAmount(received1);
-            serviceOrderDto.setGst(received1 / 11);
-            serviceOrderDto.setDeductGst(received1 - serviceOrderDto.getGst());
-            serviceOrderDto.setExpectAmount(received1);
+            if ("CNY".equalsIgnoreCase(currency)) {
+                serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
+                serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
+                serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
+            } else {
+                serviceOrderDto.setGst(received1 / 11);
+                serviceOrderDto.setDeductGst(received1  / 1.1);
+                serviceOrderDto.setExpectAmount(received1);
+            }
             serviceOrderDto.setPerAmount(received1);
             serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
