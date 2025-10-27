@@ -381,6 +381,12 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
+                    serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                 }
             }
