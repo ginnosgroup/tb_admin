@@ -7,6 +7,8 @@ import java.util.List;
 import org.zhinanzhen.b.service.pojo.ServiceDTO;
 
 import lombok.Data;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 @Data
 public class ServiceOrderDO implements Serializable {
@@ -209,4 +211,8 @@ public class ServiceOrderDO implements Serializable {
 	private String scoreMark; // 评分备注
 
 	private List<ServiceOrderDO> subServiceOrders;
+
+	private UserDO userDO;
+
+	private AdviserDO adviserDO;
 }

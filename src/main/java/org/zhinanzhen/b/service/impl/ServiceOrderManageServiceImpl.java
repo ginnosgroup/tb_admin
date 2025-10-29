@@ -217,37 +217,35 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
 
             for (Integer serviceOrderManageId : serviceOrderManageIds) {
-                serviceOrderDoList.add(serviceOrderManageDAO.getServiceOrderById(serviceOrderManageId));
+                ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderManageId);
+                UserDO userById = userDao.getUserById(serviceOrderById.getUserId());
+                if (userById != null) {
+                    serviceOrderById.setUserDO(userById);
+                }
+                AdviserDO adviserById = adviserDao.getAdviserById(serviceOrderById.getAdviserId());
+                if (adviserById != null) {
+                    serviceOrderById.setAdviserDO(adviserById);
+                }
+                serviceOrderDoList.add(serviceOrderById);
             }
-
-
-//            serviceOrderDoList = serviceOrderManageDAO.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
-//                    auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
-//                    theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-//                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-//                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
-            if (serviceOrderDoList == null) {
-                return null;
-            }
-
-
             long count = 0L;
             CountDownLatch latch = new CountDownLatch(serviceOrderDoList.size());
             for (int i = 0; i < serviceOrderDoList.size(); i++) {
                 ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
                 List<ServiceOrderDO> serviceOrderSubs = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
-                if (serviceOrderSubs != null) {
-                    serviceOrderDo.setSubServiceOrders(serviceOrderSubs);
-                }
                 ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
                 executor.submit(() -> {
                     try {
-                        serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
+                        ServiceOrderDTO serviceOrderDTO = putServiceOrderDTO(serviceOrderDo);
                         if (serviceOrderSubs != null) {
+                            List<ServiceOrderDTO> serviceOrderSubsT = new ArrayList<>();
                             for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
-                                putServiceOrderDTO(serviceOrderSub);
+                                ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub);
+                                serviceOrderSubsT.add(serviceOrderDTO1);
                             }
+                            serviceOrderDTO.setSubServiceOrders(serviceOrderSubsT);
                         }
+                        serviceOrderDtoList.add(serviceOrderDTO);
                         // 只有在成功执行了任务后才减少计数器
                         latch.countDown(); // 完成任务，计数器减一
                     } catch (Exception e) {

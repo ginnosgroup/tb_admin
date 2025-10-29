@@ -50,7 +50,9 @@
             is_history,
             verify_code,
             ref_no,
-            official_data
+            official_data,
+            adviser_id,
+            user_id
         )
         VALUES (
                    now(),
@@ -85,7 +87,9 @@
                    #{isHistory},
                    #{verifyCode},
                    #{refNo},
-                   #{officialData}
+                   #{officialData},
+                   #{adviserId},
+                   #{userId}
                );
     </insert>
     <update id="updateServiceOrder">
@@ -590,7 +594,9 @@
             is_history AS isHistory,
             verify_code AS verifyCode ,
             ref_no AS refNo,
-            official_data AS officialData
+            official_data AS officialData,
+            adviser_id AS adviserId,
+            user_id AS userId
         FROM b_service_order_manage WHERE id = #{id, jdbcType=INTEGER};
     </select>
     <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">

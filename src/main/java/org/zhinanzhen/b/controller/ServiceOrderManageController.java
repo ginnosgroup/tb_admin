@@ -284,6 +284,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "refNo", required = false) String refNo,
                                              @RequestParam(value = "officialData", required = false) String officialData,
                                              @RequestParam(value = "adviserId", required = false) String adviserId,
+                                             @RequestParam(value = "userId", required = false) String userId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
@@ -374,6 +375,13 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(verifyCode)) {
             serviceOrderDto.setRefNo(refNo);
         }
+        if (StringUtil.isNotEmpty(adviserId)) {
+            serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
+        }
+        if (StringUtil.isNotEmpty(userId)) {
+            serviceOrderDto.setUserId(StringUtil.toInt(userId));
+        }
+
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
