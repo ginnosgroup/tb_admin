@@ -24,9 +24,11 @@ import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -150,6 +152,9 @@ public class ServiceOrderController extends BaseController {
     private MaraDAO maraDAO;
     @Autowired
     private ServiceDAO serviceDAO;
+    @Autowired
+    private ServiceOrderManageService serviceOrderManageService;
+
 
     public enum ReviewAdviserStateEnum {
         PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
@@ -538,7 +543,21 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
+            int serviceOrderManageId = 0;
             if (addResult > 0) {
+                if ("OVST".equalsIgnoreCase(type)) {
+                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
+                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
+                    int add = serviceOrderManageService.add(serviceOrderDTO);
+                    if (add > 0) {
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderManageId = serviceOrderDTO.getId();
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+                    }
+                }
+
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
                 if (adminUserLoginInfo != null)
@@ -698,6 +717,12 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName2);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -727,6 +752,11 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName3);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -756,6 +786,11 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName4);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -785,6 +820,11 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName5);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {

@@ -277,10 +277,15 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         List<ServiceOrderDTO> subServiceOrderDtos = new ArrayList<>();
         try {
             Integer i = firstPlace(id);
+            ServiceOrderDO serviceOrderDo = null;
             if (i == 1) {
-                return null;
+                ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(id);
+                if (serviceOrderAndManageById != null) {
+                    serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+                }
+            } else {
+                serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(id);
             }
-            ServiceOrderDO serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(id);
             if (serviceOrderDo == null)
                 return null;
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());

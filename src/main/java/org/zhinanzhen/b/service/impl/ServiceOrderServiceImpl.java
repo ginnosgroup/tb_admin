@@ -1515,13 +1515,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     public void sendRemind(int id, String state) throws ServiceException {
         ServiceOrderDO serviceOrderDoT = new ServiceOrderDO();
         ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);
-        ServiceOrderDTO serviceOrderById = serviceOrderManageService.getServiceOrderById(id);
+//        ServiceOrderDTO serviceOrderById = serviceOrderManageService.getServiceOrderById(id);
         if (serviceOrderDo != null) {
             serviceOrderDoT = serviceOrderDo;
         }
-        if (serviceOrderById != null) {
-            serviceOrderDoT = mapper.map(serviceOrderById, ServiceOrderDO.class);
-        }
+//        if (serviceOrderById != null) {
+//            serviceOrderDoT = mapper.map(serviceOrderById, ServiceOrderDO.class);
+//        }
         ServiceAssessDO assessDO = serviceAssessDao.seleteAssessById(serviceOrderDoT.getServiceAssessId());
         if (serviceOrderDoT != null) {
             ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDoT, "新任务提醒:");
@@ -1782,9 +1782,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (serviceOrderDo != null) {
                 serviceOrderDao.updateServiceOrder(serviceOrderDo);
             }
-            if (serviceOrderById != null) {
-                serviceOrderManageService.updateServiceOrderManage(serviceOrderById);
-            }
+//            if (serviceOrderById != null) {
+//                serviceOrderManageService.updateServiceOrderManage(serviceOrderById);
+//            }
         }
     }
 
