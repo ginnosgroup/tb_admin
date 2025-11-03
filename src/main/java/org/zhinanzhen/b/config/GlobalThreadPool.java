@@ -19,4 +19,17 @@ public class GlobalThreadPool {
     public static ThreadPoolExecutor getInstance() {
         return executor;
     }
+
+    // 添加关闭方法，用于应用退出时调用
+    public static void shutdown() {
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
 }
