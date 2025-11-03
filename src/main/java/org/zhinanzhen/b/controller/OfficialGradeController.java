@@ -28,9 +28,12 @@ public class OfficialGradeController extends BaseController {
     public Response<List<OfficialGradeDTO>> get(@RequestParam(value = "pageNum", required = false) int pageNum, @RequestParam(value = "pageSize", required = false) int pageSize,
                                                 HttpServletRequest request, HttpServletResponse response) {
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo != null)
-            if (adminUserLoginInfo == null || !isSuperAdminUser(request) && !adminUserLoginInfo.isOfficialAdmin())
+        if (adminUserLoginInfo != null) {
+            String apList = adminUserLoginInfo.getApList();
+            if (adminUserLoginInfo == null || (!isSuperAdminUser(request) && !adminUserLoginInfo.isOfficialAdmin() && !"KJ".equalsIgnoreCase(apList))) {
                 return new Response<List<OfficialGradeDTO>>(1, "No permission !", null);
+            }
+        }
         try {
             super.setPostHeader(response);
             return new Response<List<OfficialGradeDTO>>(0, officialGradeService.listOfficialGrade(pageNum, pageSize));
