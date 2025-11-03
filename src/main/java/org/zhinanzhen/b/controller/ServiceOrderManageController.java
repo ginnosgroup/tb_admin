@@ -275,6 +275,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
                                              @RequestParam(value = "currency", required = false) String currency,
                                              @RequestParam(value = "gst", required = false) String gst,
+                                             @RequestParam(value = "type", required = false) String type,
                                              @RequestParam(value = "deductGst", required = false) String deductGst,
                                              @RequestParam(value = "bonus", required = false) String bonus,
                                              @RequestParam(value = "remarks", required = false) String remarks,
@@ -361,6 +362,9 @@ public class ServiceOrderManageController extends BaseController {
             serviceOrderDto.setBonus(Double.parseDouble(bonus));
         if (StringUtil.isNotEmpty(remarks)) {
             serviceOrderDto.setRemarks(remarks);
+        }
+        if (StringUtil.isNotEmpty(type)) {
+            serviceOrderDto.setType(type);
         }
         if (StringUtil.isNotEmpty(closedReason)) {
             serviceOrderDto.setClosedReason(closedReason);

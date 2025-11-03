@@ -53,6 +53,7 @@
         <if test='isLogin != null and isLogin != ""'>
             AND (uri LIKE '%login' or uri LIKE '%out')
         </if>
+        ORDER BY id DESC
         LIMIT #{offset}, #{rows};
     </select>
     <select id="count" resultType="java.lang.Integer">
