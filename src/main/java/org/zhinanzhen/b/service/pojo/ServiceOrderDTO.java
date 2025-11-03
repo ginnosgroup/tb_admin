@@ -310,4 +310,6 @@ public class ServiceOrderDTO {
 	private Long adviserDataSize;
 
 	private List<ServiceOrderDTO> subServiceOrders;
+
+	private ServiceOrderDO serviceOrderManage;
 }

@@ -169,6 +169,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private ServiceOrderManageService serviceOrderManageService;
 
+    @Resource
+    private ServiceOrderManageDAO serviceOrderManageDAO;
+
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -1344,6 +1347,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
 
+        ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDto.getId());
+        if (serviceOrderAndManage != null) {
+            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
+            if (ObjectUtil.isNotNull(serviceOrderById)) {
+                serviceOrderDto.setServiceOrderManage(serviceOrderById);
+            }
+        }
 //        // 打分转换
 //        if (serviceOrderDto.getScore() != null) {
 //            try {
