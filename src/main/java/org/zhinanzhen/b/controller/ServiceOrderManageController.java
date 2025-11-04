@@ -363,7 +363,7 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(remarks)) {
             serviceOrderDto.setRemarks(remarks);
         }
-        if (StringUtil.isNotEmpty(type)) {
+        if (StringUtil.isNotEmpty(type) && !"VISA".equalsIgnoreCase(type)) {
             serviceOrderDto.setType(type);
         }
         if (StringUtil.isNotEmpty(closedReason)) {
