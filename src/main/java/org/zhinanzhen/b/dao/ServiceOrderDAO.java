@@ -67,7 +67,8 @@ public interface ServiceOrderDAO {
                                           @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle,
                                           @Param("bindingOrder") Integer bindingOrder,
                                           @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy, @Param("courseId") Integer courseId,
-                                          @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation);
+                                          @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation,
+                                          @Param("isAssess") String isAssess);
 
     List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
     

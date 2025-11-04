@@ -312,4 +312,6 @@ public class ServiceOrderDTO {
 	private List<ServiceOrderDTO> subServiceOrders;
 
 	private ServiceOrderDO serviceOrderManage;
+
+	private Integer bingdingAssessOrder; // 绑定的评估订单
 }

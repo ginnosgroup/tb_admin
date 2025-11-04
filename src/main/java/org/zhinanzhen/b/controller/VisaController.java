@@ -514,6 +514,13 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setExpectAmount(commission);
 			if (_visaDto.getKjApprovalDate() == null || _visaDto.getKjApprovalDate().getTime() == 0)
 				visaDto.setKjApprovalDate(new Date()); // debug
+
+			List<VisaDTO> visaDtoList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
+			double sum = visaDtoList.stream().mapToDouble(VisaDTO::getAmount).sum();
+			ServicePackagePriceDO servicePackagePriceDo = servicePackagePriceService.getServicePackagePriceByServiceId(serviceOrderDto.getServiceId());
+			if (sum < servicePackagePriceDo.getMinPrice()) {
+				return new Response<VisaDTO>(1, "总计实收小于最低报价，请修正.", null);
+			}
 			if (visaService.updateVisa(visaDto) > 0) {
 				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
 				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
