@@ -519,7 +519,7 @@ public class VisaController extends BaseCommissionOrderController {
 			double sum = visaDtoList.stream().mapToDouble(VisaDTO::getAmount).sum();
 			ServicePackagePriceDO servicePackagePriceDo = servicePackagePriceService.getServicePackagePriceByServiceId(serviceOrderDto.getServiceId());
 			if (sum < servicePackagePriceDo.getMinPrice()) {
-				return new Response<VisaDTO>(1, "总计实收小于最低报价，请修正.", null);
+				return new Response<VisaDTO>(1, "两次实收金额小于本地区最低价格，请修正本次实收金额后再提交。", null);
 			}
 			if (visaService.updateVisa(visaDto) > 0) {
 				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
