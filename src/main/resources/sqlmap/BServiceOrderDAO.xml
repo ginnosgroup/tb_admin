@@ -441,6 +441,9 @@
         <if test='scoreMark != null'>
             ,score_mark = #{scoreMark}
         </if>
+        <if test='bingdingAssessOrder != null and bingdingAssessOrder != "" '>
+            ,bingding_assess_order = #{bingdingAssessOrder}
+        </if>
 
         WHERE id = #{id};
     </update>

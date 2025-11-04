@@ -755,7 +755,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
         if (isAssess != null) {
             if ("1".equalsIgnoreCase(isAssess)) {
-                serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+                return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
                         reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                         theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                         theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),

@@ -332,7 +332,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                              @RequestParam(value = "scoreState", required = false) String scoreState,
                                              @RequestParam(value = "scoreMark", required = false) String scoreMark, // 评分备注
-                                             @RequestParam(value = "isAssess", required = false) String bingdingAssessOrder,
+                                             @RequestParam(value = "bingdingAssessOrder", required = false) String bingdingAssessOrder,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -1737,6 +1737,7 @@ public class ServiceOrderController extends BaseController {
             @RequestParam(value = "tradingName", required = false) String tradingName,
             @RequestParam(value = "schoolLocation", required = false) Integer schoolLocation,
             @RequestParam(value = "isAssess", required = false) String isAssess,
+            @RequestParam(value = "applicantId", required = false) String applicantId,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
             @RequestParam(value = "sorter", required = false) String sorter, HttpServletRequest request,
             HttpServletResponse response) {
@@ -1816,6 +1817,12 @@ public class ServiceOrderController extends BaseController {
                  * getCommissionOrderList(id));
                  */
                 return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, list.size(), list, "");
+            }
+            if (StringUtil.isNotEmpty(applicantId)) {
+                ApplicantDTO applicantDTO = applicantService.getById(Integer.parseInt(applicantId));
+                if (ObjectUtil.isNotNull(applicantDTO)) {
+                    applicantName = applicantDTO.getFirstname() + " " + applicantDTO.getSurname();
+                }
             }
             int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
@@ -4453,7 +4460,7 @@ public class ServiceOrderController extends BaseController {
             ListResponse<List<ServiceOrderDTO>> listListResponse = this.listServiceOrder(id, type, state, auditingState, reviewState, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate, regionId, null, userId,
                     userName, applicantName, maraId, adviserId, officialId, officialTagId, isNotApproved, serviceId, servicePackageId, schoolId, isSettle, null,
-                    null, null, null, null, pageNum, pageSize, sorter, request, response);
+                    null, null, null, null, null, pageNum, pageSize, sorter, request, response);
             if (listListResponse.getMessage().equals("No permission !")) {
                 throw new RuntimeException("当前用户未登录");
             }
