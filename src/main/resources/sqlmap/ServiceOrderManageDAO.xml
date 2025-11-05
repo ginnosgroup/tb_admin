@@ -50,7 +50,10 @@
             is_history,
             verify_code,
             ref_no,
-            official_data
+            official_data,
+            adviser_id,
+            user_id,
+            type
         )
         VALUES (
                    now(),
@@ -85,7 +88,10 @@
                    #{isHistory},
                    #{verifyCode},
                    #{refNo},
-                   #{officialData}
+                   #{officialData},
+                   #{adviserId},
+                   #{userId},
+                   #{type}
                );
     </insert>
     <update id="updateServiceOrder">
@@ -174,6 +180,13 @@
         </if>
         WHERE id = #{id};
     </update>
+    <delete id="deleteServiceOrderById">
+        DELETE b_service_order_manage, b_service_order_and_manage, b_service_order
+        FROM b_service_order_and_manage
+        INNER JOIN b_service_order ON b_service_order_and_manage.service_order_id = b_service_order.id
+        INNER JOIN b_service_order_manage ON b_service_order_and_manage.service_order_manage_id = b_service_order_manage.id
+          WHERE b_service_order_manage.id = #{serviceOrderManageId};
+    </delete>
     <select id="countServiceOrder" resultType="java.lang.Integer">
         SELECT
         count(*)
@@ -590,7 +603,10 @@
             is_history AS isHistory,
             verify_code AS verifyCode ,
             ref_no AS refNo,
-            official_data AS officialData
+            official_data AS officialData,
+            adviser_id AS adviserId,
+            user_id AS userId,
+            type
         FROM b_service_order_manage WHERE id = #{id, jdbcType=INTEGER};
     </select>
     <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">

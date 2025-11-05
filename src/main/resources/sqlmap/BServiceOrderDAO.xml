@@ -441,6 +441,9 @@
         <if test='scoreMark != null'>
             ,score_mark = #{scoreMark}
         </if>
+        <if test='bingdingAssessOrder != null and bingdingAssessOrder != "" '>
+            ,bingding_assess_order = #{bingdingAssessOrder}
+        </if>
 
         WHERE id = #{id};
     </update>
@@ -587,6 +590,9 @@
         <if test='tradingName != null and tradingName != "" '>
             AND so.institution_trading_name = #{tradingName}
         </if>
+        <if test="price != null">
+            AND so.amount >= #{price}
+        </if>
         ;
     </select>
 
@@ -683,7 +689,8 @@
         so.official_data AS officialData,
         so.score_options AS scoreOptions,
         so.score_state AS scoreState,
-        so.score_mark AS scoreMark
+        so.score_mark AS scoreMark,
+        so.bingding_assess_order AS bingdingAssessOrder
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -820,6 +827,12 @@
         <if test='tradingName != null and tradingName != "" '>
             AND so.institution_trading_name = #{tradingName}
         </if>
+        <if test='isAssess != null'>
+            AND so.bingding_assess_order is null
+        </if>
+        <if test="priceAmount != null">
+            AND so.amount >= #{priceAmount}
+        </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
     </select>
@@ -942,7 +955,8 @@
             official_data AS officialData,
             score_options AS scoreOptions,
             score_state AS scoreState,
-            score_mark AS scoreMark
+            score_mark AS scoreMark,
+            bingding_assess_order AS bingdingAssessOrder
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -952,7 +966,7 @@
     </select>
 
     <delete id="deleteServiceOrderById" parameterType="java.lang.Integer">
-        DELETE b_service_order,b_service_order_comment,b_service_order_review,b_visa,b_visa_comment,b_commission_order,b_commission_order_comment
+        DELETE b_service_order,b_service_order_comment,b_service_order_review,b_visa,b_visa_comment,b_commission_order,b_commission_order_comment,b_service_order_and_manage
         FROM b_service_order
         LEFT JOIN b_service_order_comment ON b_service_order.id = b_service_order_comment.service_order_id
         LEFT JOIN b_service_order_review ON b_service_order.id = b_service_order_review.service_order_id
@@ -960,6 +974,7 @@
         left join b_visa_comment on b_visa.id = b_visa_comment.visa_id
         left join b_commission_order on b_service_order.id = b_commission_order.service_order_id
         left join b_commission_order_comment on b_commission_order.id = b_commission_order_comment.commission_order_id
+        left join b_service_order_and_manage on b_service_order_and_manage.service_order_id = b_service_order.id
         WHERE b_service_order.id = #{id, jdbcType=INTEGER};
     </delete>
 
@@ -1141,7 +1156,8 @@
             official_data AS officialData,
             score_options AS scoreOptions,
             score_state AS scoreState,
-            score_mark AS scoreMark
+            score_mark AS scoreMark,
+            bingding_assess_order AS bingdingAssessOrder
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1249,7 +1265,8 @@
         so.official_data AS officialData,
         so.score_options AS scoreOptions,
         so.score_state AS scoreState,
-        so.score_mark AS scoreMark
+        so.score_mark AS scoreMark,
+        so.bingding_assess_order AS bingdingAssessOrder
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1530,7 +1547,8 @@
             so.official_data AS officialData,
             so.score_options AS scoreOptions,
             so.score_state AS scoreState,
-            so.score_mark AS scoreMark
+            so.score_mark AS scoreMark,
+            so.bingding_assess_order AS bingdingAssessOrder
         FROM
             b_service_order so, b_service_package bsp
         WHERE
@@ -1593,6 +1611,11 @@
         </if>
         LIMIT
             #{pageNum}, #{pageSize}
+    </select>
+
+    <select id="getBingDingAssOrderId" resultType="java.lang.Integer">
+        select id from b_service_order
+        where bingding_assess_order = #{id}
     </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">

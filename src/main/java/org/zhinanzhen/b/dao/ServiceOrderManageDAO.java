@@ -101,4 +101,5 @@ public interface ServiceOrderManageDAO {
                                          @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy, @Param("courseId") Integer courseId,
                                          @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation);
 
+    int deleteServiceOrderById(@Param("serviceOrderManageId") Integer id);
 }

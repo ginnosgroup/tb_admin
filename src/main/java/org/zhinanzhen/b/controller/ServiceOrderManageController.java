@@ -275,6 +275,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
                                              @RequestParam(value = "currency", required = false) String currency,
                                              @RequestParam(value = "gst", required = false) String gst,
+                                             @RequestParam(value = "type", required = false) String type,
                                              @RequestParam(value = "deductGst", required = false) String deductGst,
                                              @RequestParam(value = "bonus", required = false) String bonus,
                                              @RequestParam(value = "remarks", required = false) String remarks,
@@ -284,6 +285,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "refNo", required = false) String refNo,
                                              @RequestParam(value = "officialData", required = false) String officialData,
                                              @RequestParam(value = "adviserId", required = false) String adviserId,
+                                             @RequestParam(value = "userId", required = false) String userId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
@@ -361,6 +363,9 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(remarks)) {
             serviceOrderDto.setRemarks(remarks);
         }
+        if (StringUtil.isNotEmpty(type) && !"VISA".equalsIgnoreCase(type)) {
+            serviceOrderDto.setType(type);
+        }
         if (StringUtil.isNotEmpty(closedReason)) {
             serviceOrderDto.setClosedReason(closedReason);
         }
@@ -374,6 +379,13 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(verifyCode)) {
             serviceOrderDto.setRefNo(refNo);
         }
+        if (StringUtil.isNotEmpty(adviserId)) {
+            serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
+        }
+        if (StringUtil.isNotEmpty(userId)) {
+            serviceOrderDto.setUserId(StringUtil.toInt(userId));
+        }
+
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
@@ -381,6 +393,12 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
+                    serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
+                    serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                 }
             }
@@ -492,11 +510,11 @@ public class ServiceOrderManageController extends BaseController {
 						|| "NSV".equalsIgnoreCase(serviceOrderDto.getType())) {
                     cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
                             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                            null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+                            null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null);
                 } else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
                     cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
                             null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                            null, 0, id, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+                            null, 0, id, false, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null);
                 }
 				cList.forEach(cServiceOrderDto -> {
 					Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType, peopleRemarks,
@@ -561,7 +579,7 @@ public class ServiceOrderManageController extends BaseController {
             List<ServiceOrderDTO> cList = new ArrayList<>();
             cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
                         null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                        null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+                        null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null);
             List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
             if (servicePackageIdsEOIs.size() > 6) {
                 return new Response<Integer>(1, "单个打包签证EOI数量最多允许6个，请核实", null);
@@ -616,7 +634,7 @@ public class ServiceOrderManageController extends BaseController {
             List<ServiceOrderDTO> cList = new ArrayList<>();
             cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
                     null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null);
+                    null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null);
             ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
             ServiceDO serviceById = serviceDAO.getServiceById(serviceOrderDto.getServiceId());
             List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
@@ -1215,7 +1233,7 @@ public class ServiceOrderManageController extends BaseController {
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
                     regionIdList, null, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
-                    isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, null, null, null, null, null));
+                    isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, null, null, null, null, null, null, null));
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), null);
         }
@@ -1407,23 +1425,19 @@ public class ServiceOrderManageController extends BaseController {
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
     public Response<Integer> deleteServiceOrder(@RequestParam(value = "ids") String ids, HttpServletResponse response) {
-        try {
-            super.setGetHeader(response);
-            List<Integer> idList = new ArrayList<>();
-            if (ids != null) {
-                String[] split = ids.split(",");
-                for (String s : split) {
-                    try {
-                        idList.add(Integer.valueOf(s));
-                    } catch (Exception e) {
-                        return new Response<Integer>(1, e.getMessage(), 0);
-                    }
+        super.setGetHeader(response);
+        List<Integer> idList = new ArrayList<>();
+        if (ids != null) {
+            String[] split = ids.split(",");
+            for (String s : split) {
+                try {
+                    idList.add(Integer.valueOf(s));
+                } catch (Exception e) {
+                    return new Response<Integer>(1, e.getMessage(), 0);
                 }
             }
-            return new Response<Integer>(0, serviceOrderService.deleteServiceOrderById(idList));
-        } catch (ServiceException e) {
-            return new Response<Integer>(1, e.getMessage(), 0);
         }
+        return new Response<Integer>(0, serviceOrderManageService.deleteServiceOrderById(idList));
     }
 
     @RequestMapping(value = "/finish", method = RequestMethod.GET)
@@ -2066,7 +2080,7 @@ public class ServiceOrderManageController extends BaseController {
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
                         endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
-                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
+                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation, null, null);
 
                 for (ServiceOrderDTO serviceOrderDTO : serviceOrderList) {
 //                    if (serviceOrderDTO.getState().equalsIgnoreCase("COMPLETE") || serviceOrderDTO.getState().equalsIgnoreCase("PAID")) {
@@ -2354,7 +2368,7 @@ public class ServiceOrderManageController extends BaseController {
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
                         endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, null, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
-                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
+                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation, null, null);
 
                 if (newOfficialId != null)
                     for (ServiceOrderDTO so : serviceOrderList)
@@ -3123,7 +3137,7 @@ public class ServiceOrderManageController extends BaseController {
 
         List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderService.listServiceOrder(type, null, null, null, null,
                 null, null, null, null, startOfficialApprovalDate, endOfficialApprovalDate, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, 0, 0, false, 0, 9999, null, null, null, null, isPay, null, null, null, null, null);
+                null, null, null, null, null, null, 0, 0, false, 0, 9999, null, null, null, null, isPay, null, null, null, null, null, null, null);
         try {
             super.setGetHeader(response);
             response.reset();

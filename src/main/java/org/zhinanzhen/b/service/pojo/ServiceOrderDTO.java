@@ -310,4 +310,8 @@ public class ServiceOrderDTO {
 	private Long adviserDataSize;
 
 	private List<ServiceOrderDTO> subServiceOrders;
+
+	private ServiceOrderDO serviceOrderManage;
+
+	private Integer bingdingAssessOrder; // 绑定的评估订单
 }

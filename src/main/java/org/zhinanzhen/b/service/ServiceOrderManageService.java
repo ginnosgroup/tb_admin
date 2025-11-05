@@ -42,4 +42,6 @@ public interface ServiceOrderManageService {
 
     ServiceOrderDTO getServiceOrderBySubId(Integer subId) throws ServiceException;
 
+    String deleteServiceOrderById(List<Integer> idList);
+
 }

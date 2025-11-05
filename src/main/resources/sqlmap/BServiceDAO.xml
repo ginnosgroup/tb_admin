@@ -122,7 +122,7 @@
             is_long_time AS isLongTime
         FROM b_service WHERE id = #{id, jdbcType=INTEGER};
     </select>
-    
+
     <update id="deleteServiceById" parameterType="java.lang.Integer">
         UPDATE b_service 
         SET gmt_modify = now(), is_delete = 1

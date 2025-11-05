@@ -217,37 +217,35 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
 
             for (Integer serviceOrderManageId : serviceOrderManageIds) {
-                serviceOrderDoList.add(serviceOrderManageDAO.getServiceOrderById(serviceOrderManageId));
+                ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderManageId);
+                UserDO userById = userDao.getUserById(serviceOrderById.getUserId());
+                if (userById != null) {
+                    serviceOrderById.setUserDO(userById);
+                }
+                AdviserDO adviserById = adviserDao.getAdviserById(serviceOrderById.getAdviserId());
+                if (adviserById != null) {
+                    serviceOrderById.setAdviserDO(adviserById);
+                }
+                serviceOrderDoList.add(serviceOrderById);
             }
-
-
-//            serviceOrderDoList = serviceOrderManageDAO.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
-//                    auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
-//                    theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
-//                    theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-//                    parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);
-            if (serviceOrderDoList == null) {
-                return null;
-            }
-
-
             long count = 0L;
             CountDownLatch latch = new CountDownLatch(serviceOrderDoList.size());
             for (int i = 0; i < serviceOrderDoList.size(); i++) {
                 ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
                 List<ServiceOrderDO> serviceOrderSubs = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
-                if (serviceOrderSubs != null) {
-                    serviceOrderDo.setSubServiceOrders(serviceOrderSubs);
-                }
                 ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
                 executor.submit(() -> {
                     try {
-                        serviceOrderDtoList.add(putServiceOrderDTO(serviceOrderDo));
+                        ServiceOrderDTO serviceOrderDTO = putServiceOrderDTO(serviceOrderDo);
                         if (serviceOrderSubs != null) {
+                            List<ServiceOrderDTO> serviceOrderSubsT = new ArrayList<>();
                             for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
-                                putServiceOrderDTO(serviceOrderSub);
+                                ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub);
+                                serviceOrderSubsT.add(serviceOrderDTO1);
                             }
+                            serviceOrderDTO.setSubServiceOrders(serviceOrderSubsT);
                         }
+                        serviceOrderDtoList.add(serviceOrderDTO);
                         // 只有在成功执行了任务后才减少计数器
                         latch.countDown(); // 完成任务，计数器减一
                     } catch (Exception e) {
@@ -279,10 +277,15 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         List<ServiceOrderDTO> subServiceOrderDtos = new ArrayList<>();
         try {
             Integer i = firstPlace(id);
+            ServiceOrderDO serviceOrderDo = null;
             if (i == 1) {
-                return null;
+                ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(id);
+                if (serviceOrderAndManageById != null) {
+                    serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+                }
+            } else {
+                serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(id);
             }
-            ServiceOrderDO serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(id);
             if (serviceOrderDo == null)
                 return null;
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
@@ -478,6 +481,83 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         }
         return serviceOrderDto;
 
+    }
+
+    @Override
+    public String deleteServiceOrderById(List<Integer> idList) {
+        if (idList == null || idList.isEmpty()) {
+            return "参数错误";
+        }
+        for (Integer id : idList) {
+            Integer i1 = firstPlace(id);
+            if (i1 > 1) {
+                serviceOrderManageDAO.deleteServiceOrderById(id);
+            }
+            if (i1 == 1) {
+                ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageDAO.getServiceOrderAndManageById(id);
+                if (serviceOrderAndManageById == null) {
+                    return "该订单不是多订单类型，请核实";
+                }
+                ServiceOrderDO serviceOrderManageDAOServiceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
+                ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(id);
+                if (serviceOrderById.getApplicantParentId() == 0) {
+                    serviceOrderManageDAOServiceOrderById.setReceivable(serviceOrderManageDAOServiceOrderById.getReceivable() - serviceOrderById.getReceivable());
+                    serviceOrderManageDAOServiceOrderById.setReceived(serviceOrderManageDAOServiceOrderById.getReceived() - serviceOrderById.getReceived());
+                    serviceOrderManageDAOServiceOrderById.setAmount(serviceOrderManageDAOServiceOrderById.getAmount() - serviceOrderById.getAmount());
+                    serviceOrderManageDAOServiceOrderById.setGst(serviceOrderManageDAOServiceOrderById.getGst() - serviceOrderById.getGst());
+                    serviceOrderManageDAOServiceOrderById.setDeductGst(serviceOrderManageDAOServiceOrderById.getDeductGst() - serviceOrderById.getDeductGst());
+                    serviceOrderManageDAOServiceOrderById.setBonus(serviceOrderManageDAOServiceOrderById.getBonus() - serviceOrderById.getBonus());
+                    serviceOrderManageDAOServiceOrderById.setExpectAmount(serviceOrderManageDAOServiceOrderById.getExpectAmount() - serviceOrderById.getExpectAmount());
+                    serviceOrderManageDAOServiceOrderById.setPerAmount(serviceOrderManageDAOServiceOrderById.getPerAmount() - serviceOrderById.getPerAmount());
+                    serviceOrderManageDAO.updateServiceOrder(serviceOrderManageDAOServiceOrderById);
+                }
+                serviceOrderDao.deleteServiceOrderById(id);
+                if (ObjectUtil.isNotNull(serviceOrderById) && serviceOrderById.getEOINumber() != null) {
+                    List<ServiceOrderDTO> ziOrder = serviceOrderDao.getDeriveOrder(serviceOrderById.getApplicantParentId());
+                    List<ServiceOrderDTO> collect = ziOrder.stream()
+                            .filter(order -> order.getEOINumber() != null) // 过滤掉EOINumber为null的对象
+                            .sorted(Comparator.comparing(ServiceOrderDTO::getEOINumber)) // 对剩余对象进行排序
+                            .collect(Collectors.toList()); // 收集结果
+                    for (int i = 0; i < collect.size(); i++) {
+                        collect.get(i).setEOINumber(i + 1);
+                        ServiceOrderDO map = mapper.map(collect.get(i), ServiceOrderDO.class);
+                        serviceOrderDao.updateServiceOrder(map);
+                    }
+                    // 删除订单如果是打包EOI最后一个订单
+                    int EOICount = 0;
+                    List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
+                    ServiceOrderDO serviceOrderParentById = serviceOrderDao.getServiceOrderById(serviceOrderById.getApplicantParentId());
+                    for (ServiceOrderDTO e : collect) {
+                        VisaOfficialDO byServiceOrderId = visaOfficialDao.getByServiceOrderId(e.getId());
+                        visaOfficialDOS.add(byServiceOrderId);
+                        if (ObjectUtil.isNotNull(byServiceOrderId)) {
+                            EOICount++;
+                        }
+                    }
+                    if (ObjectUtil.isNotNull(serviceOrderParentById) && EOICount == (serviceOrderParentById.getEOINumber() - 1)) {
+                        ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(25);
+                        VisaOfficialDO visaOfficialDO = visaOfficialDOS.stream().max(Comparator.comparing(VisaOfficialDO::getPredictCommission)).get();
+                        visaOfficialDOS.remove(visaOfficialDO);
+                        double pre = 0.00;
+                        for (VisaOfficialDO e : visaOfficialDOS) {
+                            Double predictCommission = e.getPredictCommissionAmount();
+                            pre += (byServiceId.getMaxPrice() / EOICount) - predictCommission;
+                        }
+                        double rate = visaOfficialDO.getPredictCommission() / visaOfficialDO.getPredictCommissionAmount();
+//                    double sum = visaOfficialDOS.stream().mapToDouble(VisaOfficialDO::getPredictCommissionAmount).sum();
+                        double sum = 0.00;
+                        double predictCommissionAmount = visaOfficialDO.getPredictCommissionAmount();
+                        sum = predictCommissionAmount - (byServiceId.getMaxPrice() / serviceOrderParentById.getEOINumber()) + (byServiceId.getMaxPrice() / collect.size()) + pre;
+                        visaOfficialDO.setPredictCommissionAmount(sum);
+                        visaOfficialDO.setCommissionAmount(sum);
+                        visaOfficialDO.setPredictCommission(sum * rate);
+                        visaOfficialDO.setPredictCommissionCNY(visaOfficialDO.getPredictCommission() * visaOfficialDO.getExchangeRate());
+                        visaOfficialDao.updateVisaOfficial(visaOfficialDO);
+                    }
+                }
+            }
+        }
+        return "删除成功";
     }
 
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {
