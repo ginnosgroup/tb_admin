@@ -483,6 +483,20 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
 
     }
 
+    @Override
+    public String deleteServiceOrderById(List<Integer> idList) {
+        if (idList == null || idList.isEmpty()) {
+            return "参数错误";
+        }
+        for (Integer id : idList) {
+            Integer i = firstPlace(id);
+            if (i > 1) {
+//                serviceOrderManageDAO.deleteServiceOrderById(id);
+            }
+        }
+        return "删除成功";
+    }
+
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
         //获取旧文案信息

@@ -40,7 +40,7 @@ public interface ServiceOrderDAO {
                           @Param("servicePackageId") Integer servicePackageId,
                           @Param("schoolId") Integer schoolId, @Param("isPay") Boolean isPay, @Param("isSettle") Boolean isSettle,
                           @Param("courseId") Integer courseId,
-                          @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation);
+                          @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation, @Param("price") Double price);
 
     List<ServiceOrderDO> listServiceOrder(@Param("startGmtCreate") String startGmtCreate,
                                           @Param("endGmtCreate") String endGmtCreate,
@@ -68,7 +68,7 @@ public interface ServiceOrderDAO {
                                           @Param("bindingOrder") Integer bindingOrder,
                                           @Param("offset") int offset, @Param("rows") int rows, @Param("orderBy") String orderBy, @Param("courseId") Integer courseId,
                                           @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation,
-                                          @Param("isAssess") String isAssess);
+                                          @Param("isAssess") String isAssess, @Param("priceAmount") Double priceAmount);
 
     List<ServiceOrderDO> listByParentId(@Param("parentId") Integer parentId);
     

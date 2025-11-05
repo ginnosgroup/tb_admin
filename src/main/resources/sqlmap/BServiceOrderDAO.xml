@@ -590,6 +590,9 @@
         <if test='tradingName != null and tradingName != "" '>
             AND so.institution_trading_name = #{tradingName}
         </if>
+        <if test="price != null">
+            AND so.amount >= #{price}
+        </if>
         ;
     </select>
 
@@ -826,6 +829,9 @@
         </if>
         <if test='isAssess != null and isAssess = "1"'>
             AND so.bingding_assess_order is null
+        </if>
+        <if test="priceAmount != null">
+            AND so.amount >= #{priceAmount}
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};
