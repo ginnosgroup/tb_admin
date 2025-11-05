@@ -491,7 +491,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         for (Integer id : idList) {
             Integer i = firstPlace(id);
             if (i > 1) {
-//                serviceOrderManageDAO.deleteServiceOrderById(id);
+                serviceOrderManageDAO.deleteServiceOrderById(id);
             }
         }
         return "删除成功";

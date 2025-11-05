@@ -754,17 +754,27 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         if (isAssess != null) {
+            List<String> states = new ArrayList<>();
+            states.add("APPLY_FAILED");
+            states.add("CLOSE");
+            states.add("COMPLETE");
+            states.add("COMPLETE_FD");
+            states.add("FINISH");
+            states.add("OREVIEW");
+            states.add("PAID");
+            states.add("RECEIVED");
+            states.add("WAIT");
             if ("1".equalsIgnoreCase(isAssess)) {
                 if (price != null) {
                     double priceDouble = Double.parseDouble(price);
-                    return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+                    return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, states, auditingState,
                             reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                             theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                             theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                             officialTagId, parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle, courseId, tradingName, schoolLocation, priceDouble);
                 } else {
-                    return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, stateList, auditingState,
+                    return serviceOrderDao.countServiceOrder(type, excludeTypeList, excludeState, states, auditingState,
                             reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate),
                             theDateTo23_59_59(endMaraApprovalDate), theDateTo00_00_00(startOfficialApprovalDate),
                             theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
@@ -815,15 +825,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
             }
             if (isAssess != null) {
+                List<String> states = new ArrayList<>();
+                states.add("APPLY_FAILED");
+                states.add("CLOSE");
+                states.add("COMPLETE");
+                states.add("COMPLETE_FD");
+                states.add("FINISH");
+                states.add("OREVIEW");
+                states.add("PAID");
+                states.add("RECEIVED");
+                states.add("WAIT");
                 if (price != null) {
                     Double priceAmount = Double.valueOf(price);
-                    serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
+                    serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, states,
                             auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                             theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                             parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, priceAmount);
                 } else {
-                    serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
+                    serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, states,
                             auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                             theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
