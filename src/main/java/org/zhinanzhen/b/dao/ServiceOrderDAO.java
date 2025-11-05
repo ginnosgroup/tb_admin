@@ -150,4 +150,6 @@ public interface ServiceOrderDAO {
     List<ServiceOrderDO> listServiceOrderByUserId(@Param("userId") Integer userId, @Param("adviserId") Integer adviserId,
                                                   @Param("isManage") boolean isManage, @Param("pageNum") int pageNum, @Param("pageSize") int pageSize);
 
+    Integer getBingDingAssOrderId(@Param("id") int id);
+
 }

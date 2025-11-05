@@ -1370,6 +1370,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
                 }
             });
+            // 查询打包订单绑定的职评订单信息
+            Integer bingDingAssOrderId = serviceOrderDao.getBingDingAssOrderId(serviceOrderDto.getId());
+            if (bingDingAssOrderId != null) {
+                serviceOrderDto.setBingdingAssessOrder(bingDingAssOrderId);
+            }
         }
         // 判断offer文件路径是否为多个
         String offerUrl = serviceOrderDto.getOfferUrl();

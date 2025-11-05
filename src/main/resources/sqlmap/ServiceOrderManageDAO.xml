@@ -181,10 +181,10 @@
         WHERE id = #{id};
     </update>
     <delete id="deleteServiceOrderById">
-        DELETE b_service_order_manage, b_service_order_and_manage, b_service_order_applicant
+        DELETE b_service_order_manage, b_service_order_and_manage, b_service_order
         FROM b_service_order_and_manage
         INNER JOIN b_service_order ON b_service_order_and_manage.service_order_id = b_service_order.id
-        INNER JOIN b_service_order_manage ON b_service_order_and_manage.manage_id = b_service_order_manage.id
+        INNER JOIN b_service_order_manage ON b_service_order_and_manage.service_order_manage_id = b_service_order_manage.id
           WHERE b_service_order_manage.id = #{serviceOrderManageId};
     </delete>
     <select id="countServiceOrder" resultType="java.lang.Integer">
