@@ -210,8 +210,8 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     type = "bindingList";
                 }
             }
-            List<Integer> serviceOrderManageIds = serviceOrderManageDAO.listserviceOrderManage(null, null, type, excludeTypeList, excludeState, stateList,
-                    auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
+            List<Integer> serviceOrderManageIds = serviceOrderManageDAO.listserviceOrderManage(theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate), type, excludeTypeList, excludeState, stateList,
+                    auditingState, reviewStateList, urgentState, null, null,
                     theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                     theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                     parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation);

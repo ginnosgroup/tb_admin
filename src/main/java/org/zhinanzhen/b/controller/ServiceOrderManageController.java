@@ -20,6 +20,7 @@ import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.format.Colour;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
@@ -2122,8 +2123,8 @@ public class ServiceOrderManageController extends BaseController {
                      @RequestParam(value = "auditingState", required = false) String auditingState,
                      @RequestParam(value = "reviewState", required = false) String reviewState,
                      @RequestParam(value = "urgentState", required = false) String urgentState,
-                     @RequestParam(value = "startMaraApprovalDate", required = false) String startMaraApprovalDate,
-                     @RequestParam(value = "endMaraApprovalDate", required = false) String endMaraApprovalDate,
+                     @RequestParam(value = "startGmtCreate", required = false) String startMaraApprovalDate,
+                     @RequestParam(value = "endGmtCreate", required = false) String endMaraApprovalDate,
                      @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
                      @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
                      @RequestParam(value = "startReadcommittedDate", required = false) String startReadcommittedDate,
@@ -2199,22 +2200,20 @@ public class ServiceOrderManageController extends BaseController {
             List<ServiceOrderDTO> serviceOrderLists = new ArrayList<>();
             List<ServiceOrderDTO> serviceOrderList = null;
             if (id != null && id > 0) {
-                ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+                ServiceOrderDTO serviceOrder = serviceOrderManageService.getServiceOrderById(id);
                 if (serviceOrder != null)
                     serviceOrderLists.add(serviceOrder);
             }
             if (id == null) {
-                serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+                serviceOrderList = serviceOrderManageService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
                         endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
-                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation, null, null);
+                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
 
                 for (ServiceOrderDTO serviceOrderDTO : serviceOrderList) {
-//                    if (serviceOrderDTO.getState().equalsIgnoreCase("COMPLETE") || serviceOrderDTO.getState().equalsIgnoreCase("PAID")) {
-                        serviceOrderLists.add(serviceOrderDTO);
-//                    }
+                    serviceOrderLists.add(serviceOrderDTO);
                 }
                 if (newOfficialId != null)
                     for (ServiceOrderDTO so : serviceOrderList)
@@ -2250,155 +2249,182 @@ public class ServiceOrderManageController extends BaseController {
             }
             WritableSheet sheet = wbe.getSheet(0);
             WritableCellFormat cellFormat = new WritableCellFormat();
+            WritableCellFormat redFormat = new WritableCellFormat();
+            redFormat.setBackground(Colour.RED);
             int i = 1;
-            for (ServiceOrderDTO so : serviceOrderLists) {
-                sheet.addCell(new Label(0, i, so.getId() + "", cellFormat));
-                if (so.getGmtCreate() != null)
-                    sheet.addCell(new Label(1, i, sdf.format(so.getGmtCreate()), cellFormat));
-                if (so.getOfficialApprovalDate() != null)
-                    sheet.addCell(new Label(2, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
-                if (so.getFinishDate() != null)
-                    sheet.addCell(new Label(3, i, sdf.format(so.getFinishDate()), cellFormat));
-                if (so.getReadcommittedDate() != null)
-                    sheet.addCell(new Label(4, i, sdf.format(so.getReadcommittedDate()), cellFormat));
-                sheet.addCell(new Label(5, i, so.getUserId() + "", cellFormat));
-                if (so.getUser() != null) {
-                    sheet.addCell(new Label(6, i, so.getUser().getName() + "", cellFormat));
-                    sheet.addCell(new Label(7, i, sdf.format(so.getUser().getBirthday()), cellFormat));
-                    sheet.addCell(new Label(8, i, so.getUser().getPhone(), cellFormat));
-                }
-                if (so.getApplicant() != null) {
-                    sheet.addCell(new Label(9, i, so.getApplicantId() + "", cellFormat));
-                    sheet.addCell(new Label(10, i,
-                            so.getApplicant().getFirstname() + " " + so.getApplicant().getSurname(), cellFormat));
-                }
-                if (so.getAdviser() != null)
-                    sheet.addCell(new Label(11, i, so.getAdviser().getName(), cellFormat));
-                if (so.getMara() != null)
-                    sheet.addCell(new Label(12, i, so.getMara().getName(), cellFormat));
-                if (so.getOfficial() != null)
-                    sheet.addCell(new Label(13, i, so.getOfficial().getName(), cellFormat));
-
-                if (so.getService() != null) {
-                    String servicepakageName = "";
-                    String tmp = "";
-                    if (so.getServicePackage() != null) {
-                        String servicePackagetype = so.getServicePackage().getType();
-                        servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
-                        tmp = "-";
-                    }
-                    if ("雇主担保".equalsIgnoreCase(so.getService().getName())) {
-                        sheet.addCell(new Label(14, i, so.getService().getName() + "-" + so.getService().getCode() + tmp + servicepakageName, cellFormat));
-                    } else {
-                        sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
-                    }
-
-                    sheet.addCell(new Label(15, i, so.getService().getCode() + tmp + servicepakageName, cellFormat));
-                    if (so.getServiceAssessDO() != null)
-                        sheet.addCell(new Label(14, i,
-                                so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), cellFormat));
-                }
-                if (so.getSchool() != null) {
-                    sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
-                    sheet.addCell(new Label(15, i, so.getSchool().getName(), cellFormat));
-                } else if (so.getSchoolInstitutionListDTO() != null) {
-                    sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
-                    sheet.addCell(new Label(15, i,
-                            so.getSchoolInstitutionListDTO().getName() + "-"
-                                    + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(),
-                            cellFormat));
-                }
-                if ("ZX".equalsIgnoreCase(so.getType())) {
-                    sheet.addCell(new Label(14, i, " 咨询 ", cellFormat));
-                    sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
-                }
-
-                if (so.getState().equalsIgnoreCase("PENDING"))
-                    sheet.addCell(new Label(16, i, "待提交审核", cellFormat));
-                else if (so.getState().equalsIgnoreCase("REVIEW"))
-                    sheet.addCell(new Label(16, i, "资料待审核", cellFormat));
-                else if (so.getState().equalsIgnoreCase("OREVIEW"))
-                    sheet.addCell(new Label(16, i, "资料审核中", cellFormat));
-                else if (so.getState().equalsIgnoreCase("FINISH"))
-                    sheet.addCell(new Label(16, i, "资料已审核", cellFormat));
-                else if (so.getState().equalsIgnoreCase("APPLY"))
-                    sheet.addCell(new Label(16, i, "服务申请中", cellFormat));
-                else if (so.getState().equalsIgnoreCase("APPLY_FAILED"))
-                    sheet.addCell(new Label(16, i, "申请失败", cellFormat));
-                else if (so.getState().equalsIgnoreCase("COMPLETE")) {
-                    sheet.addCell(new Label(16, i, "申请成功", cellFormat));
-                    if (so.getType().equalsIgnoreCase("ZX"))
-                        sheet.addCell(new Label(16, i, "订单完成", cellFormat));
-                    if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
-                        sheet.addCell(new Label(16, i, "等待财务转账", cellFormat));
-                } else if (so.getState().equalsIgnoreCase("RECEIVED"))
-                    sheet.addCell(new Label(16, i, "已收款凭证已提交", cellFormat));
-                else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
-                    sheet.addCell(new Label(16, i, "财务转账完成", cellFormat));
-                else if (so.getState().equalsIgnoreCase("PAID"))
-                    sheet.addCell(new Label(16, i, "COE已下", cellFormat));
-                else if (so.getState().equalsIgnoreCase("CLOSE")) {
-					String str = "已关闭";
-					if (StringUtil.isNotEmpty(so.getClosedReason()))
-						str = StringUtil.merge(str, "(", so.getClosedReason(), ")");
-					sheet.addCell(new Label(16, i, str, cellFormat));
-                } else if (so.getState().equalsIgnoreCase("WAIT"))
-                    sheet.addCell(new Label(16, i, "已提交MARA审核", cellFormat));
-                /*
-                 * //旧系统状态废除 if (so.getReview() != null) { if
-                 * (so.getState().equalsIgnoreCase("PENDING")) sheet.addCell(new Label(15, i,
-                 * "待提交审核", cellFormat)); else { if
-                 * (so.getReview().getType().equalsIgnoreCase("APPROVAL")) { if
-                 * (StringUtil.isEmpty(so.getReview().getOfficialState())) sheet.addCell(new
-                 * Label(15, i, "资料待审核", cellFormat)); if
-                 * (StringUtil.isNotEmpty(so.getReview().getOfficialState())) { if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW")) {
-                 * sheet.addCell(new Label(15, i, "资料审核中", cellFormat)); if
-                 * (StringUtil.isNotBlank(so.getReview().getMaraState()) &&
-                 * so.getReview().getMaraState().equalsIgnoreCase("FINISH")) sheet.addCell(new
-                 * Label(15, i, "资料审核完成", cellFormat)); }
-                 *
-                 * if (so.getReview().getOfficialState().equalsIgnoreCase("WAIT")) { if
-                 * (StringUtil.isNotBlank(so.getReview().getMaraState()) &&
-                 * so.getReview().getMaraState().equalsIgnoreCase("WAIT")) sheet.addCell(new
-                 * Label(15, i, "已提交Mara审核", cellFormat)); } if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("APPLY"))
-                 * sheet.addCell(new Label(15, i, "服务申请中", cellFormat)); if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("COMPLETE"))
-                 * sheet.addCell(new Label(15, i, "申请成功", cellFormat)); if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("PAID")) {
-                 * sheet.addCell(new Label(15, i, "支付成功", cellFormat)); if
-                 * (so.getType().equalsIgnoreCase("OVST")) if (so.isSubmitted())
-                 * sheet.addCell(new Label(15, i, "支付成功,月奖已申请", cellFormat)); else
-                 * sheet.addCell(new Label(15, i, "支付成功,月奖未申请", cellFormat)); } if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-                 * sheet.addCell(new Label(15, i, "已关闭", cellFormat)); } } if
-                 * (so.getReview().getType().equalsIgnoreCase("REFUSE") &
-                 * StringUtil.isNotBlank(so.getReview().getOfficialState())) { if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("PENDING"))
-                 * sheet.addCell(new Label(15, i, "待提交审核,文案已驳回", cellFormat)); if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("REVIEW"))
-                 * sheet.addCell(new Label(15, i, "资料审核中,已驳回", cellFormat)); if
-                 * (so.getReview().getOfficialState().equalsIgnoreCase("CLOSE"))
-                 * sheet.addCell(new Label(15, i, "已关闭", cellFormat)); } }
-                 *
-                 * }
-                 */
-                sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
-                if (so.getOfferType() != null) {
-                    sheet.addCell(new Label(18, i, so.getOfferType() + "", cellFormat));
-                }
-                if (StringUtil.isNotEmpty(so.getIsInsuranceCompany())) {
-                    sheet.addCell(new Label(19, i, so.getIsInsuranceCompany().equalsIgnoreCase("0") ? "是" : "否", cellFormat));
+            for (ServiceOrderDTO orderList : serviceOrderLists) {
+                sheet.addCell(new Label(0, i, orderList.getId() + "", redFormat));
+                if (orderList.getGmtCreate() != null)
+                    sheet.addCell(new Label(1, i, sdf.format(orderList.getGmtCreate()), redFormat));
+                if (orderList.getOfficialApprovalDate() != null) {
+                    sheet.addCell(new Label(2, i, sdf.format(orderList.getOfficialApprovalDate()), redFormat));
                 } else {
-                    sheet.addCell(new Label(19, i, "否", cellFormat));
+                    sheet.addCell(new Label(2, i, "", redFormat));
                 }
-                sheet.addCell(new Label(20, i, so.getRemarks(), cellFormat));
+
+                if (orderList.getFinishDate() != null) {
+                    sheet.addCell(new Label(3, i, sdf.format(orderList.getFinishDate()), redFormat));
+                } else {
+                    sheet.addCell(new Label(3, i, "", redFormat));
+                }
+                if (orderList.getReadcommittedDate() != null) {
+                    sheet.addCell(new Label(4, i, sdf.format(orderList.getReadcommittedDate()), redFormat));
+                } else {
+                    sheet.addCell(new Label(4, i, "", redFormat));
+                }
+                sheet.addCell(new Label(5, i, orderList.getUserId() + "", redFormat));
+                if (orderList.getUser() != null) {
+                    sheet.addCell(new Label(6, i, orderList.getUser().getName() + "", redFormat));
+                    sheet.addCell(new Label(7, i, sdf.format(orderList.getUser().getBirthday()), redFormat));
+                    sheet.addCell(new Label(8, i, orderList.getUser().getPhone(), redFormat));
+                }
+                if (orderList.getApplicant() != null) {
+                    sheet.addCell(new Label(9, i, orderList.getApplicantId() + "", redFormat));
+                    sheet.addCell(new Label(10, i,
+                            orderList.getApplicant().getFirstname() + " " + orderList.getApplicant().getSurname(), redFormat));
+                } else {
+                    sheet.addCell(new Label(9, i, "", redFormat));
+                    sheet.addCell(new Label(10, i, "", redFormat));
+                }
+                if (orderList.getAdviser() != null)
+                    sheet.addCell(new Label(11, i, orderList.getAdviser().getName(), redFormat));
+                if (orderList.getMara() != null) {
+                    sheet.addCell(new Label(12, i, orderList.getMara().getName(), redFormat));
+                } else {
+                    sheet.addCell(new Label(12, i, "", redFormat));
+                }
+
+                if (orderList.getOfficial() != null) {
+                    sheet.addCell(new Label(13, i, orderList.getOfficial().getName(), redFormat));
+                } else {
+                    sheet.addCell(new Label(13, i, "", redFormat));
+                }
+                if ("OVST".equalsIgnoreCase(orderList.getType())) {
+                    sheet.addCell(new Label(14, i, "留学", redFormat));
+                } else {
+                    sheet.addCell(new Label(14, i, "", redFormat));
+                }
+
+                sheet.addCell(new Label(15, i, "", redFormat));
+                sheet.addCell(new Label(16, i, "", redFormat));
+                sheet.addCell(new Label(17, i, "", redFormat));
+                sheet.addCell(new Label(18, i, "", redFormat));
+                if (StringUtil.isNotEmpty(orderList.getIsInsuranceCompany())) {
+                    sheet.addCell(new Label(19, i, orderList.getIsInsuranceCompany().equalsIgnoreCase("0") ? "是" : "否", redFormat));
+                } else {
+                    sheet.addCell(new Label(19, i, "否", redFormat));
+                }
+                sheet.addCell(new Label(20, i, orderList.getRemarks(), redFormat));
                 i++;
+                List<ServiceOrderDTO> subServiceOrders = orderList.getSubServiceOrders();
+                for (ServiceOrderDTO so : subServiceOrders) {
+                    sheet.addCell(new Label(0, i, so.getId() + "", cellFormat));
+                    if (so.getGmtCreate() != null)
+                        sheet.addCell(new Label(1, i, sdf.format(so.getGmtCreate()), cellFormat));
+                    if (so.getOfficialApprovalDate() != null)
+                        sheet.addCell(new Label(2, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
+                    if (so.getFinishDate() != null)
+                        sheet.addCell(new Label(3, i, sdf.format(so.getFinishDate()), cellFormat));
+                    if (so.getReadcommittedDate() != null)
+                        sheet.addCell(new Label(4, i, sdf.format(so.getReadcommittedDate()), cellFormat));
+                    sheet.addCell(new Label(5, i, so.getUserId() + "", cellFormat));
+                    if (so.getUser() != null) {
+                        sheet.addCell(new Label(6, i, so.getUser().getName() + "", cellFormat));
+                        sheet.addCell(new Label(7, i, sdf.format(so.getUser().getBirthday()), cellFormat));
+                        sheet.addCell(new Label(8, i, so.getUser().getPhone(), cellFormat));
+                    }
+                    if (so.getApplicant() != null) {
+                        sheet.addCell(new Label(9, i, so.getApplicantId() + "", cellFormat));
+                        sheet.addCell(new Label(10, i,
+                                so.getApplicant().getFirstname() + " " + so.getApplicant().getSurname(), cellFormat));
+                    }
+                    if (so.getAdviser() != null)
+                        sheet.addCell(new Label(11, i, so.getAdviser().getName(), cellFormat));
+                    if (so.getMara() != null)
+                        sheet.addCell(new Label(12, i, so.getMara().getName(), cellFormat));
+                    if (so.getOfficial() != null)
+                        sheet.addCell(new Label(13, i, so.getOfficial().getName(), cellFormat));
+
+                    if (so.getService() != null) {
+                        String servicepakageName = "";
+                        String tmp = "";
+                        if (so.getServicePackage() != null) {
+                            String servicePackagetype = so.getServicePackage().getType();
+                            servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+                            tmp = "-";
+                        }
+                        if ("雇主担保".equalsIgnoreCase(so.getService().getName())) {
+                            sheet.addCell(new Label(14, i, so.getService().getName() + "-" + so.getService().getCode() + tmp + servicepakageName, cellFormat));
+                        } else {
+                            sheet.addCell(new Label(14, i, so.getService().getName(), cellFormat));
+                        }
+
+                        sheet.addCell(new Label(15, i, so.getService().getCode() + tmp + servicepakageName, cellFormat));
+                        if (so.getServiceAssessDO() != null)
+                            sheet.addCell(new Label(14, i,
+                                    so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), cellFormat));
+                    }
+                    if (so.getSchool() != null) {
+                        sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
+                        sheet.addCell(new Label(15, i, so.getSchool().getName(), cellFormat));
+                    } else if (so.getSchoolInstitutionListDTO() != null) {
+                        sheet.addCell(new Label(14, i, " 留学 ", cellFormat));
+                        sheet.addCell(new Label(15, i,
+                                so.getSchoolInstitutionListDTO().getName() + "-"
+                                        + so.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(),
+                                cellFormat));
+                    }
+                    if ("ZX".equalsIgnoreCase(so.getType())) {
+                        sheet.addCell(new Label(14, i, " 咨询 ", cellFormat));
+                        sheet.addCell(new Label(15, i, so.getService().getCode(), cellFormat));
+                    }
+
+                    if (so.getState().equalsIgnoreCase("PENDING"))
+                        sheet.addCell(new Label(16, i, "待提交审核", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("REVIEW"))
+                        sheet.addCell(new Label(16, i, "资料待审核", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("OREVIEW"))
+                        sheet.addCell(new Label(16, i, "资料审核中", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("FINISH"))
+                        sheet.addCell(new Label(16, i, "资料已审核", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("APPLY"))
+                        sheet.addCell(new Label(16, i, "服务申请中", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("APPLY_FAILED"))
+                        sheet.addCell(new Label(16, i, "申请失败", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("COMPLETE")) {
+                        sheet.addCell(new Label(16, i, "申请成功", cellFormat));
+                        if (so.getType().equalsIgnoreCase("ZX"))
+                            sheet.addCell(new Label(16, i, "订单完成", cellFormat));
+                        if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
+                            sheet.addCell(new Label(16, i, "等待财务转账", cellFormat));
+                    } else if (so.getState().equalsIgnoreCase("RECEIVED"))
+                        sheet.addCell(new Label(16, i, "已收款凭证已提交", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
+                        sheet.addCell(new Label(16, i, "财务转账完成", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("PAID"))
+                        sheet.addCell(new Label(16, i, "COE已下", cellFormat));
+                    else if (so.getState().equalsIgnoreCase("CLOSE")) {
+                        String str = "已关闭";
+                        if (StringUtil.isNotEmpty(so.getClosedReason()))
+                            str = StringUtil.merge(str, "(", so.getClosedReason(), ")");
+                        sheet.addCell(new Label(16, i, str, cellFormat));
+                    } else if (so.getState().equalsIgnoreCase("WAIT"))
+                        sheet.addCell(new Label(16, i, "已提交MARA审核", cellFormat));
+                    sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
+                    if (so.getOfferType() != null) {
+                        sheet.addCell(new Label(18, i, so.getOfferType() + "", cellFormat));
+                    }
+                    if (StringUtil.isNotEmpty(so.getIsInsuranceCompany())) {
+                        sheet.addCell(new Label(19, i, so.getIsInsuranceCompany().equalsIgnoreCase("0") ? "是" : "否", cellFormat));
+                    } else {
+                        sheet.addCell(new Label(19, i, "否", cellFormat));
+                    }
+                    sheet.addCell(new Label(20, i, so.getRemarks(), cellFormat));
+                    i++;
+                }
             }
             wbe.write();
             wbe.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             return;
