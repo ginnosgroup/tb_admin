@@ -327,90 +327,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
-        if (serviceorderManageDto.getVerifyCode() != null) {
-            List<CommissionOrderDO> commissionOrderDOS = commissionOrderDao
-                    .listCommissionOrderByVerifyCode(serviceorderManageDto.getVerifyCode());
-            List<VisaDO> visaDOS = visaDao.listVisaByVerifyCode(serviceorderManageDto.getVerifyCode());
-            List<CommissionOrderTempDO> list = commissionOrderTempDao.getCommissionOrderTempByVerifyCode(serviceorderManageDto.getVerifyCode());
-            if ((commissionOrderDOS.size() > 0 || list.size() > 0) && !serviceorderManageDto.getIsInsertEoi()) {
-                ServiceException se = new ServiceException(
-                        "对账code:" + serviceorderManageDto.getVerifyCode() + "已经存在,请重新创建新的code!");
-                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-                throw se;
-            }
-            for (VisaDO visaDO : visaDOS) {
-                if ((visaDO.getServiceOrderId() != serviceorderManageDto.getId() && visaDO.getServiceOrderId() != serviceorderManageDto.getApplicantParentId()) && !serviceorderManageDto.getIsInsertEoi()) {
-                    ServiceException se = new ServiceException(
-                            "对账code:" + serviceorderManageDto.getVerifyCode() + "已经存在,请重新创建新的code!");
-                    se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-                    throw se;
-                }
-            }
-        }
-        String offerType1 = serviceorderManageDto.getOfferType();
-        long time = serviceorderManageDto.getGmtCreate().getTime();
-        long timeTmp = 1721577600000L;
-        if ("COMPLETE".equals(serviceorderManageDto.getState()) && "OVST".equals(serviceorderManageDto.getType()) && (timeTmp < time)) {
-            String offerType = serviceorderManageDto.getOfferType();
-            if (StringUtil.isEmpty(offerType) && StringUtil.isEmpty(offerType1)) {
-                ServiceException se = new ServiceException(
-                        "当前留学订单" + serviceorderManageDto.getId() + "没有设置offer类型，请核实");
-                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-                throw se;
-            }
-        }
-        try {
-            ServiceOrderDO _serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(serviceorderManageDto.getId());
-            ServiceOrderDO serviceOrderDo = mapper.map(serviceorderManageDto, ServiceOrderDO.class);
-            if (serviceorderManageDto.isSettle() != _serviceOrderDo.isSettle() && serviceorderManageDto.isSettle() && _serviceOrderDo.getState().equalsIgnoreCase("PAID")) {
-                serviceOrderDo.setState("COMPLETE");
-            }
-            LOG.info("修改服务订单(serviceOrderDo=" + serviceOrderDo + ").");
-            int i = serviceOrderManageDAO.updateServiceOrder(serviceOrderDo);
-            if (i > 0
-                    && ((_serviceOrderDo.getMaraId() > 0 && serviceOrderDo.getMaraId() > 0
-                    && _serviceOrderDo.getMaraId() != serviceOrderDo.getMaraId())
-                    || (_serviceOrderDo.getOfficialId() > 0 && serviceOrderDo.getOfficialId() > 0
-                    && _serviceOrderDo.getOfficialId() != serviceOrderDo.getOfficialId()))
-                    && (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
-                    || StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
-                sendEmailOfUpdateOfficial(serviceOrderDo, _serviceOrderDo);
-            if (i > 0
-                    && ((_serviceOrderDo.getServiceId() > 0 && serviceOrderDo.getServiceId() > 0
-                    && _serviceOrderDo.getServiceId() != serviceOrderDo.getServiceId()))
-                    && (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState())
-                    || StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())))
-                sendEmailOfUpdateServiceId(serviceOrderDo, _serviceOrderDo);
-            if (i > 0 && "WAIT".equalsIgnoreCase(serviceOrderDo.getState())) {
-                ServiceOrderManageServiceImpl.ServiceOrderMailDetail serviceOrderMailDetail = getServiceOrderMailDetail(serviceOrderDo, "任务提醒:");
-                AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
-                OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
-                MaraDO maraDo = maraDao.getMaraById(serviceOrderDo.getMaraId());
-                ApplicantDTO applicantDto = new ApplicantDTO();
-                if (serviceOrderDo.getApplicantId() > 0)
-                    applicantDto = mapper.map(applicantDao.getById(serviceOrderDo.getApplicantId()), ApplicantDTO.class);
-                applicantDto = buildApplicant(applicantDto, serviceOrderDo.getId(), serviceOrderDo.getNutCloud(),
-                        serviceOrderDo.getInformation());
-                Date date = serviceOrderDo.getGmtCreate();
-                String email = maraDo.getEmail();
-                if (maraDo.getId() == 1000017) {
-                    email = "maggie@zhinanzhen.org";
-                }
-                sendMail(email, "新任务提醒:",
-                        StringUtil.merge("亲爱的mara:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
-                                serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
-                                adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
-                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
-                                serviceOrderDo.getRemarks(),"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
-            }
-            return i;
-        } catch (Exception e) {
-            ServiceException se = new ServiceException(e);
-            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-            throw se;
-        }
-
+        return serviceOrderManageDAO.updateServiceOrder(mapper.map(serviceorderManageDto, ServiceOrderDO.class));
     }
 
     @Override
@@ -558,6 +475,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             }
         }
         return "删除成功";
+    }
+
+    @Override
+    public ServiceOrderAndManage getServiceOrderAndManageById(int id) {
+        return serviceOrderManageDAO.getServiceOrderAndManageById(id);
     }
 
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {

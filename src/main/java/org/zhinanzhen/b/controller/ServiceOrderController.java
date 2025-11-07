@@ -503,7 +503,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setRealPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
             if (StringUtil.isNotEmpty(verifyCode))
                 serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-            if (StringUtil.isNotEmpty(verifyCode))
+            if (StringUtil.isNotEmpty(refNo))
                 serviceOrderDto.setRefNo(refNo);
             if (courseId != null && courseId > 0) {
                 serviceOrderDto.setCourseId(courseId);
