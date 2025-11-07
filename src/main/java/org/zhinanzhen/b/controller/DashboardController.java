@@ -213,6 +213,7 @@ public class DashboardController extends BaseController {
 		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
 		String endDate = sdf.format(Calendar.getInstance().getTime());
 		List<DataDTO> dataList = data.dataReport(startDate, endDate, "R", null); // R 全area顾问倒序排名的数据 顾问
+		dataList = dataList.stream().filter(DataDTO -> DataDTO.getAdviserId() != 1000135).collect(Collectors.toList()); // 去除daisy
 		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
 				|| "Kj".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 			List<DataRankDTO> dataRankDTOS = RegionClassification.dataSplitByRegionId(dataList, regionIdList);
