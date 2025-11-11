@@ -5257,7 +5257,7 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
                 serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-            if (StringUtil.isNotEmpty(officialId) && !"SIV".equalsIgnoreCase(serviceOrderDto.getType())
+            if (StringUtil.isNotEmpty(officialId)
                     && !"NSV".equalsIgnoreCase(serviceOrderDto.getType())
                     && !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要文案
                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
