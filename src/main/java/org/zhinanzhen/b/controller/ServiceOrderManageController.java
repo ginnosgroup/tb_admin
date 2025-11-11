@@ -569,6 +569,167 @@ public class ServiceOrderManageController extends BaseController {
 
     }
 
+    @RequestMapping(value = "/updateSubOrder", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
+                                                @RequestParam(value = "type", required = false) String type,
+                                                @RequestParam(value = "peopleNumber", required = false) Integer peopleNumber,
+                                                @RequestParam(value = "peopleType", required = false) String peopleType,
+                                                @RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
+                                                @RequestParam(value = "serviceId", required = false) String serviceId,
+                                                @RequestParam(value = "schoolId", required = false) String schoolId,
+                                                @RequestParam(value = "urgentState", required = false) String urgentState,
+                                                @RequestParam(value = "isSettle", required = false) String isSettle,
+                                                @RequestParam(value = "isDepositUser", required = false) String isDepositUser,
+                                                @RequestParam(value = "subagencyId", required = false) String subagencyId,
+                                                @RequestParam(value = "isPay", required = false) String isPay,
+                                                @RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
+                                                @RequestParam(value = "receiveDate", required = false) String receiveDate,
+                                                @RequestParam(value = "receivable", required = false) String receivable,
+                                                @RequestParam(value = "discount", required = false) String discount,
+                                                @RequestParam(value = "received", required = false) String received,
+                                                @RequestParam(value = "installment", required = false) Integer installment,
+                                                @RequestParam(value = "paymentVoucherImageUrl1", required = false) String paymentVoucherImageUrl1,
+                                                @RequestParam(value = "paymentVoucherImageUrl2", required = false) String paymentVoucherImageUrl2,
+                                                @RequestParam(value = "paymentVoucherImageUrl3", required = false) String paymentVoucherImageUrl3,
+                                                @RequestParam(value = "paymentVoucherImageUrl4", required = false) String paymentVoucherImageUrl4,
+                                                @RequestParam(value = "paymentVoucherImageUrl5", required = false) String paymentVoucherImageUrl5,
+                                                @RequestParam(value = "invoiceVoucherImageUrl1", required = false) String invoiceVoucherImageUrl1,
+                                                @RequestParam(value = "invoiceVoucherImageUrl2", required = false) String invoiceVoucherImageUrl2,
+                                                @RequestParam(value = "invoiceVoucherImageUrl3", required = false) String invoiceVoucherImageUrl3,
+                                                @RequestParam(value = "invoiceVoucherImageUrl4", required = false) String invoiceVoucherImageUrl4,
+                                                @RequestParam(value = "invoiceVoucherImageUrl5", required = false) String invoiceVoucherImageUrl5,
+                                                @RequestParam(value = "kjPaymentImageUrl1", required = false) String kjPaymentImageUrl1,
+                                                @RequestParam(value = "kjPaymentImageUrl2", required = false) String kjPaymentImageUrl2,
+                                                @RequestParam(value = "lowPriceImageUrl", required = false) String lowPriceImageUrl,
+                                                @RequestParam(value = "perAmount", required = false) String perAmount,
+                                                @RequestParam(value = "amount", required = false) String amount,
+                                                @RequestParam(value = "expectAmount", required = false) String expectAmount,
+                                                @RequestParam(value = "currency", required = false) String currency,
+                                                @RequestParam(value = "exchangeRate", required = false) String exchangeRate,
+                                                @RequestParam(value = "gst", required = false) String gst,
+                                                @RequestParam(value = "deductGst", required = false) String deductGst,
+                                                @RequestParam(value = "bonus", required = false) String bonus,
+                                                @RequestParam(value = "userId", required = false) String userId,
+                                                @RequestParam(value = "applicantId", required = false) String applicantId,
+                                                @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+                                                @RequestParam(value = "serviceOrderApplicantList", required = false) String serviceOrderApplicantListJson,
+                                                @RequestParam(value = "servicePackageIdsEOI", required = false) String servicePackageIdsEOI,
+                                                @RequestParam(value = "servicePackageIds", required = false) String servicePackageIds,
+                                                @RequestParam(value = "maraId", required = false) String maraId,
+                                                @RequestParam(value = "adviserId", required = false) String adviserId,
+                                                @RequestParam(value = "officialId", required = false) String officialId,
+                                                @RequestParam(value = "remarks", required = false) String remarks,
+                                                @RequestParam(value = "closedReason", required = false) String closedReason, HttpServletRequest request,
+                                                @RequestParam(value = "information", required = false) String information,
+                                                @RequestParam(value = "isHistory", required = false) String isHistory,
+                                                @RequestParam(value = "nutCloud", required = false) String nutCloud,
+                                                @RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
+                                                @RequestParam(value = "verifyCode", required = false) String verifyCode,
+                                                @RequestParam(value = "refNo", required = false) String refNo,
+                                                @RequestParam(value = "courseId", required = false) Integer courseId,
+                                                @RequestParam(value = "schoolInstitutionLocationId", required = false) Integer schoolInstitutionLocationId,
+                                                @RequestParam(value = "institutionTradingName", required = false) String institutionTradingName,
+                                                @RequestParam(value = "bindingOrderId", required = false) Integer bindingOrder,
+                                                @RequestParam(value = "expectTimeEnrollment", required = false) String expectTimeEnrollment,
+                                                @RequestParam(value = "isApplyVisa", required = false) Boolean isApplyVisa,
+                                                @RequestParam(value = "visaNumber", required = false) String visaNumber,
+                                                @RequestParam(value = "insuranceCompany", required = false) String insuranceCompany, // 保险公司id
+                                                @RequestParam(value = "hasInsurance", required = false) String hasInsurance, // 是否购买保险
+                                                @RequestParam(value = "isTransfer", required = false) String isTransfer, // 是否为中转订单
+                                                @RequestParam(value = "transferRemarks", required = false) String transferRemarks, // 是否为中转订单
+                                                @RequestParam(value = "offerUrl", required = false) String offerUrl, // 是否为中转订单
+                                                @RequestParam(value = "offerType", required = false) String offerType, // 是否为中转订单
+                                                @RequestParam(value = "officialData", required = false) String officialData,
+                                                @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
+                                                @RequestParam(value = "scoreState", required = false) String scoreState,
+                                                @RequestParam(value = "scoreMark", required = false) String scoreMark,
+                                                HttpServletResponse response) {
+        super.setPostHeader(response);
+        ServiceOrderDTO serviceOrderDto;
+        try {
+            serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+            if (serviceOrderDto == null)
+                return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+            if (officialId != null && !StringUtil.equals(officialId, serviceOrderDto.getOfficialId() + ""))
+                LOG.warn("文案ID不一致，可能有修改! (id:" + id + ",officialId:" + officialId + ",soOfficialId:"
+                        + serviceOrderDto.getOfficialId() + ")");
+            List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
+            if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
+                serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
+                        ServiceOrderApplicantDTO.class);
+            Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
+                    schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
+                    receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
+                    paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
+                    invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
+                    kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
+                    exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
+                    serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
+                    isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+                    institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+            if (res != null && res.getCode() == 0) {
+                List<ServiceOrderDTO> cList = new ArrayList<>();
+                if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
+                        || "NSV".equalsIgnoreCase(serviceOrderDto.getType())) {
+                    cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                            null, id, 0, false, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null);
+                } else if ("VISA".equalsIgnoreCase(serviceOrderDto.getType())) {
+                    cList = serviceOrderService.listServiceOrder(serviceOrderDto.getType(), null, null, null, null,
+                            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                            null, 0, id, false, 0, 100, null, null, null, null, null, null, null, null, null, null, null, null);
+                }
+                cList.forEach(cServiceOrderDto -> {
+                    Response<Integer> cRes = updateOne(cServiceOrderDto, null, peopleNumber, peopleType, peopleRemarks,
+                            serviceId, schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay,
+                            receiveTypeId, receiveDate, receivable, discount, received, installment,
+                            paymentVoucherImageUrl1, paymentVoucherImageUrl2, paymentVoucherImageUrl3,
+                            paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
+                            invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4,
+                            invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
+                            perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
+                            null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
+                            isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
+                            schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+                    if (cRes.getCode() > 0)
+                        res.setMessage(res.getMessage() + ";" + cRes.getMessage());
+                });
+                if ("SIV".equalsIgnoreCase(serviceOrderDto.getType()) && StringUtil.isNotEmpty(servicePackageIdsEOI)) {
+                    List<String> servicePackageIdsEOIs = new ArrayList<>(Arrays.asList(servicePackageIdsEOI.split(",")));
+                    ServiceOrderDTO serviceOrderDTO = cList.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).max(Comparator.comparing(ServiceOrderDTO::getEOINumber)).get();
+                    Map<Integer, ServiceOrderDTO> collect = cList.stream().collect(Collectors.toMap(ServiceOrderDTO::getServicePackageId, Function.identity(), (v1, v2) -> v2));
+                    servicePackageIdsEOIs.forEach(e->{
+                        int i = Integer.parseInt(e);
+                        if (ObjectUtil.isNull(collect.get(i))) {
+                            serviceOrderDTO.setServicePackageId(Integer.parseInt(e));
+                            serviceOrderDTO.setState("PENDING");
+                            serviceOrderDTO.setEOINumber(serviceOrderDTO.getEOINumber() + 1);
+                            try {
+                                if (StringUtil.isEmpty(serviceOrderDTO.getIsInsuranceCompany())) {
+                                    serviceOrderDTO.setIsInsuranceCompany(null);
+                                }
+                                serviceOrderService.addServiceOrder(serviceOrderDTO);
+                            } catch (ServiceException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    });
+                    serviceOrderDto.setEOINumber(servicePackageIdsEOIs.size());
+                    serviceOrderService.updateServiceOrder(serviceOrderDto);
+                }
+            }
+            return res;
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), null);
+        }
+
+    }
+
+
+
     private void updateServiceOrderForManage(ServiceOrderJsonRequest serviceOrderJsonRequest, AdminUserLoginInfo adminUserLoginInfo) throws ServiceException {
         Integer id = serviceOrderJsonRequest.getId();
         if (id == null) {
