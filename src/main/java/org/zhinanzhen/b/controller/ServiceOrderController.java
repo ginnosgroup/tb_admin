@@ -257,6 +257,14 @@ public class ServiceOrderController extends BaseController {
         return super.deleteFile(url);
     }
 
+    @RequestMapping(value = "/upload_contract_data_img", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> uploadContractDataImg(@RequestParam MultipartFile file, HttpServletRequest request,
+                                        HttpServletResponse response) throws IllegalStateException, IOException {
+        super.setPostHeader(response);
+        return super.upload2(file, request.getSession(), "/uploads/contract_data_image_url_s3/");
+    }
+
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> addServiceOrder(@RequestParam(value = "type") String type,
@@ -333,6 +341,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "scoreState", required = false) String scoreState,
                                              @RequestParam(value = "scoreMark", required = false) String scoreMark, // 评分备注
                                              @RequestParam(value = "bingdingAssessOrder", required = false) String bingdingAssessOrder,
+                                             @RequestParam(value = "contractData", required = false) String contractData,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -542,6 +551,9 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
+            }
+            if (StringUtil.isNotEmpty(contractData)) {
+                serviceOrderDto.setContractData(contractData);
             }
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             int serviceOrderManageId = 0;
@@ -933,6 +945,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
+                                                @RequestParam(value = "contractData", required = false) String contractData,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -957,7 +970,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -982,7 +995,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
 							schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1144,7 +1157,7 @@ public class ServiceOrderController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1318,6 +1331,9 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
+            }
+            if (StringUtil.isNotEmpty(contractData)) {
+                serviceOrderDto.setContractData(contractData);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证

@@ -218,4 +218,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String bingdingAssessOrder; // 绑定的评估订单
 
+	private String contractData;
+
 }

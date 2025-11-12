@@ -88,7 +88,8 @@
                 official_data,
                 score_options,
                 score_state,
-                score_mark)
+                score_mark,
+                contract_data)
             VALUES (
                 now(),
                 now(),
@@ -171,7 +172,8 @@
                 #{officialData},
                 #{scoreOptions},
                 #{scoreState},
-                #{scoreMark});
+                #{scoreMark},
+                #{contractData});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -444,7 +446,9 @@
         <if test='bingdingAssessOrder != null and bingdingAssessOrder != "" '>
             ,bingding_assess_order = #{bingdingAssessOrder}
         </if>
-
+        <if test='contractData != null and contractData != "" '>
+            ,contract_data = #{contractData}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -690,7 +694,8 @@
         so.score_options AS scoreOptions,
         so.score_state AS scoreState,
         so.score_mark AS scoreMark,
-        so.bingding_assess_order AS bingdingAssessOrder
+        so.bingding_assess_order AS bingdingAssessOrder,
+        so.contract_data AS contractData
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -956,7 +961,8 @@
             score_options AS scoreOptions,
             score_state AS scoreState,
             score_mark AS scoreMark,
-            bingding_assess_order AS bingdingAssessOrder
+            bingding_assess_order AS bingdingAssessOrder,
+            contract_data AS contractData
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1157,7 +1163,8 @@
             score_options AS scoreOptions,
             score_state AS scoreState,
             score_mark AS scoreMark,
-            bingding_assess_order AS bingdingAssessOrder
+            bingding_assess_order AS bingdingAssessOrder,
+            contract_data AS contractData
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1266,7 +1273,8 @@
         so.score_options AS scoreOptions,
         so.score_state AS scoreState,
         so.score_mark AS scoreMark,
-        so.bingding_assess_order AS bingdingAssessOrder
+        so.bingding_assess_order AS bingdingAssessOrder,
+        so.contract_data AS contractData
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1548,7 +1556,8 @@
             so.score_options AS scoreOptions,
             so.score_state AS scoreState,
             so.score_mark AS scoreMark,
-            so.bingding_assess_order AS bingdingAssessOrder
+            so.bingding_assess_order AS bingdingAssessOrder,
+            so.contract_data AS contractData
         FROM
             b_service_order so, b_service_package bsp
         WHERE

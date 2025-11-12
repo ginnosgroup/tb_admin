@@ -175,6 +175,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private ServiceDAO serviceDAO;
 
+    @Resource
+    private WebLogDAO webLogDAO;
+
     @Override
     public int addServiceOrder(ServiceOrderDTO serviceOrderDto) throws ServiceException {
         if (serviceOrderDto == null) {
@@ -1419,72 +1422,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 serviceOrderDto.setServiceOrderManage(serviceOrderById);
             }
         }
-//        // 打分转换
-//        if (serviceOrderDto.getScore() != null) {
-//            try {
-//                ObjectMapper objectMapper = new ObjectMapper();
-//                JsonNode rootNode = objectMapper.readTree(JSONObject.toJSONString(serviceOrderDto.getScore()));
-//                ScoreDO scoreDO = objectMapper.treeToValue(rootNode, ScoreDO.class);
-//                serviceOrderDto.setScoreDO(scoreDO);
-//            } catch (JsonProcessingException e) {
-//                throw new RuntimeException(e);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        // 判断退款金额以及绑定订单金额
-//        if (serviceOrderDto.getApplicantParentId() > 0) {
-//            ServiceOrderDO parentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId());
-//            List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(parentOrder.getId());
-//            if (visaDOS != null && !visaDOS.isEmpty()) {
-//                for (VisaDO visaDO : visaDOS) {
-//                    RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
-//                    if (refundDO != null) {
-//                        serviceOrderDto.setRefundAmount(refundDO.getAmount());
-//                    }
-//                }
-//            }
-//            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null,
-//                    null, null, null, null, null, null,
-//                    null, null, null, null, null,
-//                    null, null, null, null, null, null, null, null,
-//                    null, null, null, null, null, null, null,
-//                    null, null, parentOrder.getId(), 0, 20, null);
-//            if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
-//                for (ServiceOrderDO orderDO : serviceOrderDOS) {
-//                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
-//                    if (byServiceId!= null) {
-//                        Double bingDingAmount = serviceOrderDto.getBingDingAmount();
-//                        serviceOrderDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
-//                    }
-//                }
-//            }
-//        } else {
-//            List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderDO.getId());
-//            if (visaDOS != null && !visaDOS.isEmpty()) {
-//                for (VisaDO visaDO : visaDOS) {
-//                    RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
-//                    if (refundDO != null) {
-//                        serviceOrderDto.setRefundAmount(refundDO.getAmount());
-//                    }
-//                }
-//            }
-//            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDao.listServiceOrder(null, null, null, null, null,
-//                    null, null, null, null, null, null,
-//                    null, null, null, null, null,
-//                    null, null, null, null, null, null, null, null,
-//                    null, null, null, null, null, null, null,
-//                    null, null, serviceOrderDto.getId(), 0, 20, null);
-//            if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
-//                for (ServiceOrderDO orderDO : serviceOrderDOS) {
-//                    ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
-//                    if (byServiceId!= null) {
-//                        Double bingDingAmount = serviceOrderDto.getBingDingAmount();
-//                        serviceOrderDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
-//                    }
-//                }
-//            }
-//        }
+        // 获取服务订单上传合同日志信息
+        List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
+        if (!webLogDTOList.isEmpty()) {
+            serviceOrderDto.setContractDataList(webLogDTOList);
+        }
         return serviceOrderDto;
     }
 
