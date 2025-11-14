@@ -203,7 +203,7 @@ public class WebLogServiceImpl implements WebLogService {
     @Override
     public Integer count(Integer serviceOrderId, Integer userId, Integer isLogin, Integer operatedUser) {
         String login = "";
-        if (isLogin == 1) {
+        if (isLogin != null && isLogin == 1) {
             login = "login";
         }
         return webLogDAO.count(serviceOrderId, userId, login, operatedUser);

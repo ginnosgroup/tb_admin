@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 统一日志处理切面
@@ -208,29 +209,6 @@ public class WebLogAspect extends BaseController{
                 }
                 webLog.setRole(apList);
 
-//        if (parameter != null && methodName.contains("userIds") && !methodName.equalsIgnoreCase("newAdviserId")) {
-//            String regexUserIds = "\\{userIds=(\\d+)\\}";
-//            for (Object o : parameter) {
-//                // 创建Pattern对象
-//                Pattern pattern = Pattern.compile(regexUserIds);
-//                // 创建Matcher对象
-//                Matcher matcher = pattern.matcher(o.toString());
-//                // 查找匹配项
-//                if (matcher.find()) {
-//                    // 提取匹配的数字
-//                    String userIds = matcher.group(1);
-//                    String[] split1 = userIds.split(";");
-//                    for (int i = 0; i < split1.length; i++) {
-//                        webLog.setOperatedUser(Integer.valueOf(split1[i]));
-//                        webLogDAO.addWebLogs(webLog);
-//                    }
-//                } else {
-//                    System.out.println("未找到修改用户id");
-//                }
-//            }
-//            return result;
-//        }
-
 
                 if (!StringUtils.isEmpty(methodName)) {
                     if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
@@ -270,6 +248,9 @@ public class WebLogAspect extends BaseController{
     {
         try {
             long startTime = System.currentTimeMillis();
+            Integer serviceorderId = 0;
+            Integer operatedUser = 0;
+            String contractData = "";
             //获取当前请求对象
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             HttpServletRequest request = attributes.getRequest();
@@ -325,9 +306,11 @@ public class WebLogAspect extends BaseController{
                             // 提取匹配的数字
                             String id = matcher.group(1);
                             if (urlStr.contains("user")) {
+                                operatedUser = Integer.valueOf(id);
                                 webLog.setOperatedUser(Integer.valueOf(id));
                             } else {
-                                webLog.setServiceOrderId(Integer.valueOf(id));
+                                serviceorderId = Integer.valueOf(id);
+                                webLog.setServiceOrderId(serviceorderId);
                             }
                             log.info("ID: " + id);
                         } else {
@@ -346,7 +329,8 @@ public class WebLogAspect extends BaseController{
                         if (matcher.find()) {
                             // 提取匹配的数字
                             String id = matcher.group(1);
-                            webLog.setServiceOrderId(Integer.valueOf(id));
+                            serviceorderId = Integer.valueOf(id);
+                            webLog.setServiceOrderId(serviceorderId);
                             log.info("ID: " + id);
                         } else {
                             System.out.println("未找到ID");
@@ -354,29 +338,6 @@ public class WebLogAspect extends BaseController{
                     }
 
                 }
-            }
-            if (parameter != null && methodName.equalsIgnoreCase("add")) {
-                Response<Integer> integerResponse = (Response) result;
-                if (urlStr.contains("serviceOrder")) {
-                    webLog.setServiceOrderId(integerResponse.getData());
-                }
-                if (urlStr.contains("user")) {
-                    webLog.setOperatedUser(integerResponse.getData());
-                }
-            }
-            if (parameter != null) {
-                webLog.setParameter(parameter.toString());
-            }
-            String resultString = result.toString();
-            if (resultString.length() >= 2000) {
-                webLog.setResult(resultString.substring(0, 1999));
-            } else {
-                webLog.setResult(resultString);
-            }
-
-
-            if (adminUserLoginInfo == null) {
-                return null;
             }
             String apList = adminUserLoginInfo.getApList();
             switch (apList) {
@@ -395,29 +356,77 @@ public class WebLogAspect extends BaseController{
                 default: apList = apList;
             }
             webLog.setRole(apList);
-
-//        if (parameter != null && methodName.contains("userIds") && !methodName.equalsIgnoreCase("newAdviserId")) {
-//            String regexUserIds = "\\{userIds=(\\d+)\\}";
-//            for (Object o : parameter) {
-//                // 创建Pattern对象
-//                Pattern pattern = Pattern.compile(regexUserIds);
-//                // 创建Matcher对象
-//                Matcher matcher = pattern.matcher(o.toString());
-//                // 查找匹配项
-//                if (matcher.find()) {
-//                    // 提取匹配的数字
-//                    String userIds = matcher.group(1);
-//                    String[] split1 = userIds.split(";");
-//                    for (int i = 0; i < split1.length; i++) {
-//                        webLog.setOperatedUser(Integer.valueOf(split1[i]));
-//                        webLogDAO.addWebLogs(webLog);
-//                    }
-//                } else {
-//                    System.out.println("未找到修改用户id");
+            if (parameter != null && methodName.equalsIgnoreCase("add")) {
+                Response<Integer> integerResponse = (Response) result;
+                if (urlStr.contains("serviceOrder")) {
+                    webLog.setServiceOrderId(integerResponse.getData());
+                }
+                if (urlStr.contains("user")) {
+                    webLog.setOperatedUser(integerResponse.getData());
+                }
+//                if (urlStr.contains("contractData")) {
+//                    contractData = integerResponse.getData();
 //                }
-//            }
-//            return result;
-//        }
+                List<Object> collect = parameter.stream().filter(A -> A.toString().contains("contractData")).collect(Collectors.toList());
+                if (!collect.isEmpty()) {
+                    WebLogDTO webLogDTO = new WebLogDTO();
+                    webLogDTO.setOperatedUser(webLog.getOperatedUser());
+                    webLogDTO.setServiceOrderId(webLog.getServiceOrderId());
+                    webLogDTO.setUrl("http://127.0.0.1:8080/admin_v2.1/serviceOrder/addContractData");
+                    webLogDTO.setUri("/admin_v2.1/serviceOrder/addContractData");
+                    webLogDTO.setRole(apList);
+                    webLogDTO.setSpendTime(webLog.getSpendTime());
+                    webLogDTO.setParameter(((HashMap) collect.get(0)).get("contractData").toString());
+                    webLogDTO.setStartTime(webLog.getStartTime());
+                    webLogDTO.setUserId(webLog.getUserId());
+                    webLogDTO.setBasePath(webLog.getBasePath());
+                    webLogDAO.addWebLogs(webLogDTO);
+                }
+            }
+            if (parameter != null && methodName.equalsIgnoreCase("update")) {
+                String contractData1;
+                List<Object> collect = parameter.stream().filter(A -> A.toString().contains("contractData")).collect(Collectors.toList());
+                if (!collect.isEmpty()) {
+                    contractData1 = ((HashMap) collect.get(0)).get("contractData").toString();
+                } else {
+                    contractData1 = "";
+                }
+                if (!collect.isEmpty()) {
+                    List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(webLog.getServiceOrderId(), null, null, null, 0, 999);
+                    if (webLogDTOS != null && !webLogDTOS.isEmpty() && !StringUtils.isEmpty(contractData1)) {
+                        List<WebLogDTO> collect1 = webLogDTOS.stream().filter(A -> contractData1.equalsIgnoreCase(A.getParameter())).collect(Collectors.toList());
+                        if (collect1.isEmpty()) {
+                            WebLogDTO webLogDTO = new WebLogDTO();
+                            webLogDTO.setOperatedUser(webLog.getOperatedUser());
+                            webLogDTO.setServiceOrderId(webLog.getServiceOrderId());
+                            webLogDTO.setUrl("http://127.0.0.1:8080/admin_v2.1/serviceOrder/updateContractData");
+                            webLogDTO.setUri("/admin_v2.1/serviceOrder/updateContractData");
+                            webLogDTO.setRole(apList);
+                            webLogDTO.setSpendTime(webLog.getSpendTime());
+                            webLogDTO.setParameter(contractData1);
+                            webLogDTO.setStartTime(webLog.getStartTime());
+                            webLogDTO.setUserId(webLog.getUserId());
+                            webLogDTO.setBasePath(webLog.getBasePath());
+                            webLogDAO.addWebLogs(webLogDTO);
+                        }
+                    }
+                }
+            }
+            if (parameter != null) {
+                webLog.setParameter(parameter.toString());
+            }
+            String resultString = result.toString();
+            if (resultString.length() >= 2000) {
+                webLog.setResult(resultString.substring(0, 1999));
+            } else {
+                webLog.setResult(resultString);
+            }
+
+
+            if (adminUserLoginInfo == null) {
+                return null;
+            }
+
 
 
             if (!StringUtils.isEmpty(methodName)) {

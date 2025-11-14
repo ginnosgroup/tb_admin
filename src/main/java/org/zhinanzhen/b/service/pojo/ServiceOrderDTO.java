@@ -314,4 +314,8 @@ public class ServiceOrderDTO {
 	private ServiceOrderDO serviceOrderManage;
 
 	private Integer bingdingAssessOrder; // 绑定的评估订单
+
+	private String contractData;
+
+	private List<WebLogDTO> contractDataList;
 }

@@ -72,6 +72,9 @@
             AND (uri LIKE '%login' or uri LIKE '%out')
         </if>
     </select>
+    <select id="listContractData" resultType="org.zhinanzhen.b.service.pojo.WebLogDTO">
+        select * from b_web_log where service_order_id = #{serviceOrderId} and uri like '%ContractData%'
+    </select>
 
 
 </mapper>

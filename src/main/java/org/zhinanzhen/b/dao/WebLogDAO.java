@@ -12,4 +12,6 @@ public interface WebLogDAO {
 
     Integer count(@Param("serviceOrderId") Integer serviceOrderId, @Param("userId") Integer userId, @Param("isLogin") String isLogin, @Param("operatedUser") Integer operatedUser);
 
+    List<WebLogDTO> listContractData(@Param("serviceOrderId") int id);
+
 }

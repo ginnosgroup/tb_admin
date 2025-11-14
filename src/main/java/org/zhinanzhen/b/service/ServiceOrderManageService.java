@@ -44,4 +44,6 @@ public interface ServiceOrderManageService {
 
     String deleteServiceOrderById(List<Integer> idList);
 
+    ServiceOrderAndManage getServiceOrderAndManageById(int id);
+
 }
