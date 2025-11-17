@@ -417,6 +417,10 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 }
                 ServiceOrderDO serviceOrderManageDAOServiceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
                 ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(id);
+                VisaDO visaByServiceOrderId = visaDao.getVisaByServiceOrderId(serviceOrderById.getId());
+                if (visaByServiceOrderId != null) {
+                    return "该订单已生成佣金订单，不能删除，请核实";
+                }
                 if (serviceOrderById.getApplicantParentId() == 0) {
                     serviceOrderManageDAOServiceOrderById.setReceivable(serviceOrderManageDAOServiceOrderById.getReceivable() - serviceOrderById.getReceivable());
                     serviceOrderManageDAOServiceOrderById.setReceived(serviceOrderManageDAOServiceOrderById.getReceived() - serviceOrderById.getReceived());

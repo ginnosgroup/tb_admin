@@ -658,6 +658,20 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
+            ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageService.getServiceOrderAndManageById(id);
+            if (ObjectUtil.isNotNull(serviceOrderAndManage)) {
+                double amount1 = serviceOrderDto.getAmount();
+                double perAmount1 = serviceOrderDto.getPerAmount();
+                double expectAmount1 = serviceOrderDto.getExpectAmount();
+                if (Double.compare(amount1, Double.parseDouble(amount)) != 0 ||
+                        Double.compare(perAmount1, Double.parseDouble(perAmount)) != 0 ||
+                        Double.compare(expectAmount1, Double.parseDouble(expectAmount)) != 0) {
+                    VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(id);
+                    if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
+                        return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
+                    }
+                }
+            }
             Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
                     schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
                     receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
