@@ -287,6 +287,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "officialData", required = false) String officialData,
                                              @RequestParam(value = "adviserId", required = false) String adviserId,
                                              @RequestParam(value = "userId", required = false) String userId,
+                                             @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
@@ -386,7 +387,9 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(userId)) {
             serviceOrderDto.setUserId(StringUtil.toInt(userId));
         }
-
+        if (StringUtil.isNotEmpty(maraId)) {
+            serviceOrderDto.setMaraId(Integer.parseInt(maraId));
+        }
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
@@ -663,9 +666,11 @@ public class ServiceOrderManageController extends BaseController {
                 double amount1 = serviceOrderDto.getAmount();
                 double perAmount1 = serviceOrderDto.getPerAmount();
                 double expectAmount1 = serviceOrderDto.getExpectAmount();
-                if (Double.compare(amount1, Double.parseDouble(amount)) != 0 ||
-                        Double.compare(perAmount1, Double.parseDouble(perAmount)) != 0 ||
-                        Double.compare(expectAmount1, Double.parseDouble(expectAmount)) != 0) {
+                double received1 = serviceOrderDto.getReceived();
+//                if (Double.compare(amount1, Double.parseDouble(amount)) != 0 ||
+//                        Double.compare(perAmount1, Double.parseDouble(perAmount)) != 0 ||
+//                        Double.compare(expectAmount1, Double.parseDouble(expectAmount)) != 0)
+                if (Double.compare(received1, Double.parseDouble(received)) != 0) {
                     VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(id);
                     if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
                         return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
@@ -1673,8 +1678,6 @@ public class ServiceOrderManageController extends BaseController {
             if (bindingList != null && bindingList && "OVST".equals(type)) {
                 total = (int) (total - serviceOrderList.get(0).getBindingOrderCount());
             }
-            if (newOfficialId != null)
-                for (ServiceOrderDTO so : serviceOrderList)
 //                    so.setOfficialNotes(serviceOrderManageService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
             /*
              * if (newOfficialId != null){ for (ServiceOrderDTO so : serviceOrderList) {
@@ -5169,7 +5172,9 @@ public class ServiceOrderManageController extends BaseController {
                     return new Response<Integer>(1, "打包签证及雇主担保不能选择未支付，请核实.", 0);
                 }
             }
+            ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
             if ("SIV".equalsIgnoreCase(type)) {
+                serviceOrderDto.setServiceAssessId(serviceAssessId);
                 String[] split = servicePackageIds.split(",");
                 int count = 0;
                 for (String s : split) {
@@ -5183,7 +5188,7 @@ public class ServiceOrderManageController extends BaseController {
                     return new Response<Integer>(1, "打包签证服务必须包含签证以及EOI或者Matrix，请核实.", 0);
                 }
             }
-            ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+
             serviceOrderDto.setCode(UUID.randomUUID().toString());
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);

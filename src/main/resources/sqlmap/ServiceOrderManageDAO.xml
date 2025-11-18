@@ -53,7 +53,8 @@
             official_data,
             adviser_id,
             user_id,
-            type
+            type,
+            mara_id
         )
         VALUES (
                    now(),
@@ -91,7 +92,8 @@
                    #{officialData},
                    #{adviserId},
                    #{userId},
-                   #{type}
+                   #{type},
+                   #{maraId}
                );
     </insert>
     <update id="updateServiceOrder">
@@ -177,6 +179,18 @@
         </if>
         <if test='officialData != null and officialData != "" '>
             ,official_data = #{officialData}
+        </if>
+        <if test='adviserId != null'>
+            ,adviser_id = #{adviserId}
+        </if>
+        <if test='userId != null'>
+            ,user_id = #{userId}
+        </if>
+        <if test='type != null'>
+            ,type = #{type}
+        </if>
+        <if test='maraId != null'>
+            ,mara_id = #{maraId}
         </if>
         WHERE id = #{id};
     </update>
@@ -606,7 +620,8 @@
             official_data AS officialData,
             adviser_id AS adviserId,
             user_id AS userId,
-            type
+            type,
+            mara_id AS maraId
         FROM b_service_order_manage WHERE id = #{id, jdbcType=INTEGER};
     </select>
     <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">
