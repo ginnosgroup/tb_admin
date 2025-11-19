@@ -662,14 +662,8 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
             ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageService.getServiceOrderAndManageById(id);
-            if (ObjectUtil.isNotNull(serviceOrderAndManage)) {
-                double amount1 = serviceOrderDto.getAmount();
-                double perAmount1 = serviceOrderDto.getPerAmount();
-                double expectAmount1 = serviceOrderDto.getExpectAmount();
+            if (ObjectUtil.isNotNull(serviceOrderAndManage) && received != null) {
                 double received1 = serviceOrderDto.getReceived();
-//                if (Double.compare(amount1, Double.parseDouble(amount)) != 0 ||
-//                        Double.compare(perAmount1, Double.parseDouble(perAmount)) != 0 ||
-//                        Double.compare(expectAmount1, Double.parseDouble(expectAmount)) != 0)
                 if (Double.compare(received1, Double.parseDouble(received)) != 0) {
                     VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(id);
                     if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
@@ -1125,8 +1119,6 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(nutCloud))
                 serviceOrderDto.setNutCloud(nutCloud);
             if (StringUtil.isNotEmpty(serviceAssessId)) {
-                if (serviceAssessService.seleteAssessByServiceId(serviceId).size() == 0)
-                    return new Response<Integer>(1, "当前服务编号不是评估(" + serviceId + ") .", 0);
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
             } else
                 serviceOrderDto.setServiceAssessId(null);
@@ -5167,12 +5159,13 @@ public class ServiceOrderManageController extends BaseController {
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+            ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
             if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
+                serviceOrderDto.setMaraId(Integer.parseInt(maraId));
                 if (isPay.equalsIgnoreCase("false")) {
                     return new Response<Integer>(1, "打包签证及雇主担保不能选择未支付，请核实.", 0);
                 }
             }
-            ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
             if ("SIV".equalsIgnoreCase(type)) {
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
                 String[] split = servicePackageIds.split(",");
@@ -5276,10 +5269,7 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
             if (StringUtil.isNotEmpty(adviserId))
                 serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
-            if (StringUtil.isNotEmpty(officialId)
-                    && !"NSV".equalsIgnoreCase(serviceOrderDto.getType())
-                    && !"MT".equalsIgnoreCase(serviceOrderDto.getType())) // SIV主订单和MT主订单不需要文案
-                serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
+            serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
             if (StringUtil.isNotEmpty(remarks))
                 serviceOrderDto.setRemarks(remarks);
             if (StringUtil.isNotEmpty(closedReason))

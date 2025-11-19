@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service("ServiceOrderManageService")
@@ -645,7 +646,16 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
             });
-            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
+                    .collect(Collectors.collectingAndThen(
+                            Collectors.toMap(
+                                    ChildrenServiceOrderDTO::getServicePackageType,
+                                    Function.identity(),
+                                    (p1, p2) -> p1
+                            ),
+                            map -> new ArrayList<>(map.values())
+                    ));
+            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList2);
         }
 
         List<Integer> cIds = new ArrayList<>();
