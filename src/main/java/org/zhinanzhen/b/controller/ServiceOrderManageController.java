@@ -1084,8 +1084,8 @@ public class ServiceOrderManageController extends BaseController {
             }
             if (StringUtil.isNotEmpty(maraId) && !"0".equals(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
-            if (StringUtil.isNotEmpty(adviserId))
-                serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
+//            if (StringUtil.isNotEmpty(adviserId))
+//                serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
             int officialId1 = serviceOrderDto.getOfficialId();
             if (StringUtil.isNotEmpty(officialId) && !"0".equals(officialId)) {
                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId));
