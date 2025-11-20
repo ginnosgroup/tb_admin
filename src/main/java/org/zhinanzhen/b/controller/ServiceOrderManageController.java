@@ -739,6 +739,10 @@ public class ServiceOrderManageController extends BaseController {
                                     serviceOrderDTO.setIsInsuranceCompany(null);
                                 }
                                 serviceOrderService.addServiceOrder(serviceOrderDTO);
+                                ServiceOrderAndManage serviceOrderAndManage1 = new ServiceOrderAndManage();
+                                serviceOrderAndManage1.setServiceOrderManageId(serviceOrderAndManage.getServiceOrderManageId());
+                                serviceOrderAndManage1.setServiceOrderId(serviceOrderDTO.getId());
+                                serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage1);
                             } catch (ServiceException ex) {
                                 throw new RuntimeException(ex);
                             }
