@@ -666,7 +666,7 @@ public class ServiceOrderManageController extends BaseController {
                 List<ServiceOrderDTO> ziServiceOrderById = serviceOrderService.getZiServiceOrderById(id);
                 for (ServiceOrderDTO serviceOrderDTO : ziServiceOrderById) {
                     if (!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState())) {
-                        return new Response<Integer>(1, "该订单子订单已流程已进行中，请核实", null);
+                        return new Response<Integer>(1, "该订单的子订单已有流程在进行中，不允许修改主订单操作。", null);
                     }
                 }
             }
@@ -675,14 +675,14 @@ public class ServiceOrderManageController extends BaseController {
                 if (Double.compare(received1, Double.parseDouble(received)) != 0) {
                     VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(id);
                     if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
-                        return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
+                        return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实。", null);
                     }
                 }
             }
             if (serviceOrderDto.getApplicantParentId() > 0) {
                 VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(serviceOrderDto.getApplicantParentId());
                 if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
-                    return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
+                    return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实。", null);
                 }
             }
             Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
