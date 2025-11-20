@@ -646,7 +646,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
-                                                @RequestParam(value = "serviceType", required = false) String type,
+                                                @RequestParam(value = "type", required = false) String type,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
