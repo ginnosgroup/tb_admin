@@ -646,16 +646,16 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
             });
-            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
-                    .collect(Collectors.collectingAndThen(
-                            Collectors.toMap(
-                                    ChildrenServiceOrderDTO::getServicePackageType,
-                                    Function.identity(),
-                                    (p1, p2) -> p1
-                            ),
-                            map -> new ArrayList<>(map.values())
-                    ));
-            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList2);
+//            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
+//                    .collect(Collectors.collectingAndThen(
+//                            Collectors.toMap(
+//                                    ChildrenServiceOrderDTO::getServicePackageType,
+//                                    Function.identity(),
+//                                    (p1, p2) -> p1
+//                            ),
+//                            map -> new ArrayList<>(map.values())
+//                    ));
+            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
         }
 
         List<Integer> cIds = new ArrayList<>();

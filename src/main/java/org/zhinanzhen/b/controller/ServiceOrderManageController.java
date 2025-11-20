@@ -575,7 +575,6 @@ public class ServiceOrderManageController extends BaseController {
     @RequestMapping(value = "/updateSubOrder", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
-                                                @RequestParam(value = "type", required = false) String type,
                                                 @RequestParam(value = "peopleNumber", required = false) Integer peopleNumber,
                                                 @RequestParam(value = "peopleType", required = false) String peopleType,
                                                 @RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
@@ -647,6 +646,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
+                                                @RequestParam(value = "serviceType", required = false) String type,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -662,6 +662,14 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
             ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageService.getServiceOrderAndManageById(id);
+            if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
+                List<ServiceOrderDTO> ziServiceOrderById = serviceOrderService.getZiServiceOrderById(id);
+                for (ServiceOrderDTO serviceOrderDTO : ziServiceOrderById) {
+                    if (!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState())) {
+                        return new Response<Integer>(1, "该订单子订单已流程已进行中，请核实", null);
+                    }
+                }
+            }
             if (ObjectUtil.isNotNull(serviceOrderAndManage) && received != null) {
                 double received1 = serviceOrderDto.getReceived();
                 if (Double.compare(received1, Double.parseDouble(received)) != 0) {

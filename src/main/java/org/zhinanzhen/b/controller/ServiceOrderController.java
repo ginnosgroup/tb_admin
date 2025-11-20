@@ -565,18 +565,18 @@ public class ServiceOrderController extends BaseController {
                         serviceOrderService.updateServiceOrder(serviceOrderById);
                     }
                 }
-                if ("OVST".equalsIgnoreCase(type)) {
-                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
-                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
-                    int add = serviceOrderManageService.add(serviceOrderDTO);
-                    if (add > 0) {
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderManageId = serviceOrderDTO.getId();
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-                    }
-                }
+//                if ("OVST".equalsIgnoreCase(type)) {
+//                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
+//                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
+//                    int add = serviceOrderManageService.add(serviceOrderDTO);
+//                    if (add > 0) {
+//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+//                        serviceOrderManageId = serviceOrderDTO.getId();
+//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+//                    }
+//                }
 
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
