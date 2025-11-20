@@ -671,6 +671,12 @@ public class ServiceOrderManageController extends BaseController {
                     }
                 }
             }
+            if (serviceOrderDto.getApplicantParentId() > 0) {
+                VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(serviceOrderDto.getApplicantParentId());
+                if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
+                    return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
+                }
+            }
             Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
                     schoolId, urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
                     receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
@@ -1175,6 +1181,19 @@ public class ServiceOrderManageController extends BaseController {
                     insuranceCompanyDAO.addSserviceOrderInsurance(serviceOrderDto.getId(), Integer.valueOf(insuranceCompany));
                 }
             }
+            double received1 = serviceOrderDto.getReceived();
+            serviceOrderDto.setReceivable(received1);
+            serviceOrderDto.setAmount(received1);
+            if ("CNY".equalsIgnoreCase(currency)) {
+                serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
+                serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
+                serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
+            } else {
+                serviceOrderDto.setGst(received1 / 11);
+                serviceOrderDto.setDeductGst(received1  / 1.1);
+                serviceOrderDto.setExpectAmount(received1);
+            }
+            serviceOrderDto.setPerAmount(received1);
             // 中转订单创建中转文案佣金订单
             if ("1".equalsIgnoreCase(isTransfer)) {
                 OfficialDTO officialById = officialService.getOfficialById(officialId1);

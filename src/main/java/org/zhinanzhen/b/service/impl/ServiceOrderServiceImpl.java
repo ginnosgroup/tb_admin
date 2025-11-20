@@ -827,7 +827,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     type = "bindingList";
                 }
             }
-            if (isAssess != null) {
+            if (StringUtil.isNotEmpty(isAssess)) {
                 List<String> states = new ArrayList<>();
                 states.add("APPLY_FAILED");
                 states.add("CLOSE");
