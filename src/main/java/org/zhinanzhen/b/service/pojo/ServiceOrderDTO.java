@@ -318,4 +318,6 @@ public class ServiceOrderDTO {
 	private String contractData;
 
 	private List<WebLogDTO> contractDataList;
+
+	private boolean isVisaBuild = false;
 }
