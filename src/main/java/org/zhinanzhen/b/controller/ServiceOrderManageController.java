@@ -445,6 +445,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "officialData", required = false) String officialData,
                                                 @RequestParam(value = "adviserId", required = false) String adviserId,
                                                 @RequestParam(value = "userId", required = false) String userId,
+                                                @RequestParam(value = "maraId", required = false) String maraId,
                                                 @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                                 HttpServletRequest request,
                                                 HttpServletResponse response) {
@@ -507,7 +508,7 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
             if (StringUtil.isNotEmpty(gst))
                 serviceOrderDto.setGst(Double.parseDouble(gst));
-            if (StringUtil.isNotEmpty(type))
+            if (StringUtil.isNotEmpty(type) && !"VISA".equalsIgnoreCase(type))
                 serviceOrderDto.setType(type);
             if (StringUtil.isNotEmpty(deductGst))
                 serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
@@ -763,8 +764,8 @@ public class ServiceOrderManageController extends BaseController {
 
     private void updateServiceOrderForManage(ServiceOrderJsonRequest serviceOrderJsonRequest, AdminUserLoginInfo adminUserLoginInfo) throws ServiceException {
         Integer id = serviceOrderJsonRequest.getId();
-        if (id == null) {
-            addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, true);
+        if (id == null || id == 0) {
+            addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
             return;
         }
 //        Integer manageId = serviceOrderJsonRequest.getManageId();
