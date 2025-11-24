@@ -458,7 +458,7 @@ public class ServiceOrderManageController extends BaseController {
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
             List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
             if (StringUtil.isNotEmpty(isPay)) {
-                serviceOrderDto.setPay("1".equals(isPay));
+                serviceOrderDto.setPay("true".equals(isPay));
             }
             if (StringUtil.isNotEmpty(receiveTypeId)) {
                 serviceOrderDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
