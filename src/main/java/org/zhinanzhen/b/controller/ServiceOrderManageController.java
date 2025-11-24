@@ -767,110 +767,110 @@ public class ServiceOrderManageController extends BaseController {
             addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, true);
             return;
         }
-        Integer manageId = serviceOrderJsonRequest.getManageId();
-        String type = serviceOrderJsonRequest.getType();
-        String isPay = serviceOrderJsonRequest.getIsPay();
-        String servicePackageIds = serviceOrderJsonRequest.getServicePackageIds();
-        List<String> servicePackageIdListTmp = new ArrayList<>();
-        List<String> servicePackageIdsEOIListT = new ArrayList<>();
-        if (StringUtil.isNotEmpty(servicePackageIds)) {
-            servicePackageIdListTmp = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
-        }
-        if (!servicePackageIdListTmp.isEmpty()) {
-            servicePackageIds = String.join(",", servicePackageIdListTmp.stream().map(String::valueOf).toArray(String[]::new));
-        }
-        String servicePackageIdsEOI = "";
-        String servicePackageIdsEOIs = serviceOrderJsonRequest.getServicePackageIdsEOI();
-        if (StringUtil.isNotEmpty(servicePackageIdsEOIs)) {
-            servicePackageIdsEOIListT = new ArrayList<>(Arrays.asList(servicePackageIdsEOIs.split(",")));
-        }
-        if (!servicePackageIdsEOIListT.isEmpty()) {
-            servicePackageIdsEOI = String.join(",", servicePackageIdsEOIListT.stream().map(String::valueOf).toArray(String[]::new));
-        }
-        Integer peopleNumber = serviceOrderJsonRequest.getPeopleNumber();
-        String peopleType = serviceOrderJsonRequest.getPeopleType();
-        String peopleRemarks = serviceOrderJsonRequest.getPeopleRemarks();
-        String serviceId = serviceOrderJsonRequest.getServiceId();
-        Integer schoolId = serviceOrderJsonRequest.getSchoolId();
-        Integer schoolInstitutionLocationId = serviceOrderJsonRequest.getSchoolInstitutionLocationId();
-        String isSettle = serviceOrderJsonRequest.getIsSettle();
-        Integer courseId = serviceOrderJsonRequest.getCourseId();
-        String urgentState = serviceOrderJsonRequest.getUrgentState();
-        String isDepositUser = serviceOrderJsonRequest.getIsDepositUser();
-        String subagencyId = serviceOrderJsonRequest.getSubagencyId();
-        String receiveTypeId = serviceOrderJsonRequest.getReceiveTypeId();
-        String receiveDate = serviceOrderJsonRequest.getReceiveDate();
-        String discount = serviceOrderJsonRequest.getDiscount();
-        String received = serviceOrderJsonRequest.getReceived();
-        String receivable = serviceOrderJsonRequest.getReceivable();
-        Integer installment = serviceOrderJsonRequest.getInstallment();
-        String paymentVoucherImageUrl1 = serviceOrderJsonRequest.getPaymentVoucherImageUrl1();
-        String paymentVoucherImageUrl2 = serviceOrderJsonRequest.getPaymentVoucherImageUrl2();
-        String paymentVoucherImageUrl3 = serviceOrderJsonRequest.getPaymentVoucherImageUrl3();
-        String paymentVoucherImageUrl4 = serviceOrderJsonRequest.getPaymentVoucherImageUrl4();
-        String paymentVoucherImageUrl5 = serviceOrderJsonRequest.getPaymentVoucherImageUrl5();
-        String lowPriceImageUrl = serviceOrderJsonRequest.getLowPriceImageUrl();
-        String perAmount = serviceOrderJsonRequest.getPerAmount();
-        String amount = serviceOrderJsonRequest.getAmount();
-        String expectAmount = serviceOrderJsonRequest.getExpectAmount();
-        String currency = serviceOrderJsonRequest.getCurrency();
-        String exchangeRate = serviceOrderJsonRequest.getExchangeRate();
-        String gst = serviceOrderJsonRequest.getGst();
-        String deductGst = serviceOrderJsonRequest.getDeductGst();
-        String bonus = serviceOrderJsonRequest.getBonus();
-        String userId = serviceOrderJsonRequest.getUserId();
-        String maraId = serviceOrderJsonRequest.getMaraId();
-        String adviserId = serviceOrderJsonRequest.getAdviserId();
-        String officialId = serviceOrderJsonRequest.getOfficialId();
-        String remarks = serviceOrderJsonRequest.getRemarks();
-        String closedReason = serviceOrderJsonRequest.getClosedReason();
-        String information = serviceOrderJsonRequest.getInformation();
-        String isHistory = serviceOrderJsonRequest.getIsHistory();
-        String nutCloud = serviceOrderJsonRequest.getNutCloud();
-        String serviceAssessId = serviceOrderJsonRequest.getServiceAssessId();
-        String verifyCode = serviceOrderJsonRequest.getVerifyCode();
-        String refNo = serviceOrderJsonRequest.getRefNo();
-        String institutionTradingName = serviceOrderJsonRequest.getInstitutionTradingName();
-        String invoiceVoucherImageUrl1 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl1();
-        String invoiceVoucherImageUrl2 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl2();
-        String invoiceVoucherImageUrl3 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl3();
-        String invoiceVoucherImageUrl4 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl4();
-        String invoiceVoucherImageUrl5 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl5();
-        String applicantId = serviceOrderJsonRequest.getApplicantId();
-        String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
-        List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
-        if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
-            serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
-                    ServiceOrderApplicantDTO.class);
-        String applicantBirthday = serviceOrderJsonRequest.getApplicantBirthday();
-        String insuranceCompany = serviceOrderJsonRequest.getInsuranceCompany();
-        Integer bindingOrder = serviceOrderJsonRequest.getBindingOrder();
-        String hasInsurance = serviceOrderJsonRequest.getHasInsurance();
-        String isTransfer = serviceOrderJsonRequest.getIsTransfer();
-        String transferRemarks = serviceOrderJsonRequest.getTransferRemarks();
-        String offerUrl = serviceOrderJsonRequest.getOfferUrl();
-        String officialData = serviceOrderJsonRequest.getOfficialData();
-        String kjPaymentImageUrl1 = serviceOrderJsonRequest.getKjPaymentImageUrl1();
-        String kjPaymentImageUrl2 = serviceOrderJsonRequest.getKjPaymentImageUrl2();
-        String expectTimeEnrollment = serviceOrderJsonRequest.getExpectTimeEnrollment();
-        Boolean isApplyVisa = serviceOrderJsonRequest.getIsApplyVisa();
-        String visaNumber = serviceOrderJsonRequest.getVisaNumber();
-        String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
-        String scoreState = serviceOrderJsonRequest.getScoreState();
-        String scoreMark = serviceOrderJsonRequest.getScoreMark();
-        String offerType = serviceOrderJsonRequest.getOfferType();
-        ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
-        Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
-                String.valueOf(schoolId), urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
-                receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
-                paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-                invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
-                kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
-                exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
-                serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
-                isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+//        Integer manageId = serviceOrderJsonRequest.getManageId();
+//        String type = serviceOrderJsonRequest.getType();
+//        String isPay = serviceOrderJsonRequest.getIsPay();
+//        String servicePackageIds = serviceOrderJsonRequest.getServicePackageIds();
+//        List<String> servicePackageIdListTmp = new ArrayList<>();
+//        List<String> servicePackageIdsEOIListT = new ArrayList<>();
+//        if (StringUtil.isNotEmpty(servicePackageIds)) {
+//            servicePackageIdListTmp = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
+//        }
+//        if (!servicePackageIdListTmp.isEmpty()) {
+//            servicePackageIds = String.join(",", servicePackageIdListTmp.stream().map(String::valueOf).toArray(String[]::new));
+//        }
+//        String servicePackageIdsEOI = "";
+//        String servicePackageIdsEOIs = serviceOrderJsonRequest.getServicePackageIdsEOI();
+//        if (StringUtil.isNotEmpty(servicePackageIdsEOIs)) {
+//            servicePackageIdsEOIListT = new ArrayList<>(Arrays.asList(servicePackageIdsEOIs.split(",")));
+//        }
+//        if (!servicePackageIdsEOIListT.isEmpty()) {
+//            servicePackageIdsEOI = String.join(",", servicePackageIdsEOIListT.stream().map(String::valueOf).toArray(String[]::new));
+//        }
+//        Integer peopleNumber = serviceOrderJsonRequest.getPeopleNumber();
+//        String peopleType = serviceOrderJsonRequest.getPeopleType();
+//        String peopleRemarks = serviceOrderJsonRequest.getPeopleRemarks();
+//        String serviceId = serviceOrderJsonRequest.getServiceId();
+//        Integer schoolId = serviceOrderJsonRequest.getSchoolId();
+//        Integer schoolInstitutionLocationId = serviceOrderJsonRequest.getSchoolInstitutionLocationId();
+//        String isSettle = serviceOrderJsonRequest.getIsSettle();
+//        Integer courseId = serviceOrderJsonRequest.getCourseId();
+//        String urgentState = serviceOrderJsonRequest.getUrgentState();
+//        String isDepositUser = serviceOrderJsonRequest.getIsDepositUser();
+//        String subagencyId = serviceOrderJsonRequest.getSubagencyId();
+//        String receiveTypeId = serviceOrderJsonRequest.getReceiveTypeId();
+//        String receiveDate = serviceOrderJsonRequest.getReceiveDate();
+//        String discount = serviceOrderJsonRequest.getDiscount();
+//        String received = serviceOrderJsonRequest.getReceived();
+//        String receivable = serviceOrderJsonRequest.getReceivable();
+//        Integer installment = serviceOrderJsonRequest.getInstallment();
+//        String paymentVoucherImageUrl1 = serviceOrderJsonRequest.getPaymentVoucherImageUrl1();
+//        String paymentVoucherImageUrl2 = serviceOrderJsonRequest.getPaymentVoucherImageUrl2();
+//        String paymentVoucherImageUrl3 = serviceOrderJsonRequest.getPaymentVoucherImageUrl3();
+//        String paymentVoucherImageUrl4 = serviceOrderJsonRequest.getPaymentVoucherImageUrl4();
+//        String paymentVoucherImageUrl5 = serviceOrderJsonRequest.getPaymentVoucherImageUrl5();
+//        String lowPriceImageUrl = serviceOrderJsonRequest.getLowPriceImageUrl();
+//        String perAmount = serviceOrderJsonRequest.getPerAmount();
+//        String amount = serviceOrderJsonRequest.getAmount();
+//        String expectAmount = serviceOrderJsonRequest.getExpectAmount();
+//        String currency = serviceOrderJsonRequest.getCurrency();
+//        String exchangeRate = serviceOrderJsonRequest.getExchangeRate();
+//        String gst = serviceOrderJsonRequest.getGst();
+//        String deductGst = serviceOrderJsonRequest.getDeductGst();
+//        String bonus = serviceOrderJsonRequest.getBonus();
+//        String userId = serviceOrderJsonRequest.getUserId();
+//        String maraId = serviceOrderJsonRequest.getMaraId();
+//        String adviserId = serviceOrderJsonRequest.getAdviserId();
+//        String officialId = serviceOrderJsonRequest.getOfficialId();
+//        String remarks = serviceOrderJsonRequest.getRemarks();
+//        String closedReason = serviceOrderJsonRequest.getClosedReason();
+//        String information = serviceOrderJsonRequest.getInformation();
+//        String isHistory = serviceOrderJsonRequest.getIsHistory();
+//        String nutCloud = serviceOrderJsonRequest.getNutCloud();
+//        String serviceAssessId = serviceOrderJsonRequest.getServiceAssessId();
+//        String verifyCode = serviceOrderJsonRequest.getVerifyCode();
+//        String refNo = serviceOrderJsonRequest.getRefNo();
+//        String institutionTradingName = serviceOrderJsonRequest.getInstitutionTradingName();
+//        String invoiceVoucherImageUrl1 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl1();
+//        String invoiceVoucherImageUrl2 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl2();
+//        String invoiceVoucherImageUrl3 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl3();
+//        String invoiceVoucherImageUrl4 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl4();
+//        String invoiceVoucherImageUrl5 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl5();
+//        String applicantId = serviceOrderJsonRequest.getApplicantId();
+//        String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
+//        List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
+//        if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
+//            serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
+//                    ServiceOrderApplicantDTO.class);
+//        String applicantBirthday = serviceOrderJsonRequest.getApplicantBirthday();
+//        String insuranceCompany = serviceOrderJsonRequest.getInsuranceCompany();
+//        Integer bindingOrder = serviceOrderJsonRequest.getBindingOrder();
+//        String hasInsurance = serviceOrderJsonRequest.getHasInsurance();
+//        String isTransfer = serviceOrderJsonRequest.getIsTransfer();
+//        String transferRemarks = serviceOrderJsonRequest.getTransferRemarks();
+//        String offerUrl = serviceOrderJsonRequest.getOfferUrl();
+//        String officialData = serviceOrderJsonRequest.getOfficialData();
+//        String kjPaymentImageUrl1 = serviceOrderJsonRequest.getKjPaymentImageUrl1();
+//        String kjPaymentImageUrl2 = serviceOrderJsonRequest.getKjPaymentImageUrl2();
+//        String expectTimeEnrollment = serviceOrderJsonRequest.getExpectTimeEnrollment();
+//        Boolean isApplyVisa = serviceOrderJsonRequest.getIsApplyVisa();
+//        String visaNumber = serviceOrderJsonRequest.getVisaNumber();
+//        String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
+//        String scoreState = serviceOrderJsonRequest.getScoreState();
+//        String scoreMark = serviceOrderJsonRequest.getScoreMark();
+//        String offerType = serviceOrderJsonRequest.getOfferType();
+//        ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+//        Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
+//                String.valueOf(schoolId), urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
+//                receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
+//                paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
+//                invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
+//                kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
+//                exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
+//                serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
+//                isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+//                institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
+//                hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
 
 
 
