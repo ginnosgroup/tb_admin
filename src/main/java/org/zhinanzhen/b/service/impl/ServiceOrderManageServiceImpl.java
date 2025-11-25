@@ -14,6 +14,7 @@ import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -413,6 +414,13 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         for (Integer id : idList) {
             Integer i1 = firstPlace(id);
             if (i1 > 1) {
+                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(id);
+                for (ServiceOrderDTO serviceOrderDTO : serviceOrderDTOS) {
+                    VisaDO firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDTO.getId());
+                    if (!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState()) || firstVisaByServiceOrderId != null) {
+                        return"该订单的子订单已有流程在进行中，不允许删除主订单操作。";
+                    }
+                }
                 serviceOrderManageDAO.deleteServiceOrderById(id);
             }
             if (i1 == 1) {
@@ -423,7 +431,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 ServiceOrderDO serviceOrderManageDAOServiceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
                 ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(id);
                 VisaDO visaByServiceOrderId = visaDao.getVisaByServiceOrderId(serviceOrderById.getId());
-                if (visaByServiceOrderId != null) {
+                if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderById.getState())) {
                     return "该订单已生成佣金订单，不能删除，请核实";
                 }
                 if (serviceOrderById.getApplicantParentId() == 0) {
