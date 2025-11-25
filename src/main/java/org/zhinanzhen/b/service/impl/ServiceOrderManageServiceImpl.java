@@ -243,7 +243,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                             for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
                                 ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub);
                                 VisaDO visaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderSub.getId());
-                                if (visaByServiceOrderId != null) {
+                                if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderSub.getState())) {
                                     serviceOrderDTO.setVisaBuild(true);
                                 }
                                 serviceOrderSubsT.add(serviceOrderDTO1);
