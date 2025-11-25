@@ -456,6 +456,14 @@ public class ServiceOrderManageController extends BaseController {
             serviceOrderDto = serviceOrderManageService.getServiceOrderById(id);
             if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+            List<ServiceOrderDTO> childrenServiceOrderList = serviceOrderManageService.listChildrenServiceOrder(id);
+            for (ServiceOrderDTO serviceOrderDTO : childrenServiceOrderList) {
+                VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(serviceOrderDTO.getId());
+                if ("PENDING".equalsIgnoreCase(serviceOrderDTO.getState()) || firstVisaByServiceOrderId != null) {
+                    return new Response<Integer>(1, "该订单的子订单已有流程在进行中，不允许修改主订单操作。", null);
+                }
+            }
+
             List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
             if (StringUtil.isNotEmpty(isPay)) {
                 serviceOrderDto.setPay("true".equals(isPay));
