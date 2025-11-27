@@ -2662,6 +2662,8 @@ public class ServiceOrderManageController extends BaseController {
                                     @RequestParam(value = "userId", required = false) Integer userId,
                                     @RequestParam(value = "userName", required = false) String userName,
                                     @RequestParam(value = "applicantName", required = false) String applicantName,
+                                    @RequestParam(value = "adviserRegionId", required = false) Integer adviserRegionId,
+                                    @RequestParam(value = "officialRegionId", required = false) Integer officialRegionId,
                                     @RequestParam(value = "maraId", required = false) Integer maraId,
                                     @RequestParam(value = "adviserId", required = false) Integer adviserId,
                                     @RequestParam(value = "officialId", required = false) Integer officialId,
@@ -2700,9 +2702,15 @@ public class ServiceOrderManageController extends BaseController {
             excludeState = ReviewAdviserStateEnum.PENDING.toString();
         }
 
-        List<Integer> regionIdList = null;
-        if (regionId != null && regionId > 0)
-            regionIdList = ListUtil.buildArrayList(regionId);
+        List<Integer> adviserRegionIdList = null;
+        if (adviserRegionId != null && adviserRegionId > 0)
+            adviserRegionIdList = ListUtil.buildArrayList(adviserRegionId);
+
+        List<Integer> officialRegionIdList = null;
+        if (officialRegionId != null && officialRegionId > 0)
+            officialRegionIdList = ListUtil.buildArrayList(officialRegionId);
+
+
         JSONObject setupExcelJsonObjectTmp = null;
         try {
             super.setGetHeader(response);
@@ -2711,30 +2719,32 @@ public class ServiceOrderManageController extends BaseController {
             if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
                 List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                adviserRegionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
                 for (RegionDTO region : regionList)
-                    regionIdList.add(region.getId());
+                    adviserRegionIdList.add(region.getId());
             } else {
                 Integer newAdviserId = getAdviserId(request);
                 if (newAdviserId != null)
                     adviserId = newAdviserId;
             }
-
+            List<ServiceOrderDTO> serviceOrderLists = new ArrayList<>();
             List<ServiceOrderDTO> serviceOrderList = null;
             if (id != null && id > 0) {
-                serviceOrderList = new ArrayList<ServiceOrderDTO>();
-                ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+                ServiceOrderDTO serviceOrder = serviceOrderManageService.getServiceOrderById(id);
                 if (serviceOrder != null)
-                    serviceOrderList.add(serviceOrder);
+                    serviceOrderLists.add(serviceOrder);
             }
             if (id == null) {
-                serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+                serviceOrderList = serviceOrderManageService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
-                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, null, userId, userName, applicantName, maraId, adviserId,
+                        endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
-                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation, null, null);
+                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
 
+                for (ServiceOrderDTO serviceOrderDTO : serviceOrderList) {
+                    serviceOrderLists.add(serviceOrderDTO);
+                }
                 if (newOfficialId != null)
                     for (ServiceOrderDTO so : serviceOrderList)
                         so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
@@ -2848,6 +2858,18 @@ public class ServiceOrderManageController extends BaseController {
                                     recordsList.add(jsonObjectValue);
                                     parmJiLu[0].put("records", recordsList);
                                     JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+
+                                    List<ServiceOrderDTO> subServiceOrders = serviceOrderDTO.getSubServiceOrders();
+                                    for (ServiceOrderDTO subServiceOrder : subServiceOrders) {
+                                        JSONObject jsonObjectFILEDTITLE1 = buileExcelJsonObject(subServiceOrder);
+                                        List<JSONObject> recordsList1 = new ArrayList<>();
+                                        JSONObject jsonObjectValue1 = new JSONObject();
+                                        jsonObjectValue1.put("values", jsonObjectFILEDTITLE1);
+                                        recordsList1.add(jsonObjectValue1);
+                                        parmJiLu[0].put("records", recordsList1);
+                                        WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+                                    }
+
                                     log.info(accessTokenJiLu);
                                     log.info("jsonObjectJiLu-------------" + jsonObjectJiLu.toString());
                                 }
@@ -2883,7 +2905,7 @@ public class ServiceOrderManageController extends BaseController {
                     break;
                 default: apList = apList;
             }
-            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "服务订单导出");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "服务订单导出");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -4607,6 +4629,12 @@ public class ServiceOrderManageController extends BaseController {
             text16.put("text",s);
             jsonObject16.put("cell_value", text16);
             rows.add(jsonObject16);
+        } else if (so.getType() == null) {
+            JSONObject jsonObject16 = new JSONObject();
+            JSONObject text16 = new JSONObject();
+            text16.put("text", "");
+            jsonObject16.put("cell_value", text16);
+            rows.add(jsonObject16);
         } else {
             String s = convertOrderStatus(so.getState());
             JSONObject jsonObject16 = new JSONObject();
@@ -4747,6 +4775,7 @@ public class ServiceOrderManageController extends BaseController {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type", "text");
         jsonObject.put("text", String.valueOf(so.getId()));
+        jsonObject.put("style", 1);
         jsonObjectFILEDTITLEList.add(jsonObject);
         jsonObjectFILEDTITLE.put("ID", jsonObjectFILEDTITLEList);
         // 创建时间
@@ -5015,6 +5044,13 @@ public class ServiceOrderManageController extends BaseController {
             jsonObject.put("type", "text");
             jsonObjectFILEDTITLEList = new ArrayList<>();
             jsonObject.put("text", convertOvstOrderStatus(so.getState()));
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("状态", jsonObjectFILEDTITLEList);
+        } else if (so.getType() == null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
             jsonObjectFILEDTITLEList.add(jsonObject);
             jsonObjectFILEDTITLE.put("状态", jsonObjectFILEDTITLEList);
         } else {
