@@ -406,7 +406,7 @@ public class ServiceOrderManageController extends BaseController {
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
                 }
             }
-            return new Response<Integer>(0, "创建成功.", addResult);
+            return new Response<Integer>(0, "创建成功.", serviceOrderDto.getId());
         }
         return null;
     }

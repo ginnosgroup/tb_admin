@@ -66,7 +66,7 @@ public class WebLogServiceImpl implements WebLogService {
                 SimpleDateFormat targetFormat = new SimpleDateFormat(targetDateFormat);
                 Date parse = originalFormat.parse(webLogDTO.getStartTime());
                 String startTime = targetFormat.format(parse);
-                if ("serviceOrder".equalsIgnoreCase(split[2])) {
+                if ("serviceOrder".equalsIgnoreCase(split[2]) || "serviceOrderManage".equalsIgnoreCase(split[2])) {
                     List<String> serviceOrderOriginallyDOList = new ArrayList<>();
 //                    String[] split = webLogDTO.getUri().split("/");
                     String parameter = webLogDTO.getParameter();
