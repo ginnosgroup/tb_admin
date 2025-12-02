@@ -289,6 +289,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "userId", required = false) String userId,
                                              @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
+                                             @RequestParam(value = "contractData", required = false) String contractData,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -389,6 +390,9 @@ public class ServiceOrderManageController extends BaseController {
         }
         if (StringUtil.isNotEmpty(maraId)) {
             serviceOrderDto.setMaraId(Integer.parseInt(maraId));
+        }
+        if (StringUtil.isNotEmpty(contractData)) {
+            serviceOrderDto.setContractData(contractData);
         }
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
