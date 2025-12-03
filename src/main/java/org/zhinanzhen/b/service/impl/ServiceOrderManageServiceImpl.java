@@ -156,6 +156,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
     @Resource
     private VisaOfficialService visaOfficialService;
 
+    @Resource
+    private WebLogDAO webLogDAO;
+
     @Override
     public int addServiceOrderAndManage(ServiceOrderAndManage serviceOrderAndManage) {
         return serviceOrderManageDAO.addServiceOrderAndManage(serviceOrderAndManage);
@@ -853,6 +856,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
 
+        // 获取服务订单上传合同日志信息
+        List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
+        if (!webLogDTOList.isEmpty()) {
+            serviceOrderDto.setContractDataList(webLogDTOList);
+        }
         return serviceOrderDto;
     }
 

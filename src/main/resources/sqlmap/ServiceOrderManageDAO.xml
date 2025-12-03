@@ -627,7 +627,8 @@
             adviser_id AS adviserId,
             user_id AS userId,
             type,
-            mara_id AS maraId
+            mara_id AS maraId,
+            contract_data AS contractData
         FROM b_service_order_manage WHERE id = #{id, jdbcType=INTEGER};
     </select>
     <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">

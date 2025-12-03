@@ -451,6 +451,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "userId", required = false) String userId,
                                                 @RequestParam(value = "maraId", required = false) String maraId,
                                                 @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
+                                                @RequestParam(value = "contractData", required = false) String contractData,
                                                 HttpServletRequest request,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
@@ -544,6 +545,8 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(userId)) {
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
             }
+            if (StringUtil.isNotEmpty(contractData))
+                serviceOrderDto.setContractData(contractData);
             int i = serviceOrderManageService.updateServiceOrderManage(serviceOrderDto);
             List<ServiceOrderJsonRequest> serviceOrderJson = new ArrayList<>();
             try {
@@ -576,6 +579,25 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
                         updateServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                     }
+                }
+                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageService.listChildrenServiceOrder(serviceOrderDto.getId());
+                for (ServiceOrderDTO serviceOrderDTOC : serviceOrderDTOS) {
+                    if (serviceOrderDto.getPaymentVoucherImageUrl1() != null && !serviceOrderDto.getPaymentVoucherImageUrl1().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl1())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl2() != null && !serviceOrderDto.getPaymentVoucherImageUrl2().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl2())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl3() != null && !serviceOrderDto.getPaymentVoucherImageUrl3().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl3())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl4() != null && !serviceOrderDto.getPaymentVoucherImageUrl4().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl3())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl5() != null && !serviceOrderDto.getPaymentVoucherImageUrl5().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl3())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+                    }
+                    serviceOrderService.updateServiceOrder(serviceOrderDTOC);
                 }
             }
             return new Response<Integer>(0, "修改成功");
@@ -778,7 +800,6 @@ public class ServiceOrderManageController extends BaseController {
         Integer id = serviceOrderJsonRequest.getId();
         if (id == null || id == 0) {
             addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
-            return;
         }
 //        Integer manageId = serviceOrderJsonRequest.getManageId();
 //        String type = serviceOrderJsonRequest.getType();
