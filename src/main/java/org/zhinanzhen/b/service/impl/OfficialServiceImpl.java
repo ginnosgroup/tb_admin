@@ -137,6 +137,7 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 			String dateStr = convertToYearMonth(format);
 			List<String> previousMonths = getPreviousMonths(dateStr, 3);
 			double averageScore = 0;
+			int averageNum = 0;
 			for (String previousMonth : previousMonths) {
 				// 解析年月字符串
 				YearMonth yearMonth = YearMonth.parse(previousMonth, DateTimeFormatter.ofPattern("yyyy-MM"));
@@ -160,9 +161,10 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 					for (OfficialEvaluate officialEvaluate : officialEvaluates) {
 						averageScore += extractScoreWithJackson(officialEvaluate);
 					}
-					officialDo.setAverageScore(DECIMAL_FORMAT.format(averageScore/officialEvaluates.size()));
+					averageNum += officialEvaluates.size();
 				}
 			}
+			officialDo.setAverageScore(DECIMAL_FORMAT.format(averageScore/averageNum));
 			if (isbuiltOrder) {
 				if (officialDo.getWorkState() != null && officialDo.getWorkState().equalsIgnoreCase("RESIGN"))
 					continue;
