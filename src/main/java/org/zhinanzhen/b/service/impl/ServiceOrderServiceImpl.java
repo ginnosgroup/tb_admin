@@ -1417,12 +1417,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
         ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDto.getId());
         if (serviceOrderAndManage != null) {
-            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
-            if (ObjectUtil.isNotNull(serviceOrderById)) {
-                List<ServiceOrderDO> childrenServiceOrder = serviceOrderManageDAO.listSub(serviceOrderById.getId());
-                serviceOrderById.setSubServiceOrders(childrenServiceOrder);
-                serviceOrderDto.setServiceOrderManage(serviceOrderById);
-            }
+            serviceOrderDto.setManageOrder(true);
+//            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
+//            if (ObjectUtil.isNotNull(serviceOrderById)) {
+//                serviceOrderDto.setServiceOrderManage(serviceOrderById);
+//            }
         }
         // 获取服务订单上传合同日志信息
         List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());

@@ -320,4 +320,6 @@ public class ServiceOrderDTO {
 	private List<WebLogDTO> contractDataList;
 
 	private boolean isVisaBuild = false;
+
+	private boolean isManageOrder = false;
 }
