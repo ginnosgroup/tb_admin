@@ -464,7 +464,7 @@ public class ServiceOrderManageController extends BaseController {
             List<ServiceOrderDTO> childrenServiceOrderList = serviceOrderManageService.listChildrenServiceOrder(id);
             for (ServiceOrderDTO serviceOrderDTO : childrenServiceOrderList) {
                 VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(serviceOrderDTO.getId());
-                if (!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState()) || firstVisaByServiceOrderId != null) {
+                if ((!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState()) || firstVisaByServiceOrderId != null) && contractData.equalsIgnoreCase(serviceOrderDto.getContractData())) {
                     return new Response<Integer>(1, "该订单的子订单已有流程在进行中，不允许修改主订单操作。", null);
                 }
             }

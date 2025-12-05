@@ -164,6 +164,9 @@ public class OfficialServiceImpl extends BaseService implements OfficialService 
 					averageNum += officialEvaluates.size();
 				}
 			}
+			if (averageNum == 0) {
+				averageNum++;
+			}
 			officialDo.setAverageScore(DECIMAL_FORMAT.format(averageScore/averageNum));
 			if (isbuiltOrder) {
 				if (officialDo.getWorkState() != null && officialDo.getWorkState().equalsIgnoreCase("RESIGN"))
