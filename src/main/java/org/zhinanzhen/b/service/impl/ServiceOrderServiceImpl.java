@@ -1419,6 +1419,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (serviceOrderAndManage != null) {
             ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
             if (ObjectUtil.isNotNull(serviceOrderById)) {
+                List<ServiceOrderDO> childrenServiceOrder = serviceOrderManageDAO.listSub(serviceOrderById.getId());
+                serviceOrderById.setSubServiceOrders(childrenServiceOrder);
                 serviceOrderDto.setServiceOrderManage(serviceOrderById);
             }
         }
