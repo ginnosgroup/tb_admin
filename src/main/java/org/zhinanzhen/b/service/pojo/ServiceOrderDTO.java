@@ -322,4 +322,6 @@ public class ServiceOrderDTO {
 	private boolean isVisaBuild = false;
 
 	private boolean isManageOrder = false;
+
+	private Integer parentIdNew; // 新的父订单id
 }
