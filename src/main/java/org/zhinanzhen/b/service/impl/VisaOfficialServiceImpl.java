@@ -1516,6 +1516,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                         List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
                         visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
                     }
+                    // 查询父订单id
+                    Integer parentIdNew = serviceOrderManageDAO.getserviceorderManageIdByServiceorderId(visaOfficialDto.getServiceOrderId());
+                    if (parentIdNew != null) {
+                        visaOfficialDto.setParentIdNew(parentIdNew);
+                    }
                     // 查询当前订单退款金额以及绑定订单金额
                     visaOfficialDto.setRefundAmount(0.00);
                     visaOfficialDto.setBingDingAmount(0.00);

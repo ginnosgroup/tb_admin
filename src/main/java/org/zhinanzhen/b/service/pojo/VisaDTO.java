@@ -182,5 +182,7 @@ public class VisaDTO {
 
 	private boolean isCurrentAdvisor = true;
 
+	private Integer parentIdNew; // 新的父订单ID
+
 
 }

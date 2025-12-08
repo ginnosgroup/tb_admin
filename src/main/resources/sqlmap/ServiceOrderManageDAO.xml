@@ -800,4 +800,7 @@
         service_order_manage_id)
         LIMIT #{offset}, #{rows};
     </select>
+    <select id="getserviceorderManageIdByServiceorderId" resultType="java.lang.Integer">
+        SELECT service_order_manage_id FROM b_service_order_and_manage WHERE service_order_id = #{serviceOrderId}
+    </select>
 </mapper>
