@@ -427,14 +427,17 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 HSSFRow row = sheet.createRow(i);
                 row.createCell(0).setCellValue(visaDTO.getId());
                 row.createCell(1).setCellValue(visaDTO.getServiceOrderId());
-                row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
-                row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
-                row.createCell(4).setCellValue(visaDTO.getUserName());
-                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
-                row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
-                row.createCell(7).setCellValue(visaDTO.getCurrency());
-                row.createCell(8).setCellValue(visaDTO.getExchangeRate());
-                row.createCell(9).setCellValue(visaDTO.getReceiveTypeName());
+                if (visaDTO.getParentIdNew() != null) {
+                    row.createCell(2).setCellValue(visaDTO.getParentIdNew());
+                }
+                row.createCell(3).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
+                row.createCell(4).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
+                row.createCell(5).setCellValue(visaDTO.getUserName());
+                row.createCell(6).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
+                row.createCell(7).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
+                row.createCell(8).setCellValue(visaDTO.getCurrency());
+                row.createCell(9).setCellValue(visaDTO.getExchangeRate());
+                row.createCell(10).setCellValue(visaDTO.getReceiveTypeName());
 //                if (ObjectUtil.isNotNull(visaDTO.getServiceOrder().getServicePackage()) && visaDTO.getServiceOrder().getApplicantParentId() > 0) {
 //                    servicePackageType = "-" + visaDTO.getServiceOrder().getServicePackage().getType();
 //                }
@@ -478,33 +481,33 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     ServiceDTO serviceById = serviceService.getServiceById(serviceOrderById.getServiceId());
                     visaDTO.getServiceOrder().getService().setName(serviceById.getName());
                 }
-                row.createCell(10).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                row.createCell(11).setCellValue(StringUtil.merge(visaDTO.getServiceOrder().getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
                 servicePackageType = "";
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
                 if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
-                    row.createCell(11).setCellValue(servicePackagePriceDO.getMaxPrice());
+                    row.createCell(12).setCellValue(servicePackagePriceDO.getMaxPrice());
                 }
-                row.createCell(12).setCellValue(visaDTO.getAdviserName());
-                row.createCell(13).setCellValue(visaDTO.getOfficialName());
-                row.createCell(14).setCellValue(visaDTO.getMaraName() == null ? "" : visaDTO.getMaraName());
-                row.createCell(15).setCellValue(visaDTO.getTotalPerAmountAUD());
-                row.createCell(16).setCellValue(visaDTO.getTotalAmountCNY());
-                row.createCell(17).setCellValue(visaDTO.getPredictCommissionAmount() + "");
-                row.createCell(18).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
-                row.createCell(19).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
-                row.createCell(20).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
+                row.createCell(13).setCellValue(visaDTO.getAdviserName());
+                row.createCell(14).setCellValue(visaDTO.getOfficialName());
+                row.createCell(15).setCellValue(visaDTO.getMaraName() == null ? "" : visaDTO.getMaraName());
+                row.createCell(16).setCellValue(visaDTO.getTotalPerAmountAUD());
+                row.createCell(17).setCellValue(visaDTO.getTotalAmountCNY());
+                row.createCell(18).setCellValue(visaDTO.getPredictCommissionAmount() + "");
+                row.createCell(19).setCellValue(visaDTO.getCommissionAmount() == null ? "" : visaDTO.getCommissionAmount() + "");
+                row.createCell(20).setCellValue(visaDTO.getPredictCommission() == null ? "" : visaDTO.getPredictCommission() + "");
+                row.createCell(21).setCellValue(visaDTO.getPredictCommissionCNY() == null ? "" : visaDTO.getPredictCommissionCNY() + "");
                 double extraAmount = 0.00;
                 extraAmount = visaDTO.getExtraAmount() == null ? 0 : visaDTO.getExtraAmount();
-                row.createCell(21).setCellValue(extraAmount);
+                row.createCell(22).setCellValue(extraAmount);
                 if (extraAmount == 0) {
-                    row.createCell(22).setCellValue(0);
+                    row.createCell(23).setCellValue(0);
                 } else {
                     double basicAmount = 0.00;
                     basicAmount = visaDTO.getCommissionAmount() - visaDTO.getExtraAmount();
                     if (basicAmount < 0) {
                         basicAmount = 0.00;
                     }
-                    row.createCell(22).setCellValue(basicAmount);
+                    row.createCell(23).setCellValue(basicAmount);
                 }
                 ServiceOrderDTO serviceOrderById = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
                 double additionalAmount2A = 0.00; // 带配偶
@@ -522,22 +525,22 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                         additionalAmountXA = 25.00;
                     }
                 }
-                row.createCell(23).setCellValue(additionalAmountXA);
-                row.createCell(24).setCellValue(additionalAmount2A);
-                row.createCell(25).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
-                row.createCell(26).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
+                row.createCell(24).setCellValue(additionalAmountXA);
+                row.createCell(25).setCellValue(additionalAmount2A);
+                row.createCell(26).setCellValue(additionalAmountXA / visaDTO.getExchangeRate());
+                row.createCell(27).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
                 String isInsuranceCompany = serviceOrderById.getIsInsuranceCompany();
-                row.createCell(27).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
-                row.createCell(28).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
-                row.createCell(29).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
-                row.createCell(30).setCellValue(visaDTO.getRefundAmount());
-                row.createCell(31).setCellValue(visaDTO.getBingDingAmount());
-                row.createCell(32).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                row.createCell(28).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
+                row.createCell(29).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(30).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(31).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(32).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(33).setCellValue(visaDTO.isMerged() ? "是" : "否");
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(33).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
-                row.createCell(34).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
+                row.createCell(34).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(35).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
                 i++;
             }
             wb.write(os);
