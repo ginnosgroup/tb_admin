@@ -152,4 +152,7 @@ public interface ServiceOrderDAO {
 
     Integer getBingDingAssOrderId(@Param("id") int id);
 
+    Integer getOrderCount(@Param("userId")int userId, @Param("visa") String visa);
+
+     Double getOrderAmount(int id);
 }

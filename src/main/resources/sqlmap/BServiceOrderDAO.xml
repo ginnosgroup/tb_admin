@@ -1626,6 +1626,20 @@
         select id from b_service_order
         where bingding_assess_order = #{id}
     </select>
+    <select id="getOrderCount" resultType="java.lang.Integer">
+        select count(*) from b_service_order
+        where user_id = #{userId}
+        <if test="visa != null and visa != '' and visa == 'VISA'">
+            and type in ('VISA','SIV') and applicant_parent_id = 0
+        </if>
+        <if test="visa != null and visa != '' and visa == 'OVST'">
+            and type = #{visa}
+        </if>
+    </select>
+    <select id="getOrderAmount" resultType="java.lang.Double">
+        select sum(receivable) from b_service_order
+        where user_id = #{id} and (type in ('VISA','SIV') and applicant_parent_id = 0)
+    </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>
