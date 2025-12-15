@@ -257,7 +257,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 			userDto.setVisaCount(serviceOrderDao.getOrderCount(userDto.getId(), "VISA"));
 			userDto.setOvstCount(serviceOrderDao.getOrderCount(userDto.getId(), "OVST"));
-			userDto.setOrderAmount(serviceOrderDao.getOrderAmount(userDto.getId()));
+			Double orderAmount = serviceOrderDao.getOrderAmount(userDto.getId());
+			if(orderAmount == null) {
+				orderAmount = 0.0;
+				userDto.setOrderAmount(orderAmount);
+			} else {
+				userDto.setOrderAmount(orderAmount);
+			}
 			userDtoList.add(userDto);
 		}
 		return userDtoList;
