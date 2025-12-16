@@ -399,7 +399,6 @@ public class ServiceOrderManageController extends BaseController {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
-                    serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
                     serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
@@ -5467,20 +5466,65 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
-            double received1 = serviceOrderDto.getReceived();
-            serviceOrderDto.setReceivable(received1);
-            serviceOrderDto.setAmount(received1);
-            if ("CNY".equalsIgnoreCase(currency)) {
-                serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
-                serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
-                serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
-            } else {
-                serviceOrderDto.setGst(received1 / 11);
-                serviceOrderDto.setDeductGst(received1  / 1.1);
-                serviceOrderDto.setExpectAmount(received1);
+//            if (StringUtil.isNotEmpty(receivable)) {
+//                serviceOrderDto.setReceivable(Double.parseDouble(receivable));
+//            }
+//            if (StringUtil.isNotEmpty(discount)) {
+//                serviceOrderDto.setDiscount(Double.parseDouble(discount));
+//            }
+//            if (StringUtil.isNotEmpty(received)) {
+//                serviceOrderDto.setReceived(Double.parseDouble(received));
+//            }
+//            if (StringUtil.isNotEmpty(gst)) {
+//                serviceOrderDto.setGst(Double.parseDouble(gst));
+//            }
+//            if (StringUtil.isNotEmpty(amount)) {
+//                serviceOrderDto.setAmount(Double.parseDouble(amount));
+//            }
+//            if (StringUtil.isNotEmpty(deductGst)) {
+//                serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
+//            }
+//            if (StringUtil.isNotEmpty(expectAmount)) {
+//                serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
+//            }
+//            if (StringUtil.isNotEmpty(perAmount)) {
+//                serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+//            }
+
+            if (serviceOrderJsonRequest.getInstallment() == 1) {
+                double received1 = serviceOrderDto.getReceived();
+                serviceOrderDto.setReceivable(received1);
+                serviceOrderDto.setAmount(received1);
+                if ("CNY".equalsIgnoreCase(currency)) {
+                    serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
+                    serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
+                    serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
+                } else {
+                    serviceOrderDto.setGst(received1 / 11);
+                    serviceOrderDto.setDeductGst(received1  / 1.1);
+                    serviceOrderDto.setExpectAmount(received1);
+                }
+                serviceOrderDto.setPerAmount(received1);
+                serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             }
-            serviceOrderDto.setPerAmount(received1);
-            serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
+            if (serviceOrderJsonRequest.getInstallment() == 2) {
+                double received1 = serviceOrderDto.getAmount();
+                serviceOrderDto.setReceivable(Double.parseDouble(received));
+                serviceOrderDto.setAmount(received1);
+                serviceOrderDto.setReceived(received1);
+                if ("CNY".equalsIgnoreCase(currency)) {
+                    serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
+                    serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
+                    serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
+                } else {
+                    serviceOrderDto.setGst(received1 / 11);
+                    serviceOrderDto.setDeductGst(received1  / 1.1);
+                    serviceOrderDto.setExpectAmount(received1);
+                }
+                serviceOrderDto.setPerAmount(received1);
+                serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
+            }
+
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 if (isUpdate) {
