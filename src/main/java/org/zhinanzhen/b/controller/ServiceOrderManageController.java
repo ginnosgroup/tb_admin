@@ -5507,7 +5507,7 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setPerAmount(received1);
                 serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             }
-            if (serviceOrderJsonRequest.getInstallment() == 2) {
+            if (serviceOrderJsonRequest.getInstallment() > 1) {
                 double received1 = serviceOrderDto.getAmount();
                 serviceOrderDto.setReceivable(Double.parseDouble(received));
                 serviceOrderDto.setAmount(received1);

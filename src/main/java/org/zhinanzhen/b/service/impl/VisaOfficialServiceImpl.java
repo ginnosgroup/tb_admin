@@ -1254,6 +1254,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                     visaOfficialDO.setStage("1-" + (visaOfficialDOS.size() + 1));
                 } else {
                     visaOfficialDO.setStage("2");
+                    extraAmount = extraAmount * 0.4;
                     predictCommissionAmount = predictCommissionAmount * 0.4;
                 }
                 // 修改专用结算stage
