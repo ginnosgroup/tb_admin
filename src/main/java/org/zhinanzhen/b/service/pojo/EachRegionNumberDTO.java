@@ -43,6 +43,8 @@ public class EachRegionNumberDTO extends EachRegionNumberDO {
 
     private int BJ;
 
+    private int XM;
+
     private int other;
 
 }

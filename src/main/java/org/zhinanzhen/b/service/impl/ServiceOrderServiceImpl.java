@@ -2606,6 +2606,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             else if (eachRegionNumberDO.getName().equalsIgnoreCase("北京")) {
                 eachRegionNumberDTO
                         .setBJ(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getBJ());
+            } else if (eachRegionNumberDO.getName().equalsIgnoreCase("厦门")) {
+                eachRegionNumberDTO
+                        .setXM(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getXM());
             }
             else
                 eachRegionNumberDTO.setOther(eachRegionNumberDO.getCount() + eachRegionNumberDTO.getOther());
@@ -2613,7 +2616,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     + eachRegionNumberDTO.getBrisbane() + eachRegionNumberDTO.getCanberra()
                     + eachRegionNumberDTO.getHobart() + eachRegionNumberDTO.getMelbourne()
                     + eachRegionNumberDTO.getCrucial() + eachRegionNumberDTO.getOther()
-                    +eachRegionNumberDTO.getCis()+eachRegionNumberDTO.getQD()+eachRegionNumberDTO.getBJ());
+                    +eachRegionNumberDTO.getCis()+eachRegionNumberDTO.getQD()+eachRegionNumberDTO.getBJ()+eachRegionNumberDTO.getXM());
             eachRegionNumberDTO.setName(name);
             eachRegionNumberDTO.setInstitutionName(eachRegionNumberDO.getInstitutionName());
             map.put(name, eachRegionNumberDTO);
