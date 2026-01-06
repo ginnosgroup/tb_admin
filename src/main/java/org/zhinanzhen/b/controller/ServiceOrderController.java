@@ -3511,7 +3511,8 @@ public class ServiceOrderController extends BaseController {
                         sheet.addCell(new Label(11, i, "CIS", cellFormat));
                         sheet.addCell(new Label(12, i, "青岛", cellFormat));
                         sheet.addCell(new Label(13, i, "北京", cellFormat));
-                        sheet.addCell(new Label(14, i, "other", cellFormat));
+                        sheet.addCell(new Label(14, i, "厦门", cellFormat));
+                        sheet.addCell(new Label(15, i, "other", cellFormat));
                         i++;
                     }
                     if (i == 0 && type.equalsIgnoreCase("OVST")) {
@@ -3528,7 +3529,8 @@ public class ServiceOrderController extends BaseController {
                         sheet.addCell(new Label(11, i, "CIS", cellFormat));
                         sheet.addCell(new Label(12, i, "青岛", cellFormat));
                         sheet.addCell(new Label(13, i, "北京", cellFormat));
-                        sheet.addCell(new Label(14, i, "other", cellFormat));
+                        sheet.addCell(new Label(14, i, "厦门", cellFormat));
+                        sheet.addCell(new Label(15, i, "other", cellFormat));
                         i++;
                     }
                     if (i == 0 && type.equalsIgnoreCase("ZX")) {
@@ -3549,7 +3551,8 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(11, i, eo.getCis() + "", cellFormat));
                     sheet.addCell(new Label(12, i, eo.getQD() + "", cellFormat));
                     sheet.addCell(new Label(13, i, eo.getBJ() + "", cellFormat));
-                    sheet.addCell(new Label(14, i, eo.getOther() + "", cellFormat));
+                    sheet.addCell(new Label(14, i, eo.getXM() + "", cellFormat));
+                    sheet.addCell(new Label(15, i, eo.getOther() + "", cellFormat));
                     i++;
                 }
                 wbe.write();

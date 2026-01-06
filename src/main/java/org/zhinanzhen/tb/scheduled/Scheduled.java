@@ -188,7 +188,7 @@ public class Scheduled {
                 content.append(EmailModel.end());
                 SendEmailUtil.send("paul@zhinanzhen.org","全澳的 Data Report",content.toString());
                 SendEmailUtil.send("elvin@zhinanzhen.org","全澳的 Data Report",content.toString());
-                SendEmailUtil.send("jiaheng.xu@zhinanzhen.org","全澳的 Data Report",content.toString());
+//                SendEmailUtil.send("jiaheng.xu@zhinanzhen.org","全澳的 Data Report",content.toString());
                 //SendEmailUtil.send("815124560@qq.com","全澳的 Data Report", content.toString());
 
             }
@@ -220,7 +220,7 @@ public class Scheduled {
 
                 SendEmailUtil.send("paul@zhinanzhen.org","未支付的服务订单",content.toString());
                 SendEmailUtil.send("elvin@zhinanzhen.org","未支付的服务订单",content.toString());
-                SendEmailUtil.send("jiaheng.xu@zhinanzhen.org","未支付的服务订单",content.toString());
+//                SendEmailUtil.send("jiaheng.xu@zhinanzhen.org","未支付的服务订单",content.toString());
                 //SendEmailUtil.send("815124560@qq.com","数据", content.toString());
             }
 
@@ -254,35 +254,35 @@ public class Scheduled {
 
                     if (area.getArea() .equals("Sydney")){
                         SendEmailUtil.send("juntao@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea() .equals("Canberra")){
                         SendEmailUtil.send("juntao@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea() .equalsIgnoreCase("攻坚部")){
                         SendEmailUtil.send("kevin.fan@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea() .equals("Melbourne")){
                         SendEmailUtil.send("lisa@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea() .equals("Brisbane")){
                         SendEmailUtil.send("vicky@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea() .equals("Adelaide")){
                         SendEmailUtil.send("caroline.wang@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea() .equals("Hobart")){
                         SendEmailUtil.send("lorrain.pan@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                     if (area.getArea().equals("CIS")){
                         SendEmailUtil.send("kevin@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
-                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
+//                        SendEmailUtil.send("jiaheng.xu@zhinanzhen.org",area.getArea()+" Data Report",content.toString());
                     }
                 }
             }
