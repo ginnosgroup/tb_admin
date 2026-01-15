@@ -342,6 +342,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "scoreMark", required = false) String scoreMark, // 评分备注
                                              @RequestParam(value = "bingdingAssessOrder", required = false) String bingdingAssessOrder,
                                              @RequestParam(value = "contractData", required = false) String contractData,
+                                             @RequestParam(value = "eoiType", required = false) String eoiType,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -651,6 +652,11 @@ public class ServiceOrderController extends BaseController {
                             if ("EOI".equals(servicePackageDTO.getType())) {
                                 EOICount++;
                                 serviceOrderDto.setEOINumber(EOICount);
+                                if (StringUtil.isNotEmpty(eoiType)) {
+                                    serviceOrderDto.setEoiType(eoiType);
+                                }
+                            }  else {
+                                serviceOrderDto.setEoiType(null);
                             }
                             if ("true".equals(isPay)) {
                                 serviceOrderDto.setPay(true);

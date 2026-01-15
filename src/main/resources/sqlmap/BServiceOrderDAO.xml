@@ -89,7 +89,8 @@
                 score_options,
                 score_state,
                 score_mark,
-                contract_data)
+                contract_data,
+                eoi_type)
             VALUES (
                 now(),
                 now(),
@@ -173,7 +174,8 @@
                 #{scoreOptions},
                 #{scoreState},
                 #{scoreMark},
-                #{contractData});
+                #{contractData},
+                #{eoiType});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -449,6 +451,9 @@
         <if test='contractData != null and contractData != "" '>
             ,contract_data = #{contractData}
         </if>
+        <if test='eoiType != null and eoiType != "" '>
+            ,eoi_type = #{eoiType}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -695,7 +700,8 @@
         so.score_state AS scoreState,
         so.score_mark AS scoreMark,
         so.bingding_assess_order AS bingdingAssessOrder,
-        so.contract_data AS contractData
+        so.contract_data AS contractData,
+        so.eoi_type AS eoiType
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -962,7 +968,8 @@
             score_state AS scoreState,
             score_mark AS scoreMark,
             bingding_assess_order AS bingdingAssessOrder,
-            contract_data AS contractData
+            contract_data AS contractData,
+            eoi_type AS eoiType
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1164,7 +1171,8 @@
             score_state AS scoreState,
             score_mark AS scoreMark,
             bingding_assess_order AS bingdingAssessOrder,
-            contract_data AS contractData
+            contract_data AS contractData,
+            eoi_type AS eoiType
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1274,7 +1282,8 @@
         so.score_state AS scoreState,
         so.score_mark AS scoreMark,
         so.bingding_assess_order AS bingdingAssessOrder,
-        so.contract_data AS contractData
+        so.contract_data AS contractData,
+        so.eoi_type AS eoiType
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1557,7 +1566,8 @@
             so.score_state AS scoreState,
             so.score_mark AS scoreMark,
             so.bingding_assess_order AS bingdingAssessOrder,
-            so.contract_data AS contractData
+            so.contract_data AS contractData,
+            so.eoi_type AS eoiType
         FROM
             b_service_order so, b_service_package bsp
         WHERE

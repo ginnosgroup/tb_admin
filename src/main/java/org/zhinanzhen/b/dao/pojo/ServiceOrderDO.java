@@ -220,4 +220,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String contractData;
 
+	private String eoiType; // EOI类型
+
 }
