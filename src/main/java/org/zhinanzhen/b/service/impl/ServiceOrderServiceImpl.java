@@ -1539,7 +1539,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDoT = serviceOrderDo;
         }
 //        if (serviceOrderById != null) {
-//            serviceOrderDoT = mapper.map(serviceOrderById, ServiceOrderDO.class);
+//
 //        }
         ServiceAssessDO assessDO = serviceAssessDao.seleteAssessById(serviceOrderDoT.getServiceAssessId());
         if (serviceOrderDoT != null) {
