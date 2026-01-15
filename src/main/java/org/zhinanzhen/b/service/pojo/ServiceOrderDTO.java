@@ -318,4 +318,12 @@ public class ServiceOrderDTO {
 	private String contractData;
 
 	private List<WebLogDTO> contractDataList;
+
+	private boolean isVisaBuild = false;
+
+	private boolean isManageOrder = false;
+
+	private Integer parentIdNew; // 新的父订单id
+
+	private String eoiType; // EOI类型
 }
