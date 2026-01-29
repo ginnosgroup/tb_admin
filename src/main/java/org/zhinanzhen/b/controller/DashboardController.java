@@ -22,6 +22,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.utils.MonthDateUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -449,7 +450,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRingRatio")
 	@ResponseBody
-	public DashboardResponse thisMonthRingRatio(HttpServletRequest request, HttpServletResponse response)
+	public DashboardResponse thisMonthRingRatio(@RequestParam(name = "yearAndMonth", required = false) String yearAndMonth, HttpServletRequest request, HttpServletResponse response)
 			throws ServiceException {
 		super.setGetHeader(response);
 
@@ -481,7 +482,8 @@ public class DashboardController extends BaseController {
 		thisMonthData.setDate(today.substring(0, 7));
 		dataListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
-				// thisMonthData.setDate(dataDTO.getDate());
+//				 thisMonthData.setDate(dataDTO.getDate());
+				thisMonthData.setDate(thisMonthFirstDay.substring(0, 7));
 				thisMonthData.setServiceFee(new BigDecimal(thisMonthData.getServiceFee() + dataDTO.getServiceFee())
 						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				thisMonthData.setClaimedCommission(
@@ -498,17 +500,28 @@ public class DashboardController extends BaseController {
 				thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
 			}
 		});
-		String lastMonthFirstDay = DateClass.lastMonthFirstDay(Calendar.getInstance());
-		String lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
+
+		String lastMonthFirstDay = "";
+		String lastMonthEndDay = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			lastMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			lastMonthEndDay = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			lastMonthFirstDay = DateClass.lastMonthFirstDay(Calendar.getInstance());
+			lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
+		}
+
 		List<DataDTO> dataListLastMonth = data.dataReport(lastMonthFirstDay, lastMonthEndDay, "R", null);
 		if ("GW".equals(adminUserLoginInfo.getApList())) {
 			dataListLastMonth = dataListLastMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
 		}
 		DataDTO lastMonthData = new DataDTO();
 		lastMonthData.setDate(lastMonthEndDay.substring(0, 7));
+		String finalLastMonthFirstDay = lastMonthFirstDay;
 		dataListLastMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
-				lastMonthData.setDate(dataDTO.getDate());
+//				lastMonthData.setDate(dataDTO.getDate());
+				lastMonthData.setDate(finalLastMonthFirstDay.substring(0, 7));
 				lastMonthData.setServiceFee(new BigDecimal(lastMonthData.getServiceFee() + dataDTO.getServiceFee())
 						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				lastMonthData.setClaimedCommission(
@@ -537,7 +550,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceYearOnYear")
 	@ResponseBody
-	public DashboardResponse thisMonthYearOnYear(HttpServletRequest request, HttpServletResponse response)
+	public DashboardResponse thisMonthYearOnYear(@RequestParam(name = "yearAndMonth", required = false) String yearAndMonth, HttpServletRequest request, HttpServletResponse response)
 			throws ServiceException {
 		super.setGetHeader(response);
 
@@ -569,7 +582,8 @@ public class DashboardController extends BaseController {
 		thisMonthData.setDate(today.substring(0, 7));
 		dataListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
-				thisMonthData.setDate(dataDTO.getDate());
+//				thisMonthData.setDate(dataDTO.getDate());
+				thisMonthData.setDate(thisMonthFirstDay.substring(0, 7));
 				thisMonthData.setServiceFee(roundHalfUp(thisMonthData.getServiceFee() + dataDTO.getServiceFee()));
 				thisMonthData.setClaimedCommission(
 						roundHalfUp(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
@@ -581,8 +595,17 @@ public class DashboardController extends BaseController {
 				thisMonthData.setTotal(roundHalfUp(thisMonthData.getTotal() + dataDTO.getTotal()));
 			}
 		});
+
 		String lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
 		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			lastYearThisMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			lastYearThisMonthLastDay = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
+			lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
+		}
+
 		List<DataDTO> dataListLastMonth = data.dataReport(lastYearThisMonthFirstDay, lastYearThisMonthLastDay, "R",
 				null);
 		if ("GW".equals(adminUserLoginInfo.getApList())) {
@@ -590,9 +613,11 @@ public class DashboardController extends BaseController {
 		}
 		DataDTO lastYearThisMonthData = new DataDTO();
 		lastYearThisMonthData.setDate(lastYearThisMonthLastDay.substring(0, 7));
+		String finalLastYearThisMonthFirstDay = lastYearThisMonthFirstDay;
 		dataListLastMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
-				lastYearThisMonthData.setDate(dataDTO.getDate());
+//				lastYearThisMonthData.setDate(dataDTO.getDate());
+				lastYearThisMonthData.setDate(finalLastYearThisMonthFirstDay.substring(0,7));
 				lastYearThisMonthData
 						.setServiceFee(roundHalfUp(lastYearThisMonthData.getServiceFee() + dataDTO.getServiceFee()));
 				lastYearThisMonthData.setClaimedCommission(
