@@ -104,6 +104,36 @@ public class MonthDateUtils {
         }
     }
 
+    /**
+     * 方法二：使用 substring 和 indexOf
+     */
+    public static String getMonthFromDate(String dateStr) {
+        if (dateStr == null || dateStr.length() < 7) {  // 至少需要 "2025-01"
+            return "";
+        }
+
+        try {
+            // 查找第一个 "-" 的位置
+            int firstDashIndex = dateStr.indexOf("-");
+            if (firstDashIndex == -1) {
+                return "";
+            }
+
+            // 查找第二个 "-" 的位置
+            int secondDashIndex = dateStr.indexOf("-", firstDashIndex + 1);
+            if (secondDashIndex == -1) {
+                return "";
+            }
+
+            // 提取月份部分 (YYYY-MM-DD 中的 MM)
+            String month = dateStr.substring(firstDashIndex + 1, secondDashIndex);
+
+            // 使用正则表达式去除开头的0
+            return month.replaceFirst("^0+(?!$)", "");
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
     /**
      * 获取指定年月的第一天和最后一天

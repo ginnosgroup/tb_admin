@@ -458,6 +458,8 @@ public class DashboardController extends BaseController {
 		if (adminUserLoginInfo == null)
 			return new DashboardResponse(1, "请登录.", null);
 		List<Integer> regionIdList = new ArrayList<>();
+		String dateOne = "";
+		String dateTwo = "";
 		if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				regionIdList.add(adminUserLoginInfo.getRegionId());
@@ -550,8 +552,9 @@ public class DashboardController extends BaseController {
 		// dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastMonthData);
-		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
-				DateClass.lastMonth(Calendar.getInstance()));
+		dateOne = MonthDateUtils.getMonthFromDate(thisMonthFirstDay);
+		dateTwo = MonthDateUtils.getMonthFromDate(lastMonthFirstDay);
+		return new DashboardResponse(0, "success", resultList, dateOne, dateTwo);
 	}
 
 	/**
@@ -579,6 +582,8 @@ public class DashboardController extends BaseController {
 					regionIdList.add(adviserDTO.getRegionId());
 			}
 		}
+		String dateOne = "";
+		String dateTwo = "";
 		String thisMonthFirstDay = "";
 		String today = "";
 		if (StringUtil.isNotEmpty(yearAndMonth)) {
@@ -613,8 +618,8 @@ public class DashboardController extends BaseController {
 			}
 		});
 
-		String lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
-		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
+		String lastYearThisMonthFirstDay = "";
+		String lastYearThisMonthLastDay = "";
 		if (StringUtil.isNotEmpty(yearAndMonth)) {
 			lastYearThisMonthFirstDay = MonthDateUtils.getFirstDayOfSameMonthLastYear(yearAndMonth);
 			lastYearThisMonthLastDay = MonthDateUtils.getLastDayOfSameMonthLastYear(yearAndMonth);
@@ -651,8 +656,9 @@ public class DashboardController extends BaseController {
 		// dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastYearThisMonthData);
-		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
-				DateClass.thisMonth(Calendar.getInstance()));
+		dateOne = MonthDateUtils.getMonthFromDate(thisMonthFirstDay);
+		dateTwo = MonthDateUtils.getMonthFromDate(lastYearThisMonthFirstDay);
+		return new DashboardResponse(0, "success", resultList, dateOne, dateTwo);
 	}
 
 	/**
