@@ -570,9 +570,16 @@ public class DashboardController extends BaseController {
 					regionIdList.add(adviserDTO.getRegionId());
 			}
 		}
+		String thisMonthFirstDay = "";
+		String today = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			thisMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			today = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
+			today = DateClass.today();
+		}
 
-		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
-		String today = DateClass.today();
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay, today, "R", null);
 		if ("GW".equals(adminUserLoginInfo.getApList())) {
 			dataListThisMonth = dataListThisMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
@@ -580,10 +587,11 @@ public class DashboardController extends BaseController {
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0, 7));
+		String finalThisMonthFirstDay = thisMonthFirstDay;
 		dataListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 //				thisMonthData.setDate(dataDTO.getDate());
-				thisMonthData.setDate(thisMonthFirstDay.substring(0, 7));
+				thisMonthData.setDate(finalThisMonthFirstDay.substring(0, 7));
 				thisMonthData.setServiceFee(roundHalfUp(thisMonthData.getServiceFee() + dataDTO.getServiceFee()));
 				thisMonthData.setClaimedCommission(
 						roundHalfUp(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
@@ -599,8 +607,8 @@ public class DashboardController extends BaseController {
 		String lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
 		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
 		if (StringUtil.isNotEmpty(yearAndMonth)) {
-			lastYearThisMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
-			lastYearThisMonthLastDay = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+			lastYearThisMonthFirstDay = MonthDateUtils.getFirstDayOfSameMonthLastYear(yearAndMonth);
+			lastYearThisMonthLastDay = MonthDateUtils.getLastDayOfSameMonthLastYear(yearAndMonth);
 		} else {
 			lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
 			lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();

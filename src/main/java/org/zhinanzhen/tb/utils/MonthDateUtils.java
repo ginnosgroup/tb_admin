@@ -39,7 +39,40 @@ public class MonthDateUtils {
             throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
         }
     }
-    
+
+    /**
+     * 获取上一年的同月第一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一年的同月第一天，格式：yyyy-MM-dd
+     */
+    public static String getFirstDayOfSameMonthLastYear(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一年的同月
+            YearMonth lastYearMonth = currentYearMonth.minusYears(1);
+            return lastYearMonth.atDay(1).format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
+     * 获取上一年的同月最后一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一年的同月最后一天，格式：yyyy-MM-dd
+     */
+    public static String getLastDayOfSameMonthLastYear(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一年的同月
+            YearMonth lastYearMonth = currentYearMonth.minusYears(1);
+            return lastYearMonth.atEndOfMonth().format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+
     /**
      * 获取指定年月的第一天和最后一天
      * @param yearMonth 格式：yyyy-MM
