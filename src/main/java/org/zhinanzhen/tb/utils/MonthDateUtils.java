@@ -41,6 +41,38 @@ public class MonthDateUtils {
     }
 
     /**
+     * 获取上一个月的第一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一个月的第一天，格式：yyyy-MM-dd
+     */
+    public static String getFirstDayOfPreviousMonth(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一个月
+            YearMonth previousMonth = currentYearMonth.minusMonths(1);
+            return previousMonth.atDay(1).format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
+     * 获取上一个月的最后一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一个月的最后一天，格式：yyyy-MM-dd
+     */
+    public static String getLastDayOfPreviousMonth(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一个月
+            YearMonth previousMonth = currentYearMonth.minusMonths(1);
+            return previousMonth.atEndOfMonth().format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
      * 获取上一年的同月第一天
      * @param yearMonth 格式：yyyy-MM
      * @return 上一年的同月第一天，格式：yyyy-MM-dd
