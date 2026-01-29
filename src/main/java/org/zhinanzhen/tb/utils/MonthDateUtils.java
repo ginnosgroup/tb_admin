@@ -39,7 +39,102 @@ public class MonthDateUtils {
             throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
         }
     }
-    
+
+    /**
+     * 获取上一个月的第一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一个月的第一天，格式：yyyy-MM-dd
+     */
+    public static String getFirstDayOfPreviousMonth(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一个月
+            YearMonth previousMonth = currentYearMonth.minusMonths(1);
+            return previousMonth.atDay(1).format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
+     * 获取上一个月的最后一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一个月的最后一天，格式：yyyy-MM-dd
+     */
+    public static String getLastDayOfPreviousMonth(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一个月
+            YearMonth previousMonth = currentYearMonth.minusMonths(1);
+            return previousMonth.atEndOfMonth().format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
+     * 获取上一年的同月第一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一年的同月第一天，格式：yyyy-MM-dd
+     */
+    public static String getFirstDayOfSameMonthLastYear(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一年的同月
+            YearMonth lastYearMonth = currentYearMonth.minusYears(1);
+            return lastYearMonth.atDay(1).format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
+     * 获取上一年的同月最后一天
+     * @param yearMonth 格式：yyyy-MM
+     * @return 上一年的同月最后一天，格式：yyyy-MM-dd
+     */
+    public static String getLastDayOfSameMonthLastYear(String yearMonth) {
+        try {
+            YearMonth currentYearMonth = YearMonth.parse(yearMonth, MONTH_FORMATTER);
+            // 获取上一年的同月
+            YearMonth lastYearMonth = currentYearMonth.minusYears(1);
+            return lastYearMonth.atEndOfMonth().format(DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("日期格式错误，请使用 yyyy-MM 格式", e);
+        }
+    }
+
+    /**
+     * 方法二：使用 substring 和 indexOf
+     */
+    public static String getMonthFromDate(String dateStr) {
+        if (dateStr == null || dateStr.length() < 7) {  // 至少需要 "2025-01"
+            return "";
+        }
+
+        try {
+            // 查找第一个 "-" 的位置
+            int firstDashIndex = dateStr.indexOf("-");
+            if (firstDashIndex == -1) {
+                return "";
+            }
+
+            // 查找第二个 "-" 的位置
+            int secondDashIndex = dateStr.indexOf("-", firstDashIndex + 1);
+            if (secondDashIndex == -1) {
+                return "";
+            }
+
+            // 提取月份部分 (YYYY-MM-DD 中的 MM)
+            String month = dateStr.substring(firstDashIndex + 1, secondDashIndex);
+
+            // 使用正则表达式去除开头的0
+            return month.replaceFirst("^0+(?!$)", "");
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     /**
      * 获取指定年月的第一天和最后一天
      * @param yearMonth 格式：yyyy-MM

@@ -458,6 +458,8 @@ public class DashboardController extends BaseController {
 		if (adminUserLoginInfo == null)
 			return new DashboardResponse(1, "请登录.", null);
 		List<Integer> regionIdList = new ArrayList<>();
+		String dateOne = "";
+		String dateTwo = "";
 		if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
 			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
 				regionIdList.add(adminUserLoginInfo.getRegionId());
@@ -471,8 +473,16 @@ public class DashboardController extends BaseController {
 			}
 		}
 
-		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
-		String today = DateClass.today();
+		String thisMonthFirstDay = "";
+		String today = "";
+
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			thisMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			today = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
+			today = DateClass.today();
+		}
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay, today, "R", null);
 		if ("GW".equals(adminUserLoginInfo.getApList())) {
 			dataListThisMonth = dataListThisMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
@@ -480,10 +490,11 @@ public class DashboardController extends BaseController {
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0, 7));
+		String finalThisMonthFirstDay = thisMonthFirstDay;
 		dataListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 //				 thisMonthData.setDate(dataDTO.getDate());
-				thisMonthData.setDate(thisMonthFirstDay.substring(0, 7));
+				thisMonthData.setDate(finalThisMonthFirstDay.substring(0, 7));
 				thisMonthData.setServiceFee(new BigDecimal(thisMonthData.getServiceFee() + dataDTO.getServiceFee())
 						.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				thisMonthData.setClaimedCommission(
@@ -504,8 +515,8 @@ public class DashboardController extends BaseController {
 		String lastMonthFirstDay = "";
 		String lastMonthEndDay = "";
 		if (StringUtil.isNotEmpty(yearAndMonth)) {
-			lastMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
-			lastMonthEndDay = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+			lastMonthFirstDay = MonthDateUtils.getFirstDayOfPreviousMonth(yearAndMonth);
+			lastMonthEndDay = MonthDateUtils.getLastDayOfPreviousMonth(yearAndMonth);
 		} else {
 			lastMonthFirstDay = DateClass.lastMonthFirstDay(Calendar.getInstance());
 			lastMonthEndDay = DateClass.lastMonthLastDay(Calendar.getInstance());
@@ -541,8 +552,9 @@ public class DashboardController extends BaseController {
 		// dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastMonthData);
-		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
-				DateClass.lastMonth(Calendar.getInstance()));
+		dateOne = MonthDateUtils.getMonthFromDate(thisMonthFirstDay);
+		dateTwo = MonthDateUtils.getMonthFromDate(lastMonthFirstDay);
+		return new DashboardResponse(0, "success", resultList, dateOne, dateTwo);
 	}
 
 	/**
@@ -570,9 +582,18 @@ public class DashboardController extends BaseController {
 					regionIdList.add(adviserDTO.getRegionId());
 			}
 		}
+		String dateOne = "";
+		String dateTwo = "";
+		String thisMonthFirstDay = "";
+		String today = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			thisMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			today = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
+			today = DateClass.today();
+		}
 
-		String thisMonthFirstDay = DateClass.thisMonthFirstDay(Calendar.getInstance());
-		String today = DateClass.today();
 		List<DataDTO> dataListThisMonth = data.dataReport(thisMonthFirstDay, today, "R", null);
 		if ("GW".equals(adminUserLoginInfo.getApList())) {
 			dataListThisMonth = dataListThisMonth.stream().filter(DataDTO -> adminUserLoginInfo.getAdviserId() == DataDTO.getAdviserId()).collect(Collectors.toList());
@@ -580,10 +601,11 @@ public class DashboardController extends BaseController {
 		List<DataDTO> resultList = new ArrayList<>();
 		DataDTO thisMonthData = new DataDTO();
 		thisMonthData.setDate(today.substring(0, 7));
+		String finalThisMonthFirstDay = thisMonthFirstDay;
 		dataListThisMonth.forEach(dataDTO -> {
 			if (ListUtil.isEmpty(regionIdList) || regionIdList.contains(dataDTO.getRegionId())) {
 //				thisMonthData.setDate(dataDTO.getDate());
-				thisMonthData.setDate(thisMonthFirstDay.substring(0, 7));
+				thisMonthData.setDate(finalThisMonthFirstDay.substring(0, 7));
 				thisMonthData.setServiceFee(roundHalfUp(thisMonthData.getServiceFee() + dataDTO.getServiceFee()));
 				thisMonthData.setClaimedCommission(
 						roundHalfUp(thisMonthData.getClaimedCommission() + dataDTO.getClaimedCommission()));
@@ -596,11 +618,11 @@ public class DashboardController extends BaseController {
 			}
 		});
 
-		String lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
-		String lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
+		String lastYearThisMonthFirstDay = "";
+		String lastYearThisMonthLastDay = "";
 		if (StringUtil.isNotEmpty(yearAndMonth)) {
-			lastYearThisMonthFirstDay = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
-			lastYearThisMonthLastDay = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+			lastYearThisMonthFirstDay = MonthDateUtils.getFirstDayOfSameMonthLastYear(yearAndMonth);
+			lastYearThisMonthLastDay = MonthDateUtils.getLastDayOfSameMonthLastYear(yearAndMonth);
 		} else {
 			lastYearThisMonthFirstDay = DateClass.lastYearThisMonthFirstDay(Calendar.getInstance());
 			lastYearThisMonthLastDay = DateClass.lastYearThisMonthLastDay();
@@ -634,8 +656,9 @@ public class DashboardController extends BaseController {
 		// dashboardService.thisMonthRingRatio();
 		resultList.add(thisMonthData);
 		resultList.add(lastYearThisMonthData);
-		return new DashboardResponse(0, "success", resultList, DateClass.thisMonth(Calendar.getInstance()),
-				DateClass.thisMonth(Calendar.getInstance()));
+		dateOne = MonthDateUtils.getMonthFromDate(thisMonthFirstDay);
+		dateTwo = MonthDateUtils.getMonthFromDate(lastYearThisMonthFirstDay);
+		return new DashboardResponse(0, "success", resultList, dateOne, dateTwo);
 	}
 
 	/**
