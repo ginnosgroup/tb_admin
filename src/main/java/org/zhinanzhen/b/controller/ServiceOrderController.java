@@ -566,18 +566,18 @@ public class ServiceOrderController extends BaseController {
                         serviceOrderService.updateServiceOrder(serviceOrderById);
                     }
                 }
-                if ("OVST".equalsIgnoreCase(type)) {
-                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
-                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
-                    int add = serviceOrderManageService.add(serviceOrderDTO);
-                    if (add > 0) {
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderManageId = serviceOrderDTO.getId();
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-                    }
-                }
+//                if ("OVST".equalsIgnoreCase(type)) {
+//                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
+//                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
+//                    int add = serviceOrderManageService.add(serviceOrderDTO);
+//                    if (add > 0) {
+//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+//                        serviceOrderManageId = serviceOrderDTO.getId();
+//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+//                    }
+//                }
 
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
@@ -744,10 +744,10 @@ public class ServiceOrderController extends BaseController {
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
                         // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
 
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
@@ -779,10 +779,10 @@ public class ServiceOrderController extends BaseController {
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
                         // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -813,10 +813,10 @@ public class ServiceOrderController extends BaseController {
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
                         // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -847,10 +847,10 @@ public class ServiceOrderController extends BaseController {
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
                         // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
