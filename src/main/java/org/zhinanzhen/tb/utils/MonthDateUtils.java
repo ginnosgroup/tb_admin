@@ -105,6 +105,33 @@ public class MonthDateUtils {
     }
 
     /**
+     * 获取上一个7月1日日期
+     * @param yearMonthStr
+     * @return
+     */
+    public static String getPreviousJulyFirst(String yearMonthStr) {
+        // 解析输入的年月字符串
+        YearMonth yearMonth = YearMonth.parse(yearMonthStr);
+
+        // 创建该月的第一天
+        LocalDate inputDate = yearMonth.atDay(1);
+
+        // 获取上一个7月1日
+        LocalDate previousJulyFirst;
+
+        // 如果当前月份大于等于7月，则上一个7月1日在当前年份
+        if (inputDate.getMonthValue() >= 7) {
+            previousJulyFirst = LocalDate.of(inputDate.getYear(), 7, 1);
+        } else {
+            // 如果当前月份小于7月，则上一个7月1日在上一年
+            previousJulyFirst = LocalDate.of(inputDate.getYear() - 1, 7, 1);
+        }
+
+        // 格式化为yyyy-MM-dd
+        return previousJulyFirst.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    /**
      * 方法二：使用 substring 和 indexOf
      */
     public static String getMonthFromDate(String dateStr) {

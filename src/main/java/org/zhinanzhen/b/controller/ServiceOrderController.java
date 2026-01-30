@@ -3572,6 +3572,28 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/downExcelForDashboard", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<EachRegionNumberDTO>> downExcelForDashboard(@RequestParam(value = "type") String type,
+                          @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+                          @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+                          @RequestParam(value = "subject", required = false) String subject,
+                          @RequestParam(value = "regionId", required = false) String regionId,HttpServletRequest request,
+                          HttpServletResponse response) {
+
+        try {
+            super.setGetHeader(response);
+            List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+            if (StringUtil.isEmpty(subject)) { // 导出签证/留学各个项目各个地区的个数
+                eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
+                        startOfficialApprovalDate, endOfficialApprovalDate, Integer.valueOf(regionId));
+            }
+            return new ListResponse<List<EachRegionNumberDTO>>(true, 0, 0, eachRegionNumberDTOS, "");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @RequestMapping(value = "/downExcel_V2", method = RequestMethod.GET)
     @ResponseBody

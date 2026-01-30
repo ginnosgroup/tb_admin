@@ -161,7 +161,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRank")
 	@ResponseBody
-	public DashboardResponse thisMonthPerformanceRank(HttpServletRequest request, HttpServletResponse response)
+	public DashboardResponse thisMonthPerformanceRank(@RequestParam(name = "yearAndMonth", required = false) String yearAndMonth, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -171,8 +171,15 @@ public class DashboardController extends BaseController {
 				|| "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())))
 			return new DashboardResponse(1, "No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
-		String endDate = sdf.format(Calendar.getInstance().getTime());
+		String startDate = "";
+		String endDate = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			startDate = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			endDate = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
+			endDate = sdf.format(Calendar.getInstance().getTime());
+		}
 
 		// 顾问排名.也是全部数据。顾问id,月份分组数据
 		List<DataDTO> dataList = data.dataReport(startDate, endDate, "R", null); // R 全area顾问倒序排名的数据 顾问
@@ -670,14 +677,21 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/allYearPerformanceRankDiffAp")
 	@ResponseBody
-	public DashboardResponse allYearPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response)
+	public DashboardResponse allYearPerformanceRankDiffAp(@RequestParam(name = "yearAndMonth", required = false) String yearAndMonth, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
 		if (loginInfo == null)
 			return new DashboardResponse(1, "未登录");
-		String thisYearFirstDay = DateClass._7_1();
-		String today = DateClass.today();
+		String thisYearFirstDay = "";
+		String today = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			thisYearFirstDay = MonthDateUtils.getPreviousJulyFirst(yearAndMonth);
+			today = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			thisYearFirstDay = DateClass._7_1();
+			today = DateClass.today();
+		}
 		List<DataDTO> dataList = data.dataReport(thisYearFirstDay, today, "R", "Y");
 		List<Integer> regionIdList = new ArrayList<>();
 		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList()) || "KJ".equalsIgnoreCase(loginInfo.getApList())) {
