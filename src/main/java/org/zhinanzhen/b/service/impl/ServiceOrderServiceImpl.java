@@ -2377,7 +2377,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                                       String endOfficialApprovalDate, Integer regionId) {
         List<EachRegionNumberDO> eachRegionNumberDOS = serviceOrderDao.listServiceOrderGroupByForRegion(type,
                 startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), regionId);
-        if (type.equalsIgnoreCase("OVST")) {//留学匹配新老学校名字
+        if (type.equalsIgnoreCase("OVST")) { //留学匹配新老学校名字
             List<EachRegionNumberDO> newSchoolEachRegionNumberList = serviceOrderDao.listOvstServiceOrderGroupByForRegion(
                     startOfficialApprovalDate, theDateTo23_59_59(endOfficialApprovalDate), regionId);
             List<EachRegionNumberDO> _list = new ArrayList<>();
@@ -2621,6 +2621,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     +eachRegionNumberDTO.getCis()+eachRegionNumberDTO.getQD()+eachRegionNumberDTO.getBJ()+eachRegionNumberDTO.getXM());
             eachRegionNumberDTO.setName(name);
             eachRegionNumberDTO.setInstitutionName(eachRegionNumberDO.getInstitutionName());
+            eachRegionNumberDTO.setInstitutionTradingName(eachRegionNumberDO.getInstitutionTradingName());
             map.put(name, eachRegionNumberDTO);
         });
         eachRegionNumberDTOS.addAll(map.values());
