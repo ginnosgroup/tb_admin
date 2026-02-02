@@ -3893,7 +3893,7 @@ public class ServiceOrderController extends BaseController {
 
     @RequestMapping(value = "/downExcelForDashboard", method = RequestMethod.GET)
     @ResponseBody
-    public ListResponse<String> downExcelForDashboard(@RequestParam(value = "type") String type,
+    public ListResponse<List<EachRegionNumberDTO>> downExcelForDashboard(@RequestParam(value = "type") String type,
                                                                          @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
                                                                          @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
                                                                          @RequestParam(value = "subject", required = false) String subject,
@@ -3910,17 +3910,7 @@ public class ServiceOrderController extends BaseController {
                 eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
                         startOfficialApprovalDate, endOfficialApprovalDate, Integer.valueOf(regionId));
             }
-            if (Integer.valueOf(regionId) > 0) {
-                Map<String, List<EachRegionNumberDTO>> eachRegionNumberDTOMap = new HashMap<>();
-                if ("VISA".equalsIgnoreCase(type)) {
-                    eachRegionNumberDTOMap = eachRegionNumberDTOS.stream().collect(Collectors.groupingBy(EachRegionNumberDTO::getCode));
-                }
-                if ("OVST".equalsIgnoreCase(type)) {
-                    eachRegionNumberDTOMap = eachRegionNumberDTOS.stream().collect(Collectors.groupingBy(EachRegionNumberDTO::getInstitutionName));
-                }
-                return new ListResponse<String>(true, 0, 0, JSON.toJSONString(eachRegionNumberDTOMap), "");
-            }
-            return new ListResponse<String>(true, 0, 0, JSON.toJSONString(eachRegionNumberDTOS), "");
+            return new ListResponse<List<EachRegionNumberDTO>>(true, 0, 0, eachRegionNumberDTOS, "");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
