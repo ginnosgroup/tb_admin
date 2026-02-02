@@ -3892,6 +3892,31 @@ public class ServiceOrderController extends BaseController {
     }
 
 
+    @RequestMapping(value = "/downExcelForDashboard", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<EachRegionNumberDTO>> downExcelForDashboard(@RequestParam(value = "type") String type,
+                                                                         @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
+                                                                         @RequestParam(value = "endOfficialApprovalDate", required = false) String endOfficialApprovalDate,
+                                                                         @RequestParam(value = "subject", required = false) String subject,
+                                                                         @RequestParam(value = "regionId", required = false) String regionId,HttpServletRequest request,
+                                                                         HttpServletResponse response) {
+
+        try {
+            super.setGetHeader(response);
+            List<EachRegionNumberDTO> eachRegionNumberDTOS = new ArrayList<>();
+            if (StringUtil.isEmpty(regionId)) {
+                regionId = "0";
+            }
+            if (StringUtil.isEmpty(subject)) { // 导出签证/留学各个项目各个地区的个数
+                eachRegionNumberDTOS = serviceOrderService.listServiceOrderGroupByForRegion(type,
+                        startOfficialApprovalDate, endOfficialApprovalDate, Integer.valueOf(regionId));
+            }
+            return new ListResponse<List<EachRegionNumberDTO>>(true, 0, 0, eachRegionNumberDTOS, "");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 @GetMapping(value = "/down1")
     public void down1(@RequestParam(value = "type", required = false) String type,
                       @RequestParam(value = "startOfficialApprovalDate", required = false) String startOfficialApprovalDate,
