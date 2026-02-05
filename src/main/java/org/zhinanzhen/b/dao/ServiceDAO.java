@@ -13,9 +13,9 @@ public interface ServiceDAO {
 	public int updateService(@Param("id") int id, @Param("name") String name, @Param("code") String code,
 			@Param("role") String role);
 
-	public int countService(@Param("name") String name, @Param("isZx") boolean isZx);
+	public int countService(@Param("name") String name, @Param("code") String code, @Param("isZx") boolean isZx);
 
-	public List<ServiceDO> listService(@Param("name") String name, @Param("isZx") boolean isZx,
+	public List<ServiceDO> listService(@Param("name") String name, @Param("code") String code, @Param("isZx") boolean isZx,
 			@Param("offset") int offset, @Param("rows") int rows);
 	
 	public int countAllService(@Param("name") String name);

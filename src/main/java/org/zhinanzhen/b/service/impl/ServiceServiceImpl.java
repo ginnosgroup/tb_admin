@@ -66,12 +66,12 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 	}
 
 	@Override
-	public int countService(String name, boolean isZx) throws ServiceException {
-		return serviceDao.countService(name, isZx);
+	public int countService(String name, String code , boolean isZx) throws ServiceException {
+		return serviceDao.countService(name, code, isZx);
 	}
 
 	@Override
-	public List<ServiceDTO> listService(String name, boolean isZx, boolean isbuiltOrder, int pageNum, int pageSize) throws ServiceException {
+	public List<ServiceDTO> listService(String name, String code, boolean isZx, boolean isbuiltOrder, int pageNum, int pageSize) throws ServiceException {
 		if (pageNum < 0)
 			pageNum = DEFAULT_PAGE_NUM;
 		if (pageSize < 0)
@@ -79,13 +79,13 @@ public class ServiceServiceImpl extends BaseService implements ServiceService {
 		List<ServiceDTO> serviceDtoList = new ArrayList<ServiceDTO>();
 		List<ServiceDO> serviceDoList = new ArrayList<ServiceDO>();
 		try {
-			serviceDoList = serviceDao.listService(name, isZx, pageNum * pageSize, pageSize);
+			serviceDoList = serviceDao.listService(name, code, isZx, pageNum * pageSize, pageSize);
 			if (serviceDoList == null)
 				return null;
 			for (ServiceDO serviceDo : serviceDoList) {
 				if (isbuiltOrder) {
-					String code = serviceDo.getCode();
-					if ("485 PSW".equalsIgnoreCase(code) || "485 Graduate work".equalsIgnoreCase(code)) {
+					String codeT = serviceDo.getCode();
+					if ("485 PSW".equalsIgnoreCase(codeT) || "485 Graduate work".equalsIgnoreCase(codeT)) {
 						continue;
 					}
 				}

@@ -12,9 +12,9 @@ public interface ServiceService {
 
 	public int updateService(int id, String name, String code, String role) throws ServiceException;
 
-	public int countService(String name, boolean isZx) throws ServiceException;
+	public int countService(String name, String code, boolean isZx) throws ServiceException;
 
-	public List<ServiceDTO> listService(String name, boolean isZx, boolean isbuiltOrder, int pageNum, int pageSize) throws ServiceException;
+	public List<ServiceDTO> listService(String name, String code, boolean isZx, boolean isbuiltOrder, int pageNum, int pageSize) throws ServiceException;
 
 	public int countAllService(String name) throws ServiceException;
 

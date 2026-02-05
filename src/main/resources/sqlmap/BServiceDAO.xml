@@ -51,6 +51,9 @@
             <if test="isZx == false">
                 AND is_delete = 0 AND is_zx = FALSE
             </if>
+            <if test='code != null and code != ""'>
+                AND code like "%"#{code}"%"
+            </if>
         </where>
         ;
     </select>
@@ -74,6 +77,9 @@
             </if>
             <if test="isZx == false">
                 AND is_delete = 0 AND is_zx = FALSE
+            </if>
+            <if test='code != null and code != ""'>
+                AND code like "%"#{code}"%"
             </if>
         </where>
         ORDER BY code
