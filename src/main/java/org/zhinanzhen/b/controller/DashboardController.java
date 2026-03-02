@@ -22,6 +22,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.utils.AustraliaTimeUtil;
 import org.zhinanzhen.tb.utils.MonthDateUtils;
 
 import javax.annotation.Resource;
@@ -30,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,6 +64,9 @@ public class DashboardController extends BaseController {
 
 	@Resource
 	private ExchangeRateService exchangeRateService;
+
+	private static final DateTimeFormatter SYDNEY_FORMATTER =
+			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
 
 	@RequestMapping(value = "/getMonthExpectAmount", method = RequestMethod.GET)
 	@ResponseBody
@@ -201,7 +207,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRankDiffAp")
 	@ResponseBody
-	public DashboardResponse thisMonthPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response)
+	public DashboardResponse thisMonthPerformanceRankDiffAp(@RequestParam(name = "yearAndMonth", required = false) String yearAndMonth, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -211,8 +217,21 @@ public class DashboardController extends BaseController {
 			return new DashboardResponse(1, "No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		List<Integer> regionIdList = new ArrayList<>();
-		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
-		String endDate = sdf.format(Calendar.getInstance().getTime());
+		String startDate = "";
+		String endDate = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			startDate = MonthDateUtils.getFirstDayOfMonth(yearAndMonth) + " 00:00:00";
+			endDate = MonthDateUtils.getLastDayOfMonth(yearAndMonth) + " 23:59:59";
+		} else {
+			startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
+			endDate = sdf.format(Calendar.getInstance().getTime());
+		}
+
+		ZonedDateTime sydneyTimeStart = AustraliaTimeUtil.toSydneyTime(startDate);
+		startDate = sydneyTimeStart.format(SYDNEY_FORMATTER);
+		ZonedDateTime sydneyTimeEnd = AustraliaTimeUtil.toSydneyTime(endDate);
+		endDate = sydneyTimeEnd.format(SYDNEY_FORMATTER);
+
 		List<DataDTO> dataList = data.dataReport(startDate, endDate, "R", null); // R 全area顾问倒序排名的数据 顾问
 		dataList = dataList.stream().filter(DataDTO -> DataDTO.getAdviserId() != 1000135).collect(Collectors.toList()); // 去除daisy
 		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
