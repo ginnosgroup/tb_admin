@@ -223,8 +223,8 @@ public class DashboardController extends BaseController {
 			startDate = MonthDateUtils.getFirstDayOfMonth(yearAndMonth) + " 00:00:00";
 			endDate = MonthDateUtils.getLastDayOfMonth(yearAndMonth) + " 23:59:59";
 		} else {
-			startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
-			endDate = sdf.format(Calendar.getInstance().getTime());
+			startDate = DateClass.thisMonthFirstDay(Calendar.getInstance()) + " 00:00:00";
+			endDate = sdf.format(Calendar.getInstance().getTime()) + " 23:59:59";
 		}
 
 		ZonedDateTime sydneyTimeStart = AustraliaTimeUtil.toSydneyTime(startDate);
