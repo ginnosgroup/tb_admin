@@ -73,5 +73,11 @@ public class UserDTO {
 	private String channelSource; // 渠道来源
 
 	private String firstFileId;
+
+	private Integer visaCount;
+
+	private Integer ovstCount;
+
+	private double orderAmount;
 	
 }

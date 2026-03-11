@@ -39,4 +39,6 @@ public class SchoolInstitutionDO implements Serializable {
     private boolean isCooperative;
     
     private boolean isFreeze;
+
+    private boolean isCOE;
 }

@@ -214,5 +214,7 @@ public class VisaOfficialDTO {
 
     private String stage; // 结算阶段
 
+    private Integer parentIdNew; // 新的父订单ID
+
 }
 

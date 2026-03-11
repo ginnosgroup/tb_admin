@@ -14,6 +14,7 @@ import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
+import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
@@ -155,6 +156,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
     @Resource
     private VisaOfficialService visaOfficialService;
 
+    @Resource
+    private WebLogDAO webLogDAO;
+
     @Override
     public int addServiceOrderAndManage(ServiceOrderAndManage serviceOrderAndManage) {
         return serviceOrderManageDAO.addServiceOrderAndManage(serviceOrderAndManage);
@@ -242,6 +246,10 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                             List<ServiceOrderDTO> serviceOrderSubsT = new ArrayList<>();
                             for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
                                 ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub);
+                                VisaDO visaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderSub.getId());
+                                if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderSub.getState())) {
+                                    serviceOrderDTO.setVisaBuild(true);
+                                }
                                 serviceOrderSubsT.add(serviceOrderDTO1);
                             }
                             serviceOrderDTO.setSubServiceOrders(serviceOrderSubsT);
@@ -409,6 +417,13 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         for (Integer id : idList) {
             Integer i1 = firstPlace(id);
             if (i1 > 1) {
+                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(id);
+                for (ServiceOrderDTO serviceOrderDTO : serviceOrderDTOS) {
+                    VisaDO firstVisaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderDTO.getId());
+                    if (!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState()) || firstVisaByServiceOrderId != null) {
+                        return"该订单的子订单已有流程在进行中，不允许删除主订单操作。";
+                    }
+                }
                 serviceOrderManageDAO.deleteServiceOrderById(id);
             }
             if (i1 == 1) {
@@ -419,7 +434,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 ServiceOrderDO serviceOrderManageDAOServiceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
                 ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(id);
                 VisaDO visaByServiceOrderId = visaDao.getVisaByServiceOrderId(serviceOrderById.getId());
-                if (visaByServiceOrderId != null) {
+                if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderById.getState())) {
                     return "该订单已生成佣金订单，不能删除，请核实";
                 }
                 if (serviceOrderById.getApplicantParentId() == 0) {
@@ -646,16 +661,16 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
             });
-            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
-                    .collect(Collectors.collectingAndThen(
-                            Collectors.toMap(
-                                    ChildrenServiceOrderDTO::getServicePackageType,
-                                    Function.identity(),
-                                    (p1, p2) -> p1
-                            ),
-                            map -> new ArrayList<>(map.values())
-                    ));
-            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList2);
+//            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
+//                    .collect(Collectors.collectingAndThen(
+//                            Collectors.toMap(
+//                                    ChildrenServiceOrderDTO::getServicePackageType,
+//                                    Function.identity(),
+//                                    (p1, p2) -> p1
+//                            ),
+//                            map -> new ArrayList<>(map.values())
+//                    ));
+            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
         }
 
         List<Integer> cIds = new ArrayList<>();
@@ -841,6 +856,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
 
+        // 获取服务订单上传合同日志信息
+        List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
+        if (!webLogDTOList.isEmpty()) {
+            serviceOrderDto.setContractDataList(webLogDTOList);
+        }
         return serviceOrderDto;
     }
 

@@ -54,7 +54,8 @@
             adviser_id,
             user_id,
             type,
-            mara_id
+            mara_id,
+            contract_data
         )
         VALUES (
                    now(),
@@ -93,7 +94,8 @@
                    #{adviserId},
                    #{userId},
                    #{type},
-                   #{maraId}
+                   #{maraId},
+                   #{contractData}
                );
     </insert>
     <update id="updateServiceOrder">
@@ -191,6 +193,9 @@
         </if>
         <if test='maraId != null'>
             ,mara_id = #{maraId}
+        </if>
+        <if test='contractData != null'>
+            ,contract_data = #{contractData}
         </if>
         WHERE id = #{id};
     </update>
@@ -434,7 +439,8 @@
         so.is_insurance_company AS isInsuranceCompany,
         so.transfer_remarks AS transferRemarks,
         so.official_data AS officialData,
-        so.score_options AS scoreOptions
+        so.score_options AS scoreOptions,
+        so.contract_data AS contractData
         FROM tb_user u, b_service_order_manage so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -621,7 +627,8 @@
             adviser_id AS adviserId,
             user_id AS userId,
             type,
-            mara_id AS maraId
+            mara_id AS maraId,
+            contract_data AS contractData
         FROM b_service_order_manage WHERE id = #{id, jdbcType=INTEGER};
     </select>
     <select id="getServiceOrderAndManageById" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">
@@ -792,5 +799,8 @@
         GROUP BY
         service_order_manage_id)
         LIMIT #{offset}, #{rows};
+    </select>
+    <select id="getserviceorderManageIdByServiceorderId" resultType="java.lang.Integer">
+        SELECT service_order_manage_id FROM b_service_order_and_manage WHERE service_order_id = #{serviceOrderId}
     </select>
 </mapper>

@@ -255,6 +255,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 //				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
+			userDto.setVisaCount(serviceOrderDao.getOrderCount(userDto.getId(), "VISA"));
+			userDto.setOvstCount(serviceOrderDao.getOrderCount(userDto.getId(), "OVST"));
+			Double orderAmount = serviceOrderDao.getOrderAmount(userDto.getId());
+			if(orderAmount == null) {
+				orderAmount = 0.0;
+				userDto.setOrderAmount(orderAmount);
+			} else {
+				userDto.setOrderAmount(orderAmount);
+			}
 			userDtoList.add(userDto);
 		}
 		return userDtoList;

@@ -1417,10 +1417,12 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
         ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDto.getId());
         if (serviceOrderAndManage != null) {
-            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
-            if (ObjectUtil.isNotNull(serviceOrderById)) {
-                serviceOrderDto.setServiceOrderManage(serviceOrderById);
-            }
+            serviceOrderDto.setManageOrder(true);
+            serviceOrderDto.setParentIdNew(serviceOrderAndManage.getServiceOrderManageId());
+//            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
+//            if (ObjectUtil.isNotNull(serviceOrderById)) {
+//                serviceOrderDto.setServiceOrderManage(serviceOrderById);
+//            }
         }
         // 获取服务订单上传合同日志信息
         List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
@@ -1537,7 +1539,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDoT = serviceOrderDo;
         }
 //        if (serviceOrderById != null) {
-//            serviceOrderDoT = mapper.map(serviceOrderById, ServiceOrderDO.class);
+//
 //        }
         ServiceAssessDO assessDO = serviceAssessDao.seleteAssessById(serviceOrderDoT.getServiceAssessId());
         if (serviceOrderDoT != null) {

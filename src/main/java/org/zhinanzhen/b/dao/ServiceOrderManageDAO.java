@@ -102,4 +102,7 @@ public interface ServiceOrderManageDAO {
                                          @Param("tradingName") String tradingName, @Param("schoolLocation") Integer schoolLocation);
 
     int deleteServiceOrderById(@Param("serviceOrderManageId") Integer id);
+
+    Integer getserviceorderManageIdByServiceorderId(int serviceOrderId);
+
 }

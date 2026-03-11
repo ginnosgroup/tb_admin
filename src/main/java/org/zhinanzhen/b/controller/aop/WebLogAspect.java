@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ServiceOrderManageDAO;
 import org.zhinanzhen.b.dao.WebLogDAO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -59,12 +60,15 @@ public class WebLogAspect extends BaseController{
 
     @Autowired
     private ServiceOrderDAO serviceOrderDAO;
+    @Autowired
+    private ServiceOrderManageDAO serviceOrderManageDAO;
 
     //定义切点表达式,指定通知功能被应用的范围
 //                "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
 //                        "execution(public * org.zhinanzhen.b.controller.OfficialController.officialHandover(..)) || " +
 //    "execution(public * org.zhinanzhen.tb.controller.UserController.update(..))"
     @Pointcut("execution(public * org.zhinanzhen.b.controller.ServiceOrderController.*(..)) || " +
+            "execution(public * org.zhinanzhen.b.controller.ServiceOrderManageController.*(..)) || " +
             "execution(public * org.zhinanzhen.tb.controller.UserController.addUser(..)) || " +
             "execution(public * org.zhinanzhen.tb.controller.AdminUserController.login(..)) ||" +
             "execution(public * org.zhinanzhen.tb.controller.AdminUserController.outLogin(..))"
@@ -427,7 +431,7 @@ public class WebLogAspect extends BaseController{
                 return null;
             }
 
-
+            boolean isManage = false;
 
             if (!StringUtils.isEmpty(methodName)) {
                 if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
@@ -435,7 +439,14 @@ public class WebLogAspect extends BaseController{
                     if (i > 0) {
                         Integer serviceOrderId = webLog.getServiceOrderId();
                         if (serviceOrderId != null && serviceOrderId != 0) {
-                            ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+                            ServiceOrderDO serviceOrderById = null;
+                            Integer firsted = firstPlace(serviceOrderId);
+                            if (firsted == 1) {
+                                serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+                            } else {
+                                isManage = true;
+                                serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderId);
+                            }
                             if (serviceOrderById.getApplicantParentId() > 0 && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
                                 ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
                                 List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
@@ -447,6 +458,15 @@ public class WebLogAspect extends BaseController{
                                     }
                                     webLog.setServiceOrderId(serviceOrderDO.getId());
                                     webLogDAO.addWebLogs(webLog);
+                                }
+                            }
+                            if (isManage) {
+                                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(serviceOrderId);
+                                if (serviceOrderDTOS != null && !serviceOrderDTOS.isEmpty()) {
+                                    for (ServiceOrderDTO serviceOrderDO : serviceOrderDTOS) {
+                                        webLog.setServiceOrderId(serviceOrderDO.getId());
+                                        webLogDAO.addWebLogs(webLog);
+                                    }
                                 }
                             }
                         }
@@ -494,5 +514,23 @@ public class WebLogAspect extends BaseController{
         }  else {
             return argList;
         }
+    }
+
+    private Integer firstPlace(Integer id) {
+        // 1. 将int转换为String
+        String numberStr = String.valueOf(id);
+
+        // 2. 找到第一个不是负号的字符（即第一个数字）
+        char firstChar = numberStr.charAt(0);
+        int firstDigit;
+
+        if (firstChar == '-') {
+            // 如果是负数，则取第二个字符
+            firstDigit = Character.getNumericValue(numberStr.charAt(1));
+        } else {
+            // 如果是正数，直接取第一个字符
+            firstDigit = Character.getNumericValue(firstChar);
+        }
+        return firstDigit;
     }
 }

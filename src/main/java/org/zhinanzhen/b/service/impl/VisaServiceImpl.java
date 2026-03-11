@@ -6,6 +6,7 @@ import com.ikasoa.core.utils.StringUtil;
 import lombok.Synchronized;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
@@ -105,6 +106,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 
 	@Resource
 	private VisaOfficialService visaOfficialService;
+    @Autowired
+    private ServiceOrderManageDAO serviceOrderManageDAO;
+
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -399,6 +403,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 								AbleStateEnum.ENABLED.toString());
 						for (RemindDO remindDo : remindDoList) {
 							remindDateList.add(remindDo.getRemindDate());
+						}
+						Integer parentIdNew = serviceOrderManageDAO.getserviceorderManageIdByServiceorderId(visaListDo.getServiceOrderId());
+						if (parentIdNew != null) {
+							visaDto.setParentIdNew(parentIdNew);
 						}
 						visaDto.setRemindDateList(remindDateList);
 						visaDtoList.add(visaDto);

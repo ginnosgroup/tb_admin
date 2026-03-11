@@ -289,6 +289,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "userId", required = false) String userId,
                                              @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
+                                             @RequestParam(value = "contractData", required = false) String contractData,
                                              HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -390,12 +391,14 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(maraId)) {
             serviceOrderDto.setMaraId(Integer.parseInt(maraId));
         }
+        if (StringUtil.isNotEmpty(contractData)) {
+            serviceOrderDto.setContractData(contractData);
+        }
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
-                    serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
                     serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
@@ -403,10 +406,11 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+                    serviceOrderJsonRequest.setReceiveDate(receiveDate);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
                 }
             }
-            return new Response<Integer>(0, "创建成功.", addResult);
+            return new Response<Integer>(0, "创建成功.", serviceOrderDto.getId());
         }
         return null;
     }
@@ -445,7 +449,9 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "officialData", required = false) String officialData,
                                                 @RequestParam(value = "adviserId", required = false) String adviserId,
                                                 @RequestParam(value = "userId", required = false) String userId,
+                                                @RequestParam(value = "maraId", required = false) String maraId,
                                                 @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
+                                                @RequestParam(value = "contractData", required = false) String contractData,
                                                 HttpServletRequest request,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
@@ -455,9 +461,17 @@ public class ServiceOrderManageController extends BaseController {
             serviceOrderDto = serviceOrderManageService.getServiceOrderById(id);
             if (serviceOrderDto == null)
 				return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+            List<ServiceOrderDTO> childrenServiceOrderList = serviceOrderManageService.listChildrenServiceOrder(id);
+            for (ServiceOrderDTO serviceOrderDTO : childrenServiceOrderList) {
+                VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(serviceOrderDTO.getId());
+                if ((!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState()) || firstVisaByServiceOrderId != null) && contractData.equalsIgnoreCase(serviceOrderDto.getContractData())) {
+                    return new Response<Integer>(1, "该订单的子订单已有流程在进行中，不允许修改主订单操作。", null);
+                }
+            }
+
             List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
             if (StringUtil.isNotEmpty(isPay)) {
-                serviceOrderDto.setPay("1".equals(isPay));
+                serviceOrderDto.setPay("true".equals(isPay));
             }
             if (StringUtil.isNotEmpty(receiveTypeId)) {
                 serviceOrderDto.setReceiveTypeId(Integer.parseInt(receiveTypeId));
@@ -507,7 +521,7 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setExchangeRate(Double.parseDouble(exchangeRate));
             if (StringUtil.isNotEmpty(gst))
                 serviceOrderDto.setGst(Double.parseDouble(gst));
-            if (StringUtil.isNotEmpty(type))
+            if (StringUtil.isNotEmpty(type) && !"VISA".equalsIgnoreCase(type))
                 serviceOrderDto.setType(type);
             if (StringUtil.isNotEmpty(deductGst))
                 serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
@@ -531,6 +545,8 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(userId)) {
                 serviceOrderDto.setUserId(StringUtil.toInt(userId));
             }
+            if (StringUtil.isNotEmpty(contractData))
+                serviceOrderDto.setContractData(contractData);
             int i = serviceOrderManageService.updateServiceOrderManage(serviceOrderDto);
             List<ServiceOrderJsonRequest> serviceOrderJson = new ArrayList<>();
             try {
@@ -564,6 +580,25 @@ public class ServiceOrderManageController extends BaseController {
                         updateServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                     }
                 }
+                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageService.listChildrenServiceOrder(serviceOrderDto.getId());
+                for (ServiceOrderDTO serviceOrderDTOC : serviceOrderDTOS) {
+                    if (serviceOrderDto.getPaymentVoucherImageUrl1() != null && !serviceOrderDto.getPaymentVoucherImageUrl1().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl1())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl2() != null && !serviceOrderDto.getPaymentVoucherImageUrl2().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl2())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl2(serviceOrderDto.getPaymentVoucherImageUrl2());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl3() != null && !serviceOrderDto.getPaymentVoucherImageUrl3().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl3())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl3(serviceOrderDto.getPaymentVoucherImageUrl3());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl4() != null && !serviceOrderDto.getPaymentVoucherImageUrl4().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl3())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl4(serviceOrderDto.getPaymentVoucherImageUrl4());
+                    }
+                    if (serviceOrderDto.getPaymentVoucherImageUrl5() != null && !serviceOrderDto.getPaymentVoucherImageUrl5().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl3())) {
+                        serviceOrderDTOC.setPaymentVoucherImageUrl5(serviceOrderDto.getPaymentVoucherImageUrl5());
+                    }
+                    serviceOrderService.updateServiceOrder(serviceOrderDTOC);
+                }
             }
             return new Response<Integer>(0, "修改成功");
         } catch (ServiceException e) {
@@ -575,7 +610,6 @@ public class ServiceOrderManageController extends BaseController {
     @RequestMapping(value = "/updateSubOrder", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> updateServiceOrder(@RequestParam(value = "id") int id,
-                                                @RequestParam(value = "type", required = false) String type,
                                                 @RequestParam(value = "peopleNumber", required = false) Integer peopleNumber,
                                                 @RequestParam(value = "peopleType", required = false) String peopleType,
                                                 @RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
@@ -647,6 +681,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
+                                                @RequestParam(value = "type", required = false) String type,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -662,19 +697,27 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
                         ServiceOrderApplicantDTO.class);
             ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageService.getServiceOrderAndManageById(id);
+            if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
+                List<ServiceOrderDTO> ziServiceOrderById = serviceOrderService.getZiServiceOrderById(id);
+                for (ServiceOrderDTO serviceOrderDTO : ziServiceOrderById) {
+                    if (!"PENDING".equalsIgnoreCase(serviceOrderDTO.getState())) {
+                        return new Response<Integer>(1, "该订单的子订单已有流程在进行中，不允许修改主订单操作。", null);
+                    }
+                }
+            }
             if (ObjectUtil.isNotNull(serviceOrderAndManage) && received != null) {
                 double received1 = serviceOrderDto.getReceived();
                 if (Double.compare(received1, Double.parseDouble(received)) != 0) {
                     VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(id);
                     if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
-                        return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
+                        return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实。", null);
                     }
                 }
             }
             if (serviceOrderDto.getApplicantParentId() > 0) {
                 VisaDTO firstVisaByServiceOrderId = visaService.getFirstVisaByServiceOrderId(serviceOrderDto.getApplicantParentId());
                 if (ObjectUtil.isNotNull(firstVisaByServiceOrderId)) {
-                    return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实", null);
+                    return new Response<Integer>(1, "该订单已生成佣金订单，修改失败，请核实。", null);
                 }
             }
             Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
@@ -731,6 +774,10 @@ public class ServiceOrderManageController extends BaseController {
                                     serviceOrderDTO.setIsInsuranceCompany(null);
                                 }
                                 serviceOrderService.addServiceOrder(serviceOrderDTO);
+                                ServiceOrderAndManage serviceOrderAndManage1 = new ServiceOrderAndManage();
+                                serviceOrderAndManage1.setServiceOrderManageId(serviceOrderAndManage.getServiceOrderManageId());
+                                serviceOrderAndManage1.setServiceOrderId(serviceOrderDTO.getId());
+                                serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage1);
                             } catch (ServiceException ex) {
                                 throw new RuntimeException(ex);
                             }
@@ -751,114 +798,113 @@ public class ServiceOrderManageController extends BaseController {
 
     private void updateServiceOrderForManage(ServiceOrderJsonRequest serviceOrderJsonRequest, AdminUserLoginInfo adminUserLoginInfo) throws ServiceException {
         Integer id = serviceOrderJsonRequest.getId();
-        if (id == null) {
-            addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, true);
-            return;
+        if (id == null || id == 0) {
+            addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
         }
-        Integer manageId = serviceOrderJsonRequest.getManageId();
-        String type = serviceOrderJsonRequest.getType();
-        String isPay = serviceOrderJsonRequest.getIsPay();
-        String servicePackageIds = serviceOrderJsonRequest.getServicePackageIds();
-        List<String> servicePackageIdListTmp = new ArrayList<>();
-        List<String> servicePackageIdsEOIListT = new ArrayList<>();
-        if (StringUtil.isNotEmpty(servicePackageIds)) {
-            servicePackageIdListTmp = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
-        }
-        if (!servicePackageIdListTmp.isEmpty()) {
-            servicePackageIds = String.join(",", servicePackageIdListTmp.stream().map(String::valueOf).toArray(String[]::new));
-        }
-        String servicePackageIdsEOI = "";
-        String servicePackageIdsEOIs = serviceOrderJsonRequest.getServicePackageIdsEOI();
-        if (StringUtil.isNotEmpty(servicePackageIdsEOIs)) {
-            servicePackageIdsEOIListT = new ArrayList<>(Arrays.asList(servicePackageIdsEOIs.split(",")));
-        }
-        if (!servicePackageIdsEOIListT.isEmpty()) {
-            servicePackageIdsEOI = String.join(",", servicePackageIdsEOIListT.stream().map(String::valueOf).toArray(String[]::new));
-        }
-        Integer peopleNumber = serviceOrderJsonRequest.getPeopleNumber();
-        String peopleType = serviceOrderJsonRequest.getPeopleType();
-        String peopleRemarks = serviceOrderJsonRequest.getPeopleRemarks();
-        String serviceId = serviceOrderJsonRequest.getServiceId();
-        Integer schoolId = serviceOrderJsonRequest.getSchoolId();
-        Integer schoolInstitutionLocationId = serviceOrderJsonRequest.getSchoolInstitutionLocationId();
-        String isSettle = serviceOrderJsonRequest.getIsSettle();
-        Integer courseId = serviceOrderJsonRequest.getCourseId();
-        String urgentState = serviceOrderJsonRequest.getUrgentState();
-        String isDepositUser = serviceOrderJsonRequest.getIsDepositUser();
-        String subagencyId = serviceOrderJsonRequest.getSubagencyId();
-        String receiveTypeId = serviceOrderJsonRequest.getReceiveTypeId();
-        String receiveDate = serviceOrderJsonRequest.getReceiveDate();
-        String discount = serviceOrderJsonRequest.getDiscount();
-        String received = serviceOrderJsonRequest.getReceived();
-        String receivable = serviceOrderJsonRequest.getReceivable();
-        Integer installment = serviceOrderJsonRequest.getInstallment();
-        String paymentVoucherImageUrl1 = serviceOrderJsonRequest.getPaymentVoucherImageUrl1();
-        String paymentVoucherImageUrl2 = serviceOrderJsonRequest.getPaymentVoucherImageUrl2();
-        String paymentVoucherImageUrl3 = serviceOrderJsonRequest.getPaymentVoucherImageUrl3();
-        String paymentVoucherImageUrl4 = serviceOrderJsonRequest.getPaymentVoucherImageUrl4();
-        String paymentVoucherImageUrl5 = serviceOrderJsonRequest.getPaymentVoucherImageUrl5();
-        String lowPriceImageUrl = serviceOrderJsonRequest.getLowPriceImageUrl();
-        String perAmount = serviceOrderJsonRequest.getPerAmount();
-        String amount = serviceOrderJsonRequest.getAmount();
-        String expectAmount = serviceOrderJsonRequest.getExpectAmount();
-        String currency = serviceOrderJsonRequest.getCurrency();
-        String exchangeRate = serviceOrderJsonRequest.getExchangeRate();
-        String gst = serviceOrderJsonRequest.getGst();
-        String deductGst = serviceOrderJsonRequest.getDeductGst();
-        String bonus = serviceOrderJsonRequest.getBonus();
-        String userId = serviceOrderJsonRequest.getUserId();
-        String maraId = serviceOrderJsonRequest.getMaraId();
-        String adviserId = serviceOrderJsonRequest.getAdviserId();
-        String officialId = serviceOrderJsonRequest.getOfficialId();
-        String remarks = serviceOrderJsonRequest.getRemarks();
-        String closedReason = serviceOrderJsonRequest.getClosedReason();
-        String information = serviceOrderJsonRequest.getInformation();
-        String isHistory = serviceOrderJsonRequest.getIsHistory();
-        String nutCloud = serviceOrderJsonRequest.getNutCloud();
-        String serviceAssessId = serviceOrderJsonRequest.getServiceAssessId();
-        String verifyCode = serviceOrderJsonRequest.getVerifyCode();
-        String refNo = serviceOrderJsonRequest.getRefNo();
-        String institutionTradingName = serviceOrderJsonRequest.getInstitutionTradingName();
-        String invoiceVoucherImageUrl1 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl1();
-        String invoiceVoucherImageUrl2 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl2();
-        String invoiceVoucherImageUrl3 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl3();
-        String invoiceVoucherImageUrl4 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl4();
-        String invoiceVoucherImageUrl5 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl5();
-        String applicantId = serviceOrderJsonRequest.getApplicantId();
-        String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
-        List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
-        if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
-            serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
-                    ServiceOrderApplicantDTO.class);
-        String applicantBirthday = serviceOrderJsonRequest.getApplicantBirthday();
-        String insuranceCompany = serviceOrderJsonRequest.getInsuranceCompany();
-        Integer bindingOrder = serviceOrderJsonRequest.getBindingOrder();
-        String hasInsurance = serviceOrderJsonRequest.getHasInsurance();
-        String isTransfer = serviceOrderJsonRequest.getIsTransfer();
-        String transferRemarks = serviceOrderJsonRequest.getTransferRemarks();
-        String offerUrl = serviceOrderJsonRequest.getOfferUrl();
-        String officialData = serviceOrderJsonRequest.getOfficialData();
-        String kjPaymentImageUrl1 = serviceOrderJsonRequest.getKjPaymentImageUrl1();
-        String kjPaymentImageUrl2 = serviceOrderJsonRequest.getKjPaymentImageUrl2();
-        String expectTimeEnrollment = serviceOrderJsonRequest.getExpectTimeEnrollment();
-        Boolean isApplyVisa = serviceOrderJsonRequest.getIsApplyVisa();
-        String visaNumber = serviceOrderJsonRequest.getVisaNumber();
-        String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
-        String scoreState = serviceOrderJsonRequest.getScoreState();
-        String scoreMark = serviceOrderJsonRequest.getScoreMark();
-        String offerType = serviceOrderJsonRequest.getOfferType();
-        ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
-        Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
-                String.valueOf(schoolId), urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
-                receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
-                paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
-                invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
-                kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
-                exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
-                serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
-                isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
-                institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+//        Integer manageId = serviceOrderJsonRequest.getManageId();
+//        String type = serviceOrderJsonRequest.getType();
+//        String isPay = serviceOrderJsonRequest.getIsPay();
+//        String servicePackageIds = serviceOrderJsonRequest.getServicePackageIds();
+//        List<String> servicePackageIdListTmp = new ArrayList<>();
+//        List<String> servicePackageIdsEOIListT = new ArrayList<>();
+//        if (StringUtil.isNotEmpty(servicePackageIds)) {
+//            servicePackageIdListTmp = new ArrayList<>(Arrays.asList(servicePackageIds.split(",")));
+//        }
+//        if (!servicePackageIdListTmp.isEmpty()) {
+//            servicePackageIds = String.join(",", servicePackageIdListTmp.stream().map(String::valueOf).toArray(String[]::new));
+//        }
+//        String servicePackageIdsEOI = "";
+//        String servicePackageIdsEOIs = serviceOrderJsonRequest.getServicePackageIdsEOI();
+//        if (StringUtil.isNotEmpty(servicePackageIdsEOIs)) {
+//            servicePackageIdsEOIListT = new ArrayList<>(Arrays.asList(servicePackageIdsEOIs.split(",")));
+//        }
+//        if (!servicePackageIdsEOIListT.isEmpty()) {
+//            servicePackageIdsEOI = String.join(",", servicePackageIdsEOIListT.stream().map(String::valueOf).toArray(String[]::new));
+//        }
+//        Integer peopleNumber = serviceOrderJsonRequest.getPeopleNumber();
+//        String peopleType = serviceOrderJsonRequest.getPeopleType();
+//        String peopleRemarks = serviceOrderJsonRequest.getPeopleRemarks();
+//        String serviceId = serviceOrderJsonRequest.getServiceId();
+//        Integer schoolId = serviceOrderJsonRequest.getSchoolId();
+//        Integer schoolInstitutionLocationId = serviceOrderJsonRequest.getSchoolInstitutionLocationId();
+//        String isSettle = serviceOrderJsonRequest.getIsSettle();
+//        Integer courseId = serviceOrderJsonRequest.getCourseId();
+//        String urgentState = serviceOrderJsonRequest.getUrgentState();
+//        String isDepositUser = serviceOrderJsonRequest.getIsDepositUser();
+//        String subagencyId = serviceOrderJsonRequest.getSubagencyId();
+//        String receiveTypeId = serviceOrderJsonRequest.getReceiveTypeId();
+//        String receiveDate = serviceOrderJsonRequest.getReceiveDate();
+//        String discount = serviceOrderJsonRequest.getDiscount();
+//        String received = serviceOrderJsonRequest.getReceived();
+//        String receivable = serviceOrderJsonRequest.getReceivable();
+//        Integer installment = serviceOrderJsonRequest.getInstallment();
+//        String paymentVoucherImageUrl1 = serviceOrderJsonRequest.getPaymentVoucherImageUrl1();
+//        String paymentVoucherImageUrl2 = serviceOrderJsonRequest.getPaymentVoucherImageUrl2();
+//        String paymentVoucherImageUrl3 = serviceOrderJsonRequest.getPaymentVoucherImageUrl3();
+//        String paymentVoucherImageUrl4 = serviceOrderJsonRequest.getPaymentVoucherImageUrl4();
+//        String paymentVoucherImageUrl5 = serviceOrderJsonRequest.getPaymentVoucherImageUrl5();
+//        String lowPriceImageUrl = serviceOrderJsonRequest.getLowPriceImageUrl();
+//        String perAmount = serviceOrderJsonRequest.getPerAmount();
+//        String amount = serviceOrderJsonRequest.getAmount();
+//        String expectAmount = serviceOrderJsonRequest.getExpectAmount();
+//        String currency = serviceOrderJsonRequest.getCurrency();
+//        String exchangeRate = serviceOrderJsonRequest.getExchangeRate();
+//        String gst = serviceOrderJsonRequest.getGst();
+//        String deductGst = serviceOrderJsonRequest.getDeductGst();
+//        String bonus = serviceOrderJsonRequest.getBonus();
+//        String userId = serviceOrderJsonRequest.getUserId();
+//        String maraId = serviceOrderJsonRequest.getMaraId();
+//        String adviserId = serviceOrderJsonRequest.getAdviserId();
+//        String officialId = serviceOrderJsonRequest.getOfficialId();
+//        String remarks = serviceOrderJsonRequest.getRemarks();
+//        String closedReason = serviceOrderJsonRequest.getClosedReason();
+//        String information = serviceOrderJsonRequest.getInformation();
+//        String isHistory = serviceOrderJsonRequest.getIsHistory();
+//        String nutCloud = serviceOrderJsonRequest.getNutCloud();
+//        String serviceAssessId = serviceOrderJsonRequest.getServiceAssessId();
+//        String verifyCode = serviceOrderJsonRequest.getVerifyCode();
+//        String refNo = serviceOrderJsonRequest.getRefNo();
+//        String institutionTradingName = serviceOrderJsonRequest.getInstitutionTradingName();
+//        String invoiceVoucherImageUrl1 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl1();
+//        String invoiceVoucherImageUrl2 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl2();
+//        String invoiceVoucherImageUrl3 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl3();
+//        String invoiceVoucherImageUrl4 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl4();
+//        String invoiceVoucherImageUrl5 = serviceOrderJsonRequest.getInvoiceVoucherImageUrl5();
+//        String applicantId = serviceOrderJsonRequest.getApplicantId();
+//        String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
+//        List<ServiceOrderApplicantDTO> serviceOrderApplicantList = null;
+//        if (StringUtil.isNotEmpty(serviceOrderApplicantListJson))
+//            serviceOrderApplicantList = JSONObject.parseArray(serviceOrderApplicantListJson,
+//                    ServiceOrderApplicantDTO.class);
+//        String applicantBirthday = serviceOrderJsonRequest.getApplicantBirthday();
+//        String insuranceCompany = serviceOrderJsonRequest.getInsuranceCompany();
+//        Integer bindingOrder = serviceOrderJsonRequest.getBindingOrder();
+//        String hasInsurance = serviceOrderJsonRequest.getHasInsurance();
+//        String isTransfer = serviceOrderJsonRequest.getIsTransfer();
+//        String transferRemarks = serviceOrderJsonRequest.getTransferRemarks();
+//        String offerUrl = serviceOrderJsonRequest.getOfferUrl();
+//        String officialData = serviceOrderJsonRequest.getOfficialData();
+//        String kjPaymentImageUrl1 = serviceOrderJsonRequest.getKjPaymentImageUrl1();
+//        String kjPaymentImageUrl2 = serviceOrderJsonRequest.getKjPaymentImageUrl2();
+//        String expectTimeEnrollment = serviceOrderJsonRequest.getExpectTimeEnrollment();
+//        Boolean isApplyVisa = serviceOrderJsonRequest.getIsApplyVisa();
+//        String visaNumber = serviceOrderJsonRequest.getVisaNumber();
+//        String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
+//        String scoreState = serviceOrderJsonRequest.getScoreState();
+//        String scoreMark = serviceOrderJsonRequest.getScoreMark();
+//        String offerType = serviceOrderJsonRequest.getOfferType();
+//        ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(id);
+//        Response<Integer> res = updateOne(serviceOrderDto, type, peopleNumber, peopleType, peopleRemarks, serviceId,
+//                String.valueOf(schoolId), urgentState, isSettle, isDepositUser, subagencyId, isPay, receiveTypeId, receiveDate,
+//                receivable, discount, received, installment, paymentVoucherImageUrl1, paymentVoucherImageUrl2,
+//                paymentVoucherImageUrl3, paymentVoucherImageUrl4, paymentVoucherImageUrl5, invoiceVoucherImageUrl1,
+//                invoiceVoucherImageUrl2, invoiceVoucherImageUrl3, invoiceVoucherImageUrl4, invoiceVoucherImageUrl5,
+//                kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
+//                exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
+//                serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
+//                isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+//                institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
+//                hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
 
 
 
@@ -2641,6 +2687,8 @@ public class ServiceOrderManageController extends BaseController {
                                     @RequestParam(value = "userId", required = false) Integer userId,
                                     @RequestParam(value = "userName", required = false) String userName,
                                     @RequestParam(value = "applicantName", required = false) String applicantName,
+                                    @RequestParam(value = "adviserRegionId", required = false) Integer adviserRegionId,
+                                    @RequestParam(value = "officialRegionId", required = false) Integer officialRegionId,
                                     @RequestParam(value = "maraId", required = false) Integer maraId,
                                     @RequestParam(value = "adviserId", required = false) Integer adviserId,
                                     @RequestParam(value = "officialId", required = false) Integer officialId,
@@ -2679,9 +2727,15 @@ public class ServiceOrderManageController extends BaseController {
             excludeState = ReviewAdviserStateEnum.PENDING.toString();
         }
 
-        List<Integer> regionIdList = null;
-        if (regionId != null && regionId > 0)
-            regionIdList = ListUtil.buildArrayList(regionId);
+        List<Integer> adviserRegionIdList = null;
+        if (adviserRegionId != null && adviserRegionId > 0)
+            adviserRegionIdList = ListUtil.buildArrayList(adviserRegionId);
+
+        List<Integer> officialRegionIdList = null;
+        if (officialRegionId != null && officialRegionId > 0)
+            officialRegionIdList = ListUtil.buildArrayList(officialRegionId);
+
+
         JSONObject setupExcelJsonObjectTmp = null;
         try {
             super.setGetHeader(response);
@@ -2690,30 +2744,32 @@ public class ServiceOrderManageController extends BaseController {
             if (adminUserLoginInfo != null && "GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
                 List<RegionDTO> regionList = regionService.listRegion(adminUserLoginInfo.getRegionId());
-                regionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
+                adviserRegionIdList = ListUtil.buildArrayList(adminUserLoginInfo.getRegionId());
                 for (RegionDTO region : regionList)
-                    regionIdList.add(region.getId());
+                    adviserRegionIdList.add(region.getId());
             } else {
                 Integer newAdviserId = getAdviserId(request);
                 if (newAdviserId != null)
                     adviserId = newAdviserId;
             }
-
+            List<ServiceOrderDTO> serviceOrderLists = new ArrayList<>();
             List<ServiceOrderDTO> serviceOrderList = null;
             if (id != null && id > 0) {
-                serviceOrderList = new ArrayList<ServiceOrderDTO>();
-                ServiceOrderDTO serviceOrder = serviceOrderService.getServiceOrderById(id);
+                ServiceOrderDTO serviceOrder = serviceOrderManageService.getServiceOrderById(id);
                 if (serviceOrder != null)
-                    serviceOrderList.add(serviceOrder);
+                    serviceOrderLists.add(serviceOrder);
             }
             if (id == null) {
-                serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
+                serviceOrderList = serviceOrderManageService.listServiceOrder(type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                         startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
-                        endReadcommittedDate, startFinishDate, endFinishDate, regionIdList, null, userId, userName, applicantName, maraId, adviserId,
+                        endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId,
                         officialId, officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, 0, 9999, null,
-                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation, null, null);
+                        serviceId, servicePackageId, schoolId, null, null, null, courseId, tradingName, schoolLocation);
 
+                for (ServiceOrderDTO serviceOrderDTO : serviceOrderList) {
+                    serviceOrderLists.add(serviceOrderDTO);
+                }
                 if (newOfficialId != null)
                     for (ServiceOrderDTO so : serviceOrderList)
                         so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
@@ -2827,6 +2883,18 @@ public class ServiceOrderManageController extends BaseController {
                                     recordsList.add(jsonObjectValue);
                                     parmJiLu[0].put("records", recordsList);
                                     JSONObject jsonObjectJiLu = WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+
+                                    List<ServiceOrderDTO> subServiceOrders = serviceOrderDTO.getSubServiceOrders();
+                                    for (ServiceOrderDTO subServiceOrder : subServiceOrders) {
+                                        JSONObject jsonObjectFILEDTITLE1 = buileExcelJsonObject(subServiceOrder);
+                                        List<JSONObject> recordsList1 = new ArrayList<>();
+                                        JSONObject jsonObjectValue1 = new JSONObject();
+                                        jsonObjectValue1.put("values", jsonObjectFILEDTITLE1);
+                                        recordsList1.add(jsonObjectValue1);
+                                        parmJiLu[0].put("records", recordsList1);
+                                        WXWorkAPI.sendPostBody_Map(accessTokenJiLu, parmJiLu[0]);
+                                    }
+
                                     log.info(accessTokenJiLu);
                                     log.info("jsonObjectJiLu-------------" + jsonObjectJiLu.toString());
                                 }
@@ -2862,7 +2930,7 @@ public class ServiceOrderManageController extends BaseController {
                     break;
                 default: apList = apList;
             }
-            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "服务订单导出");
+//            WXWorkAPI.sendShareLinkMsg(url, adminUserLoginInfo.getUsername(), "服务订单导出");
             return new Response<>(0, "生成Excel成功， excel链接为：" + htmlBuilder);
         } catch (Exception e) {
             e.printStackTrace();
@@ -4586,6 +4654,12 @@ public class ServiceOrderManageController extends BaseController {
             text16.put("text",s);
             jsonObject16.put("cell_value", text16);
             rows.add(jsonObject16);
+        } else if (so.getType() == null) {
+            JSONObject jsonObject16 = new JSONObject();
+            JSONObject text16 = new JSONObject();
+            text16.put("text", "");
+            jsonObject16.put("cell_value", text16);
+            rows.add(jsonObject16);
         } else {
             String s = convertOrderStatus(so.getState());
             JSONObject jsonObject16 = new JSONObject();
@@ -4726,6 +4800,7 @@ public class ServiceOrderManageController extends BaseController {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type", "text");
         jsonObject.put("text", String.valueOf(so.getId()));
+        jsonObject.put("style", 1);
         jsonObjectFILEDTITLEList.add(jsonObject);
         jsonObjectFILEDTITLE.put("ID", jsonObjectFILEDTITLEList);
         // 创建时间
@@ -4994,6 +5069,13 @@ public class ServiceOrderManageController extends BaseController {
             jsonObject.put("type", "text");
             jsonObjectFILEDTITLEList = new ArrayList<>();
             jsonObject.put("text", convertOvstOrderStatus(so.getState()));
+            jsonObjectFILEDTITLEList.add(jsonObject);
+            jsonObjectFILEDTITLE.put("状态", jsonObjectFILEDTITLEList);
+        } else if (so.getType() == null) {
+            jsonObject = new JSONObject();
+            jsonObject.put("type", "text");
+            jsonObjectFILEDTITLEList = new ArrayList<>();
+            jsonObject.put("text", "");
             jsonObjectFILEDTITLEList.add(jsonObject);
             jsonObjectFILEDTITLE.put("状态", jsonObjectFILEDTITLEList);
         } else {
@@ -5384,20 +5466,65 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
-            double received1 = serviceOrderDto.getReceived();
-            serviceOrderDto.setReceivable(received1);
-            serviceOrderDto.setAmount(received1);
-            if ("CNY".equalsIgnoreCase(currency)) {
-                serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
-                serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
-                serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
-            } else {
-                serviceOrderDto.setGst(received1 / 11);
-                serviceOrderDto.setDeductGst(received1  / 1.1);
-                serviceOrderDto.setExpectAmount(received1);
+//            if (StringUtil.isNotEmpty(receivable)) {
+//                serviceOrderDto.setReceivable(Double.parseDouble(receivable));
+//            }
+//            if (StringUtil.isNotEmpty(discount)) {
+//                serviceOrderDto.setDiscount(Double.parseDouble(discount));
+//            }
+//            if (StringUtil.isNotEmpty(received)) {
+//                serviceOrderDto.setReceived(Double.parseDouble(received));
+//            }
+//            if (StringUtil.isNotEmpty(gst)) {
+//                serviceOrderDto.setGst(Double.parseDouble(gst));
+//            }
+//            if (StringUtil.isNotEmpty(amount)) {
+//                serviceOrderDto.setAmount(Double.parseDouble(amount));
+//            }
+//            if (StringUtil.isNotEmpty(deductGst)) {
+//                serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
+//            }
+//            if (StringUtil.isNotEmpty(expectAmount)) {
+//                serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
+//            }
+//            if (StringUtil.isNotEmpty(perAmount)) {
+//                serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
+//            }
+
+            if (serviceOrderJsonRequest.getInstallment() == 1) {
+                double received1 = serviceOrderDto.getReceived();
+                serviceOrderDto.setReceivable(received1);
+                serviceOrderDto.setAmount(received1);
+                if ("CNY".equalsIgnoreCase(currency)) {
+                    serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
+                    serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
+                    serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
+                } else {
+                    serviceOrderDto.setGst(received1 / 11);
+                    serviceOrderDto.setDeductGst(received1  / 1.1);
+                    serviceOrderDto.setExpectAmount(received1);
+                }
+                serviceOrderDto.setPerAmount(received1);
+                serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             }
-            serviceOrderDto.setPerAmount(received1);
-            serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
+            if (serviceOrderJsonRequest.getInstallment() > 1) {
+                double received1 = serviceOrderDto.getAmount();
+                serviceOrderDto.setReceivable(Double.parseDouble(received));
+                serviceOrderDto.setAmount(received1);
+                serviceOrderDto.setReceived(received1);
+                if ("CNY".equalsIgnoreCase(currency)) {
+                    serviceOrderDto.setGst(received1 / serviceOrderDto.getExchangeRate() / 11);
+                    serviceOrderDto.setDeductGst(received1 / serviceOrderDto.getExchangeRate() - serviceOrderDto.getGst());
+                    serviceOrderDto.setExpectAmount(received1 / serviceOrderDto.getExchangeRate());
+                } else {
+                    serviceOrderDto.setGst(received1 / 11);
+                    serviceOrderDto.setDeductGst(received1  / 1.1);
+                    serviceOrderDto.setExpectAmount(received1);
+                }
+                serviceOrderDto.setPerAmount(received1);
+                serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
+            }
+
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 if (isUpdate) {

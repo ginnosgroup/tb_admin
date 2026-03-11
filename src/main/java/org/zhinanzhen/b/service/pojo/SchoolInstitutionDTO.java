@@ -41,6 +41,8 @@ public class SchoolInstitutionDTO {
 
     private boolean isFreeze;
 
+    private boolean isCOE;
+
     private List<SchoolCourseDTO> schoolCourseDTOS;
 
     private List<SchoolInstitutionLocationDTO> schoolInstitutionLocationDTOS;
