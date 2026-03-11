@@ -90,7 +90,8 @@
                 score_state,
                 score_mark,
                 contract_data,
-                eoi_type)
+                eoi_type,
+                is_COE)
             VALUES (
                 now(),
                 now(),
@@ -175,7 +176,8 @@
                 #{scoreState},
                 #{scoreMark},
                 #{contractData},
-                #{eoiType});
+                #{eoiType},
+                #{isCOE});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -454,6 +456,9 @@
         <if test='eoiType != null and eoiType != "" '>
             ,eoi_type = #{eoiType}
         </if>
+        <if test='isCOE != null'>
+            , is_COE = #{isCOE}
+        </if>
         WHERE id = #{id};
     </update>
 
@@ -701,7 +706,8 @@
         so.score_mark AS scoreMark,
         so.bingding_assess_order AS bingdingAssessOrder,
         so.contract_data AS contractData,
-        so.eoi_type AS eoiType
+        so.eoi_type AS eoiType,
+        so.is_COE AS isCOE
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -969,7 +975,8 @@
             score_mark AS scoreMark,
             bingding_assess_order AS bingdingAssessOrder,
             contract_data AS contractData,
-            eoi_type AS eoiType
+            eoi_type AS eoiType,
+            is_COE AS isCOE
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1172,7 +1179,8 @@
             score_mark AS scoreMark,
             bingding_assess_order AS bingdingAssessOrder,
             contract_data AS contractData,
-            eoi_type AS eoiType
+            eoi_type AS eoiType,
+            is_COE AS isCOE
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1283,7 +1291,8 @@
         so.score_mark AS scoreMark,
         so.bingding_assess_order AS bingdingAssessOrder,
         so.contract_data AS contractData,
-        so.eoi_type AS eoiType
+        so.eoi_type AS eoiType,
+        so.is_COE AS isCOE
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1567,7 +1576,8 @@
             so.score_mark AS scoreMark,
             so.bingding_assess_order AS bingdingAssessOrder,
             so.contract_data AS contractData,
-            so.eoi_type AS eoiType
+            so.eoi_type AS eoiType,
+            so.is_COE AS isCOE
         FROM
             b_service_order so, b_service_package bsp
         WHERE

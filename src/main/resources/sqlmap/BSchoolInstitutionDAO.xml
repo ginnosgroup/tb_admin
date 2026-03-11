@@ -16,7 +16,8 @@
         website,
         is_cooperative AS isCooperative,
         is_freeze AS isFreeze,
-        summary
+        summary,
+        is_COE
         from b_school_institution
         <where>
             <if test=' name != null and name != "" '>
@@ -119,6 +120,9 @@
             <if test="isFreeze != null">
                 , bsi.is_freeze = #{isFreeze}
             </if>
+            <if test="isCOE != null">
+                , bsi.is_COE = #{isCOE}
+            </if>
         WHERE bsi.id = #{id};
     </update>
 
@@ -142,10 +146,10 @@
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO b_school_institution (
         gmt_create,gmt_modify,code,name,institution_trading_name,institution_name,institution_type,institution_postal_address,
-        website,is_cooperative,is_freeze,summary
+        website,is_cooperative,is_freeze,summary,is_COE
         ) VALUES (
         NOW(),NOW(),#{code},#{name},#{institutionTradingName},#{institutionName},#{institutionType},#{institutionPostalAddress},
-        #{website},#{isCooperative},#{isFreeze},#{summary}
+        #{website},#{isCooperative},#{isFreeze},#{summary},#{isCOE}
         );
     </insert>
 

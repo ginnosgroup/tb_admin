@@ -326,4 +326,6 @@ public class ServiceOrderDTO {
 	private Integer parentIdNew; // 新的父订单id
 
 	private String eoiType; // EOI类型
+
+	private boolean isCOE;
 }
