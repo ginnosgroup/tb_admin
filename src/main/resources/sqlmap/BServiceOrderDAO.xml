@@ -456,7 +456,7 @@
         <if test='eoiType != null and eoiType != "" '>
             ,eoi_type = #{eoiType}
         </if>
-        <if test='isCOE != null'>
+        <if test='isCOE != null and isCOE != "" '>
             , is_COE = #{isCOE}
         </if>
         WHERE id = #{id};

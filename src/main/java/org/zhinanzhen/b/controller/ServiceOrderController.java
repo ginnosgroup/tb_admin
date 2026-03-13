@@ -390,11 +390,11 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setSchoolId(schoolId);
             serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
             serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
-            if ("OVST".equalsIgnoreCase(type) && isCOE == null) {
-                serviceOrderDto.setCOE(true);
-            } else {
-                serviceOrderDto.setCOE(isCOE != null && "true".equalsIgnoreCase(isCOE));
+
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
             }
+
             serviceOrderDto.setUrgentState(urgentState);
             serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
             if (StringUtil.isNotEmpty(subagencyId))

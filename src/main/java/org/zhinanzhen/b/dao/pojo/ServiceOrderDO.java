@@ -222,6 +222,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String eoiType; // EOI类型
 
-	private boolean isCOE;
+	private String isCOE;
 
 }

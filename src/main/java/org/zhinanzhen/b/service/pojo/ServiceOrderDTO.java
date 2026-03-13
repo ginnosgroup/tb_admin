@@ -327,5 +327,5 @@ public class ServiceOrderDTO {
 
 	private String eoiType; // EOI类型
 
-	private boolean isCOE;
+	private String isCOE;
 }
