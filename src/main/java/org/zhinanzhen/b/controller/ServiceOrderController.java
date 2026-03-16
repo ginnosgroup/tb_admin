@@ -344,6 +344,11 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "contractData", required = false) String contractData,
                                              @RequestParam(value = "eoiType", required = false) String eoiType,
                                              @RequestParam(value = "isCOE", required = false) String isCOE,
+                                             @RequestParam(value = "isCOE1", required = false) String isCOE1,
+                                             @RequestParam(value = "isCOE2", required = false) String isCOE2,
+                                             @RequestParam(value = "isCOE3", required = false) String isCOE3,
+                                             @RequestParam(value = "isCOE4", required = false) String isCOE4,
+                                             @RequestParam(value = "isCOE5", required = false) String isCOE5,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -390,7 +395,14 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setSchoolId(schoolId);
             serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
             serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
-            serviceOrderDto.setCOE(isCOE != null && "true".equalsIgnoreCase(isCOE));
+
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
+            }
+            if (StringUtil.isNotEmpty(isCOE1)) {
+                serviceOrderDto.setIsCOE(isCOE1);
+            }
+
             serviceOrderDto.setUrgentState(urgentState);
             serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
             if (StringUtil.isNotEmpty(subagencyId))
@@ -568,19 +580,6 @@ public class ServiceOrderController extends BaseController {
                         serviceOrderService.updateServiceOrder(serviceOrderById);
                     }
                 }
-//                if ("OVST".equalsIgnoreCase(type)) {
-//                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
-//                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
-//                    int add = serviceOrderManageService.add(serviceOrderDTO);
-//                    if (add > 0) {
-//                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-//                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-//                        serviceOrderManageId = serviceOrderDTO.getId();
-//                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-//                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-//                    }
-//                }
-
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
                 if (adminUserLoginInfo != null)
@@ -731,6 +730,11 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
                         && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE2)) {
+                        serviceOrderDto.setIsCOE(isCOE2);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId2 != null && schoolId2 > 0) {
                         serviceOrderDto.setSchoolId(schoolId2);
                         serviceOrderDto.setCourseId(0);
@@ -745,12 +749,6 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName2);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
-                        // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -766,6 +764,11 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0) || (courseId3 != null
                         && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE3)) {
+                        serviceOrderDto.setIsCOE(isCOE3);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId3 != null && schoolId3 > 0) {
                         serviceOrderDto.setSchoolId(schoolId3);
                         serviceOrderDto.setCourseId(0);
@@ -780,11 +783,6 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName3);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
-                        // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -800,6 +798,11 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0) || (courseId4 != null
                         && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE4)) {
+                        serviceOrderDto.setIsCOE(isCOE4);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId4 != null && schoolId4 > 0) {
                         serviceOrderDto.setSchoolId(schoolId4);
                         serviceOrderDto.setCourseId(0);
@@ -814,11 +817,6 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName4);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
-                        // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -834,6 +832,11 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0) || (courseId5 != null
                         && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE5)) {
+                        serviceOrderDto.setIsCOE(isCOE5);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId5 != null && schoolId5 > 0) {
                         serviceOrderDto.setSchoolId(schoolId5);
                         serviceOrderDto.setCourseId(0);
@@ -848,11 +851,6 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName5);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
-                        // 保存管理中间表
-                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
-                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -954,6 +952,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
                                                 @RequestParam(value = "contractData", required = false) String contractData,
+                                                @RequestParam(value = "isCOE", required = false) String isCOE,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -978,7 +977,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -1003,7 +1002,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
 							schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1165,7 +1164,8 @@ public class ServiceOrderController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData,
+                                        String isCOE) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1342,6 +1342,11 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(contractData)) {
                 serviceOrderDto.setContractData(contractData);
+            }
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
+            } else {
+                serviceOrderDto.setIsCOE(null);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证

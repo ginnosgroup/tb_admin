@@ -82,6 +82,7 @@
         website,
         is_cooperative AS isCooperative,
         is_freeze AS isFreeze,
+        is_COE AS isCOE,
         summary
         from b_school_institution where id = #{id}
     </select>
