@@ -952,6 +952,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
                                                 @RequestParam(value = "contractData", required = false) String contractData,
+                                                @RequestParam(value = "isCOE", required = false) String isCOE,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -976,7 +977,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -1001,7 +1002,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
 							schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1163,7 +1164,8 @@ public class ServiceOrderController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData,
+                                        String isCOE) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1340,6 +1342,9 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(contractData)) {
                 serviceOrderDto.setContractData(contractData);
+            }
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
