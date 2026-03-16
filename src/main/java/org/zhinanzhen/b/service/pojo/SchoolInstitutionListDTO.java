@@ -40,6 +40,8 @@ public class SchoolInstitutionListDTO {
 
     private boolean isFreeze;
 
+    private boolean isCOE;
+
     private SchoolCourseDO schoolCourseDO;
 
     private SchoolInstitutionLocationDO schoolInstitutionLocationDO;
