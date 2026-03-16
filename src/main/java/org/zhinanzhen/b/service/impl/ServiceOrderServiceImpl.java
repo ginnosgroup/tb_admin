@@ -198,6 +198,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 throw se;
             }
         }
+        // 判定留学订单是否为需要COE
+        if ("OVST".equalsIgnoreCase(serviceOrderDto.getType())) {
+            SchoolInstitutionDO schoolInstitutionDO = schoolCourseDAO.getSchoolInstitutionByCourseId(serviceOrderDto.getCourseId());
+            if (schoolInstitutionDO != null) {
+                if (!schoolInstitutionDO.isCOE()) {
+                    serviceOrderDto.setIsCOE(null);
+                }
+            }
+        }
         try {
             ServiceOrderDO serviceOrderByIdTmp = null;
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);

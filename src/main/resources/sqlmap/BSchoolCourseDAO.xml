@@ -158,6 +158,32 @@
         FROM b_school_course AS bsc , b_school_institution bsi
         WHERE bsc.provider_id = bsi.id AND bsc.id = #{id}
     </select>
+
+
+    <select id="getSchoolInstitutionByCourseId" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT
+            bsi.id AS id,
+            bsi.gmt_create AS gmtCreate,
+            bsi.gmt_modify AS gmtModify,
+            bsi.code AS code,
+            bsi.name AS name,
+            bsi.institution_trading_name AS institutionTradingName,
+            bsi.institution_name AS institutionName,
+            bsi.institution_type AS institutionType,
+            bsi.institution_postal_address AS institutionPostalAddress,
+            bsi.website AS website,
+            bsi.is_freeze AS summary,
+            bsi.summary AS isCooperative,
+            bsi.is_cooperative AS isFreeze,
+            bsi.is_COE AS isCOE
+        FROM
+            b_school_institution bsi
+                LEFT JOIN b_school_course bsc ON bsc.provider_id = bsi.id
+        WHERE
+            bsc.id = #{courseId}
+    </select>
+
+
     <resultMap id="SchoolInstitutionListDTO" type="org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO">
         <id column="bsiid" property="id"></id>
         <result column="bsigmtCreate" property="gmtCreate"></result>
