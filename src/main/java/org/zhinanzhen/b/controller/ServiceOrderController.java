@@ -1345,6 +1345,8 @@ public class ServiceOrderController extends BaseController {
             }
             if (StringUtil.isNotEmpty(isCOE)) {
                 serviceOrderDto.setIsCOE(isCOE);
+            } else {
+                serviceOrderDto.setIsCOE(null);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
