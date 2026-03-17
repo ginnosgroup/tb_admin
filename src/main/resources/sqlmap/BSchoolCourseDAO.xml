@@ -172,9 +172,9 @@
             bsi.institution_type AS institutionType,
             bsi.institution_postal_address AS institutionPostalAddress,
             bsi.website AS website,
-            bsi.is_freeze AS summary,
-            bsi.summary AS isCooperative,
-            bsi.is_cooperative AS isFreeze,
+            bsi.is_freeze AS isFreeze,
+            bsi.summary AS summary,
+            bsi.is_cooperative AS isCooperative,
             bsi.is_COE AS isCOE
         FROM
             b_school_institution bsi
