@@ -144,7 +144,7 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
                 default: apList = apList;
 		}
 		if (userIdList == null) {
-			List<UserDO> userDOS = userDAO.listUser(null, null, null, null,
+			List<UserDO> userDOS = userDAO.listUser(null, null, null, null, null,
 					null, null, null, adviserId, null, null,
 					null, null, null, 0, 9999);
 			userIdList = userDOS.stream().map(UserDO::getId).collect(Collectors.toList());

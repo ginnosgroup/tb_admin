@@ -820,45 +820,38 @@ public class VisaController extends BaseCommissionOrderController {
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
 					pageSize, _sorter);
 			list.forEach(v -> {
-				if (v.getServiceOrderId() > 0)
+				if (v.getServiceOrderId() > 0) {
 					try {
 						ServiceOrderDTO serviceOrderDto = serviceOrderService
 								.getServiceOrderById(v.getServiceOrderId());
-						List<ApplicantDTO> applicantDTOS=new ArrayList<>();
+						List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 						if (serviceOrderDto != null) {
 							v.setServiceOrder(serviceOrderDto);
 							List<ApplicantDTO> applicant = v.getApplicant();
-								for (ApplicantDTO applicantDto : applicant) {
-									if (applicantDto != null) {
-										if (StringUtil.isEmpty(applicantDto.getUrl()))
-											applicantDto.setUrl(serviceOrderDto.getNutCloud());
-										if (StringUtil.isEmpty(applicantDto.getContent()))
-											applicantDto.setContent(serviceOrderDto.getInformation());
-										applicantDTOS.add(applicantDto);
-									}
+							for (ApplicantDTO applicantDto : applicant) {
+								if (applicantDto != null) {
+									if (StringUtil.isEmpty(applicantDto.getUrl()))
+										applicantDto.setUrl(serviceOrderDto.getNutCloud());
+									if (StringUtil.isEmpty(applicantDto.getContent()))
+										applicantDto.setContent(serviceOrderDto.getInformation());
+									applicantDTOS.add(applicantDto);
 								}
+							}
 							v.setApplicant(applicantDTOS);
 						}
-
-					} catch (ServiceException e) {
+						List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),
+								getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
+						v.setMailRemindDTOS(mailRemindDTOS);
+						ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
+						if (servicePackagePriceDO != null) {
+							double thirdPrince = servicePackagePriceDO.getThirdPrince();
+							BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+							double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
+							v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				try {
-					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),
-							getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
-					v.setMailRemindDTOS(mailRemindDTOS);
-				} catch (ServiceException serviceException) {
-					serviceException.printStackTrace();
-				}
-				try{
-					ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
-					if(servicePackagePriceDO!=null) {
-						double thirdPrince =  servicePackagePriceDO.getThirdPrince();
-						BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-						double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
-						v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-					}
-				}catch (ServiceException serviceException){
-					serviceException.printStackTrace();
 				}
 			});
 			if (list == null) {

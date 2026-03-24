@@ -209,11 +209,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		try {
 			if (authType == null) {
-				userDoList = userDao.listUser(name, null, authNickname, phone, areaCode, email, wechatUsername,
+				userDoList = userDao.listUser(null, name, null, authNickname, phone, areaCode, email, wechatUsername,
 						adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId, orderByField, isDesc,
 						pageNum * pageSize, pageSize);
 			} else {
-				userDoList = userDao.listUser(name, authType.toString(), authNickname, phone, areaCode, email, wechatUsername,
+				userDoList = userDao.listUser(null, name, authType.toString(), authNickname, phone, areaCode, email, wechatUsername,
 						adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId, orderByField, isDesc,
 						pageNum * pageSize, pageSize);
 			}
@@ -358,7 +358,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		if (StringUtil.isNotEmpty(phone)
 				&& userDao.countUser(null, null, null, phone, areaCode, null, null, null, null, null) > 0) {
-			List<UserDO> userList = userDao.listUser(null, null, null, phone, areaCode, null, null, null, null, null, null, null,
+			List<UserDO> userList = userDao.listUser(null, null, null, null, phone, areaCode, null, null, null, null, null, null, null,
 					null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != id) { // 排除当前id
 				ServiceException se = new ServiceException("The phone is already existed !");

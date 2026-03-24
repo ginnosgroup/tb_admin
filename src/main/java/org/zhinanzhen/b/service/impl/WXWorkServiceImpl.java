@@ -255,7 +255,7 @@ public class WXWorkServiceImpl implements WXWorkService {
 	public int updateByAuthopenid(UserDTO userDTO) {
 		UserDO userDO = dozerBeanMapper.map(userDTO, UserDO.class);
 		if (!userDTO.getPhone().equalsIgnoreCase("00000000000")) {
-			List<UserDO> userList = userDAO.listUser(null, null, null, userDTO.getPhone(), userDTO.getAreaCode(), null,
+			List<UserDO> userList = userDAO.listUser(null, null, null, null, userDTO.getPhone(), userDTO.getAreaCode(), null,
 					null, null, null, null, null, null, null, 0, 1);
 			if (userList.size() > 0 && userList.get(0).getId() != userDTO.getId()) { // 排除当前id
 				return -1;
@@ -266,7 +266,7 @@ public class WXWorkServiceImpl implements WXWorkService {
 
 	@Override
 	public boolean updateAuthopenidByPhone(String authOpenid, String phone, String areaCode) {
-		List<UserDO> userList = userDAO.listUser(null, null, null, phone, areaCode, null, null, null, null, null, null, null, null, 0,
+		List<UserDO> userList = userDAO.listUser(null, null, null, null, phone, areaCode, null, null, null, null, null, null, null, null, 0,
 				1);
 		if (userList.size() > 0 && StringUtil.isEmpty(userList.get(0).getAuthOpenid())
 				&& userDAO.getUserByAuth_openid(authOpenid).size() == 0) { // 为空的时候写入

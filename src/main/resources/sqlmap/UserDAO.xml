@@ -152,6 +152,10 @@
             LEFT JOIN tb_adviser a ON a.id=ua.adviser_id
             LEFT JOIN b_applicant ap ON ap.user_id = u.id
         WHERE u.auth_type != 'V'
+        and ua.adviser_id IS NOT null
+        <if test='id != null and id != ""'>
+            AND u.id = #{id}
+        </if>
         <if test='name != null and name != ""'>
             AND u.name LIKE '%${name}%'
         </if>
