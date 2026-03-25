@@ -304,7 +304,7 @@ public class CloudDiskController extends BaseController {
                     .replaceAll("\\+", "%20");
             response.setContentType(connection.getContentType());
             response.setHeader("Content-Disposition",
-                    "attachment; filename*=UTF-8''" + encodedFileName);
+                    "inline; filename*=UTF-8''" + encodedFileName);
             response.setContentLengthLong(connection.getContentLengthLong());
 
             // 3. 获取输入流并转发
