@@ -304,7 +304,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         cloudDiskFile.setOperator(officialById.getName());
                     }
                     String downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
-                    cloudDiskFile.setDownloadUrl(downloadUrl);
+                    String[] split = downloadUrl.split("&&&");
+                    cloudDiskFile.setDownloadUrl(split[0]);
                     int add = cloudDiskFileDAO.add(cloudDiskFile);
                     if (add > 0) {
                         return add;
@@ -539,6 +540,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             cloudDiskFile.setOperator(officialById.getName());
                         }
                         String downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
+                        String[] split1 = downloadUrl.split("&&&");
+                        cloudDiskFile.setDownloadUrl(split1[0]);
                         cloudDiskFile.setDownloadUrl(downloadUrl);
                         int add = cloudDiskFileDAO.add(cloudDiskFile);
                         if (add > 0) {
@@ -1741,15 +1744,15 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             GetFileRequest getFileRequest = GetFileRequest.builder()
                     .driveId("1020")
                     .fileId(fileId)
-                    // Request-level configuration rewrite, can set Http request parameters, etc.
-                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .fields("*")
                     .build();
             CompletableFuture<GetFileResponse> file = asyncClient.getFile(getFileRequest);
             GetFileResponse getFileResponse = file.get();
             String json = new Gson().toJson(getFileResponse);
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject body1 = jsonObject.getJSONObject("body");
-            return body1.get("downloadUrl").toString();
+            System.out.println("下载地址-------------------------" + body1.get("downloadUrl").toString());
+            return body1.get("downloadUrl").toString() + "&&&" +  body1.get("name").toString();
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {

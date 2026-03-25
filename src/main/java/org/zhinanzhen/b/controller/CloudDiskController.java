@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,12 +16,19 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/cloudDisk")
+@Slf4j
 public class CloudDiskController extends BaseController {
 
     @Resource
@@ -207,6 +216,10 @@ public class CloudDiskController extends BaseController {
         super.setPostHeader(response);
         try {
             String downLink = cloudDiskService.getDownLink(id, fileId);
+            String[] split = downLink.split("&&&");
+            if (split != null && split.length > 0) {
+                downLink = split[0];
+            }
             return new Response<String>(0, "获取成功", downLink);
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,4 +290,204 @@ public class CloudDiskController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/fileTransformation", method = RequestMethod.GET)
+    @ResponseBody
+    public void fileTransformation(@RequestParam(value = "fileId", required = false) String fileId, HttpServletResponse response) {
+        HttpURLConnection connection = null;
+        try {
+            String url = cloudDiskService.getDownLink(null, fileId);
+            String[] split = url.split("&&&");
+            String fileName = split[1];
+            url = split[0];
+            // 1. 创建连接
+            URL fileUrl = new URL(url);
+            connection = (HttpURLConnection) fileUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(10000);
+
+            // 2. 获取文件信息
+            String contentType = getContentType(fileName);
+            boolean isPreviewable = isPreviewable(fileName);
+
+            // 设置txt的字符集
+            if (contentType.startsWith("text/") || fileName.endsWith(".txt")) {
+                contentType = contentType + "; charset=UTF-8";
+            }
+
+            // 3. 设置响应头
+            response.setContentType(contentType);
+
+            // 4. 设置 Content-Disposition（预览 vs 下载）
+            String encodedFileName = URLEncoder.encode(fileName, "UTF-8")
+                    .replaceAll("\\+", "%20");
+
+            if (isPreviewable) {
+                // 可预览的文件类型：使用 inline，让浏览器直接显示
+                response.setHeader("Content-Disposition",
+                        "inline; filename*=UTF-8''" + encodedFileName);
+            } else {
+                // 不可预览的文件类型：使用 attachment，强制下载
+                response.setHeader("Content-Disposition",
+                        "attachment; filename*=UTF-8''" + encodedFileName);
+            }
+
+            // 5. 设置内容长度（可选，提升传输效率）
+            long contentLength = connection.getContentLengthLong();
+            if (contentLength > 0) {
+                response.setContentLengthLong(contentLength);
+            }
+
+            // 6. 设置缓存控制（可选）
+            response.setHeader("Cache-Control", "max-age=3600");
+
+            // 7. 转发文件流
+            try (InputStream inputStream = connection.getInputStream();
+                 OutputStream outputStream = response.getOutputStream()) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                outputStream.flush();
+            }
+
+        } catch (Exception e) {
+            log.error("文件代理失败, fileId: {}", fileId, e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            try {
+                response.getWriter().write("文件获取失败: " + e.getMessage());
+            } catch (IOException ioException) {
+                log.error("写入错误响应失败", ioException);
+            }
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    /**
+     * 根据文件名获取 MIME 类型
+     */
+    private String getContentType(String fileName) {
+        if (fileName == null) {
+            return "application/octet-stream";
+        }
+
+        String lowerFileName = fileName.toLowerCase();
+
+        // 图片类型
+        if (lowerFileName.endsWith(".jpg") || lowerFileName.endsWith(".jpeg")) {
+            return "image/jpeg";
+        } else if (lowerFileName.endsWith(".png")) {
+            return "image/png";
+        } else if (lowerFileName.endsWith(".gif")) {
+            return "image/gif";
+        } else if (lowerFileName.endsWith(".bmp")) {
+            return "image/bmp";
+        } else if (lowerFileName.endsWith(".webp")) {
+            return "image/webp";
+        } else if (lowerFileName.endsWith(".svg")) {
+            return "image/svg+xml";
+        } else if (lowerFileName.endsWith(".ico")) {
+            return "image/x-icon";
+        }
+
+        // 文档类型
+        else if (lowerFileName.endsWith(".pdf")) {
+            return "application/pdf";
+        } else if (lowerFileName.endsWith(".doc")) {
+            return "application/msword";
+        } else if (lowerFileName.endsWith(".docx")) {
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        } else if (lowerFileName.endsWith(".xls")) {
+            return "application/vnd.ms-excel";
+        } else if (lowerFileName.endsWith(".xlsx")) {
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        } else if (lowerFileName.endsWith(".ppt")) {
+            return "application/vnd.ms-powerpoint";
+        } else if (lowerFileName.endsWith(".pptx")) {
+            return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        }
+
+        // 文本类型
+        else if (lowerFileName.endsWith(".txt")) {
+            return "text/plain";
+        } else if (lowerFileName.endsWith(".html") || lowerFileName.endsWith(".htm")) {
+            return "text/html";
+        } else if (lowerFileName.endsWith(".css")) {
+            return "text/css";
+        } else if (lowerFileName.endsWith(".js")) {
+            return "application/javascript";
+        } else if (lowerFileName.endsWith(".json")) {
+            return "application/json";
+        } else if (lowerFileName.endsWith(".xml")) {
+            return "application/xml";
+        }
+
+        // 视频类型
+        else if (lowerFileName.endsWith(".mp4")) {
+            return "video/mp4";
+        } else if (lowerFileName.endsWith(".avi")) {
+            return "video/x-msvideo";
+        } else if (lowerFileName.endsWith(".mov")) {
+            return "video/quicktime";
+        } else if (lowerFileName.endsWith(".wmv")) {
+            return "video/x-ms-wmv";
+        } else if (lowerFileName.endsWith(".flv")) {
+            return "video/x-flv";
+        } else if (lowerFileName.endsWith(".mkv")) {
+            return "video/x-matroska";
+        }
+
+        // 音频类型
+        else if (lowerFileName.endsWith(".mp3")) {
+            return "audio/mpeg";
+        } else if (lowerFileName.endsWith(".wav")) {
+            return "audio/wav";
+        } else if (lowerFileName.endsWith(".flac")) {
+            return "audio/flac";
+        } else if (lowerFileName.endsWith(".aac")) {
+            return "audio/aac";
+        }
+
+        // 默认二进制流
+        else {
+            return "application/octet-stream";
+        }
+    }
+
+
+    /**
+     * 判断文件是否可以在浏览器中直接预览
+     * 注意：Word、Excel、PPT 需要额外转换才能预览，直接返回浏览器会下载
+     */
+    private boolean isPreviewable(String fileName) {
+        if (fileName == null) {
+            return false;
+        }
+
+        String lowerFileName = fileName.toLowerCase();
+
+        // 浏览器原生支持预览的类型
+        return lowerFileName.endsWith(".jpg") ||
+                lowerFileName.endsWith(".jpeg") ||
+                lowerFileName.endsWith(".png") ||
+                lowerFileName.endsWith(".gif") ||
+                lowerFileName.endsWith(".bmp") ||
+                lowerFileName.endsWith(".webp") ||
+                lowerFileName.endsWith(".svg") ||
+                lowerFileName.endsWith(".pdf") ||
+                lowerFileName.endsWith(".txt") ||
+                lowerFileName.endsWith(".html") ||
+                lowerFileName.endsWith(".htm") ||
+                lowerFileName.endsWith(".mp4") ||
+                lowerFileName.endsWith(".mp3") ||
+                lowerFileName.endsWith(".wav");
+
+        // 注意：.doc, .docx, .xls, .xlsx, .ppt, .pptx 浏览器不支持直接预览
+        // 这些需要转换为 PDF 或使用 Office Online 才能预览
+    }
 }
