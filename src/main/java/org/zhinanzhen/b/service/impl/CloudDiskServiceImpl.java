@@ -304,7 +304,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         cloudDiskFile.setOperator(officialById.getName());
                     }
                     String downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
-                    cloudDiskFile.setDownloadUrl(downloadUrl);
+                    String[] split = downloadUrl.split("&&&");
+                    cloudDiskFile.setDownloadUrl(split[0]);
                     int add = cloudDiskFileDAO.add(cloudDiskFile);
                     if (add > 0) {
                         return add;
@@ -1749,7 +1750,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject body1 = jsonObject.getJSONObject("body");
             System.out.println("下载地址-------------------------" + body1.get("downloadUrl").toString());
-            return body1.get("downloadUrl").toString();
+            return body1.get("downloadUrl").toString() + "&&&" +  body1.get("name").toString();
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
