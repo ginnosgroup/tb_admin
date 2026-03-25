@@ -7,6 +7,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
@@ -819,49 +822,61 @@ public class VisaController extends BaseCommissionOrderController {
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
 					pageSize, _sorter);
-			list.forEach(v -> {
-				if (v.getServiceOrderId() > 0) {
-					try {
-						ServiceOrderDTO serviceOrderDto = serviceOrderService
-								.getServiceOrderById(v.getServiceOrderId());
-						List<ApplicantDTO> applicantDTOS = new ArrayList<>();
-						if (serviceOrderDto != null) {
-							v.setServiceOrder(serviceOrderDto);
-							List<ApplicantDTO> applicant = v.getApplicant();
-							for (ApplicantDTO applicantDto : applicant) {
-								if (applicantDto != null) {
-									if (StringUtil.isEmpty(applicantDto.getUrl()))
-										applicantDto.setUrl(serviceOrderDto.getNutCloud());
-									if (StringUtil.isEmpty(applicantDto.getContent()))
-										applicantDto.setContent(serviceOrderDto.getInformation());
-									applicantDTOS.add(applicantDto);
+			Integer adviserId1 = getAdviserId(request);
+			Integer officialId = getOfficialId(request);
+			Integer kjId = getKjId(request);
+			CountDownLatch latch = new CountDownLatch(list.size());
+			for (VisaDTO visaDTO : list) {
+				ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+				executor.submit(() -> {
+					if (visaDTO.getServiceOrderId() > 0) {
+						try {
+							ServiceOrderDTO serviceOrderDto = serviceOrderService
+									.getServiceOrderById(visaDTO.getServiceOrderId());
+							List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+							if (serviceOrderDto != null) {
+								visaDTO.setServiceOrder(serviceOrderDto);
+								List<ApplicantDTO> applicant = visaDTO.getApplicant();
+								for (ApplicantDTO applicantDto : applicant) {
+									if (applicantDto != null) {
+										if (StringUtil.isEmpty(applicantDto.getUrl()))
+											applicantDto.setUrl(serviceOrderDto.getNutCloud());
+										if (StringUtil.isEmpty(applicantDto.getContent()))
+											applicantDto.setContent(serviceOrderDto.getInformation());
+										applicantDTOS.add(applicantDto);
+									}
 								}
+								visaDTO.setApplicant(applicantDTOS);
 							}
-							v.setApplicant(applicantDTOS);
+							List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(adviserId1,
+									officialId, kjId, null, visaDTO.getId(), null, null, false, true);
+							visaDTO.setMailRemindDTOS(mailRemindDTOS);
+							ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(visaDTO.getServiceId());
+							if (servicePackagePriceDO != null) {
+								double thirdPrince = servicePackagePriceDO.getThirdPrince();
+								BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+								double expectAmountAUD = new BigDecimal(visaDTO.getAmountAUD()).subtract(third_prince).doubleValue();
+								visaDTO.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+							}
+						} catch (Exception e) {
+							latch.countDown();
+							e.printStackTrace();
 						}
-						List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),
-								getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
-						v.setMailRemindDTOS(mailRemindDTOS);
-						ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
-						if (servicePackagePriceDO != null) {
-							double thirdPrince = servicePackagePriceDO.getThirdPrince();
-							BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-							double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
-							v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
-				}
-			});
+					latch.countDown();
+				});
+			}
+			latch.await();
 			if (list == null) {
 				list = new ArrayList<>();
 			}
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
-		}
-	}
+		} catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@ResponseBody

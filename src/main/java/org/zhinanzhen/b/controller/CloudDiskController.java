@@ -216,6 +216,10 @@ public class CloudDiskController extends BaseController {
         super.setPostHeader(response);
         try {
             String downLink = cloudDiskService.getDownLink(id, fileId);
+            String[] split = downLink.split("&&&");
+            if (split != null && split.length > 0) {
+                downLink = split[0];
+            }
             return new Response<String>(0, "获取成功", downLink);
         } catch (Exception e) {
             e.printStackTrace();

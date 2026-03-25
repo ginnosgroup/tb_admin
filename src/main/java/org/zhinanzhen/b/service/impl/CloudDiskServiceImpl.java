@@ -540,6 +540,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             cloudDiskFile.setOperator(officialById.getName());
                         }
                         String downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
+                        String[] split1 = downloadUrl.split("&&&");
+                        cloudDiskFile.setDownloadUrl(split1[0]);
                         cloudDiskFile.setDownloadUrl(downloadUrl);
                         int add = cloudDiskFileDAO.add(cloudDiskFile);
                         if (add > 0) {
@@ -1238,10 +1240,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 String s1 = PatternMatcherUtil.getAllMatches(name);
                 UserDO userById = userDAO.getUserById(Integer.parseInt(s1));
                 userId = userById.getId();
-//                cloudDiskFile.setUserId(userById.getId());
-//                cloudDiskFile.setOfficialId(officialId);
-//                cloudDiskFile.setAdviserId(adviserId);
-//                String textBeforeAt = PatternMatcherUtil.getTextBeforeAt(name);
                 copyDataToPublic(null, userById, adviserId, officialId, cloudDiskFile.getFileId(), driveId, true, parentFileStructures);
             } catch (IOException e) {
                 throw new RuntimeException(e);
