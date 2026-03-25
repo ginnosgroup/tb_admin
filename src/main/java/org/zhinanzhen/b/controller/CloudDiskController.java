@@ -310,6 +310,11 @@ public class CloudDiskController extends BaseController {
             String contentType = getContentType(fileName);
             boolean isPreviewable = isPreviewable(fileName);
 
+            // 设置txt的字符集
+            if (contentType.startsWith("text/") || fileName.endsWith(".txt")) {
+                contentType = contentType + "; charset=UTF-8";
+            }
+
             // 3. 设置响应头
             response.setContentType(contentType);
 
