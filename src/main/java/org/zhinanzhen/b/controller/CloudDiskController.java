@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,12 +16,18 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/cloudDisk")
+@Slf4j
 public class CloudDiskController extends BaseController {
 
     @Resource
@@ -276,5 +284,68 @@ public class CloudDiskController extends BaseController {
             return new Response<String>(1, "删除失败", e.getMessage());
         }
     }
+
+    @RequestMapping(value = "/down", method = RequestMethod.GET)
+    @ResponseBody
+    public void proxyDownload(@RequestParam(value = "fileId", required = false) String fileId, HttpServletResponse response) {
+        HttpURLConnection connection = null;
+        try {
+            String url = cloudDiskService.getDownLink(null, fileId);
+            // 1. 创建连接
+            URL fileUrl = new URL(url);
+            connection = (HttpURLConnection) fileUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(10000);
+
+            // 2. 设置响应头（根据文件类型调整）
+            String fileName = extractFileName(url);
+            String encodedFileName = URLEncoder.encode(fileName, "UTF-8")
+                    .replaceAll("\\+", "%20");
+            response.setContentType(connection.getContentType());
+            response.setHeader("Content-Disposition",
+                    "attachment; filename*=UTF-8''" + encodedFileName);
+            response.setContentLengthLong(connection.getContentLengthLong());
+
+            // 3. 获取输入流并转发
+            try (InputStream inputStream = connection.getInputStream();
+                 OutputStream outputStream = response.getOutputStream()) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                outputStream.flush();
+            }
+
+        } catch (Exception e) {
+            log.error("代理下载失败", e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private String extractFileName(String url) {
+        // 从URL中提取文件名
+        String fileName = "download";
+        try {
+            String[] segments = url.split("/");
+            String lastSegment = segments[segments.length - 1];
+            if (lastSegment.contains("?")) {
+                lastSegment = lastSegment.split("\\?")[0];
+            }
+            if (!lastSegment.isEmpty()) {
+                fileName = lastSegment;
+            }
+        } catch (Exception e) {
+            log.warn("提取文件名失败", e);
+        }
+        return fileName;
+    }
+
 
 }

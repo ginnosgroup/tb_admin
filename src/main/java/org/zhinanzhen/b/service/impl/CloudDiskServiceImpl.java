@@ -1741,14 +1741,14 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             GetFileRequest getFileRequest = GetFileRequest.builder()
                     .driveId("1020")
                     .fileId(fileId)
-                    // Request-level configuration rewrite, can set Http request parameters, etc.
-                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .fields("*")
                     .build();
             CompletableFuture<GetFileResponse> file = asyncClient.getFile(getFileRequest);
             GetFileResponse getFileResponse = file.get();
             String json = new Gson().toJson(getFileResponse);
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject body1 = jsonObject.getJSONObject("body");
+            System.out.println("下载地址-------------------------" + body1.get("downloadUrl").toString());
             return body1.get("downloadUrl").toString();
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
