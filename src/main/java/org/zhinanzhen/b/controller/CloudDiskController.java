@@ -285,9 +285,9 @@ public class CloudDiskController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/down", method = RequestMethod.GET)
+    @RequestMapping(value = "/fileTransformation", method = RequestMethod.GET)
     @ResponseBody
-    public void proxyDownload(@RequestParam(value = "fileId", required = false) String fileId, HttpServletResponse response) {
+    public void fileTransformation(@RequestParam(value = "fileId", required = false) String fileId, HttpServletResponse response) {
         HttpURLConnection connection = null;
         try {
             String url = cloudDiskService.getDownLink(null, fileId);
