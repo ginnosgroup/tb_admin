@@ -1871,9 +1871,13 @@ public class ServiceOrderController extends BaseController {
             if (bindingList != null && bindingList && "OVST".equals(type)) {
                 total = (int) (total - serviceOrderList.get(0).getBindingOrderCount());
             }
-            if (newOfficialId != null)
-                for (ServiceOrderDTO so : serviceOrderList)
-                    so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+            if (newOfficialId != null && serviceOrderList != null && !serviceOrderList.isEmpty()) {
+                List<Integer> serviceOrderIds = serviceOrderList.stream().map(ServiceOrderDTO::getId).collect(Collectors.toList());
+                Map<Integer, List<ServiceOrderOfficialRemarksDTO>> officialRemarksMap = serviceOrderService.listOfficialRemarksByServiceOrderIds(serviceOrderIds, newOfficialId);
+                for (ServiceOrderDTO so : serviceOrderList) {
+                    so.setOfficialNotes(officialRemarksMap.getOrDefault(so.getId(), new ArrayList<>()));
+                }
+            }
             /*
              * if (newOfficialId != null){ for (ServiceOrderDTO so : serviceOrderList) {
              * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.

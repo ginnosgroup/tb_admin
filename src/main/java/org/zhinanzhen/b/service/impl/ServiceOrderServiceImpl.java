@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -1418,8 +1419,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderDto.setIsInsuranceCompany("");
         }
         // 顾问以及文案资料大小合计
-        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(null, serviceOrderDto.getUserId());
-        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(null, serviceOrderDto.getUserId());
+        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(serviceOrderDto.getOfficialId(), serviceOrderDto.getUserId());
+        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
 
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
@@ -2363,6 +2364,29 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             serviceOrderOfficialRemarksDtoList
                     .add(mapper.map(serviceOrderOfficialRemarksDo, ServiceOrderOfficialRemarksDTO.class));
         return serviceOrderOfficialRemarksDtoList;
+    }
+
+    @Override
+    public Map<Integer, List<ServiceOrderOfficialRemarksDTO>> listOfficialRemarksByServiceOrderIds(List<Integer> serviceOrderIds, int officialId) throws ServiceException {
+        Map<Integer, List<ServiceOrderOfficialRemarksDTO>> result = new HashMap<>();
+        if (serviceOrderIds == null || serviceOrderIds.isEmpty()) {
+            return result;
+        }
+        try {
+            List<ServiceOrderOfficialRemarksDO> doList = serviceOrderOfficialRemarksDao.listByServiceOrderIds(officialId, serviceOrderIds);
+            if (doList == null || doList.isEmpty()) {
+                return result;
+            }
+            for (ServiceOrderOfficialRemarksDO remarksDO : doList) {
+                ServiceOrderOfficialRemarksDTO dto = mapper.map(remarksDO, ServiceOrderOfficialRemarksDTO.class);
+                result.computeIfAbsent(remarksDO.getServiceOrderId(), k -> new ArrayList<>()).add(dto);
+            }
+            return result;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+            throw se;
+        }
     }
 
     @Override

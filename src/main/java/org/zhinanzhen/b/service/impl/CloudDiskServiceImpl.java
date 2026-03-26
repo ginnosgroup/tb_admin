@@ -1142,6 +1142,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     @Override
     public int getFileStructure(String parentFileStructures, Integer adviserId, Integer officialId, Map<String, String> belongFolderMap, Map<String, Integer> addCountMap, String folderName, Integer userId, String synchronizeName) {
         long methodStart = System.currentTimeMillis();
+        String traceId = UUID.randomUUID().toString().substring(0, 8);
+        log.info("[{}] getFileStructure开始, parentFileStructures={}, folderName={}, synchronizeName={}, userId={}", traceId, parentFileStructures, folderName, synchronizeName, userId);
         UserCloud userCloud = cloudDiskFileDAO.getUserCloud(adviserId, officialId, null, null, null);
         if (folderName != null && parentFileStructures == null) {
             parentFileStructures = getParentFileId(folderName, userCloud.getDriveId());
@@ -1149,7 +1151,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         String driveId = userCloud.getDriveId();
         if (parentFileStructures == null || parentFileStructures.trim().isEmpty()) {
             if (userId != null) {
+                long checkStart = System.currentTimeMillis();
                 List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, null, null, null, userId, 0, 999);
+                log.info("[{}] 终止分支待校验文件数={}", traceId, cloudDiskFileList1 == null ? 0 : cloudDiskFileList1.size());
                 if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
                     ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
                     List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -1168,9 +1172,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         }, executor));
                     }
                     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+                    log.info("[{}] 终止分支远端校验完成, cost={}ms", traceId, System.currentTimeMillis() - checkStart);
                 }
             }
-            log.info("getFileStructure终止分支完成, userId={}, cost={}ms", userId, System.currentTimeMillis() - methodStart);
+            log.info("[{}] getFileStructure终止分支完成, userId={}, cost={}ms", traceId, userId, System.currentTimeMillis() - methodStart);
             return 0; // 递归终止条件
         }
         String[] split = parentFileStructures.split(",");
@@ -1181,33 +1186,26 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 try {
                     JsonNode jsonNode = wangPanUtils.listFile(driveId, s);
                     JsonNode items = jsonNode.path("body").path("items");
+                    log.info("[{}] 扫描目录={}, items={}", traceId, s, items == null ? 0 : items.size());
                     for (JsonNode node : items) {
-                        boolean isFirstFolder = false;
-                        String fileId = node.get("fileId").asText();
                         String type = node.get("type").asText();
-                        String parentFileId = node.get("parentFileId").asText();
-                        String name = node.get("name").asText();
-                        if ("folder".equalsIgnoreCase(type)) {
-                            isFirstFolder = PatternMatcherUtil.containsPattern(name);
-                            CloudDiskFile cloudDiskFileListByParentId = null;
-                            if (isFirstFolder) {
-                                String s1 = PatternMatcherUtil.getAllMatches(name);
-                                UserDO userById = userDAO.getUserById(Integer.parseInt(s1));
-                                String textBeforeAt = PatternMatcherUtil.getTextBeforeAt(name);
-                                cloudDiskFileListByParentId = cloudDiskFileDAO.getById(null, null, null, textBeforeAt, userById.getId());
-                                copyDataToPublic(cloudDiskFileListByParentId, userById, adviserId, officialId, fileId, driveId, true, parentFileStructures);
-                            }
-                        }
-                        if ("file".equalsIgnoreCase(type)) {
+                        if (!"folder".equalsIgnoreCase(type)) {
                             continue;
                         }
-                        if (isFirstFolder) { // 获取userId
+                        boolean isFirstFolder = false;
+                        String fileId = node.get("fileId").asText();
+                        String parentFileId = node.get("parentFileId").asText();
+                        String name = node.get("name").asText();
+                        isFirstFolder = PatternMatcherUtil.containsPattern(name);
+                        CloudDiskFile cloudDiskFileListByParentId = null;
+                        if (isFirstFolder) {
                             String s1 = PatternMatcherUtil.getAllMatches(name);
                             UserDO userById = userDAO.getUserById(Integer.parseInt(s1));
+                            String textBeforeAt = PatternMatcherUtil.getTextBeforeAt(name);
+                            cloudDiskFileListByParentId = cloudDiskFileDAO.getById(null, null, null, textBeforeAt, userById.getId());
+                            copyDataToPublic(cloudDiskFileListByParentId, userById, adviserId, officialId, fileId, driveId, true, parentFileStructures);
                         }
-                        if (type.equalsIgnoreCase("folder")) {
-                            newObjects.append(fileId).append(","); // 只收集新的 folderId
-                        }
+                        newObjects.append(fileId).append(","); // 只收集新的 folderId
                     }
                 } catch (IOException | ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
@@ -1259,15 +1257,19 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         if (newObjects.length() > 0 && folderName == null) {
             // 去掉末尾的 ","
             newObjects = new StringBuilder(newObjects.substring(0, newObjects.length() - 1));
+            int nextLevelCount = newObjects.toString().split(",").length;
+            log.info("[{}] 下一层递归目录数={}", traceId, nextLevelCount);
             getFileStructure(String.valueOf(newObjects), adviserId, officialId, belongFolderMap, addCountMap, null, userId, null);
         }
-        log.info("getFileStructure完成, folderName={}, synchronizeName={}, userId={}, cost={}ms", folderName, synchronizeName, userId, System.currentTimeMillis() - methodStart);
+        log.info("[{}] getFileStructure完成, folderName={}, synchronizeName={}, userId={}, cost={}ms", traceId, folderName, synchronizeName, userId, System.currentTimeMillis() - methodStart);
         return 0;
     }
 
     private void copyDataToPublic(CloudDiskFile cloudDiskFileListByParentId, UserDO userById, Integer adviserId,
                                   Integer officialId, String oldFileId, String oldDriverId, boolean isFirstFolder, String parentFileStructures) throws IOException, ExecutionException, InterruptedException {
         long methodStart = System.currentTimeMillis();
+        String traceId = UUID.randomUUID().toString().substring(0, 8);
+        log.info("[{}] copyDataToPublic开始, userId={}, isFirstFolder={}, oldFileId={}, parentFileStructures={}", traceId, userById == null ? null : userById.getId(), isFirstFolder, oldFileId, parentFileStructures);
         List<CloudDiskFile> cloudDiskFileList1 = new ArrayList<>();
         if (isFirstFolder) {
             if (cloudDiskFileListByParentId == null) {
@@ -1278,6 +1280,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             String secondFolder = "";
             JsonNode sourceJsonNode = wangPanUtils.listFile(oldDriverId, oldFileId);
             JsonNode sourceItems = sourceJsonNode.path("body").path("items");
+            log.info("[{}] 首层复制源文件数={}", traceId, sourceItems == null ? 0 : sourceItems.size());
             for (CloudDiskFile cloudDiskFile : cloudDiskFileList1) {
                 if (adviserId != null) {
                     secondFolder = "顾问资料";
@@ -1288,6 +1291,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 if (secondFolder.equalsIgnoreCase(cloudDiskFile.getName())) {
                     List<CloudDiskFile> existsChildren = cloudDiskFileDAO.listByParentFileId(null, cloudDiskFile.getFileId(), null, null, null, 0, 999);
                     Set<String> existsNameSet = existsChildren.stream().map(CloudDiskFile::getName).collect(Collectors.toSet());
+                    int copiedCount = 0;
                     for (JsonNode item : sourceItems) {
                         String name = item.get("name").asText();
                         if (existsNameSet.contains(name)) {
@@ -1295,7 +1299,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         }
                         CloudDiskFile cloudDiskFile1 = wangPanUtils.buildCloudDiskFile(item);
                         wangPanUtils.copyFile(oldDriverId, "1020", cloudDiskFile1.getFileId(), cloudDiskFile.getFileId());
+                        copiedCount++;
                     }
+                    log.info("[{}] 首层目标目录={}, 已存在={}, 新复制={}", traceId, cloudDiskFile.getFileId(), existsNameSet.size(), copiedCount);
                 } else {
                     continue;
                 }
@@ -1303,29 +1309,35 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             }
         }
         if (!isFirstFolder) {
+            long nonFirstStart = System.currentTimeMillis();
             JsonNode jsonNode = wangPanUtils.listFile(oldDriverId, oldFileId);
             JsonNode items = jsonNode.path("body").path("items");
+            List<CloudDiskFile> existsChildren = cloudDiskFileDAO.listByParentFileId(null, parentFileStructures, null, null, userById.getId(), 0, 999);
+            Set<String> existsNameSet = existsChildren.stream().map(CloudDiskFile::getName).collect(Collectors.toSet());
+            int copiedCount = 0;
             for (JsonNode item : items) {
                 String name = item.get("name").asText();
-                String fileId = item.get("fileId").asText();
-                CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, null, name, userById.getId());
-                if (byId != null) {
+                if (existsNameSet.contains(name)) {
                     continue;
                 }
                 CloudDiskFile cloudDiskFile1 = wangPanUtils.buildCloudDiskFile(item);
                 wangPanUtils.copyFile(oldDriverId, "1020", cloudDiskFile1.getFileId(), parentFileStructures);
+                copiedCount++;
             }
+            log.info("[{}] 非首层复制源文件数={}, 已存在={}, 新复制={}, cost={}ms", traceId, items == null ? 0 : items.size(), existsNameSet.size(), copiedCount, System.currentTimeMillis() - nonFirstStart);
             cloudDiskFileListByParentId.setOfficialId(officialId);
             cloudDiskFileListByParentId.setAdviserId(adviserId);
             cloudDiskFileListByParentId.setUserId(userById.getId());
             CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileStructures, null, cloudDiskFileListByParentId.getUserId());
             getAllData(byId, null);
         }
-        log.info("copyDataToPublic完成, userId={}, isFirstFolder={}, cost={}ms", userById == null ? null : userById.getId(), isFirstFolder, System.currentTimeMillis() - methodStart);
+        log.info("[{}] copyDataToPublic完成, userId={}, isFirstFolder={}, cost={}ms", traceId, userById == null ? null : userById.getId(), isFirstFolder, System.currentTimeMillis() - methodStart);
     }
 
     private void getAllData(CloudDiskFile cloudDiskFile, String parentFileStructures) {
         long methodStart = System.currentTimeMillis();
+        String traceId = UUID.randomUUID().toString().substring(0, 8);
+        log.info("[{}] getAllData开始, rootFileId={}, parentFileStructures={}", traceId, cloudDiskFile == null ? null : cloudDiskFile.getFileId(), parentFileStructures);
         try {
             if (parentFileStructures == null) {
                 StringBuilder newObjects = new StringBuilder(); // 改用局部变量，避免全局污染
@@ -1335,21 +1347,30 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     JsonNode items = jsonNode.path("body").path("items");
                     List<CloudDiskFile> existsChildren = cloudDiskFileDAO.listByParentFileId(null, cloudDiskFile.getFileId(), null, null, cloudDiskFile.getUserId(), 0, 999);
                     Set<String> existsFileIdSet = existsChildren.stream().map(CloudDiskFile::getFileId).collect(Collectors.toSet());
+                    int addCount = 0;
                     for (JsonNode item : items) {
+                        String fileId = item.get("fileId").asText();
+                        String type = item.get("type").asText();
+                        if (existsFileIdSet.contains(fileId)) {
+                            if ("folder".equalsIgnoreCase(type)) {
+                                newObjects.append(fileId).append(",");
+                            }
+                            continue;
+                        }
                         cloudDiskFileT = wangPanUtils.buildCloudDiskFile(item);
                         cloudDiskFileT.setAdviserId(cloudDiskFile.getAdviserId());
                         cloudDiskFileT.setOfficialId(cloudDiskFile.getOfficialId());
                         cloudDiskFileT.setRelativePath(cloudDiskFile.getRelativePath() + "/" + cloudDiskFileT.getName());
                         cloudDiskFileT.setUserId(cloudDiskFile.getUserId());
                         cloudDiskFileT.setOperator(cloudDiskFile.getOperator());
-                        if (!existsFileIdSet.contains(cloudDiskFileT.getFileId())) {
-                            cloudDiskFileDAO.add(cloudDiskFileT);
-                            existsFileIdSet.add(cloudDiskFileT.getFileId());
-                        }
-                        if (cloudDiskFileT.getType().equalsIgnoreCase("folder")) {
-                            newObjects.append(cloudDiskFileT.getFileId()).append(","); // 只收集新的 folderId
+                        cloudDiskFileDAO.add(cloudDiskFileT);
+                        existsFileIdSet.add(fileId);
+                        addCount++;
+                        if ("folder".equalsIgnoreCase(type)) {
+                            newObjects.append(fileId).append(",");
                         }
                     }
+                    log.info("[{}] getAllData首层: parent={}, items={}, 已存在={}, 新增={}", traceId, cloudDiskFile.getFileId(), items == null ? 0 : items.size(), existsChildren.size(), addCount);
                 }
                 // 递归处理新发现的文件夹
                 if (newObjects.length() > 0) {
@@ -1371,21 +1392,30 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     }
                     List<CloudDiskFile> existsChildren = cloudDiskFileDAO.listByParentFileId(null, s, null, null, byId.getUserId(), 0, 999);
                     Set<String> existsFileIdSet = existsChildren.stream().map(CloudDiskFile::getFileId).collect(Collectors.toSet());
+                    int addCount = 0;
                     for (JsonNode node : items) {
+                        String fileId = node.get("fileId").asText();
+                        String type = node.get("type").asText();
+                        if (existsFileIdSet.contains(fileId)) {
+                            if ("folder".equalsIgnoreCase(type)) {
+                                newObjects.append(fileId).append(",");
+                            }
+                            continue;
+                        }
                         cloudDiskFileT = wangPanUtils.buildCloudDiskFile(node);
                         cloudDiskFileT.setAdviserId(cloudDiskFile.getAdviserId());
                         cloudDiskFileT.setOfficialId(cloudDiskFile.getOfficialId());
                         cloudDiskFileT.setRelativePath(byId.getRelativePath() + "/" + cloudDiskFileT.getName());
                         cloudDiskFileT.setUserId(byId.getUserId());
                         cloudDiskFileT.setOperator(byId.getOperator());
-                        if (!existsFileIdSet.contains(cloudDiskFileT.getFileId())) {
-                            cloudDiskFileDAO.add(cloudDiskFileT);
-                            existsFileIdSet.add(cloudDiskFileT.getFileId());
-                        }
-                        if (cloudDiskFileT.getType().equalsIgnoreCase("folder")) {
-                            newObjects.append(cloudDiskFileT.getFileId()).append(","); // 只收集新的 folderId
+                        cloudDiskFileDAO.add(cloudDiskFileT);
+                        existsFileIdSet.add(fileId);
+                        addCount++;
+                        if ("folder".equalsIgnoreCase(type)) {
+                            newObjects.append(fileId).append(",");
                         }
                     }
+                    log.info("[{}] getAllData递归层: parent={}, items={}, 已存在={}, 新增={}", traceId, s, items == null ? 0 : items.size(), existsChildren.size(), addCount);
                 }
                 // 递归处理新发现的文件夹
                 if (newObjects.length() > 0) {
@@ -1413,7 +1443,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         }
         long cost = System.currentTimeMillis() - methodStart;
         if (cost > 300) {
-            log.info("getAllData完成, parentFileStructures={}, cost={}ms", parentFileStructures, cost);
+            log.info("[{}] getAllData完成, parentFileStructures={}, cost={}ms", traceId, parentFileStructures, cost);
         }
     }
 
