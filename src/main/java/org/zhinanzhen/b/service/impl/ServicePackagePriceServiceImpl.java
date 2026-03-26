@@ -194,6 +194,14 @@ public class ServicePackagePriceServiceImpl extends BaseService implements Servi
 	}
 
 	@Override
+	public List<ServicePackagePriceDO> listByServiceIds(List<Integer> serviceIds) {
+		if (serviceIds == null || serviceIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return servicePackagePriceDao.listByServiceIds(serviceIds);
+	}
+
+	@Override
 	public int deleteById(Integer serviceId, ServicePackagePriceV2DTO servicePackagePriceV2DTO) throws ServiceException {
 		if (serviceId <= 0) {
 			ServiceException se = new ServiceException("serviceId error !");

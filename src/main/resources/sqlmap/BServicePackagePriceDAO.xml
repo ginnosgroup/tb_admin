@@ -162,4 +162,25 @@
 	    service_id = #{serviceId, jdbcType=INTEGER}
     </select>
 
+    <select id="listByServiceIds" resultType="org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO">
+        SELECT
+            id,
+            gmt_create as gmtCreate,
+            gmt_modify as gmtModify,
+            min_price as minPrice,
+            max_price as maxPrice,
+            service_id as serviceId,
+            region_id as regionId,
+            cost_prince as costPrince,
+            third_prince as thirdPrince,
+            ruler,
+            amount,
+            ruler_V2 as rulerV2
+        FROM b_service_package_price
+        WHERE service_id IN
+        <foreach collection="serviceIds" item="serviceId" open="(" close=")" separator=",">
+            #{serviceId}
+        </foreach>
+    </select>
+
 </mapper>

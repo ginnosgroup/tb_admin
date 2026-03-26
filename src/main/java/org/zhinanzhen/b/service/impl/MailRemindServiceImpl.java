@@ -14,6 +14,8 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -48,23 +50,55 @@ public class MailRemindServiceImpl extends BaseService implements MailRemindServ
     public List<MailRemindDTO> list(Integer adviserId, Integer offcialId, Integer kjId,Integer serviceOrderId,
                                     Integer visaId, Integer commissionOrderId,  Integer userId, boolean isToday, boolean isAll) throws ServiceException {
 
-        List<MailRemindDTO> mailRemindDTOList = new ArrayList<>();
-        List<MailRemindDO> mailRemindDOList = null;
+        List<MailRemindDO> mailRemindDOList;
         try {
             mailRemindDOList = mailRemindDAO.list(adviserId,offcialId,kjId,serviceOrderId,visaId,commissionOrderId, userId,isToday,isAll);
-            if (mailRemindDOList == null)
-                return null;
         }catch (Exception e){
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
             throw se;
         }
+        return convertToDTOList(mailRemindDOList);
+    }
+
+    @Override
+    public List<MailRemindDTO> listByVisaIds(Integer adviserId, Integer offcialId, Integer kjId,
+                                             List<Integer> visaIdList, boolean isToday, boolean isAll) throws ServiceException {
+        if (visaIdList == null || visaIdList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        try {
+            List<MailRemindDO> mailRemindDOList = mailRemindDAO.listByVisaIds(adviserId, offcialId, kjId, visaIdList, isToday, isAll);
+            return convertToDTOList(mailRemindDOList);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+            throw se;
+        }
+    }
+
+    private List<MailRemindDTO> convertToDTOList(List<MailRemindDO> mailRemindDOList) {
+        List<MailRemindDTO> mailRemindDTOList = new ArrayList<>();
+        if (mailRemindDOList == null || mailRemindDOList.isEmpty()) {
+            return mailRemindDTOList;
+        }
+
+        List<Integer> userIds = mailRemindDOList.stream()
+                .map(MailRemindDO::getUserId)
+                .filter(id -> id != null && id > 0)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Integer, String> userNameMap = new java.util.HashMap<>();
+        for (Integer userId : userIds) {
+            UserDO userDO = userDAO.getUserById(userId);
+            userNameMap.put(userId, userDO != null ? userDO.getName() : null);
+        }
+
         for (MailRemindDO mailRemindDO: mailRemindDOList){
             MailRemindDTO mailRemindDTO = mapper.map(mailRemindDO,MailRemindDTO.class);
             Integer _userId = mailRemindDO.getUserId();
             if (_userId != null && _userId > 0){
-                UserDO userDO =  userDAO.getUserById(_userId);
-                mailRemindDTO.setUserName(userDO != null ? userDO.getName(): null);
+                mailRemindDTO.setUserName(userNameMap.get(_userId));
             }
             mailRemindDTOList.add(mailRemindDTO);
         }
@@ -91,7 +125,5 @@ public class MailRemindServiceImpl extends BaseService implements MailRemindServ
         MailRemindDO mailRemindDO = mapper.map(mailRemindDTO,MailRemindDO.class);
         return mailRemindDAO.update(mailRemindDO);
     }
-
-
 
 }

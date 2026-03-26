@@ -6,7 +6,6 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
@@ -814,10 +813,10 @@ public class VisaController extends BaseCommissionOrderController {
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
 					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
 			}
-			
+
 			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, userName,  applicantName, state);
+					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
@@ -825,14 +824,45 @@ public class VisaController extends BaseCommissionOrderController {
 			Integer adviserId1 = getAdviserId(request);
 			Integer officialId = getOfficialId(request);
 			Integer kjId = getKjId(request);
-			CountDownLatch latch = new CountDownLatch(list.size());
+			if (list == null) {
+				list = new ArrayList<>();
+			}
+
+			List<Integer> visaIds = list.stream().map(VisaDTO::getId).collect(Collectors.toList());
+			Map<Integer, List<MailRemindDTO>> mailRemindMap;
+			if (!visaIds.isEmpty()) {
+				List<MailRemindDTO> mailRemindDTOS = mailRemindService.listByVisaIds(adviserId1, officialId, kjId, visaIds, false, true);
+				if (mailRemindDTOS != null && !mailRemindDTOS.isEmpty()) {
+					mailRemindMap = mailRemindDTOS.stream().filter(x -> x.getVisaId() != null)
+							.collect(Collectors.groupingBy(MailRemindDTO::getVisaId));
+				} else {
+                    mailRemindMap = new HashMap<>();
+                }
+            } else {
+                mailRemindMap = new HashMap<>();
+            }
+
+            List<Integer> serviceIds = list.stream().map(VisaDTO::getServiceId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+			Map<Integer, ServicePackagePriceDO> servicePackagePriceMap;
+			if (!serviceIds.isEmpty()) {
+				List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceService.listByServiceIds(serviceIds);
+				if (servicePackagePriceDOS != null && !servicePackagePriceDOS.isEmpty()) {
+					servicePackagePriceMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId,
+							sp -> sp, (a1, a2) -> a1));
+				} else {
+                    servicePackagePriceMap = new HashMap<>();
+                }
+            } else {
+                servicePackagePriceMap = new HashMap<>();
+            }
+
+            CountDownLatch latch = new CountDownLatch(list.size());
 			for (VisaDTO visaDTO : list) {
 				ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
 				executor.submit(() -> {
-					if (visaDTO.getServiceOrderId() > 0) {
-						try {
-							ServiceOrderDTO serviceOrderDto = serviceOrderService
-									.getServiceOrderById(visaDTO.getServiceOrderId());
+					try {
+						if (visaDTO.getServiceOrderId() > 0) {
+							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
 							List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 							if (serviceOrderDto != null) {
 								visaDTO.setServiceOrder(serviceOrderDto);
@@ -848,35 +878,34 @@ public class VisaController extends BaseCommissionOrderController {
 								}
 								visaDTO.setApplicant(applicantDTOS);
 							}
-							List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(adviserId1,
-									officialId, kjId, null, visaDTO.getId(), null, null, false, true);
-							visaDTO.setMailRemindDTOS(mailRemindDTOS);
-							ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(visaDTO.getServiceId());
-							if (servicePackagePriceDO != null) {
-								double thirdPrince = servicePackagePriceDO.getThirdPrince();
-								BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-								double expectAmountAUD = new BigDecimal(visaDTO.getAmountAUD()).subtract(third_prince).doubleValue();
-								visaDTO.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-							}
-						} catch (Exception e) {
-							latch.countDown();
-							e.printStackTrace();
 						}
+
+						List<MailRemindDTO> oneVisaReminds = mailRemindMap.get(visaDTO.getId());
+						visaDTO.setMailRemindDTOS(oneVisaReminds == null ? new ArrayList<>() : oneVisaReminds);
+
+						ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceMap.get(visaDTO.getServiceId());
+						if (servicePackagePriceDO != null) {
+							double thirdPrince = servicePackagePriceDO.getThirdPrince();
+							BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+							double expectAmountAUD = new BigDecimal(visaDTO.getAmountAUD()).subtract(third_prince).doubleValue();
+							visaDTO.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						latch.countDown();
 					}
-					latch.countDown();
 				});
 			}
 			latch.await();
-			if (list == null) {
-				list = new ArrayList<>();
-			}
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
 		} catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+			Thread.currentThread().interrupt();
+			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "线程被中断");
+		}
+	}
 
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	@ResponseBody

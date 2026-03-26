@@ -26,5 +26,7 @@ public interface ServicePackagePriceDAO {
 
 	ServicePackagePriceDO getByServiceId(int serviceId);
 
+	List<ServicePackagePriceDO> listByServiceIds(@Param("serviceIds") List<Integer> serviceIds);
+
 	int delete(int id);
 }
