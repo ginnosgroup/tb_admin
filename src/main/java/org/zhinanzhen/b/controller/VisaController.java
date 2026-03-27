@@ -837,13 +837,13 @@ public class VisaController extends BaseCommissionOrderController {
 					mailRemindMap = mailRemindDTOS.stream().filter(x -> x.getVisaId() != null)
 							.collect(Collectors.groupingBy(MailRemindDTO::getVisaId));
 				} else {
-                    mailRemindMap = new HashMap<>();
-                }
-            } else {
-                mailRemindMap = new HashMap<>();
-            }
+					mailRemindMap = new HashMap<>();
+				}
+			} else {
+				mailRemindMap = new HashMap<>();
+			}
 
-            List<Integer> serviceIds = list.stream().map(VisaDTO::getServiceId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+			List<Integer> serviceIds = list.stream().map(VisaDTO::getServiceId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
 			Map<Integer, ServicePackagePriceDO> servicePackagePriceMap;
 			if (!serviceIds.isEmpty()) {
 				List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceService.listByServiceIds(serviceIds);
@@ -851,32 +851,19 @@ public class VisaController extends BaseCommissionOrderController {
 					servicePackagePriceMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId,
 							sp -> sp, (a1, a2) -> a1));
 				} else {
-                    servicePackagePriceMap = new HashMap<>();
-                }
-            } else {
-                servicePackagePriceMap = new HashMap<>();
-            }
+					servicePackagePriceMap = new HashMap<>();
+				}
+			} else {
+				servicePackagePriceMap = new HashMap<>();
+			}
 
-            CountDownLatch latch = new CountDownLatch(list.size());
+			CountDownLatch latch = new CountDownLatch(list.size());
 			for (VisaDTO visaDTO : list) {
 				ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
 				executor.submit(() -> {
 					try {
 						if (visaDTO.getServiceOrderId() > 0) {
-//							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
-//							serviceOrderDto.setVisaDOList(null);
-//							serviceOrderDto.setService(null);
-//							serviceOrderDto.setReceiveType(null);
-//							serviceOrderDto.setUser(null);
-//							serviceOrderDto.setApplicant(null);
-//							serviceOrderDto.setMara(null);
-//							serviceOrderDto.setAdviser(null);
-//							serviceOrderDto.setOfficial(null);
-//							serviceOrderDto.setChildrenServiceOrders(null);
-//							serviceOrderDto.setContractDataList(null);
-//							serviceOrderDto.setDistributableAmount(null);
-//							serviceOrderDto.setCIds(null);
-							ServiceOrderDTO serviceOrderDto = visaDTO.getServiceOrder();
+							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
 							List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 							if (serviceOrderDto != null) {
 								visaDTO.setServiceOrder(serviceOrderDto);
@@ -915,8 +902,7 @@ public class VisaController extends BaseCommissionOrderController {
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
-		}
-		catch (InterruptedException e) {
+		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "线程被中断");
 		}
