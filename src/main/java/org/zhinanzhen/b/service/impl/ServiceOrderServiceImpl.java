@@ -2773,7 +2773,6 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             ChildrenServiceOrderDTO.class);
                     ServicePackageDO servicePackageDo = servicePackageDao
                             .getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-                    // 又偷懒了，性能比较差哦：）
                     if (servicePackageDo != null)
                         childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                     childrenServiceOrderList.add(childrenServiceOrderDto);

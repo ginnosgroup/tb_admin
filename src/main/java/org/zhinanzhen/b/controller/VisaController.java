@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
@@ -862,7 +863,20 @@ public class VisaController extends BaseCommissionOrderController {
 				executor.submit(() -> {
 					try {
 						if (visaDTO.getServiceOrderId() > 0) {
-							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+//							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+//							serviceOrderDto.setVisaDOList(null);
+//							serviceOrderDto.setService(null);
+//							serviceOrderDto.setReceiveType(null);
+//							serviceOrderDto.setUser(null);
+//							serviceOrderDto.setApplicant(null);
+//							serviceOrderDto.setMara(null);
+//							serviceOrderDto.setAdviser(null);
+//							serviceOrderDto.setOfficial(null);
+//							serviceOrderDto.setChildrenServiceOrders(null);
+//							serviceOrderDto.setContractDataList(null);
+//							serviceOrderDto.setDistributableAmount(null);
+//							serviceOrderDto.setCIds(null);
+							ServiceOrderDTO serviceOrderDto = visaDTO.getServiceOrder();
 							List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 							if (serviceOrderDto != null) {
 								visaDTO.setServiceOrder(serviceOrderDto);
@@ -901,7 +915,8 @@ public class VisaController extends BaseCommissionOrderController {
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
-		} catch (InterruptedException e) {
+		}
+		catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "线程被中断");
 		}
