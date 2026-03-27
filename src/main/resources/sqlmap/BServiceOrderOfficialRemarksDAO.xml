@@ -42,6 +42,24 @@
         WHERE service_order_id = #{serviceOrderId} AND official_id = #{officialId}
         ORDER BY gmt_create ASC;
     </select>
+
+    <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderOfficialRemarksDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            official_id AS officialId,
+            service_order_id AS serviceOrderId,
+            content
+        FROM b_service_order_official_remarks
+        WHERE official_id = #{officialId}
+        <if test="serviceOrderIds != null and serviceOrderIds.size() > 0">
+            AND service_order_id IN
+            <foreach collection="serviceOrderIds" item="serviceOrderId" open="(" separator="," close=")">
+                #{serviceOrderId}
+            </foreach>
+        </if>
+        ORDER BY service_order_id ASC, gmt_create ASC;
+    </select>
     
     <delete id="delete" parameterType="java.lang.Integer">
 		DELETE FROM b_service_order_official_remarks WHERE id = #{id, jdbcType=INTEGER}

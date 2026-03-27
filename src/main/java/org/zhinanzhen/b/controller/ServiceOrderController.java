@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +65,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -1868,9 +1871,13 @@ public class ServiceOrderController extends BaseController {
             if (bindingList != null && bindingList && "OVST".equals(type)) {
                 total = (int) (total - serviceOrderList.get(0).getBindingOrderCount());
             }
-            if (newOfficialId != null)
-                for (ServiceOrderDTO so : serviceOrderList)
-                    so.setOfficialNotes(serviceOrderService.listOfficialRemarks(so.getId(), newOfficialId)); // 写入note
+            if (newOfficialId != null && serviceOrderList != null && !serviceOrderList.isEmpty()) {
+                List<Integer> serviceOrderIds = serviceOrderList.stream().map(ServiceOrderDTO::getId).collect(Collectors.toList());
+                Map<Integer, List<ServiceOrderOfficialRemarksDTO>> officialRemarksMap = serviceOrderService.listOfficialRemarksByServiceOrderIds(serviceOrderIds, newOfficialId);
+                for (ServiceOrderDTO so : serviceOrderList) {
+                    so.setOfficialNotes(officialRemarksMap.getOrDefault(so.getId(), new ArrayList<>()));
+                }
+            }
             /*
              * if (newOfficialId != null){ for (ServiceOrderDTO so : serviceOrderList) {
              * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.

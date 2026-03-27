@@ -29,4 +29,11 @@ public interface MailRemindDAO {
     int update(MailRemindDO mailRemindDO);
 
     List<MailRemindDO> listBySendDate(@Param("type")String type);
+
+    List<MailRemindDO> listByVisaIds(@Param("adviserId") Integer adviserId,
+                                     @Param("offcialId") Integer offcialId,
+                                     @Param("kjId") Integer kjId,
+                                     @Param("visaIdList") List<Integer> visaIdList,
+                                     @Param("isToday") boolean isToday,
+                                     @Param("isAll") boolean isAll);
 }

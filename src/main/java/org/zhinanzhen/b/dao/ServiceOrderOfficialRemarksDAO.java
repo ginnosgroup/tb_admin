@@ -14,6 +14,9 @@ public interface ServiceOrderOfficialRemarksDAO {
 	public List<ServiceOrderOfficialRemarksDO> list(@Param("officialId") Integer officialId,
 			@Param("serviceOrderId") Integer serviceOrderId);
 
+	public List<ServiceOrderOfficialRemarksDO> listByServiceOrderIds(@Param("officialId") Integer officialId,
+			@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 	public int delete(int id);
 
 }

@@ -6,7 +6,8 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
@@ -811,55 +814,111 @@ public class VisaController extends BaseCommissionOrderController {
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && adviserId == null)
 					return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "无法获取顾问编号，请退出重新登录后再尝试．");
 			}
-			
+
 			int total = visaService.countVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
-					endInvoiceCreate, regionIdList, adviserId, userId, userName,  applicantName, state);
+					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state);
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, pageNum,
 					pageSize, _sorter);
-			list.forEach(v -> {
-				if (v.getServiceOrderId() > 0) {
-					try {
-						ServiceOrderDTO serviceOrderDto = serviceOrderService
-								.getServiceOrderById(v.getServiceOrderId());
-						List<ApplicantDTO> applicantDTOS = new ArrayList<>();
-						if (serviceOrderDto != null) {
-							v.setServiceOrder(serviceOrderDto);
-							List<ApplicantDTO> applicant = v.getApplicant();
-							for (ApplicantDTO applicantDto : applicant) {
-								if (applicantDto != null) {
-									if (StringUtil.isEmpty(applicantDto.getUrl()))
-										applicantDto.setUrl(serviceOrderDto.getNutCloud());
-									if (StringUtil.isEmpty(applicantDto.getContent()))
-										applicantDto.setContent(serviceOrderDto.getInformation());
-									applicantDTOS.add(applicantDto);
-								}
-							}
-							v.setApplicant(applicantDTOS);
-						}
-						List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),
-								getOfficialId(request), getKjId(request), null, v.getId(), null, null, false, true);
-						v.setMailRemindDTOS(mailRemindDTOS);
-						ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceService.getServicePackagePriceByServiceId(v.getServiceId());
-						if (servicePackagePriceDO != null) {
-							double thirdPrince = servicePackagePriceDO.getThirdPrince();
-							BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
-							double expectAmountAUD = new BigDecimal(v.getAmountAUD()).subtract(third_prince).doubleValue();
-							v.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			Integer adviserId1 = getAdviserId(request);
+			Integer officialId = getOfficialId(request);
+			Integer kjId = getKjId(request);
 			if (list == null) {
 				list = new ArrayList<>();
 			}
+
+			List<Integer> visaIds = list.stream().map(VisaDTO::getId).collect(Collectors.toList());
+			Map<Integer, List<MailRemindDTO>> mailRemindMap;
+			if (!visaIds.isEmpty()) {
+				List<MailRemindDTO> mailRemindDTOS = mailRemindService.listByVisaIds(adviserId1, officialId, kjId, visaIds, false, true);
+				if (mailRemindDTOS != null && !mailRemindDTOS.isEmpty()) {
+					mailRemindMap = mailRemindDTOS.stream().filter(x -> x.getVisaId() != null)
+							.collect(Collectors.groupingBy(MailRemindDTO::getVisaId));
+				} else {
+                    mailRemindMap = new HashMap<>();
+                }
+            } else {
+                mailRemindMap = new HashMap<>();
+            }
+
+            List<Integer> serviceIds = list.stream().map(VisaDTO::getServiceId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+			Map<Integer, ServicePackagePriceDO> servicePackagePriceMap;
+			if (!serviceIds.isEmpty()) {
+				List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceService.listByServiceIds(serviceIds);
+				if (servicePackagePriceDOS != null && !servicePackagePriceDOS.isEmpty()) {
+					servicePackagePriceMap = servicePackagePriceDOS.stream().collect(Collectors.toMap(ServicePackagePriceDO::getServiceId,
+							sp -> sp, (a1, a2) -> a1));
+				} else {
+                    servicePackagePriceMap = new HashMap<>();
+                }
+            } else {
+                servicePackagePriceMap = new HashMap<>();
+            }
+
+            CountDownLatch latch = new CountDownLatch(list.size());
+			for (VisaDTO visaDTO : list) {
+				ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+				executor.submit(() -> {
+					try {
+						if (visaDTO.getServiceOrderId() > 0) {
+//							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+//							serviceOrderDto.setVisaDOList(null);
+//							serviceOrderDto.setService(null);
+//							serviceOrderDto.setReceiveType(null);
+//							serviceOrderDto.setUser(null);
+//							serviceOrderDto.setApplicant(null);
+//							serviceOrderDto.setMara(null);
+//							serviceOrderDto.setAdviser(null);
+//							serviceOrderDto.setOfficial(null);
+//							serviceOrderDto.setChildrenServiceOrders(null);
+//							serviceOrderDto.setContractDataList(null);
+//							serviceOrderDto.setDistributableAmount(null);
+//							serviceOrderDto.setCIds(null);
+							ServiceOrderDTO serviceOrderDto = visaDTO.getServiceOrder();
+							List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+							if (serviceOrderDto != null) {
+								visaDTO.setServiceOrder(serviceOrderDto);
+								List<ApplicantDTO> applicant = visaDTO.getApplicant();
+								for (ApplicantDTO applicantDto : applicant) {
+									if (applicantDto != null) {
+										if (StringUtil.isEmpty(applicantDto.getUrl()))
+											applicantDto.setUrl(serviceOrderDto.getNutCloud());
+										if (StringUtil.isEmpty(applicantDto.getContent()))
+											applicantDto.setContent(serviceOrderDto.getInformation());
+										applicantDTOS.add(applicantDto);
+									}
+								}
+								visaDTO.setApplicant(applicantDTOS);
+							}
+						}
+
+						List<MailRemindDTO> oneVisaReminds = mailRemindMap.get(visaDTO.getId());
+						visaDTO.setMailRemindDTOS(oneVisaReminds == null ? new ArrayList<>() : oneVisaReminds);
+
+						ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceMap.get(visaDTO.getServiceId());
+						if (servicePackagePriceDO != null) {
+							double thirdPrince = servicePackagePriceDO.getThirdPrince();
+							BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
+							double expectAmountAUD = new BigDecimal(visaDTO.getAmountAUD()).subtract(third_prince).doubleValue();
+							visaDTO.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						latch.countDown();
+					}
+				});
+			}
+			latch.await();
 			return new ListResponse<List<VisaDTO>>(true, pageSize, total, list, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, e.getMessage());
+		}
+		catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "线程被中断");
 		}
 	}
 

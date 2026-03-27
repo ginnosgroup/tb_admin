@@ -6,6 +6,7 @@ import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ServiceOrderService {
 
@@ -26,13 +27,13 @@ public interface ServiceOrderService {
 						  Integer schoolId, Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price) throws ServiceException;
 
 	List<ServiceOrderDTO> listServiceOrder(String type, List<String> excludeTypeList, String excludeState,
-															  List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
-															  String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
-															  String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate,
-															  List<Integer> adviserRegionIdList, List<Integer> officialRegionIdList, Integer userId, String userName, String applicantName, Integer maraId,
-															  Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
-															  boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
-															  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price) throws ServiceException;
+										  List<String> stateList, String auditingState, List<String> reviewStateList, String urgentState,
+										  String startMaraApprovalDate, String endMaraApprovalDate, String startOfficialApprovalDate,
+										  String endOfficialApprovalDate, String startReadcommittedDate, String endReadcommittedDate, String startFinishDate, String endFinishDate,
+										  List<Integer> adviserRegionIdList, List<Integer> officialRegionIdList, Integer userId, String userName, String applicantName, Integer maraId,
+										  Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
+										  boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
+										  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
@@ -64,6 +65,8 @@ public interface ServiceOrderService {
 	int updateOfficialRemarks(ServiceOrderOfficialRemarksDTO serviceOrderOfficialRemarksDto) throws ServiceException;
 
 	List<ServiceOrderOfficialRemarksDTO> listOfficialRemarks(int id, int officialId) throws ServiceException;
+
+	Map<Integer, List<ServiceOrderOfficialRemarksDTO>> listOfficialRemarksByServiceOrderIds(List<Integer> serviceOrderIds, int officialId) throws ServiceException;
 
 	int deleteServiceOrderOfficialRemarksDTO(int id) throws ServiceException;
 

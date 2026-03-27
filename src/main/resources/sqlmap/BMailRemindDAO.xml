@@ -168,4 +168,49 @@
         </choose>
         ORDER BY send_date ASC;
     </select>
+
+    <select id="listByVisaIds" resultType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code,
+        mail,
+        title,
+        content,
+        send_date AS sendDate,
+        service_order_id AS serviceOrderId,
+        visa_id AS visaId,
+        commission_order_id AS commissionOrderId,
+        adviser_id AS adviserId,
+        offcial_id AS offcialId,
+        kj_id AS kjId,
+        user_id AS userId,
+        need_remind AS needRemind
+        FROM b_mail_remind
+        <where>
+            <if test="adviserId != null and adviserId > 0">
+                AND adviser_id = #{adviserId}
+            </if>
+            <if test="offcialId != null and offcialId > 0">
+                AND offcial_id = #{offcialId}
+            </if>
+            <if test="kjId != null and kjId > 0">
+                AND kj_id = #{kjId}
+            </if>
+            <if test="visaIdList != null and visaIdList.size() > 0">
+                AND visa_id IN
+                <foreach collection="visaIdList" item="visaId" open="(" close=")" separator=",">
+                    #{visaId}
+                </foreach>
+            </if>
+            <if test="isToday == true">
+                AND DATE_FORMAT(send_date,'%Y%m%d') = DATE_FORMAT(NOW(),'%Y%m%d')
+            </if>
+            <if test="isAll == false">
+                AND send_date >= NOW()
+            </if>
+        </where>
+        ORDER BY send_date DESC;
+    </select>
 </mapper>
