@@ -290,7 +290,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              @RequestParam(value = "contractData", required = false) String contractData,
-                                             HttpServletRequest request, HttpServletResponse response) {
+                                             HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
@@ -397,6 +397,8 @@ public class ServiceOrderManageController extends BaseController {
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
+                // 143和600组合金额分配
+                amountAllocation(serviceOrderJson);
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
@@ -413,6 +415,41 @@ public class ServiceOrderManageController extends BaseController {
             return new Response<Integer>(0, "创建成功.", serviceOrderDto.getId());
         }
         return null;
+    }
+
+    private void amountAllocation(List<ServiceOrderJsonRequest> serviceOrderJson) throws ServiceException {
+        boolean isAllocation = false;
+        if (serviceOrderJson.stream().anyMatch(p -> "16".equalsIgnoreCase(p.getServiceId()))) {
+            isAllocation = true;
+        }
+        for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
+            if (isAllocation && "16".equalsIgnoreCase(serviceOrderJsonRequest.getServiceId())) {
+                Double receivable = Double.valueOf(serviceOrderJsonRequest.getReceivable());
+                Double received = Double.valueOf(serviceOrderJsonRequest.getReceived());
+                Double amount = Double.valueOf(serviceOrderJsonRequest.getAmount());
+                Double gst = Double.valueOf(serviceOrderJsonRequest.getGst());
+                Double deductGst = Double.valueOf(serviceOrderJsonRequest.getDeductGst());
+                Double expectAmount = Double.valueOf(serviceOrderJsonRequest.getExpectAmount());
+                Double perAmount = Double.valueOf(serviceOrderJsonRequest.getPerAmount());
+                serviceOrderJsonRequest.setReceivable(String.valueOf(receivable - 220));
+                serviceOrderJsonRequest.setReceived(String.valueOf(received - 220));
+                serviceOrderJsonRequest.setAmount(String.valueOf(amount - 220));
+                serviceOrderJsonRequest.setGst(String.valueOf(gst - (220 / 11)));
+                serviceOrderJsonRequest.setDeductGst(String.valueOf(deductGst - (220 / 1.1)));
+                serviceOrderJsonRequest.setExpectAmount(String.valueOf(expectAmount - 220));
+                serviceOrderJsonRequest.setPerAmount(String.valueOf(perAmount - 220));
+            }
+            if (isAllocation && "19".equalsIgnoreCase(serviceOrderJsonRequest.getServiceId()) && "0".equalsIgnoreCase(serviceOrderJsonRequest.getIsPay())) {
+                serviceOrderJsonRequest.setReceivable(String.valueOf(220));
+                serviceOrderJsonRequest.setReceived(String.valueOf(220));
+                serviceOrderJsonRequest.setAmount(String.valueOf(220));
+                serviceOrderJsonRequest.setGst(String.valueOf(220 / 11));
+                serviceOrderJsonRequest.setDeductGst(String.valueOf(220 / 1.1));
+                serviceOrderJsonRequest.setExpectAmount(String.valueOf(220));
+                serviceOrderJsonRequest.setPerAmount(String.valueOf(220));
+            }
+        }
+
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
