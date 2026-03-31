@@ -588,9 +588,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         // 查询用户
         UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
         if (userDo != null) {
-            org.zhinanzhen.tb.service.pojo.UserDTO userDto = mapper.map(userDo, UserDTO.class);
+            UserDTO userDto = mapper.map(userDo, UserDTO.class);
             if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
                 List<ServiceOrderApplicantDO> serviceOrderApplicantList = serviceOrderApplicantDao.list(serviceOrderDto.getId(), null);
+//				List<ApplicantDO> applicantDoList = applicantDao.list(0, null, serviceOrderDto.getUserId(),
+//						serviceOrderDto.getAdviserId(), 0, 999);
                 List<ApplicantDTO> applicantDtoList = new ArrayList<>();
                 serviceOrderApplicantList.forEach(serviceOrderApplicant -> {
                     ApplicantDO applicantDo = applicantDao.getById(serviceOrderApplicant.getApplicantId());
@@ -609,6 +611,10 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     applicantDtoList.add(serviceOrderDto.getApplicant());
                 userDto.setApplicantList(applicantDtoList);
             }
+//            List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
+//            if (!cloudDiskFileList.isEmpty()) {
+//                userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
+//            }
             serviceOrderDto.setUser(userDto);
         }
         if (serviceOrderDto.getApplicantId() > 0) {
@@ -661,15 +667,6 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
             });
-//            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
-//                    .collect(Collectors.collectingAndThen(
-//                            Collectors.toMap(
-//                                    ChildrenServiceOrderDTO::getServicePackageType,
-//                                    Function.identity(),
-//                                    (p1, p2) -> p1
-//                            ),
-//                            map -> new ArrayList<>(map.values())
-//                    ));
             serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
         }
 
@@ -683,8 +680,18 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             for (VisaDO visaDo : visaList)
                 cIds.add(visaDo.getId());
         }
+//			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+//					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+//			if (commissionOrderList != null && commissionOrderList.size() > 0) {
+//				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
+//					cIds.add(commissionOrderDo.getId());
+//			}
         serviceOrderDto.setVisaDOList(visaList);
         serviceOrderDto.setCIds(cIds);
+
+        // 查询审核记录
+        //putReviews(serviceOrderDto);
+        //serviceOrderDtoList.add(serviceOrderDto);
 
         // 查询职业名称
         ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
@@ -792,6 +799,24 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 }
             }
         }
+//        if (serviceOrderDO.getParentId() != 0) {
+//            List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
+//            if (deriveOrder != null && deriveOrder.size() == 2) {
+//                AtomicInteger count = new AtomicInteger();
+//                deriveOrder.forEach(e->{
+//                    ServicePackageDO servicePackageDO = servicePackageDao.getById(e.getServicePackageId());
+//                    if ("ROI".equals(servicePackageDO.getType())) {
+//                        count.getAndIncrement();
+//                    }
+//                    if ("VISA".equals(serviceOrderDO.getType())) {
+//                        count.getAndIncrement();
+//                    }
+//                    if (count.get() == 2) {
+//                        serviceOrderDto.setCreateVisaOffice(true);
+//                    }
+//                });
+//            }
+//        }
         //判断是否提交mm资料
         if (customerInformationDAO.getByServiceOrderId(serviceOrderDO.getId()) != null) {
             serviceOrderDto.setSubmitMM(true);
@@ -819,6 +844,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
                 }
             });
+            // 查询打包订单绑定的职评订单信息
+            Integer bingDingAssOrderId = serviceOrderDao.getBingDingAssOrderId(serviceOrderDto.getId());
+            if (bingDingAssOrderId != null) {
+                serviceOrderDto.setBingdingAssessOrder(bingDingAssOrderId);
+            }
         }
         // 判断offer文件路径是否为多个
         String offerUrl = serviceOrderDto.getOfferUrl();
@@ -850,12 +880,21 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             serviceOrderDto.setIsInsuranceCompany("");
         }
         // 顾问以及文案资料大小合计
-        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(serviceOrderDto.getOfficialId(), serviceOrderDto.getUserId());
+        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(null, serviceOrderDto.getUserId());
         Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
 
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
 
+        ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDto.getId());
+        if (serviceOrderAndManage != null) {
+            serviceOrderDto.setManageOrder(true);
+            serviceOrderDto.setParentIdNew(serviceOrderAndManage.getServiceOrderManageId());
+//            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
+//            if (ObjectUtil.isNotNull(serviceOrderById)) {
+//                serviceOrderDto.setServiceOrderManage(serviceOrderById);
+//            }
+        }
         // 获取服务订单上传合同日志信息
         List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
         if (!webLogDTOList.isEmpty()) {
