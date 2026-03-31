@@ -105,4 +105,5 @@ public class ServiceOrderJsonRequest {
     private Integer bindingOrderId;
     private Integer manageId;
     private String serviceOrderApplicantList;
+    private String contractData;
 }

@@ -408,6 +408,7 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
                     serviceOrderJsonRequest.setReceiveDate(receiveDate);
+                    serviceOrderJsonRequest.setContractData(contractData);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
                 }
             }
