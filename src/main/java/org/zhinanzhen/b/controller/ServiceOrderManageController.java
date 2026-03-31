@@ -425,7 +425,11 @@ public class ServiceOrderManageController extends BaseController {
         }
         serviceOrderJson = serviceOrderJson.stream().sorted(Comparator.comparing(ServiceOrderDTO::getServiceId)).collect(Collectors.toList());
         for (ServiceOrderDTO serviceOrderJsonRequest : serviceOrderJson) {
+            Double amount600 = 220.00;
             if (isAllocation && serviceOrderJsonRequest.getServiceId() == 16) {
+                if ("CNY".equalsIgnoreCase(serviceOrderJsonRequest.getCurrency())) {
+                    amount600 = amount600 * serviceOrderJsonRequest.getExchangeRate();
+                }
                 Double receivable = serviceOrderJsonRequest.getReceivable();
                 Double received = serviceOrderJsonRequest.getReceived();
                 Double amount = serviceOrderJsonRequest.getAmount();
@@ -433,22 +437,26 @@ public class ServiceOrderManageController extends BaseController {
                 Double deductGst = serviceOrderJsonRequest.getDeductGst();
                 Double expectAmount = serviceOrderJsonRequest.getExpectAmount();
                 Double perAmount = serviceOrderJsonRequest.getPerAmount();
-                serviceOrderJsonRequest.setReceivable(receivable - 220);
-                serviceOrderJsonRequest.setReceived(received - 220);
-                serviceOrderJsonRequest.setAmount(amount - 220);
-                serviceOrderJsonRequest.setGst(gst - (220 / 11));
-                serviceOrderJsonRequest.setDeductGst(deductGst - (220 / 1.1));
-                serviceOrderJsonRequest.setExpectAmount(expectAmount - 220);
-                serviceOrderJsonRequest.setPerAmount(perAmount - 220);
+                serviceOrderJsonRequest.setReceivable(receivable - amount600);
+                serviceOrderJsonRequest.setReceived(received - amount600);
+                serviceOrderJsonRequest.setAmount(amount - amount600);
+                serviceOrderJsonRequest.setGst(gst - (amount600 / 11));
+                serviceOrderJsonRequest.setDeductGst(deductGst - (amount600 / 1.1));
+                serviceOrderJsonRequest.setExpectAmount(expectAmount - amount600);
+                serviceOrderJsonRequest.setPerAmount(perAmount - amount600);
             }
             if (isAllocation && serviceOrderJsonRequest.getServiceId() == 19 && !serviceOrderJsonRequest.isPay()) {
-                serviceOrderJsonRequest.setReceivable(220);
-                serviceOrderJsonRequest.setReceived(220);
-                serviceOrderJsonRequest.setAmount(220);
-                serviceOrderJsonRequest.setGst(220 / 11);
-                serviceOrderJsonRequest.setDeductGst(220 / 1.1);
-                serviceOrderJsonRequest.setExpectAmount(220);
-                serviceOrderJsonRequest.setPerAmount(220);
+                if ("CNY".equalsIgnoreCase(serviceOrderJsonRequest.getCurrency())) {
+                    amount600 = amount600 * serviceOrderJsonRequest.getExchangeRate();
+                }
+                serviceOrderJsonRequest.setReceivable(amount600);
+                serviceOrderJsonRequest.setReceived(amount600);
+                serviceOrderJsonRequest.setAmount(amount600);
+                serviceOrderJsonRequest.setGst(amount600 / 11);
+                serviceOrderJsonRequest.setDeductGst(amount600 / 1.1);
+                serviceOrderJsonRequest.setExpectAmount(amount600);
+                serviceOrderJsonRequest.setPerAmount(amount600);
+                serviceOrderJsonRequest.setInstallment(1);
                 serviceOrderJsonRequest.setPay(true);
             }
             serviceOrderService.updateServiceOrder(serviceOrderJsonRequest);

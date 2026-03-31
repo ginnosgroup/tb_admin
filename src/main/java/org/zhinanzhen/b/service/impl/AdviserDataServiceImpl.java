@@ -199,7 +199,8 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 				adviserDataDao.applicantDataMigration(newAdviserId, adviserId, userIdList), "sod",
 				adviserDataDao.serviceOrderDataMigration(newAdviserId, adviserId, userIdList), "vd",
 				adviserDataDao.visaDataMigration(newAdviserId, adviserId, userIdList), "cod",
-				adviserDataDao.commissionOrderDataMigration(newAdviserId, adviserId, userIdList));
+				adviserDataDao.commissionOrderDataMigration(newAdviserId, adviserId, userIdList), "smd",
+				adviserDataDao.serviceorderManageDataMigration(newAdviserId, adviserId, userIdList));
 		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId + "(" + userIdList + "):" + map);
 		adviserDataDao.userBoxDataMigration(newAdviserId, adviserId, userIdList);
 		return map;
@@ -214,7 +215,8 @@ public class AdviserDataServiceImpl extends BaseService implements AdviserDataSe
 				adviserDataDao.countApplicantDataMigration(newAdviserId, adviserId, userIdList), "sod",
 				adviserDataDao.countServiceOrderDataMigration(newAdviserId, adviserId, userIdList), "vd",
 				adviserDataDao.countVisaDataMigration(newAdviserId, adviserId, userIdList), "cod",
-				adviserDataDao.countCommissionOrderDataMigration(newAdviserId, adviserId, userIdList));
+				adviserDataDao.countCommissionOrderDataMigration(newAdviserId, adviserId, userIdList), "smd",
+				adviserDataDao.countserviceOrderMangeDataMigration(newAdviserId, adviserId, userIdList));
 		LOG.info("顾问" + adviserId + "数据迁移到顾问" + newAdviserId + "(" + userIdList + ")数据统计:" + map);
 		return map;
 	}
