@@ -5307,6 +5307,7 @@ public class ServiceOrderManageController extends BaseController {
             Integer schoolInstitutionLocationId4 = serviceOrderJsonRequest.getSchoolInstitutionLocationId4();
             Integer schoolInstitutionLocationId5 = serviceOrderJsonRequest.getSchoolInstitutionLocationId5();
             String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
+            String contractData = serviceOrderJsonRequest.getContractData();
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
@@ -5516,31 +5517,9 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
-//            if (StringUtil.isNotEmpty(receivable)) {
-//                serviceOrderDto.setReceivable(Double.parseDouble(receivable));
-//            }
-//            if (StringUtil.isNotEmpty(discount)) {
-//                serviceOrderDto.setDiscount(Double.parseDouble(discount));
-//            }
-//            if (StringUtil.isNotEmpty(received)) {
-//                serviceOrderDto.setReceived(Double.parseDouble(received));
-//            }
-//            if (StringUtil.isNotEmpty(gst)) {
-//                serviceOrderDto.setGst(Double.parseDouble(gst));
-//            }
-//            if (StringUtil.isNotEmpty(amount)) {
-//                serviceOrderDto.setAmount(Double.parseDouble(amount));
-//            }
-//            if (StringUtil.isNotEmpty(deductGst)) {
-//                serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
-//            }
-//            if (StringUtil.isNotEmpty(expectAmount)) {
-//                serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
-//            }
-//            if (StringUtil.isNotEmpty(perAmount)) {
-//                serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
-//            }
-
+            if (StringUtil.isNotEmpty(contractData)) {
+                serviceOrderDto.setContractData(contractData);
+            }
             if (serviceOrderJsonRequest.getInstallment() == 1) {
                 double received1 = serviceOrderDto.getReceived();
                 serviceOrderDto.setReceivable(received1);
