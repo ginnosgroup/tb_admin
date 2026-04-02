@@ -5309,6 +5309,13 @@ public class ServiceOrderManageController extends BaseController {
             String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
             String contractData = serviceOrderJsonRequest.getContractData();
             String applicantId = serviceOrderJsonRequest.getApplicantId();
+            String eoiType = serviceOrderJsonRequest.getEoiType();
+            String isCOE = serviceOrderJsonRequest.getIsCOE();
+            String isCOE1 = serviceOrderJsonRequest.getIsCOE1();
+            String isCOE2 = serviceOrderJsonRequest.getIsCOE2();
+            String isCOE3 = serviceOrderJsonRequest.getIsCOE3();
+            String isCOE4 = serviceOrderJsonRequest.getIsCOE4();
+            String isCOE5 = serviceOrderJsonRequest.getIsCOE5();
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
@@ -5359,6 +5366,14 @@ public class ServiceOrderManageController extends BaseController {
             // serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
             // }
             serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
+
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
+            }
+            if (StringUtil.isNotEmpty(isCOE1)) {
+                serviceOrderDto.setIsCOE(isCOE1);
+            }
+
             serviceOrderDto.setUrgentState(urgentState);
             serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
             if (StringUtil.isNotEmpty(subagencyId))
@@ -5659,6 +5674,11 @@ public class ServiceOrderManageController extends BaseController {
                             if ("EOI".equals(servicePackageDTO.getType())) {
                                 EOICount++;
                                 serviceOrderDto.setEOINumber(EOICount);
+                                if (StringUtil.isNotEmpty(eoiType)) {
+                                    serviceOrderDto.setEoiType(eoiType);
+                                }
+                            }  else {
+                                serviceOrderDto.setEoiType(null);
                             }
                             if ("true".equals(isPay)) {
                                 serviceOrderDto.setPay(true);
@@ -5738,6 +5758,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
                         && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE2)) {
+                        serviceOrderDto.setIsCOE(isCOE2);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId2 != null && schoolId2 > 0) {
                         serviceOrderDto.setSchoolId(schoolId2);
                         serviceOrderDto.setCourseId(0);
@@ -5770,6 +5795,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0) || (courseId3 != null
                         && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE3)) {
+                        serviceOrderDto.setIsCOE(isCOE3);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId3 != null && schoolId3 > 0) {
                         serviceOrderDto.setSchoolId(schoolId3);
                         serviceOrderDto.setCourseId(0);
@@ -5802,6 +5832,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0) || (courseId4 != null
                         && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE4)) {
+                        serviceOrderDto.setIsCOE(isCOE4);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId4 != null && schoolId4 > 0) {
                         serviceOrderDto.setSchoolId(schoolId4);
                         serviceOrderDto.setCourseId(0);
@@ -5834,6 +5869,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0) || (courseId5 != null
                         && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE5)) {
+                        serviceOrderDto.setIsCOE(isCOE5);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId5 != null && schoolId5 > 0) {
                         serviceOrderDto.setSchoolId(schoolId5);
                         serviceOrderDto.setCourseId(0);
