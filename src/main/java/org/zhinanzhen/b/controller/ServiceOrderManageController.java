@@ -1060,6 +1060,11 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderApplicantDO.setApplicantId(serviceOrderDTO.getApplicantId());
                         serviceOrderApplicantDO.setServiceOrderId(serviceOrderDTO.getId());
                         serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDO);
+                        ServiceOrderDTO serviceOrderDTO1 = serviceOrderManageService.getserviceOrderManageByServiceOrderId(id);
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDTO.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderDTO1.getId());
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                     }
                 }
             }

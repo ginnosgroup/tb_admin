@@ -538,7 +538,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                         serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
                     }
                 }
-                if (serviceOrderDto.getApplicantId() == 0 && serviceOrderDto.getApplicantParentId() == 0) {
+                if (serviceOrderDto.getApplicantParentId() == 0) {
                     List<ServiceAssessAndEOI> serviceAssessAndEOIList = new ArrayList<>();
                     List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
                     if (deriveOrder != null && !deriveOrder.isEmpty() && deriveOrder.get(0).getServiceAssessId() != null) {
