@@ -2,13 +2,17 @@ package org.zhinanzhen.tb.service.impl;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
+import com.google.gson.JsonParser;
+import com.lark.oapi.Client;
+import com.lark.oapi.core.request.RequestOptions;
+import com.lark.oapi.core.utils.Jsons;
+import com.lark.oapi.service.bitable.v1.model.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +23,9 @@ import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
-import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
-import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
-import org.zhinanzhen.tb.dao.pojo.UserDO;
+import org.zhinanzhen.tb.dao.pojo.*;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -65,6 +67,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private ServiceOrderManageDAO serviceOrderManageDAO;
 	@Resource
 	private VisaDAO visaDAO;
+	@Resource
+	private ServiceOrderDAO serviceOrderDAO;
+	@Resource
+	private RegionDAO regionDAO;
+	@Resource
+	private ServiceDAO serviceDAO;
+	@Resource
+	private SchoolInstitutionDAO schoolInstitutionDAO;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -649,6 +659,248 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return userOrder;
 	}
 
+	@Override
+	public String userData(Integer userId) throws Exception {
+		List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
+				null, null, null, null, null, null,
+				null, null, null, null, null,
+				null, null, null, userId, null, null, null, null, null,
+				null, null, null, null, null, null, null,
+				null, null, null, 0, 20, null, null, null, null, null, null);
+		// 1. 初始化 Client
+		// 请替换为你的 App ID 和 App Secret
+		// 获取方式：飞书开放平台 -> 应用详情 -> 凭证与基础信息
+		String appId = "cli_a941d865a8399cd6";
+		String appSecret = "peULZwNNWRLZzmU6MlEf1SO7WIIvUcym";
+		Client client = Client.newBuilder(appId, appSecret).build();
+
+		// 2. 创建多维表格 (Create Bitable App)
+		// 接口文档: https://open.feishu.cn/document/server-docs/docs/bitable-v1/app/create
+		CreateAppReq req = CreateAppReq.newBuilder()
+				.reqApp(ReqApp.newBuilder()
+						.name("一篇新的多维表格")
+						.build())
+				.build();
+
+		CreateAppResp createAppResp = client.bitable().v1().app().create(req);
+		if (!createAppResp.success()) {
+			System.out.printf("创建表格失败: code: %d, msg: %s\n", createAppResp.getCode(), createAppResp.getMsg());
+			return null;
+		}
+
+		String appToken = createAppResp.getData().getApp().getAppToken();
+		System.out.println("1. 成功创建表格，appToken: " + appToken);
+
+		String url = createAppResp.getData().getApp().getUrl();
+		System.out.println("1. 成功创建表格，url: " + url);
+
+		// 3. 获取表格中的第一个数据表 (Table)
+		// 创建表格后，默认会生成一个数据表。我们需要它的 tableId 才能操作内容。
+		ListAppTableResp listTablesResp = client.bitable().appTable().list(ListAppTableReq.newBuilder()
+				.appToken(appToken)
+				.build());
+
+		if (!listTablesResp.success() || listTablesResp.getData().getItems().length == 0) {
+			System.out.println("获取数据表列表失败");
+			return null;
+		}
+		String tableId = listTablesResp.getData().getItems()[0].getTableId();
+		System.out.println("2. 获取到默认数据表 ID: " + tableId);
+
+		// 获取字段列表
+		// 创建请求对象
+		ListAppTableFieldReq listAppTableFieldReq = ListAppTableFieldReq.newBuilder()
+				.appToken(appToken)
+				.tableId(tableId)
+				.pageSize(20)
+				.build();
+
+		// 发起请求
+		ListAppTableFieldResp listAppTableFieldResp = client.bitable().v1().appTableField().list(listAppTableFieldReq, RequestOptions.newBuilder()
+				.build());
+		// 处理服务端错误
+		if (!listAppTableFieldResp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					listAppTableFieldResp.getCode(), listAppTableFieldResp.getMsg(), listAppTableFieldResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(listAppTableFieldResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+			return null;
+		}
+
+		// 业务数据处理
+		System.out.println(Jsons.DEFAULT.toJson(listAppTableFieldResp.getData()));
+		AppTableFieldForList[] items = listAppTableFieldResp.getData().getItems();
+		int tableFieldCount = 0;
+		for (AppTableFieldForList item : items) { // 更新字段信息
+			// 创建请求对象
+			UpdateAppTableFieldReq updateAppTableFieldReq = UpdateAppTableFieldReq.newBuilder()
+					.appToken(appToken)
+					.tableId(tableId)
+					.fieldId(item.getFieldId())
+					.appTableField(AppTableField.newBuilder()
+							.fieldName(buildTitle(tableFieldCount))
+							.type(1)
+							.property(AppTableFieldProperty.newBuilder()
+									.multiple(true)
+									.build())
+							.build())
+					.build();
+
+			// 发起请求
+			UpdateAppTableFieldResp updateAppTableFieldResp = client.bitable().v1().appTableField().update(updateAppTableFieldReq, RequestOptions.newBuilder()
+					.build());
+
+			// 处理服务端错误
+			if (!updateAppTableFieldResp.success()) {
+				System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+						updateAppTableFieldResp.getCode(), updateAppTableFieldResp.getMsg(), updateAppTableFieldResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(updateAppTableFieldResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+				return null;
+			}
+			tableFieldCount++;
+		}
+		for (int i = tableFieldCount; i < 8; i++) {
+			// 创建请求对象
+			CreateAppTableFieldReq createAppTableFieldReq = CreateAppTableFieldReq.newBuilder()
+					.appToken(appToken)
+					.tableId(tableId)
+					.appTableField(AppTableField.newBuilder()
+							.fieldName(buildTitle(tableFieldCount))
+							.type(1)
+							.build())
+					.build();
+
+			// 发起请求
+			CreateAppTableFieldResp createAppTableFieldResp = client.bitable().v1().appTableField().create(createAppTableFieldReq, RequestOptions.newBuilder()
+					.build());
+
+			// 处理服务端错误
+			if(!createAppTableFieldResp.success()) {
+				System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+						createAppTableFieldResp.getCode(), createAppTableFieldResp.getMsg(), createAppTableFieldResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(createAppTableFieldResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+				return null;
+			}
+
+			// 业务数据处理
+			System.out.println(Jsons.DEFAULT.toJson(createAppTableFieldResp.getData()));
+			tableFieldCount++;
+		}
+
+		// 获取记录列表
+		// 创建请求对象
+		SearchAppTableRecordReq searchAppTableRecordReq = SearchAppTableRecordReq.newBuilder()
+				.appToken(appToken)
+				.tableId(tableId)
+				.pageSize(20)
+				.searchAppTableRecordReqBody(SearchAppTableRecordReqBody.newBuilder()
+						.build())
+				.build();
+
+		// 发起请求
+		SearchAppTableRecordResp searchAppTableRecordResp = client.bitable().v1().appTableRecord().search(searchAppTableRecordReq);
+
+		// 处理服务端错误
+		if(!searchAppTableRecordResp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					searchAppTableRecordResp.getCode(), searchAppTableRecordResp.getMsg(), searchAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(searchAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+			return null;
+		}
+
+		// 业务数据处理
+		System.out.println(Jsons.DEFAULT.toJson(searchAppTableRecordResp.getData()));
+
+		// 4. 添加一条初始记录 (Add Record)
+		// 假设表中默认有一个多行文本列名为 "多行文本" (飞书默认模板通常包含此列)
+		AppTableRecord[] appTableRecords = new AppTableRecord[serviceOrderDOS.size()];
+		int count = 11;
+		if (serviceOrderDOS.size() <= 10) {
+			count = serviceOrderDOS.size();
+		}
+		List<OfficialDO> officialDOS = officialDao.listOfficial(null, null, null, 0, 1000);
+		Map<Integer, OfficialDO> officialDOMap = officialDOS.stream().collect(Collectors.toMap(OfficialDO::getId, Function.identity(), (v1, v2) -> v2));
+		List<RegionDO> regionDOS = regionDAO.listAllRegion();
+		Map<Integer, RegionDO> regionDOMap = regionDOS.stream().collect(Collectors.toMap(RegionDO::getId, Function.identity(), (v1, v2) -> v2));
+		List<ServiceDO> serviceDOS = serviceDAO.listService(null, null, false, 0, 1000);
+		Map<Integer, ServiceDO> serviceDOMap = serviceDOS.stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity(), (v1, v2) -> v2));
+		for (int i = 0; i < count; i++) {
+			ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
+			int officialId = serviceOrderDO.getOfficialId();
+			Map<String, Object> fields = new HashMap<>();
+			OfficialDO officialDO = officialDOMap.get(officialId);
+			RegionDO regionDO = regionDOMap.get(officialDO.getRegionId());
+			String serviceName = "";
+			if (serviceOrderDO.getServiceId() != 0) {
+				serviceName = serviceDOMap.get(serviceOrderDO.getServiceId()).getCode();
+			} else {
+				SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionByCourseId(serviceOrderDO.getCourseId());
+				if (ObjectUtil.isNotNull(schoolInstitutionDO)) {
+					serviceName = schoolInstitutionDO.getName();
+				}
+			}
+			fields.put("所属文案", officialDO.getName());
+			fields.put("所属部门", regionDO.getName());
+			UserDO userById = userDao.getUserById(serviceOrderDO.getUserId());
+			fields.put("客户", userById.getName());
+			fields.put("订单", String.valueOf(serviceOrderDO.getId()));
+			fields.put("签证类别", serviceName);
+			fields.put("AI初审结果", "这是初始写入的内容");
+			fields.put("订单状态", serviceOrderDO.getState());
+			AppTableRecord build = AppTableRecord.newBuilder().fields(fields)
+					.build();
+			appTableRecords[i] = build;
+		}
+
+		// 记录列表数据
+		AppTableRecord[] searchAppTableRecords = searchAppTableRecordResp.getData().getItems();
+		for (int i = 0; i < appTableRecords.length; i++) { // 更新记录列表
+			if (i < 10) {
+				Map<String, Object> fields1 = appTableRecords[i].getFields();
+				AppTableRecord searchAppTableRecord = searchAppTableRecords[i];
+				// 创建请求对象
+				UpdateAppTableRecordReq updateAppTableRecordReq = UpdateAppTableRecordReq.newBuilder()
+						.appToken(appToken)
+						.tableId(tableId)
+						.recordId(searchAppTableRecord.getRecordId())
+						.appTableRecord(AppTableRecord.newBuilder()
+								.fields(fields1)
+								.build())
+						.build();
+
+				// 发起请求
+				UpdateAppTableRecordResp updateAppTableRecordResp = client.bitable().v1().appTableRecord().update(updateAppTableRecordReq, RequestOptions.newBuilder()
+						.build());
+
+				// 处理服务端错误
+				if(!updateAppTableRecordResp.success()) {
+					System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+							updateAppTableRecordResp.getCode(), updateAppTableRecordResp.getMsg(), updateAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(updateAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+					return null;
+				}
+
+				// 业务数据处理
+				System.out.println(Jsons.DEFAULT.toJson(updateAppTableRecordResp.getData()));
+			} else {
+				// 创建请求对象
+				BatchCreateAppTableRecordReq createRecordReq = BatchCreateAppTableRecordReq.newBuilder()
+						.tableId(tableId)
+						.appToken(appToken)
+						.batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+								.records(appTableRecords)
+								.build())
+						.build();
+
+				// 发起请求
+				BatchCreateAppTableRecordResp createRecordResp = client.bitable().v1().appTableRecord().batchCreate(createRecordReq, RequestOptions.newBuilder()
+						.build());
+
+				if (!createRecordResp.success()) {
+					System.out.println("添加记录失败: " + createRecordResp.getMsg());
+					return null;
+				}
+				String recordId = createRecordResp.getData().getRecords().toString();
+				System.out.println("3. 成功添加记录，recordId: " + recordId);
+			}
+		}
+		return url;
+	}
+
 	private boolean buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
 		boolean isBelongToThisAdviser = false;
 		if (ObjectUtil.isNull(userDto))
@@ -682,6 +934,40 @@ public class UserServiceImpl extends BaseService implements UserService {
 			for (ApplicantDO applicantDo : applicantList)
 				applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
 		return applicantDtoList;
+	}
+
+	private String buildTitle(int tableFieldCount) {
+		String title = "默认";
+		switch (tableFieldCount) {
+			case 0:
+				title = "所属文案";
+				break;
+			case 1:
+				title = "所属部门";
+				break;
+			case 2:
+				title = "客户";
+				break;
+			case 3:
+				title = "客户风险等级";
+				break;
+			case 4:
+				title = "订单";
+				break;
+			case 5:
+				title = "签证类别";
+				break;
+			case 6:
+				title = "AI初审结果";
+				break;
+			case 7:
+				title = "订单状态";
+				break;
+			default:
+				title = "默认";
+				break;
+		}
+		return title;
 	}
 
 }

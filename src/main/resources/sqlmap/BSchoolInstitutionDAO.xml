@@ -189,5 +189,14 @@
         ) t
         group by t.school_id order by count(t.service_order_id) desc limit #{limit};
     </select>
-    
+    <select id="getSchoolInstitutionByCourseId" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT
+            *
+        FROM
+            b_school_institution bsi
+                LEFT JOIN b_school_course bsc ON bsc.provider_id = bsi.id
+        WHERE
+            bsc.id = #{courseId}
+    </select>
+
 </mapper>

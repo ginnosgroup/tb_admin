@@ -5308,6 +5308,7 @@ public class ServiceOrderManageController extends BaseController {
             Integer schoolInstitutionLocationId5 = serviceOrderJsonRequest.getSchoolInstitutionLocationId5();
             String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
             String contractData = serviceOrderJsonRequest.getContractData();
+            String applicantId = serviceOrderJsonRequest.getApplicantId();
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
@@ -5449,6 +5450,9 @@ public class ServiceOrderManageController extends BaseController {
                     }
                 }
 
+                if (serviceOrderDto.getServiceId() == 25) {
+                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                }
             } else {
                 return new Response<Integer>(1, "请选择申请人.", null);
             }
@@ -5516,6 +5520,9 @@ public class ServiceOrderManageController extends BaseController {
             }
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
+            }
+            if (StringUtil.isNotEmpty(applicantId)) {
+                serviceOrderDto.setApplicantId(Integer.parseInt(applicantId));
             }
             if (StringUtil.isNotEmpty(contractData)) {
                 serviceOrderDto.setContractData(contractData);

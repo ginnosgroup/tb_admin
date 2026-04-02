@@ -268,11 +268,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 //                    visaDao.updateVisa(firstVisaByServiceOrderId);
 //                }
             }
-            if (ObjectUtil.isNotNull(serviceById)) {
-                if ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServicePackageId() == 0) {
-                    serviceOrderDo.setApplicantId(0);
-                }
-            }
+//            if (ObjectUtil.isNotNull(serviceById)) {
+//                if ("EOI".equals(serviceById.getCode()) && serviceOrderDo.getServicePackageId() == 0) {
+//                    serviceOrderDo.setApplicantId(0);
+//                }
+//            }
             // 留学订单同步申请人签证号
             if ("OVST".equals(serviceOrderDo.getType())) {
                 ApplicantDO applicantDO = applicantDao.getById(serviceOrderDo.getApplicantId());

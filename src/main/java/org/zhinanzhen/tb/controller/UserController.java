@@ -553,6 +553,20 @@ public class UserController extends BaseController {
         return new Response<UserOrder>(0, userOrder);
     }
 
+	@RequestMapping(value = "/exportUserData", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<String> exportOfficialData(@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
+											   HttpServletResponse response) throws Exception {
+		super.setGetHeader(response);
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		String apList = adminUserLoginInfo.getApList();
+		if (!"GW".equalsIgnoreCase(apList) && !"SUPERAD".equalsIgnoreCase(apList)) {
+			return new Response<String>(1, "No permission !", null);
+		}
+		String userDataUrl = userService.userData(userId);
+		return new Response<String>(0, "获取成功", userDataUrl);
+	}
+
 
 	private static boolean isNumber(String string) {
 		if (StringUtil.isEmpty(string))
