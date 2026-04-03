@@ -5552,6 +5552,9 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(contractData)) {
                 serviceOrderDto.setContractData(contractData);
             }
+            if (StringUtil.isNotEmpty(eoiType)) {
+                serviceOrderDto.setEoiType(eoiType);
+            }
             if (serviceOrderJsonRequest.getInstallment() == 1) {
                 double received1 = serviceOrderDto.getReceived();
                 serviceOrderDto.setReceivable(received1);
