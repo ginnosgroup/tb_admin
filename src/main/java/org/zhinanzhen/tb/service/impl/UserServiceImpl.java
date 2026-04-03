@@ -75,8 +75,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private ServiceDAO serviceDAO;
 	@Resource
 	private SchoolInstitutionDAO schoolInstitutionDAO;
+	@Resource
+	private ServicePackageDAO servicePackageDAO;
+	@Resource
+	private ServiceAssessDao serviceAssessDao;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+	private SimpleDateFormat sdfT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
@@ -660,11 +666,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
-	public String userData(Integer userId) throws Exception {
+	public String userData(Integer userId, String startGmtCreate, String endGmtCreate) throws Exception {
 		List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
 				null, null, null, null, null, null,
-				null, null, null, null, null,
-				null, null, null, userId, null, null, null, null, null,
+				null, null, null, null, theDateTo00_00_00(startGmtCreate),
+				theDateTo23_59_59(endGmtCreate), null, null, userId, null, null, null, null, null,
 				null, null, null, null, null, null, null,
 				null, null, null, 0, 20, null, null, null, null, null, null);
 		// 1. 初始化 Client
@@ -678,7 +684,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		// 接口文档: https://open.feishu.cn/document/server-docs/docs/bitable-v1/app/create
 		CreateAppReq req = CreateAppReq.newBuilder()
 				.reqApp(ReqApp.newBuilder()
-						.name("一篇新的多维表格")
+						.name("文案订单")
 						.build())
 				.build();
 
@@ -756,7 +762,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 			tableFieldCount++;
 		}
-		for (int i = tableFieldCount; i < 8; i++) {
+		for (int i = tableFieldCount; i < 9; i++) {
 			// 创建请求对象
 			CreateAppTableFieldReq createAppTableFieldReq = CreateAppTableFieldReq.newBuilder()
 					.appToken(appToken)
@@ -819,24 +825,47 @@ public class UserServiceImpl extends BaseService implements UserService {
 		Map<Integer, RegionDO> regionDOMap = regionDOS.stream().collect(Collectors.toMap(RegionDO::getId, Function.identity(), (v1, v2) -> v2));
 		List<ServiceDO> serviceDOS = serviceDAO.listService(null, null, false, 0, 1000);
 		Map<Integer, ServiceDO> serviceDOMap = serviceDOS.stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity(), (v1, v2) -> v2));
+		List<ServicePackageDO> servicePackageListDOS = servicePackageDAO.listAll();
+		Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
 		for (int i = 0; i < count; i++) {
 			ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
 			int officialId = serviceOrderDO.getOfficialId();
 			Map<String, Object> fields = new HashMap<>();
-			OfficialDO officialDO = officialDOMap.get(officialId);
-			RegionDO regionDO = regionDOMap.get(officialDO.getRegionId());
+			if (officialId != 0) {
+				OfficialDO officialDO = officialDOMap.get(officialId);
+				RegionDO regionDO = regionDOMap.get(officialDO.getRegionId());
+				fields.put("所属文案", officialDO.getName());
+				fields.put("所属部门", regionDO.getName());
+			}
 			String serviceName = "";
+			String ass = "";
+			if (serviceOrderDO.getServiceAssessId() != null) {
+				ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
+				ass = serviceAssessDO.getName();
+			}
 			if (serviceOrderDO.getServiceId() != 0) {
-				serviceName = serviceDOMap.get(serviceOrderDO.getServiceId()).getCode();
+				ServiceDO serviceDO = serviceDOMap.get(serviceOrderDO.getServiceId());
+				if (serviceOrderDO.getServicePackageId() > 0) {
+					String servicepakageName = "";
+					String tmp = "";
+					ServicePackageDO servicePackageListDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
+					String servicePackagetype = servicePackageListDO.getType();
+					servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+					tmp = "-";
+					if ("雇主担保".equalsIgnoreCase(serviceDO.getName()) || "独立技术移民".equalsIgnoreCase(serviceDO.getName())) {
+						serviceName = serviceDO.getName() + "-" + serviceDO.getCode() + tmp + ass + servicepakageName;
+					}
+				} else {
+					serviceName = serviceDOMap.get(serviceOrderDO.getServiceId()).getCode();
+				}
 			} else {
 				SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionByCourseId(serviceOrderDO.getCourseId());
 				if (ObjectUtil.isNotNull(schoolInstitutionDO)) {
 					serviceName = schoolInstitutionDO.getName();
 				}
 			}
-			fields.put("所属文案", officialDO.getName());
-			fields.put("所属部门", regionDO.getName());
 			UserDO userById = userDao.getUserById(serviceOrderDO.getUserId());
+			fields.put("完成时间", sdfT.format(serviceOrderDO.getFinishDate()));
 			fields.put("客户", userById.getName());
 			fields.put("订单", String.valueOf(serviceOrderDO.getId()));
 			fields.put("签证类别", serviceName);
@@ -877,12 +906,60 @@ public class UserServiceImpl extends BaseService implements UserService {
 				// 业务数据处理
 				System.out.println(Jsons.DEFAULT.toJson(updateAppTableRecordResp.getData()));
 			} else {
+				List<ServiceOrderDO> serviceOrderDOS1 = serviceOrderDOS.subList(10, serviceOrderDOS.size());
+				AppTableRecord[] appTableRecords1 = new AppTableRecord[serviceOrderDOS1.size()];
+				for (int j = 0; j < appTableRecords1.length; j++) {
+					ServiceOrderDO serviceOrderDO = serviceOrderDOS1.get(j);
+					int officialId = serviceOrderDO.getOfficialId();
+					Map<String, Object> fields = new HashMap<>();
+					OfficialDO officialDO = officialDOMap.get(officialId);
+					RegionDO regionDO = regionDOMap.get(officialDO.getRegionId());
+					String serviceName = "";
+					String ass = "";
+					if (serviceOrderDO.getServiceAssessId() != null) {
+						ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
+						ass = serviceAssessDO.getName();
+					}
+					if (serviceOrderDO.getServiceId() != 0) {
+						ServiceDO serviceDO = serviceDOMap.get(serviceOrderDO.getServiceId());
+						if (serviceOrderDO.getServicePackageId() > 0) {
+							String servicepakageName = "";
+							String tmp = "";
+							ServicePackageDO servicePackageListDO = servicePackageDAO.getById(serviceOrderDO.getServicePackageId());
+							String servicePackagetype = servicePackageListDO.getType();
+							servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+							tmp = "-";
+							if ("雇主担保".equalsIgnoreCase(serviceDO.getName()) || "独立技术移民".equalsIgnoreCase(serviceDO.getName())) {
+								serviceName = serviceDO.getName() + "-" + serviceDO.getCode() + tmp + ass + servicepakageName;
+							}
+						} else {
+							serviceName = serviceDOMap.get(serviceOrderDO.getServiceId()).getCode();
+						}
+					} else {
+						SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionByCourseId(serviceOrderDO.getCourseId());
+						if (ObjectUtil.isNotNull(schoolInstitutionDO)) {
+							serviceName = schoolInstitutionDO.getName();
+						}
+					}
+					fields.put("完成时间", sdfT.format(serviceOrderDO.getFinishDate()));
+					fields.put("所属文案", officialDO.getName());
+					fields.put("所属部门", regionDO.getName());
+					UserDO userById = userDao.getUserById(serviceOrderDO.getUserId());
+					fields.put("客户", userById.getName());
+					fields.put("订单", String.valueOf(serviceOrderDO.getId()));
+					fields.put("签证类别", serviceName);
+					fields.put("AI初审结果", "这是初始写入的内容");
+					fields.put("订单状态", convertOrderStatus(serviceOrderDO.getState()));
+					AppTableRecord build = AppTableRecord.newBuilder().fields(fields)
+							.build();
+					appTableRecords1[j] = build;
+				}
 				// 创建请求对象
 				BatchCreateAppTableRecordReq createRecordReq = BatchCreateAppTableRecordReq.newBuilder()
 						.tableId(tableId)
 						.appToken(appToken)
 						.batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
-								.records(appTableRecords)
+								.records(appTableRecords1)
 								.build())
 						.build();
 
@@ -940,27 +1017,30 @@ public class UserServiceImpl extends BaseService implements UserService {
 		String title = "默认";
 		switch (tableFieldCount) {
 			case 0:
-				title = "所属文案";
+				title = "完成时间";
 				break;
 			case 1:
-				title = "所属部门";
+				title = "所属文案";
 				break;
 			case 2:
-				title = "客户";
+				title = "所属部门";
 				break;
 			case 3:
-				title = "客户风险等级";
+				title = "客户";
 				break;
 			case 4:
-				title = "订单";
+				title = "客户风险等级";
 				break;
 			case 5:
-				title = "签证类别";
+				title = "订单";
 				break;
 			case 6:
-				title = "AI初审结果";
+				title = "签证类别";
 				break;
 			case 7:
+				title = "AI初审结果";
+				break;
+			case 8:
 				title = "订单状态";
 				break;
 			default:
@@ -970,4 +1050,89 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return title;
 	}
 
+
+	// 转换订单状态
+	private String convertOrderStatus(String state) {
+		String stateName = null;
+		switch (state) {
+			case "PENDING":
+				stateName = "待提交审核";
+				break;
+			case "REVIEW":
+				stateName = "资料待审核";
+				break;
+			case "OREVIEW":
+				stateName = "资料审核中";
+				break;
+			case "APPLY":
+				stateName = "服务申请中";
+				break;
+			case "COMPLETE":
+				stateName = "服务申请完成";
+				break;
+			case "FINISH":
+				stateName = "资料审核完成";
+				break;
+			case "CLOSE":
+				stateName = "关闭";
+				break;
+			case "RECEIVED":
+				stateName = "已收款凭证已提交";
+				break;
+			case "PAID":
+				stateName = "COE已下";
+				break;
+			case "WAIT":
+				stateName = "已提交Mara审核";
+				break;
+			case "APPLY_FAILED":
+				stateName = "申请失败";
+				break;
+			case "COMPLETE_FD":
+				stateName = "财务转账完成";
+				break;
+			default:
+				stateName = "无状态";
+		}
+		return stateName;
+	}
+
+	private String getTypeStrOfServicePackageDTO(String type) {
+		String servicepakageName;
+		switch (type) {
+			case "CA":
+				servicepakageName = "职业评估";
+				break;
+			case "EOI":
+				servicepakageName = "EOI";
+				break;
+			case "SA":
+				servicepakageName = "学校申请";
+				break;
+			case "VA":
+				servicepakageName = "签证申请";
+				break;
+			case "ZD":
+				servicepakageName = "州担";
+				break;
+			case "MAT":
+				servicepakageName = "Matrix";
+				break;
+			case "SBO":
+				servicepakageName = "SBO";
+				break;
+			case "TM":
+				servicepakageName = "提名";
+				break;
+			case "DB":
+				servicepakageName = "担保";
+				break;
+			case "ROI":
+				servicepakageName = "ROI";
+				break;
+			default:
+				servicepakageName = null;
+		}
+		return servicepakageName;
+	}
 }

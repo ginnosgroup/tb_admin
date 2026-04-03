@@ -676,7 +676,12 @@ public class Scheduled {
             }
         });
 	}
-	
+
+    // 成都文案订单所属情况（每日更新）
+
+
+
+
 	private static JSONObject getJsonObject(String url) {
 		JSONObject json = null;
 		BufferedReader in = null;

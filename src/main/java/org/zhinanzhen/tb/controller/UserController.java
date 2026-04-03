@@ -555,7 +555,10 @@ public class UserController extends BaseController {
 
 	@RequestMapping(value = "/exportUserData", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<String> exportOfficialData(@RequestParam(value = "userId", required = false) Integer userId, HttpServletRequest request,
+	public Response<String> exportOfficialData(@RequestParam(value = "userId", required = false) Integer userId,
+											   @RequestParam(value = "startGmtCreate", required = false) String startGmtCreate,
+											   @RequestParam(value = "endGmtCreate", required = false) String endGmtCreate,
+											   HttpServletRequest request,
 											   HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -563,7 +566,7 @@ public class UserController extends BaseController {
 		if (!"GW".equalsIgnoreCase(apList) && !"SUPERAD".equalsIgnoreCase(apList)) {
 			return new Response<String>(1, "No permission !", null);
 		}
-		String userDataUrl = userService.userData(userId);
+		String userDataUrl = userService.userData(userId, startGmtCreate, endGmtCreate);
 		return new Response<String>(0, "获取成功", userDataUrl);
 	}
 

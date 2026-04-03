@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -29,4 +30,8 @@ public interface ServicePackageDAO {
 	List<ServicePackageDTO> getByType(@Param("type") String type);
 
 	ServicePackageDTO getEOIService(int servicePackageId);
+
+	List<ServicePackageDO> listAll();
+
+
 }
