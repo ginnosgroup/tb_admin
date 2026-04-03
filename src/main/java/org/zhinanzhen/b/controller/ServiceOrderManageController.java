@@ -732,6 +732,8 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
                                                 @RequestParam(value = "type", required = false) String type,
+                                                @RequestParam(value = "eoiType", required = false) String eoiType,
+                                                @RequestParam(value = "isCOE", required = false) String isCOE,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -780,7 +782,7 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE);
             if (res != null && res.getCode() == 0) {
                 List<ServiceOrderDTO> cList = new ArrayList<>();
                 if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -805,7 +807,7 @@ public class ServiceOrderManageController extends BaseController {
                             null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
                             isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
                             schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE);
                     if (cRes.getCode() > 0)
                         res.setMessage(res.getMessage() + ";" + cRes.getMessage());
                 });
@@ -1098,7 +1100,7 @@ public class ServiceOrderManageController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String eoiType, String isCOE) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1271,6 +1273,14 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
+            } else {
+                serviceOrderDto.setIsCOE(null);
+            }
+            if (StringUtil.isNotEmpty(eoiType)) {
+                serviceOrderDto.setEoiType(eoiType);
+            }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
             if (StringUtil.isNotEmpty(serviceId)) {
@@ -1378,6 +1388,14 @@ public class ServiceOrderManageController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
+                // 如果修改为eoi父订单eoi类型，同步修改子订单
+                if (serviceOrderDto.getEoiType() != null && serviceOrderDto.getApplicantParentId() == 0) {
+                    List<ServiceOrderDTO> ziServiceOrderById = serviceOrderService.getZiServiceOrderById(serviceOrderDto.getId());
+                    for (ServiceOrderDTO serviceOrderDTO : ziServiceOrderById) {
+                        serviceOrderDTO.setEoiType(serviceOrderDto.getEoiType());
+                        serviceOrderService.updateServiceOrder(serviceOrderDTO);
+                    }
+                }
                 if (officialId != null &&!String.valueOf(officialId1).equals(officialId)) {
                     int v = cloudDiskService.updateofficialId(officialId1,Integer.valueOf(officialId));
                 }
