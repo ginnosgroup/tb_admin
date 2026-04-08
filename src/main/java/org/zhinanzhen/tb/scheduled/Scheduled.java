@@ -3,13 +3,20 @@ package org.zhinanzhen.tb.scheduled;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonParser;
+import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
+import com.lark.oapi.Client;
+import com.lark.oapi.core.request.RequestOptions;
+import com.lark.oapi.core.utils.Jsons;
+import com.lark.oapi.service.bitable.v1.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
@@ -21,24 +28,32 @@ import org.zhinanzhen.b.service.impl.VerifyServiceImpl;
 import org.zhinanzhen.b.service.pojo.DataDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
+import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
+import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
-import org.zhinanzhen.tb.utils.CommonUtils;
-import org.zhinanzhen.tb.utils.EmojiFilter;
-import org.zhinanzhen.tb.utils.SendEmailUtil;
-import org.zhinanzhen.tb.utils.WXWorkAPI;
+import org.zhinanzhen.tb.utils.*;
 
+import javax.annotation.Resource;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -106,11 +121,50 @@ public class Scheduled {
     @Autowired
     private SchoolInstitutionDAO schoolInstitutionDao;
 
+    @Autowired
+    private ServiceOrderDAO serviceOrderDAO;
+
+    @Autowired
+    private OfficialDAO officialDao;
+
+    @Autowired
+    private RegionDAO regionDAO;
+
+    @Autowired
+    private ServiceDAO serviceDAO;
+
+    @Autowired
+    private ServicePackageDAO servicePackageDAO;
+
+    @Autowired
+    private UserDAO userDao;
+
+    @Autowired
+    private ServiceAssessDao serviceAssessDao;
+
+    @Autowired
+    private SchoolInstitutionDAO schoolInstitutionDAO;
+
+
     private Calendar calendar ;
 
     private StringBuilder content = null;
 
     private  SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+    private SimpleDateFormat sdfT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    @Value("${feishu.ACCESSKEYID}")
+    private String ACCESS_KEY_ID;
+
+    @Value("${feishu.ACCESSKEYSECRET}")
+    private String ACCESS_KEY_SECRET;
+
+    @Value("${feishu.APPTOKEN}")
+    private String APP_TOKEN;
+
+    @Value("${feishu.EXCELID}")
+    private String EXCEL_ID;
 
     @Autowired
     public Scheduled(Executor executor) {
@@ -678,7 +732,127 @@ public class Scheduled {
 	}
 
     // 成都文案订单所属情况（每日更新）
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 30 4 * * ?")
+    private void updateUserData() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        String format = yesterday.toString();
+        String startTime = format + " 00:00:00";
+        String endTime = format + " 23:59:59";
 
+        List<Integer> officialIds = new ArrayList<>();
+        officialIds.add(1000034);
+        // 获取当天数据
+        List<ServiceOrderDO> remainingOrders = serviceOrderDAO.listServiceOrder(null, null, null, null, null, null,
+                null, null, null, null, null,
+                null, null, null,
+                null, startTime, endTime, null, officialIds, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, 0, 1000, null, null, null, null, null, null);
+        // 获取表格内容
+        try {
+            // 构建client
+            Client client = Client.newBuilder(ACCESS_KEY_ID, ACCESS_KEY_SECRET).build();
+
+            // 创建请求对象
+            SearchAppTableRecordReq searchAppTableRecordReq = SearchAppTableRecordReq.newBuilder()
+                    .appToken("ZY4CbtJIRaxykks0HNScbdomnmb")
+                    .tableId("tblYdUL0ajKR1Qb5")
+                    .pageSize(1000)
+                    .searchAppTableRecordReqBody(SearchAppTableRecordReqBody.newBuilder()
+                            .build())
+                    .build();
+
+            // 发起请求
+            SearchAppTableRecordResp searchAppTableRecordResp = client.bitable().v1().appTableRecord().search(searchAppTableRecordReq);
+
+            // 处理服务端错误
+            if(!searchAppTableRecordResp.success()) {
+                System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+                        searchAppTableRecordResp.getCode(), searchAppTableRecordResp.getMsg(), searchAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(searchAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+                return;
+            }
+
+            // 判断是否删除上上月数据
+            LocalDate today = LocalDate.now();
+            // 方法1：获取当月的第一天并比较
+            LocalDate firstDay = today.withDayOfMonth(1);
+            boolean isFirstDay = today.equals(firstDay);
+
+            AppTableRecord[] items = searchAppTableRecordResp.getData().getItems();
+            List<String> toTimeList = new ArrayList<>();
+            for (AppTableRecord item : items) {
+                Map<String, Object> fields = item.getFields();
+                String finishTime = (String) ((Map) ((List) fields.get("完成时间")).get(0)).get("text");
+                if (isFirstDay) {
+                    if (TimeUtil.isBetweenLastLastMonth(finishTime)) {
+                        toTimeList.add(item.getRecordId());
+                    }
+                } else {
+                    if (!TimeUtil.isBetweenCurrentAndLastMonth(finishTime)) {
+                        toTimeList.add(item.getRecordId());
+                    }
+                }
+            }
+            String[] array = toTimeList.stream().toArray(String[]::new);
+            // 删除过期数据
+            // 创建请求对象
+            if (array.length > 0) {
+                BatchDeleteAppTableRecordReq deleteAppTableRecordReq = BatchDeleteAppTableRecordReq.newBuilder()
+                        .appToken("ZY4CbtJIRaxykks0HNScbdomnmb")
+                        .tableId("tblYdUL0ajKR1Qb5")
+                        .batchDeleteAppTableRecordReqBody(BatchDeleteAppTableRecordReqBody.newBuilder()
+                                .records(array)
+                                .build())
+                        .build();
+
+                // 发起请求
+                BatchDeleteAppTableRecordResp deleteAppTableRecordResp = client.bitable().v1().appTableRecord().batchDelete(deleteAppTableRecordReq, RequestOptions.newBuilder()
+                        .build());
+
+                // 处理服务端错误
+                if(!deleteAppTableRecordResp.success()) {
+                    System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+                            deleteAppTableRecordResp.getCode(), deleteAppTableRecordResp.getMsg(), deleteAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(deleteAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+                }
+            } else {
+                log.info(format + "没有需删除数据");
+            }
+            // 构建查询数据映射
+            List<OfficialDO> officialDOS = officialDao.listOfficial(null, null, null, 0, 1000);
+            Map<Integer, OfficialDO> officialDOMap = officialDOS.stream().collect(Collectors.toMap(OfficialDO::getId, Function.identity(), (v1, v2) -> v2));
+            List<RegionDO> regionDOS = regionDAO.listAllRegion();
+            Map<Integer, RegionDO> regionDOMap = regionDOS.stream().collect(Collectors.toMap(RegionDO::getId, Function.identity(), (v1, v2) -> v2));
+            List<ServiceDO> serviceDOS = serviceDAO.listService(null, null, false, 0, 1000);
+            Map<Integer, ServiceDO> serviceDOMap = serviceDOS.stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity(), (v1, v2) -> v2));
+            List<ServicePackageDO> servicePackageListDOS = servicePackageDAO.listAll();
+            Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
+
+
+            // 更新新数据到表格
+            AppTableRecord[] recordsToCreate = new AppTableRecord[remainingOrders.size()];
+            if (remainingOrders != null && remainingOrders.size() > 0) {
+                for (int i = 0; i < remainingOrders.size(); i++) {
+                    ServiceOrderDO serviceOrderDO = remainingOrders.get(i);
+                    Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+                    recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
+                }
+                BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+                        .tableId("ZY4CbtJIRaxykks0HNScbdomnmb")
+                        .appToken("tblYdUL0ajKR1Qb5")
+                        .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+                                .records(recordsToCreate)
+                                .build())
+                        .build();
+                BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+                if (!createResp.success()) {
+                    System.out.println("添加记录失败: " + createResp.getMsg());
+                }
+            } else {
+                log.info(format + "没有新增数据，未进行添加");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 
@@ -718,5 +892,160 @@ public class Scheduled {
             return null;
         }
     }
+
+    private Map<String, Object> buildRecordFields(ServiceOrderDO serviceOrderDO,
+                                                  Map<Integer, OfficialDO> officialDOMap,
+                                                  Map<Integer, RegionDO> regionDOMap,
+                                                  Map<Integer, ServiceDO> serviceDOMap,
+                                                  Map<Integer, ServicePackageDO> servicePackageListDOMap,
+                                                  boolean convertStatus) {
+        Map<String, Object> fields = new HashMap<>();
+        int officialId = serviceOrderDO.getOfficialId();
+        if (officialId != 0) {
+            OfficialDO officialDO = officialDOMap.get(officialId);
+            if (officialDO != null) {
+                RegionDO regionDO = regionDOMap.get(officialDO.getRegionId());
+                fields.put("所属文案", officialDO.getName());
+                if (regionDO != null) {
+                    fields.put("所属部门", regionDO.getName());
+                }
+            }
+        }
+        String serviceName = buildServiceName(serviceOrderDO, serviceDOMap, servicePackageListDOMap);
+        UserDO userById = userDao.getUserById(serviceOrderDO.getUserId());
+        fields.put("完成时间", sdfT.format(serviceOrderDO.getFinishDate()));
+        fields.put("客户", userById != null ? userById.getName() : "");
+        fields.put("订单", String.valueOf(serviceOrderDO.getId()));
+        fields.put("签证类别", serviceName);
+        fields.put("AI初审结果", "这是初始写入的内容");
+        fields.put("订单状态", convertStatus ? convertOrderStatus(serviceOrderDO.getState()) : serviceOrderDO.getState());
+        return fields;
+    }
+
+    private String buildServiceName(ServiceOrderDO serviceOrderDO,
+                                    Map<Integer, ServiceDO> serviceDOMap,
+                                    Map<Integer, ServicePackageDO> servicePackageListDOMap) {
+        String serviceName = "";
+        String ass = "";
+        if (serviceOrderDO.getServiceAssessId() != null) {
+            ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
+            if (serviceAssessDO != null) {
+                ass = serviceAssessDO.getName();
+            }
+        }
+        if (serviceOrderDO.getServiceId() != 0) {
+            ServiceDO serviceDO = serviceDOMap.get(serviceOrderDO.getServiceId());
+            if (serviceOrderDO.getServicePackageId() > 0) {
+                String servicepakageName = "";
+                String tmp = "";
+                ServicePackageDO servicePackageListDO = servicePackageListDOMap.get(serviceOrderDO.getServicePackageId());
+                if (servicePackageListDO != null) {
+                    String servicePackagetype = servicePackageListDO.getType();
+                    servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+                }
+                tmp = "-";
+                if ("雇主担保".equalsIgnoreCase(serviceDO.getName()) || "独立技术移民".equalsIgnoreCase(serviceDO.getName())) {
+                    serviceName = serviceDO.getName() + "-" + serviceDO.getCode() + tmp + ass + servicepakageName;
+                }
+            } else {
+                ServiceDO service = serviceDOMap.get(serviceOrderDO.getServiceId());
+                if (service != null) {
+                    serviceName = service.getCode();
+                }
+            }
+        } else {
+            SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionByCourseId(serviceOrderDO.getCourseId());
+            if (ObjectUtil.isNotNull(schoolInstitutionDO)) {
+                serviceName = schoolInstitutionDO.getName();
+            }
+        }
+        return serviceName;
+    }
+
+
+    private String getTypeStrOfServicePackageDTO(String type) {
+        String servicepakageName;
+        switch (type) {
+            case "CA":
+                servicepakageName = "职业评估";
+                break;
+            case "EOI":
+                servicepakageName = "EOI";
+                break;
+            case "SA":
+                servicepakageName = "学校申请";
+                break;
+            case "VA":
+                servicepakageName = "签证申请";
+                break;
+            case "ZD":
+                servicepakageName = "州担";
+                break;
+            case "MAT":
+                servicepakageName = "Matrix";
+                break;
+            case "SBO":
+                servicepakageName = "SBO";
+                break;
+            case "TM":
+                servicepakageName = "提名";
+                break;
+            case "DB":
+                servicepakageName = "担保";
+                break;
+            case "ROI":
+                servicepakageName = "ROI";
+                break;
+            default:
+                servicepakageName = null;
+        }
+        return servicepakageName;
+    }
+    // 转换订单状态
+    private String convertOrderStatus(String state) {
+        String stateName = null;
+        switch (state) {
+            case "PENDING":
+                stateName = "待提交审核";
+                break;
+            case "REVIEW":
+                stateName = "资料待审核";
+                break;
+            case "OREVIEW":
+                stateName = "资料审核中";
+                break;
+            case "APPLY":
+                stateName = "服务申请中";
+                break;
+            case "COMPLETE":
+                stateName = "服务申请完成";
+                break;
+            case "FINISH":
+                stateName = "资料审核完成";
+                break;
+            case "CLOSE":
+                stateName = "关闭";
+                break;
+            case "RECEIVED":
+                stateName = "已收款凭证已提交";
+                break;
+            case "PAID":
+                stateName = "COE已下";
+                break;
+            case "WAIT":
+                stateName = "已提交Mara审核";
+                break;
+            case "APPLY_FAILED":
+                stateName = "申请失败";
+                break;
+            case "COMPLETE_FD":
+                stateName = "财务转账完成";
+                break;
+            default:
+                stateName = "无状态";
+        }
+        return stateName;
+    }
+
 
 }

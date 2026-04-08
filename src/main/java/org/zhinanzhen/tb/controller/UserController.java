@@ -561,11 +561,11 @@ public class UserController extends BaseController {
 											   HttpServletRequest request,
 											   HttpServletResponse response) throws Exception {
 		super.setGetHeader(response);
-		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-		String apList = adminUserLoginInfo.getApList();
-		if (!"GW".equalsIgnoreCase(apList) && !"SUPERAD".equalsIgnoreCase(apList)) {
-			return new Response<String>(1, "No permission !", null);
-		}
+//		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+//		String apList = adminUserLoginInfo.getApList();
+//		if (!"GW".equalsIgnoreCase(apList) && !"SUPERAD".equalsIgnoreCase(apList)) {
+//			return new Response<String>(1, "No permission !", null);
+//		}
 		String userDataUrl = userService.userData(userId, startGmtCreate, endGmtCreate);
 		return new Response<String>(0, "获取成功", userDataUrl);
 	}
