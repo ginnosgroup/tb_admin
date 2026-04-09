@@ -144,7 +144,7 @@ public class ServiceOrderCompleteNode extends SODecisionNode {
                         }
 //                        double expectAmount = visaOfficialDO.getExpectAmount();
                         for (VisaOfficialListDO visaOfficialListDO : list) {
-                            visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() - visaOfficialListDO.getPerAmount());
+//                            visaOfficialDO.setPerAmount(visaOfficialDO.getPerAmount() - visaOfficialListDO.getPerAmount());
                             visaOfficialDO.setCommissionAmount(visaOfficialDO.getCommissionAmount() - visaOfficialListDO.getCommissionAmount());
                             visaOfficialDO.setPredictCommission(visaOfficialDO.getCommissionAmount() * servicePackagePriceV2DTO.getRate() / 100);
 //                            expectAmount = expectAmount - visaOfficialListDO.getPerAmount();
