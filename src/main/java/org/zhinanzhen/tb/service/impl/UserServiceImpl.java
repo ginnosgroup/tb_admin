@@ -687,6 +687,16 @@ public class UserServiceImpl extends BaseService implements UserService {
 			return null;
 		}
 		serviceOrderDOS = serviceOrderDOS.stream().sorted(Comparator.comparing(ServiceOrderDO::getFinishDate)).collect(Collectors.toList());
+		List<ServiceOrderDO> visaList = new ArrayList<>();
+		List<ServiceOrderDO> ovstList = new ArrayList<>();
+		for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+			int officialId = serviceOrderDO.getOfficialId();
+			if (officialId == 1000044 || officialId == 1000053 || officialId == 1000056 || officialId == 1000057) {
+				ovstList.add(serviceOrderDO);
+			} else {
+				visaList.add(serviceOrderDO);
+			}
+		}
 		// 1. 初始化 Client
 		Client client = createFeishuClient();
 		// 2. 创建多维表格并获取 appToken, tableId, url
@@ -713,7 +723,54 @@ public class UserServiceImpl extends BaseService implements UserService {
 		List<ServicePackageDO> servicePackageListDOS = servicePackageDAO.listAll();
 		Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
 		// 5. 填充数据到多维表格
-		if (!populateBitableData(client, appToken, tableId, serviceOrderDOS, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap)) {
+		if (!populateBitableData(client, appToken, tableId, visaList, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, false)) {
+			System.out.println("填充数据失败");
+			return null;
+		}
+		// 创建新的数据表
+		// 创建请求对象
+		CreateAppTableReq createAppTableReq = CreateAppTableReq.newBuilder()
+				.appToken(appToken)
+				.createAppTableReqBody(CreateAppTableReqBody.newBuilder()
+						.table(ReqTable.newBuilder()
+								.name("数据表名称1")
+								.defaultViewName("默认的表格视图")
+								.fields(new AppTableCreateHeader[] {
+										AppTableCreateHeader.newBuilder()
+												.fieldName("索引字段")
+												.type(1)
+												.build(),
+										AppTableCreateHeader.newBuilder()
+												.fieldName("默认")
+												.type(1)
+												.build(),
+										AppTableCreateHeader.newBuilder()
+												.fieldName("默认1")
+												.type(1)
+												.build(),
+										AppTableCreateHeader.newBuilder()
+												.fieldName("默认2")
+												.type(1)
+												.build()
+								})
+								.build())
+						.build())
+				.build();
+		// 发起请求
+		CreateAppTableResp createAppTableResp = client.bitable().v1().appTable().create(createAppTableReq);
+
+		// 处理服务端错误
+		if(!createAppTableResp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					createAppTableResp.getCode(), createAppTableResp.getMsg(), createAppTableResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(createAppTableResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+			return null;
+		}
+		String tableId1 = createAppTableResp.getData().getTableId();
+		if (!ensureTableFields(client, appToken, tableId1)) {
+			System.out.println("确保字段存在失败");
+			return null;
+		}
+		if (!populateBitableData(client, appToken, tableId1, ovstList, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true)) {
 			System.out.println("填充数据失败");
 			return null;
 		}
@@ -902,42 +959,64 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	private boolean populateBitableData(Client client, String appToken, String tableId, List<ServiceOrderDO> serviceOrderDOS,
 										Map<Integer, OfficialDO> officialDOMap, Map<Integer, RegionDO> regionDOMap,
-										Map<Integer, ServiceDO> serviceDOMap, Map<Integer, ServicePackageDO> servicePackageListDOMap) throws Exception {
+										Map<Integer, ServiceDO> serviceDOMap, Map<Integer, ServicePackageDO> servicePackageListDOMap, boolean isInsert) throws Exception {
 		AppTableRecord[] existingRecords = getExistingRecords(client, appToken, tableId);
 		if (existingRecords == null) {
 			return false;
 		}
-		// 准备前10条记录的数据
-		int updateCount = Math.min(serviceOrderDOS.size(), 10);
-		AppTableRecord[] recordsToUpdate = new AppTableRecord[updateCount];
-		for (int i = 0; i < updateCount; i++) {
-			ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
-			Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
-			recordsToUpdate[i] = AppTableRecord.newBuilder().fields(fields).build();
-		}
-		// 更新前10条记录
-		for (int i = 0; i < updateCount; i++) {
-			AppTableRecord record = existingRecords[i];
-			UpdateAppTableRecordReq updateReq = UpdateAppTableRecordReq.newBuilder()
-					.appToken(appToken)
-					.tableId(tableId)
-					.recordId(record.getRecordId())
-					.appTableRecord(recordsToUpdate[i])
-					.build();
-			UpdateAppTableRecordResp updateResp = client.bitable().v1().appTableRecord().update(updateReq, RequestOptions.newBuilder().build());
-			if (!updateResp.success()) {
-				System.out.println(String.format("更新记录失败: code:%s,msg:%s,reqId:%s, resp:%s",
-						updateResp.getCode(), updateResp.getMsg(), updateResp.getRequestId(),
-						Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(updateResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
-				return false;
+		if (!isInsert) {
+			// 准备前10条记录的数据
+			int updateCount = Math.min(serviceOrderDOS.size(), 10);
+			AppTableRecord[] recordsToUpdate = new AppTableRecord[updateCount];
+			for (int i = 0; i < updateCount; i++) {
+				ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
+				Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+				recordsToUpdate[i] = AppTableRecord.newBuilder().fields(fields).build();
+			}
+			// 更新前10条记录
+			for (int i = 0; i < updateCount; i++) {
+				AppTableRecord record = existingRecords[i];
+				UpdateAppTableRecordReq updateReq = UpdateAppTableRecordReq.newBuilder()
+						.appToken(appToken)
+						.tableId(tableId)
+						.recordId(record.getRecordId())
+						.appTableRecord(recordsToUpdate[i])
+						.build();
+				UpdateAppTableRecordResp updateResp = client.bitable().v1().appTableRecord().update(updateReq, RequestOptions.newBuilder().build());
+				if (!updateResp.success()) {
+					System.out.println(String.format("更新记录失败: code:%s,msg:%s,reqId:%s, resp:%s",
+							updateResp.getCode(), updateResp.getMsg(), updateResp.getRequestId(),
+							Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(updateResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+					return false;
+				}
+			}
+			// 创建剩余记录
+			if (serviceOrderDOS.size() > 10) {
+				List<ServiceOrderDO> remainingOrders = serviceOrderDOS.subList(10, serviceOrderDOS.size());
+				AppTableRecord[] recordsToCreate = new AppTableRecord[remainingOrders.size()];
+				for (int i = 0; i < remainingOrders.size(); i++) {
+					ServiceOrderDO serviceOrderDO = remainingOrders.get(i);
+					Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+					recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
+				}
+				BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+						.tableId(tableId)
+						.appToken(appToken)
+						.batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+								.records(recordsToCreate)
+								.build())
+						.build();
+				BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+				if (!createResp.success()) {
+					System.out.println("添加记录失败: " + createResp.getMsg());
+					return false;
+				}
 			}
 		}
-		// 创建剩余记录
-		if (serviceOrderDOS.size() > 10) {
-			List<ServiceOrderDO> remainingOrders = serviceOrderDOS.subList(10, serviceOrderDOS.size());
-			AppTableRecord[] recordsToCreate = new AppTableRecord[remainingOrders.size()];
-			for (int i = 0; i < remainingOrders.size(); i++) {
-				ServiceOrderDO serviceOrderDO = remainingOrders.get(i);
+		if (isInsert) {
+			AppTableRecord[] recordsToCreate = new AppTableRecord[serviceOrderDOS.size()];
+			for (int i = 0; i < serviceOrderDOS.size(); i++) {
+				ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
 				Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
 				recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
 			}
@@ -954,6 +1033,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
