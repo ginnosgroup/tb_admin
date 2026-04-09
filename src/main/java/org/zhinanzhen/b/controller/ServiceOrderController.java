@@ -4266,11 +4266,11 @@ public class ServiceOrderController extends BaseController {
                 else
                     return new Response<ServiceOrderDTO>(1,
                             StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
-
+            long l = System.currentTimeMillis();
             Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 
             context = workflowStarter.process(workflow, context);
-
+            log.info("步骤耗时----------------------" + (System.currentTimeMillis() - l));
             if (context.getParameter("response") != null)
                 return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {

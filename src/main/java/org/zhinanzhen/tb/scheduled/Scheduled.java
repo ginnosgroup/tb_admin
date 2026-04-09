@@ -163,8 +163,11 @@ public class Scheduled {
     @Value("${feishu.APPTOKEN}")
     private String APP_TOKEN;
 
-    @Value("${feishu.EXCELID}")
-    private String EXCEL_ID;
+    @Value("${feishu.EXCELIDVISA}")
+    private String EXCEL_ID_VISA;
+
+    @Value("${feishu.EXCELIDOVST}")
+    private String EXCEL_ID_OVST;
 
     @Autowired
     public Scheduled(Executor executor) {
@@ -747,6 +750,16 @@ public class Scheduled {
                 null, null, null,
                 null, startTime, endTime, null, officialIds, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, 0, 1000, null, null, null, null, null, null);
+        List<ServiceOrderDO> visaList = new ArrayList<>();
+        List<ServiceOrderDO> ovstList = new ArrayList<>();
+        for (ServiceOrderDO serviceOrderDO : remainingOrders) {
+            int officialId = serviceOrderDO.getOfficialId();
+            if (officialId == 1000044 || officialId == 1000053 || officialId == 1000056 || officialId == 1000057) {
+                ovstList.add(serviceOrderDO);
+            } else {
+                visaList.add(serviceOrderDO);
+            }
+        }
         // 获取表格内容
         try {
             // 构建client
@@ -827,19 +840,42 @@ public class Scheduled {
             Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
 
 
-            // 更新新数据到表格
-            AppTableRecord[] recordsToCreate = new AppTableRecord[remainingOrders.size()];
-            if (remainingOrders != null && remainingOrders.size() > 0) {
-                for (int i = 0; i < remainingOrders.size(); i++) {
-                    ServiceOrderDO serviceOrderDO = remainingOrders.get(i);
+            // 更新新数据到签证表格
+            AppTableRecord[] recordsToCreate = new AppTableRecord[visaList.size()];
+            if (visaList != null && visaList.size() > 0) {
+                for (int i = 0; i < visaList.size(); i++) {
+                    ServiceOrderDO serviceOrderDO = visaList.get(i);
                     Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
                     recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
                 }
                 BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
-                        .tableId("ZY4CbtJIRaxykks0HNScbdomnmb")
-                        .appToken("tblYdUL0ajKR1Qb5")
+                        .tableId(EXCEL_ID_VISA)
+                        .appToken(APP_TOKEN)
                         .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
                                 .records(recordsToCreate)
+                                .build())
+                        .build();
+                BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+                if (!createResp.success()) {
+                    System.out.println("添加记录失败: " + createResp.getMsg());
+                }
+            } else {
+                log.info(format + "没有新增数据，未进行添加");
+            }
+
+            // 更新新数据到留学表格
+            AppTableRecord[] recordsToCreateOVST = new AppTableRecord[ovstList.size()];
+            if (ovstList != null && ovstList.size() > 0) {
+                for (int i = 0; i < ovstList.size(); i++) {
+                    ServiceOrderDO serviceOrderDO = ovstList.get(i);
+                    Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+                    recordsToCreateOVST[i] = AppTableRecord.newBuilder().fields(fields).build();
+                }
+                BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+                        .tableId(EXCEL_ID_OVST)
+                        .appToken(APP_TOKEN)
+                        .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+                                .records(recordsToCreateOVST)
                                 .build())
                         .build();
                 BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
