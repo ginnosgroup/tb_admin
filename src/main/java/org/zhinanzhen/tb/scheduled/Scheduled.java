@@ -735,7 +735,7 @@ public class Scheduled {
 	}
 
     // 成都文案订单所属情况（每日更新）
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 30 4 * * ?")
+//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 30 4 * * ?")
     private void updateUserData() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         String format = yesterday.toString();

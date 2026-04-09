@@ -40,6 +40,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -227,6 +228,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         Set<Integer> schoolCourseIds = new LinkedHashSet<>();
         Set<Integer> serviceAssessIds = new LinkedHashSet<>();
         Set<Integer> parentIds = new LinkedHashSet<>();
+        Set<Integer> locationIds = new LinkedHashSet<>();
 
         for (ServiceOrderDO order : orders) {
             serviceOrderIds.add(order.getId());
@@ -245,161 +247,237 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 try { serviceAssessIds.add(Integer.parseInt(order.getServiceAssessId())); } catch (NumberFormatException ignored) {}
             }
             if (order.getParentId() > 0) parentIds.add(order.getParentId());
+            if (order.getSchoolInstitutionLocationId() > 0) locationIds.add(order.getSchoolInstitutionLocationId());
         }
 
-        // batch load schools
-        if (!schoolIds.isEmpty()) {
-            List<SchoolDO> list = schoolDao.listByIds(new ArrayList<>(schoolIds));
-            list.forEach(s -> ctx.schoolMap.put(s.getId(), s));
+        ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
+        List<Future<?>> futures = new ArrayList<>();
+
+        // 第一阶段：所有无依赖的查询并行执行
+        final Set<Integer> _schoolIds = schoolIds;
+        final Set<Integer> _subagencyIds = subagencyIds;
+        final Set<Integer> _serviceIds = serviceIds;
+        final Set<Integer> _servicePackageIds = servicePackageIds;
+        final Set<Integer> _receiveTypeIds = receiveTypeIds;
+        final Set<Integer> _userIds = userIds;
+        final Set<Integer> _applicantIds = applicantIds;
+        final Set<Integer> _maraIds = maraIds;
+        final Set<Integer> _adviserIds = adviserIds;
+        final Set<Integer> _officialIds = officialIds;
+        final Set<Integer> _schoolCourseIds = schoolCourseIds;
+        final Set<Integer> _serviceAssessIds = serviceAssessIds;
+        final Set<Integer> _parentIds = parentIds;
+        final Set<Integer> _locationIds = locationIds;
+
+        // 1. schools
+        if (!_schoolIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<SchoolDO> list = schoolDao.listByIds(new ArrayList<>(_schoolIds));
+                list.forEach(s -> ctx.schoolMap.put(s.getId(), s));
+            }));
         }
-        // batch load subagencies
-        if (!subagencyIds.isEmpty()) {
-            List<SubagencyDO> list = subagencyDao.listByIds(new ArrayList<>(subagencyIds));
-            list.forEach(s -> ctx.subagencyMap.put(s.getId(), s));
+        // 2. subagencies
+        if (!_subagencyIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<SubagencyDO> list = subagencyDao.listByIds(new ArrayList<>(_subagencyIds));
+                list.forEach(s -> ctx.subagencyMap.put(s.getId(), s));
+            }));
         }
-        // batch load services
-        if (!serviceIds.isEmpty()) {
-            List<ServiceDO> list = serviceDao.listByIds(new ArrayList<>(serviceIds));
-            list.forEach(s -> ctx.serviceMap.put(s.getId(), s));
+        // 3. services
+        if (!_serviceIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ServiceDO> list = serviceDao.listByIds(new ArrayList<>(_serviceIds));
+                list.forEach(s -> ctx.serviceMap.put(s.getId(), s));
+            }));
         }
-        // batch load service packages
-        if (!servicePackageIds.isEmpty()) {
-            List<ServicePackageDO> list = servicePackageDao.listByIds(new ArrayList<>(servicePackageIds));
-            list.forEach(s -> ctx.servicePackageMap.put(s.getId(), s));
+        // 4. service packages
+        if (!_servicePackageIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ServicePackageDO> list = servicePackageDao.listByIds(new ArrayList<>(_servicePackageIds));
+                list.forEach(s -> ctx.servicePackageMap.put(s.getId(), s));
+            }));
         }
-        // batch load receive types
-        if (!receiveTypeIds.isEmpty()) {
-            List<ReceiveTypeDO> list = receiveTypeDao.listByIds(new ArrayList<>(receiveTypeIds));
-            list.forEach(s -> ctx.receiveTypeMap.put(s.getId(), s));
+        // 5. receive types
+        if (!_receiveTypeIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ReceiveTypeDO> list = receiveTypeDao.listByIds(new ArrayList<>(_receiveTypeIds));
+                list.forEach(s -> ctx.receiveTypeMap.put(s.getId(), s));
+            }));
         }
-        // batch load users
-        if (!userIds.isEmpty()) {
-            List<UserDO> list = userDao.listByIds(new ArrayList<>(userIds));
-            list.forEach(s -> ctx.userMap.put(s.getId(), s));
+        // 6. users
+        if (!_userIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<UserDO> list = userDao.listByIds(new ArrayList<>(_userIds));
+                list.forEach(s -> ctx.userMap.put(s.getId(), s));
+            }));
         }
-        // batch load applicants
-        if (!applicantIds.isEmpty()) {
-            List<ApplicantDO> list = applicantDao.listByIds(new ArrayList<>(applicantIds));
-            list.forEach(s -> ctx.applicantMap.put(s.getId(), s));
+        // 7. applicants
+        if (!_applicantIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ApplicantDO> list = applicantDao.listByIds(new ArrayList<>(_applicantIds));
+                list.forEach(s -> ctx.applicantMap.put(s.getId(), s));
+            }));
         }
-        // batch load maras
-        if (!maraIds.isEmpty()) {
-            List<MaraDO> list = maraDao.listByIds(new ArrayList<>(maraIds));
-            list.forEach(s -> ctx.maraMap.put(s.getId(), s));
+        // 8. maras
+        if (!_maraIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<MaraDO> list = maraDao.listByIds(new ArrayList<>(_maraIds));
+                list.forEach(s -> ctx.maraMap.put(s.getId(), s));
+            }));
         }
-        // batch load advisers
-        if (!adviserIds.isEmpty()) {
-            List<AdviserDO> list = adviserDao.listByIds(new ArrayList<>(adviserIds));
-            list.forEach(s -> ctx.adviserMap.put(s.getId(), s));
+        // 9. advisers
+        if (!_adviserIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<AdviserDO> list = adviserDao.listByIds(new ArrayList<>(_adviserIds));
+                list.forEach(s -> ctx.adviserMap.put(s.getId(), s));
+            }));
         }
-        // batch load officials
-        if (!officialIds.isEmpty()) {
-            List<OfficialDO> list = officialDao.listByIds(new ArrayList<>(officialIds));
-            list.forEach(s -> ctx.officialMap.put(s.getId(), s));
+        // 10. officials
+        if (!_officialIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<OfficialDO> list = officialDao.listByIds(new ArrayList<>(_officialIds));
+                list.forEach(s -> ctx.officialMap.put(s.getId(), s));
+            }));
         }
-        // batch load regions (from advisers)
+        // 11. official tags
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<OfficialTagDO> tagList = officialTagDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                tagList.forEach(t -> ctx.officialTagMap.put(t.getId(), t));
+            }));
+        }
+        // 12. visas
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<VisaDO> visaList = visaDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                for (VisaDO v : visaList) {
+                    ctx.visaMap.computeIfAbsent(v.getServiceOrderId(), k -> new ArrayList<>()).add(v);
+                }
+            }));
+        }
+        // 13. children orders
+        if (!_parentIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ServiceOrderDO> childrenList = serviceOrderDao.listByParentIds(new ArrayList<>(_parentIds));
+                for (ServiceOrderDO child : childrenList) {
+                    if (child.getParentId() > 0) {
+                        ctx.childrenOrderMap.computeIfAbsent(child.getParentId(), k -> new ArrayList<>()).add(child);
+                    }
+                }
+            }));
+        }
+        // 14. commission order temp
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<CommissionOrderTempDO> tempList = commissionOrderTempDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                tempList.forEach(t -> ctx.commissionOrderTempMap.put(t.getServiceOrderId(), t));
+            }));
+        }
+        // 15. customer information
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<CustomerInformationDO> ciList = customerInformationDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                ciList.forEach(ci -> ctx.customerInformationMap.put(ci.getServiceOrderId(), ci));
+            }));
+        }
+        // 16. web logs (contract data)
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<WebLogDTO> webLogList = webLogDAO.listContractDataByOrderIds(new ArrayList<>(serviceOrderIds));
+                for (WebLogDTO wl : webLogList) {
+                    ctx.webLogMap.computeIfAbsent(wl.getServiceOrderId(), k -> new ArrayList<>()).add(wl);
+                }
+            }));
+        }
+        // 17. service order applicants
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ServiceOrderApplicantDO> soaList = serviceOrderApplicantDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                for (ServiceOrderApplicantDO soa : soaList) {
+                    ctx.serviceOrderApplicantMap.computeIfAbsent(soa.getServiceOrderId(), k -> new ArrayList<>()).add(soa);
+                }
+            }));
+        }
+        // 18. old officials
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<Map<String, Object>> oldOfficialList = officialHandoverLogDao.listOldOfficialsByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                for (Map<String, Object> row : oldOfficialList) {
+                    Object sid = row.get("serviceOrderId");
+                    Object oid = row.get("officialId");
+                    if (sid != null && oid != null) {
+                        ctx.oldOfficialMap.put((Integer) sid, (Integer) oid);
+                    }
+                }
+            }));
+        }
+        // 19. service package prices
+        if (!_serviceIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ServicePackagePriceDO> priceList = servicePackagePriceDAO.listByServiceIds(new ArrayList<>(_serviceIds));
+                priceList.forEach(p -> ctx.servicePackagePriceMap.put(p.getServiceId(), p));
+            }));
+        }
+        // 20. service order manage
+        if (!serviceOrderIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<ServiceOrderAndManage> manageList = serviceOrderManageDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                manageList.forEach(m -> ctx.serviceOrderManageMap.put(m.getServiceOrderId(), m));
+            }));
+        }
+        // 21. school courses
+        if (!_schoolCourseIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<SchoolCourseDO> scList = schoolCourseDAO.listByIds(new ArrayList<>(_schoolCourseIds));
+                scList.forEach(sc -> ctx.schoolCourseMap.put(sc.getId(), sc));
+            }));
+        }
+        // 22. service assess
+        if (!_serviceAssessIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<String> ids = _serviceAssessIds.stream().map(String::valueOf).collect(Collectors.toList());
+                List<ServiceAssessDO> saList = serviceAssessDao.listByIds(ids);
+                saList.forEach(sa -> ctx.serviceAssessMap.put(sa.getId(), sa));
+            }));
+        }
+        // 23. school institution locations
+        if (!_locationIds.isEmpty()) {
+            futures.add(executor.submit(() -> {
+                List<SchoolInstitutionLocationDO> silList = schoolInstitutionLocationDAO.listByIds(new ArrayList<>(_locationIds));
+                silList.forEach(sil -> ctx.schoolInstitutionLocationMap.put(sil.getId(), sil));
+            }));
+        }
+
+        // 等待第一阶段全部完成
+        for (Future<?> f : futures) {
+            try { f.get(); } catch (Exception e) { e.printStackTrace(); }
+        }
+
+        // 第二阶段：依赖 advisers 结果的 regions 查询
         Set<Integer> regionIds = new LinkedHashSet<>();
         for (AdviserDO a : ctx.adviserMap.values()) {
             if (a.getRegionId() > 0) regionIds.add(a.getRegionId());
         }
+        List<Future<?>> futures2 = new ArrayList<>();
         if (!regionIds.isEmpty()) {
-            List<RegionDO> list = regionDAO.listByIds(new ArrayList<>(regionIds));
-            list.forEach(s -> ctx.regionMap.put(s.getId(), s));
+            futures2.add(executor.submit(() -> {
+                List<RegionDO> list = regionDAO.listByIds(new ArrayList<>(regionIds));
+                list.forEach(s -> ctx.regionMap.put(s.getId(), s));
+            }));
         }
-        // batch load official tags
-        if (!serviceOrderIds.isEmpty()) {
-            List<OfficialTagDO> tagList = officialTagDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            tagList.forEach(t -> ctx.officialTagMap.put(t.getId(), t));
-        }
-        // batch load visas
-        if (!serviceOrderIds.isEmpty()) {
-            List<VisaDO> visaList = visaDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            for (VisaDO v : visaList) {
-                ctx.visaMap.computeIfAbsent(v.getServiceOrderId(), k -> new ArrayList<>()).add(v);
-            }
-        }
-        // batch load children orders
-        if (!parentIds.isEmpty()) {
-            List<ServiceOrderDO> childrenList = serviceOrderDao.listByParentIds(new ArrayList<>(parentIds));
-            for (ServiceOrderDO child : childrenList) {
-                if (child.getParentId() > 0) {
-                    ctx.childrenOrderMap.computeIfAbsent(child.getParentId(), k -> new ArrayList<>()).add(child);
-                }
-            }
-        }
-        // batch load commission order temp
-        if (!serviceOrderIds.isEmpty()) {
-            List<CommissionOrderTempDO> tempList = commissionOrderTempDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            tempList.forEach(t -> ctx.commissionOrderTempMap.put(t.getServiceOrderId(), t));
-        }
-        // batch load customer information
-        if (!serviceOrderIds.isEmpty()) {
-            List<CustomerInformationDO> ciList = customerInformationDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            ciList.forEach(ci -> ctx.customerInformationMap.put(ci.getServiceOrderId(), ci));
-        }
-        // batch load web logs (contract data)
-        if (!serviceOrderIds.isEmpty()) {
-            List<WebLogDTO> webLogList = webLogDAO.listContractDataByOrderIds(new ArrayList<>(serviceOrderIds));
-            for (WebLogDTO wl : webLogList) {
-                ctx.webLogMap.computeIfAbsent(wl.getServiceOrderId(), k -> new ArrayList<>()).add(wl);
-            }
-        }
-        // batch load service order applicants
-        if (!serviceOrderIds.isEmpty()) {
-            List<ServiceOrderApplicantDO> soaList = serviceOrderApplicantDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            for (ServiceOrderApplicantDO soa : soaList) {
-                ctx.serviceOrderApplicantMap.computeIfAbsent(soa.getServiceOrderId(), k -> new ArrayList<>()).add(soa);
-            }
-        }
-        // batch load old officials
-        if (!serviceOrderIds.isEmpty()) {
-            List<Map<String, Object>> oldOfficialList = officialHandoverLogDao.listOldOfficialsByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            for (Map<String, Object> row : oldOfficialList) {
-                Object sid = row.get("serviceOrderId");
-                Object oid = row.get("officialId");
-                if (sid != null && oid != null) {
-                    ctx.oldOfficialMap.put((Integer) sid, (Integer) oid);
-                }
-            }
-        }
-        // batch load service package prices
-        if (!serviceIds.isEmpty()) {
-            List<ServicePackagePriceDO> priceList = servicePackagePriceDAO.listByServiceIds(new ArrayList<>(serviceIds));
-            priceList.forEach(p -> ctx.servicePackagePriceMap.put(p.getServiceId(), p));
-        }
-        // batch load service order manage
-        if (!serviceOrderIds.isEmpty()) {
-            List<ServiceOrderAndManage> manageList = serviceOrderManageDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-            manageList.forEach(m -> ctx.serviceOrderManageMap.put(m.getServiceOrderId(), m));
-        }
-        // batch load school courses
-        if (!schoolCourseIds.isEmpty()) {
-            List<SchoolCourseDO> scList = schoolCourseDAO.listByIds(new ArrayList<>(schoolCourseIds));
-            scList.forEach(sc -> ctx.schoolCourseMap.put(sc.getId(), sc));
-        }
-        // batch load service assess
-        if (!serviceAssessIds.isEmpty()) {
-            List<String> ids = serviceAssessIds.stream().map(String::valueOf).collect(Collectors.toList());
-            List<ServiceAssessDO> saList = serviceAssessDao.listByIds(ids);
-            saList.forEach(sa -> ctx.serviceAssessMap.put(sa.getId(), sa));
-        }
-        // batch load school institutions (from school courses)
+        // 依赖 school courses 结果的 school institutions 查询
         Set<Integer> institutionIds = new LinkedHashSet<>();
         for (SchoolCourseDO sc : ctx.schoolCourseMap.values()) {
             institutionIds.add(sc.getProviderId());
         }
         if (!institutionIds.isEmpty()) {
-            List<SchoolInstitutionDO> siList = schoolInstitutionDAO.listByIds(new ArrayList<>(institutionIds));
-            siList.forEach(si -> ctx.schoolInstitutionMap.put(si.getId(), si));
+            futures2.add(executor.submit(() -> {
+                List<SchoolInstitutionDO> siList = schoolInstitutionDAO.listByIds(new ArrayList<>(institutionIds));
+                siList.forEach(si -> ctx.schoolInstitutionMap.put(si.getId(), si));
+            }));
         }
-        // batch load school institution locations
-        Set<Integer> locationIds = new LinkedHashSet<>();
-        for (ServiceOrderDO order : orders) {
-            if (order.getSchoolInstitutionLocationId() > 0) locationIds.add(order.getSchoolInstitutionLocationId());
-        }
-        if (!locationIds.isEmpty()) {
-            List<SchoolInstitutionLocationDO> silList = schoolInstitutionLocationDAO.listByIds(new ArrayList<>(locationIds));
-            silList.forEach(sil -> ctx.schoolInstitutionLocationMap.put(sil.getId(), sil));
+        for (Future<?> f : futures2) {
+            try { f.get(); } catch (Exception e) { e.printStackTrace(); }
         }
 
         return ctx;
