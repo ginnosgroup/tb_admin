@@ -24,4 +24,6 @@ public interface RegionDAO {
     List<RegionDO> regionList();
 
     int updateFinanceBankId(@Param("id") Integer regionId, @Param("financeBankId") Integer financeBankId);
+
+    List<RegionDO> listByIds(@Param("ids") List<Integer> ids);
 }

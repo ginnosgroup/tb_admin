@@ -44,4 +44,6 @@ public interface ServiceAssessDao {
 
     int countCategory();
 
+    List<ServiceAssessDO> listByIds(@Param("ids") List<String> ids);
+
 }

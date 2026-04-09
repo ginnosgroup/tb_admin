@@ -165,4 +165,9 @@
     ORDER BY gmt_modify DESC LIMIT 1
   </select>
 
+    <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO" resultMap="BaseResultMap">
+        SELECT * FROM b_customer_information WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

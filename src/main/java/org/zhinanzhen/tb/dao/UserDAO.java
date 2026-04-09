@@ -70,4 +70,6 @@ public interface UserDAO {
 
 	@Select("select * from tb_user where name = #{name}")
     UserDO getUserByName(String name);
+
+	public List<UserDO> listByIds(@Param("ids") List<Integer> ids);
 }

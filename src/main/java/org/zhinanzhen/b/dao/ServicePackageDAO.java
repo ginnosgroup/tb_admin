@@ -33,5 +33,6 @@ public interface ServicePackageDAO {
 
 	List<ServicePackageDO> listAll();
 
+	public List<ServicePackageDO> listByIds(@Param("ids") List<Integer> ids);
 
 }

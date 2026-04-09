@@ -199,4 +199,9 @@
             bsc.id = #{courseId}
     </select>
 
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, code, name, institution_trading_name AS institutionTradingName, institution_name AS institutionName, institution_type AS institutionType, institution_postal_address AS institutionPostalAddress, website, is_cooperative AS isCooperative, is_freeze AS isFreeze, is_COE AS isCOE, summary FROM b_school_institution WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

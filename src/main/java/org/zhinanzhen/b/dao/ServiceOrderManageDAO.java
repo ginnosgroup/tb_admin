@@ -105,4 +105,6 @@ public interface ServiceOrderManageDAO {
 
     Integer getserviceorderManageIdByServiceorderId(int serviceOrderId);
 
+    List<ServiceOrderAndManage> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 }

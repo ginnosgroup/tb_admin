@@ -68,4 +68,9 @@
 		DELETE FROM b_official_tag WHERE id = #{id, jdbcType=INTEGER}
 	</delete>
 
+    <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.OfficialTagDO">
+        SELECT ot.id AS id, ot.name AS name, ot.colour AS colour FROM b_official_tag ot, b_service_order_official_tag soot WHERE ot.id = soot.official_tag_id AND soot.service_order_id IN
+        <foreach collection="serviceOrderIds" item="sid" open="(" separator="," close=")">#{sid}</foreach>
+    </select>
+
 </mapper>

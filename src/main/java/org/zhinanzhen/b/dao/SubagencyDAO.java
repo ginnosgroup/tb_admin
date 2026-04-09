@@ -21,4 +21,6 @@ public interface SubagencyDAO {
 
 	@Select("SELECT bs.`name` FROM b_subagency bs LEFT JOIN b_service_order so ON bs.id = so.subagency_id WHERE so.id = #{serviceOrderId}")
     String getSubagencyByServiceOrderId(int serviceOrderId);
+
+	public List<SubagencyDO> listByIds(@Param("ids") List<Integer> ids);
 }

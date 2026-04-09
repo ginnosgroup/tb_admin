@@ -150,4 +150,9 @@
             oper_userid AS operUserId
         from tb_adviser where email = #{userName}
     </select>
+    <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+        SELECT id, gmt_create AS gmtCreate, name, phone, email, state, image_url AS imageUrl, region_id AS regionId, oper_userid AS operUserId FROM tb_adviser WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

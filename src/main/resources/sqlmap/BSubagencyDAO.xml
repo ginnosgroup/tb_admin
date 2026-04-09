@@ -67,4 +67,9 @@
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.SubagencyDO">
+        SELECT id, gmt_create AS GmtCreate, name, country, commission_rate AS CommissionRate FROM b_subagency WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

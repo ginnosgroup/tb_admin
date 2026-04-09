@@ -155,4 +155,8 @@ public interface ServiceOrderDAO {
     Integer getOrderCount(@Param("userId")int userId, @Param("visa") String visa);
 
      Double getOrderAmount(int id);
+
+    List<ServiceOrderDO> listByParentIds(@Param("parentIds") List<Integer> parentIds);
+
+    List<ServiceOrderDO> listByIds(@Param("ids") List<Integer> ids);
 }

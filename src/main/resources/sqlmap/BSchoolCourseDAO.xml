@@ -209,4 +209,9 @@
             <result column="bsccourseCode" property="courseCode"></result>
         </association>
     </resultMap>
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.SchoolCourseDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, course_name AS courseName, course_sector AS courseSector, course_level AS courseLevel, provider_id AS providerId, provider_code AS providerCode, course_code AS courseCode, is_freeze AS isFreeze FROM b_school_course WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

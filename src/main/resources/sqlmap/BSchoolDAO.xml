@@ -111,4 +111,9 @@
         WHERE name = #{name};
     </update>
 
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.SchoolDO">
+        SELECT id, name, subject, country FROM b_school WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

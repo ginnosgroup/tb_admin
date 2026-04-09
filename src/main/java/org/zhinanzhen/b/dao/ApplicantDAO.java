@@ -21,4 +21,6 @@ public interface ApplicantDAO {
 
 	int deleteById(int id);
 
+	List<ApplicantDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

@@ -14,4 +14,6 @@ public interface WebLogDAO {
 
     List<WebLogDTO> listContractData(@Param("serviceOrderId") int id);
 
+    List<WebLogDTO> listContractDataByOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 }

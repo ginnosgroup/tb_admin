@@ -454,4 +454,9 @@
         </if>
         WHERE user_id = #{userId};
     </update>
+    <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT id, gmt_create AS gmtCreate, name, birthday, area_code AS areaCode, phone, email, wechat_username AS wechatUsername, first_controller_contents AS firstControllerContents, visa_code AS visaCode, visa_expiration_date AS visaExpirationDate, source, auth_type AS authType, auth_openid AS authOpenid, auth_username AS authUsername, auth_nickname AS authNickname, auth_logo AS authLogo, balance, adviser_id AS adviserId, region_id AS regionId, channel_source AS channelsource, state_text AS stateText FROM tb_user WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

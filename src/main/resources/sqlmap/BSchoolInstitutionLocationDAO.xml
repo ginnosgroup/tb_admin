@@ -94,4 +94,9 @@
         FROM b_school_institution_location
         GROUP BY state;
     </select>
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.SchoolInstitutionLocationDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, name, state, number_of_courses AS numberOfCourses, provider_id AS providerId, provider_code AS providerCode, phone, address FROM b_school_institution_location WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

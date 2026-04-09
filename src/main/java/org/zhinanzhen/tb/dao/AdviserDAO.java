@@ -24,4 +24,6 @@ public interface AdviserDAO {
 
     AdviserDO getAdviserByEmail(@Param("userName") String userName);
 
+	public List<AdviserDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

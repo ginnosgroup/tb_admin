@@ -77,4 +77,10 @@
     </select>
 
 
+    <select id="listContractDataByOrderIds" resultType="org.zhinanzhen.b.service.pojo.WebLogDTO">
+        SELECT * FROM b_web_log WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+        AND uri LIKE '%ContractData%'
+    </select>
+
 </mapper>

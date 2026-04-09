@@ -16,4 +16,6 @@ public interface ServiceOrderApplicantDAO {
 
 	int delete(@Param("id") Integer id);
 
+	List<ServiceOrderApplicantDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 }

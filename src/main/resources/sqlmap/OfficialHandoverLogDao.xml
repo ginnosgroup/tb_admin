@@ -26,4 +26,9 @@
 
     </select>
 
+    <select id="listOldOfficialsByServiceOrderIds" resultType="java.util.Map">
+        SELECT service_order_id AS serviceOrderId, official_id AS officialId FROM b_official_handover_log WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

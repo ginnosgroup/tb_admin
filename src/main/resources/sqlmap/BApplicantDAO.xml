@@ -148,4 +148,9 @@
 		DELETE FROM b_applicant WHERE id = #{id, jdbcType=INTEGER}
 	</delete>
 	
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.ApplicantDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, surname, firstname, birthday, type, visa_code AS visaCode, visa_expiration_date AS visaExpirationDate, nut_cloud AS nutCloud, file_url AS fileUrl, first_controller_contents AS firstControllerContents, user_id AS userId, adviser_id AS adviserId FROM b_applicant WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

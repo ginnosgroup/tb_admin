@@ -138,4 +138,9 @@
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
 
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceDO">
+        SELECT id, gmt_create AS GmtCreate, name, code, role, is_zx AS isZx, is_delete AS isDelete, is_long_time AS isLongTime FROM b_service WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

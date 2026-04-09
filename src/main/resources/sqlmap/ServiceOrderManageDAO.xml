@@ -803,4 +803,9 @@
     <select id="getserviceorderManageIdByServiceorderId" resultType="java.lang.Integer">
         SELECT service_order_manage_id FROM b_service_order_and_manage WHERE service_order_id = #{serviceOrderId}
     </select>
+    <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage">
+        SELECT id, service_order_id AS serviceOrderId, service_order_manage_id AS serviceOrderManageId FROM b_service_order_and_manage WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

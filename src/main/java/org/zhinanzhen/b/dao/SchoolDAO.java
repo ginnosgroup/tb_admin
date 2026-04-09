@@ -25,4 +25,6 @@ public interface SchoolDAO {
 	
 	public int deleteSchoolByName(@Param("name") String name);
 
+	public List<SchoolDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

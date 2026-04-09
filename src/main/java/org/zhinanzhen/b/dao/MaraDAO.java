@@ -18,4 +18,6 @@ public interface MaraDAO {
 
 	public MaraDO getMaraById(int id);
 
+	public List<MaraDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

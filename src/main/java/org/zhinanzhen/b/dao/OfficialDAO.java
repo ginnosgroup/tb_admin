@@ -40,4 +40,6 @@ public interface OfficialDAO {
 
 	OfficialDO getOfficialByEmail(@Param("userName") String userName);
 
+	List<OfficialDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

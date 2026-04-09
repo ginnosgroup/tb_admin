@@ -32,4 +32,6 @@ public interface ServiceDAO {
 
 	@Select("select code from b_service where is_extra = true and is_delete = false")
 	List<String> listExtraAmount();
+
+	public List<ServiceDO> listByIds(@Param("ids") List<Integer> ids);
 }
