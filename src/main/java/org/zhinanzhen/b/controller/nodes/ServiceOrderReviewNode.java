@@ -99,8 +99,10 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 //		}
 		try {
 			ServiceOrderDTO serviceOrderDtoT = new ServiceOrderDTO();
+			long l = System.currentTimeMillis();
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(getServiceOrderId(context));
 			ServiceOrderDTO serviceorderManageDto = serviceOrderManageService.getServiceOrderById(getServiceOrderId(context));
+			log.info("两个获取服务订单耗时----------------" + (System.currentTimeMillis() - l));
 			if (serviceOrderDto == null && serviceorderManageDto == null) {
 				context.putParameter("response",
 						new Response<ServiceOrderDTO>(1, "服务订单不存在:" + getServiceOrderId(context), null));

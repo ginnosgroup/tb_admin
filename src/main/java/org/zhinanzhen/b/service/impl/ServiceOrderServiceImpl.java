@@ -14,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.config.GlobalThreadPool;
+import org.zhinanzhen.b.config.ServiceOrderBatchContext;
+import org.zhinanzhen.b.config.ServiceOrderBatchLoader;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -181,306 +183,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private WebLogDAO webLogDAO;
 
-    @Data
-    public static class ServiceOrderBatchContext {
-        Map<Integer, SchoolDO> schoolMap = new HashMap<>();
-        Map<Integer, SubagencyDO> subagencyMap = new HashMap<>();
-        Map<Integer, ServiceDO> serviceMap = new HashMap<>();
-        Map<Integer, ServicePackageDO> servicePackageMap = new HashMap<>();
-        Map<Integer, ReceiveTypeDO> receiveTypeMap = new HashMap<>();
-        Map<Integer, UserDO> userMap = new HashMap<>();
-        Map<Integer, ApplicantDO> applicantMap = new HashMap<>();
-        Map<Integer, MaraDO> maraMap = new HashMap<>();
-        Map<Integer, AdviserDO> adviserMap = new HashMap<>();
-        Map<Integer, OfficialDO> officialMap = new HashMap<>();
-        Map<Integer, RegionDO> regionMap = new HashMap<>();
-        Map<Integer, ServiceAssessDO> serviceAssessMap = new HashMap<>();
-        Map<Integer, OfficialTagDO> officialTagMap = new HashMap<>();
-        Map<Integer, List<VisaDO>> visaMap = new HashMap<>();
-        Map<Integer, List<ServiceOrderDO>> childrenOrderMap = new HashMap<>();
-        Map<Integer, CommissionOrderTempDO> commissionOrderTempMap = new HashMap<>();
-        Map<Integer, CustomerInformationDO> customerInformationMap = new HashMap<>();
-        Map<Integer, List<WebLogDTO>> webLogMap = new HashMap<>();
-        Map<Integer, List<ServiceOrderApplicantDO>> serviceOrderApplicantMap = new HashMap<>();
-        Map<Integer, Integer> oldOfficialMap = new HashMap<>();
-        Map<Integer, ServicePackagePriceDO> servicePackagePriceMap = new HashMap<>();
-        Map<Integer, ServiceOrderAndManage> serviceOrderManageMap = new HashMap<>();
-        Map<Integer, SchoolCourseDO> schoolCourseMap = new HashMap<>();
-        Map<Integer, SchoolInstitutionDO> schoolInstitutionMap = new HashMap<>();
-        Map<Integer, SchoolInstitutionLocationDO> schoolInstitutionLocationMap = new HashMap<>();
+    private ServiceOrderBatchLoader batchLoader;
+
+    private ServiceOrderBatchLoader getBatchLoader() {
+        if (batchLoader == null) {
+            batchLoader = new ServiceOrderBatchLoader(
+                    serviceOrderDao, schoolDao, subagencyDao, serviceDao,
+                    servicePackageDao, receiveTypeDao, userDao, applicantDao,
+                    maraDao, adviserDao, officialDao, officialTagDao,
+                    visaDao, serviceAssessDao, regionDAO, commissionOrderTempDao,
+                    schoolCourseDAO, schoolInstitutionDAO, schoolInstitutionLocationDAO,
+                    customerInformationDAO, serviceOrderApplicantDao, officialHandoverLogDao,
+                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO
+            );
+        }
+        return batchLoader;
     }
 
     private ServiceOrderBatchContext batchLoadRelatedData(List<ServiceOrderDO> orders) {
-        ServiceOrderBatchContext ctx = new ServiceOrderBatchContext();
-        if (orders == null || orders.isEmpty()) return ctx;
-
-        Set<Integer> schoolIds = new LinkedHashSet<>();
-        Set<Integer> subagencyIds = new LinkedHashSet<>();
-        Set<Integer> serviceIds = new LinkedHashSet<>();
-        Set<Integer> servicePackageIds = new LinkedHashSet<>();
-        Set<Integer> receiveTypeIds = new LinkedHashSet<>();
-        Set<Integer> userIds = new LinkedHashSet<>();
-        Set<Integer> applicantIds = new LinkedHashSet<>();
-        Set<Integer> maraIds = new LinkedHashSet<>();
-        Set<Integer> adviserIds = new LinkedHashSet<>();
-        Set<Integer> officialIds = new LinkedHashSet<>();
-        Set<Integer> serviceOrderIds = new LinkedHashSet<>();
-        Set<Integer> schoolCourseIds = new LinkedHashSet<>();
-        Set<Integer> serviceAssessIds = new LinkedHashSet<>();
-        Set<Integer> parentIds = new LinkedHashSet<>();
-        Set<Integer> locationIds = new LinkedHashSet<>();
-
-        for (ServiceOrderDO order : orders) {
-            serviceOrderIds.add(order.getId());
-            if (order.getSchoolId() > 0) schoolIds.add(order.getSchoolId());
-            if (order.getSubagencyId() > 0) subagencyIds.add(order.getSubagencyId());
-            if (order.getServiceId() > 0) serviceIds.add(order.getServiceId());
-            if (order.getServicePackageId() > 0) servicePackageIds.add(order.getServicePackageId());
-            if (order.getReceiveTypeId() > 0) receiveTypeIds.add(order.getReceiveTypeId());
-            if (order.getUserId() > 0) userIds.add(order.getUserId());
-            if (order.getMaraId() > 0) maraIds.add(order.getMaraId());
-            if (order.getAdviserId() > 0) adviserIds.add(order.getAdviserId());
-            if (order.getOfficialId() > 0) officialIds.add(order.getOfficialId());
-            if (order.getApplicantId() > 0) applicantIds.add(order.getApplicantId());
-            if (order.getCourseId() > 0) schoolCourseIds.add(order.getCourseId());
-            if (order.getServiceAssessId() != null && !order.getServiceAssessId().equals("0")) {
-                try { serviceAssessIds.add(Integer.parseInt(order.getServiceAssessId())); } catch (NumberFormatException ignored) {}
-            }
-            if (order.getParentId() > 0) parentIds.add(order.getParentId());
-            if (order.getSchoolInstitutionLocationId() > 0) locationIds.add(order.getSchoolInstitutionLocationId());
-        }
-
-        ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
-        List<Future<?>> futures = new ArrayList<>();
-
-        // 第一阶段：所有无依赖的查询并行执行
-        final Set<Integer> _schoolIds = schoolIds;
-        final Set<Integer> _subagencyIds = subagencyIds;
-        final Set<Integer> _serviceIds = serviceIds;
-        final Set<Integer> _servicePackageIds = servicePackageIds;
-        final Set<Integer> _receiveTypeIds = receiveTypeIds;
-        final Set<Integer> _userIds = userIds;
-        final Set<Integer> _applicantIds = applicantIds;
-        final Set<Integer> _maraIds = maraIds;
-        final Set<Integer> _adviserIds = adviserIds;
-        final Set<Integer> _officialIds = officialIds;
-        final Set<Integer> _schoolCourseIds = schoolCourseIds;
-        final Set<Integer> _serviceAssessIds = serviceAssessIds;
-        final Set<Integer> _parentIds = parentIds;
-        final Set<Integer> _locationIds = locationIds;
-
-        // 1. schools
-        if (!_schoolIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<SchoolDO> list = schoolDao.listByIds(new ArrayList<>(_schoolIds));
-                list.forEach(s -> ctx.schoolMap.put(s.getId(), s));
-            }));
-        }
-        // 2. subagencies
-        if (!_subagencyIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<SubagencyDO> list = subagencyDao.listByIds(new ArrayList<>(_subagencyIds));
-                list.forEach(s -> ctx.subagencyMap.put(s.getId(), s));
-            }));
-        }
-        // 3. services
-        if (!_serviceIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ServiceDO> list = serviceDao.listByIds(new ArrayList<>(_serviceIds));
-                list.forEach(s -> ctx.serviceMap.put(s.getId(), s));
-            }));
-        }
-        // 4. service packages
-        if (!_servicePackageIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ServicePackageDO> list = servicePackageDao.listByIds(new ArrayList<>(_servicePackageIds));
-                list.forEach(s -> ctx.servicePackageMap.put(s.getId(), s));
-            }));
-        }
-        // 5. receive types
-        if (!_receiveTypeIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ReceiveTypeDO> list = receiveTypeDao.listByIds(new ArrayList<>(_receiveTypeIds));
-                list.forEach(s -> ctx.receiveTypeMap.put(s.getId(), s));
-            }));
-        }
-        // 6. users
-        if (!_userIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<UserDO> list = userDao.listByIds(new ArrayList<>(_userIds));
-                list.forEach(s -> ctx.userMap.put(s.getId(), s));
-            }));
-        }
-        // 7. applicants
-        if (!_applicantIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ApplicantDO> list = applicantDao.listByIds(new ArrayList<>(_applicantIds));
-                list.forEach(s -> ctx.applicantMap.put(s.getId(), s));
-            }));
-        }
-        // 8. maras
-        if (!_maraIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<MaraDO> list = maraDao.listByIds(new ArrayList<>(_maraIds));
-                list.forEach(s -> ctx.maraMap.put(s.getId(), s));
-            }));
-        }
-        // 9. advisers
-        if (!_adviserIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<AdviserDO> list = adviserDao.listByIds(new ArrayList<>(_adviserIds));
-                list.forEach(s -> ctx.adviserMap.put(s.getId(), s));
-            }));
-        }
-        // 10. officials
-        if (!_officialIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<OfficialDO> list = officialDao.listByIds(new ArrayList<>(_officialIds));
-                list.forEach(s -> ctx.officialMap.put(s.getId(), s));
-            }));
-        }
-        // 11. official tags
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<OfficialTagDO> tagList = officialTagDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                tagList.forEach(t -> ctx.officialTagMap.put(t.getId(), t));
-            }));
-        }
-        // 12. visas
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<VisaDO> visaList = visaDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                for (VisaDO v : visaList) {
-                    ctx.visaMap.computeIfAbsent(v.getServiceOrderId(), k -> new ArrayList<>()).add(v);
-                }
-            }));
-        }
-        // 13. children orders
-        if (!_parentIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ServiceOrderDO> childrenList = serviceOrderDao.listByParentIds(new ArrayList<>(_parentIds));
-                for (ServiceOrderDO child : childrenList) {
-                    if (child.getParentId() > 0) {
-                        ctx.childrenOrderMap.computeIfAbsent(child.getParentId(), k -> new ArrayList<>()).add(child);
-                    }
-                }
-            }));
-        }
-        // 14. commission order temp
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<CommissionOrderTempDO> tempList = commissionOrderTempDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                tempList.forEach(t -> ctx.commissionOrderTempMap.put(t.getServiceOrderId(), t));
-            }));
-        }
-        // 15. customer information
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<CustomerInformationDO> ciList = customerInformationDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                ciList.forEach(ci -> ctx.customerInformationMap.put(ci.getServiceOrderId(), ci));
-            }));
-        }
-        // 16. web logs (contract data)
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<WebLogDTO> webLogList = webLogDAO.listContractDataByOrderIds(new ArrayList<>(serviceOrderIds));
-                for (WebLogDTO wl : webLogList) {
-                    ctx.webLogMap.computeIfAbsent(wl.getServiceOrderId(), k -> new ArrayList<>()).add(wl);
-                }
-            }));
-        }
-        // 17. service order applicants
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ServiceOrderApplicantDO> soaList = serviceOrderApplicantDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                for (ServiceOrderApplicantDO soa : soaList) {
-                    ctx.serviceOrderApplicantMap.computeIfAbsent(soa.getServiceOrderId(), k -> new ArrayList<>()).add(soa);
-                }
-            }));
-        }
-        // 18. old officials
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<Map<String, Object>> oldOfficialList = officialHandoverLogDao.listOldOfficialsByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                for (Map<String, Object> row : oldOfficialList) {
-                    Object sid = row.get("serviceOrderId");
-                    Object oid = row.get("officialId");
-                    if (sid != null && oid != null) {
-                        ctx.oldOfficialMap.put((Integer) sid, (Integer) oid);
-                    }
-                }
-            }));
-        }
-        // 19. service package prices
-        if (!_serviceIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ServicePackagePriceDO> priceList = servicePackagePriceDAO.listByServiceIds(new ArrayList<>(_serviceIds));
-                priceList.forEach(p -> ctx.servicePackagePriceMap.put(p.getServiceId(), p));
-            }));
-        }
-        // 20. service order manage
-        if (!serviceOrderIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<ServiceOrderAndManage> manageList = serviceOrderManageDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
-                manageList.forEach(m -> ctx.serviceOrderManageMap.put(m.getServiceOrderId(), m));
-            }));
-        }
-        // 21. school courses
-        if (!_schoolCourseIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<SchoolCourseDO> scList = schoolCourseDAO.listByIds(new ArrayList<>(_schoolCourseIds));
-                scList.forEach(sc -> ctx.schoolCourseMap.put(sc.getId(), sc));
-            }));
-        }
-        // 22. service assess
-        if (!_serviceAssessIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<String> ids = _serviceAssessIds.stream().map(String::valueOf).collect(Collectors.toList());
-                List<ServiceAssessDO> saList = serviceAssessDao.listByIds(ids);
-                saList.forEach(sa -> ctx.serviceAssessMap.put(sa.getId(), sa));
-            }));
-        }
-        // 23. school institution locations
-        if (!_locationIds.isEmpty()) {
-            futures.add(executor.submit(() -> {
-                List<SchoolInstitutionLocationDO> silList = schoolInstitutionLocationDAO.listByIds(new ArrayList<>(_locationIds));
-                silList.forEach(sil -> ctx.schoolInstitutionLocationMap.put(sil.getId(), sil));
-            }));
-        }
-
-        // 等待第一阶段全部完成
-        for (Future<?> f : futures) {
-            try { f.get(); } catch (Exception e) { e.printStackTrace(); }
-        }
-
-        // 第二阶段：依赖 advisers 结果的 regions 查询
-        Set<Integer> regionIds = new LinkedHashSet<>();
-        for (AdviserDO a : ctx.adviserMap.values()) {
-            if (a.getRegionId() > 0) regionIds.add(a.getRegionId());
-        }
-        List<Future<?>> futures2 = new ArrayList<>();
-        if (!regionIds.isEmpty()) {
-            futures2.add(executor.submit(() -> {
-                List<RegionDO> list = regionDAO.listByIds(new ArrayList<>(regionIds));
-                list.forEach(s -> ctx.regionMap.put(s.getId(), s));
-            }));
-        }
-        // 依赖 school courses 结果的 school institutions 查询
-        Set<Integer> institutionIds = new LinkedHashSet<>();
-        for (SchoolCourseDO sc : ctx.schoolCourseMap.values()) {
-            institutionIds.add(sc.getProviderId());
-        }
-        if (!institutionIds.isEmpty()) {
-            futures2.add(executor.submit(() -> {
-                List<SchoolInstitutionDO> siList = schoolInstitutionDAO.listByIds(new ArrayList<>(institutionIds));
-                siList.forEach(si -> ctx.schoolInstitutionMap.put(si.getId(), si));
-            }));
-        }
-        for (Future<?> f : futures2) {
-            try { f.get(); } catch (Exception e) { e.printStackTrace(); }
-        }
-
-        return ctx;
+        return getBatchLoader().batchLoadRelatedData(orders);
     }
 
     @Override
@@ -1250,7 +971,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 }
                 serviceOrderDo.setDistributableAmount((serviceOrderDo.getReceivable() * 0.6) - costPrince);
             }
-            serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
+            List<ServiceOrderDO> serviceOrderDOS = new ArrayList<>();
+            serviceOrderDOS.add(serviceOrderDo);
+            // 批量预加载关联数据
+            ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderDOS);
+            serviceOrderDto = putServiceOrderDTO(serviceOrderDo, batchContext);
 			/*
 			serviceOrderDto = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			// 查询学校课程
@@ -1347,406 +1072,406 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         return serviceOrderDto;
     }
 
-    public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {
-        ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
-        //获取旧文案信息
-        Integer oldOfficialId = officialHandoverLogDao.getOldOfficial(serviceOrderDto.getId());
-        if (oldOfficialId != null) {
-            serviceOrderDto.setOldOfficial(officialDao.getOfficialById(oldOfficialId));
-        }
-        // 查询学校课程
-        if (serviceOrderDto.getSchoolId() > 0) {
-            SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
-            if (schoolDo != null)
-                serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
-        }
-        // 查询Subagency
-        if (serviceOrderDto.getSubagencyId() > 0) {
-            SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
-            if (subagencyDo != null)
-                serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
-        }
-        // 查询服务
-        ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
-        if (serviceDo != null) {
-            if (serviceDo.getCode().contains("EOI")) {
-                if (serviceOrderDto.getServicePackageId() == 0) {
-                    StringBuilder eoiList = new StringBuilder();
-                    List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
-                    if (deriveOrder != null && !deriveOrder.isEmpty()) {
-                        for (ServiceOrderDTO e : deriveOrder) {
-                            ServicePackageDTO eoiService = servicePackageDao.getEOIService(e.getServicePackageId());
-                            eoiList.append(eoiService.getServiceCode()).append(",");
-                        }
-                    }
-                    if (StringUtils.isNotBlank(String.valueOf(eoiList))) {
-                        serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
-                    }
-                }
-                if (serviceOrderDto.getApplicantId() == 0 && serviceOrderDto.getApplicantParentId() == 0) {
-                    List<ServiceAssessAndEOI> serviceAssessAndEOIList = new ArrayList<>();
-                    List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
-                    if (deriveOrder != null && !deriveOrder.isEmpty() && deriveOrder.get(0).getServiceAssessId() != null) {
-                        deriveOrder.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getServiceAssessId)).forEach((k, v) -> {
-                            ServiceAssessAndEOI serviceAssessAndEOI = new ServiceAssessAndEOI();
-                            ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(k);
-                            if (serviceAssessDO != null) {
-                                StringBuilder eoiNum = new StringBuilder();
-                                serviceAssessAndEOI.setLabel(serviceAssessDO.getName());
-                                serviceAssessAndEOI.setValue(k);
-                                serviceAssessAndEOI.setKey(k);
-                                for (ServiceOrderDTO serviceOrderDTO : v) {
-                                    eoiNum.append(",").append(serviceOrderDTO.getServicePackageId());
-                                }
-                                serviceAssessAndEOI.setEoiServicePackageId(eoiNum.substring(1, eoiNum.length()));
-                                serviceAssessAndEOIList.add(serviceAssessAndEOI);
-                            }
-                        });
-                        serviceOrderDto.setServiceAssessAndEOIList(serviceAssessAndEOIList);
-                    }
-                }
-                ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(serviceOrderDto.getServicePackageId());
-                if (ObjectUtil.isNotNull(servicePackageDo)) {
-                    serviceDo.setCode(servicePackageDo.getType());
-                }
-            }
-            serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
-        }
-        // 查询服务包类型
-        if (serviceOrderDto.getServicePackageId() > 0) {
-            ServicePackageDO servicePackageDAOById = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-            if ("EOI".equals(servicePackageDAOById.getType())) {
-                ServicePackageDTO servicePackageDTO = servicePackageDao.getEOIService(serviceOrderDto.getServicePackageId());
-                if (ObjectUtil.isNotNull(servicePackageDTO)) {
-                    serviceOrderDto.setServicePackage(servicePackageDTO);
-                }
-            } else {
-                ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-                if (servicePackageDo != null)
-                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
-            }
-        }
-        // 查询收款方式
-        ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
-        if (receiveTypeDo != null)
-            serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
-        // 查询用户
-        UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
-        if (userDo != null) {
-            UserDTO userDto = mapper.map(userDo, UserDTO.class);
-            if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
-                List<ServiceOrderApplicantDO> serviceOrderApplicantList = serviceOrderApplicantDao.list(serviceOrderDto.getId(), null);
-//				List<ApplicantDO> applicantDoList = applicantDao.list(0, null, serviceOrderDto.getUserId(),
-//						serviceOrderDto.getAdviserId(), 0, 999);
-                List<ApplicantDTO> applicantDtoList = new ArrayList<>();
-                serviceOrderApplicantList.forEach(serviceOrderApplicant -> {
-                    ApplicantDO applicantDo = applicantDao.getById(serviceOrderApplicant.getApplicantId());
-                    if (applicantDo != null) {
-                        if (applicantDo.getFileUrl() == null) {
-                            List<ServiceOrderApplicantDO> list = serviceOrderApplicantDao.list(serviceOrderDO.getId(), applicantDo.getId());
-                            if (list != null) {
-                                applicantDo.setFileUrl(list.get(0).getUrl());
-                                applicantDo.setFirstControllerContents(list.get(0).getContent());
-                            }
-                        }
-                        applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
-                    }
-                });
-				if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
-					applicantDtoList.add(serviceOrderDto.getApplicant());
-                userDto.setApplicantList(applicantDtoList);
-            }
-//            List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
-//            if (!cloudDiskFileList.isEmpty()) {
-//                userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
+//    public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {
+//        ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+//        //获取旧文案信息
+//        Integer oldOfficialId = officialHandoverLogDao.getOldOfficial(serviceOrderDto.getId());
+//        if (oldOfficialId != null) {
+//            serviceOrderDto.setOldOfficial(officialDao.getOfficialById(oldOfficialId));
+//        }
+//        // 查询学校课程
+//        if (serviceOrderDto.getSchoolId() > 0) {
+//            SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
+//            if (schoolDo != null)
+//                serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
+//        }
+//        // 查询Subagency
+//        if (serviceOrderDto.getSubagencyId() > 0) {
+//            SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
+//            if (subagencyDo != null)
+//                serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
+//        }
+//        // 查询服务
+//        ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
+//        if (serviceDo != null) {
+//            if (serviceDo.getCode().contains("EOI")) {
+//                if (serviceOrderDto.getServicePackageId() == 0) {
+//                    StringBuilder eoiList = new StringBuilder();
+//                    List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
+//                    if (deriveOrder != null && !deriveOrder.isEmpty()) {
+//                        for (ServiceOrderDTO e : deriveOrder) {
+//                            ServicePackageDTO eoiService = servicePackageDao.getEOIService(e.getServicePackageId());
+//                            eoiList.append(eoiService.getServiceCode()).append(",");
+//                        }
+//                    }
+//                    if (StringUtils.isNotBlank(String.valueOf(eoiList))) {
+//                        serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+//                    }
+//                }
+//                if (serviceOrderDto.getApplicantId() == 0 && serviceOrderDto.getApplicantParentId() == 0) {
+//                    List<ServiceAssessAndEOI> serviceAssessAndEOIList = new ArrayList<>();
+//                    List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
+//                    if (deriveOrder != null && !deriveOrder.isEmpty() && deriveOrder.get(0).getServiceAssessId() != null) {
+//                        deriveOrder.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getServiceAssessId)).forEach((k, v) -> {
+//                            ServiceAssessAndEOI serviceAssessAndEOI = new ServiceAssessAndEOI();
+//                            ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(k);
+//                            if (serviceAssessDO != null) {
+//                                StringBuilder eoiNum = new StringBuilder();
+//                                serviceAssessAndEOI.setLabel(serviceAssessDO.getName());
+//                                serviceAssessAndEOI.setValue(k);
+//                                serviceAssessAndEOI.setKey(k);
+//                                for (ServiceOrderDTO serviceOrderDTO : v) {
+//                                    eoiNum.append(",").append(serviceOrderDTO.getServicePackageId());
+//                                }
+//                                serviceAssessAndEOI.setEoiServicePackageId(eoiNum.substring(1, eoiNum.length()));
+//                                serviceAssessAndEOIList.add(serviceAssessAndEOI);
+//                            }
+//                        });
+//                        serviceOrderDto.setServiceAssessAndEOIList(serviceAssessAndEOIList);
+//                    }
+//                }
+//                ServicePackageDO servicePackageDo = servicePackageDao.getEOIServiceCode(serviceOrderDto.getServicePackageId());
+//                if (ObjectUtil.isNotNull(servicePackageDo)) {
+//                    serviceDo.setCode(servicePackageDo.getType());
+//                }
 //            }
-            serviceOrderDto.setUser(userDto);
-        }
-        if (serviceOrderDto.getApplicantId() > 0) {
-            ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
-            if (applicantDo != null) {
-                ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
-                applicantDto = buildApplicant(applicantDto, serviceOrderDO.getId(), serviceOrderDto.getNutCloud(),
-                        serviceOrderDto.getInformation());
-                serviceOrderDto.setApplicantId(applicantDto.getId());
-                serviceOrderDto.setApplicant(applicantDto);
-            }
-        }
-        // 查询Mara
-        MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
-        if (maraDo != null)
-            serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
-        // 查询顾问
-        AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
-        if (adviserDo != null) {
-            RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
-            serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
-            if (regionDO != null)
-                serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
-            serviceOrderDto.getAdviser().setRegionDo(regionDO);
-        }
-        // 查询顾问2
-        if (serviceOrderDto.getAdviserId2() > 0) {
-            AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
-            if (adviserDo2 != null)
-                serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
-        }
-        // 查询文案
-        OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
-        if (officialDo != null)
-            serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
-        // 查询文案Tag
-        OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
-        if (officialTagDo != null)
-            serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
-        // 查询子服务
-        if (serviceOrderDto.getParentId() <= 0) {
-            List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
-            List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
-            list.forEach(serviceOrder -> {
-                ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
-                        ChildrenServiceOrderDTO.class);
-                ServicePackageDO servicePackageDo = servicePackageDao
-                        .getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-                if (servicePackageDo != null)
-                    childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
-                childrenServiceOrderList.add(childrenServiceOrderDto);
-            });
-            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
-        }
-
-        List<Integer> cIds = new ArrayList<>();
-        List<VisaDO> visaList = new ArrayList<>();
-        if (serviceOrderDO.getParentId() != 0 || serviceOrderDO.getApplicantParentId() != 0)
-            visaList = visaDao.listVisaByServiceOrderId((serviceOrderDO.getParentId()==0?serviceOrderDO.getApplicantParentId():serviceOrderDO.getParentId()));
-        else
-            visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
-        if (visaList != null && visaList.size() > 0) {
-            for (VisaDO visaDo : visaList)
-                cIds.add(visaDo.getId());
-        }
-//			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
-//					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
-//			if (commissionOrderList != null && commissionOrderList.size() > 0) {
-//				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
-//					cIds.add(commissionOrderDo.getId());
-//			}
-        serviceOrderDto.setVisaDOList(visaList);
-        serviceOrderDto.setCIds(cIds);
-
-        // 查询审核记录
-        //putReviews(serviceOrderDto);
-        //serviceOrderDtoList.add(serviceOrderDto);
-
-        // 查询职业名称
-        ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
-        if (serviceAssessDO != null) {
-            serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-            ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
-            if (categoryIdByServiceOrderId != null) {
-                serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
-            }
-        }
-        if (serviceOrderDto.getServiceAssessId() != null && "0".equalsIgnoreCase(serviceOrderDto.getServiceAssessId())) {
-            serviceOrderDto.setServiceAssessDO(new ServiceAssessDO());
-        }
-        List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
-        if (mailRemindDOS.size() > 0) {
-            List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
-            mailRemindDOS.forEach(mailRemindDO -> {
-                MailRemindDTO map = mapper.map(mailRemindDO, MailRemindDTO.class);
-                Integer adviserId = map.getAdviserId();
-                Integer offcialId = map.getOffcialId();
-                Integer kjId = map.getKjId();
-                if (adviserId != null) {
-                    AdviserDO adviserById = adviserDao.getAdviserById(adviserId);
-                    map.setUserName(adviserById.getName());
-                }
-                if (offcialId != null) {
-                    OfficialDO officialById = officialDao.getOfficialById(offcialId);
-                    map.setUserName(officialById.getName());
-                }
-                if (kjId != null) {
-                    KjDO kjById = kjDao.getKjById(kjId);
-                    map.setUserName(kjById.getName());
-                }
-                mailRemindDTOS.add(map);
-            });
-            serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
-        }
-
-        //添加新学校相关
-        if (serviceOrderDto.getCourseId() > 0) {
-            SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(serviceOrderDto.getCourseId());
-            if (schoolCourseDO != null) {
-                SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionById(schoolCourseDO.getProviderId());
-                if (schoolInstitutionDO != null) {
-                    String tradingName = schoolInstitutionDO.getInstitutionTradingName();
-                    if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(";")) {
-                        List<String> tradingNames = ListUtil.buildArrayList(tradingName.split(";"));
-                        if (tradingNames.stream().anyMatch(a -> a.equalsIgnoreCase(serviceOrderDto.getInstitutionTradingName()))) {
-                            schoolInstitutionDO.setInstitutionTradingName(serviceOrderDto.getInstitutionTradingName());
-                        }
-                    }
-                    serviceOrderDto.setSchoolInstitutionListDTO(mapper.map(schoolInstitutionDO, SchoolInstitutionListDTO.class));
-                }
-                serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
-                if (serviceOrderDto.getSchoolInstitutionLocationId() > 0) {
-                    SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
-                    serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
-                }
-            }
-        }
-
-        // 汇率币种计算金额
-        Double exchangeRate = serviceOrderDto.getExchangeRate();
-        if ("AUD".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
-            serviceOrderDto.setAmountAUD(serviceOrderDto.getAmount());
-            serviceOrderDto.setAmountCNY(roundHalfUp2(serviceOrderDto.getAmount() * exchangeRate));
-            serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount());
-            serviceOrderDto.setPerAmountCNY(roundHalfUp2(serviceOrderDto.getPerAmount() * exchangeRate));
-            serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount());
-            serviceOrderDto.setExpectAmountCNY(roundHalfUp2(serviceOrderDto.getExpectAmount() * exchangeRate));
-            serviceOrderDto.setReceivableAUD(serviceOrderDto.getReceivable());
-            serviceOrderDto.setReceivableCNY(roundHalfUp2(serviceOrderDto.getReceivable() * exchangeRate));
-            serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount());
-            serviceOrderDto.setGstAUD(serviceOrderDto.getGst());
-            serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst());
-            serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus());
-        }
-        if ("CNY".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
-            serviceOrderDto.setAmountAUD(roundHalfUp2(serviceOrderDto.getAmount() / exchangeRate));
-            serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount());
-            serviceOrderDto.setPerAmountAUD(roundHalfUp2(serviceOrderDto.getPerAmount() / exchangeRate));
-            serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount());
-            serviceOrderDto.setExpectAmountAUD(roundHalfUp2(serviceOrderDto.getExpectAmount() / exchangeRate));
-            serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount());
-            serviceOrderDto.setReceivableAUD(roundHalfUp2(serviceOrderDto.getReceivable() / exchangeRate));
-            serviceOrderDto.setReceivableCNY(serviceOrderDto.getReceivable());
-            serviceOrderDto.setDiscountAUD(roundHalfUp2(serviceOrderDto.getDiscount() / exchangeRate));
-            serviceOrderDto.setGstAUD(roundHalfUp2(serviceOrderDto.getGst() / exchangeRate));
-            serviceOrderDto.setDeductGstAUD(roundHalfUp2(serviceOrderDto.getDeductGst() / exchangeRate));
-            serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
-        }
-        //判断是否生成文案佣金
-        if (!serviceOrderDO.isPay() && (servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()) != null && servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1) || serviceOrderDO.isPay()) {
-            serviceOrderDto.setCreateVisaOffice(true);
-        } else
-            serviceOrderDto.setCreateVisaOffice(false);
-        ServiceOrderDO parentServiceOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
-        if (ObjectUtil.isNotNull(parentServiceOrder)) {
-            if ("SIV".equals(parentServiceOrder.getType())) {
-                String type = servicePackageDao.getById(serviceOrderDto.getServicePackageId()).getType();
-                if ("ROI".equals(type) || "EOI".equals(type) || "VA".equals(type)) {
-                    serviceOrderDto.setCreateVisaOffice(true);
-                } else {
-                    serviceOrderDto.setCreateVisaOffice(false);
-                }
-            }
-        }
-//        if (serviceOrderDO.getParentId() != 0) {
-//            List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
-//            if (deriveOrder != null && deriveOrder.size() == 2) {
-//                AtomicInteger count = new AtomicInteger();
-//                deriveOrder.forEach(e->{
-//                    ServicePackageDO servicePackageDO = servicePackageDao.getById(e.getServicePackageId());
-//                    if ("ROI".equals(servicePackageDO.getType())) {
-//                        count.getAndIncrement();
-//                    }
-//                    if ("VISA".equals(serviceOrderDO.getType())) {
-//                        count.getAndIncrement();
-//                    }
-//                    if (count.get() == 2) {
-//                        serviceOrderDto.setCreateVisaOffice(true);
-//                    }
-//                });
+//            serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
+//        }
+//        // 查询服务包类型
+//        if (serviceOrderDto.getServicePackageId() > 0) {
+//            ServicePackageDO servicePackageDAOById = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+//            if ("EOI".equals(servicePackageDAOById.getType())) {
+//                ServicePackageDTO servicePackageDTO = servicePackageDao.getEOIService(serviceOrderDto.getServicePackageId());
+//                if (ObjectUtil.isNotNull(servicePackageDTO)) {
+//                    serviceOrderDto.setServicePackage(servicePackageDTO);
+//                }
+//            } else {
+//                ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+//                if (servicePackageDo != null)
+//                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
 //            }
 //        }
-        //判断是否提交mm资料
-        if (customerInformationDAO.getByServiceOrderId(serviceOrderDO.getId()) != null) {
-            serviceOrderDto.setSubmitMM(true);
-        } else
-            serviceOrderDto.setSubmitMM(false);
-        // EOI数量排序
-        if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
-//            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
-            List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
-            List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
-            serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
-        }
-        // 添加父订单EOI绑定标识
-        if ("SIV".equals(serviceOrderDto.getType())) {
-            List<ServicePackageListDO> list = servicePackageDao.list(serviceOrderDto.getServiceId(), 0, 200);
-            list.forEach(e->{
-                if ("EOI".equals(e.getType())) {
-                    List<ChildrenServiceOrderDTO> childrenServiceOrders = serviceOrderDto.getChildrenServiceOrders();
-                    ChildrenServiceOrderDTO childrenServiceOrderDTO = new ChildrenServiceOrderDTO();
-                    childrenServiceOrderDTO.setServicePackageId(e.getId());
-                    childrenServiceOrderDTO.setServicePackageType(e.getType());
-                    if (childrenServiceOrderDTO.getId() != 0) {
-                        childrenServiceOrders.add(childrenServiceOrderDTO);
-                    }
-                    serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
-                }
-            });
-            // 查询打包订单绑定的职评订单信息
-            Integer bingDingAssOrderId = serviceOrderDao.getBingDingAssOrderId(serviceOrderDto.getId());
-            if (bingDingAssOrderId != null) {
-                serviceOrderDto.setBingdingAssessOrder(bingDingAssOrderId);
-            }
-        }
-        // 判断offer文件路径是否为多个
-        String offerUrl = serviceOrderDto.getOfferUrl();
-        if (StringUtil.isNotEmpty(offerUrl)) {
-            List<String> list = Arrays.asList(offerUrl.split(","));
-            serviceOrderDto.setOfferUrls(list);
-        }
-        // 留学订单添加签证信息
-        if ("OVST".equals(serviceOrderDto.getType())) {
-            CommissionOrderTempDO commissionOrderTempByServiceOrderId = commissionOrderTempDAO.getCommissionOrderTempByServiceOrderId(serviceOrderDto.getId());
-            if (ObjectUtil.isNotNull(commissionOrderTempByServiceOrderId)) {
-                serviceOrderDto.setVisaStatus(commissionOrderTempByServiceOrderId.getVisaStatus());
-                serviceOrderDto.setVisaCertificate(commissionOrderTempByServiceOrderId.getVisaCertificate());
-                serviceOrderDto.setVisaStatusSub(commissionOrderTempByServiceOrderId.getVisaStatusSub());
-            }
-        }
-        // 是否购买过保险
-        if ("1".equals(serviceOrderDto.getIsInsuranceCompany())) {
-            ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
-            if (ObjectUtil.isNotNull(serviceOrderInsuranceDO)) {
-                List<InsuranceCompanyDO> list = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
-                if (list != null && list.size() > 0) {
-                    serviceOrderDto.setInsuranceCompanyDO(list.get(0));
-                }
-            }
-        } else if ("0".equals(serviceOrderDto.getIsInsuranceCompany())) {
-            serviceOrderDto.setIsInsuranceCompany("0");
-        } else {
-            serviceOrderDto.setIsInsuranceCompany("");
-        }
-        // 顾问以及文案资料大小合计
-        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(null, serviceOrderDto.getUserId());
-        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
-
-        serviceOrderDto.setAdviserDataSize(adviserDataSize);
-        serviceOrderDto.setOfficialDataSize(officialDataSize);
-
-        ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDto.getId());
-        if (serviceOrderAndManage != null) {
-            serviceOrderDto.setManageOrder(true);
-            serviceOrderDto.setParentIdNew(serviceOrderAndManage.getServiceOrderManageId());
-//            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
-//            if (ObjectUtil.isNotNull(serviceOrderById)) {
-//                serviceOrderDto.setServiceOrderManage(serviceOrderById);
+//        // 查询收款方式
+//        ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
+//        if (receiveTypeDo != null)
+//            serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
+//        // 查询用户
+//        UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
+//        if (userDo != null) {
+//            UserDTO userDto = mapper.map(userDo, UserDTO.class);
+//            if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
+//                List<ServiceOrderApplicantDO> serviceOrderApplicantList = serviceOrderApplicantDao.list(serviceOrderDto.getId(), null);
+////				List<ApplicantDO> applicantDoList = applicantDao.list(0, null, serviceOrderDto.getUserId(),
+////						serviceOrderDto.getAdviserId(), 0, 999);
+//                List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+//                serviceOrderApplicantList.forEach(serviceOrderApplicant -> {
+//                    ApplicantDO applicantDo = applicantDao.getById(serviceOrderApplicant.getApplicantId());
+//                    if (applicantDo != null) {
+//                        if (applicantDo.getFileUrl() == null) {
+//                            List<ServiceOrderApplicantDO> list = serviceOrderApplicantDao.list(serviceOrderDO.getId(), applicantDo.getId());
+//                            if (list != null) {
+//                                applicantDo.setFileUrl(list.get(0).getUrl());
+//                                applicantDo.setFirstControllerContents(list.get(0).getContent());
+//                            }
+//                        }
+//                        applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
+//                    }
+//                });
+//				if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
+//					applicantDtoList.add(serviceOrderDto.getApplicant());
+//                userDto.setApplicantList(applicantDtoList);
 //            }
-        }
-        // 获取服务订单上传合同日志信息
-        List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
-        if (!webLogDTOList.isEmpty()) {
-            serviceOrderDto.setContractDataList(webLogDTOList);
-        }
-        return serviceOrderDto;
-    }
+////            List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
+////            if (!cloudDiskFileList.isEmpty()) {
+////                userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
+////            }
+//            serviceOrderDto.setUser(userDto);
+//        }
+//        if (serviceOrderDto.getApplicantId() > 0) {
+//            ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
+//            if (applicantDo != null) {
+//                ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
+//                applicantDto = buildApplicant(applicantDto, serviceOrderDO.getId(), serviceOrderDto.getNutCloud(),
+//                        serviceOrderDto.getInformation());
+//                serviceOrderDto.setApplicantId(applicantDto.getId());
+//                serviceOrderDto.setApplicant(applicantDto);
+//            }
+//        }
+//        // 查询Mara
+//        MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
+//        if (maraDo != null)
+//            serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
+//        // 查询顾问
+//        AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
+//        if (adviserDo != null) {
+//            RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
+//            serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+//            if (regionDO != null)
+//                serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
+//            serviceOrderDto.getAdviser().setRegionDo(regionDO);
+//        }
+//        // 查询顾问2
+//        if (serviceOrderDto.getAdviserId2() > 0) {
+//            AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
+//            if (adviserDo2 != null)
+//                serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
+//        }
+//        // 查询文案
+//        OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
+//        if (officialDo != null)
+//            serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
+//        // 查询文案Tag
+//        OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+//        if (officialTagDo != null)
+//            serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
+//        // 查询子服务
+//        if (serviceOrderDto.getParentId() <= 0) {
+//            List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
+//            List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
+//            list.forEach(serviceOrder -> {
+//                ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
+//                        ChildrenServiceOrderDTO.class);
+//                ServicePackageDO servicePackageDo = servicePackageDao
+//                        .getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
+//                if (servicePackageDo != null)
+//                    childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
+//                childrenServiceOrderList.add(childrenServiceOrderDto);
+//            });
+//            serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+//        }
+//
+//        List<Integer> cIds = new ArrayList<>();
+//        List<VisaDO> visaList = new ArrayList<>();
+//        if (serviceOrderDO.getParentId() != 0 || serviceOrderDO.getApplicantParentId() != 0)
+//            visaList = visaDao.listVisaByServiceOrderId((serviceOrderDO.getParentId()==0?serviceOrderDO.getApplicantParentId():serviceOrderDO.getParentId()));
+//        else
+//            visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
+//        if (visaList != null && visaList.size() > 0) {
+//            for (VisaDO visaDo : visaList)
+//                cIds.add(visaDo.getId());
+//        }
+////			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
+////					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
+////			if (commissionOrderList != null && commissionOrderList.size() > 0) {
+////				for (CommissionOrderDO commissionOrderDo : commissionOrderList)
+////					cIds.add(commissionOrderDo.getId());
+////			}
+//        serviceOrderDto.setVisaDOList(visaList);
+//        serviceOrderDto.setCIds(cIds);
+//
+//        // 查询审核记录
+//        //putReviews(serviceOrderDto);
+//        //serviceOrderDtoList.add(serviceOrderDto);
+//
+//        // 查询职业名称
+//        ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+//        if (serviceAssessDO != null) {
+//            serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+//            ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+//            if (categoryIdByServiceOrderId != null) {
+//                serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
+//            }
+//        }
+//        if (serviceOrderDto.getServiceAssessId() != null && "0".equalsIgnoreCase(serviceOrderDto.getServiceAssessId())) {
+//            serviceOrderDto.setServiceAssessDO(new ServiceAssessDO());
+//        }
+//        List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
+//        if (mailRemindDOS.size() > 0) {
+//            List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
+//            mailRemindDOS.forEach(mailRemindDO -> {
+//                MailRemindDTO map = mapper.map(mailRemindDO, MailRemindDTO.class);
+//                Integer adviserId = map.getAdviserId();
+//                Integer offcialId = map.getOffcialId();
+//                Integer kjId = map.getKjId();
+//                if (adviserId != null) {
+//                    AdviserDO adviserById = adviserDao.getAdviserById(adviserId);
+//                    map.setUserName(adviserById.getName());
+//                }
+//                if (offcialId != null) {
+//                    OfficialDO officialById = officialDao.getOfficialById(offcialId);
+//                    map.setUserName(officialById.getName());
+//                }
+//                if (kjId != null) {
+//                    KjDO kjById = kjDao.getKjById(kjId);
+//                    map.setUserName(kjById.getName());
+//                }
+//                mailRemindDTOS.add(map);
+//            });
+//            serviceOrderDto.setMailRemindDTOS(mailRemindDTOS);
+//        }
+//
+//        //添加新学校相关
+//        if (serviceOrderDto.getCourseId() > 0) {
+//            SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(serviceOrderDto.getCourseId());
+//            if (schoolCourseDO != null) {
+//                SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionById(schoolCourseDO.getProviderId());
+//                if (schoolInstitutionDO != null) {
+//                    String tradingName = schoolInstitutionDO.getInstitutionTradingName();
+//                    if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(";")) {
+//                        List<String> tradingNames = ListUtil.buildArrayList(tradingName.split(";"));
+//                        if (tradingNames.stream().anyMatch(a -> a.equalsIgnoreCase(serviceOrderDto.getInstitutionTradingName()))) {
+//                            schoolInstitutionDO.setInstitutionTradingName(serviceOrderDto.getInstitutionTradingName());
+//                        }
+//                    }
+//                    serviceOrderDto.setSchoolInstitutionListDTO(mapper.map(schoolInstitutionDO, SchoolInstitutionListDTO.class));
+//                }
+//                serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
+//                if (serviceOrderDto.getSchoolInstitutionLocationId() > 0) {
+//                    SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
+//                    serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
+//                }
+//            }
+//        }
+//
+//        // 汇率币种计算金额
+//        Double exchangeRate = serviceOrderDto.getExchangeRate();
+//        if ("AUD".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
+//            serviceOrderDto.setAmountAUD(serviceOrderDto.getAmount());
+//            serviceOrderDto.setAmountCNY(roundHalfUp2(serviceOrderDto.getAmount() * exchangeRate));
+//            serviceOrderDto.setPerAmountAUD(serviceOrderDto.getPerAmount());
+//            serviceOrderDto.setPerAmountCNY(roundHalfUp2(serviceOrderDto.getPerAmount() * exchangeRate));
+//            serviceOrderDto.setExpectAmountAUD(serviceOrderDto.getExpectAmount());
+//            serviceOrderDto.setExpectAmountCNY(roundHalfUp2(serviceOrderDto.getExpectAmount() * exchangeRate));
+//            serviceOrderDto.setReceivableAUD(serviceOrderDto.getReceivable());
+//            serviceOrderDto.setReceivableCNY(roundHalfUp2(serviceOrderDto.getReceivable() * exchangeRate));
+//            serviceOrderDto.setDiscountAUD(serviceOrderDto.getDiscount());
+//            serviceOrderDto.setGstAUD(serviceOrderDto.getGst());
+//            serviceOrderDto.setDeductGstAUD(serviceOrderDto.getDeductGst());
+//            serviceOrderDto.setBonusAUD(serviceOrderDto.getBonus());
+//        }
+//        if ("CNY".equalsIgnoreCase(serviceOrderDto.getCurrency())) {
+//            serviceOrderDto.setAmountAUD(roundHalfUp2(serviceOrderDto.getAmount() / exchangeRate));
+//            serviceOrderDto.setAmountCNY(serviceOrderDto.getAmount());
+//            serviceOrderDto.setPerAmountAUD(roundHalfUp2(serviceOrderDto.getPerAmount() / exchangeRate));
+//            serviceOrderDto.setPerAmountCNY(serviceOrderDto.getPerAmount());
+//            serviceOrderDto.setExpectAmountAUD(roundHalfUp2(serviceOrderDto.getExpectAmount() / exchangeRate));
+//            serviceOrderDto.setExpectAmountCNY(serviceOrderDto.getExpectAmount());
+//            serviceOrderDto.setReceivableAUD(roundHalfUp2(serviceOrderDto.getReceivable() / exchangeRate));
+//            serviceOrderDto.setReceivableCNY(serviceOrderDto.getReceivable());
+//            serviceOrderDto.setDiscountAUD(roundHalfUp2(serviceOrderDto.getDiscount() / exchangeRate));
+//            serviceOrderDto.setGstAUD(roundHalfUp2(serviceOrderDto.getGst() / exchangeRate));
+//            serviceOrderDto.setDeductGstAUD(roundHalfUp2(serviceOrderDto.getDeductGst() / exchangeRate));
+//            serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
+//        }
+//        //判断是否生成文案佣金
+//        if (!serviceOrderDO.isPay() && (servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()) != null && servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1) || serviceOrderDO.isPay()) {
+//            serviceOrderDto.setCreateVisaOffice(true);
+//        } else
+//            serviceOrderDto.setCreateVisaOffice(false);
+//        ServiceOrderDO parentServiceOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
+//        if (ObjectUtil.isNotNull(parentServiceOrder)) {
+//            if ("SIV".equals(parentServiceOrder.getType())) {
+//                String type = servicePackageDao.getById(serviceOrderDto.getServicePackageId()).getType();
+//                if ("ROI".equals(type) || "EOI".equals(type) || "VA".equals(type)) {
+//                    serviceOrderDto.setCreateVisaOffice(true);
+//                } else {
+//                    serviceOrderDto.setCreateVisaOffice(false);
+//                }
+//            }
+//        }
+////        if (serviceOrderDO.getParentId() != 0) {
+////            List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDO.getParentId());
+////            if (deriveOrder != null && deriveOrder.size() == 2) {
+////                AtomicInteger count = new AtomicInteger();
+////                deriveOrder.forEach(e->{
+////                    ServicePackageDO servicePackageDO = servicePackageDao.getById(e.getServicePackageId());
+////                    if ("ROI".equals(servicePackageDO.getType())) {
+////                        count.getAndIncrement();
+////                    }
+////                    if ("VISA".equals(serviceOrderDO.getType())) {
+////                        count.getAndIncrement();
+////                    }
+////                    if (count.get() == 2) {
+////                        serviceOrderDto.setCreateVisaOffice(true);
+////                    }
+////                });
+////            }
+////        }
+//        //判断是否提交mm资料
+//        if (customerInformationDAO.getByServiceOrderId(serviceOrderDO.getId()) != null) {
+//            serviceOrderDto.setSubmitMM(true);
+//        } else
+//            serviceOrderDto.setSubmitMM(false);
+//        // EOI数量排序
+//        if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
+////            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
+//            List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
+//            List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
+//            serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
+//        }
+//        // 添加父订单EOI绑定标识
+//        if ("SIV".equals(serviceOrderDto.getType())) {
+//            List<ServicePackageListDO> list = servicePackageDao.list(serviceOrderDto.getServiceId(), 0, 200);
+//            list.forEach(e->{
+//                if ("EOI".equals(e.getType())) {
+//                    List<ChildrenServiceOrderDTO> childrenServiceOrders = serviceOrderDto.getChildrenServiceOrders();
+//                    ChildrenServiceOrderDTO childrenServiceOrderDTO = new ChildrenServiceOrderDTO();
+//                    childrenServiceOrderDTO.setServicePackageId(e.getId());
+//                    childrenServiceOrderDTO.setServicePackageType(e.getType());
+//                    if (childrenServiceOrderDTO.getId() != 0) {
+//                        childrenServiceOrders.add(childrenServiceOrderDTO);
+//                    }
+//                    serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
+//                }
+//            });
+//            // 查询打包订单绑定的职评订单信息
+//            Integer bingDingAssOrderId = serviceOrderDao.getBingDingAssOrderId(serviceOrderDto.getId());
+//            if (bingDingAssOrderId != null) {
+//                serviceOrderDto.setBingdingAssessOrder(bingDingAssOrderId);
+//            }
+//        }
+//        // 判断offer文件路径是否为多个
+//        String offerUrl = serviceOrderDto.getOfferUrl();
+//        if (StringUtil.isNotEmpty(offerUrl)) {
+//            List<String> list = Arrays.asList(offerUrl.split(","));
+//            serviceOrderDto.setOfferUrls(list);
+//        }
+//        // 留学订单添加签证信息
+//        if ("OVST".equals(serviceOrderDto.getType())) {
+//            CommissionOrderTempDO commissionOrderTempByServiceOrderId = commissionOrderTempDAO.getCommissionOrderTempByServiceOrderId(serviceOrderDto.getId());
+//            if (ObjectUtil.isNotNull(commissionOrderTempByServiceOrderId)) {
+//                serviceOrderDto.setVisaStatus(commissionOrderTempByServiceOrderId.getVisaStatus());
+//                serviceOrderDto.setVisaCertificate(commissionOrderTempByServiceOrderId.getVisaCertificate());
+//                serviceOrderDto.setVisaStatusSub(commissionOrderTempByServiceOrderId.getVisaStatusSub());
+//            }
+//        }
+//        // 是否购买过保险
+//        if ("1".equals(serviceOrderDto.getIsInsuranceCompany())) {
+//            ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
+//            if (ObjectUtil.isNotNull(serviceOrderInsuranceDO)) {
+//                List<InsuranceCompanyDO> list = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
+//                if (list != null && list.size() > 0) {
+//                    serviceOrderDto.setInsuranceCompanyDO(list.get(0));
+//                }
+//            }
+//        } else if ("0".equals(serviceOrderDto.getIsInsuranceCompany())) {
+//            serviceOrderDto.setIsInsuranceCompany("0");
+//        } else {
+//            serviceOrderDto.setIsInsuranceCompany("");
+//        }
+//        // 顾问以及文案资料大小合计
+//        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(null, serviceOrderDto.getUserId());
+//        Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
+//
+//        serviceOrderDto.setAdviserDataSize(adviserDataSize);
+//        serviceOrderDto.setOfficialDataSize(officialDataSize);
+//
+//        ServiceOrderAndManage serviceOrderAndManage = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderDto.getId());
+//        if (serviceOrderAndManage != null) {
+//            serviceOrderDto.setManageOrder(true);
+//            serviceOrderDto.setParentIdNew(serviceOrderAndManage.getServiceOrderManageId());
+////            ServiceOrderDO serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManage.getServiceOrderManageId());
+////            if (ObjectUtil.isNotNull(serviceOrderById)) {
+////                serviceOrderDto.setServiceOrderManage(serviceOrderById);
+////            }
+//        }
+//        // 获取服务订单上传合同日志信息
+//        List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
+//        if (!webLogDTOList.isEmpty()) {
+//            serviceOrderDto.setContractDataList(webLogDTOList);
+//        }
+//        return serviceOrderDto;
+//    }
 
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO, ServiceOrderBatchContext ctx) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
