@@ -566,7 +566,7 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setScoreOptions(scoreOptions);
             }
             if (StringUtil.isNotEmpty(zeroScoreOptions)) {
-                serviceOrderDto.setZeroScoreOptions(scoreOptions);
+                serviceOrderDto.setZeroScoreOptions(zeroScoreOptions);
             }
             if (StringUtil.isNotEmpty(scoreState)) {
                 serviceOrderDto.setScoreState(scoreState);
