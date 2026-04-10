@@ -733,7 +733,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				.appToken(appToken)
 				.createAppTableReqBody(CreateAppTableReqBody.newBuilder()
 						.table(ReqTable.newBuilder()
-								.name("数据表名称1")
+								.name("留学")
 								.defaultViewName("默认的表格视图")
 								.fields(new AppTableCreateHeader[] {
 										AppTableCreateHeader.newBuilder()
