@@ -87,6 +87,7 @@
                 is_insurance_company,
                 official_data,
                 score_options,
+                zero_score_options,
                 score_state,
                 score_mark,
                 contract_data,
@@ -173,6 +174,7 @@
                 #{isInsuranceCompany},
                 #{officialData},
                 #{scoreOptions},
+                #{zeroScoreOptions},
                 #{scoreState},
                 #{scoreMark},
                 #{contractData},
@@ -441,6 +443,9 @@
         <if test='scoreOptions != null and scoreOptions != "" '>
             ,score_options = #{scoreOptions}
         </if>
+        <if test='zeroScoreOptions != null and zeroScoreOptions != "" '>
+            ,zero_score_options = #{zeroScoreOptions}
+        </if>
         <if test='scoreState != null and scoreState != "" '>
             ,score_state = #{scoreState}
         </if>
@@ -707,7 +712,8 @@
         so.bingding_assess_order AS bingdingAssessOrder,
         so.contract_data AS contractData,
         so.eoi_type AS eoiType,
-        so.is_COE AS isCOE
+        so.is_COE AS isCOE,
+        so.zero_score_options AS zeroScoreOptions
         FROM tb_user u, b_service_order so
         LEFT JOIN tb_adviser a ON so.adviser_id = a.id
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
@@ -976,7 +982,8 @@
             bingding_assess_order AS bingdingAssessOrder,
             contract_data AS contractData,
             eoi_type AS eoiType,
-            is_COE AS isCOE
+            is_COE AS isCOE,
+            zero_score_options AS zeroScoreOptions
         FROM b_service_order WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -1180,7 +1187,8 @@
             bingding_assess_order AS bingdingAssessOrder,
             contract_data AS contractData,
             eoi_type AS eoiType,
-            is_COE AS isCOE
+            is_COE AS isCOE,
+            zero_score_options AS zeroScoreOptions
         FROM b_service_order WHERE verify_code = #{verifyCode};
     </select>
 
@@ -1292,7 +1300,8 @@
         so.bingding_assess_order AS bingdingAssessOrder,
         so.contract_data AS contractData,
         so.eoi_type AS eoiType,
-        so.is_COE AS isCOE
+        so.is_COE AS isCOE,
+        so.zero_score_options AS zeroScoreOptions
         FROM tb_user u, tb_adviser a, b_service_order so LEFT JOIN b_service_order_official_tag soot ON
         so.id=soot.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id AND so.type != 'SIV' AND so.type != 'NSV'
@@ -1577,7 +1586,8 @@
             so.bingding_assess_order AS bingdingAssessOrder,
             so.contract_data AS contractData,
             so.eoi_type AS eoiType,
-            so.is_COE AS isCOE
+            so.is_COE AS isCOE,
+            so.zero_score_options AS zeroScoreOptions
         FROM
             b_service_order so, b_service_package bsp
         WHERE

@@ -342,6 +342,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
                                              @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                              @RequestParam(value = "scoreState", required = false) String scoreState,
+                                             @RequestParam(value = "zeroScoreOptions", required = false) String zeroScoreOptions,
                                              @RequestParam(value = "scoreMark", required = false) String scoreMark, // 评分备注
                                              @RequestParam(value = "bingdingAssessOrder", required = false) String bingdingAssessOrder,
                                              @RequestParam(value = "contractData", required = false) String contractData,
@@ -563,6 +564,9 @@ public class ServiceOrderController extends BaseController {
             // 评估订单需要评估分数
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
+            }
+            if (StringUtil.isNotEmpty(zeroScoreOptions)) {
+                serviceOrderDto.setZeroScoreOptions(scoreOptions);
             }
             if (StringUtil.isNotEmpty(scoreState)) {
                 serviceOrderDto.setScoreState(scoreState);
