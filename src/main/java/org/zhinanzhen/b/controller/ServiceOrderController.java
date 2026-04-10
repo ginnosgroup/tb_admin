@@ -342,6 +342,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "serviceAssessCategoryId", required = false) String serviceAssessCategoryId,
                                              @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
                                              @RequestParam(value = "scoreState", required = false) String scoreState,
+                                             @RequestParam(value = "zeroScoreOptions", required = false) String zeroScoreOptions,
                                              @RequestParam(value = "scoreMark", required = false) String scoreMark, // 评分备注
                                              @RequestParam(value = "bingdingAssessOrder", required = false) String bingdingAssessOrder,
                                              @RequestParam(value = "contractData", required = false) String contractData,
@@ -563,6 +564,9 @@ public class ServiceOrderController extends BaseController {
             // 评估订单需要评估分数
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
+            }
+            if (StringUtil.isNotEmpty(zeroScoreOptions)) {
+                serviceOrderDto.setZeroScoreOptions(zeroScoreOptions);
             }
             if (StringUtil.isNotEmpty(scoreState)) {
                 serviceOrderDto.setScoreState(scoreState);
@@ -952,9 +956,11 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "offerType", required = false) String offerType, // 是否为中转订单
                                                 @RequestParam(value = "officialData", required = false) String officialData,
                                                 @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
+                                                @RequestParam(value = "zeroScoreOptions", required = false) String zeroScoreOptions,
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
                                                 @RequestParam(value = "contractData", required = false) String contractData,
+                                                @RequestParam(value = "eoiType", required = false) String eoiType,
                                                 @RequestParam(value = "isCOE", required = false) String isCOE,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
@@ -980,7 +986,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -1005,7 +1011,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
 							schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1168,7 +1174,7 @@ public class ServiceOrderController extends BaseController {
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
                                         String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData,
-                                        String isCOE) {
+                                        String isCOE, String eoiType, String zeroScoreOptions) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1337,6 +1343,9 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
             }
+            if (StringUtil.isNotEmpty(zeroScoreOptions)) {
+                serviceOrderDto.setZeroScoreOptions(zeroScoreOptions);
+            }
             if (StringUtil.isNotEmpty(scoreState)) {
                 serviceOrderDto.setScoreState(scoreState);
             }
@@ -1350,6 +1359,9 @@ public class ServiceOrderController extends BaseController {
                 serviceOrderDto.setIsCOE(isCOE);
             } else {
                 serviceOrderDto.setIsCOE(null);
+            }
+            if (StringUtil.isNotEmpty(eoiType)) {
+                serviceOrderDto.setEoiType(eoiType);
             }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
@@ -1445,6 +1457,14 @@ public class ServiceOrderController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
+                // 如果修改为eoi父订单eoi类型，同步修改子订单
+                if (serviceOrderDto.getEoiType() != null && serviceOrderDto.getApplicantParentId() == 0) {
+                    List<ServiceOrderDTO> ziServiceOrderById = serviceOrderService.getZiServiceOrderById(serviceOrderDto.getId());
+                    for (ServiceOrderDTO serviceOrderDTO : ziServiceOrderById) {
+                        serviceOrderDTO.setEoiType(serviceOrderDto.getEoiType());
+                        serviceOrderService.updateServiceOrder(serviceOrderDTO);
+                    }
+                }
                 if (officialId != null &&!String.valueOf(officialId1).equals(officialId)) {
                     int v = cloudDiskService.updateofficialId(officialId1,Integer.valueOf(officialId));
                 }

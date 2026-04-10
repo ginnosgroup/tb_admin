@@ -328,4 +328,6 @@ public class ServiceOrderDTO {
 	private String eoiType; // EOI类型
 
 	private String isCOE;
+
+	private String zeroScoreOptions; // 不打分评分选项
 }

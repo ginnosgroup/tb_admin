@@ -208,7 +208,7 @@ public class DashboardController extends BaseController {
 	 */
 	@GetMapping(value = "/thisMonthPerformanceRankDiffAp")
 	@ResponseBody
-	public DashboardResponse thisMonthPerformanceRankDiffAp(HttpServletRequest request, HttpServletResponse response)
+	public DashboardResponse thisMonthPerformanceRankDiffAp(@RequestParam(name = "yearAndMonth", required = false) String yearAndMonth, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		super.setGetHeader(response);
 		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
@@ -218,8 +218,16 @@ public class DashboardController extends BaseController {
 			return new DashboardResponse(1, "No permission");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		List<Integer> regionIdList = new ArrayList<>();
-		String startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
-		String endDate = sdf.format(Calendar.getInstance().getTime());
+		String startDate = "";
+		String endDate = "";
+		if (StringUtil.isNotEmpty(yearAndMonth)) {
+			startDate = MonthDateUtils.getFirstDayOfMonth(yearAndMonth);
+			endDate = MonthDateUtils.getLastDayOfMonth(yearAndMonth);
+		} else {
+			startDate = DateClass.thisMonthFirstDay(Calendar.getInstance());
+			endDate = sdf.format(Calendar.getInstance().getTime());
+		}
+
 		List<DataDTO> dataList = data.dataReport(startDate, endDate, "R", null); // R 全area顾问倒序排名的数据 顾问
 		dataList = dataList.stream().filter(DataDTO -> DataDTO.getAdviserId() != 1000135).collect(Collectors.toList()); // 去除daisy
 		if ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
