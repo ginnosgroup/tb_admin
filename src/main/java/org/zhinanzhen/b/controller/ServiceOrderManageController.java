@@ -729,6 +729,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "offerType", required = false) String offerType, // 是否为中转订单
                                                 @RequestParam(value = "officialData", required = false) String officialData,
                                                 @RequestParam(value = "scoreOptions", required = false) String scoreOptions,
+                                                @RequestParam(value = "zeroScoreOptions", required = false) String zeroScoreOptions,
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
                                                 @RequestParam(value = "type", required = false) String type,
@@ -782,7 +783,7 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions);
             if (res != null && res.getCode() == 0) {
                 List<ServiceOrderDTO> cList = new ArrayList<>();
                 if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -807,7 +808,7 @@ public class ServiceOrderManageController extends BaseController {
                             null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
                             isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
                             schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions);
                     if (cRes.getCode() > 0)
                         res.setMessage(res.getMessage() + ";" + cRes.getMessage());
                 });
@@ -1100,7 +1101,7 @@ public class ServiceOrderManageController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String eoiType, String isCOE) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String eoiType, String isCOE, String zeroScoreOptions) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1266,6 +1267,9 @@ public class ServiceOrderManageController extends BaseController {
             }
             if (StringUtil.isNotEmpty(scoreOptions)) {
                 serviceOrderDto.setScoreOptions(scoreOptions);
+            }
+            if (StringUtil.isNotEmpty(zeroScoreOptions)) {
+                serviceOrderDto.setZeroScoreOptions(zeroScoreOptions);
             }
             if (StringUtil.isNotEmpty(scoreState)) {
                 serviceOrderDto.setScoreState(scoreState);
