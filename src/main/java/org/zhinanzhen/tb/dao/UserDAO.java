@@ -72,4 +72,8 @@ public interface UserDAO {
     UserDO getUserByName(String name);
 
 	public List<UserDO> listByIds(@Param("ids") List<Integer> ids);
+
+	public List<UserAdviserDO> listUserAdviserByUserIds(@Param("userIds") List<Integer> userIds);
+
+	public List<UserDO> listByRecommendOpenIds(@Param("recommendOpenIds") List<String> recommendOpenIds);
 }

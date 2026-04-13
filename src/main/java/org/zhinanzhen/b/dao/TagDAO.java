@@ -26,4 +26,8 @@ public interface TagDAO {
 
 	public int deleteUserTagByTagIdAndUserId(@Param("tagId") Integer tagId, @Param("userId") Integer userId);
 
+	public List<TagDO> listTagByUserIds(@Param("userIds") List<Integer> userIds);
+
+	public List<UserTagDO> listUserTagByUserIds(@Param("userIds") List<Integer> userIds);
+
 }

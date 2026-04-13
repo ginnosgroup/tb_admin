@@ -71,4 +71,30 @@
 		DELETE FROM b_user_tag WHERE tag_id = #{tagId, jdbcType=INTEGER} AND user_id = #{userId, jdbcType=INTEGER}
 	</delete>
 
+	<select id="listUserTagByUserIds" resultType="org.zhinanzhen.b.dao.pojo.UserTagDO">
+		SELECT
+			id,
+			user_id AS userId,
+			tag_id AS tagId
+		FROM b_user_tag
+		WHERE user_id IN
+		<foreach collection="userIds" item="userId" open="(" separator="," close=")">
+			#{userId}
+		</foreach>
+		;
+	</select>
+
+	<select id="listTagByUserIds" resultType="org.zhinanzhen.b.dao.pojo.TagDO">
+		SELECT DISTINCT
+			t.id AS id,
+			t.name AS name
+		FROM b_tag t
+		JOIN b_user_tag ut ON t.id = ut.tag_id
+		WHERE ut.user_id IN
+		<foreach collection="userIds" item="userId" open="(" separator="," close=")">
+			#{userId}
+		</foreach>
+		ORDER BY t.gmt_create DESC;
+	</select>
+
 </mapper>

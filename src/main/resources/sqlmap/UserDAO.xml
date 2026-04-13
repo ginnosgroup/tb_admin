@@ -151,6 +151,7 @@
             LEFT JOIN tb_user_adviser ua ON u.id=ua.user_id
             LEFT JOIN tb_adviser a ON a.id=ua.adviser_id
             LEFT JOIN b_applicant ap ON ap.user_id = u.id
+--             LEFT JOIN b_cloud_disk_file bcdf ON bcdf.user_id = u.id
         WHERE u.auth_type != 'V'
         and ua.adviser_id IS NOT null
         <if test='id != null and id != ""'>
@@ -454,6 +455,49 @@
         </if>
         WHERE user_id = #{userId};
     </update>
+    <select id="listUserAdviserByUserIds" resultType="org.zhinanzhen.tb.dao.pojo.UserAdviserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            user_id AS userId,
+            adviser_id AS adviserId,
+            is_creater AS isCreater
+        FROM tb_user_adviser
+        WHERE user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+        ;
+    </select>
+
+    <select id="listByRecommendOpenIds" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        name,
+        birthday,
+        phone,
+        email,
+        wechat_username AS wechatUsername,
+        first_controller_contents AS firstControllerContents,
+        visa_code AS visaCode,
+        visa_expiration_date AS visaExpirationDate,
+        source,
+        auth_type AS authType,
+        auth_nickname AS authNickname,
+        auth_username AS authUsername,
+        balance,
+        adviser_id AS adviserId,
+        channel_source AS channelsource,
+        state_text AS stateText,
+        recommend_openid AS recommendOpenid
+        FROM tb_user
+        WHERE auth_type != 'V' AND recommend_openid IN
+        <foreach collection="recommendOpenIds" item="recommendOpenId" open="(" separator="," close=")">
+            #{recommendOpenId}
+        </foreach>
+    </select>
+
     <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         SELECT id, gmt_create AS gmtCreate, name, birthday, area_code AS areaCode, phone, email, wechat_username AS wechatUsername, first_controller_contents AS firstControllerContents, visa_code AS visaCode, visa_expiration_date AS visaExpirationDate, source, auth_type AS authType, auth_openid AS authOpenid, auth_username AS authUsername, auth_nickname AS authNickname, auth_logo AS authLogo, balance, adviser_id AS adviserId, region_id AS regionId, channel_source AS channelsource, state_text AS stateText FROM tb_user WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>

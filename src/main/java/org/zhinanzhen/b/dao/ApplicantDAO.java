@@ -23,4 +23,6 @@ public interface ApplicantDAO {
 
 	List<ApplicantDO> listByIds(@Param("ids") List<Integer> ids);
 
+	List<ApplicantDO> listByUserIds(@Param("userIds") List<Integer> userIds, @Param("adviserId") Integer adviserId);
+
 }

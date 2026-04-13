@@ -1670,6 +1670,29 @@
         select sum(receivable) from b_service_order
         where user_id = #{id} and (type in ('VISA','SIV','NSV') and (applicant_parent_id is null or applicant_parent_id = 0))
     </select>
+    <select id="getOrderCountBatch" resultType="java.util.HashMap">
+        select user_id as userId, count(*) as cnt from b_service_order
+        where user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+        <if test="visa != null and visa != '' and visa == 'VISA'">
+            and type in ('VISA','SIV','NSV') and (applicant_parent_id is null or applicant_parent_id = 0)
+        </if>
+        <if test="visa != null and visa != '' and visa == 'OVST'">
+            and type = #{visa}
+        </if>
+        group by user_id
+    </select>
+    <select id="getOrderAmountBatch" resultType="java.util.HashMap">
+        select user_id as userId, sum(receivable) as total from b_service_order
+        where user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+        and type in ('VISA','SIV','NSV') and (applicant_parent_id is null or applicant_parent_id = 0)
+        group by user_id
+    </select>
 
     <resultMap id="ServicePackage" type="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         <id column="id" property="id"></id>
