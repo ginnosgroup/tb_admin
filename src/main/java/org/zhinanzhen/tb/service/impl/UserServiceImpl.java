@@ -2,14 +2,15 @@ package org.zhinanzhen.tb.service.impl;
 
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.*;
@@ -19,11 +20,9 @@ import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
-import org.zhinanzhen.tb.dao.pojo.ServiceOrderOriginallyDO;
-import org.zhinanzhen.tb.dao.pojo.UserAdviserDO;
-import org.zhinanzhen.tb.dao.pojo.UserDO;
+import org.zhinanzhen.tb.dao.pojo.*;
 import org.zhinanzhen.tb.service.AdviserStateEnum;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserAuthTypeEnum;
@@ -65,6 +64,18 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private ServiceOrderManageDAO serviceOrderManageDAO;
 	@Resource
 	private VisaDAO visaDAO;
+	@Resource
+	private ServiceOrderDAO serviceOrderDAO;
+	@Resource
+	private RegionDAO regionDAO;
+	@Resource
+	private ServiceDAO serviceDAO;
+	@Resource
+	private SchoolInstitutionDAO schoolInstitutionDAO;
+	@Resource
+	private ServicePackageDAO servicePackageDAO;
+	@Resource
+	private ServiceAssessDao serviceAssessDao;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -225,45 +236,193 @@ public class UserServiceImpl extends BaseService implements UserService {
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
 		}
+
+		// 收集所有 userIds 和 adviserIds
+		Set<Integer> adviserIds = userDoList.stream().map(UserDO::getAdviserId).collect(Collectors.toSet());
+		List<Integer> adviserIdList = new ArrayList<>(adviserIds);
+		List<Integer> userIds = userDoList.stream().map(UserDO::getId).collect(Collectors.toList());
+
+		// 收集所有 recommendOpenIds
+		List<String> recommendOpenIds = userDoList.stream()
+				.map(UserDO::getRecommendOpenid)
+				.filter(StringUtil::isNotEmpty)
+				.collect(Collectors.toList());
+
+		// ========== 批量查询 ==========
+
+		// 批量查询 adviser
+		Map<Integer, AdviserDO> adviserDOMap = new HashMap<>();
+		if (!adviserIdList.isEmpty()) {
+			List<AdviserDO> adviserDOS = adviserDao.listByIds(adviserIdList);
+			adviserDOMap = adviserDOS.stream().collect(Collectors.toMap(AdviserDO::getId, Function.identity(), (v1, v2) -> v2));
+		}
+
+		// 批量查询 userAdviser，按 userId 分组
+		Map<Integer, List<UserAdviserDO>> userAdviserMap = new HashMap<>();
+		if (!userIds.isEmpty()) {
+			List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserIds(userIds);
+			for (UserAdviserDO ua : userAdviserList) {
+				userAdviserMap.computeIfAbsent(ua.getUserId(), k -> new ArrayList<>()).add(ua);
+			}
+		}
+
+		// 批量查询 applicant，按 userId 分组
+		Map<Integer, List<ApplicantDO>> applicantMap = new HashMap<>();
+		if (!userIds.isEmpty()) {
+			Integer queryAdviserId = adviserId > 0 ? adviserId : null;
+			List<ApplicantDO> applicantList = applicantDao.listByUserIds(userIds, queryAdviserId);
+			for (ApplicantDO ap : applicantList) {
+				applicantMap.computeIfAbsent(ap.getUserId(), k -> new ArrayList<>()).add(ap);
+			}
+		}
+
+		// 批量查询 tag，通过 user_tag 关联
+		Map<Integer, List<TagDTO>> tagMap = new HashMap<>();
+		if (!userIds.isEmpty()) {
+			List<UserTagDO> userTagList = tagDao.listUserTagByUserIds(userIds);
+			if (!userTagList.isEmpty()) {
+				Set<Integer> tagIds = userTagList.stream().map(UserTagDO::getTagId).collect(Collectors.toSet());
+				List<TagDO> allTags = tagDao.listTag();
+				Map<Integer, TagDTO> tagByIdMap = new HashMap<>();
+				for (TagDO tag : allTags) {
+					if (tagIds.contains(tag.getId())) {
+						tagByIdMap.put(tag.getId(), mapper.map(tag, TagDTO.class));
+					}
+				}
+				for (UserTagDO ut : userTagList) {
+					TagDTO tagDto = tagByIdMap.get(ut.getTagId());
+					if (tagDto != null) {
+						tagMap.computeIfAbsent(ut.getUserId(), k -> new ArrayList<>()).add(tagDto);
+					}
+				}
+			}
+		}
+
+		// 批量查询 orderCount (VISA)
+		Map<Integer, Integer> visaCountMap = new HashMap<>();
+		// 批量查询 orderCount (OVST)
+		Map<Integer, Integer> ovstCountMap = new HashMap<>();
+		// 批量查询 orderAmount
+		Map<Integer, Double> orderAmountMap = new HashMap<>();
+		if (!userIds.isEmpty()) {
+			List<Map<String, Object>> visaCountList = serviceOrderDao.getOrderCountBatch(userIds, "VISA");
+			for (Map<String, Object> row : visaCountList) {
+				visaCountMap.put(((Number) row.get("userId")).intValue(), ((Number) row.get("cnt")).intValue());
+			}
+			List<Map<String, Object>> ovstCountList = serviceOrderDao.getOrderCountBatch(userIds, "OVST");
+			for (Map<String, Object> row : ovstCountList) {
+				ovstCountMap.put(((Number) row.get("userId")).intValue(), ((Number) row.get("cnt")).intValue());
+			}
+			List<Map<String, Object>> amountList = serviceOrderDao.getOrderAmountBatch(userIds);
+			for (Map<String, Object> row : amountList) {
+				Object total = row.get("total");
+				if (total != null) {
+					orderAmountMap.put(((Number) row.get("userId")).intValue(), ((Number) total).doubleValue());
+				}
+			}
+		}
+
+		// 批量查询 cloudDiskFile，按 userId 分组
+		Map<Integer, CloudDiskFile> cloudDiskFileMap = new HashMap<>();
+		if (!userIds.isEmpty()) {
+			List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByUserIds(userIds);
+			for (CloudDiskFile cf : cloudDiskFileList) {
+				if (cf.getUserId() != null) {
+					cloudDiskFileMap.putIfAbsent(cf.getUserId(), cf);
+				}
+			}
+		}
+
+		// 批量查询 recommendUser（通过 recommend_openid 查用户）
+		Map<String, UserDTO> recommendUserMap = new HashMap<>();
+		if (!recommendOpenIds.isEmpty()) {
+			List<UserDO> recommendUsers = userDao.listByRecommendOpenIds(recommendOpenIds);
+			if (recommendUsers != null) {
+				for (UserDO ru : recommendUsers) {
+					UserDTO recommendDto = mapper.map(ru, UserDTO.class);
+					if (ru.getAdviserId() > 0) {
+						AdviserDO advDo = adviserDOMap.get(ru.getAdviserId());
+						if (advDo != null)
+							recommendDto.setAdviserDto(mapper.map(advDo, AdviserDTO.class));
+					}
+					recommendDto.setTagList(listTagByUserId(ru.getId()));
+					recommendUserMap.put(ru.getRecommendOpenid(), recommendDto);
+				}
+			}
+		}
+
+		// ========== 循环组装数据 ==========
 		for (UserDO userDo : userDoList) {
 			UserDTO userDto = mapper.map(userDo, UserDTO.class);
-			List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userDto.getId(), 0, 200);
-			if (!cloudDiskFileList.isEmpty()) {
-				userDto.setFirstFileId(cloudDiskFileList.get(0).getFileId());
+
+			// cloudDiskFile
+			CloudDiskFile cloudDiskFile = cloudDiskFileMap.get(userDto.getId());
+			if (cloudDiskFile != null) {
+				userDto.setFirstFileId(cloudDiskFile.getFileId());
 			}
-			if(!buildUserAdviserDto(userDto, adviserId))
+
+			// userAdviser（替代 buildUserAdviserDto 中的循环查询部分）
+			boolean isBelongToThisAdviser = false;
+			List<UserAdviserDTO> userAdviserDtoList = new ArrayList<>();
+			List<UserAdviserDO> userAdviserDos = userAdviserMap.getOrDefault(userDto.getId(), Collections.emptyList());
+			for (UserAdviserDO userAdviserDo : userAdviserDos) {
+				if (adviserId == 0 || adviserId == userAdviserDo.getAdviserId()) {
+					isBelongToThisAdviser = true;
+					userDto.setAdviserId(userAdviserDo.getAdviserId());
+				}
+				UserAdviserDTO userAdviserDto = mapper.map(userAdviserDo, UserAdviserDTO.class);
+				if (userAdviserDto.getAdviserId() > 0) {
+					AdviserDO adviserDo = adviserDOMap.get(userAdviserDto.getAdviserId());
+					if (adviserDo != null)
+						userAdviserDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+				}
+				userAdviserDtoList.add(userAdviserDto);
+			}
+			if (!isBelongToThisAdviser)
 				continue;
-			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
-			if (applicantList != null && applicantList.size() > 0)
-				userDto.setApplicantList(applicantList);
+			if (!userAdviserDtoList.isEmpty())
+				userDto.setUserAdviserList(userAdviserDtoList);
+
+			// applicant
+			List<ApplicantDO> applicantDos = applicantMap.getOrDefault(userDo.getId(), Collections.emptyList());
+			if (!applicantDos.isEmpty()) {
+				List<ApplicantDTO> applicantDtoList = new ArrayList<>();
+				for (ApplicantDO ap : applicantDos) {
+					applicantDtoList.add(mapper.map(ap, ApplicantDTO.class));
+				}
+				userDto.setApplicantList(applicantDtoList);
+			}
+
+			// adviser
 			AdviserDO adviserDo = null;
 			if (adviserId > 0) {
 				userDto.setAdviserId(adviserId);
-				adviserDo = adviserDao.getAdviserById(adviserId);
+				adviserDo = adviserDOMap.get(adviserId);
 			} else if (userDto.getAdviserId() > 0)
-				adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());
+				adviserDo = adviserDOMap.get(userDto.getAdviserId());
 			if (adviserDo != null)
 				userDto.setAdviserDto(mapper.map(adviserDo, AdviserDTO.class));
+
+			// recommendUser
 			if (userDto.getRecommendOpenid() != null) {
-				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
-						userDto.getRecommendOpenid());
-				userDto.setRecommendUserDto(recommendUserDto);
+				userDto.setRecommendUserDto(recommendUserMap.get(userDto.getRecommendOpenid()));
 			}
+
+			// authNickname 解码
 			try {
 				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
 			} catch (Exception e) {
 //				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
-			userDto.setTagList(listTagByUserId(userDto.getId()));
-			userDto.setVisaCount(serviceOrderDao.getOrderCount(userDto.getId(), "VISA"));
-			userDto.setOvstCount(serviceOrderDao.getOrderCount(userDto.getId(), "OVST"));
-			Double orderAmount = serviceOrderDao.getOrderAmount(userDto.getId());
-			if(orderAmount == null) {
-				orderAmount = 0.0;
-				userDto.setOrderAmount(orderAmount);
-			} else {
-				userDto.setOrderAmount(orderAmount);
-			}
+
+			// tag
+			userDto.setTagList(tagMap.getOrDefault(userDto.getId(), Collections.emptyList()));
+
+			// orderCount & orderAmount
+			userDto.setVisaCount(visaCountMap.getOrDefault(userDto.getId(), 0));
+			userDto.setOvstCount(ovstCountMap.getOrDefault(userDto.getId(), 0));
+			userDto.setOrderAmount(orderAmountMap.getOrDefault(userDto.getId(), 0.0));
+
 			userDtoList.add(userDto);
 		}
 		return userDtoList;

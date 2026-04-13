@@ -42,4 +42,7 @@ public interface CloudDiskFileDAO {
 
     void deleteUserCloud(Integer id);
 
+    List<CloudDiskFile> listByUserIds(@Param("userIds") List<Integer> userIds);
+
+
 }

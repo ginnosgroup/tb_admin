@@ -258,6 +258,16 @@
             and user_id = #{userId}
         </if>
     </select>
+    <select id="listByUserIds" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        select * from b_cloud_disk_file
+        where user_id IN
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+        and parent_file_id = 'root'
+        and is_delete = 0
+        GROUP BY user_id
+    </select>
 
 
 </mapper>

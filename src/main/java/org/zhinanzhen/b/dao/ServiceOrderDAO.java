@@ -6,6 +6,7 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.pojo.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ServiceOrderDAO {
 
@@ -155,4 +156,12 @@ public interface ServiceOrderDAO {
     Integer getOrderCount(@Param("userId")int userId, @Param("visa") String visa);
 
      Double getOrderAmount(int id);
+
+     List<Map<String, Object>> getOrderCountBatch(@Param("userIds") List<Integer> userIds, @Param("visa") String visa);
+
+     List<Map<String, Object>> getOrderAmountBatch(@Param("userIds") List<Integer> userIds);
+
+    List<ServiceOrderDO> listByParentIds(@Param("parentIds") List<Integer> parentIds);
+
+    List<ServiceOrderDO> listByIds(@Param("ids") List<Integer> ids);
 }
