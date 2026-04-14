@@ -565,45 +565,30 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setUser(mapper.map(userDo, UserDTO.class));
 		}
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
+		ServiceOrderDTO serviceOrderDTO = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+		visaDto.setServiceOrder(serviceOrderDTO);
 		if (serviceOrderDo.getApplicantId() > 0) {
 			List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 			ApplicantDO applicantDO = applicantDao.getById(serviceOrderDo.getApplicantId());
 			applicantDTOS.add(mapper.map(applicantDO, ApplicantDTO.class));
 			visaDto.setApplicant(applicantDTOS);
 			visaDto.setApplicantId(applicantDO.getId());
-			ServiceOrderDTO serviceOrderDTO = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 			visaDto.setServiceOrder(serviceOrderDTO);
-			// 查询子服务
-			if (serviceOrderDTO.getParentId() <= 0) {
-				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
-				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDTO.getId());
-				list.forEach(serviceOrder -> {
-					ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
-							ChildrenServiceOrderDTO.class);
-					ServicePackageDO servicePackageDo = servicePackageDAO
-							.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-					if (servicePackageDo != null)
-						childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
-					childrenServiceOrderList.add(childrenServiceOrderDto);
-				});
-				serviceOrderDTO.setChildrenServiceOrders(childrenServiceOrderList);
-			}
-			// 查询子服务
-			if (serviceOrderDTO.getParentId() <= 0) {
-				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
-				List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDTO.getId());
-				list.forEach(serviceOrder -> {
-					ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
-							ChildrenServiceOrderDTO.class);
-					ServicePackageDO servicePackageDo = servicePackageDAO
-							.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
-					if (servicePackageDo != null)
-						childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
-					childrenServiceOrderList.add(childrenServiceOrderDto);
-				});
-				serviceOrderDTO.setChildrenServiceOrders(childrenServiceOrderList);
-			}
-			visaDto.setServiceOrder(serviceOrderDTO);
+		}
+		// 查询子服务
+		if (serviceOrderDTO.getParentId() <= 0) {
+			List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
+			List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDTO.getId());
+			list.forEach(serviceOrder -> {
+				ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
+						ChildrenServiceOrderDTO.class);
+				ServicePackageDO servicePackageDo = servicePackageDAO
+						.getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
+				if (servicePackageDo != null)
+					childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
+				childrenServiceOrderList.add(childrenServiceOrderDto);
+			});
+			serviceOrderDTO.setChildrenServiceOrders(childrenServiceOrderList);
 		}
 //			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
 //			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))

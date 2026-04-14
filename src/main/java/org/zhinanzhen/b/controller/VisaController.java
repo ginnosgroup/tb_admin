@@ -35,6 +35,7 @@ import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
+import org.zhinanzhen.b.service.impl.OfficialServiceImpl;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
@@ -108,6 +109,9 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@Resource
 	private ServiceOrderManageService serviceOrderManageService;
+
+	@Resource
+	private OfficialService officialService;
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
@@ -879,6 +883,15 @@ public class VisaController extends BaseCommissionOrderController {
 									}
 								}
 								visaDTO.setApplicant(applicantDTOS);
+								if (serviceOrderDto.getOfficialId() > 0) {
+									serviceOrderDto.setOfficial(officialService.getOfficialById(serviceOrderDto.getOfficialId()));
+								}
+								if (serviceOrderDto.getMaraId() > 0) {
+									serviceOrderDto.setMara(maraService.getMaraById(serviceOrderDto.getMaraId()));
+								}
+								if (serviceOrderDto.getServiceId() > 0) {
+									serviceOrderDto.setService(serviceService.getServiceById(serviceOrderDto.getServiceId()));
+								}
 							}
 						}
 
