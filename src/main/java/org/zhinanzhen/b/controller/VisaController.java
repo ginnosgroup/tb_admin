@@ -863,7 +863,8 @@ public class VisaController extends BaseCommissionOrderController {
 				executor.submit(() -> {
 					try {
 						if (visaDTO.getServiceOrderId() > 0) {
-							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
+							ServiceOrderDTO serviceOrderDto = visaDTO.getServiceOrder();
+//							ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(visaDTO.getServiceOrderId());
 							List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 							if (serviceOrderDto != null) {
 								visaDTO.setServiceOrder(serviceOrderDto);

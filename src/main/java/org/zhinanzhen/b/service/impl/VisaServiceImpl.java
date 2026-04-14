@@ -572,6 +572,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setApplicant(applicantDTOS);
 			visaDto.setApplicantId(applicantDO.getId());
 			ServiceOrderDTO serviceOrderDTO = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
+			visaDto.setServiceOrder(serviceOrderDTO);
 			// 查询子服务
 			if (serviceOrderDTO.getParentId() <= 0) {
 				List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
