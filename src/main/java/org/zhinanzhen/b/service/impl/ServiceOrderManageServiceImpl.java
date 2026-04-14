@@ -324,7 +324,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             if (serviceOrderDo == null)
                 return null;
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
-            serviceOrderDOS.add(serviceOrderDo);
+//            serviceOrderDOS.add(serviceOrderDo);
             // 批量预加载关联数据
             ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderDOS);
             if (serviceOrderDOS != null) {
