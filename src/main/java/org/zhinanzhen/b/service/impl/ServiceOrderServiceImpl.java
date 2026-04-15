@@ -879,20 +879,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                             theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, priceAmount);
+                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, priceAmount, false);
                 } else {
                     serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, states,
                             auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                             theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, null);
+                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, null, false);
                 }
             } else {
                 serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                         theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                         theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                        parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, null, null);
+                        parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, null, null, false);
             }
             if (serviceOrderDoList == null)
                 return null;
@@ -3385,7 +3385,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 null, null, null, null, null, userId,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, null, 0, 9999, null, null, null, null, null, null);
+                , null, null, null, null, 0, 9999, null, null, null, null, null, null, false);
         for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
             if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
                 serviceOrderDO.setPerAmount(serviceOrderDO.getPerAmount() / serviceOrderDO.getExchangeRate());

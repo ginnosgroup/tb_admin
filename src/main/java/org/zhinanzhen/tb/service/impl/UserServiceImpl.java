@@ -570,7 +570,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			stateList.add("PAID");
 			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null,null, null, null, stateList, null,
 					null, null, null, null, null, null, null, null, null, null, null, null, id, null, null, null, null, null, null, null,
-					null, null, null, null,null, false, null, null, DEFAULT_PAGE_NUM, 100, null, null, null, null, null, null);
+					null, null, null, null,null, false, null, null, DEFAULT_PAGE_NUM, 100, null, null, null, null, null, null, false);
 			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				if (officialDo != null)
@@ -830,7 +830,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				null, null, null, null, theDateTo00_00_00(startGmtCreate),
 				theDateTo23_59_59(endGmtCreate), null, officialIds, userId, null, null, null, null, null,
 				null, null, null, null, null, null, null,
-				null, null, null, 0, 1000, null, null, null, null, null, null);
+				null, null, null, 0, 1000, null, null, null, null, null, null, true);
 		if (serviceOrderDOS.isEmpty()) {
 			System.out.println("没有找到服务订单数据");
 			return null;

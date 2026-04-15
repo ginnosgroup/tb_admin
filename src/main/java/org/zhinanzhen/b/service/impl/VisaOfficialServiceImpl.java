@@ -1541,7 +1541,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                 null, null, null, null, null,
                                 null, null, null, null, null, null, null, null, null,
                                 null, null, null, null, null, null, null,
-                                null, null, parentOrder.getId(), 0, 20, null, null, null, null, null, null);
+                                null, null, parentOrder.getId(), 0, 20, null, null, null, null, null, null, false);
                         if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
                             for (ServiceOrderDO orderDO : serviceOrderDOS) {
                                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServiceId());
@@ -1566,7 +1566,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                 null, null, null, null, null,
                                 null, null, null, null, null, null, null, null, null,
                                 null, null, null, null, null, null, null,
-                                null, null, visaOfficialDto.getServiceOrderId(), 0, 20, null, null, null ,null, null, null);
+                                null, null, visaOfficialDto.getServiceOrderId(), 0, 20, null, null, null ,null, null, null, false);
                         if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
                             for (ServiceOrderDO orderDO : serviceOrderDOS) {
                                 ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
@@ -1696,7 +1696,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 EndOfLastMonth, null, null, null, null, null,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, null, 0, 9999, null, null, null, null, null, null);
+                , null, null, null, null, 0, 9999, null, null, null, null, null, null, false);
         List<VisaOfficialDO> visaOfficialDOs = new ArrayList<>();
         int count = 0;
         for (ServiceOrderDO e : serviceOrderDOS) {
@@ -1847,7 +1847,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                         null, null, null, null, null,
                                         null, null, null, null, null, null, null, null, null,
                                         null, null, null, null, null, null, null,
-                                        null, null, parentOrder.getId(), 0, 20, null, null, null, null, null, null);
+                                        null, null, parentOrder.getId(), 0, 20, null, null, null, null, null, null, false);
                                 if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
                                     for (ServiceOrderDO orderDO : serviceOrderDOS) {
                                         ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServiceId());
@@ -1873,7 +1873,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                                     null, null, null, null, null,
                                     null, null, null, null, null, null, null, null, null,
                                     null, null, null, null, null, null, null,
-                                    null, null, e.getServiceOrderId(), 0, 20, null, null, null ,null, null, null);
+                                    null, null, e.getServiceOrderId(), 0, 20, null, null, null ,null, null, null, false);
                             if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
                                 for (ServiceOrderDO orderDO : serviceOrderDOS) {
                                     ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
