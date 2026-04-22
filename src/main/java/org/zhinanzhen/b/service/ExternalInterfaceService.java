@@ -25,7 +25,7 @@ public interface ExternalInterfaceService {
 
     List<CloudDiskFile> listCloudDiskFile(String parentFileId, Integer id, String name, Integer applicantId, Integer userId);
 
-    UserDO getUserByName(String name);
+    UserDO getUserByName(String name, String id);
 
     AdviserDO getAdviserById(Integer id);
 
