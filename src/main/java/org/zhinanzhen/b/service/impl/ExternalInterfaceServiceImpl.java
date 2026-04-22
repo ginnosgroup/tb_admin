@@ -190,8 +190,8 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     }
 
     @Override
-    public UserDO getUserByName(String name) {
-        return userDAO.getUserByName(name);
+    public UserDO getUserByName(String name, String id) {
+        return userDAO.getUserByName(name, Integer.valueOf(id));
     }
 
     @Override

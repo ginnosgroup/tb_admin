@@ -540,7 +540,12 @@ public class RefundController extends BaseController {
 				emailBody.append("<p>服务项目：").append(serviceById.getName()).append("-").append(serviceById.getCode()).append("</p>");
 				emailBody.append("<p>顾问：").append(adviserById.getName()).append("</p>");
 				emailBody.append("<p>文案：").append(officialById.getName()).append("</p>");
-				emailBody.append("<p>申请退款金额：$").append(refundById.getAmount()).append("</p>");
+				String currencyType = refundById.getCurrencyType();
+				String amountType = "$";
+				if ("CNY".equalsIgnoreCase(currencyType)) {
+					amountType = "￥";
+				}
+				emailBody.append("<p>申请退款金额：").append(amountType).append(refundById.getAmount()).append("</p>");
 				emailBody.append("<p>温馨提示：退款影响结算请与顾问及时沟通</p>");
 				SendEmailUtil.send(officialEmail, title, emailBody.toString());
 				SendEmailUtil.send(email, title, emailBody.toString());

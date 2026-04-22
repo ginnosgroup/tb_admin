@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -16,9 +17,7 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -136,7 +135,7 @@ public class CloudDiskController extends BaseController {
         try {
             super.setPostHeader(response);
             int total = cloudDiskService.count(id, parentFileId, name, applicantId, userId);
-            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize);
+            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize, false);
             return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, "");
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,6 +173,98 @@ public class CloudDiskController extends BaseController {
             Map<String, Integer> addCountMap = new HashMap<>();
             Map<String, String> belongFolderMap = new HashMap<>();
             cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName, null, synchronizeName);
+//            String[] split = folderName.split("@");
+//            List<CloudDiskFile> cloudDiskFileList1 = cloudDiskService.list(null, null, null, null, Integer.valueOf(split[1]), 0, 1000, false);
+//            List<String> urls = new ArrayList<>();
+//            for (CloudDiskFile cloudDiskFile1 : cloudDiskFileList1) {
+//                if ("file".equalsIgnoreCase(cloudDiskFile1.getType())) {
+//                    String downLink = cloudDiskService.getDownLink(null, cloudDiskFile1.getFileId());
+//                    urls.add(downLink);
+//                }
+//            }
+//            // 创建所有输入流的枚举
+//            List<InputStream> streams = new ArrayList<>();
+//            for (String url : urls) {
+//                streams.add(new URL(url).openStream());
+//            }
+//            // 合并为一个流
+//            StringBuilder textBuilder = new StringBuilder();
+//            try (InputStream combined = new SequenceInputStream(
+//                    Collections.enumeration(streams))) {
+//
+//                // 现在可以像操作单个流一样处理所有文件内容
+//                BufferedReader reader = new BufferedReader(
+//                        new InputStreamReader(combined));
+//                String line;
+//                while ((line = reader.readLine()) != null) {
+//                    textBuilder.append(line).append("\n");
+//                }
+//            }
+//
+//            JSONObject jsonss = null;
+//            String strRead = null;
+//            URL realUrl = new URL("https://api.deepseek.com/v1/chat/completions");
+//            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
+//            connection.setRequestMethod("POST");
+//            connection.setDoInput(true);
+//            connection.setDoOutput(true);
+//            connection.setRequestProperty("Accept", "application/json");
+//            connection.setRequestProperty("Content-Type", "application/json");
+//            connection.setRequestProperty("Authorization", "Bearer sk-2ea8e0bb490c421d84b5e23a95bf0f47");
+//            connection.connect();
+//
+//            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+//
+//            // 构建请求参数
+//            JSONObject parm = new JSONObject();
+//            parm.put("model", "deepseek-chat");
+//            parm.put("stream", false);
+//
+//            List<JSONObject> objects = new ArrayList<>();
+//            JSONObject messagesObject = new JSONObject();
+//            messagesObject.put("role", "system");
+//            messagesObject.put("content", "你是一个专业的文档分析助手，能够准确理解和总结文档内容");
+//
+//            JSONObject messagesObject2 = new JSONObject();
+//            messagesObject2.put("role", "user");
+//            messagesObject2.put("content", "帮我总结一下：\n" + textBuilder);
+//
+//            objects.add(messagesObject);
+//            objects.add(messagesObject2);
+//            parm.put("messages", objects);
+//
+//            writer.write(parm.toString());
+//            writer.flush();
+//
+//            // 读取响应
+//            InputStream is = connection.getInputStream();
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+//            StringBuilder responseT = new StringBuilder();
+//            while ((strRead = reader.readLine()) != null) {
+//                responseT.append(strRead);
+//            }
+//
+//            // 解析响应
+//            jsonss = JSONObject.parseObject(response.toString());
+//            Object choices = jsonss.get("choices");
+//            System.out.println("API响应：");
+//            System.out.println(JSONObject.toJSONString(choices, true));
+//
+//            // 提取回复内容
+//            if (choices instanceof List) {
+//                List<?> choicesList = (List<?>) choices;
+//                if (!choicesList.isEmpty()) {
+//                    JSONObject firstChoice = (JSONObject) choicesList.get(0);
+//                    JSONObject message = firstChoice.getJSONObject("message");
+//                    String content = message.getString("content");
+//                    System.out.println("\n=== DeepSeek分析结果 ===\n");
+//                    System.out.println(content);
+//                }
+//            }
+//
+//            reader.close();
+//            connection.disconnect();
+//            cloudDiskService.getAIEvaluation(folderName);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();

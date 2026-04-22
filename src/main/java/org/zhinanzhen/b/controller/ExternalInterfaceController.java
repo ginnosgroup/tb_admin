@@ -101,10 +101,11 @@ public class ExternalInterfaceController extends BaseController {
 
     @RequestMapping(value = "/getUserByName", method = RequestMethod.GET)
     @ResponseBody
-    public Response<UserDO> getUserByName(@RequestParam(value = "name", required = false) String name, HttpServletResponse response) {
+    public Response<UserDO> getUserByName(@RequestParam(value = "name", required = false) String name, @RequestParam(value = "id", required = false) String id,
+                                          HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            UserDO userDO = externalInterfaceService.getUserByName(name);
+            UserDO userDO = externalInterfaceService.getUserByName(name, id);
             return new Response<UserDO>(0, "获取成功", userDO);
         } catch (Exception e) {
             return new Response<UserDO>(1, "获取失败:" + e.getMessage(), null);
