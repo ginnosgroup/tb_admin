@@ -394,6 +394,13 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(contractData)) {
             serviceOrderDto.setContractData(contractData);
         }
+        for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
+            String currency1 = serviceOrderJsonRequest.getCurrency();
+            if (!currency.equalsIgnoreCase(currency1)) {
+                return new Response<Integer>(1, "创建失败，子订单与父订单货币类型不符", null);
+            }
+        }
+
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
