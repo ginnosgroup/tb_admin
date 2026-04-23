@@ -397,7 +397,7 @@ public class ServiceOrderManageController extends BaseController {
         for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
             String currency1 = serviceOrderJsonRequest.getCurrency();
             if (!currency.equalsIgnoreCase(currency1)) {
-                return new Response<Integer>(1, "创建失败，子订单与父订单货币类型不符", null);
+                return new Response<Integer>(1, "创建失败，请确认支付币种是否一致", null);
             }
         }
 
