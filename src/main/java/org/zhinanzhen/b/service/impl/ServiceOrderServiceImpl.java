@@ -837,7 +837,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                   List<Integer> adviserRegionIdList, List<Integer> officialRegionIdList, Integer userId, String userName, String applicantName, Integer maraId,
                                                   Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
                                                   boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
-                                                  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price) throws ServiceException {
+                                                  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price, Boolean isManage) throws ServiceException {
         schoolId = null;
         List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
         List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
@@ -879,20 +879,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                             theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, priceAmount, false);
+                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, priceAmount, isManage);
                 } else {
                     serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, states,
                             auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                             theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                             theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, null, false);
+                            parentId, applicantParentId, isNotApproved, 24, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, isAssess, null, isManage);
                 }
             } else {
                 serviceOrderDoList = serviceOrderDao.listServiceOrder(null, null, type, excludeTypeList, excludeState, stateList,
                         auditingState, reviewStateList, urgentState, theDateTo00_00_00(startMaraApprovalDate), theDateTo23_59_59(endMaraApprovalDate),
                         theDateTo00_00_00(startOfficialApprovalDate), theDateTo23_59_59(endOfficialApprovalDate), theDateTo00_00_00(startReadcommittedDate),
                         theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
-                        parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, null, null, false);
+                        parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, null, null, isManage);
             }
             if (serviceOrderDoList == null)
                 return null;

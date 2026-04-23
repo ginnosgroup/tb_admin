@@ -857,7 +857,7 @@
         <if test="priceAmount != null">
             AND so.amount >= #{priceAmount}
         </if>
-        <if test='isManage == false'>
+        <if test='isManage != null and isManage == false'>
             AND bsoa.id IS NULL
         </if>
         ${orderBy}

@@ -33,7 +33,7 @@ public interface ServiceOrderService {
 										  List<Integer> adviserRegionIdList, List<Integer> officialRegionIdList, Integer userId, String userName, String applicantName, Integer maraId,
 										  Integer adviserId, Integer officialId, Integer officialTagId, int parentId, int applicantParentId,
 										  boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
-										  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price) throws ServiceException;
+										  Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price, Boolean isManage) throws ServiceException;
 
 	ServiceOrderDTO getServiceOrderById(int id) throws ServiceException;
 
