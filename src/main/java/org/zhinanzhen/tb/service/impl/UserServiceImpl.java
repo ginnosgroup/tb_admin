@@ -848,22 +848,22 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		// 1. 初始化 Client
 		Client client = createFeishuClient();
-//		// 2. 创建多维表格并获取 appToken, tableId, url
-//		String[] tableInfo = createBitableAndGetTableId(client);
-//		if (tableInfo == null) {
-//			System.out.println("创建多维表格失败");
-//			return null;
-//		}
-//		String appToken = tableInfo[0];
-//		String tableId = tableInfo[1];
-//		String url = tableInfo[2];
+		// 2. 创建多维表格并获取 appToken, tableId, url
+		String[] tableInfo = createBitableAndGetTableId(client);
+		if (tableInfo == null) {
+			System.out.println("创建多维表格失败");
+			return null;
+		}
+		String appToken = tableInfo[0];
+		String tableId = tableInfo[1];
+		String url = tableInfo[2];
 
-		String appToken = "OFrabiwgsaWAH4sVSJjcJiWynTh";
-		String url = "https://ii329ivdkcl.feishu.cn/wiki/SWvlwrWIEib2TikYkMjcMKdwnTc?base_hp_from=workbench&table=tblfatyn9mllWyiI&view=vewP7UcjSS";
+//		String appToken = "OFrabiwgsaWAH4sVSJjcJiWynTh";
+//		String url = "https://ii329ivdkcl.feishu.cn/wiki/SWvlwrWIEib2TikYkMjcMKdwnTc?base_hp_from=workbench&table=tblfatyn9mllWyiI&view=vewP7UcjSS";
 
 		// 获取tableId
-		Map<String, String> tableIdMap = getTableIdMap(client, appToken);
-		String tableId = tableIdMap.get("签证订单表");
+//		Map<String, String> tableIdMap = getTableIdMap(client, appToken);
+//		String tableId = tableIdMap.get("签证订单表");
 		// 3. 确保字段存在
 		if (!ensureTableFields(client, appToken, tableId)) {
 			System.out.println("确保字段存在失败");
@@ -883,46 +883,46 @@ public class UserServiceImpl extends BaseService implements UserService {
 			System.out.println("填充数据失败");
 			return null;
 		}
-//		// 创建新的数据表
-//		// 创建请求对象
-//		CreateAppTableReq createAppTableReq = CreateAppTableReq.newBuilder()
-//				.appToken(appToken)
-//				.createAppTableReqBody(CreateAppTableReqBody.newBuilder()
-//						.table(ReqTable.newBuilder()
-//								.name("留学")
-//								.defaultViewName("默认的表格视图")
-//								.fields(new AppTableCreateHeader[] {
-//										AppTableCreateHeader.newBuilder()
-//												.fieldName("索引字段")
-//												.type(1)
-//												.build(),
-//										AppTableCreateHeader.newBuilder()
-//												.fieldName("默认")
-//												.type(1)
-//												.build(),
-//										AppTableCreateHeader.newBuilder()
-//												.fieldName("默认1")
-//												.type(1)
-//												.build(),
-//										AppTableCreateHeader.newBuilder()
-//												.fieldName("默认2")
-//												.type(1)
-//												.build()
-//								})
-//								.build())
-//						.build())
-//				.build();
-//		// 发起请求
-//		CreateAppTableResp createAppTableResp = client.bitable().v1().appTable().create(createAppTableReq);
-//
-//		// 处理服务端错误
-//		if(!createAppTableResp.success()) {
-//			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
-//					createAppTableResp.getCode(), createAppTableResp.getMsg(), createAppTableResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(createAppTableResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
-//			return null;
-//		}
-//		String tableId1 = createAppTableResp.getData().getTableId();
-		String tableId1 = tableIdMap.get("留学订单表");
+		// 创建新的数据表
+		// 创建请求对象
+		CreateAppTableReq createAppTableReq = CreateAppTableReq.newBuilder()
+				.appToken(appToken)
+				.createAppTableReqBody(CreateAppTableReqBody.newBuilder()
+						.table(ReqTable.newBuilder()
+								.name("留学")
+								.defaultViewName("默认的表格视图")
+								.fields(new AppTableCreateHeader[] {
+										AppTableCreateHeader.newBuilder()
+												.fieldName("索引字段")
+												.type(1)
+												.build(),
+										AppTableCreateHeader.newBuilder()
+												.fieldName("默认")
+												.type(1)
+												.build(),
+										AppTableCreateHeader.newBuilder()
+												.fieldName("默认1")
+												.type(1)
+												.build(),
+										AppTableCreateHeader.newBuilder()
+												.fieldName("默认2")
+												.type(1)
+												.build()
+								})
+								.build())
+						.build())
+				.build();
+		// 发起请求
+		CreateAppTableResp createAppTableResp = client.bitable().v1().appTable().create(createAppTableReq);
+
+		// 处理服务端错误
+		if(!createAppTableResp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					createAppTableResp.getCode(), createAppTableResp.getMsg(), createAppTableResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(createAppTableResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+			return null;
+		}
+		String tableId1 = createAppTableResp.getData().getTableId();
+//		String tableId1 = tableIdMap.get("留学订单表");
 		if (!ensureTableFields(client, appToken, tableId1)) {
 			System.out.println("确保字段存在失败");
 			return null;

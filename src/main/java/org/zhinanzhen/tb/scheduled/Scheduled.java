@@ -163,11 +163,11 @@ public class Scheduled {
     @Value("${feishu.APPTOKEN}")
     private String APP_TOKEN;
 
-//    @Value("${feishu.EXCELIDVISA}")
-//    private String EXCEL_ID_VISA;
-//
-//    @Value("${feishu.EXCELIDOVST}")
-//    private String EXCEL_ID_OVST;
+    @Value("${feishu.EXCELIDVISA}")
+    private String EXCEL_ID_VISA;
+
+    @Value("${feishu.EXCELIDOVST}")
+    private String EXCEL_ID_OVST;
 
     @Autowired
     public Scheduled(Executor executor) {
@@ -735,160 +735,160 @@ public class Scheduled {
 	}
 
     // 成都文案订单所属情况（每日更新）
-//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 30 4 * * ?")
-//    private void updateUserData() {
-//        LocalDate yesterday = LocalDate.now().minusDays(1);
-//        String format = yesterday.toString();
-//        String startTime = format + " 00:00:00";
-//        String endTime = format + " 23:59:59";
-//
-//        List<Integer> officialIds = new ArrayList<>();
-//        officialIds.add(1000034);
-//        // 获取当天数据
-//        List<ServiceOrderDO> remainingOrders = serviceOrderDAO.listServiceOrder(null, null, null, null, null, null,
-//                null, null, null, null, null,
-//                null, null, null,
-//                null, startTime, endTime, null, officialIds, null, null, null, null, null, null, null,
-//                null, null, null, null, null, null, null, null, null, 0, 1000, null, null, null, null, null, null);
-//        List<ServiceOrderDO> visaList = new ArrayList<>();
-//        List<ServiceOrderDO> ovstList = new ArrayList<>();
-//        for (ServiceOrderDO serviceOrderDO : remainingOrders) {
-//            int officialId = serviceOrderDO.getOfficialId();
-//            if (officialId == 1000044 || officialId == 1000053 || officialId == 1000056 || officialId == 1000057) {
-//                ovstList.add(serviceOrderDO);
-//            } else {
-//                visaList.add(serviceOrderDO);
-//            }
-//        }
-//        // 获取表格内容
-//        try {
-//            // 构建client
-//            Client client = Client.newBuilder(ACCESS_KEY_ID, ACCESS_KEY_SECRET).build();
-//
-//            // 创建请求对象
-//            SearchAppTableRecordReq searchAppTableRecordReq = SearchAppTableRecordReq.newBuilder()
-//                    .appToken("ZY4CbtJIRaxykks0HNScbdomnmb")
-//                    .tableId("tblYdUL0ajKR1Qb5")
-//                    .pageSize(1000)
-//                    .searchAppTableRecordReqBody(SearchAppTableRecordReqBody.newBuilder()
-//                            .build())
-//                    .build();
-//
-//            // 发起请求
-//            SearchAppTableRecordResp searchAppTableRecordResp = client.bitable().v1().appTableRecord().search(searchAppTableRecordReq);
-//
-//            // 处理服务端错误
-//            if(!searchAppTableRecordResp.success()) {
-//                System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
-//                        searchAppTableRecordResp.getCode(), searchAppTableRecordResp.getMsg(), searchAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(searchAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
-//                return;
-//            }
-//
-//            // 判断是否删除上上月数据
-//            LocalDate today = LocalDate.now();
-//            // 方法1：获取当月的第一天并比较
-//            LocalDate firstDay = today.withDayOfMonth(1);
-//            boolean isFirstDay = today.equals(firstDay);
-//
-//            AppTableRecord[] items = searchAppTableRecordResp.getData().getItems();
-//            List<String> toTimeList = new ArrayList<>();
-//            for (AppTableRecord item : items) {
-//                Map<String, Object> fields = item.getFields();
-//                String finishTime = (String) ((Map) ((List) fields.get("完成时间")).get(0)).get("text");
-//                if (isFirstDay) {
-//                    if (TimeUtil.isBetweenLastLastMonth(finishTime)) {
-//                        toTimeList.add(item.getRecordId());
-//                    }
-//                } else {
-//                    if (!TimeUtil.isBetweenCurrentAndLastMonth(finishTime)) {
-//                        toTimeList.add(item.getRecordId());
-//                    }
-//                }
-//            }
-//            String[] array = toTimeList.stream().toArray(String[]::new);
-//            // 删除过期数据
-//            // 创建请求对象
-//            if (array.length > 0) {
-//                BatchDeleteAppTableRecordReq deleteAppTableRecordReq = BatchDeleteAppTableRecordReq.newBuilder()
-//                        .appToken("ZY4CbtJIRaxykks0HNScbdomnmb")
-//                        .tableId("tblYdUL0ajKR1Qb5")
-//                        .batchDeleteAppTableRecordReqBody(BatchDeleteAppTableRecordReqBody.newBuilder()
-//                                .records(array)
-//                                .build())
-//                        .build();
-//
-//                // 发起请求
-//                BatchDeleteAppTableRecordResp deleteAppTableRecordResp = client.bitable().v1().appTableRecord().batchDelete(deleteAppTableRecordReq, RequestOptions.newBuilder()
-//                        .build());
-//
-//                // 处理服务端错误
-//                if(!deleteAppTableRecordResp.success()) {
-//                    System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
-//                            deleteAppTableRecordResp.getCode(), deleteAppTableRecordResp.getMsg(), deleteAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(deleteAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
-//                }
-//            } else {
-//                log.info(format + "没有需删除数据");
-//            }
-//            // 构建查询数据映射
-//            List<OfficialDO> officialDOS = officialDao.listOfficial(null, null, null, 0, 1000);
-//            Map<Integer, OfficialDO> officialDOMap = officialDOS.stream().collect(Collectors.toMap(OfficialDO::getId, Function.identity(), (v1, v2) -> v2));
-//            List<RegionDO> regionDOS = regionDAO.listAllRegion();
-//            Map<Integer, RegionDO> regionDOMap = regionDOS.stream().collect(Collectors.toMap(RegionDO::getId, Function.identity(), (v1, v2) -> v2));
-//            List<ServiceDO> serviceDOS = serviceDAO.listService(null, null, false, 0, 1000);
-//            Map<Integer, ServiceDO> serviceDOMap = serviceDOS.stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity(), (v1, v2) -> v2));
-//            List<ServicePackageDO> servicePackageListDOS = servicePackageDAO.listAll();
-//            Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
-//
-//
-//            // 更新新数据到签证表格
-//            AppTableRecord[] recordsToCreate = new AppTableRecord[visaList.size()];
-//            if (visaList != null && visaList.size() > 0) {
-//                for (int i = 0; i < visaList.size(); i++) {
-//                    ServiceOrderDO serviceOrderDO = visaList.get(i);
-//                    Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
-//                    recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
-//                }
-//                BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
-//                        .tableId(EXCEL_ID_VISA)
-//                        .appToken(APP_TOKEN)
-//                        .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
-//                                .records(recordsToCreate)
-//                                .build())
-//                        .build();
-//                BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
-//                if (!createResp.success()) {
-//                    System.out.println("添加记录失败: " + createResp.getMsg());
-//                }
-//            } else {
-//                log.info(format + "没有新增数据，未进行添加");
-//            }
-//
-//            // 更新新数据到留学表格
-//            AppTableRecord[] recordsToCreateOVST = new AppTableRecord[ovstList.size()];
-//            if (ovstList != null && ovstList.size() > 0) {
-//                for (int i = 0; i < ovstList.size(); i++) {
-//                    ServiceOrderDO serviceOrderDO = ovstList.get(i);
-//                    Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
-//                    recordsToCreateOVST[i] = AppTableRecord.newBuilder().fields(fields).build();
-//                }
-//                BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
-//                        .tableId(EXCEL_ID_OVST)
-//                        .appToken(APP_TOKEN)
-//                        .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
-//                                .records(recordsToCreateOVST)
-//                                .build())
-//                        .build();
-//                BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
-//                if (!createResp.success()) {
-//                    System.out.println("添加记录失败: " + createResp.getMsg());
-//                }
-//            } else {
-//                log.info(format + "没有新增数据，未进行添加");
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 30 4 * * ?")
+    private void updateUserData() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        String format = yesterday.toString();
+        String startTime = format + " 00:00:00";
+        String endTime = format + " 23:59:59";
+
+        List<Integer> officialIds = new ArrayList<>();
+        officialIds.add(1000034);
+        // 获取当天数据
+        List<ServiceOrderDO> remainingOrders = serviceOrderDAO.listServiceOrder(null, null, null, null, null, null,
+                null, null, null, null, null,
+                null, null, null,
+                null, startTime, endTime, null, officialIds, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, 0, 1000, null, null, null, null, null, null, false);
+        List<ServiceOrderDO> visaList = new ArrayList<>();
+        List<ServiceOrderDO> ovstList = new ArrayList<>();
+        for (ServiceOrderDO serviceOrderDO : remainingOrders) {
+            int officialId = serviceOrderDO.getOfficialId();
+            if (officialId == 1000044 || officialId == 1000053 || officialId == 1000056 || officialId == 1000057) {
+                ovstList.add(serviceOrderDO);
+            } else {
+                visaList.add(serviceOrderDO);
+            }
+        }
+        // 获取表格内容
+        try {
+            // 构建client
+            Client client = Client.newBuilder(ACCESS_KEY_ID, ACCESS_KEY_SECRET).build();
+
+            // 创建请求对象
+            SearchAppTableRecordReq searchAppTableRecordReq = SearchAppTableRecordReq.newBuilder()
+                    .appToken("ZY4CbtJIRaxykks0HNScbdomnmb")
+                    .tableId("tblYdUL0ajKR1Qb5")
+                    .pageSize(1000)
+                    .searchAppTableRecordReqBody(SearchAppTableRecordReqBody.newBuilder()
+                            .build())
+                    .build();
+
+            // 发起请求
+            SearchAppTableRecordResp searchAppTableRecordResp = client.bitable().v1().appTableRecord().search(searchAppTableRecordReq);
+
+            // 处理服务端错误
+            if(!searchAppTableRecordResp.success()) {
+                System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+                        searchAppTableRecordResp.getCode(), searchAppTableRecordResp.getMsg(), searchAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(searchAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+                return;
+            }
+
+            // 判断是否删除上上月数据
+            LocalDate today = LocalDate.now();
+            // 方法1：获取当月的第一天并比较
+            LocalDate firstDay = today.withDayOfMonth(1);
+            boolean isFirstDay = today.equals(firstDay);
+
+            AppTableRecord[] items = searchAppTableRecordResp.getData().getItems();
+            List<String> toTimeList = new ArrayList<>();
+            for (AppTableRecord item : items) {
+                Map<String, Object> fields = item.getFields();
+                String finishTime = (String) ((Map) ((List) fields.get("完成时间")).get(0)).get("text");
+                if (isFirstDay) {
+                    if (TimeUtil.isBetweenLastLastMonth(finishTime)) {
+                        toTimeList.add(item.getRecordId());
+                    }
+                } else {
+                    if (!TimeUtil.isBetweenCurrentAndLastMonth(finishTime)) {
+                        toTimeList.add(item.getRecordId());
+                    }
+                }
+            }
+            String[] array = toTimeList.stream().toArray(String[]::new);
+            // 删除过期数据
+            // 创建请求对象
+            if (array.length > 0) {
+                BatchDeleteAppTableRecordReq deleteAppTableRecordReq = BatchDeleteAppTableRecordReq.newBuilder()
+                        .appToken("ZY4CbtJIRaxykks0HNScbdomnmb")
+                        .tableId("tblYdUL0ajKR1Qb5")
+                        .batchDeleteAppTableRecordReqBody(BatchDeleteAppTableRecordReqBody.newBuilder()
+                                .records(array)
+                                .build())
+                        .build();
+
+                // 发起请求
+                BatchDeleteAppTableRecordResp deleteAppTableRecordResp = client.bitable().v1().appTableRecord().batchDelete(deleteAppTableRecordReq, RequestOptions.newBuilder()
+                        .build());
+
+                // 处理服务端错误
+                if(!deleteAppTableRecordResp.success()) {
+                    System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+                            deleteAppTableRecordResp.getCode(), deleteAppTableRecordResp.getMsg(), deleteAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(deleteAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+                }
+            } else {
+                log.info(format + "没有需删除数据");
+            }
+            // 构建查询数据映射
+            List<OfficialDO> officialDOS = officialDao.listOfficial(null, null, null, 0, 1000);
+            Map<Integer, OfficialDO> officialDOMap = officialDOS.stream().collect(Collectors.toMap(OfficialDO::getId, Function.identity(), (v1, v2) -> v2));
+            List<RegionDO> regionDOS = regionDAO.listAllRegion();
+            Map<Integer, RegionDO> regionDOMap = regionDOS.stream().collect(Collectors.toMap(RegionDO::getId, Function.identity(), (v1, v2) -> v2));
+            List<ServiceDO> serviceDOS = serviceDAO.listService(null, null, false, 0, 1000);
+            Map<Integer, ServiceDO> serviceDOMap = serviceDOS.stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity(), (v1, v2) -> v2));
+            List<ServicePackageDO> servicePackageListDOS = servicePackageDAO.listAll();
+            Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
+
+
+            // 更新新数据到签证表格
+            AppTableRecord[] recordsToCreate = new AppTableRecord[visaList.size()];
+            if (visaList != null && visaList.size() > 0) {
+                for (int i = 0; i < visaList.size(); i++) {
+                    ServiceOrderDO serviceOrderDO = visaList.get(i);
+                    Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+                    recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
+                }
+                BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+                        .tableId(EXCEL_ID_VISA)
+                        .appToken(APP_TOKEN)
+                        .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+                                .records(recordsToCreate)
+                                .build())
+                        .build();
+                BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+                if (!createResp.success()) {
+                    System.out.println("添加记录失败: " + createResp.getMsg());
+                }
+            } else {
+                log.info(format + "没有新增数据，未进行添加");
+            }
+
+            // 更新新数据到留学表格
+            AppTableRecord[] recordsToCreateOVST = new AppTableRecord[ovstList.size()];
+            if (ovstList != null && ovstList.size() > 0) {
+                for (int i = 0; i < ovstList.size(); i++) {
+                    ServiceOrderDO serviceOrderDO = ovstList.get(i);
+                    Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+                    recordsToCreateOVST[i] = AppTableRecord.newBuilder().fields(fields).build();
+                }
+                BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+                        .tableId(EXCEL_ID_OVST)
+                        .appToken(APP_TOKEN)
+                        .batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+                                .records(recordsToCreateOVST)
+                                .build())
+                        .build();
+                BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+                if (!createResp.success()) {
+                    System.out.println("添加记录失败: " + createResp.getMsg());
+                }
+            } else {
+                log.info(format + "没有新增数据，未进行添加");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
 
