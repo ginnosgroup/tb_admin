@@ -34,4 +34,9 @@ public interface SchoolInstitutionDAO {
     List<SchoolInstitutionCountDO> countCourseWeek();
     
     List<SchoolInstitutionCountDO> countSchoolWeek(@Param("limit") int limit);
+
+	SchoolInstitutionDO getSchoolInstitutionByCourseId(@Param("courseId")int courseId);
+
+	List<SchoolInstitutionDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

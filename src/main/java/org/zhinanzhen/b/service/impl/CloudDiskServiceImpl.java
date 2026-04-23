@@ -814,6 +814,15 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
+    public void getAIEvaluation(String folderName) {
+        String[] split = folderName.split("@");
+        List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, null, null, null, Integer.valueOf(split[1]), 0, 1000);
+        for (CloudDiskFile cloudDiskFile1 : cloudDiskFileList1) {
+
+        }
+    }
+
+    @Override
     public int deleteById(Integer id, String fileId) {
         List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, fileId, null, null, null, 0, 100);
         if (CollectionUtils.isNotEmpty(cloudDiskFileList1)) {
@@ -852,8 +861,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     @Override
-    public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize) {
-        if (userId != null && StringUtils.isEmpty(parentFileId)) {
+    public List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId, int pageNum, int pageSize, Boolean isFileT) {
+        if (userId != null && StringUtils.isEmpty(parentFileId) && !isFileT) {
             List<CloudDiskFile> cloudDiskFileList1 = cloudDiskFileDAO.listByParentFileId(null, "root", null, null, userId, pageNum* pageSize, pageSize);
             log.info("当前查询用户id----------------------" + userId);
             log.info("当前查询用户资料----------------------" + cloudDiskFileList1);
@@ -864,6 +873,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             } else {
                 return null;
             }
+        }
+        if (isFileT) {
+            return cloudDiskFileDAO.listByParentFileId(null, null, null, null, userId, pageNum* pageSize, pageSize);
         }
         List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByParentFileId(id, parentFileId, name, applicantId, userId, pageNum * pageSize, pageSize);
         return cloudDiskFileList;

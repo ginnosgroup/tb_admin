@@ -9,6 +9,11 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.google.gson.JsonParser;
+import com.lark.oapi.Client;
+import com.lark.oapi.core.request.RequestOptions;
+import com.lark.oapi.core.utils.Jsons;
+import com.lark.oapi.service.bitable.v1.model.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -78,6 +83,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private ServiceAssessDao serviceAssessDao;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+	private SimpleDateFormat sdfT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	@Value("${feishu.ACCESSKEYID}")
+	private String ACCESS_KEY_ID;
+
+	@Value("${feishu.ACCESSKEYSECRET}")
+	private String ACCESS_KEY_SECRET;
 
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
@@ -557,7 +570,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			stateList.add("PAID");
 			List<ServiceOrderDO> serviceOrderList = serviceOrderDao.listServiceOrder(null, null,null, null, null, stateList, null,
 					null, null, null, null, null, null, null, null, null, null, null, null, id, null, null, null, null, null, null, null,
-					null, null, null, null,null, false, null, null, DEFAULT_PAGE_NUM, 100, null, null, null, null, null, null);
+					null, null, null, null,null, false, null, null, DEFAULT_PAGE_NUM, 100, null, null, null, null, null, null, false);
 			for (ServiceOrderDO serviceOrderDo : serviceOrderList) {
 				OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDo.getOfficialId());
 				if (officialDo != null)
@@ -808,6 +821,406 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return userOrder;
 	}
 
+	@Override
+	public String userData(Integer userId, String startGmtCreate, String endGmtCreate) throws Exception {
+		List<Integer> officialIds = new ArrayList<>();
+		officialIds.add(1000034);
+		List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
+				null, null, null, null, null, null,
+				null, null, null, null, theDateTo00_00_00(startGmtCreate),
+				theDateTo23_59_59(endGmtCreate), null, officialIds, userId, null, null, null, null, null,
+				null, null, null, null, null, null, null,
+				null, null, null, 0, 1000, null, null, null, null, null, null, true);
+		if (serviceOrderDOS.isEmpty()) {
+			System.out.println("没有找到服务订单数据");
+			return null;
+		}
+		serviceOrderDOS = serviceOrderDOS.stream().sorted(Comparator.comparing(ServiceOrderDO::getFinishDate)).collect(Collectors.toList());
+		List<ServiceOrderDO> visaList = new ArrayList<>();
+		List<ServiceOrderDO> ovstList = new ArrayList<>();
+		for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+			int officialId = serviceOrderDO.getOfficialId();
+			if (officialId == 1000044 || officialId == 1000053 || officialId == 1000056 || officialId == 1000057) {
+				ovstList.add(serviceOrderDO);
+			} else {
+				visaList.add(serviceOrderDO);
+			}
+		}
+		// 1. 初始化 Client
+		Client client = createFeishuClient();
+//		// 2. 创建多维表格并获取 appToken, tableId, url
+//		String[] tableInfo = createBitableAndGetTableId(client);
+//		if (tableInfo == null) {
+//			System.out.println("创建多维表格失败");
+//			return null;
+//		}
+//		String appToken = tableInfo[0];
+//		String tableId = tableInfo[1];
+//		String url = tableInfo[2];
+
+		String appToken = "OFrabiwgsaWAH4sVSJjcJiWynTh";
+		String url = "https://ii329ivdkcl.feishu.cn/wiki/SWvlwrWIEib2TikYkMjcMKdwnTc?base_hp_from=workbench&table=tblfatyn9mllWyiI&view=vewP7UcjSS";
+
+		// 获取tableId
+		Map<String, String> tableIdMap = getTableIdMap(client, appToken);
+		String tableId = tableIdMap.get("签证订单表");
+		// 3. 确保字段存在
+		if (!ensureTableFields(client, appToken, tableId)) {
+			System.out.println("确保字段存在失败");
+			return null;
+		}
+		// 4. 构建查询数据映射
+		List<OfficialDO> officialDOS = officialDao.listOfficial(null, null, null, 0, 1000);
+		Map<Integer, OfficialDO> officialDOMap = officialDOS.stream().collect(Collectors.toMap(OfficialDO::getId, Function.identity(), (v1, v2) -> v2));
+		List<RegionDO> regionDOS = regionDAO.listAllRegion();
+		Map<Integer, RegionDO> regionDOMap = regionDOS.stream().collect(Collectors.toMap(RegionDO::getId, Function.identity(), (v1, v2) -> v2));
+		List<ServiceDO> serviceDOS = serviceDAO.listService(null, null, false, 0, 1000);
+		Map<Integer, ServiceDO> serviceDOMap = serviceDOS.stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity(), (v1, v2) -> v2));
+		List<ServicePackageDO> servicePackageListDOS = servicePackageDAO.listAll();
+		Map<Integer, ServicePackageDO> servicePackageListDOMap = servicePackageListDOS.stream().collect(Collectors.toMap(ServicePackageDO::getId, Function.identity(), (v1, v2) -> v2));
+		// 5. 填充数据到多维表格
+		if (!populateBitableData(client, appToken, tableId, visaList, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, false)) {
+			System.out.println("填充数据失败");
+			return null;
+		}
+//		// 创建新的数据表
+//		// 创建请求对象
+//		CreateAppTableReq createAppTableReq = CreateAppTableReq.newBuilder()
+//				.appToken(appToken)
+//				.createAppTableReqBody(CreateAppTableReqBody.newBuilder()
+//						.table(ReqTable.newBuilder()
+//								.name("留学")
+//								.defaultViewName("默认的表格视图")
+//								.fields(new AppTableCreateHeader[] {
+//										AppTableCreateHeader.newBuilder()
+//												.fieldName("索引字段")
+//												.type(1)
+//												.build(),
+//										AppTableCreateHeader.newBuilder()
+//												.fieldName("默认")
+//												.type(1)
+//												.build(),
+//										AppTableCreateHeader.newBuilder()
+//												.fieldName("默认1")
+//												.type(1)
+//												.build(),
+//										AppTableCreateHeader.newBuilder()
+//												.fieldName("默认2")
+//												.type(1)
+//												.build()
+//								})
+//								.build())
+//						.build())
+//				.build();
+//		// 发起请求
+//		CreateAppTableResp createAppTableResp = client.bitable().v1().appTable().create(createAppTableReq);
+//
+//		// 处理服务端错误
+//		if(!createAppTableResp.success()) {
+//			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+//					createAppTableResp.getCode(), createAppTableResp.getMsg(), createAppTableResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(createAppTableResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+//			return null;
+//		}
+//		String tableId1 = createAppTableResp.getData().getTableId();
+		String tableId1 = tableIdMap.get("留学订单表");
+		if (!ensureTableFields(client, appToken, tableId1)) {
+			System.out.println("确保字段存在失败");
+			return null;
+		}
+		if (!populateBitableData(client, appToken, tableId1, ovstList, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true)) {
+			System.out.println("填充数据失败");
+			return null;
+		}
+		return url;
+	}
+
+    private Map<String, String> getTableIdMap(Client client, String appToken) throws Exception {
+
+		// 创建请求对象
+		ListAppTableReq req = ListAppTableReq.newBuilder()
+				.appToken(appToken)
+				.pageSize(20)
+				.build();
+
+		// 发起请求
+		ListAppTableResp resp = client.bitable().v1().appTable().list(req, RequestOptions.newBuilder()
+				.userAccessToken("u-c.XvSE7T95.EMSNG44Yv8igg23rhglOrOiaamwMw2evs")
+				.build());
+
+		// 处理服务端错误
+		if(!resp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					resp.getCode(), resp.getMsg(), resp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(resp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+		}
+
+		Map<String, String> tableIdMap = new HashMap<>();
+		AppTable[] items = resp.getData().getItems();
+		for (AppTable item : items) {
+			tableIdMap.put(item.getName(), item.getTableId());
+		}
+		return tableIdMap;
+    }
+
+	private Client createFeishuClient() {
+		String appId = ACCESS_KEY_ID;
+		String appSecret = ACCESS_KEY_SECRET;
+		return Client.newBuilder(appId, appSecret).build();
+	}
+
+	private String[] createBitableAndGetTableId(Client client) throws Exception {
+		// 创建多维表格
+		CreateAppReq req = CreateAppReq.newBuilder()
+				.reqApp(ReqApp.newBuilder()
+						.name("文案订单")
+						.build())
+				.build();
+		CreateAppResp createAppResp = client.bitable().v1().app().create(req);
+		if (!createAppResp.success()) {
+			System.out.printf("创建表格失败: code: %d, msg: %s\n", createAppResp.getCode(), createAppResp.getMsg());
+			return null;
+		}
+		String appToken = createAppResp.getData().getApp().getAppToken();
+		System.out.println("1. 成功创建表格，appToken: " + appToken);
+		String url = createAppResp.getData().getApp().getUrl();
+		System.out.println("1. 成功创建表格，url: " + url);
+		// 获取表格中的第一个数据表
+		ListAppTableResp listTablesResp = client.bitable().appTable().list(ListAppTableReq.newBuilder()
+				.appToken(appToken)
+				.build());
+		if (!listTablesResp.success() || listTablesResp.getData().getItems().length == 0) {
+			System.out.println("获取数据表列表失败");
+			return null;
+		}
+		String tableId = listTablesResp.getData().getItems()[0].getTableId();
+		System.out.println("2. 获取到默认数据表 ID: " + tableId);
+		return new String[]{appToken, tableId, url};
+	}
+
+	private boolean ensureTableFields(Client client, String appToken, String tableId) throws Exception {
+		// 获取字段列表
+		ListAppTableFieldReq listAppTableFieldReq = ListAppTableFieldReq.newBuilder()
+				.appToken(appToken)
+				.tableId(tableId)
+				.pageSize(20)
+				.build();
+		ListAppTableFieldResp listAppTableFieldResp = client.bitable().v1().appTableField().list(listAppTableFieldReq, RequestOptions.newBuilder()
+				.build());
+		if (!listAppTableFieldResp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					listAppTableFieldResp.getCode(), listAppTableFieldResp.getMsg(), listAppTableFieldResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(listAppTableFieldResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+			return false;
+		}
+		AppTableFieldForList[] items = listAppTableFieldResp.getData().getItems();
+		int tableFieldCount = 0;
+		for (AppTableFieldForList item : items) { // 更新字段信息
+			UpdateAppTableFieldReq updateAppTableFieldReq = UpdateAppTableFieldReq.newBuilder()
+					.appToken(appToken)
+					.tableId(tableId)
+					.fieldId(item.getFieldId())
+					.appTableField(AppTableField.newBuilder()
+							.fieldName(buildTitle(tableFieldCount))
+							.type(1)
+							.property(AppTableFieldProperty.newBuilder()
+									.multiple(true)
+									.build())
+							.build())
+					.build();
+			UpdateAppTableFieldResp updateAppTableFieldResp = client.bitable().v1().appTableField().update(updateAppTableFieldReq, RequestOptions.newBuilder()
+					.build());
+			if (!updateAppTableFieldResp.success()) {
+				System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+						updateAppTableFieldResp.getCode(), updateAppTableFieldResp.getMsg(), updateAppTableFieldResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(updateAppTableFieldResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+				return false;
+			}
+			tableFieldCount++;
+		}
+		for (int i = tableFieldCount; i < 9; i++) {
+			CreateAppTableFieldReq createAppTableFieldReq = CreateAppTableFieldReq.newBuilder()
+					.appToken(appToken)
+					.tableId(tableId)
+					.appTableField(AppTableField.newBuilder()
+							.fieldName(buildTitle(tableFieldCount))
+							.type(1)
+							.build())
+					.build();
+			CreateAppTableFieldResp createAppTableFieldResp = client.bitable().v1().appTableField().create(createAppTableFieldReq, RequestOptions.newBuilder()
+					.build());
+			if(!createAppTableFieldResp.success()) {
+				System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+						createAppTableFieldResp.getCode(), createAppTableFieldResp.getMsg(), createAppTableFieldResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(createAppTableFieldResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+				return false;
+			}
+			tableFieldCount++;
+		}
+		return true;
+	}
+
+	private AppTableRecord[] getExistingRecords(Client client, String appToken, String tableId) throws Exception {
+		SearchAppTableRecordReq searchAppTableRecordReq = SearchAppTableRecordReq.newBuilder()
+				.appToken(appToken)
+				.tableId(tableId)
+				.pageSize(20)
+				.searchAppTableRecordReqBody(SearchAppTableRecordReqBody.newBuilder()
+						.build())
+				.build();
+		SearchAppTableRecordResp searchAppTableRecordResp = client.bitable().v1().appTableRecord().search(searchAppTableRecordReq);
+		if(!searchAppTableRecordResp.success()) {
+			System.out.println(String.format("code:%s,msg:%s,reqId:%s, resp:%s",
+					searchAppTableRecordResp.getCode(), searchAppTableRecordResp.getMsg(), searchAppTableRecordResp.getRequestId(), Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(searchAppTableRecordResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+			return null;
+		}
+		return searchAppTableRecordResp.getData().getItems();
+	}
+
+	private String buildServiceName(ServiceOrderDO serviceOrderDO,
+									Map<Integer, ServiceDO> serviceDOMap,
+									Map<Integer, ServicePackageDO> servicePackageListDOMap) {
+		String serviceName = "";
+		String ass = "";
+		if (serviceOrderDO.getServiceAssessId() != null) {
+			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDO.getServiceAssessId());
+			if (serviceAssessDO != null) {
+				ass = serviceAssessDO.getName();
+			}
+		}
+		if (serviceOrderDO.getServiceId() != 0) {
+			ServiceDO serviceDO = serviceDOMap.get(serviceOrderDO.getServiceId());
+			if (serviceOrderDO.getServicePackageId() > 0) {
+				String servicepakageName = "";
+				String tmp = "";
+				ServicePackageDO servicePackageListDO = servicePackageListDOMap.get(serviceOrderDO.getServicePackageId());
+				if (servicePackageListDO != null) {
+					String servicePackagetype = servicePackageListDO.getType();
+					servicepakageName = getTypeStrOfServicePackageDTO(servicePackagetype);
+				}
+				tmp = "-";
+				if ("雇主担保".equalsIgnoreCase(serviceDO.getName()) || "独立技术移民".equalsIgnoreCase(serviceDO.getName())) {
+					serviceName = serviceDO.getName() + "-" + serviceDO.getCode() + tmp + ass + servicepakageName;
+				}
+			} else {
+				ServiceDO service = serviceDOMap.get(serviceOrderDO.getServiceId());
+				if (service != null) {
+					serviceName = service.getCode();
+				}
+			}
+		} else {
+			SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionByCourseId(serviceOrderDO.getCourseId());
+			if (ObjectUtil.isNotNull(schoolInstitutionDO)) {
+				serviceName = schoolInstitutionDO.getName();
+			}
+		}
+		return serviceName;
+	}
+
+	private Map<String, Object> buildRecordFields(ServiceOrderDO serviceOrderDO,
+												  Map<Integer, OfficialDO> officialDOMap,
+												  Map<Integer, RegionDO> regionDOMap,
+												  Map<Integer, ServiceDO> serviceDOMap,
+												  Map<Integer, ServicePackageDO> servicePackageListDOMap,
+												  boolean convertStatus) {
+		Map<String, Object> fields = new HashMap<>();
+		int officialId = serviceOrderDO.getOfficialId();
+		if (officialId != 0) {
+			OfficialDO officialDO = officialDOMap.get(officialId);
+			if (officialDO != null) {
+				RegionDO regionDO = regionDOMap.get(officialDO.getRegionId());
+				fields.put("所属文案", officialDO.getName());
+				if (regionDO != null) {
+					fields.put("所属部门", regionDO.getName());
+				}
+			}
+		}
+		String serviceName = buildServiceName(serviceOrderDO, serviceDOMap, servicePackageListDOMap);
+		UserDO userById = userDao.getUserById(serviceOrderDO.getUserId());
+		fields.put("完成时间", sdfT.format(serviceOrderDO.getFinishDate()));
+		fields.put("客户", userById != null ? userById.getName() : "");
+		fields.put("订单", String.valueOf(serviceOrderDO.getId()));
+		fields.put("签证类别", serviceName);
+		fields.put("AI初审结果", "这是初始写入的内容");
+		fields.put("订单状态", convertStatus ? convertOrderStatus(serviceOrderDO.getState()) : serviceOrderDO.getState());
+		return fields;
+	}
+
+	private boolean populateBitableData(Client client, String appToken, String tableId, List<ServiceOrderDO> serviceOrderDOS,
+										Map<Integer, OfficialDO> officialDOMap, Map<Integer, RegionDO> regionDOMap,
+										Map<Integer, ServiceDO> serviceDOMap, Map<Integer, ServicePackageDO> servicePackageListDOMap, boolean isInsert) throws Exception {
+		AppTableRecord[] existingRecords = getExistingRecords(client, appToken, tableId);
+		if (existingRecords == null) {
+			return false;
+		}
+		if (!isInsert) {
+			// 准备前10条记录的数据
+			int updateCount = Math.min(serviceOrderDOS.size(), 10);
+			AppTableRecord[] recordsToUpdate = new AppTableRecord[updateCount];
+			for (int i = 0; i < updateCount; i++) {
+				ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
+				Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+				recordsToUpdate[i] = AppTableRecord.newBuilder().fields(fields).build();
+			}
+			// 更新前10条记录
+			for (int i = 0; i < updateCount; i++) {
+				AppTableRecord record = existingRecords[i];
+				UpdateAppTableRecordReq updateReq = UpdateAppTableRecordReq.newBuilder()
+						.appToken(appToken)
+						.tableId(tableId)
+						.recordId(record.getRecordId())
+						.appTableRecord(recordsToUpdate[i])
+						.build();
+				UpdateAppTableRecordResp updateResp = client.bitable().v1().appTableRecord().update(updateReq, RequestOptions.newBuilder().build());
+				if (!updateResp.success()) {
+					System.out.println(String.format("更新记录失败: code:%s,msg:%s,reqId:%s, resp:%s",
+							updateResp.getCode(), updateResp.getMsg(), updateResp.getRequestId(),
+							Jsons.createGSON(true, false).toJson(JsonParser.parseString(new String(updateResp.getRawResponse().getBody(), StandardCharsets.UTF_8)))));
+					return false;
+				}
+			}
+			// 创建剩余记录
+			if (serviceOrderDOS.size() > 10) {
+				List<ServiceOrderDO> remainingOrders = serviceOrderDOS.subList(10, serviceOrderDOS.size());
+				AppTableRecord[] recordsToCreate = new AppTableRecord[remainingOrders.size()];
+				for (int i = 0; i < remainingOrders.size(); i++) {
+					ServiceOrderDO serviceOrderDO = remainingOrders.get(i);
+					Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+					recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
+				}
+				BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+						.tableId(tableId)
+						.appToken(appToken)
+						.batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+								.records(recordsToCreate)
+								.build())
+						.build();
+				BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+				if (!createResp.success()) {
+					System.out.println("添加记录失败: " + createResp.getMsg());
+					return false;
+				}
+			}
+		}
+		if (isInsert) {
+			AppTableRecord[] recordsToCreate = new AppTableRecord[serviceOrderDOS.size()];
+			for (int i = 0; i < serviceOrderDOS.size(); i++) {
+				ServiceOrderDO serviceOrderDO = serviceOrderDOS.get(i);
+				Map<String, Object> fields = buildRecordFields(serviceOrderDO, officialDOMap, regionDOMap, serviceDOMap, servicePackageListDOMap, true);
+				recordsToCreate[i] = AppTableRecord.newBuilder().fields(fields).build();
+			}
+			BatchCreateAppTableRecordReq createReq = BatchCreateAppTableRecordReq.newBuilder()
+					.tableId(tableId)
+					.appToken(appToken)
+					.batchCreateAppTableRecordReqBody(BatchCreateAppTableRecordReqBody.newBuilder()
+							.records(recordsToCreate)
+							.build())
+					.build();
+			BatchCreateAppTableRecordResp createResp = client.bitable().v1().appTableRecord().batchCreate(createReq, RequestOptions.newBuilder().build());
+			if (!createResp.success()) {
+				System.out.println("添加记录失败: " + createResp.getMsg());
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	private boolean buildUserAdviserDto(UserDTO userDto, int adviserId) throws ServiceException {
 		boolean isBelongToThisAdviser = false;
 		if (ObjectUtil.isNull(userDto))
@@ -843,4 +1256,126 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return applicantDtoList;
 	}
 
+	private String buildTitle(int tableFieldCount) {
+		String title = "默认";
+		switch (tableFieldCount) {
+			case 0:
+				title = "完成时间";
+				break;
+			case 1:
+				title = "所属文案";
+				break;
+			case 2:
+				title = "所属部门";
+				break;
+			case 3:
+				title = "客户";
+				break;
+			case 4:
+				title = "客户风险等级";
+				break;
+			case 5:
+				title = "订单";
+				break;
+			case 6:
+				title = "签证类别";
+				break;
+			case 7:
+				title = "AI初审结果";
+				break;
+			case 8:
+				title = "订单状态";
+				break;
+			default:
+				title = "默认";
+				break;
+		}
+		return title;
+	}
+
+
+	// 转换订单状态
+	private String convertOrderStatus(String state) {
+		String stateName = null;
+		switch (state) {
+			case "PENDING":
+				stateName = "待提交审核";
+				break;
+			case "REVIEW":
+				stateName = "资料待审核";
+				break;
+			case "OREVIEW":
+				stateName = "资料审核中";
+				break;
+			case "APPLY":
+				stateName = "服务申请中";
+				break;
+			case "COMPLETE":
+				stateName = "服务申请完成";
+				break;
+			case "FINISH":
+				stateName = "资料审核完成";
+				break;
+			case "CLOSE":
+				stateName = "关闭";
+				break;
+			case "RECEIVED":
+				stateName = "已收款凭证已提交";
+				break;
+			case "PAID":
+				stateName = "COE已下";
+				break;
+			case "WAIT":
+				stateName = "已提交Mara审核";
+				break;
+			case "APPLY_FAILED":
+				stateName = "申请失败";
+				break;
+			case "COMPLETE_FD":
+				stateName = "财务转账完成";
+				break;
+			default:
+				stateName = "无状态";
+		}
+		return stateName;
+	}
+
+	private String getTypeStrOfServicePackageDTO(String type) {
+		String servicepakageName;
+		switch (type) {
+			case "CA":
+				servicepakageName = "职业评估";
+				break;
+			case "EOI":
+				servicepakageName = "EOI";
+				break;
+			case "SA":
+				servicepakageName = "学校申请";
+				break;
+			case "VA":
+				servicepakageName = "签证申请";
+				break;
+			case "ZD":
+				servicepakageName = "州担";
+				break;
+			case "MAT":
+				servicepakageName = "Matrix";
+				break;
+			case "SBO":
+				servicepakageName = "SBO";
+				break;
+			case "TM":
+				servicepakageName = "提名";
+				break;
+			case "DB":
+				servicepakageName = "担保";
+				break;
+			case "ROI":
+				servicepakageName = "ROI";
+				break;
+			default:
+				servicepakageName = null;
+		}
+		return servicepakageName;
+	}
 }

@@ -60,4 +60,9 @@
         SELECT count(*)
         FROM b_service_category;
     </select>
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceAssessDO">
+        SELECT id, name, service_id AS serviceId FROM b_service_assess WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

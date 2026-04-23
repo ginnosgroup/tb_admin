@@ -719,6 +719,7 @@
         LEFT JOIN b_service_order_official_tag soot ON so.id = soot.service_order_id
         LEFT JOIN b_applicant ap ON ap.id = so.applicant_id
         LEFT JOIN b_official b ON so.official_id = b.id
+        LEFT JOIN b_service_order_and_manage bsoa ON so.id = bsoa.service_order_id
         WHERE so.is_delete = 0 AND a.id = so.adviser_id AND u.id = so.user_id
         <if test='startGmtCreate != null and startGmtCreate != "" and endGmtCreate != null and endGmtCreate != ""'>
             <![CDATA[ AND so.gmt_create > #{startGmtCreate} AND so.gmt_create < #{endGmtCreate} ]]>
@@ -855,6 +856,9 @@
         </if>
         <if test="priceAmount != null">
             AND so.amount >= #{priceAmount}
+        </if>
+        <if test='isManage == false'>
+            AND bsoa.id IS NULL
         </if>
         ${orderBy}
         LIMIT #{offset}, #{rows};

@@ -8,6 +8,8 @@ import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.config.GlobalThreadPool;
+import org.zhinanzhen.b.config.ServiceOrderBatchContext;
+import org.zhinanzhen.b.config.ServiceOrderBatchLoader;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
@@ -159,6 +161,27 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
     @Resource
     private WebLogDAO webLogDAO;
 
+    private ServiceOrderBatchLoader batchLoader;
+
+    private ServiceOrderBatchLoader getBatchLoader() {
+        if (batchLoader == null) {
+            batchLoader = new ServiceOrderBatchLoader(
+                    serviceOrderDao, schoolDao, subagencyDao, serviceDao,
+                    servicePackageDao, receiveTypeDao, userDao, applicantDao,
+                    maraDao, adviserDao, officialDao, officialTagDao,
+                    visaDao, serviceAssessDao, regionDAO, commissionOrderTempDao,
+                    schoolCourseDAO, schoolInstitutionDAO, schoolInstitutionLocationDAO,
+                    customerInformationDAO, serviceOrderApplicantDao, officialHandoverLogDao,
+                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO
+            );
+        }
+        return batchLoader;
+    }
+
+    private ServiceOrderBatchContext batchLoadRelatedData(List<ServiceOrderDO> orders) {
+        return getBatchLoader().batchLoadRelatedData(orders);
+    }
+
     @Override
     public int addServiceOrderAndManage(ServiceOrderAndManage serviceOrderAndManage) {
         return serviceOrderManageDAO.addServiceOrderAndManage(serviceOrderAndManage);
@@ -167,7 +190,6 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
     @Override
     public int add(ServiceOrderDTO serviceOrderDto) {
         return serviceOrderManageDAO.add(serviceOrderDto);
-
     }
 
     @Override
@@ -235,17 +257,21 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             }
             long count = 0L;
             CountDownLatch latch = new CountDownLatch(serviceOrderDoList.size());
+            // 批量预加载关联数据
+            ServiceOrderBatchContext batchContextParent = batchLoadRelatedData(serviceOrderDoList);
             for (int i = 0; i < serviceOrderDoList.size(); i++) {
                 ServiceOrderDO serviceOrderDo = serviceOrderDoList.get(i);
                 List<ServiceOrderDO> serviceOrderSubs = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
                 ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
                 executor.submit(() -> {
                     try {
-                        ServiceOrderDTO serviceOrderDTO = putServiceOrderDTO(serviceOrderDo);
+                        ServiceOrderDTO serviceOrderDTO = putServiceOrderDTO(serviceOrderDo, batchContextParent);
                         if (serviceOrderSubs != null) {
                             List<ServiceOrderDTO> serviceOrderSubsT = new ArrayList<>();
+                            // 批量预加载关联数据
+                            ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderSubs);
                             for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
-                                ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub);
+                                ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub, batchContext);
                                 VisaDO visaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderSub.getId());
                                 if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderSub.getState())) {
                                     serviceOrderDTO.setVisaBuild(true);
@@ -298,13 +324,16 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             if (serviceOrderDo == null)
                 return null;
             List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
+//            serviceOrderDOS.add(serviceOrderDo);
+            // 批量预加载关联数据
+            ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderDOS);
             if (serviceOrderDOS != null) {
                 for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
-                    subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO));
+                    subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO, batchContext));
                 }
             }
             serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
-            serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
+            serviceOrderDto = putServiceOrderDTO(serviceOrderDo, batchContext);
             serviceOrderDto.setSubServiceOrders(subServiceOrderDtos);
             // 是否有创建过佣金订单
             if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
@@ -367,15 +396,18 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             if (serviceOrderAndManageById != null) {
                 ServiceOrderDO serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(serviceOrderAndManageById.getServiceOrderManageId());
                 List<ServiceOrderDO> serviceOrderDOS = serviceOrderManageDAO.listSub(serviceOrderDo.getId());
+                serviceOrderDOS.add(serviceOrderDo);
+                // 批量预加载关联数据
+                ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderDOS);
                 if (serviceOrderDOS != null) {
                     for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
-                        subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO));
+                        subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO, batchContext));
                     }
                 }
                 if (serviceOrderDo == null)
                     return null;
                 serviceOrderDo.setDistributableAmount(serviceOrderDo.getReceivable());
-                serviceOrderDto = putServiceOrderDTO(serviceOrderDo);
+                serviceOrderDto = putServiceOrderDTO(serviceOrderDo, batchContext);
                 serviceOrderDto.setSubServiceOrders(subServiceOrderDtos);
                 // 是否有创建过佣金订单
                 if ("OVST".equalsIgnoreCase(serviceOrderDto.getType()))
@@ -502,27 +534,27 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         return serviceOrderManageDAO.getServiceOrderAndManageById(id);
     }
 
-    public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO) {
+    public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO, ServiceOrderBatchContext ctx) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
         //获取旧文案信息
-        Integer oldOfficialId = officialHandoverLogDao.getOldOfficial(serviceOrderDto.getId());
+        Integer oldOfficialId = ctx.oldOfficialMap.get(serviceOrderDto.getId());
         if (oldOfficialId != null) {
-            serviceOrderDto.setOldOfficial(officialDao.getOfficialById(oldOfficialId));
+            serviceOrderDto.setOldOfficial(ctx.officialMap.get(oldOfficialId));
         }
         // 查询学校课程
         if (serviceOrderDto.getSchoolId() > 0) {
-            SchoolDO schoolDo = schoolDao.getSchoolById(serviceOrderDto.getSchoolId());
+            SchoolDO schoolDo = ctx.schoolMap.get(serviceOrderDto.getSchoolId());
             if (schoolDo != null)
                 serviceOrderDto.setSchool(mapper.map(schoolDo, SchoolDTO.class));
         }
         // 查询Subagency
         if (serviceOrderDto.getSubagencyId() > 0) {
-            SubagencyDO subagencyDo = subagencyDao.getSubagencyById(serviceOrderDto.getSubagencyId());
+            SubagencyDO subagencyDo = ctx.subagencyMap.get(serviceOrderDto.getSubagencyId());
             if (subagencyDo != null)
                 serviceOrderDto.setSubagency(mapper.map(subagencyDo, SubagencyDTO.class));
         }
         // 查询服务
-        ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDto.getServiceId());
+        ServiceDO serviceDo = ctx.serviceMap.get(serviceOrderDto.getServiceId());
         if (serviceDo != null) {
             if (serviceDo.getCode().contains("EOI")) {
                 if (serviceOrderDto.getServicePackageId() == 0) {
@@ -544,7 +576,10 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     if (deriveOrder != null && !deriveOrder.isEmpty() && deriveOrder.get(0).getServiceAssessId() != null) {
                         deriveOrder.stream().collect(Collectors.groupingBy(ServiceOrderDTO::getServiceAssessId)).forEach((k, v) -> {
                             ServiceAssessAndEOI serviceAssessAndEOI = new ServiceAssessAndEOI();
-                            ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(k);
+                            ServiceAssessDO serviceAssessDO = ctx.serviceAssessMap.get(Integer.parseInt(k));
+                            if (serviceAssessDO == null) {
+                                serviceAssessDO = serviceAssessDao.seleteAssessById(k);
+                            }
                             if (serviceAssessDO != null) {
                                 StringBuilder eoiNum = new StringBuilder();
                                 serviceAssessAndEOI.setLabel(serviceAssessDO.getName());
@@ -569,31 +604,32 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         }
         // 查询服务包类型
         if (serviceOrderDto.getServicePackageId() > 0) {
-            ServicePackageDO servicePackageDAOById = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-            if ("EOI".equals(servicePackageDAOById.getType())) {
+            ServicePackageDO servicePackageDAOById = ctx.servicePackageMap.get(serviceOrderDto.getServicePackageId());
+            if (servicePackageDAOById == null) {
+                servicePackageDAOById = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+            }
+            if (servicePackageDAOById != null && "EOI".equals(servicePackageDAOById.getType())) {
                 ServicePackageDTO servicePackageDTO = servicePackageDao.getEOIService(serviceOrderDto.getServicePackageId());
                 if (ObjectUtil.isNotNull(servicePackageDTO)) {
                     serviceOrderDto.setServicePackage(servicePackageDTO);
                 }
-            } else {
-                ServicePackageDO servicePackageDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
-                if (servicePackageDo != null)
-                    serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+            } else if (servicePackageDAOById != null) {
+                serviceOrderDto.setServicePackage(mapper.map(servicePackageDAOById, ServicePackageDTO.class));
             }
         }
         // 查询收款方式
-        ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(serviceOrderDto.getReceiveTypeId());
+        ReceiveTypeDO receiveTypeDo = ctx.receiveTypeMap.get(serviceOrderDto.getReceiveTypeId());
         if (receiveTypeDo != null)
             serviceOrderDto.setReceiveType(mapper.map(receiveTypeDo, ReceiveTypeDTO.class));
         // 查询用户
-        UserDO userDo = userDao.getUserById(serviceOrderDto.getUserId());
+        UserDO userDo = ctx.userMap.get(serviceOrderDto.getUserId());
         if (userDo != null) {
-            org.zhinanzhen.tb.service.pojo.UserDTO userDto = mapper.map(userDo, UserDTO.class);
+            UserDTO userDto = mapper.map(userDo, UserDTO.class);
             if (serviceOrderDto.getUserId() > 0 && serviceOrderDto.getApplicantId() >= 0) {
-                List<ServiceOrderApplicantDO> serviceOrderApplicantList = serviceOrderApplicantDao.list(serviceOrderDto.getId(), null);
+                List<ServiceOrderApplicantDO> serviceOrderApplicantList = ctx.serviceOrderApplicantMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
                 List<ApplicantDTO> applicantDtoList = new ArrayList<>();
                 serviceOrderApplicantList.forEach(serviceOrderApplicant -> {
-                    ApplicantDO applicantDo = applicantDao.getById(serviceOrderApplicant.getApplicantId());
+                    ApplicantDO applicantDo = ctx.applicantMap.get(serviceOrderApplicant.getApplicantId());
                     if (applicantDo != null) {
                         if (applicantDo.getFileUrl() == null) {
                             List<ServiceOrderApplicantDO> list = serviceOrderApplicantDao.list(serviceOrderDO.getId(), applicantDo.getId());
@@ -612,7 +648,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             serviceOrderDto.setUser(userDto);
         }
         if (serviceOrderDto.getApplicantId() > 0) {
-            ApplicantDO applicantDo = applicantDao.getById(serviceOrderDto.getApplicantId());
+            ApplicantDO applicantDo = ctx.applicantMap.get(serviceOrderDto.getApplicantId());
             if (applicantDo != null) {
                 ApplicantDTO applicantDto = mapper.map(applicantDo, ApplicantDTO.class);
                 applicantDto = buildApplicant(applicantDto, serviceOrderDO.getId(), serviceOrderDto.getNutCloud(),
@@ -622,13 +658,13 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             }
         }
         // 查询Mara
-        MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
+        MaraDO maraDo = ctx.maraMap.get(serviceOrderDto.getMaraId());
         if (maraDo != null)
             serviceOrderDto.setMara(mapper.map(maraDo, MaraDTO.class));
         // 查询顾问
-        AdviserDO adviserDo = adviserDao.getAdviserById(serviceOrderDto.getAdviserId());
+        AdviserDO adviserDo = ctx.adviserMap.get(serviceOrderDto.getAdviserId());
         if (adviserDo != null) {
-            RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
+            RegionDO regionDO = ctx.regionMap.get(adviserDo.getRegionId());
             serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
             if (regionDO != null)
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
@@ -636,49 +672,40 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         }
         // 查询顾问2
         if (serviceOrderDto.getAdviserId2() > 0) {
-            AdviserDO adviserDo2 = adviserDao.getAdviserById(serviceOrderDto.getAdviserId2());
+            AdviserDO adviserDo2 = ctx.adviserMap.get(serviceOrderDto.getAdviserId2());
             if (adviserDo2 != null)
                 serviceOrderDto.setAdviser2(mapper.map(adviserDo2, AdviserDTO.class));
         }
         // 查询文案
-        OfficialDO officialDo = officialDao.getOfficialById(serviceOrderDto.getOfficialId());
+        OfficialDO officialDo = ctx.officialMap.get(serviceOrderDto.getOfficialId());
         if (officialDo != null)
             serviceOrderDto.setOfficial(mapper.map(officialDo, OfficialDTO.class));
         // 查询文案Tag
-        OfficialTagDO officialTagDo = officialTagDao.getOfficialTagByServiceOrderId(serviceOrderDto.getId());
+        OfficialTagDO officialTagDo = ctx.officialTagMap.get(serviceOrderDto.getId());
         if (officialTagDo != null)
             serviceOrderDto.setOfficialTag(mapper.map(officialTagDo, OfficialTagDTO.class));
         // 查询子服务
         if (serviceOrderDto.getParentId() <= 0) {
             List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
-            List<ServiceOrderDO> list = serviceOrderDao.listByParentId(serviceOrderDto.getId());
+            List<ServiceOrderDO> list = ctx.childrenOrderMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
             list.forEach(serviceOrder -> {
                 ChildrenServiceOrderDTO childrenServiceOrderDto = mapper.map(serviceOrder,
                         ChildrenServiceOrderDTO.class);
-                ServicePackageDO servicePackageDo = servicePackageDao
-                        .getById(childrenServiceOrderDto.getServicePackageId()); // TODO:
+                ServicePackageDO servicePackageDo = ctx.servicePackageMap.get(childrenServiceOrderDto.getServicePackageId());
                 if (servicePackageDo != null)
                     childrenServiceOrderDto.setServicePackageType(servicePackageDo.getType());
                 childrenServiceOrderList.add(childrenServiceOrderDto);
             });
-//            List<ChildrenServiceOrderDTO> childrenServiceOrderList2 = childrenServiceOrderList.stream()
-//                    .collect(Collectors.collectingAndThen(
-//                            Collectors.toMap(
-//                                    ChildrenServiceOrderDTO::getServicePackageType,
-//                                    Function.identity(),
-//                                    (p1, p2) -> p1
-//                            ),
-//                            map -> new ArrayList<>(map.values())
-//                    ));
             serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
         }
 
         List<Integer> cIds = new ArrayList<>();
         List<VisaDO> visaList = new ArrayList<>();
+        int visaLookupId = serviceOrderDO.getParentId() == 0 ? serviceOrderDO.getApplicantParentId() : serviceOrderDO.getParentId();
         if (serviceOrderDO.getParentId() != 0 || serviceOrderDO.getApplicantParentId() != 0)
-            visaList = visaDao.listVisaByServiceOrderId((serviceOrderDO.getParentId()==0?serviceOrderDO.getApplicantParentId():serviceOrderDO.getParentId()));
+            visaList = ctx.visaMap.getOrDefault(visaLookupId, new ArrayList<>());
         else
-            visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
+            visaList = ctx.visaMap.getOrDefault(serviceOrderDO.getId(), new ArrayList<>());
         if (visaList != null && visaList.size() > 0) {
             for (VisaDO visaDo : visaList)
                 cIds.add(visaDo.getId());
@@ -687,7 +714,15 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         serviceOrderDto.setCIds(cIds);
 
         // 查询职业名称
-        ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+        ServiceAssessDO serviceAssessDO = null;
+        if (serviceOrderDto.getServiceAssessId() != null) {
+            try {
+                serviceAssessDO = ctx.serviceAssessMap.get(Integer.parseInt(serviceOrderDto.getServiceAssessId()));
+            } catch (NumberFormatException ignored) {}
+        }
+        if (serviceAssessDO == null && serviceOrderDto.getServiceAssessId() != null) {
+            serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
+        }
         if (serviceAssessDO != null) {
             serviceOrderDto.setServiceAssessDO(serviceAssessDO);
             ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
@@ -707,12 +742,12 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 Integer offcialId = map.getOffcialId();
                 Integer kjId = map.getKjId();
                 if (adviserId != null) {
-                    AdviserDO adviserById = adviserDao.getAdviserById(adviserId);
-                    map.setUserName(adviserById.getName());
+                    AdviserDO adviserById = ctx.adviserMap.get(adviserId);
+                    if (adviserById != null) map.setUserName(adviserById.getName());
                 }
                 if (offcialId != null) {
-                    OfficialDO officialById = officialDao.getOfficialById(offcialId);
-                    map.setUserName(officialById.getName());
+                    OfficialDO officialById = ctx.officialMap.get(offcialId);
+                    if (officialById != null) map.setUserName(officialById.getName());
                 }
                 if (kjId != null) {
                     KjDO kjById = kjDao.getKjById(kjId);
@@ -725,9 +760,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
 
         //添加新学校相关
         if (serviceOrderDto.getCourseId() > 0) {
-            SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(serviceOrderDto.getCourseId());
+            SchoolCourseDO schoolCourseDO = ctx.schoolCourseMap.get(serviceOrderDto.getCourseId());
             if (schoolCourseDO != null) {
-                SchoolInstitutionDO schoolInstitutionDO = schoolInstitutionDAO.getSchoolInstitutionById(schoolCourseDO.getProviderId());
+                SchoolInstitutionDO schoolInstitutionDO = ctx.schoolInstitutionMap.get(schoolCourseDO.getProviderId());
                 if (schoolInstitutionDO != null) {
                     String tradingName = schoolInstitutionDO.getInstitutionTradingName();
                     if (StringUtil.isNotEmpty(tradingName) && tradingName.contains(";")) {
@@ -738,10 +773,14 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     }
                     serviceOrderDto.setSchoolInstitutionListDTO(mapper.map(schoolInstitutionDO, SchoolInstitutionListDTO.class));
                 }
-                serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
+                if (serviceOrderDto.getSchoolInstitutionListDTO() != null) {
+                    serviceOrderDto.getSchoolInstitutionListDTO().setSchoolCourseDO(schoolCourseDO);
+                }
                 if (serviceOrderDto.getSchoolInstitutionLocationId() > 0) {
-                    SchoolInstitutionLocationDO schoolInstitutionLocationDO = schoolInstitutionLocationDAO.getById(serviceOrderDto.getSchoolInstitutionLocationId());
-                    serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
+                    SchoolInstitutionLocationDO schoolInstitutionLocationDO = ctx.schoolInstitutionLocationMap.get(serviceOrderDto.getSchoolInstitutionLocationId());
+                    if (serviceOrderDto.getSchoolInstitutionListDTO() != null && schoolInstitutionLocationDO != null) {
+                        serviceOrderDto.getSchoolInstitutionListDTO().setSchoolInstitutionLocationDO(schoolInstitutionLocationDO);
+                    }
                 }
             }
         }
@@ -777,14 +816,20 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             serviceOrderDto.setBonusAUD(roundHalfUp2(serviceOrderDto.getBonus() / exchangeRate));
         }
         //判断是否生成文案佣金
-        if (!serviceOrderDO.isPay() && (servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()) != null && servicePackagePriceDAO.getByServiceId(serviceOrderDO.getServiceId()).getRuler() == 1) || serviceOrderDO.isPay()) {
+        if (!serviceOrderDO.isPay() && (ctx.servicePackagePriceMap.get(serviceOrderDO.getServiceId()) != null && ctx.servicePackagePriceMap.get(serviceOrderDO.getServiceId()).getRuler() == 1) || serviceOrderDO.isPay()) {
             serviceOrderDto.setCreateVisaOffice(true);
         } else
             serviceOrderDto.setCreateVisaOffice(false);
-        ServiceOrderDO parentServiceOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
+        ServiceOrderDO parentServiceOrder = ctx.childrenOrderMap.containsKey(serviceOrderDO.getParentId()) ?
+                null : serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
+        if (parentServiceOrder == null && serviceOrderDO.getParentId() > 0) {
+            parentServiceOrder = serviceOrderDao.getServiceOrderById(serviceOrderDO.getParentId());
+        }
         if (ObjectUtil.isNotNull(parentServiceOrder)) {
             if ("SIV".equals(parentServiceOrder.getType())) {
-                String type = servicePackageDao.getById(serviceOrderDto.getServicePackageId()).getType();
+                ServicePackageDO spDo = ctx.servicePackageMap.get(serviceOrderDto.getServicePackageId());
+                if (spDo == null) spDo = servicePackageDao.getById(serviceOrderDto.getServicePackageId());
+                String type = spDo != null ? spDo.getType() : null;
                 if ("ROI".equals(type) || "EOI".equals(type) || "VA".equals(type)) {
                     serviceOrderDto.setCreateVisaOffice(true);
                 } else {
@@ -793,13 +838,12 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             }
         }
         //判断是否提交mm资料
-        if (customerInformationDAO.getByServiceOrderId(serviceOrderDO.getId()) != null) {
+        if (ctx.customerInformationMap.get(serviceOrderDO.getId()) != null) {
             serviceOrderDto.setSubmitMM(true);
         } else
             serviceOrderDto.setSubmitMM(false);
         // EOI数量排序
         if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
-//            Integer eoiNumber = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId()).getEOINumber();
             List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
             List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
             serviceOrderDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
@@ -819,6 +863,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     serviceOrderDto.setChildrenServiceOrders(childrenServiceOrders);
                 }
             });
+            // 查询打包订单绑定的职评订单信息
+            Integer bingDingAssOrderId = serviceOrderDao.getBingDingAssOrderId(serviceOrderDto.getId());
+            if (bingDingAssOrderId != null) {
+                serviceOrderDto.setBingdingAssessOrder(bingDingAssOrderId);
+            }
         }
         // 判断offer文件路径是否为多个
         String offerUrl = serviceOrderDto.getOfferUrl();
@@ -828,7 +877,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         }
         // 留学订单添加签证信息
         if ("OVST".equals(serviceOrderDto.getType())) {
-            CommissionOrderTempDO commissionOrderTempByServiceOrderId = commissionOrderTempDAO.getCommissionOrderTempByServiceOrderId(serviceOrderDto.getId());
+            CommissionOrderTempDO commissionOrderTempByServiceOrderId = ctx.commissionOrderTempMap.get(serviceOrderDto.getId());
             if (ObjectUtil.isNotNull(commissionOrderTempByServiceOrderId)) {
                 serviceOrderDto.setVisaStatus(commissionOrderTempByServiceOrderId.getVisaStatus());
                 serviceOrderDto.setVisaCertificate(commissionOrderTempByServiceOrderId.getVisaCertificate());
@@ -839,9 +888,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         if ("1".equals(serviceOrderDto.getIsInsuranceCompany())) {
             ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
             if (ObjectUtil.isNotNull(serviceOrderInsuranceDO)) {
-                List<InsuranceCompanyDO> list = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
-                if (list != null && list.size() > 0) {
-                    serviceOrderDto.setInsuranceCompanyDO(list.get(0));
+                List<InsuranceCompanyDO> insList = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
+                if (insList != null && insList.size() > 0) {
+                    serviceOrderDto.setInsuranceCompanyDO(insList.get(0));
                 }
             }
         } else if ("0".equals(serviceOrderDto.getIsInsuranceCompany())) {
@@ -850,14 +899,19 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             serviceOrderDto.setIsInsuranceCompany("");
         }
         // 顾问以及文案资料大小合计
-        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(serviceOrderDto.getOfficialId(), serviceOrderDto.getUserId());
+        Long officialDataSize =  cloudDiskFileDAO.listByOfficialId(null, serviceOrderDto.getUserId());
         Long adviserDataSize = cloudDiskFileDAO.listByAdviserId(serviceOrderDto.getAdviserId(), serviceOrderDto.getUserId());
 
         serviceOrderDto.setAdviserDataSize(adviserDataSize);
         serviceOrderDto.setOfficialDataSize(officialDataSize);
 
+        ServiceOrderAndManage serviceOrderAndManage = ctx.serviceOrderManageMap.get(serviceOrderDto.getId());
+        if (serviceOrderAndManage != null) {
+            serviceOrderDto.setManageOrder(true);
+            serviceOrderDto.setParentIdNew(serviceOrderAndManage.getServiceOrderManageId());
+        }
         // 获取服务订单上传合同日志信息
-        List<WebLogDTO> webLogDTOList = webLogDAO.listContractData(serviceOrderDto.getId());
+        List<WebLogDTO> webLogDTOList = ctx.webLogMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
         if (!webLogDTOList.isEmpty()) {
             serviceOrderDto.setContractDataList(webLogDTOList);
         }

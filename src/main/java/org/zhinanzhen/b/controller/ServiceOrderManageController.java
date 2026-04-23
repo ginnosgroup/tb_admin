@@ -290,7 +290,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
                                              @RequestParam(value = "contractData", required = false) String contractData,
-                                             HttpServletRequest request, HttpServletResponse response) {
+                                             HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
@@ -397,6 +397,7 @@ public class ServiceOrderManageController extends BaseController {
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
+                // 143和600组合金额分配
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
@@ -407,12 +408,61 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
                     serviceOrderJsonRequest.setReceiveDate(receiveDate);
+                    serviceOrderJsonRequest.setContractData(contractData);
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
                 }
             }
+            List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageService.listChildrenServiceOrder(serviceOrderDto.getId());
+            amountAllocation(serviceOrderDTOS);
             return new Response<Integer>(0, "创建成功.", serviceOrderDto.getId());
         }
         return null;
+    }
+
+    private void amountAllocation(List<ServiceOrderDTO> serviceOrderJson) throws ServiceException {
+        boolean isAllocation = false;
+        if (serviceOrderJson.stream().anyMatch(p -> p.getServiceId() == 16)) {
+            isAllocation = true;
+        }
+        serviceOrderJson = serviceOrderJson.stream().sorted(Comparator.comparing(ServiceOrderDTO::getServiceId)).collect(Collectors.toList());
+        for (ServiceOrderDTO serviceOrderJsonRequest : serviceOrderJson) {
+            Double amount600 = 220.00;
+            if (isAllocation && serviceOrderJsonRequest.getServiceId() == 16) {
+                if ("CNY".equalsIgnoreCase(serviceOrderJsonRequest.getCurrency())) {
+                    amount600 = amount600 * serviceOrderJsonRequest.getExchangeRate();
+                }
+                Double receivable = serviceOrderJsonRequest.getReceivable();
+                Double received = serviceOrderJsonRequest.getReceived();
+                Double amount = serviceOrderJsonRequest.getAmount();
+                Double gst = serviceOrderJsonRequest.getGst();
+                Double deductGst = serviceOrderJsonRequest.getDeductGst();
+                Double expectAmount = serviceOrderJsonRequest.getExpectAmount();
+                Double perAmount = serviceOrderJsonRequest.getPerAmount();
+                serviceOrderJsonRequest.setReceivable(receivable - amount600);
+                serviceOrderJsonRequest.setReceived(received - amount600);
+                serviceOrderJsonRequest.setAmount(amount - amount600);
+                serviceOrderJsonRequest.setGst(gst - (amount600 / 11));
+                serviceOrderJsonRequest.setDeductGst(deductGst - (amount600 / 1.1));
+                serviceOrderJsonRequest.setExpectAmount(expectAmount - amount600);
+                serviceOrderJsonRequest.setPerAmount(perAmount - amount600);
+            }
+            if (isAllocation && serviceOrderJsonRequest.getServiceId() == 19 && !serviceOrderJsonRequest.isPay()) {
+                if ("CNY".equalsIgnoreCase(serviceOrderJsonRequest.getCurrency())) {
+                    amount600 = amount600 * serviceOrderJsonRequest.getExchangeRate();
+                }
+                serviceOrderJsonRequest.setReceivable(amount600);
+                serviceOrderJsonRequest.setReceived(amount600);
+                serviceOrderJsonRequest.setAmount(amount600);
+                serviceOrderJsonRequest.setGst(amount600 / 11);
+                serviceOrderJsonRequest.setDeductGst(amount600 / 1.1);
+                serviceOrderJsonRequest.setExpectAmount(amount600);
+                serviceOrderJsonRequest.setPerAmount(amount600);
+                serviceOrderJsonRequest.setInstallment(1);
+                serviceOrderJsonRequest.setPay(true);
+            }
+            serviceOrderService.updateServiceOrder(serviceOrderJsonRequest);
+        }
+
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -683,6 +733,8 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "scoreState", required = false) String scoreState,
                                                 @RequestParam(value = "scoreMark", required = false) String scoreMark,
                                                 @RequestParam(value = "type", required = false) String type,
+                                                @RequestParam(value = "eoiType", required = false) String eoiType,
+                                                @RequestParam(value = "isCOE", required = false) String isCOE,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -731,7 +783,7 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, zeroScoreOptions);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions);
             if (res != null && res.getCode() == 0) {
                 List<ServiceOrderDTO> cList = new ArrayList<>();
                 if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -756,7 +808,7 @@ public class ServiceOrderManageController extends BaseController {
                             null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
                             isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
                             schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, zeroScoreOptions);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions);
                     if (cRes.getCode() > 0)
                         res.setMessage(res.getMessage() + ";" + cRes.getMessage());
                 });
@@ -952,6 +1004,11 @@ public class ServiceOrderManageController extends BaseController {
                             serviceOrderApplicantDO.setApplicantId(serviceOrderDTO.getApplicantId());
                             serviceOrderApplicantDO.setServiceOrderId(serviceOrderDTO.getId());
                             serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDO);
+                            ServiceOrderDTO serviceOrderDTO1 = serviceOrderManageService.getserviceOrderManageByServiceOrderId(id);
+                            ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                            serviceOrderAndManage.setServiceOrderId(serviceOrderDTO.getId());
+                            serviceOrderAndManage.setServiceOrderManageId(serviceOrderDTO1.getId());
+                            serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         }
                     } catch (ServiceException ex) {
                         throw new RuntimeException(ex);
@@ -1011,6 +1068,11 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderApplicantDO.setApplicantId(serviceOrderDTO.getApplicantId());
                         serviceOrderApplicantDO.setServiceOrderId(serviceOrderDTO.getId());
                         serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDO);
+                        ServiceOrderDTO serviceOrderDTO1 = serviceOrderManageService.getserviceOrderManageByServiceOrderId(id);
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDTO.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderDTO1.getId());
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                     }
                 }
             }
@@ -1039,7 +1101,7 @@ public class ServiceOrderManageController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String zeroScoreOptions) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String eoiType, String isCOE, String zeroScoreOptions) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1215,6 +1277,14 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
+            } else {
+                serviceOrderDto.setIsCOE(null);
+            }
+            if (StringUtil.isNotEmpty(eoiType)) {
+                serviceOrderDto.setEoiType(eoiType);
+            }
             ServiceDTO serviceDTO = new ServiceDTO();
             // 普通签证修改为600和870类父子订单签证
             if (StringUtil.isNotEmpty(serviceId)) {
@@ -1322,6 +1392,14 @@ public class ServiceOrderManageController extends BaseController {
 
             int i = serviceOrderService.updateServiceOrder(serviceOrderDto);
             if (i > 0) {
+                // 如果修改为eoi父订单eoi类型，同步修改子订单
+                if (serviceOrderDto.getEoiType() != null && serviceOrderDto.getApplicantParentId() == 0) {
+                    List<ServiceOrderDTO> ziServiceOrderById = serviceOrderService.getZiServiceOrderById(serviceOrderDto.getId());
+                    for (ServiceOrderDTO serviceOrderDTO : ziServiceOrderById) {
+                        serviceOrderDTO.setEoiType(serviceOrderDto.getEoiType());
+                        serviceOrderService.updateServiceOrder(serviceOrderDTO);
+                    }
+                }
                 if (officialId != null &&!String.valueOf(officialId1).equals(officialId)) {
                     int v = cloudDiskService.updateofficialId(officialId1,Integer.valueOf(officialId));
                 }
@@ -5250,6 +5328,7 @@ public class ServiceOrderManageController extends BaseController {
             Integer bindingOrderId = serviceOrderJsonRequest.getBindingOrderId();
             String visaNumber = serviceOrderJsonRequest.getVisaNumber();
             String scoreOptions = serviceOrderJsonRequest.getScoreOptions();
+            String zeroScoreOptions = serviceOrderJsonRequest.getZeroScoreOptions();
             String scoreState = serviceOrderJsonRequest.getScoreState();
             String scoreMark = serviceOrderJsonRequest.getScoreMark();
             Integer schoolId2 = serviceOrderJsonRequest.getSchoolId2();
@@ -5261,7 +5340,15 @@ public class ServiceOrderManageController extends BaseController {
             Integer schoolInstitutionLocationId4 = serviceOrderJsonRequest.getSchoolInstitutionLocationId4();
             Integer schoolInstitutionLocationId5 = serviceOrderJsonRequest.getSchoolInstitutionLocationId5();
             String serviceOrderApplicantListJson = serviceOrderJsonRequest.getServiceOrderApplicantList();
-            String zeroScoreOptions = serviceOrderJsonRequest.getZeroScoreOptions();
+            String contractData = serviceOrderJsonRequest.getContractData();
+            String applicantId = serviceOrderJsonRequest.getApplicantId();
+            String eoiType = serviceOrderJsonRequest.getEoiType();
+            String isCOE = serviceOrderJsonRequest.getIsCOE();
+            String isCOE1 = serviceOrderJsonRequest.getIsCOE1();
+            String isCOE2 = serviceOrderJsonRequest.getIsCOE2();
+            String isCOE3 = serviceOrderJsonRequest.getIsCOE3();
+            String isCOE4 = serviceOrderJsonRequest.getIsCOE4();
+            String isCOE5 = serviceOrderJsonRequest.getIsCOE5();
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
@@ -5312,6 +5399,14 @@ public class ServiceOrderManageController extends BaseController {
             // serviceOrderDto.setState(ReviewAdviserStateEnum.COMPLETE.toString());
             // }
             serviceOrderDto.setSettle(isSettle != null && "true".equalsIgnoreCase(isSettle));
+
+            if (StringUtil.isNotEmpty(isCOE)) {
+                serviceOrderDto.setIsCOE(isCOE);
+            }
+            if (StringUtil.isNotEmpty(isCOE1)) {
+                serviceOrderDto.setIsCOE(isCOE1);
+            }
+
             serviceOrderDto.setUrgentState(urgentState);
             serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
             if (StringUtil.isNotEmpty(subagencyId))
@@ -5403,6 +5498,9 @@ public class ServiceOrderManageController extends BaseController {
                     }
                 }
 
+                if (serviceOrderDto.getServiceId() == 25) {
+                    serviceOrderDto.setApplicantId(serviceOrderApplicantList.get(0).getApplicantId());
+                }
             } else {
                 return new Response<Integer>(1, "请选择申请人.", null);
             }
@@ -5474,31 +5572,15 @@ public class ServiceOrderManageController extends BaseController {
             if (StringUtil.isNotEmpty(scoreMark)) {
                 serviceOrderDto.setScoreMark(scoreMark);
             }
-//            if (StringUtil.isNotEmpty(receivable)) {
-//                serviceOrderDto.setReceivable(Double.parseDouble(receivable));
-//            }
-//            if (StringUtil.isNotEmpty(discount)) {
-//                serviceOrderDto.setDiscount(Double.parseDouble(discount));
-//            }
-//            if (StringUtil.isNotEmpty(received)) {
-//                serviceOrderDto.setReceived(Double.parseDouble(received));
-//            }
-//            if (StringUtil.isNotEmpty(gst)) {
-//                serviceOrderDto.setGst(Double.parseDouble(gst));
-//            }
-//            if (StringUtil.isNotEmpty(amount)) {
-//                serviceOrderDto.setAmount(Double.parseDouble(amount));
-//            }
-//            if (StringUtil.isNotEmpty(deductGst)) {
-//                serviceOrderDto.setDeductGst(Double.parseDouble(deductGst));
-//            }
-//            if (StringUtil.isNotEmpty(expectAmount)) {
-//                serviceOrderDto.setExpectAmount(Double.parseDouble(expectAmount));
-//            }
-//            if (StringUtil.isNotEmpty(perAmount)) {
-//                serviceOrderDto.setPerAmount(Double.parseDouble(perAmount));
-//            }
-
+            if (StringUtil.isNotEmpty(applicantId)) {
+                serviceOrderDto.setApplicantId(Integer.parseInt(applicantId));
+            }
+            if (StringUtil.isNotEmpty(contractData)) {
+                serviceOrderDto.setContractData(contractData);
+            }
+            if (StringUtil.isNotEmpty(eoiType)) {
+                serviceOrderDto.setEoiType(eoiType);
+            }
             if (serviceOrderJsonRequest.getInstallment() == 1) {
                 double received1 = serviceOrderDto.getReceived();
                 serviceOrderDto.setReceivable(received1);
@@ -5631,6 +5713,11 @@ public class ServiceOrderManageController extends BaseController {
                             if ("EOI".equals(servicePackageDTO.getType())) {
                                 EOICount++;
                                 serviceOrderDto.setEOINumber(EOICount);
+                                if (StringUtil.isNotEmpty(eoiType)) {
+                                    serviceOrderDto.setEoiType(eoiType);
+                                }
+                            }  else {
+                                serviceOrderDto.setEoiType(null);
                             }
                             if ("true".equals(isPay)) {
                                 serviceOrderDto.setPay(true);
@@ -5710,6 +5797,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
                         && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE2)) {
+                        serviceOrderDto.setIsCOE(isCOE2);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId2 != null && schoolId2 > 0) {
                         serviceOrderDto.setSchoolId(schoolId2);
                         serviceOrderDto.setCourseId(0);
@@ -5742,6 +5834,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0) || (courseId3 != null
                         && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE3)) {
+                        serviceOrderDto.setIsCOE(isCOE3);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId3 != null && schoolId3 > 0) {
                         serviceOrderDto.setSchoolId(schoolId3);
                         serviceOrderDto.setCourseId(0);
@@ -5774,6 +5871,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0) || (courseId4 != null
                         && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE4)) {
+                        serviceOrderDto.setIsCOE(isCOE4);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId4 != null && schoolId4 > 0) {
                         serviceOrderDto.setSchoolId(schoolId4);
                         serviceOrderDto.setCourseId(0);
@@ -5806,6 +5908,11 @@ public class ServiceOrderManageController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0) || (courseId5 != null
                         && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
                     serviceOrderDto.setId(0);
+                    if (StringUtil.isNotEmpty(isCOE5)) {
+                        serviceOrderDto.setIsCOE(isCOE5);
+                    } else {
+                        serviceOrderDto.setIsCOE(null);
+                    }
                     if (schoolId5 != null && schoolId5 > 0) {
                         serviceOrderDto.setSchoolId(schoolId5);
                         serviceOrderDto.setCourseId(0);

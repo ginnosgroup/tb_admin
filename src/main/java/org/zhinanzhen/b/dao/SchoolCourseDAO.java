@@ -40,4 +40,6 @@ public interface SchoolCourseDAO {
 
     SchoolInstitutionDO getSchoolInstitutionByCourseId(@Param("courseId")int courseId);
 
+    List<SchoolCourseDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

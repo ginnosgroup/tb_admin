@@ -106,4 +106,12 @@ public class ServiceOrderJsonRequest {
     private Integer bindingOrderId;
     private Integer manageId;
     private String serviceOrderApplicantList;
+    private String contractData;
+    private String eoiType; // EOI类型
+    private String isCOE;
+    private String isCOE1;
+    private String isCOE2;
+    private String isCOE3;
+    private String isCOE4;
+    private String isCOE5;
 }

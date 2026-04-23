@@ -86,4 +86,6 @@ public interface UserService {
 
     UserOrder userOrder(Integer adviserId, Integer userId, int pageNum, int pageSize);
 
+    String userData(Integer userId, String startGmtCreate, String endGmtCreate) throws Exception;
+
 }

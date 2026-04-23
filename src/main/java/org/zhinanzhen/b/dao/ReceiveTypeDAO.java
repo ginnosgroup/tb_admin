@@ -15,4 +15,6 @@ public interface ReceiveTypeDAO {
 
 	public ReceiveTypeDO getReceiveTypeById(int id);
 
+	public List<ReceiveTypeDO> listByIds(@Param("ids") List<Integer> ids);
+
 }

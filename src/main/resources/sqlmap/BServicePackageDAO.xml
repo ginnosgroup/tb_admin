@@ -126,8 +126,11 @@
         WHERE
             b.id = #{servicePackageId,jdbcType=INTEGER}
     </select>
+    <select id="listAll" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
+        select * from b_service_package
+    </select>
 
-<!--    <resultMap id="getServicePackgeForEOI" type="org.zhinanzhen.b.service.pojo.ServicePackageDTO">-->
+    <!--    <resultMap id="getServicePackgeForEOI" type="org.zhinanzhen.b.service.pojo.ServicePackageDTO">-->
 <!--        <result column="" property=""/>-->
 <!--        <result column="" property=""/>-->
 <!--        <result column="" property=""/>-->
@@ -157,5 +160,10 @@
         SET gmt_modify = now(), is_delete = 1
         WHERE id = #{id, jdbcType=INTEGER};
     </update>
+
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.ServicePackageDO">
+        SELECT id, gmt_create AS GmtCreate, type, service_id AS serviceId, num FROM b_service_package WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
 
 </mapper>

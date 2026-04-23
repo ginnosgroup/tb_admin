@@ -587,6 +587,18 @@ public class ServiceOrderController extends BaseController {
                         serviceOrderService.updateServiceOrder(serviceOrderById);
                     }
                 }
+                if ("OVST".equalsIgnoreCase(type)) {
+                    ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
+                    BeanUtils.copyProperties(serviceOrderDto, serviceOrderDTO);
+                    int add = serviceOrderManageService.add(serviceOrderDTO);
+                    if (add > 0) {
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderManageId = serviceOrderDTO.getId();
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+                    }
+                }
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
                 if (adminUserLoginInfo != null)
@@ -756,6 +768,12 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName2);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
+
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -790,6 +808,11 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName3);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -824,6 +847,11 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName4);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -858,6 +886,11 @@ public class ServiceOrderController extends BaseController {
                             serviceOrderDto.setInstitutionTradingName(institutionTradingName5);
                     }
                     if (serviceOrderService.addServiceOrder(serviceOrderDto) > 0 && adminUserLoginInfo != null) {
+                        // 保存管理中间表
+                        ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                        serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
                         if (serviceOrderApplicantList.size() > 0) {
@@ -4241,11 +4274,11 @@ public class ServiceOrderController extends BaseController {
                 else
                     return new Response<ServiceOrderDTO>(1,
                             StringUtil.merge("状态:", state, "不是合法状态. (", Arrays.toString(nextNodeNames), ")"), null);
-
+            long l = System.currentTimeMillis();
             Workflow workflow = new Workflow("Service Order Work Flow", node, soNodeFactory);
 
             context = workflowStarter.process(workflow, context);
-
+            log.info("步骤耗时----------------------" + (System.currentTimeMillis() - l));
             if (context.getParameter("response") != null)
                 return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {

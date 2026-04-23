@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -16,9 +17,7 @@ import org.zhinanzhen.tb.controller.Response;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -136,7 +135,7 @@ public class CloudDiskController extends BaseController {
         try {
             super.setPostHeader(response);
             int total = cloudDiskService.count(id, parentFileId, name, applicantId, userId);
-            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize);
+            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize, false);
             return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, "");
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,6 +173,9 @@ public class CloudDiskController extends BaseController {
             Map<String, Integer> addCountMap = new HashMap<>();
             Map<String, String> belongFolderMap = new HashMap<>();
             cloudDiskService.getFileStructure(parentFileStructures, adviserId, officialId, belongFolderMap, addCountMap, folderName, null, synchronizeName);
+//            String[] split = folderName.split("@");
+//            List<CloudDiskFile> cloudDiskFileList1 = cloudDiskService.list(null, null, null, null, Integer.valueOf(split[1]), 0, 1000, false);
+//            cloudDiskService.getAIEvaluation(folderName);
             return new Response<String>(0, "获取成功", "v");
         } catch (Exception e) {
             e.printStackTrace();

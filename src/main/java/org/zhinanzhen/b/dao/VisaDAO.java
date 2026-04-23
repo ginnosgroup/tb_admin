@@ -47,6 +47,8 @@ public interface VisaDAO {
 			@Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId,
 			@Param("adviserIdList") List<String> adviserIdList);
 
+//	List<VisaDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 	VisaDO getFirstVisaByServiceOrderId(int serviceOrderId);
 
 	VisaDO getSecondVisaByServiceOrderId(int serviceOrderId);
@@ -97,4 +99,6 @@ public interface VisaDAO {
 												 @Param("dateType") String dateType, @Param("dateMethod") String dateMethod,
 												 @Param("regionId") Integer regionId, @Param("adviserId") Integer adviserId,
 												 @Param("adviserIdList") List<String> adviserIdList);
+
+	List<VisaDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
 }

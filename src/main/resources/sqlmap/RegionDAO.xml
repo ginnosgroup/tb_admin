@@ -82,4 +82,9 @@
 		</if>
 		where id = #{id};
 	</update>
+    <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.RegionDO">
+        SELECT id, name, weight, parent_id AS parentId, finance_bank_id AS financeBankId FROM tb_region WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

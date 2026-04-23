@@ -21,4 +21,6 @@ public interface OfficialTagDAO {
 
 	int deleteOfficialTagById(@Param("id") Integer id);
 
+	List<OfficialTagDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 }

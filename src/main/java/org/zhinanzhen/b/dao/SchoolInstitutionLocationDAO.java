@@ -25,4 +25,6 @@ public interface SchoolInstitutionLocationDAO {
     boolean update(SchoolInstitutionLocationDO schoolInstitutionLocationDO);
 
     List<String> getState();
+
+    List<SchoolInstitutionLocationDO> listByIds(@Param("ids") List<Integer> ids);
 }

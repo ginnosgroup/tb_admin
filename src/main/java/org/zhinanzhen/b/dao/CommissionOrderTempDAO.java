@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.dao;
 
+import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.CommissionOrderTempDO;
 import org.zhinanzhen.b.service.pojo.CommissionOrderTempDTO;
 
@@ -24,4 +25,6 @@ public interface CommissionOrderTempDAO {
     CommissionOrderTempDO getCommissionOrderTempById(int id);
 
     CommissionOrderTempDO getCommissionOrderTempByInvoiceNumber(String invoiceNumber);
+
+    List<CommissionOrderTempDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
 }

@@ -96,4 +96,9 @@
         FROM b_mara WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.MaraDO">
+        SELECT id, gmt_create AS gmtCreate, name, phone, email, state, image_url AS imageUrl, region_id AS regionId FROM b_mara WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>

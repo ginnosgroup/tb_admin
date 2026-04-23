@@ -16,7 +16,7 @@ public interface CloudDiskService {
 
     int deleteById(Integer id, String fileId);
 
-    List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId,int pageNum, int pageSize);
+    List<CloudDiskFile> list(Integer id, String parentFileId, String name, Integer applicantId, Integer userId,int pageNum, int pageSize, Boolean isFileT);
 
     int count(Integer id, String parentFileId, String name, Integer applicantId, Integer userId);
 
@@ -44,5 +44,7 @@ public interface CloudDiskService {
     void deleteUserCloud(Integer id);
 
     UserCloud addUserCloud(String userName, String email, String role, String phone);
+
+    void getAIEvaluation(String folderName);
 
 }
