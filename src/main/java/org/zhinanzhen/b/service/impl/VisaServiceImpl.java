@@ -109,6 +109,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
     @Autowired
     private ServiceOrderManageDAO serviceOrderManageDAO;
 
+	@Resource
+	private ServiceAssessDao serviceAssessDao;
+
 	@Override
 	public int addVisa(VisaDTO visaDto) throws ServiceException {
 		if (visaDto == null) {
@@ -574,6 +577,10 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setApplicant(applicantDTOS);
 			visaDto.setApplicantId(applicantDO.getId());
 			visaDto.setServiceOrder(serviceOrderDTO);
+		}
+		if (serviceOrderDTO.getServiceAssessId() != null) {
+			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDTO.getServiceAssessId());
+			serviceOrderDTO.setServiceAssessDO(serviceAssessDO);
 		}
 		// 查询子服务
 		if (serviceOrderDTO.getParentId() <= 0) {
