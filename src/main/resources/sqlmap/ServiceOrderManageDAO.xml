@@ -798,6 +798,7 @@
             )
         GROUP BY
         service_order_manage_id)
+        ORDER BY id DESC
         LIMIT #{offset}, #{rows};
     </select>
     <select id="getserviceorderManageIdByServiceorderId" resultType="java.lang.Integer">
