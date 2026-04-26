@@ -275,7 +275,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "peopleType", required = false) String peopleType,
                                              @RequestParam(value = "peopleRemarks", required = false) String peopleRemarks,
                                              @RequestParam(value = "serviceId") String serviceId,
-                                             @RequestParam(value = "schoolId", required = false) Integer schoolId,
+                                             @RequestParam(value = "schoolId1", required = false) Integer schoolId,
                                              @RequestParam(value = "schoolId2", required = false) Integer schoolId2,
                                              @RequestParam(value = "schoolId3", required = false) Integer schoolId3,
                                              @RequestParam(value = "schoolId4", required = false) Integer schoolId4,
@@ -749,6 +749,7 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
                         && courseId2 > 0 && schoolInstitutionLocationId2 != null && schoolInstitutionLocationId2 > 0)) {
                     serviceOrderDto.setId(0);
+                    serviceOrderDto.setApplicantParentId(serviceOrderId);
                     if (StringUtil.isNotEmpty(isCOE2)) {
                         serviceOrderDto.setIsCOE(isCOE2);
                     } else {
@@ -771,7 +772,9 @@ public class ServiceOrderController extends BaseController {
                         // 保存管理中间表
                         ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
                         serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderDto.setId(0);
+                        serviceOrderManageService.add(serviceOrderDto);
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderDto.getId());
                         serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
 
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
@@ -789,6 +792,7 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId3 != null && schoolId3 > 0) || (courseId3 != null
                         && courseId3 > 0 && schoolInstitutionLocationId3 != null && schoolInstitutionLocationId3 > 0)) {
                     serviceOrderDto.setId(0);
+                    serviceOrderDto.setApplicantParentId(serviceOrderId);
                     if (StringUtil.isNotEmpty(isCOE3)) {
                         serviceOrderDto.setIsCOE(isCOE3);
                     } else {
@@ -811,7 +815,9 @@ public class ServiceOrderController extends BaseController {
                         // 保存管理中间表
                         ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
                         serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderDto.setId(0);
+                        serviceOrderManageService.add(serviceOrderDto);
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderDto.getId());
                         serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
@@ -828,6 +834,7 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId4 != null && schoolId4 > 0) || (courseId4 != null
                         && courseId4 > 0 && schoolInstitutionLocationId4 != null && schoolInstitutionLocationId4 > 0)) {
                     serviceOrderDto.setId(0);
+                    serviceOrderDto.setApplicantParentId(serviceOrderId);
                     if (StringUtil.isNotEmpty(isCOE4)) {
                         serviceOrderDto.setIsCOE(isCOE4);
                     } else {
@@ -850,7 +857,9 @@ public class ServiceOrderController extends BaseController {
                         // 保存管理中间表
                         ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
                         serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderDto.setId(0);
+                        serviceOrderManageService.add(serviceOrderDto);
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderDto.getId());
                         serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
@@ -867,6 +876,7 @@ public class ServiceOrderController extends BaseController {
                 if ("OVST".equalsIgnoreCase(type) && (schoolId5 != null && schoolId5 > 0) || (courseId5 != null
                         && courseId5 > 0 && schoolInstitutionLocationId5 != null && schoolInstitutionLocationId5 > 0)) {
                     serviceOrderDto.setId(0);
+                    serviceOrderDto.setApplicantParentId(serviceOrderId);
                     if (StringUtil.isNotEmpty(isCOE5)) {
                         serviceOrderDto.setIsCOE(isCOE5);
                     } else {
@@ -889,7 +899,9 @@ public class ServiceOrderController extends BaseController {
                         // 保存管理中间表
                         ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
                         serviceOrderAndManage.setServiceOrderId(serviceOrderDto.getId());
-                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderManageId);
+                        serviceOrderDto.setId(0);
+                        serviceOrderManageService.add(serviceOrderDto);
+                        serviceOrderAndManage.setServiceOrderManageId(serviceOrderDto.getId());
                         serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                         serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                                 serviceOrderDto.getState(), null, null, null);
