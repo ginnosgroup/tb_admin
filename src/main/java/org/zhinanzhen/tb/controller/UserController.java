@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.dao.pojo.UserOrder;
+import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.MailRemindService;
+import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.MailRemindDTO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -48,6 +51,8 @@ public class UserController extends BaseController {
 
 	@Resource
 	MailRemindService mailRemindService;
+    @Autowired
+    private CloudDiskService cloudDiskService;
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
@@ -576,6 +581,27 @@ public class UserController extends BaseController {
 			return false;
 		Pattern pattern = Pattern.compile("^-?\\d+(\\.\\d+)?$");
 		return pattern.matcher(string).matches();
+	}
+
+	@RequestMapping(value = "/reviewForAI", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<String> reviewForAI(@RequestParam(value = "userId", required = false) Integer userId,
+	                                           HttpServletRequest request,
+	                                           HttpServletResponse response) throws Exception {
+		super.setGetHeader(response);
+		List<String> urls = new ArrayList<>();
+		List<String> fileNames = new ArrayList<>();
+		List<CloudDiskFile> cloudDiskFileList = cloudDiskService.list(null, null, null, null, userId, 0, 1000, true);
+		for (CloudDiskFile cloudDiskFile1 : cloudDiskFileList) {
+			if ("file".equalsIgnoreCase(cloudDiskFile1.getType())) {
+				String downLink = cloudDiskService.getDownLink(null, cloudDiskFile1.getFileId());
+				String[] parts = downLink.split("&&&");
+				urls.add(parts[0]);
+				fileNames.add(parts.length > 1 ? parts[1] : cloudDiskFile1.getName());
+			}
+		}
+		String userDataUrl = userService.reviewForAI(urls, fileNames);
+		return new Response<String>(0, "获取成功", userDataUrl);
 	}
 
 }

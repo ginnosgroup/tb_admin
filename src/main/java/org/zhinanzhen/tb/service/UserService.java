@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.zhinanzhen.b.dao.pojo.UserOrder;
+import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 
@@ -87,5 +88,7 @@ public interface UserService {
     UserOrder userOrder(Integer adviserId, Integer userId, int pageNum, int pageSize);
 
     String userData(Integer userId, String startGmtCreate, String endGmtCreate) throws Exception;
+
+	String reviewForAI(List<String> urls, List<String> fileNames);
 
 }

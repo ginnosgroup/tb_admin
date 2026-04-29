@@ -1,5 +1,10 @@
 package org.zhinanzhen.tb.service.impl;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -9,11 +14,15 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParser;
 import com.lark.oapi.Client;
 import com.lark.oapi.core.request.RequestOptions;
 import com.lark.oapi.core.utils.Jsons;
 import com.lark.oapi.service.bitable.v1.model.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,6 +52,7 @@ import com.ikasoa.core.utils.ListUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 
+@Slf4j
 @Service("userService")
 public class UserServiceImpl extends BaseService implements UserService {
 	@Resource
@@ -934,6 +944,181 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return url;
 	}
 
+    @Override
+    public String reviewForAI(List<String> urls, List<String> fileNames) {
+        try {
+			log.info("共获取到 " + urls.size() + " 个文件下载链接");
+			// 逐个下载文件到临时目录，再解析文本
+			File tempDir = new File(System.getProperty("java.io.tmpdir"), "cloud_disk_download");
+			if (!tempDir.exists()) {
+				tempDir.mkdirs();
+			}
+
+			StringBuilder allContent = new StringBuilder();
+			for (int i = 0; i < urls.size(); i++) {
+				String url = urls.get(i);
+				String fileName = fileNames.get(i);
+				System.out.println("正在下载: " + fileName);
+
+				// 先下载到临时文件（二进制方式）
+				File tempFile = new File(tempDir, fileName);
+				HttpURLConnection connectionT = null;
+				try {
+					URL fileUrl = new URL(url);
+					connectionT = (HttpURLConnection) fileUrl.openConnection();
+					connectionT.setRequestMethod("GET");
+					connectionT.setConnectTimeout(5000);
+					connectionT.setReadTimeout(30000);
+					int responseCode = connectionT.getResponseCode();
+					if (responseCode == HttpURLConnection.HTTP_OK) {
+						try (InputStream inputStream = connectionT.getInputStream();
+				             FileOutputStream fos = new FileOutputStream(tempFile)) {
+							byte[] buffer = new byte[8192];
+							int bytesRead;
+							while ((bytesRead = inputStream.read(buffer)) != -1) {
+								fos.write(buffer, 0, bytesRead);
+							}
+						}
+						System.out.println("下载完成: " + fileName + "，大小: " + tempFile.length() + " bytes");
+					} else {
+						System.out.println("下载失败: " + fileName + "，响应码：" + responseCode);
+						continue;
+					}
+				} catch (Exception e) {
+					System.out.println("下载异常: " + fileName + "，" + e.getMessage());
+					continue;
+				} finally {
+					if (connectionT != null) {
+						connectionT.disconnect();
+					}
+				}
+
+				// 根据文件类型解析文本内容
+				allContent.append("========== 文件 ").append(i + 1).append(": ").append(fileName).append(" ==========\n");
+				try {
+					String text;
+					if (fileName.toLowerCase().endsWith(".pdf")) {
+						text = parsePdfToString(tempFile.getAbsolutePath());
+					} else {
+						text = readTextFile(tempFile);
+					}
+					allContent.append(text);
+					System.out.println("解析完成: " + fileName + "，文本长度: " + text.length());
+				} catch (Exception e) {
+					System.out.println("解析失败: " + fileName + "，" + e.getMessage());
+					allContent.append("[解析失败]");
+				}
+				allContent.append("\n\n");
+
+				// 删除临时文件
+				tempFile.delete();
+			}
+			tempDir.delete();
+
+			if (allContent.length() == 0) {
+				System.out.println("没有获取到任何文件内容，结束");
+				return "没有获取到任何文件内容，结束";
+			}
+
+			System.out.println("所有文件解析完成，总文本长度: " + allContent.length());
+
+			// 调用DeepSeek进行总结分析
+			String strRead = null;
+			URL realUrl = new URL("https://api.deepseek.com/v1/chat/completions");
+			HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Accept", "application/json");
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Authorization", "Bearer sk-385ea2c077a840758456b858df833ea9");
+			connection.setConnectTimeout(10000);
+			connection.setReadTimeout(60000);
+			connection.connect();
+
+			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+
+			JSONObject parm = new JSONObject();
+			parm.put("model", "deepseek-chat");
+			parm.put("stream", false);
+
+			List<JSONObject> objects = new ArrayList<>();
+			JSONObject systemMsg = new JSONObject();
+			systemMsg.put("role", "system");
+			systemMsg.put("content", "你是一个专业的文档分析助手，请对用户提供的文件内容进行总结分析，提炼每个文件的关键信息，并给出整体概述");
+
+			JSONObject userMsg = new JSONObject();
+			userMsg.put("role", "user");
+			userMsg.put("content", "请对以下文件内容进行总结分析并分析一下申请成功率，再审核一下申请表有没有填错的地方，你就告诉我优劣势和申请表是否填错就可以了，其他数据不用告诉我，以json的形式返回数据给我：\n" + allContent.toString());
+
+			objects.add(systemMsg);
+			objects.add(userMsg);
+			parm.put("messages", objects);
+
+			writer.write(parm.toString());
+			writer.flush();
+
+			// 读取DeepSeek响应
+			InputStream is = connection.getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+			StringBuilder response = new StringBuilder();
+			while ((strRead = reader.readLine()) != null) {
+				response.append(strRead);
+			}
+
+			String content = "";
+			// 解析结果
+			JSONObject jsonResponse = JSONObject.parseObject(response.toString());
+			Object choices = jsonResponse.get("choices");
+			if (choices instanceof List) {
+				List<?> choicesList = (List<?>) choices;
+				if (!choicesList.isEmpty()) {
+					JSONObject firstChoice = (JSONObject) choicesList.get(0);
+					JSONObject message = firstChoice.getJSONObject("message");
+					content = message.getString("content");
+					System.out.println("\n=== DeepSeek文件总结分析结果 ===\n");
+					System.out.println(content);
+				}
+			}
+
+			reader.close();
+			connection.disconnect();
+			return content;
+		} catch (ProtocolException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+	private String stripMarkdown(String markdown) {
+		if (markdown == null || markdown.isEmpty()) {
+			return markdown;
+		}
+		String text = markdown;
+		text = text.replaceAll("```[\\s\\S]*?```", "");
+		text = text.replaceAll("`([^`]+)`", "$1");
+		text = text.replaceAll("\\[([^\\]]+)\\]\\([^)]+\\)", "$1");
+		text = text.replaceAll("!\\[([^\\]]*)\\]\\([^)]+\\)", "$1");
+		text = text.replaceAll("\\*\\*([^*]+)\\*\\*", "$1");
+		text = text.replaceAll("__([^_]+)__", "$1");
+		text = text.replaceAll("(?<!\\*)\\*([^*]+)\\*(?!\\*)", "$1");
+		text = text.replaceAll("(?<!_)_([^_]+)_(?!_)", "$1");
+		text = text.replaceAll("(?m)^[-*]{3,}\\s*$", "");
+		text = text.replaceAll("(?m)^#{1,6}\\s+", "");
+		text = text.replaceAll("(?m)^(\\s*)[-*]\\s+", "$1  • ");
+		text = text.replaceAll("(?m)^(\\s*)\\d+\\.\\s+", "$1  • ");
+		text = text.replaceAll("(?m)^>\\s?", "");
+		text = text.replaceAll("\\n{3,}", "\n\n");
+		text = text.trim();
+		return text;
+	}
+
     private Map<String, String> getTableIdMap(Client client, String appToken) throws Exception {
 
 		// 创建请求对象
@@ -1377,5 +1562,53 @@ public class UserServiceImpl extends BaseService implements UserService {
 				servicepakageName = null;
 		}
 		return servicepakageName;
+	}
+
+	/**
+	 * 解析PDF文件
+	 */
+	private String parsePdfToString(String filePath) throws IOException {
+		File pdfFile = new File(filePath);
+		if (!pdfFile.exists()) {
+			throw new IOException("PDF文件不存在: " + filePath);
+		}
+		if (pdfFile.length() == 0) {
+			return "[空文件]";
+		}
+
+		PDDocument document = null;
+		try {
+			document = PDDocument.load(pdfFile);
+			if (document == null || document.getNumberOfPages() == 0) {
+				return "[PDF无页面内容]";
+			}
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(document);
+			return text != null ? text.trim() : "[PDF无文本内容]";
+		} catch (Exception e) {
+			System.out.println("PDF解析异常: " + filePath + "，" + e.getMessage());
+			return "[PDF解析失败: " + e.getMessage() + "]";
+		} finally {
+			if (document != null) {
+				try {
+					document.close();
+				} catch (IOException ignored) {
+				}
+			}
+		}
+	}
+
+	/**
+	 * 读取文本文件内容
+	 */
+	private String readTextFile(File file) throws IOException {
+		StringBuilder content = new StringBuilder();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				content.append(line).append("\n");
+			}
+		}
+		return content.toString();
 	}
 }
