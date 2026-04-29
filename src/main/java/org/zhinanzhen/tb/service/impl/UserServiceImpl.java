@@ -102,6 +102,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 	@Value("${feishu.ACCESSKEYSECRET}")
 	private String ACCESS_KEY_SECRET;
 
+	@Value("${deepseek.APIKEY}")
+	private String DEEPSEEK_API_KEY;
+
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
 	public int addUser(String name, String authNickname, Date birthday, String areaCode, String phone, String email,
@@ -1031,7 +1034,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 			connection.setDoOutput(true);
 			connection.setRequestProperty("Accept", "application/json");
 			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("Authorization", "Bearer sk-385ea2c077a840758456b858df833ea9");
+			String apiKey = "Bearer " + DEEPSEEK_API_KEY;
+			connection.setRequestProperty("Authorization", apiKey);
 			connection.setConnectTimeout(10000);
 			connection.setReadTimeout(60000);
 			connection.connect();
