@@ -1902,7 +1902,7 @@ public class ServiceOrderController extends BaseController {
                     return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "No permission !");
             }
             Boolean isManage = false;
-            if (!"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+            if (!"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
                 isManage = null;
             }
             if (id != null && id > 0) {
