@@ -17,7 +17,7 @@ public interface ExternalInterfaceService {
                              String driveId, String fileId, String officialId, String userId,
                              String operator, String relativePath, String fileSize, String downloadUrl, String hashCode);
 
-    CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName);
+    CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName, Integer userId);
 
     Integer updateCloudDiskFile(String id, String isDelete, String applicantId, String adviserId, String name,
                                 String type, String url, String parentFileId, String domainId, String driveId,

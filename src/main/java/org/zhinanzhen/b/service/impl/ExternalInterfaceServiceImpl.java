@@ -95,8 +95,8 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     }
 
     @Override
-    public CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName) {
-        return cloudDiskFileDAO.getById(id, parentFileId, fileId, folderName, null);
+    public CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName, Integer userId) {
+        return cloudDiskFileDAO.getById(id, parentFileId, fileId, folderName, userId);
     }
 
     @Override

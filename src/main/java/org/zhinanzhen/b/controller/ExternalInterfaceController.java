@@ -51,11 +51,12 @@ public class ExternalInterfaceController extends BaseController {
     public Response<CloudDiskFile> getCloudDiskFileById(@RequestParam(value = "id", required = false) Integer id,
                                               @RequestParam(value = "adviserId", required = false) Integer adviserId,
                                               @RequestParam(value = "parentFileId", required = false) String parentFileId,
+                                              @RequestParam(value = "userId", required = false) Integer userId,
                                               @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "folderName", required = false) String folderName,
                                               HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            CloudDiskFile cloudDiskFile = externalInterfaceService.getCloudDiskFileById(id, adviserId, parentFileId, fileId, folderName);
+            CloudDiskFile cloudDiskFile = externalInterfaceService.getCloudDiskFileById(id, adviserId, parentFileId, fileId, folderName, userId);
             return new Response<CloudDiskFile>(0, "获取成功", cloudDiskFile);
         } catch (Exception e) {
             return new Response<CloudDiskFile>(1, "获取失败:" + e.getMessage(), null);
