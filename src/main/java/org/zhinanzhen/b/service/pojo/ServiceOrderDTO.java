@@ -329,5 +329,9 @@ public class ServiceOrderDTO {
 
 	private String isCOE;
 
+	private String conCurrentCoe;
+
 	private String zeroScoreOptions; // 不打分评分选项
+
+	private String isTransfer; // 是否转学
 }

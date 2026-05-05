@@ -18,8 +18,12 @@ import com.ikasoa.web.workflow.WorkflowStarter;
 import com.ikasoa.web.workflow.impl.WorkflowStarterImpl;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
+import jxl.format.Alignment;
+import jxl.format.Colour;
+import jxl.format.VerticalAlignment;
 import jxl.read.biff.BiffException;
 import jxl.write.Label;
+import jxl.write.NumberFormats;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
 import jxl.write.WriteException;
@@ -353,6 +357,18 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "isCOE3", required = false) String isCOE3,
                                              @RequestParam(value = "isCOE4", required = false) String isCOE4,
                                              @RequestParam(value = "isCOE5", required = false) String isCOE5,
+                                             @RequestParam(value = "isTransfer", required = false) String isTransfer,
+                                             @RequestParam(value = "isTransfer1", required = false) String isTransfer1,
+                                             @RequestParam(value = "isTransfer2", required = false) String isTransfer2,
+                                             @RequestParam(value = "isTransfer3", required = false) String isTransfer3,
+                                             @RequestParam(value = "isTransfer4", required = false) String isTransfer4,
+                                             @RequestParam(value = "isTransfer5", required = false) String isTransfer5,
+                                             @RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
+                                             @RequestParam(value = "conCurrentCoe1", required = false) String conCurrentCoe1,
+                                             @RequestParam(value = "conCurrentCoe2", required = false) String conCurrentCoe2,
+                                             @RequestParam(value = "conCurrentCoe3", required = false) String conCurrentCoe3,
+                                             @RequestParam(value = "conCurrentCoe4", required = false) String conCurrentCoe4,
+                                             @RequestParam(value = "conCurrentCoe5", required = false) String conCurrentCoe5,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -406,7 +422,18 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(isCOE1)) {
                 serviceOrderDto.setIsCOE(isCOE1);
             }
-
+            if (StringUtil.isNotEmpty(isTransfer)) {
+                serviceOrderDto.setIsTransfer(isTransfer);
+            }
+            if (StringUtil.isNotEmpty(isTransfer1)) {
+                serviceOrderDto.setIsTransfer(isTransfer1);
+            }
+            if (StringUtil.isNotEmpty(conCurrentCoe)) {
+                serviceOrderDto.setConCurrentCoe(conCurrentCoe);
+            }
+            if (StringUtil.isNotEmpty(conCurrentCoe1)) {
+                serviceOrderDto.setConCurrentCoe(conCurrentCoe1);
+            }
             serviceOrderDto.setUrgentState(urgentState);
             serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
             if (StringUtil.isNotEmpty(subagencyId))
@@ -755,6 +782,16 @@ public class ServiceOrderController extends BaseController {
                     } else {
                         serviceOrderDto.setIsCOE(null);
                     }
+                    if (StringUtil.isNotEmpty(isTransfer2)) {
+                        serviceOrderDto.setIsTransfer(isTransfer2);
+                    } else {
+                        serviceOrderDto.setIsTransfer(null);
+                    }
+                    if (StringUtil.isNotEmpty(conCurrentCoe2)) {
+                        serviceOrderDto.setConCurrentCoe(conCurrentCoe2);
+                    } else {
+                        serviceOrderDto.setConCurrentCoe(null);
+                    }
                     if (schoolId2 != null && schoolId2 > 0) {
                         serviceOrderDto.setSchoolId(schoolId2);
                         serviceOrderDto.setCourseId(0);
@@ -798,6 +835,16 @@ public class ServiceOrderController extends BaseController {
                     } else {
                         serviceOrderDto.setIsCOE(null);
                     }
+                    if (StringUtil.isNotEmpty(isTransfer3)) {
+                        serviceOrderDto.setIsTransfer(isTransfer3);
+                    } else {
+                        serviceOrderDto.setIsTransfer(null);
+                    }
+                    if (StringUtil.isNotEmpty(conCurrentCoe3)) {
+                        serviceOrderDto.setConCurrentCoe(conCurrentCoe3);
+                    } else {
+                        serviceOrderDto.setConCurrentCoe(null);
+                    }
                     if (schoolId3 != null && schoolId3 > 0) {
                         serviceOrderDto.setSchoolId(schoolId3);
                         serviceOrderDto.setCourseId(0);
@@ -840,6 +887,16 @@ public class ServiceOrderController extends BaseController {
                     } else {
                         serviceOrderDto.setIsCOE(null);
                     }
+                    if (StringUtil.isNotEmpty(isTransfer4)) {
+                        serviceOrderDto.setIsTransfer(isTransfer4);
+                    } else {
+                        serviceOrderDto.setIsTransfer(null);
+                    }
+                    if (StringUtil.isNotEmpty(conCurrentCoe4)) {
+                        serviceOrderDto.setConCurrentCoe(conCurrentCoe4);
+                    } else {
+                        serviceOrderDto.setConCurrentCoe(null);
+                    }
                     if (schoolId4 != null && schoolId4 > 0) {
                         serviceOrderDto.setSchoolId(schoolId4);
                         serviceOrderDto.setCourseId(0);
@@ -881,6 +938,16 @@ public class ServiceOrderController extends BaseController {
                         serviceOrderDto.setIsCOE(isCOE5);
                     } else {
                         serviceOrderDto.setIsCOE(null);
+                    }
+                    if (StringUtil.isNotEmpty(isTransfer5)) {
+                        serviceOrderDto.setIsTransfer(isTransfer5);
+                    } else {
+                        serviceOrderDto.setIsTransfer(null);
+                    }
+                    if (StringUtil.isNotEmpty(conCurrentCoe5)) {
+                        serviceOrderDto.setConCurrentCoe(conCurrentCoe5);
+                    } else {
+                        serviceOrderDto.setConCurrentCoe(null);
                     }
                     if (schoolId5 != null && schoolId5 > 0) {
                         serviceOrderDto.setSchoolId(schoolId5);
@@ -1007,6 +1074,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "contractData", required = false) String contractData,
                                                 @RequestParam(value = "eoiType", required = false) String eoiType,
                                                 @RequestParam(value = "isCOE", required = false) String isCOE,
+                                                @RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -1031,7 +1099,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions, conCurrentCoe);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -1056,7 +1124,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
 							schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions, conCurrentCoe);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1219,7 +1287,7 @@ public class ServiceOrderController extends BaseController {
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
                                         String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData,
-                                        String isCOE, String eoiType, String zeroScoreOptions) {
+                                        String isCOE, String eoiType, String zeroScoreOptions, String conCurrentCoe) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1405,6 +1473,11 @@ public class ServiceOrderController extends BaseController {
             } else {
                 serviceOrderDto.setIsCOE(null);
             }
+            if (StringUtil.isNotEmpty(isTransfer)) {
+                serviceOrderDto.setIsTransfer(isTransfer);
+            } else {
+                serviceOrderDto.setIsTransfer(null);
+            }
             if (StringUtil.isNotEmpty(eoiType)) {
                 serviceOrderDto.setEoiType(eoiType);
             }
@@ -1416,6 +1489,11 @@ public class ServiceOrderController extends BaseController {
             // 是否购买保险
             if (StringUtil.isNotEmpty(hasInsurance)) {
                 serviceOrderDto.setIsInsuranceCompany(hasInsurance);
+            }
+            if (StringUtil.isNotEmpty(conCurrentCoe)) {
+                serviceOrderDto.setConCurrentCoe(conCurrentCoe);
+            } else {
+                serviceOrderDto.setConCurrentCoe(null);
             }
             // 保存保险公司和订单中间表
             if (StringUtil.isNotEmpty(insuranceCompany)) {
@@ -2707,35 +2785,55 @@ public class ServiceOrderController extends BaseController {
                 System.out.println("wbe not null !os=" + os + ",wb" + wb);
             }
             WritableSheet sheet = wbe.getSheet(0);
-            WritableCellFormat cellFormat = new WritableCellFormat();
+            WritableCellFormat defaultFormat = new WritableCellFormat(NumberFormats.DEFAULT);
+            defaultFormat.setAlignment(Alignment.CENTRE);
+            defaultFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+            WritableCellFormat yellowFormat = new WritableCellFormat(NumberFormats.DEFAULT);
+            yellowFormat.setBackground(Colour.YELLOW);
+            yellowFormat.setAlignment(Alignment.CENTRE);
+            yellowFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+            WritableCellFormat greenFormat = new WritableCellFormat(NumberFormats.DEFAULT);
+            greenFormat.setBackground(Colour.GREEN);
+            greenFormat.setAlignment(Alignment.CENTRE);
+            greenFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
             int i = 1;
             for (ServiceOrderDTO so : serviceOrderLists) {
+                WritableCellFormat cellFormat;
+                String conCurrentCoe = so.getConCurrentCoe();
+                String isTransfer = so.getIsTransfer();
+                if ("true".equals(conCurrentCoe)) {
+                    cellFormat = yellowFormat;
+                } else if ("true".equals(isTransfer)) {
+                    cellFormat = greenFormat;
+                } else {
+                    cellFormat = defaultFormat;
+                }
                 sheet.addCell(new Label(0, i, so.getId() + "", cellFormat));
-                if (so.getGmtCreate() != null)
-                    sheet.addCell(new Label(1, i, sdf.format(so.getGmtCreate()), cellFormat));
-                if (so.getOfficialApprovalDate() != null)
-                    sheet.addCell(new Label(2, i, sdf.format(so.getOfficialApprovalDate()), cellFormat));
-                if (so.getFinishDate() != null)
-                    sheet.addCell(new Label(3, i, sdf.format(so.getFinishDate()), cellFormat));
-                if (so.getReadcommittedDate() != null)
-                    sheet.addCell(new Label(4, i, sdf.format(so.getReadcommittedDate()), cellFormat));
+                sheet.addCell(new Label(1, i, so.getGmtCreate() != null ? sdf.format(so.getGmtCreate()) : "", cellFormat));
+                sheet.addCell(new Label(2, i, so.getOfficialApprovalDate() != null ? sdf.format(so.getOfficialApprovalDate()) : "", cellFormat));
+                sheet.addCell(new Label(3, i, so.getFinishDate() != null ? sdf.format(so.getFinishDate()) : "", cellFormat));
+                sheet.addCell(new Label(4, i, so.getReadcommittedDate() != null ? sdf.format(so.getReadcommittedDate()) : "", cellFormat));
                 sheet.addCell(new Label(5, i, so.getUserId() + "", cellFormat));
                 if (so.getUser() != null) {
                     sheet.addCell(new Label(6, i, so.getUser().getName() + "", cellFormat));
                     sheet.addCell(new Label(7, i, sdf.format(so.getUser().getBirthday()), cellFormat));
                     sheet.addCell(new Label(8, i, so.getUser().getPhone(), cellFormat));
+                } else {
+                    sheet.addCell(new Label(6, i, "", cellFormat));
+                    sheet.addCell(new Label(7, i, "", cellFormat));
+                    sheet.addCell(new Label(8, i, "", cellFormat));
                 }
                 if (so.getApplicant() != null) {
                     sheet.addCell(new Label(9, i, so.getApplicantId() + "", cellFormat));
                     sheet.addCell(new Label(10, i,
                             so.getApplicant().getFirstname() + " " + so.getApplicant().getSurname(), cellFormat));
+                } else {
+                    sheet.addCell(new Label(9, i, "", cellFormat));
+                    sheet.addCell(new Label(10, i, "", cellFormat));
                 }
-                if (so.getAdviser() != null)
-                    sheet.addCell(new Label(11, i, so.getAdviser().getName(), cellFormat));
-                if (so.getMara() != null)
-                    sheet.addCell(new Label(12, i, so.getMara().getName(), cellFormat));
-                if (so.getOfficial() != null)
-                    sheet.addCell(new Label(13, i, so.getOfficial().getName(), cellFormat));
+                sheet.addCell(new Label(11, i, so.getAdviser() != null ? so.getAdviser().getName() : "", cellFormat));
+                sheet.addCell(new Label(12, i, so.getMara() != null ? so.getMara().getName() : "", cellFormat));
+                sheet.addCell(new Label(13, i, so.getOfficial() != null ? so.getOfficial().getName() : "", cellFormat));
 
                 if (so.getService() != null) {
                     String servicepakageName = "";
@@ -2843,15 +2941,13 @@ public class ServiceOrderController extends BaseController {
                  * }
                  */
                 sheet.addCell(new Label(17, i, so.getRealPeopleNumber() + "", cellFormat));
-                if (so.getOfferType() != null) {
-                    sheet.addCell(new Label(18, i, so.getOfferType() + "", cellFormat));
-                }
+                sheet.addCell(new Label(18, i, so.getOfferType() != null ? so.getOfferType() + "" : "", cellFormat));
                 if (StringUtil.isNotEmpty(so.getIsInsuranceCompany())) {
                     sheet.addCell(new Label(19, i, so.getIsInsuranceCompany().equalsIgnoreCase("0") ? "是" : "否", cellFormat));
                 } else {
                     sheet.addCell(new Label(19, i, "否", cellFormat));
                 }
-                sheet.addCell(new Label(20, i, so.getRemarks(), cellFormat));
+                sheet.addCell(new Label(20, i, so.getRemarks() != null ? so.getRemarks() : "", cellFormat));
                 i++;
             }
             wbe.write();
