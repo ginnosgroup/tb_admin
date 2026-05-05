@@ -228,4 +228,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String conCurrentCoe;
 
+	private String isTransfer; // 是否转学
+
 }
