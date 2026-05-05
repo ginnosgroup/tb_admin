@@ -1010,6 +1010,7 @@ public class ServiceOrderController extends BaseController {
                                                 @RequestParam(value = "contractData", required = false) String contractData,
                                                 @RequestParam(value = "eoiType", required = false) String eoiType,
                                                 @RequestParam(value = "isCOE", required = false) String isCOE,
+                                                @RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -1034,7 +1035,7 @@ public class ServiceOrderController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions, conCurrentCoe);
             if (res != null && res.getCode() == 0) {
 				List<ServiceOrderDTO> cList = new ArrayList<>();
 				if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -1059,7 +1060,7 @@ public class ServiceOrderController extends BaseController {
 							null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
 							isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
 							schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, contractData, isCOE, eoiType, zeroScoreOptions, conCurrentCoe);
 					if (cRes.getCode() > 0)
 						res.setMessage(res.getMessage() + ";" + cRes.getMessage());
 				});
@@ -1222,7 +1223,7 @@ public class ServiceOrderController extends BaseController {
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
                                         String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String contractData,
-                                        String isCOE, String eoiType, String zeroScoreOptions) {
+                                        String isCOE, String eoiType, String zeroScoreOptions, String conCurrentCoe) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1419,6 +1420,9 @@ public class ServiceOrderController extends BaseController {
             // 是否购买保险
             if (StringUtil.isNotEmpty(hasInsurance)) {
                 serviceOrderDto.setIsInsuranceCompany(hasInsurance);
+            }
+            if (StringUtil.isNotEmpty(conCurrentCoe)) {
+                serviceOrderDto.setConCurrentCoe(conCurrentCoe);
             }
             // 保存保险公司和订单中间表
             if (StringUtil.isNotEmpty(insuranceCompany)) {
