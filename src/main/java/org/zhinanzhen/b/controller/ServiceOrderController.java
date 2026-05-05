@@ -353,6 +353,7 @@ public class ServiceOrderController extends BaseController {
                                              @RequestParam(value = "isCOE3", required = false) String isCOE3,
                                              @RequestParam(value = "isCOE4", required = false) String isCOE4,
                                              @RequestParam(value = "isCOE5", required = false) String isCOE5,
+                                             @RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
                                              HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -406,7 +407,9 @@ public class ServiceOrderController extends BaseController {
             if (StringUtil.isNotEmpty(isCOE1)) {
                 serviceOrderDto.setIsCOE(isCOE1);
             }
-
+            if (StringUtil.isNotEmpty(conCurrentCoe)) {
+                serviceOrderDto.setConCurrentCoe(conCurrentCoe);
+            }
             serviceOrderDto.setUrgentState(urgentState);
             serviceOrderDto.setDepositUser(isDepositUser != null && "true".equalsIgnoreCase(isDepositUser));
             if (StringUtil.isNotEmpty(subagencyId))

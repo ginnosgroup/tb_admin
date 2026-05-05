@@ -626,7 +626,6 @@ public class ServiceOrderManageController extends BaseController {
                 if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
                     for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                         serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
-                        serviceOrderJsonRequest.setInstallment(serviceOrderDto.getInstallment());
                         serviceOrderJsonRequest.setAdviserId(adviserId);
                         serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
                         serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
@@ -634,6 +633,8 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderJsonRequest.setPaymentVoucherImageUrl3(paymentVoucherImageUrl3);
                         serviceOrderJsonRequest.setPaymentVoucherImageUrl4(paymentVoucherImageUrl4);
                         serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
+                        serviceOrderJsonRequest.setReceiveDate(receiveDate);
+                        serviceOrderJsonRequest.setContractData(contractData);
                         updateServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo);
                     }
                 }
@@ -859,7 +860,7 @@ public class ServiceOrderManageController extends BaseController {
     private void updateServiceOrderForManage(ServiceOrderJsonRequest serviceOrderJsonRequest, AdminUserLoginInfo adminUserLoginInfo) throws ServiceException {
         Integer id = serviceOrderJsonRequest.getId();
         if (id == null || id == 0) {
-            addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
+            addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, true);
         }
 //        Integer manageId = serviceOrderJsonRequest.getManageId();
 //        String type = serviceOrderJsonRequest.getType();
@@ -5624,6 +5625,10 @@ public class ServiceOrderManageController extends BaseController {
 
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
+                ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
+                serviceOrderAndManage.setServiceOrderManageId(manageId);
+                serviceOrderAndManage.setServiceOrderId(addResult);
+                serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                 if (isUpdate) {
                     ServiceOrderAndManage serviceOrderAndManageById = serviceOrderManageService.getServiceOrderAndManageById(serviceOrderDto.getId());
                     if (serviceOrderAndManageById == null) {
@@ -5643,10 +5648,6 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderService.updateServiceOrder(serviceOrderManageDAOServiceOrderById);
                     }
                 }
-                ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
-                serviceOrderAndManage.setServiceOrderManageId(manageId);
-                serviceOrderAndManage.setServiceOrderId(addResult);
-                serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
                 int serviceOrderId = serviceOrderDto.getId();
                 String msg = "";
                 if (adminUserLoginInfo != null)

@@ -329,5 +329,7 @@ public class ServiceOrderDTO {
 
 	private String isCOE;
 
+	private String conCurrentCoe;
+
 	private String zeroScoreOptions; // 不打分评分选项
 }

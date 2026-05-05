@@ -396,7 +396,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         // 保存原顾问id或者文案id
-        ServiceOrderDO serviceOrderById = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+        ServiceOrderDO serviceOrderById = null;
+        serviceOrderById = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+        if (serviceOrderById == null) {
+            serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderDto.getId());
+        }
+        if (serviceOrderById == null) {
+            return 0;
+        }
         ServiceOrderOriginallyDO serviceOrderOriginallyDO = new ServiceOrderOriginallyDO();
         int adviserId = serviceOrderById.getAdviserId();
         int officialId = serviceOrderById.getOfficialId();
@@ -429,7 +436,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         try {
-            ServiceOrderDO _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+            ServiceOrderDO _serviceOrderDo = null;
+            _serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderDto.getId());
+            if (_serviceOrderDo == null) {
+                _serviceOrderDo = serviceOrderManageDAO.getServiceOrderById(serviceOrderDto.getId());
+            }
+            if (_serviceOrderDo == null) {
+                return 0;
+            }
             ServiceOrderDO serviceOrderDo = mapper.map(serviceOrderDto, ServiceOrderDO.class);
             ServiceDO serviceById = serviceDao.getServiceById(serviceOrderDo.getServiceId());
             List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDo.getId());

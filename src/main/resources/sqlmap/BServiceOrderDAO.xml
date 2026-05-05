@@ -92,7 +92,8 @@
                 score_mark,
                 contract_data,
                 eoi_type,
-                is_COE)
+                is_COE,
+                con_current_coe)
             VALUES (
                 now(),
                 now(),
@@ -179,7 +180,8 @@
                 #{scoreMark},
                 #{contractData},
                 #{eoiType},
-                #{isCOE});
+                #{isCOE},
+                #{conCurrentCoe});
     </insert>
 
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
@@ -461,6 +463,9 @@
         <if test='eoiType != null and eoiType != "" '>
             ,eoi_type = #{eoiType}
         </if>
+        <if test='conCurrentCoe != null and conCurrentCoe != "" '>
+            ,con_current_coe = #{conCurrentCoe}
+        </if>
         <if test='isCOE != "" '>
             , is_COE = #{isCOE}
         </if>
@@ -597,7 +602,7 @@
         <if test="isSettle != null">
             AND so.is_settle = #{isSettle}
         </if>
-        <if test="servicePackageId">
+        <if test="servicePackageId != null">
             AND so.service_package_id = #{servicePackageId}
         </if>
         <if test="courseId != null">

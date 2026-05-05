@@ -226,4 +226,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String zeroScoreOptions; // 不打分评分选项
 
+	private String conCurrentCoe;
+
 }
