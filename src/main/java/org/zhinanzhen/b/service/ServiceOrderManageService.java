@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service;
 
+import org.zhinanzhen.b.dao.pojo.ReviewAIDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderAndManage;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -45,5 +46,17 @@ public interface ServiceOrderManageService {
     String deleteServiceOrderById(List<Integer> idList);
 
     ServiceOrderAndManage getServiceOrderAndManageById(int id);
+
+    int addReviewAI(ReviewAIDO reviewAIDo);
+
+    int updateReviewAI(ReviewAIDO reviewAIDo);
+
+    ReviewAIDO getReviewAIById(int id);
+
+    List<ReviewAIDO> listReviewAI(Integer serviceOrderId, Integer adminUserId, int pageNum, int pageSize);
+
+    int countReviewAI(Integer serviceOrderId, Integer adminUserId);
+
+    int deleteReviewAIById(int id);
 
 }

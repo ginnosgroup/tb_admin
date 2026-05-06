@@ -108,6 +108,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
     private AdminUserDAO adminUserDao;
 
     @Resource
+    private ReviewAIDAO reviewAIDAO;
+
+    @Resource
     private ServiceAssessDao serviceAssessDao;
 
     @Resource
@@ -1242,5 +1245,36 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             firstDigit = Character.getNumericValue(firstChar);
         }
         return firstDigit;
+    }
+
+    @Override
+    public int addReviewAI(ReviewAIDO reviewAIDo) {
+        return reviewAIDAO.addReviewAI(reviewAIDo);
+    }
+
+    @Override
+    public int updateReviewAI(ReviewAIDO reviewAIDo) {
+        return reviewAIDAO.updateReviewAI(reviewAIDo);
+    }
+
+    @Override
+    public ReviewAIDO getReviewAIById(int id) {
+        return reviewAIDAO.getReviewAIById(id);
+    }
+
+    @Override
+    public List<ReviewAIDO> listReviewAI(Integer serviceOrderId, Integer adminUserId, int pageNum, int pageSize) {
+        int offset = (pageNum - 1) * pageSize;
+        return reviewAIDAO.listReviewAI(serviceOrderId, adminUserId, offset, pageSize);
+    }
+
+    @Override
+    public int countReviewAI(Integer serviceOrderId, Integer adminUserId) {
+        return reviewAIDAO.countReviewAI(serviceOrderId, adminUserId);
+    }
+
+    @Override
+    public int deleteReviewAIById(int id) {
+        return reviewAIDAO.deleteReviewAIById(id);
     }
 }
