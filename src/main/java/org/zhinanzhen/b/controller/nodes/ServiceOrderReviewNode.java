@@ -9,9 +9,11 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.OfficialController.OfficialWorkStateEnum;
+import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
+import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -37,24 +39,35 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	@Resource
 	RegionService regionService;
 
+	@Resource
+	private ServicePackagePriceService servicePackagePriceService;
+
 	// 文案审核黑名单
 	private static Map<Integer, List<String>> bOfficialReviewPermissions = buildPermissions(
-			"7:1000003,1000036,1000037,1000012,1000043,1000046,1000043;" +
-					"9:1000003,1000036,1000037,1000012,1000043,1000046,1000043;" +
-					"10:1000003,1000036,1000037,1000009,1000012;" +
-					"11:1000003,1000036,1000037,1000011,1000009,1000012,1000043,1000046,1000043;" +
+			"7:1000003,1000036,1000037,1000012,1000043,1000046,1000043,1000239;" +
+					"9:1000003,1000036,1000037,1000012,1000043,1000046,1000043,1000239;" +
+					"10:1000003,1000036,1000037,1000009,1000012,1000239;" +
+					"11:1000003,1000036,1000037,1000011,1000009,1000012,1000043,1000046,1000043,1000239;" +
 					"14:1000003,1000036,1000037,1000011,1000038,1000009,1000012;" +
-					"19:1000003,1000036,1000037,1000009,1000012;" +
-					"1000125:1000003,1000036,1000037,1000009,1000012;" +
+					"19:1000003,1000036,1000037,1000009,1000012,1000239;" +
+					"1000125:1000003,1000036,1000037,1000009,1000012,1000239;" +
 					"1000126:1000003,1000036,1000037,1000009,1000012;" +
-					"1000127:1000003,1000036,1000037,1000009,1000012;" +
+					"1000127:1000003,1000036,1000037,1000009,1000012,1000239;" +
 					"1000131:1000003,1000036,1000037,1000009,1000012;" +
 					"1000106:1000003,1000036,1000037,1000009,1000012;" +
-					"1000014:1000003,1000036,1000037,1000009,1000012;" +
-					"1000052:1000003,1000036,1000037,1000009,1000012" +
-					"1000081:1000043,1000046,1000043;" +
-					"1000115:1000043,1000046,1000043;" +
-					"1000133:1000043,1000046,1000043;" +
+					"1000014:1000003,1000036,1000037,1000009,1000012,1000239;" +
+					"1000052:1000003,1000036,1000037,1000009,1000012,1000239;" +
+					"1000081:1000043,1000046,1000043,1000239;" +
+					"1000115:1000043,1000046,1000043,1000239;" +
+					"1000133:1000043,1000046,1000043,1000239;" +
+					"1000106:1000239;" +
+					"1000145:1000239;" +
+					"1000146:1000239;" +
+					"1000155:1000239;" +
+					"1000156:1000239;" +
+					"1000157:1000239;" +
+					"1000139:1000239;" +
+					"1000140:1000239;" +
 					"1000154:1000043,1000046,1000043;");
 
 	// 文案审核白名单
@@ -129,6 +142,13 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				String officialIdStr = officialDto.getId() + "";
 				List<String> blackList = bOfficialReviewPermissions.get(serviceId);
 				if (ObjectUtil.isNotNull(blackList) && blackList.contains(officialIdStr)) {
+					context.putParameter("response",
+							new Response<ServiceOrderDTO>(1,
+									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
+									serviceOrderDtoT));
+					return null;
+				}
+				if (serviceOrderDtoT.getReceivable() <= 2000.00) {
 					context.putParameter("response",
 							new Response<ServiceOrderDTO>(1,
 									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
