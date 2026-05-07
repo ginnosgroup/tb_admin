@@ -93,4 +93,17 @@
         </where>
     </select>
 
+    <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderInsuranceDO">
+        SELECT
+            id,
+            gmt_create AS GmtCreate,
+            service_order_id AS serviceOrderId,
+            insurance_company_id AS insuranceCompanyId
+        FROM b_service_order_insurance
+        WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

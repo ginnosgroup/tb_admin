@@ -27,6 +27,8 @@ public interface RefundDAO {
 
 	RefundDO getRefundByVisaId(int visaId);
 
+	List<RefundDO> listByVisaIds(@Param("visaIds") List<Integer> visaIds);
+
 	int updateRefund(RefundDO refundDo);
 
 	int deleteRefundById(int id);

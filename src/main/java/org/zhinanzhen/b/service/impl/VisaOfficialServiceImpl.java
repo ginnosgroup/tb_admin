@@ -16,6 +16,7 @@ import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.VisaOfficialService;
@@ -145,96 +146,327 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     @Resource
     private ServiceOrderManageDAO serviceOrderManageDAO;
 
-    public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo) throws ServiceException {
-        VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo);
-        List<ApplicantListDO> applicantListDOS = serviceOrderDao.ApplicantListByServiceOrderId(visaListDo.getServiceOrderId());
-        List<ApplicantDTO> applicantDTOS = new ArrayList<>();
-        for (ApplicantListDO applicantListDO : applicantListDOS) {
-            if (applicantListDO.getApplicantId() > 0) {
-                ApplicantDO applicantDO = applicantDao.getById(applicantListDO.getApplicantId());
-                ApplicantDTO applicantDto = new ApplicantDTO();
-                if (applicantDO!=null){
-                    applicantDto = mapper.map(applicantDO, ApplicantDTO.class);
-                }
-                List<ServiceOrderApplicantDO> serviceOrderApplicantDoList = serviceOrderApplicantDao
-                        .list(visaListDo.getServiceOrderId(), visaListDo.getApplicantId());
-                if (serviceOrderApplicantDoList != null && serviceOrderApplicantDoList.size() > 0
-                        && serviceOrderApplicantDoList.get(0) != null) {
-                    applicantDto.setUrl(serviceOrderApplicantDoList.get(0).getUrl());
-                    applicantDto.setContent(serviceOrderApplicantDoList.get(0).getContent());
-                }
-                applicantDto.setServiceOrderId(applicantListDO.getId());
-                //判断是否提交mm资料
-                if (customerInformationDAO.getByServiceOrderId(applicantListDO.getId()) != null) {
-                    applicantDto.setSubmitMM(true);
-                } else
-                    applicantDto.setSubmitMM(false);
-                applicantDTOS.add(applicantDto);
+    // ========== Batch context for preloaded data ==========
+    @lombok.Data
+    @lombok.NoArgsConstructor
+    static class VisaOfficialBatchContext {
+        Map<Integer, UserDO> userMap = new HashMap<>();
+        Map<Integer, AdviserDO> adviserMap = new HashMap<>();
+        Map<Integer, OfficialDO> officialMap = new HashMap<>();
+        Map<Integer, ReceiveTypeDO> receiveTypeMap = new HashMap<>();
+        Map<Integer, ServiceDO> serviceMap = new HashMap<>();
+        Map<Integer, MaraDO> maraMap = new HashMap<>();
+        Map<Integer, SchoolDO> schoolMap = new HashMap<>();
+        Map<Integer, ApplicantDO> applicantMap = new HashMap<>();
+        Map<Integer, ServiceOrderDO> serviceOrderMap = new HashMap<>();
+        Map<Integer, ServiceAssessDO> serviceAssessMap = new HashMap<>();
+        Map<Integer, ServicePackageDO> servicePackageMap = new HashMap<>();
+        Map<Integer, ServicePackagePriceDO> servicePackagePriceMap = new HashMap<>();
+        Map<Integer, EoiServiceInfo> eoiServiceMap = new HashMap<>();
+        Map<Integer, SchoolCourseDO> schoolCourseMap = new HashMap<>();
+        Map<Integer, SchoolInstitutionDO> schoolInstitutionMap = new HashMap<>();
+        Map<Integer, ServiceOrderAndManage> serviceOrderManageMap = new HashMap<>();
+        Map<Integer, ServiceOrderInsuranceDO> insuranceMap = new HashMap<>();
+        Map<Integer, InsuranceCompanyDO> insuranceCompanyMap = new HashMap<>();
+        Map<Integer, List<RemindDO>> remindMap = new HashMap<>();
+        Map<Integer, List<VisaDO>> visaByServiceOrderIdMap = new HashMap<>();
+        Map<Integer, List<ServiceOrderDO>> childrenByParentIdMap = new HashMap<>();
+        Map<Integer, List<ServiceOrderApplicantDO>> serviceOrderApplicantMap = new HashMap<>();
+        Map<Integer, List<ApplicantListDO>> applicantListMap = new HashMap<>();
+        Map<Integer, CustomerInformationDO> customerInformationMap = new HashMap<>();
+        Map<Integer, List<RefundDO>> refundByVisaIdMap = new HashMap<>();
+        Map<String, List<VisaOfficialDO>> visaOfficialByCodeMap = new HashMap<>();
+        List<String> longTermVisaCodes = new ArrayList<>();
+    }
 
+    @lombok.Data
+    @lombok.AllArgsConstructor
+    static class EoiServiceInfo {
+        private String serviceCode;
+        private ServicePackageDTO servicePackage;
+    }
+
+    private VisaOfficialBatchContext preloadBatchData(List<VisaOfficialListDO> list) {
+        long _startPreload = System.currentTimeMillis();
+        VisaOfficialBatchContext ctx = new VisaOfficialBatchContext();
+        if (list == null || list.isEmpty()) return ctx;
+
+        Set<Integer> serviceOrderIds = new LinkedHashSet<>();
+        Set<Integer> userIds = new LinkedHashSet<>();
+        Set<Integer> adviserIds = new LinkedHashSet<>();
+        Set<Integer> officialIds = new LinkedHashSet<>();
+        Set<Integer> receiveTypeIds = new LinkedHashSet<>();
+        Set<Integer> serviceIds = new LinkedHashSet<>();
+        Set<Integer> maraIds = new LinkedHashSet<>();
+        Set<String> codes = new LinkedHashSet<>();
+        Set<Integer> visaOfficialIds = new LinkedHashSet<>();
+
+        for (VisaOfficialListDO vo : list) {
+            visaOfficialIds.add(vo.getId());
+            serviceOrderIds.add(vo.getServiceOrderId());
+            if (vo.getUserId() > 0) userIds.add(vo.getUserId());
+            if (vo.getAdviserId() > 0) adviserIds.add(vo.getAdviserId());
+            if (vo.getOfficialId() > 0) officialIds.add(vo.getOfficialId());
+            if (vo.getReceiveTypeId() > 0) receiveTypeIds.add(vo.getReceiveTypeId());
+            if (vo.getServiceId() > 0) serviceIds.add(vo.getServiceId());
+            if (vo.getMaraId() > 0) maraIds.add(vo.getMaraId());
+            if (StringUtil.isNotEmpty(vo.getCode())) codes.add(vo.getCode());
+        }
+
+        // Batch-load basic entities
+        long _p0 = System.currentTimeMillis();
+        if (!userIds.isEmpty()) userDao.listByIds(new ArrayList<>(userIds)).forEach(u -> ctx.userMap.put(u.getId(), u));
+        if (!adviserIds.isEmpty()) adviserDao.listByIds(new ArrayList<>(adviserIds)).forEach(a -> ctx.adviserMap.put(a.getId(), a));
+        if (!officialIds.isEmpty()) officialDao.listByIds(new ArrayList<>(officialIds)).forEach(o -> ctx.officialMap.put(o.getId(), o));
+        if (!receiveTypeIds.isEmpty()) receiveTypeDao.listByIds(new ArrayList<>(receiveTypeIds)).forEach(r -> ctx.receiveTypeMap.put(r.getId(), r));
+        if (!serviceIds.isEmpty()) serviceDao.listByIds(new ArrayList<>(serviceIds)).forEach(s -> ctx.serviceMap.put(s.getId(), s));
+        if (!maraIds.isEmpty()) maraDAO.listByIds(new ArrayList<>(maraIds)).forEach(m -> ctx.maraMap.put(m.getId(), m));
+        long _p1 = System.currentTimeMillis();
+
+        // Batch-load ServiceOrderDOs
+        if (!serviceOrderIds.isEmpty()) {
+            List<ServiceOrderDO> orders = serviceOrderDao.listByIds(new ArrayList<>(serviceOrderIds));
+            orders.forEach(o -> ctx.serviceOrderMap.put(o.getId(), o));
+            long _p2a = System.currentTimeMillis();
+
+            Set<Integer> schoolIds = new LinkedHashSet<>();
+            Set<Integer> soServiceIds = new LinkedHashSet<>();
+            Set<Integer> servicePackageIds = new LinkedHashSet<>();
+            Set<Integer> soReceiveTypeIds = new LinkedHashSet<>();
+            Set<Integer> soUserIds = new LinkedHashSet<>();
+            Set<Integer> applicantIds = new LinkedHashSet<>();
+            Set<Integer> soMaraIds = new LinkedHashSet<>();
+            Set<Integer> soAdviserIds = new LinkedHashSet<>();
+            Set<Integer> soOfficialIds = new LinkedHashSet<>();
+            Set<Integer> courseIds = new LinkedHashSet<>();
+            Set<Integer> serviceAssessIdInts = new LinkedHashSet<>();
+            Set<Integer> parentIds = new LinkedHashSet<>();
+            Set<Integer> applicantParentIds = new LinkedHashSet<>();
+
+            for (ServiceOrderDO so : orders) {
+                if (so.getSchoolId() > 0) schoolIds.add(so.getSchoolId());
+                if (so.getServiceId() > 0) soServiceIds.add(so.getServiceId());
+                if (so.getServicePackageId() > 0) servicePackageIds.add(so.getServicePackageId());
+                if (so.getReceiveTypeId() > 0) soReceiveTypeIds.add(so.getReceiveTypeId());
+                if (so.getUserId() > 0) soUserIds.add(so.getUserId());
+                if (so.getApplicantId() > 0) applicantIds.add(so.getApplicantId());
+                if (so.getMaraId() > 0) soMaraIds.add(so.getMaraId());
+                if (so.getAdviserId() > 0) soAdviserIds.add(so.getAdviserId());
+                if (so.getOfficialId() > 0) soOfficialIds.add(so.getOfficialId());
+                if (so.getCourseId() > 0) courseIds.add(so.getCourseId());
+                if (so.getServiceAssessId() != null && !"0".equals(so.getServiceAssessId())) {
+                    try { serviceAssessIdInts.add(Integer.parseInt(so.getServiceAssessId())); } catch (NumberFormatException ignored) {}
+                }
+                if (so.getParentId() > 0) parentIds.add(so.getParentId());
+                if (so.getApplicantParentId() > 0) applicantParentIds.add(so.getApplicantParentId());
             }
 
+            // Batch-load remaining entities from ServiceOrder
+            if (!schoolIds.isEmpty()) schoolDAO.listByIds(new ArrayList<>(schoolIds)).forEach(s -> ctx.schoolMap.put(s.getId(), s));
+            if (!soServiceIds.isEmpty()) serviceDao.listByIds(new ArrayList<>(soServiceIds)).forEach(s -> ctx.serviceMap.put(s.getId(), s));
+            if (!servicePackageIds.isEmpty()) servicePackageDAO.listByIds(new ArrayList<>(servicePackageIds)).forEach(s -> ctx.servicePackageMap.put(s.getId(), s));
+            if (!soReceiveTypeIds.isEmpty()) receiveTypeDao.listByIds(new ArrayList<>(soReceiveTypeIds)).forEach(r -> ctx.receiveTypeMap.put(r.getId(), r));
+            if (!soUserIds.isEmpty()) userDao.listByIds(new ArrayList<>(soUserIds)).forEach(u -> ctx.userMap.put(u.getId(), u));
+            if (!applicantIds.isEmpty()) applicantDao.listByIds(new ArrayList<>(applicantIds)).forEach(a -> ctx.applicantMap.put(a.getId(), a));
+            if (!soMaraIds.isEmpty()) maraDAO.listByIds(new ArrayList<>(soMaraIds)).forEach(m -> ctx.maraMap.put(m.getId(), m));
+            if (!soAdviserIds.isEmpty()) adviserDao.listByIds(new ArrayList<>(soAdviserIds)).forEach(a -> ctx.adviserMap.put(a.getId(), a));
+            if (!soOfficialIds.isEmpty()) officialDao.listByIds(new ArrayList<>(soOfficialIds)).forEach(o -> ctx.officialMap.put(o.getId(), o));
+            if (!courseIds.isEmpty()) schoolCourseDAO.listByIds(new ArrayList<>(courseIds)).forEach(sc -> ctx.schoolCourseMap.put(sc.getId(), sc));
+            if (!serviceAssessIdInts.isEmpty()) {
+                List<String> ids = serviceAssessIdInts.stream().map(String::valueOf).collect(Collectors.toList());
+                serviceAssessDao.listByIds(ids).forEach(sa -> ctx.serviceAssessMap.put(sa.getId(), sa));
+            }
+            if (!serviceOrderIds.isEmpty()) {
+                serviceOrderManageDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds)).forEach(m -> ctx.serviceOrderManageMap.put(m.getServiceOrderId(), m));
+                List<ServiceOrderInsuranceDO> insuranceList = insuranceCompanyDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                for (ServiceOrderInsuranceDO ins : insuranceList) ctx.insuranceMap.put(ins.getServiceOrderId(), ins);
+                visaDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds)).forEach(v -> {
+                    ctx.visaByServiceOrderIdMap.computeIfAbsent(v.getServiceOrderId(), k -> new ArrayList<>()).add(v);
+                });
+                customerInformationDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds)).forEach(ci -> ctx.customerInformationMap.put(ci.getServiceOrderId(), ci));
+                serviceOrderApplicantDao.listByServiceOrderIds(new ArrayList<>(serviceOrderIds)).forEach(soa -> {
+                    ctx.serviceOrderApplicantMap.computeIfAbsent(soa.getServiceOrderId(), k -> new ArrayList<>()).add(soa);
+                });
+            }
+            // Batch-load servicePackagePrices by service IDs from both main list and service orders
+            Set<Integer> allSvcIdsForPrice = new LinkedHashSet<>();
+            allSvcIdsForPrice.addAll(serviceIds);
+            allSvcIdsForPrice.addAll(soServiceIds);
+            // Load children orders and collect their IDs for price lookups
+            if (!parentIds.isEmpty()) {
+                serviceOrderDao.listByParentIds(new ArrayList<>(parentIds)).forEach(child -> {
+                    ctx.childrenByParentIdMap.computeIfAbsent(child.getParentId(), k -> new ArrayList<>()).add(child);
+                    if (child.getServiceId() > 0) allSvcIdsForPrice.add(child.getServiceId());
+                    if (child.getServicePackageId() > 0) allSvcIdsForPrice.add(child.getServicePackageId());
+                });
+            }
+            if (!allSvcIdsForPrice.isEmpty()) {
+                servicePackagePriceDAO.listByServiceIds(new ArrayList<>(allSvcIdsForPrice)).forEach(p -> ctx.servicePackagePriceMap.put(p.getServiceId(), p));
+            }
+            long _p2b = System.currentTimeMillis();
+
+            // Load insurance companies
+            Set<Integer> insCompanyIds = new LinkedHashSet<>();
+            for (ServiceOrderInsuranceDO ins : ctx.insuranceMap.values()) {
+                if (ins.getInsuranceCompanyId() > 0) insCompanyIds.add(ins.getInsuranceCompanyId());
+            }
+            if (!insCompanyIds.isEmpty()) {
+                long _p_ic = System.currentTimeMillis();
+                for (Integer icId : insCompanyIds) {
+                    List<InsuranceCompanyDO> icList = insuranceCompanyDAO.list(icId, true, 0, 1);
+                    if (icList != null && !icList.isEmpty()) ctx.insuranceCompanyMap.put(icId, icList.get(0));
+                }
+            }
+
+            // Load school institutions from courses
+            Set<Integer> institutionIds = new LinkedHashSet<>();
+            for (SchoolCourseDO sc : ctx.schoolCourseMap.values()) {
+                institutionIds.add(sc.getProviderId());
+            }
+            if (!institutionIds.isEmpty()) {
+                schoolInstitutionDAO.listByIds(new ArrayList<>(institutionIds)).forEach(si -> ctx.schoolInstitutionMap.put(si.getId(), si));
+            }
+
+            // Load applicant lists
+            long _p_al = System.currentTimeMillis();
+            for (Integer soId : serviceOrderIds) {
+                List<ApplicantListDO> al = serviceOrderDao.ApplicantListByServiceOrderId(soId);
+                if (al != null && !al.isEmpty()) ctx.applicantListMap.put(soId, al);
+            }
+        }
+        long _p2 = System.currentTimeMillis();
+
+        // Batch-load visa official by codes
+        long _p3 = System.currentTimeMillis();
+        if (!codes.isEmpty()) {
+            visaOfficialDao.listByCodes(new ArrayList<>(codes)).forEach(vo -> {
+                ctx.visaOfficialByCodeMap.computeIfAbsent(vo.getCode(), k -> new ArrayList<>()).add(vo);
+            });
+        }
+
+        // Batch-load reminds
+        long _p4 = System.currentTimeMillis();
+        if (!visaOfficialIds.isEmpty()) {
+            remindDao.listByVisaOfficialIds(new ArrayList<>(visaOfficialIds), AbleStateEnum.ENABLED.toString()).forEach(r -> {
+                ctx.remindMap.computeIfAbsent(r.getVisaId(), k -> new ArrayList<>()).add(r);
+            });
+        }
+
+        // Batch-load refunds for all visaIds from visaByServiceOrderIdMap
+        Set<Integer> allVisaIds = new LinkedHashSet<>();
+        for (List<VisaDO> visas : ctx.visaByServiceOrderIdMap.values()) {
+            for (VisaDO v : visas) allVisaIds.add(v.getId());
+        }
+        // Also add visaOfficialIds themselves (used as visa_id in refund table)
+        allVisaIds.addAll(visaOfficialIds);
+        long _p5 = System.currentTimeMillis();
+        if (!allVisaIds.isEmpty()) {
+            refundDAO.listByVisaIds(new ArrayList<>(allVisaIds)).forEach(r -> {
+                ctx.refundByVisaIdMap.computeIfAbsent(r.getVisaId(), k -> new ArrayList<>()).add(r);
+            });
+        }
+
+        // Load long-term visa codes
+        long _p6 = System.currentTimeMillis();
+        ctx.longTermVisaCodes = serviceDao.listLongTimeVisa();
+
+        return ctx;
+    }
+
+    public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialListDO visaListDo, VisaOfficialBatchContext ctx) throws ServiceException {
+        VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO((VisaOfficialDO) visaListDo, ctx);
+        List<ApplicantListDO> applicantListDOS = ctx.applicantListMap.get(visaListDo.getServiceOrderId());
+        List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+        if (applicantListDOS != null) {
+            for (ApplicantListDO applicantListDO : applicantListDOS) {
+                if (applicantListDO.getApplicantId() > 0) {
+                    ApplicantDO applicantDO = ctx.applicantMap.get(applicantListDO.getApplicantId());
+                    ApplicantDTO applicantDto = new ApplicantDTO();
+                    if (applicantDO != null) {
+                        applicantDto = mapper.map(applicantDO, ApplicantDTO.class);
+                    }
+                    List<ServiceOrderApplicantDO> soaList = ctx.serviceOrderApplicantMap.get(visaListDo.getServiceOrderId());
+                    if (soaList != null) {
+                        for (ServiceOrderApplicantDO soa : soaList) {
+                            if (Objects.equals(soa.getApplicantId(), applicantListDO.getApplicantId())) {
+                                applicantDto.setUrl(soa.getUrl());
+                                applicantDto.setContent(soa.getContent());
+                                break;
+                            }
+                        }
+                    }
+                    applicantDto.setServiceOrderId(applicantListDO.getId());
+                    applicantDto.setSubmitMM(ctx.customerInformationMap.get(applicantListDO.getId()) != null);
+                    applicantDTOS.add(applicantDto);
+                }
+            }
         }
         visaOfficialDto.setApplicant(applicantDTOS);
         visaOfficialDto.setApplicantId(visaListDo.getApplicantId());
         return visaOfficialDto;
     }
 
-    public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialDO visaListDo) throws ServiceException {
+    public VisaOfficialDTO putVisaOfficialDTO(VisaOfficialDO visaListDo, VisaOfficialBatchContext ctx) throws ServiceException {
         VisaOfficialDTO visaOfficialDto = mapper.map(visaListDo, VisaOfficialDTO.class);
         if (visaOfficialDto.getUserId() > 0) {
-            UserDO userDo = userDao.getUserById(visaOfficialDto.getUserId());
-            visaOfficialDto.setUserName(userDo.getName());
-            visaOfficialDto.setPhone(userDo.getPhone());
-            visaOfficialDto.setBirthday(userDo.getBirthday());
-            visaOfficialDto.setUser(mapper.map(userDo, UserDTO.class));
+            UserDO userDo = ctx.userMap.get(visaOfficialDto.getUserId());
+            if (userDo != null) {
+                visaOfficialDto.setUserName(userDo.getName());
+                visaOfficialDto.setPhone(userDo.getPhone());
+                visaOfficialDto.setBirthday(userDo.getBirthday());
+                visaOfficialDto.setUser(mapper.map(userDo, UserDTO.class));
+            }
         }
-        AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
+        AdviserDO adviserDo = ctx.adviserMap.get(visaListDo.getAdviserId());
         if (adviserDo != null) {
             visaOfficialDto.setAdviserName(adviserDo.getName());
         }
-        OfficialDO officialDo = officialDao.getOfficialById(visaListDo.getOfficialId());
+        OfficialDO officialDo = ctx.officialMap.get(visaListDo.getOfficialId());
         if (officialDo != null) {
             visaOfficialDto.setOfficialName(officialDo.getName());
         }
-        ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visaListDo.getReceiveTypeId());
+        ReceiveTypeDO receiveTypeDo = ctx.receiveTypeMap.get(visaListDo.getReceiveTypeId());
         if (receiveTypeDo != null) {
             visaOfficialDto.setReceiveTypeName(receiveTypeDo.getName());
         }
-        ServiceDO serviceDo = serviceDao.getServiceById(visaListDo.getServiceId());
+        ServiceDO serviceDo = ctx.serviceMap.get(visaListDo.getServiceId());
         if (serviceDo != null) {
             visaOfficialDto.setServiceCode(serviceDo.getCode());
         }
-        List<VisaOfficialDO> list = visaOfficialDao.listVisaByCode(visaOfficialDto.getCode());
-        if (list != null) {
+        List<VisaOfficialDO> codeList = ctx.visaOfficialByCodeMap.get(visaOfficialDto.getCode());
+        if (codeList != null) {
             boolean longTermVisa = false;
-            List<String> arrayList = serviceDao.listLongTimeVisa();
-            String serviceType = serviceDao.getServiceById(visaOfficialDto.getServiceId()).getCode();
-            if (arrayList.contains(serviceType)) {
+            ServiceDO svc = ctx.serviceMap.get(visaOfficialDto.getServiceId());
+            if (svc != null && ctx.longTermVisaCodes.contains(svc.getCode())) {
                 longTermVisa = true;
             }
             double totalPerAmount = 0.00;
             double totalAmount = 0.00;
-            for (VisaOfficialDO visaOfficialDo : list) {
+            for (VisaOfficialDO vo : codeList) {
                 if (longTermVisa) {
-                    totalPerAmount = visaOfficialDo.getPerAmount();
+                    totalPerAmount = vo.getPerAmount();
                 } else {
-                    totalPerAmount += visaOfficialDo.getPerAmount();
+                    totalPerAmount += vo.getPerAmount();
                 }
-                if (visaOfficialDo.getPaymentVoucherImageUrl1() != null || visaOfficialDo.getPaymentVoucherImageUrl2() != null
-                        || visaOfficialDo.getPaymentVoucherImageUrl3() != null
-                        || visaOfficialDo.getPaymentVoucherImageUrl4() != null
-                        || visaOfficialDo.getPaymentVoucherImageUrl5() != null)
-                    totalAmount += visaOfficialDo.getAmount();
+                if (vo.getPaymentVoucherImageUrl1() != null || vo.getPaymentVoucherImageUrl2() != null
+                        || vo.getPaymentVoucherImageUrl3() != null || vo.getPaymentVoucherImageUrl4() != null
+                        || vo.getPaymentVoucherImageUrl5() != null)
+                    totalAmount += vo.getAmount();
             }
             visaOfficialDto.setTotalPerAmount(totalPerAmount);
             visaOfficialDto.setTotalAmount(totalAmount);
         }
 
-        // 是否退款
-        RefundDO refundDo = refundDao.getRefundByVisaId(visaListDo.getId());
-        visaOfficialDto.setRefunded(refundDo != null && StringUtil.equals("PAID", refundDo.getState()));
+        List<RefundDO> refunds = ctx.refundByVisaIdMap.get(visaListDo.getId());
+        if (refunds != null) {
+            for (RefundDO r : refunds) {
+                if (StringUtil.equals("PAID", r.getState())) {
+                    visaOfficialDto.setRefunded(true);
+                    break;
+                }
+            }
+        }
 
-        // 汇率币种计算金额
         Double exchangeRate = visaOfficialDto.getExchangeRate();
         if ("AUD".equalsIgnoreCase(visaOfficialDto.getCurrency())) {
             visaOfficialDto.setAmountAUD(visaOfficialDto.getAmount());
@@ -1422,173 +1654,172 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         if ("ALL".equalsIgnoreCase(currency)) {
             currency = null;
         }
+		long _t0_main = System.currentTimeMillis();
 		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
 				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
 				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), theDateTo00_00_00(firstSettlementMonth), theDateTo23_59_59(lastSettlementMonth), userName, applicantName, isMerged, offset,
 				pageSize, orderBy, serviceOrderType, null, currency);
+		long _t1_main = System.currentTimeMillis();
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
         if (list == null || list.size() == 0) {
             return null;
         }
-        CountDownLatch latch = new CountDownLatch(list.size()); // 等待两个线程完成
+        // 批量预加载所有关联数据
+        VisaOfficialBatchContext ctx = preloadBatchData(list);
+        long _t2_preload = System.currentTimeMillis();
+        long _t3_loop = System.currentTimeMillis();
+        int _n1_deriveOrder = 0, _n1_eoiService = 0, _n1_ziOrder = 0;
         for (VisaOfficialListDO visaListDo : list) {
-            ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
-            executor.submit(() -> {
-                try {
-                    // 线程1的任务
-                    VisaOfficialDTO visaOfficialDto = null;
-                    visaOfficialDto = putVisaOfficialDTO(visaListDo);
+            try {
+                VisaOfficialDTO visaOfficialDto = putVisaOfficialDTO(visaListDo, ctx);
 
-                    List<Date> remindDateList = new ArrayList<>();
-                    List<RemindDO> remindDoList = remindDao.listRemindByVisaOfficialId(visaOfficialDto.getId(), officialId,AbleStateEnum.ENABLED.toString());
-                    ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(visaOfficialDto.getServiceOrderId());
-                    ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
-                    ServiceDO serviceDo = serviceDao.getServiceById(serviceOrderDO.getServiceId());
+                List<Date> remindDateList = new ArrayList<>();
+                List<RemindDO> remindDoList = ctx.remindMap.get(visaOfficialDto.getId());
+                if (remindDoList != null) {
+                    for (RemindDO remindDo : remindDoList) {
+                        remindDateList.add(remindDo.getRemindDate());
+                    }
+                }
+                visaOfficialDto.setRemindDateList(remindDateList);
+
+                ServiceOrderDO serviceOrderDO = ctx.serviceOrderMap.get(visaOfficialDto.getServiceOrderId());
+                ServiceOrderDTO serviceOrderDto = null;
+                if (serviceOrderDO != null) {
+                    serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+                    ServiceDO serviceDo = ctx.serviceMap.get(serviceOrderDO.getServiceId());
                     if (serviceDo != null) {
                         serviceOrderDto.setService(mapper.map(serviceDo, ServiceDTO.class));
                     }
-                    // 查询职业名称
-                    if (serviceOrderDto.getServiceAssessId() != null) {
-                        ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDto.getServiceAssessId());
-                        if (serviceAssessDO != null)
-                            serviceOrderDto.setServiceAssessDO(serviceAssessDO);
+                    if (serviceOrderDto.getServiceAssessId() != null && !"0".equals(serviceOrderDto.getServiceAssessId())) {
+                        try {
+                            Integer saId = Integer.parseInt(serviceOrderDto.getServiceAssessId());
+                            ServiceAssessDO sa = ctx.serviceAssessMap.get(saId);
+                            if (sa != null) serviceOrderDto.setServiceAssessDO(sa);
+                        } catch (NumberFormatException ignored) {}
                     }
-                    // 查询服务包类型
                     if (serviceOrderDto.getServicePackageId() > 0) {
-                        ServicePackageDO servicePackageDAOById = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
-                        if ("EOI".equals(servicePackageDAOById.getType())) {
-
-                            // 主订单配置EOI子订单code集合
+                        ServicePackageDO sp = ctx.servicePackageMap.get(serviceOrderDto.getServicePackageId());
+                        if (sp != null && "EOI".equals(sp.getType())) {
                             if (serviceOrderDto.getServicePackageId() == 0) {
                                 StringBuilder eoiList = new StringBuilder();
+                                _n1_deriveOrder++;
                                 List<ServiceOrderDTO> deriveOrder = serviceOrderDao.getDeriveOrder(serviceOrderDto.getId());
                                 if (deriveOrder != null && deriveOrder.size() > 0) {
                                     for (ServiceOrderDTO e : deriveOrder) {
+                                        _n1_eoiService++;
                                         ServicePackageDTO eoiService = servicePackageDAO.getEOIService(e.getServicePackageId());
                                         eoiList.append(eoiService.getServiceCode()).append(",");
                                     }
                                 }
-                                serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
+                                if (eoiList.length() > 0)
+                                    serviceOrderDto.setEoiList(eoiList.substring(0, eoiList.length() - 1));
                             }
-
-                            ServicePackageDTO servicePackageDTO = servicePackageDAO.getEOIService(serviceOrderDto.getServicePackageId());
-                            if (ObjectUtil.isNotNull(servicePackageDTO)) {
-                                serviceOrderDto.setServicePackage(servicePackageDTO);
-                            }
+                            _n1_eoiService++;
+                            ServicePackageDTO eoiSp = servicePackageDAO.getEOIService(serviceOrderDto.getServicePackageId());
+                            if (ObjectUtil.isNotNull(eoiSp)) serviceOrderDto.setServicePackage(eoiSp);
                         } else {
-                            ServicePackageDO servicePackageDo = servicePackageDAO.getById(serviceOrderDto.getServicePackageId());
-                            if (servicePackageDo != null)
-                                serviceOrderDto.setServicePackage(mapper.map(servicePackageDo, ServicePackageDTO.class));
+                            if (sp != null)
+                                serviceOrderDto.setServicePackage(mapper.map(sp, ServicePackageDTO.class));
                         }
                     }
-                    // 查询学校信息
                     if (serviceOrderDto.getSchoolId() > 0) {
-                        SchoolDO schoolById = schoolDAO.getSchoolById(serviceOrderDto.getSchoolId());
-                        serviceOrderDto.setSchool(mapper.map(schoolById, SchoolDTO.class));
+                        SchoolDO school = ctx.schoolMap.get(serviceOrderDto.getSchoolId());
+                        if (school != null) serviceOrderDto.setSchool(mapper.map(school, SchoolDTO.class));
                     }
                     if (serviceOrderDto.getCourseId() > 0) {
-                        SchoolInstitutionListDTO schoolInstitutionInfoByCourseId = schoolCourseDAO.getSchoolInstitutionInfoByCourseId(serviceOrderDto.getCourseId());
-                        serviceOrderDto.setSchoolInstitutionListDTO(schoolInstitutionInfoByCourseId);
+                        SchoolCourseDO sc = ctx.schoolCourseMap.get(serviceOrderDto.getCourseId());
+                        if (sc != null) {
+                            SchoolInstitutionListDTO silDto = new SchoolInstitutionListDTO();
+                            SchoolInstitutionDO si = ctx.schoolInstitutionMap.get(sc.getProviderId());
+                            if (si != null) {
+                                silDto.setId(si.getId());
+                                silDto.setName(si.getName());
+                            }
+                            serviceOrderDto.setSchoolInstitutionListDTO(silDto);
+                        }
                     }
                     if ("1".equals(serviceOrderDto.getIsInsuranceCompany())) {
-                        ServiceOrderInsuranceDO serviceOrderInsuranceDO = insuranceCompanyDAO.listServiceOrderInsuranceDOByServiceOrderId(serviceOrderDto.getId());
-                        List<InsuranceCompanyDO> insuranceCompanyDOS = insuranceCompanyDAO.list(serviceOrderInsuranceDO.getInsuranceCompanyId(), true, 0, 1);
-                        if (insuranceCompanyDOS != null && insuranceCompanyDOS.size() > 0) {
-                            serviceOrderDto.setInsuranceCompanyDO(insuranceCompanyDOS.get(0));
+                        ServiceOrderInsuranceDO ins = ctx.insuranceMap.get(serviceOrderDto.getId());
+                        if (ins != null) {
+                            InsuranceCompanyDO ic = ctx.insuranceCompanyMap.get(ins.getInsuranceCompanyId());
+                            if (ic != null) serviceOrderDto.setInsuranceCompanyDO(ic);
                         }
                     }
-
                     visaOfficialDto.setServiceOrder(serviceOrderDto);
-                    ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(visaOfficialDto.getServiceId());
-                    if(servicePackagePriceDO!=null) {
-                        visaOfficialDto.setServicePackagePriceDO(servicePackagePriceDO);
-                    }
-                    MaraDO mara = maraDAO.getMaraById(visaOfficialDto.getMaraId());
-                    if (mara != null) {
-                        visaOfficialDto.setMaraDTO(mapper.map(mara, MaraDTO.class));
-                    }
-                    for (RemindDO remindDo : remindDoList) {
-                        remindDateList.add(remindDo.getRemindDate());
-                    }
-                    visaOfficialDto.setRemindDateList(remindDateList);
-                    // 计算EOI数量及排序
-                    if (serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
-                        List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
-                        List<ServiceOrderDTO> collect = ziOrder.stream().filter(ServiceOrderDTO -> ServiceOrderDTO.getEOINumber() != null).collect(Collectors.toList());
-                        visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
-                    }
-                    // 查询父订单id
-                    Integer parentIdNew = serviceOrderManageDAO.getserviceorderManageIdByServiceorderId(visaOfficialDto.getServiceOrderId());
-                    if (parentIdNew != null) {
-                        visaOfficialDto.setParentIdNew(parentIdNew);
-                    }
-                    // 查询当前订单退款金额以及绑定订单金额
-                    visaOfficialDto.setRefundAmount(0.00);
-                    visaOfficialDto.setBingDingAmount(0.00);
-                    if (serviceOrderDto.getApplicantParentId() > 0) {
-                        ServiceOrderDO parentOrder = serviceOrderDao.getServiceOrderById(serviceOrderDto.getApplicantParentId());
-                        List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(parentOrder.getId());
-                        if (visaDOS != null && !visaDOS.isEmpty()) {
-                            for (VisaDO visaDO : visaDOS) {
-                                RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
-                                if (refundDO != null) {
-                                    visaOfficialDto.setRefundAmount(visaOfficialDto.getRefundAmount() + refundDO.getAmount());
-                                }
-                            }
-                        }
-                        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
-                                null, null, null, null, null, null,
-                                null, null, null, null, null,
-                                null, null, null, null, null, null, null, null, null,
-                                null, null, null, null, null, null, null,
-                                null, null, parentOrder.getId(), 0, 20, null, null, null, null, null, null, false);
-                        if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
-                            for (ServiceOrderDO orderDO : serviceOrderDOS) {
-                                ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServiceId());
-                                if (byServiceId!= null) {
-                                    Double bingDingAmount = visaOfficialDto.getBingDingAmount();
-                                    visaOfficialDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
-                                }
-                            }
-                        }
-                    } else {
-                        List<VisaDO> visaDOS = visaDAO.listVisaByServiceOrderId(serviceOrderDO.getId());
-                        if (visaDOS != null && !visaDOS.isEmpty()) {
-                            for (VisaDO visaDO : visaDOS) {
-                                RefundDO refundDO = refundDAO.getRefundByVisaId(visaDO.getId());
-                                if (refundDO != null) {
-                                    visaOfficialDto.setRefundAmount(refundDO.getAmount());
-                                }
-                            }
-                        }
-                        List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(null, null, null, null, null,
-                                null, null, null, null, null, null,
-                                null, null, null, null, null,
-                                null, null, null, null, null, null, null, null, null,
-                                null, null, null, null, null, null, null,
-                                null, null, visaOfficialDto.getServiceOrderId(), 0, 20, null, null, null ,null, null, null, false);
-                        if (serviceOrderDOS != null && !serviceOrderDOS.isEmpty()) {
-                            for (ServiceOrderDO orderDO : serviceOrderDOS) {
-                                ServicePackagePriceDO byServiceId = servicePackagePriceDAO.getByServiceId(orderDO.getServicePackageId());
-                                if (byServiceId!= null) {
-                                    Double bingDingAmount = visaOfficialDto.getBingDingAmount();
-                                    visaOfficialDto.setBingDingAmount(bingDingAmount + byServiceId.getCostPrince());
-                                }
-                            }
-                        }
-                    }
-                    visaOfficialDtoList.add(visaOfficialDto);
-                    // 只有在成功执行了任务后才减少计数器
-                    latch.countDown(); // 完成任务，计数器减一
-                } catch (Exception e) {
-                    // 处理异常，例如记录日志
-                    e.printStackTrace();
-                    // 尽管出错，也应减少计数器以避免死锁
-                    latch.countDown();
                 }
-            });
+
+                ServicePackagePriceDO spp = ctx.servicePackagePriceMap.get(visaOfficialDto.getServiceId());
+                if (spp != null) visaOfficialDto.setServicePackagePriceDO(spp);
+
+                MaraDO mara = ctx.maraMap.get(visaOfficialDto.getMaraId());
+                if (mara != null) visaOfficialDto.setMaraDTO(mapper.map(mara, MaraDTO.class));
+
+                if (serviceOrderDto != null && serviceOrderDto.getEOINumber() != null && serviceOrderDto.getApplicantParentId() > 0) {
+                    _n1_ziOrder++;
+                    List<ServiceOrderDTO> ziOrder = serviceOrderDao.getZiOrder(serviceOrderDto.getApplicantParentId());
+                    List<ServiceOrderDTO> collect = ziOrder.stream().filter(s -> s.getEOINumber() != null).collect(Collectors.toList());
+                    visaOfficialDto.setSortEOI(serviceOrderDto.getEOINumber() + "/" + collect.size());
+                }
+
+                ServiceOrderAndManage som = ctx.serviceOrderManageMap.get(visaOfficialDto.getServiceOrderId());
+                if (som != null && som.getServiceOrderManageId() != null) {
+                    visaOfficialDto.setParentIdNew(som.getServiceOrderManageId());
+                }
+
+                visaOfficialDto.setRefundAmount(0.00);
+                visaOfficialDto.setBingDingAmount(0.00);
+                if (serviceOrderDto != null && serviceOrderDto.getApplicantParentId() > 0) {
+                    ServiceOrderDO parentOrder = ctx.serviceOrderMap.get(serviceOrderDto.getApplicantParentId());
+                    if (parentOrder != null) {
+                        List<VisaDO> visas = ctx.visaByServiceOrderIdMap.get(parentOrder.getId());
+                        if (visas != null) {
+                            for (VisaDO v : visas) {
+                                List<RefundDO> refunds = ctx.refundByVisaIdMap.get(v.getId());
+                                if (refunds != null) {
+                                    for (RefundDO r : refunds) {
+                                        visaOfficialDto.setRefundAmount(visaOfficialDto.getRefundAmount() + r.getAmount());
+                                    }
+                                }
+                            }
+                        }
+                        List<ServiceOrderDO> children = ctx.childrenByParentIdMap.get(parentOrder.getId());
+                        if (children != null) {
+                            for (ServiceOrderDO child : children) {
+                                ServicePackagePriceDO childSpp = ctx.servicePackagePriceMap.get(child.getServiceId());
+                                if (childSpp != null) {
+                                    visaOfficialDto.setBingDingAmount(visaOfficialDto.getBingDingAmount() + childSpp.getCostPrince());
+                                }
+                            }
+                        }
+                    }
+                } else if (serviceOrderDO != null) {
+                    List<VisaDO> visas = ctx.visaByServiceOrderIdMap.get(serviceOrderDO.getId());
+                    if (visas != null) {
+                        for (VisaDO v : visas) {
+                            List<RefundDO> refunds = ctx.refundByVisaIdMap.get(v.getId());
+                            if (refunds != null) {
+                                for (RefundDO r : refunds) {
+                                    visaOfficialDto.setRefundAmount(r.getAmount());
+                                }
+                            }
+                        }
+                    }
+                    List<ServiceOrderDO> children = ctx.childrenByParentIdMap.get(visaOfficialDto.getServiceOrderId());
+                    if (children != null) {
+                        for (ServiceOrderDO child : children) {
+                            ServicePackagePriceDO childSpp = ctx.servicePackagePriceMap.get(child.getServicePackageId());
+                            if (childSpp != null) {
+                                visaOfficialDto.setBingDingAmount(visaOfficialDto.getBingDingAmount() + childSpp.getCostPrince());
+                            }
+                        }
+                    }
+                }
+
+                visaOfficialDtoList.add(visaOfficialDto);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        latch.await();
         return visaOfficialDtoList.stream().sorted(Comparator.comparing(VisaOfficialDTO::getId).reversed()).collect(Collectors.toList());
     }
     
