@@ -4381,7 +4381,7 @@ public class ServiceOrderManageController extends BaseController {
             List<JSONObject> messages = new ArrayList<>();
             JSONObject userMsg = new JSONObject();
             userMsg.put("role", "user");
-            userMsg.put("content", question + "\n" + fileContent);
+            userMsg.put("content", question + ",请用200字左右回复，并且在最后一行反馈结果，如果通过就显示：初审通过；不通过就显示：初审不通过。" + "\n" + fileContent);
 
             messages.add(userMsg);
             parm.put("messages", messages);
