@@ -118,6 +118,26 @@
         ORDER BY r.remind_date DESC;
     </select>
 
+    <select id="listByVisaOfficialIds" resultType="org.zhinanzhen.b.dao.pojo.RemindDO">
+        SELECT
+            r.id,
+            r.gmt_create AS gmtCreate,
+            r.gmt_modify AS gmtModify,
+            r.visa_id AS visaId,
+            r.school_brokerage_sa_id AS schoolBrokerageSaId,
+            r.remind_date AS remindDate,
+            r.state
+        FROM b_remind r
+        WHERE r.visa_id IN
+        <foreach collection="visaOfficialIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        <if test='state != null and state != ""'>
+            AND r.state = #{state}
+        </if>
+        ORDER BY r.remind_date DESC;
+    </select>
+
     <update id="updateStateById" parameterType="org.zhinanzhen.b.dao.pojo.RemindDO">
 		UPDATE b_remind
 		SET gmt_modify = now()

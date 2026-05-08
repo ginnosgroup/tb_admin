@@ -19,6 +19,8 @@ public interface RemindDAO {
 	public List<RemindDO> listRemindByVisaOfficialId(@Param("visaId") int visaId, @Param("adviserId") Integer adviserId,
 											 @Param("state") String state);
 
+	List<RemindDO> listByVisaOfficialIds(@Param("visaOfficialIds") List<Integer> visaOfficialIds, @Param("state") String state);
+
 	public List<RemindDO> listRemindByBrokerageSaId(@Param("brokerageSaId") int brokerageSaId,
 			@Param("adviserId") Integer adviserId, @Param("state") String state);
 

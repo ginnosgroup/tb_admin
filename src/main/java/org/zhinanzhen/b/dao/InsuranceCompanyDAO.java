@@ -19,4 +19,6 @@ public interface InsuranceCompanyDAO {
     Integer addSserviceOrderInsurance(@Param("serviceOrderId") Integer serviceOrderId, @Param("insuranceCompanyId") Integer insuranceCompanyId);
 
     ServiceOrderInsuranceDO listServiceOrderInsuranceDOByServiceOrderId(Integer serviceOrderId);
+
+    List<ServiceOrderInsuranceDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
 }

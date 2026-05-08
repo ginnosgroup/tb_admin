@@ -58,12 +58,16 @@ import org.zhinanzhen.tb.service.pojo.RegionDTO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -154,6 +158,9 @@ public class ServiceOrderManageController extends BaseController {
     private ServiceDAO serviceDAO;
     @Autowired
     private ServiceOrderManageService serviceOrderManageService;
+
+    @Value("${deepseek.APIKEY}")
+    private String DEEPSEEK_API_KEY;
 
     public enum ReviewAdviserStateEnum {
         PENDING, REVIEW, APPLY, COMPLETE, PAID, CLOSE;
@@ -4317,6 +4324,230 @@ public class ServiceOrderManageController extends BaseController {
             e.printStackTrace();
             return new Response<>(1, e.getMessage(), null);
         }
+    }
+
+    @RequestMapping(value = "/reviewForAI", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> reviewForAI(@RequestParam(value = "serviceOrderId") Integer serviceOrderId,
+                                        @RequestParam(value = "file") MultipartFile file,
+                                        @RequestParam(value = "question") String question,
+                                        HttpServletRequest request,
+                                        HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            if (file == null || file.isEmpty()) {
+                return new Response<>(1, "文件不能为空", null);
+            }
+            // 保存临时文件
+            String originalFilename = file.getOriginalFilename();
+            String suffix = originalFilename != null && originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
+            File tempFile = File.createTempFile("review_ai_", suffix);
+            file.transferTo(tempFile);
+
+            // 解析文件内容
+            String fileContent;
+            if (suffix.toLowerCase().endsWith(".pdf")) {
+                fileContent = parsePdfToString(tempFile.getAbsolutePath());
+            } else {
+                fileContent = readTextFile(tempFile);
+            }
+            // 删除临时文件
+            tempFile.delete();
+
+            if (fileContent == null || fileContent.trim().isEmpty()) {
+                return new Response<>(1, "文件内容为空", null);
+            }
+
+            // 调用DeepSeek
+            URL realUrl = new URL("https://api.deepseek.com/v1/chat/completions");
+            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + DEEPSEEK_API_KEY);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(60000);
+            connection.connect();
+
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
+
+            JSONObject parm = new JSONObject();
+            parm.put("model", "deepseek-chat");
+            parm.put("stream", false);
+
+            List<JSONObject> messages = new ArrayList<>();
+            JSONObject userMsg = new JSONObject();
+            userMsg.put("role", "user");
+            userMsg.put("content", question + ",请用200字左右回复，并且在最后一行反馈结果，如果通过就显示：初审通过；不通过就显示：初审不通过。" + "\n" + fileContent);
+
+            messages.add(userMsg);
+            parm.put("messages", messages);
+
+            writer.write(parm.toString());
+            writer.flush();
+
+            // 读取DeepSeek响应
+            InputStream is = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            reader.close();
+            connection.disconnect();
+
+            // 解析结果
+            String aiContent = "";
+            JSONObject jsonResponse = JSONObject.parseObject(sb.toString());
+            Object choices = jsonResponse.get("choices");
+            if (choices instanceof List) {
+                List<?> choicesList = (List<?>) choices;
+                if (!choicesList.isEmpty()) {
+                    JSONObject firstChoice = (JSONObject) choicesList.get(0);
+                    JSONObject message = firstChoice.getJSONObject("message");
+                    aiContent = message.getString("content");
+                }
+            }
+
+            // 保存记录到数据库
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            ReviewAIDO reviewAIDo = new ReviewAIDO();
+            reviewAIDo.setServiceOrderId(serviceOrderId);
+            reviewAIDo.setQuestion(question);
+            reviewAIDo.setAdminUserId(adminUserLoginInfo != null ? adminUserLoginInfo.getId() : 0);
+            reviewAIDo.setReviewResults(aiContent);
+            serviceOrderManageService.addReviewAI(reviewAIDo);
+
+            return new Response<>(0, "success", aiContent);
+        } catch (Exception e) {
+            log.error("reviewForAI error, serviceOrderId={}", serviceOrderId, e);
+            return new Response<>(1, e.getMessage(), null);
+        }
+    }
+
+    @RequestMapping(value = "/getReviewAI", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<ReviewAIDO> getReviewAI(@RequestParam(value = "id") int id,
+                                            HttpServletRequest request,
+                                            HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            ReviewAIDO reviewAIDO = serviceOrderManageService.getReviewAIById(id);
+            if (reviewAIDO == null) {
+                return new Response<>(1, "记录不存在", null);
+            }
+            return new Response<>(0, "success", reviewAIDO);
+        } catch (Exception e) {
+            log.error("getReviewAI error, id={}", id, e);
+            return new Response<>(1, e.getMessage(), null);
+        }
+    }
+
+    @RequestMapping(value = "/listReviewAI", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<ReviewAIDO>> listReviewAI(@RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+                                                       @RequestParam(value = "adminUserId", required = false) Integer adminUserId,
+                                                       @RequestParam(value = "pageNum") int pageNum,
+                                                       @RequestParam(value = "pageSize") int pageSize,
+                                                       HttpServletRequest request,
+                                                       HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            int total = serviceOrderManageService.countReviewAI(serviceOrderId, adminUserId);
+            List<ReviewAIDO> list = serviceOrderManageService.listReviewAI(serviceOrderId, adminUserId, pageNum, pageSize);
+            return new ListResponse<>(true, pageSize, total, list, "success");
+        } catch (Exception e) {
+            log.error("listReviewAI error", e);
+            return new ListResponse<>(false, 0, 0, null, e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/updateReviewAI", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> updateReviewAI(@RequestParam(value = "id") int id,
+                                           @RequestParam(value = "question", required = false) String question,
+                                           @RequestParam(value = "reviewResults", required = false) String reviewResults,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            ReviewAIDO reviewAIDO = serviceOrderManageService.getReviewAIById(id);
+            if (reviewAIDO == null) {
+                return new Response<>(1, "记录不存在", null);
+            }
+            if (question != null) {
+                reviewAIDO.setQuestion(question);
+            }
+            if (reviewResults != null) {
+                reviewAIDO.setReviewResults(reviewResults);
+            }
+            serviceOrderManageService.updateReviewAI(reviewAIDO);
+            return new Response<>(0, "success", null);
+        } catch (Exception e) {
+            log.error("updateReviewAI error, id={}", id, e);
+            return new Response<>(1, e.getMessage(), null);
+        }
+    }
+
+    @RequestMapping(value = "/deleteReviewAI", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> deleteReviewAI(@RequestParam(value = "id") int id,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            if (serviceOrderManageService.deleteReviewAIById(id) > 0) {
+                return new Response<>(0, "success", null);
+            }
+            return new Response<>(1, "删除失败", null);
+        } catch (Exception e) {
+            log.error("deleteReviewAI error, id={}", id, e);
+            return new Response<>(1, e.getMessage(), null);
+        }
+    }
+
+    private String parsePdfToString(String filePath) throws IOException {
+        File pdfFile = new File(filePath);
+        if (!pdfFile.exists()) {
+            throw new IOException("PDF文件不存在: " + filePath);
+        }
+        if (pdfFile.length() == 0) {
+            return "[空文件]";
+        }
+        PDDocument document = null;
+        try {
+            document = PDDocument.load(pdfFile);
+            if (document == null || document.getNumberOfPages() == 0) {
+                return "[PDF无页面内容]";
+            }
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(document);
+            return text != null ? text.trim() : "[PDF无文本内容]";
+        } catch (Exception e) {
+            return "[PDF解析失败: " + e.getMessage() + "]";
+        } finally {
+            if (document != null) {
+                try {
+                    document.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private String readTextFile(File file) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        }
+        return content.toString();
     }
 
     // 转换订单状态

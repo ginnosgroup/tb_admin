@@ -278,26 +278,29 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
             if (adminUserLoginInfo == null)
                 return new ListResponse<>(false, pageSize, 0, null, "No permission !");
-            if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())
-                    && officialService.getOfficialById(newOfficialId).getIsOfficialAdmin()) {
-                int regionIdCurrent = officialService.getOfficialById(newOfficialId).getRegionId();
-                List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
-                regionIdList = ListUtil.buildArrayList(regionIdCurrent);
-                for (RegionDTO region : regionList)
-                    regionIdList.add(region.getId());
-                if (officialId != null) {
-                    OfficialDTO officialById = officialService.getOfficialById(officialId);
-                    if (officialById.getRegionId() != regionIdCurrent) {
-                        String s = "该文案管理员不能查询该地区，请核验地区";
-                        return new ListResponse<>(true, pageSize, 0, null, "500");
+            if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList())) {
+                if (newOfficialId == null)
+                    return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
+                OfficialDTO currentOfficial = officialService.getOfficialById(newOfficialId);
+                if (currentOfficial.getIsOfficialAdmin()) {
+                    int regionIdCurrent = currentOfficial.getRegionId();
+                    List<RegionDTO> regionList = regionService.listRegion(regionIdCurrent);
+                    regionIdList = ListUtil.buildArrayList(regionIdCurrent);
+                    for (RegionDTO region : regionList)
+                        regionIdList.add(region.getId());
+                    if (officialId != null) {
+                        OfficialDTO officialById = officialService.getOfficialById(officialId);
+                        if (officialById.getRegionId() != regionIdCurrent) {
+                            return new ListResponse<>(true, pageSize, 0, null, "500");
+                        }
                     }
                 }
+                // 更改当前文案编号
+                officialId = newOfficialId;
             } else {
                 // 更改当前文案编号
                 if (newOfficialId != null)
                     officialId = newOfficialId;
-                if ("WA".equalsIgnoreCase(adminUserLoginInfo.getApList()) && officialId == null)
-                    return new ListResponse<>(false, pageSize, 0, null, "无法获取文案编号，请退出重新登录后再尝试．");
             }
             Boolean merged = null;
             if (StringUtil.equals(isMerged, "true"))

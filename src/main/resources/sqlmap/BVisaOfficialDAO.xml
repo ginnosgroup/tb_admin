@@ -217,7 +217,6 @@
         so.applicant_id AS applicantId,
         bv.commissionAmount,
         bv.predict_commission predictCommission,
-        ifnull(br.amount,0.0) as refund,
         bv.calculation,
         bv.predict_commissionAmount  as predictCommissionAmount,
         bv.extra_amount AS extraAmount,
@@ -225,9 +224,12 @@
         from b_visa_official bv
         JOIN b_service_order so ON bv.service_order_id = so.id
         left JOIN tb_user tu ON bv.user_id = tu.id
-        left join b_refund br on br.visa_id= bv.id
-        left join b_official bo on bo.id = bv.official_id
-        join b_applicant ba on ba.id = so.applicant_id
+        <if test='regionIdList != null'>
+            left join b_official bo on bo.id = bv.official_id
+        </if>
+        <if test='applicantName!=null and applicantName!=""'>
+            join b_applicant ba on ba.id = so.applicant_id
+        </if>
 
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
@@ -287,8 +289,12 @@
         b_visa_official co
         JOIN b_service_order so ON co.service_order_id = so.id
         LEFT JOIN tb_user tu ON co.user_id = tu.id
-        LEFT JOIN b_applicant ba ON so.applicant_id = ba.id
-        LEFT JOIN b_official bo ON bo.id = co.official_id
+        <if test='applicantName!=null and applicantName!=""'>
+            LEFT JOIN b_applicant ba ON so.applicant_id = ba.id
+        </if>
+        <if test='regionIdList != null'>
+            LEFT JOIN b_official bo ON bo.id = co.official_id
+        </if>
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
             and co.official_id = #{officialId}
@@ -407,6 +413,63 @@
             stage
         FROM b_visa_official
         WHERE code = #{code};
+    </select>
+
+    <select id="listByCodes" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            code,
+            handling_date AS handlingDate,
+            user_id AS userId,
+            state,
+            commission_state AS commissionState,
+            kj_approval_date AS kjApprovalDate,
+            receive_type_id AS receiveTypeId,
+            receive_date AS receiveDate,
+            service_id AS serviceId,
+            service_order_id AS serviceOrderId,
+            installment_num AS installmentNum,
+            installment,
+            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            visa_voucher_image_url AS visaVoucherImageUrl,
+            receivable,
+            received,
+            per_amount AS perAmount,
+            amount,
+            expect_amount AS expectAmount,
+            sure_expect_amount AS sureExpectAmount,
+            currency,
+            exchange_rate AS exchangeRate,
+            discount,
+            invoice_number AS invoiceNumber,
+            gst,
+            deduct_gst AS deductGst,
+            bonus,
+            bonus_date AS bonusDate,
+            adviser_id AS adviserId,
+            mara_id AS maraId,
+            official_id AS officialId,
+            bank_check AS bankCheck,
+            is_checked AS isChecked,
+            is_merged AS isMerged,
+            remarks,
+            refuse_reason AS refuseReason,
+            verify_code AS verifyCode,
+            bank_date AS bankDate,
+            is_close AS isClose,
+            invoice_create AS invoiceCreate,
+            extra_amount AS extraAmount,
+            stage
+        FROM b_visa_official
+        WHERE code IN
+        <foreach collection="codes" item="code" open="(" close=")" separator=",">
+            #{code}
+        </foreach>;
     </select>
 
     <select id="getByServiceOrderId" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO">

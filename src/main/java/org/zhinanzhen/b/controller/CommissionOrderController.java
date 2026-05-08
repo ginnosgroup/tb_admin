@@ -11,6 +11,8 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
+import jxl.format.Colour;
+import jxl.format.Pattern;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
@@ -1131,33 +1133,35 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					return new ListResponse<List<CommissionOrderListDTO>>(false, pageSize, 0, null,
 							"无法获取顾问编号，请退出重新登录后再尝试．");
 			}
-
+			long l = System.currentTimeMillis();
 			int total = commissionOrderService.countCommissionOrder(id, regionIdList, maraId, adviserId, officialId,
 					userId, name, applicantName, phone, wechatUsername, schoolId, isSettle, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, isYzyAndYjy, applyState);
+
 			List<CommissionOrderListDTO> list = commissionOrderService.listCommissionOrder(id, regionIdList, maraId,
 					adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId, isSettle,
 					stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate,
 					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, applyState, pageNum, pageSize, _sorter);
+			log.info("查询耗时-----------------" + (System.currentTimeMillis() - l));
 			list.forEach(co -> {
-				if (co.getServiceOrderId() > 0)
-					try {
-						ServiceOrderDTO serviceOrderDto = serviceOrderService
-								.getServiceOrderById(co.getServiceOrderId());
-						if (serviceOrderDto != null) {
-							ApplicantDTO applicantDto = co.getApplicant();
-							if (applicantDto != null) {
-								if (StringUtil.isEmpty(applicantDto.getUrl()))
-									applicantDto.setUrl(serviceOrderDto.getNutCloud());
-								if (StringUtil.isEmpty(applicantDto.getContent()))
-									applicantDto.setContent(serviceOrderDto.getInformation());
-								co.setApplicant(applicantDto);
-							}
-						}
-					} catch (ServiceException e) {
-						e.printStackTrace();
-					}
+//				if (co.getServiceOrderId() > 0)
+//					try {
+//						ServiceOrderDTO serviceOrderDto = serviceOrderService
+//								.getServiceOrderById(co.getServiceOrderId());
+//						if (serviceOrderDto != null) {
+//							ApplicantDTO applicantDto = co.getApplicant();
+//							if (applicantDto != null) {
+//								if (StringUtil.isEmpty(applicantDto.getUrl()))
+//									applicantDto.setUrl(serviceOrderDto.getNutCloud());
+//								if (StringUtil.isEmpty(applicantDto.getContent()))
+//									applicantDto.setContent(serviceOrderDto.getInformation());
+//								co.setApplicant(applicantDto);
+//							}
+//						}
+//					} catch (ServiceException e) {
+//						e.printStackTrace();
+//					}
 				try {
 					List<MailRemindDTO> mailRemindDTOS = mailRemindService.list(getAdviserId(request),newOfficialId,getKjId(request),
 							null,null,co.getId(),null,false,true);
@@ -1367,92 +1371,142 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				}
 				WritableSheet sheet = wbe.getSheet(0);
 				WritableCellFormat cellFormat = new WritableCellFormat();
+				WritableCellFormat yellowCellFormat = new WritableCellFormat();
+				yellowCellFormat.setBackground(Colour.YELLOW, Pattern.SOLID);
+				WritableCellFormat greenCellFormat = new WritableCellFormat();
+				greenCellFormat.setBackground(Colour.GREEN, Pattern.SOLID);
 				int i = 1;
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
 				for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-					sheet.addCell(new Label(0, i, String.valueOf(commissionOrderListDto.getId()), cellFormat));
-					sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
+					WritableCellFormat activeFormat = cellFormat;
+					if (commissionOrderListDto.getServiceOrder() != null) {
+						if ("true".equals(commissionOrderListDto.getServiceOrder().getIsTransfer()))
+							activeFormat = greenCellFormat;
+						else if ("true".equals(commissionOrderListDto.getServiceOrder().getConCurrentCoe()))
+							activeFormat = yellowCellFormat;
+					}
+					sheet.addCell(new Label(0, i, String.valueOf(commissionOrderListDto.getId()), activeFormat));
+					sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), activeFormat));
 					if (commissionOrderListDto.getReceiveDate() != null)
-						sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+						sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), activeFormat));
+					else
+						sheet.addCell(new Label(2, i, "", activeFormat));
 					if (commissionOrderListDto.getApplicant() != null)
 						sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
-								+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
-					sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
+								+ commissionOrderListDto.getApplicant().getSurname(), activeFormat));
+					else
+						sheet.addCell(new Label(3, i, "", activeFormat));
+					sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), activeFormat));
 					if (commissionOrderListDto.getBirthday() != null)
-						sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
+						sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), activeFormat));
+					else
+						sheet.addCell(new Label(5, i, "", activeFormat));
 					if (commissionOrderListDto.getReceiveType() != null)
-						sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+						sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", activeFormat));
+					else
+						sheet.addCell(new Label(6, i, "", activeFormat));
 					if (commissionOrderListDto.getService() != null)
-						sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
-					sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
+						sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), activeFormat));
+					else
+						sheet.addCell(new Label(7, i, "", activeFormat));
+					sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", activeFormat));
 					if (commissionOrderListDto.getSchool() != null) {
-						sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
-						sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
+						sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", activeFormat));
+						sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", activeFormat));
+					} else {
+						sheet.addCell(new Label(9, i, "", activeFormat));
+						sheet.addCell(new Label(13, i, "", activeFormat));
 					}
 					if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
-						sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
-						//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
-						sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
+						sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , activeFormat));
+						sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), activeFormat));
 						if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
-							sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
-							sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
+							sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), activeFormat));
+							sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), activeFormat));
+						} else {
+							sheet.addCell(new Label(11, i, "", activeFormat));
+							sheet.addCell(new Label(12, i, "", activeFormat));
 						}
 						if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
-							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), activeFormat));
+						else
+							sheet.addCell(new Label(13, i, "", activeFormat));
 					}
 					if (commissionOrderListDto.getStartDate() != null)
-						sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
+						sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), activeFormat));
+					else
+						sheet.addCell(new Label(14, i, "", activeFormat));
 					if (commissionOrderListDto.getEndDate() != null)
-						sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
+						sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), activeFormat));
+					else
+						sheet.addCell(new Label(15, i, "", activeFormat));
 					if (commissionOrderListDto.getInstallmentDueDate() != null)
 						sheet.addCell(
-								new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
-					if (commissionOrderListDto.getReceiveType() != null)
-						sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-					sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
-					sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-					sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
-					sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
-					sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
-					sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-					if (commissionOrderListDto.isSettle())
-						sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+								new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), activeFormat));
 					else
-						sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
-					sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", cellFormat));
-					sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
-					sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+						sheet.addCell(new Label(16, i, "", activeFormat));
+					if (commissionOrderListDto.getReceiveType() != null)
+						sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", activeFormat));
+					else
+						sheet.addCell(new Label(17, i, "", activeFormat));
+					sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", activeFormat));
+					sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", activeFormat)); // .getPerTermTuitionFee()
+					sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", activeFormat));
+					sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", activeFormat));
+					sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", activeFormat));
+					sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", activeFormat));
+					sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), activeFormat));
+					sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", activeFormat));
+					sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", activeFormat));
+					sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", activeFormat));
+					sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", activeFormat));
+					if (commissionOrderListDto.isSettle())
+						sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", activeFormat));
+					else
+						sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", activeFormat));
+					sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", activeFormat));
+					sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", activeFormat));
+					sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", activeFormat));
 					if (ObjectUtil.isNotNull(commissionOrderListDto.getSchoolPaymentDate()))
-					sheet.addCell(new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()) + "", cellFormat));
-					sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber() + "", cellFormat));
+						sheet.addCell(new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()) + "", activeFormat));
+					else
+						sheet.addCell(new Label(33, i, "", activeFormat));
+					sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber() + "", activeFormat));
 					if (ObjectUtil.isNotNull(commissionOrderListDto.getZyDate()))
-					sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()) + "", cellFormat));
+						sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()) + "", activeFormat));
+					else
+						sheet.addCell(new Label(35, i, "", activeFormat));
 					// sub
 					String subagencyName = subagencyService.getSubagencyByServiceOrderId(commissionOrderListDto.getServiceOrderId());
 					if (StringUtil.isNotEmpty(subagencyName)) {
-						sheet.addCell(new Label(36, i, subagencyName, cellFormat));
+						sheet.addCell(new Label(36, i, subagencyName, activeFormat));
+					} else {
+						sheet.addCell(new Label(36, i, "", activeFormat));
 					}
-					sheet.addCell(new Label(37, i, sdf.format(commissionOrderListDto.getBonus()), cellFormat));
+					sheet.addCell(new Label(37, i, sdf.format(commissionOrderListDto.getBonus()), activeFormat));
 					if (ObjectUtil.isNotNull(commissionOrderListDto.getBonusDate())) {
-						sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
+						sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), activeFormat));
+					} else {
+						sheet.addCell(new Label(38, i, "", activeFormat));
 					}
-					sheet.addCell(new Label(39, i, commissionOrderListDto.getVerifyCode(), cellFormat));
+					sheet.addCell(new Label(39, i, commissionOrderListDto.getVerifyCode(), activeFormat));
 					String adviserName = adviserMap.get(commissionOrderListDto.getAdviserId());
 					if (StringUtil.isNotEmpty(adviserName)) {
-						sheet.addCell(new Label(41, i, adviserName + "", cellFormat));
+						sheet.addCell(new Label(41, i, adviserName + "", activeFormat));
+					} else {
+						sheet.addCell(new Label(41, i, "", activeFormat));
 					}
-					sheet.addCell(new Label(42, i, commissionOrderListDto.getState() + "", cellFormat));
+					sheet.addCell(new Label(42, i, commissionOrderListDto.getState() + "", activeFormat));
 					if (ObjectUtil.isNotNull(commissionOrderListDto.getKjApprovalDate())) {
-						sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()) + "", cellFormat));
+						sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()) + "", activeFormat));
+					} else {
+						sheet.addCell(new Label(43, i, "", activeFormat));
 					}
 					if (StringUtil.isNotEmpty(commissionOrderListDto.getRemarks())) {
-						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks() + "", cellFormat));
+						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks() + "", activeFormat));
+					} else {
+						sheet.addCell(new Label(44, i, "", activeFormat));
 					}
 					i++;
 				}
@@ -1483,91 +1537,141 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					}
 					WritableSheet sheet = wbe.getSheet(0);
 					WritableCellFormat cellFormat = new WritableCellFormat();
+					WritableCellFormat yellowCellFormat = new WritableCellFormat();
+					yellowCellFormat.setBackground(Colour.YELLOW, Pattern.SOLID);
+					WritableCellFormat greenCellFormat = new WritableCellFormat();
+					greenCellFormat.setBackground(Colour.GREEN, Pattern.SOLID);
 
 					int i = 1;
 					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
-						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
+						WritableCellFormat activeFormat = cellFormat;
+						if (commissionOrderListDto.getServiceOrder() != null) {
+							if ("true".equals(commissionOrderListDto.getServiceOrder().getIsTransfer()))
+								activeFormat = greenCellFormat;
+							else if ("true".equals(commissionOrderListDto.getServiceOrder().getConCurrentCoe()))
+								activeFormat = yellowCellFormat;
+						}
+						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), activeFormat));
+						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), activeFormat));
 						if (commissionOrderListDto.getReceiveDate() != null)
-							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), activeFormat));
+						else
+							sheet.addCell(new Label(2, i, "", activeFormat));
 						if (commissionOrderListDto.getApplicant() != null)
 							sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
-									+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
-						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
+									+ commissionOrderListDto.getApplicant().getSurname(), activeFormat));
+						else
+							sheet.addCell(new Label(3, i, "", activeFormat));
+						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), activeFormat));
 						if (commissionOrderListDto.getBirthday() != null)
-							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
+							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), activeFormat));
+						else
+							sheet.addCell(new Label(5, i, "", activeFormat));
 						if (commissionOrderListDto.getReceiveType() != null)
-							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", activeFormat));
+						else
+							sheet.addCell(new Label(6, i, "", activeFormat));
 						if (commissionOrderListDto.getService() != null)
-							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
-						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
+							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), activeFormat));
+						else
+							sheet.addCell(new Label(7, i, "", activeFormat));
+						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", activeFormat));
 						if (commissionOrderListDto.getSchool() != null) {
-							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
-							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
+							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", activeFormat));
+							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", activeFormat));
+						} else {
+							sheet.addCell(new Label(9, i, "", activeFormat));
+							sheet.addCell(new Label(13, i, "", activeFormat));
 						}
 						if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
-							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
-							//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
-							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
+							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , activeFormat));
+							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), activeFormat));
 							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
-								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
-								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
+								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), activeFormat));
+								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), activeFormat));
+							} else {
+								sheet.addCell(new Label(11, i, "", activeFormat));
+								sheet.addCell(new Label(12, i, "", activeFormat));
 							}
 							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
-								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), activeFormat));
+							else
+								sheet.addCell(new Label(13, i, "", activeFormat));
 						}
 						if (commissionOrderListDto.getStartDate() != null)
-							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
+							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), activeFormat));
+						else
+							sheet.addCell(new Label(14, i, "", activeFormat));
 						if (commissionOrderListDto.getEndDate() != null)
-							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
+							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), activeFormat));
+						else
+							sheet.addCell(new Label(15, i, "", activeFormat));
 						if (commissionOrderListDto.getInstallmentDueDate() != null)
 							sheet.addCell(
-									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
-						if (commissionOrderListDto.getReceiveType() != null)
-							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
-						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
-						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
-						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
-						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
-						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
-						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-						if (commissionOrderListDto.isSettle())
-							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), activeFormat));
 						else
-							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(30, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+							sheet.addCell(new Label(16, i, "", activeFormat));
+						if (commissionOrderListDto.getReceiveType() != null)
+							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", activeFormat));
+						else
+							sheet.addCell(new Label(17, i, "", activeFormat));
+						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", activeFormat));
+						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", activeFormat)); // .getPerTermTuitionFee()
+						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", activeFormat));
+						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", activeFormat));
+						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), activeFormat));
+						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", activeFormat));
+						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", activeFormat));
+						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", activeFormat));
+						if (commissionOrderListDto.isSettle())
+							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", activeFormat));
+						else
+							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(30, i, commissionOrderListDto.getSchoolPaymentAmount() + "", activeFormat));
 						//31待确定
 						if (commissionOrderListDto.getSchoolPaymentDate() != null)
 							sheet.addCell(
-									new Label(32, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-						sheet.addCell(new Label(33, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+									new Label(32, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), activeFormat));
+						else
+							sheet.addCell(new Label(32, i, "", activeFormat));
+						sheet.addCell(new Label(33, i, commissionOrderListDto.getInvoiceNumber(), activeFormat));
 						if (commissionOrderListDto.getZyDate() != null)
-							sheet.addCell(new Label(34, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+							sheet.addCell(new Label(34, i, sdf.format(commissionOrderListDto.getZyDate()), activeFormat));
+						else
+							sheet.addCell(new Label(34, i, "", activeFormat));
 						if (commissionOrderListDto.getSubagency() != null)
-							sheet.addCell(new Label(35, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-						sheet.addCell(new Label(36, i, commissionOrderListDto.getBonus() + "", cellFormat));
+							sheet.addCell(new Label(35, i, commissionOrderListDto.getSubagency().getName(), activeFormat));
+						else
+							sheet.addCell(new Label(35, i, "", activeFormat));
+						sheet.addCell(new Label(36, i, commissionOrderListDto.getBonus() + "", activeFormat));
 						if (commissionOrderListDto.getBonusDate() != null)
-							sheet.addCell(new Label(37, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-						sheet.addCell(new Label(38, i, commissionOrderListDto.getBankCheck(), cellFormat));
-						sheet.addCell(new Label(39, i, commissionOrderListDto.isChecked() + "", cellFormat));
+							sheet.addCell(new Label(37, i, sdf.format(commissionOrderListDto.getBonusDate()), activeFormat));
+						else
+							sheet.addCell(new Label(37, i, "", activeFormat));
+						sheet.addCell(new Label(38, i, commissionOrderListDto.getBankCheck(), activeFormat));
+						sheet.addCell(new Label(39, i, commissionOrderListDto.isChecked() + "", activeFormat));
 						if (commissionOrderListDto.getAdviser() != null)
-							sheet.addCell(new Label(40, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+							sheet.addCell(new Label(40, i, commissionOrderListDto.getAdviser().getName(), activeFormat));
+						else
+							sheet.addCell(new Label(40, i, "", activeFormat));
 						if (commissionOrderListDto.getState() != null)
-							sheet.addCell(new Label(41, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
+							sheet.addCell(new Label(41, i, getStateStr(commissionOrderListDto.getState()), activeFormat));
+						else
+							sheet.addCell(new Label(41, i, "", activeFormat));
 						if (commissionOrderListDto.getKjApprovalDate() != null)
-							sheet.addCell(new Label(42, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-						sheet.addCell(new Label(43, i, commissionOrderListDto.getRemarks(), cellFormat));
+							sheet.addCell(new Label(42, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), activeFormat));
+						else
+							sheet.addCell(new Label(42, i, "", activeFormat));
+						sheet.addCell(new Label(43, i, commissionOrderListDto.getRemarks(), activeFormat));
 						ServiceOrderDTO serviceOrderDTO = serviceOrderService
 								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
 						sheet.addCell(new Label(44, i,
 								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
 										: "",
-								cellFormat));
+								activeFormat));
 						i++;
 					}
 					wbe.write();
@@ -1597,92 +1701,142 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					}
 					WritableSheet sheet = wbe.getSheet(0);
 					WritableCellFormat cellFormat = new WritableCellFormat();
+					WritableCellFormat yellowCellFormat = new WritableCellFormat();
+					yellowCellFormat.setBackground(Colour.YELLOW, Pattern.SOLID);
+					WritableCellFormat greenCellFormat = new WritableCellFormat();
+					greenCellFormat.setBackground(Colour.GREEN, Pattern.SOLID);
 
 					int i = 1;
 					for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
-						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), cellFormat));
-						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), cellFormat));
+						WritableCellFormat activeFormat = cellFormat;
+						if (commissionOrderListDto.getServiceOrder() != null) {
+							if ("true".equals(commissionOrderListDto.getServiceOrder().getIsTransfer()))
+								activeFormat = greenCellFormat;
+							else if ("true".equals(commissionOrderListDto.getServiceOrder().getConCurrentCoe()))
+								activeFormat = yellowCellFormat;
+						}
+						sheet.addCell(new Label(0, i, "CS" + commissionOrderListDto.getId(), activeFormat));
+						sheet.addCell(new Label(1, i, sdf.format(commissionOrderListDto.getGmtCreate()), activeFormat));
 						if (commissionOrderListDto.getReceiveDate() != null)
-							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), cellFormat));
+							sheet.addCell(new Label(2, i, sdf.format(commissionOrderListDto.getReceiveDate()), activeFormat));
+						else
+							sheet.addCell(new Label(2, i, "", activeFormat));
 						if (commissionOrderListDto.getApplicant() != null)
 							sheet.addCell(new Label(3, i, commissionOrderListDto.getApplicant().getFirstname() + " "
-									+ commissionOrderListDto.getApplicant().getSurname(), cellFormat));
-						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), cellFormat));
+									+ commissionOrderListDto.getApplicant().getSurname(), activeFormat));
+						else
+							sheet.addCell(new Label(3, i, "", activeFormat));
+						sheet.addCell(new Label(4, i, commissionOrderListDto.getStudentCode(), activeFormat));
 						if (commissionOrderListDto.getBirthday() != null)
-							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), cellFormat));
+							sheet.addCell(new Label(5, i, sdf.format(commissionOrderListDto.getBirthday()), activeFormat));
+						else
+							sheet.addCell(new Label(5, i, "", activeFormat));
 						if (commissionOrderListDto.getReceiveType() != null)
-							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
+							sheet.addCell(new Label(6, i, commissionOrderListDto.getReceiveType().getName() + "", activeFormat));
+						else
+							sheet.addCell(new Label(6, i, "", activeFormat));
 						if (commissionOrderListDto.getService() != null)
-							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), cellFormat));
-						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", cellFormat));
+							sheet.addCell(new Label(7, i, commissionOrderListDto.getService().getName(), activeFormat));
+						else
+							sheet.addCell(new Label(7, i, "", activeFormat));
+						sheet.addCell(new Label(8, i, commissionOrderListDto.isSettle() + "", activeFormat));
 						if (commissionOrderListDto.getSchool() != null) {
-							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", cellFormat));
-							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", cellFormat));
+							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchool().getName() + "", activeFormat));
+							sheet.addCell(new Label(13, i, commissionOrderListDto.getSchool().getSubject() + "", activeFormat));
+						} else {
+							sheet.addCell(new Label(9, i, "", activeFormat));
+							sheet.addCell(new Label(13, i, "", activeFormat));
 						}
 						if (commissionOrderListDto.getSchoolInstitutionListDTO() != null){
-							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , cellFormat));
-							//if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null)
-							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), cellFormat));
+							sheet.addCell(new Label(9, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionTradingName() , activeFormat));
+							sheet.addCell(new Label(10, i, commissionOrderListDto.getSchoolInstitutionListDTO().getInstitutionName(), activeFormat));
 							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO() != null){
-								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), cellFormat));
-								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), cellFormat));
+								sheet.addCell(new Label(11, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getName(), activeFormat));
+								sheet.addCell(new Label(12, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolInstitutionLocationDO().getState(), activeFormat));
+							} else {
+								sheet.addCell(new Label(11, i, "", activeFormat));
+								sheet.addCell(new Label(12, i, "", activeFormat));
 							}
 							if (commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO() != null)
-								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), cellFormat));
+								sheet.addCell(new Label(13, i, commissionOrderListDto.getSchoolInstitutionListDTO().getSchoolCourseDO().getCourseName(), activeFormat));
+							else
+								sheet.addCell(new Label(13, i, "", activeFormat));
 						}
 						if (commissionOrderListDto.getStartDate() != null)
-							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), cellFormat));
+							sheet.addCell(new Label(14, i, sdf.format(commissionOrderListDto.getStartDate()), activeFormat));
+						else
+							sheet.addCell(new Label(14, i, "", activeFormat));
 						if (commissionOrderListDto.getEndDate() != null)
-							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), cellFormat));
+							sheet.addCell(new Label(15, i, sdf.format(commissionOrderListDto.getEndDate()), activeFormat));
+						else
+							sheet.addCell(new Label(15, i, "", activeFormat));
 						if (commissionOrderListDto.getInstallmentDueDate() != null)
 							sheet.addCell(
-									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), cellFormat));
-						if (commissionOrderListDto.getReceiveType() != null)
-							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", cellFormat));
-						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", cellFormat));
-						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", cellFormat)); // .getPerTermTuitionFee()
-						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", cellFormat));
-						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", cellFormat));
-						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), cellFormat));
-						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", cellFormat));
-						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", cellFormat));
-						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
-						if (commissionOrderListDto.isSettle())
-							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", cellFormat));
+									new Label(16, i, sdf.format(commissionOrderListDto.getInstallmentDueDate()), activeFormat));
 						else
-							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", cellFormat));
-						sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", cellFormat));
-						sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", cellFormat));
-						sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", cellFormat));
+							sheet.addCell(new Label(16, i, "", activeFormat));
+						if (commissionOrderListDto.getReceiveType() != null)
+							sheet.addCell(new Label(17, i, commissionOrderListDto.getReceiveType().getName() + "", activeFormat));
+						else
+							sheet.addCell(new Label(17, i, "", activeFormat));
+						sheet.addCell(new Label(18, i, commissionOrderListDto.getTuitionFee() + "", activeFormat));
+						sheet.addCell(new Label(19, i, commissionOrderListDto.getPerAmount() + "", activeFormat)); // .getPerTermTuitionFee()
+						sheet.addCell(new Label(20, i, commissionOrderListDto.getTotalPerAmountCNY() + "", activeFormat));
+						sheet.addCell(new Label(21, i, commissionOrderListDto.getTotalPerAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(22, i, commissionOrderListDto.getTotalAmountCNY() + "", activeFormat));
+						sheet.addCell(new Label(23, i, commissionOrderListDto.getTotalAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(24, i, commissionOrderListDto.getCurrency(), activeFormat));
+						sheet.addCell(new Label(25, i, commissionOrderListDto.getExchangeRate() + "", activeFormat));
+						sheet.addCell(new Label(26, i, commissionOrderListDto.getAmountCNY() + "", activeFormat));
+						sheet.addCell(new Label(27, i, commissionOrderListDto.getAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(28, i, commissionOrderListDto.getExpectAmountAUD() + "", activeFormat));
+						if (commissionOrderListDto.isSettle())
+							sheet.addCell(new Label(29, i, commissionOrderListDto.getExpectAmountAUD() + "", activeFormat));
+						else
+							sheet.addCell(new Label(29, i, commissionOrderListDto.getSureExpectAmountAUD() + "", activeFormat));
+						sheet.addCell(new Label(30, i, commissionOrderListDto.getGst() + "", activeFormat));
+						sheet.addCell(new Label(31, i, commissionOrderListDto.getDeductGst() + "", activeFormat));
+						sheet.addCell(new Label(32, i, commissionOrderListDto.getSchoolPaymentAmount() + "", activeFormat));
 						if (commissionOrderListDto.getSchoolPaymentDate() != null)
 							sheet.addCell(
-									new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), cellFormat));
-						sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber(), cellFormat));
+									new Label(33, i, sdf.format(commissionOrderListDto.getSchoolPaymentDate()), activeFormat));
+						else
+							sheet.addCell(new Label(33, i, "", activeFormat));
+						sheet.addCell(new Label(34, i, commissionOrderListDto.getInvoiceNumber(), activeFormat));
 						if (commissionOrderListDto.getZyDate() != null)
-							sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()), cellFormat));
+							sheet.addCell(new Label(35, i, sdf.format(commissionOrderListDto.getZyDate()), activeFormat));
+						else
+							sheet.addCell(new Label(35, i, "", activeFormat));
 						if (commissionOrderListDto.getSubagency() != null)
-							sheet.addCell(new Label(36, i, commissionOrderListDto.getSubagency().getName(), cellFormat));
-						sheet.addCell(new Label(37, i, commissionOrderListDto.getBonus() + "", cellFormat));
+							sheet.addCell(new Label(36, i, commissionOrderListDto.getSubagency().getName(), activeFormat));
+						else
+							sheet.addCell(new Label(36, i, "", activeFormat));
+						sheet.addCell(new Label(37, i, commissionOrderListDto.getBonus() + "", activeFormat));
 						if (commissionOrderListDto.getBonusDate() != null)
-							sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), cellFormat));
-						sheet.addCell(new Label(39, i, commissionOrderListDto.getBankCheck(), cellFormat));
-						sheet.addCell(new Label(40, i, commissionOrderListDto.isChecked() + "", cellFormat));
+							sheet.addCell(new Label(38, i, sdf.format(commissionOrderListDto.getBonusDate()), activeFormat));
+						else
+							sheet.addCell(new Label(38, i, "", activeFormat));
+						sheet.addCell(new Label(39, i, commissionOrderListDto.getBankCheck(), activeFormat));
+						sheet.addCell(new Label(40, i, commissionOrderListDto.isChecked() + "", activeFormat));
 						if (commissionOrderListDto.getAdviser() != null)
-							sheet.addCell(new Label(41, i, commissionOrderListDto.getAdviser().getName(), cellFormat));
+							sheet.addCell(new Label(41, i, commissionOrderListDto.getAdviser().getName(), activeFormat));
+						else
+							sheet.addCell(new Label(41, i, "", activeFormat));
 						if (commissionOrderListDto.getState() != null)
-							sheet.addCell(new Label(42, i, getStateStr(commissionOrderListDto.getState()), cellFormat));
+							sheet.addCell(new Label(42, i, getStateStr(commissionOrderListDto.getState()), activeFormat));
+						else
+							sheet.addCell(new Label(42, i, "", activeFormat));
 						if (commissionOrderListDto.getKjApprovalDate() != null)
-							sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), cellFormat));
-						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), cellFormat));
+							sheet.addCell(new Label(43, i, sdf.format(commissionOrderListDto.getKjApprovalDate()), activeFormat));
+						else
+							sheet.addCell(new Label(43, i, "", activeFormat));
+						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), activeFormat));
 						ServiceOrderDTO serviceOrderDTO = serviceOrderService
 								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
 						sheet.addCell(new Label(45, i,
 								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
 										: "",
-								cellFormat));
+								activeFormat));
 						i++;
 					}
 					wbe.write();
@@ -1690,11 +1844,6 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 
 				}
 			}
-
-
-
-
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;

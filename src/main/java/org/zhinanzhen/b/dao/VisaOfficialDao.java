@@ -54,6 +54,8 @@ public interface VisaOfficialDao {
 
     List<VisaOfficialDO> listVisaByCode(@Param("code") String code);
 
+    List<VisaOfficialDO> listByCodes(@Param("codes") List<String> codes);
+
     VisaOfficialDO getByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
     VisaOfficialDO getByServiceOrderIdOne(@Param("serviceOrderId") int serviceOrderId);
