@@ -205,8 +205,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "visaStatus", required = false) String visaStatus,
 			@RequestParam(value = "visaStatusSub", required = false) String visaStatusSub,
 			@RequestParam(value = "visaCertificate", required = false) String visaCertificate,
-			@RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "verifyCode", required = false) String verifyCode,
+			@RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		try {
 			super.setPostHeader(response);
@@ -355,6 +356,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			// BigDecimal(commissionOrderDto.getDeductGst() * 0.1)
 			// .setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
+			if (StringUtil.isNotEmpty(conCurrentCoe))
+				serviceOrderDto.setConCurrentCoe(conCurrentCoe);
 			String msg = "";
 			for (int installmentNum = 1; installmentNum <= installment; installmentNum++) {
 				commissionOrderDto.setInstallmentNum(installmentNum);
@@ -536,6 +539,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "remarks", required = false) String remarks,
 			@RequestParam(value = "verifyCode", required = false) String verifyCode,
 			@RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
+			@RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -697,6 +701,8 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						.getCommissionOrderById(commissionOrderDto.getId());
 				serviceOrderDto.setReceivable(_commissionOrderListDto.getTotalPerAmount());
 				serviceOrderDto.setReceived(_commissionOrderListDto.getTotalAmount());
+				if (StringUtil.isNotEmpty(conCurrentCoe))
+					serviceOrderDto.setConCurrentCoe(conCurrentCoe);
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
 				if (StringUtil.isEmpty(applicantBirthday))
@@ -3286,6 +3292,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 		   @RequestParam(value = "visaStatus", required = false) String visaStatus,
 		   @RequestParam(value = "visaStatusSub", required = false) String visaStatusSub,
 		   @RequestParam(value = "visaCertificate", required = false) String visaCertificate,
+		   @RequestParam(value = "conCurrentCoe", required = false) String conCurrentCoe,
 			HttpServletRequest request, HttpServletResponse response
 										   ){
 		try {
@@ -3308,7 +3315,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						installmentDueDate11,installmentDueDate12,paymentVoucherImageUrl1,paymentVoucherImageUrl2,paymentVoucherImageUrl3,
 						paymentVoucherImageUrl4,paymentVoucherImageUrl5,invoiceVoucherImageUrl1,invoiceVoucherImageUrl2,invoiceVoucherImageUrl3,
 						invoiceVoucherImageUrl4,invoiceVoucherImageUrl5,dob, startDate,endDate, tuitionFee,perTermTuitionFee,receiveTypeId,
-						receiveDate,perAmount, amount,remarks,studentCode,serviceOrderId,expectAmount, currency, exchangeRate,verifyCode,tempDTO,serviceOrderDto);
+						receiveDate,perAmount, amount,remarks,studentCode,serviceOrderId,expectAmount, currency, exchangeRate,verifyCode,conCurrentCoe,tempDTO,serviceOrderDto);
 			}
 			tempDTO = new CommissionOrderTempDTO();
 			tempDTO.setServiceOrderId(serviceOrderId);
@@ -3478,7 +3485,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			//	serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
 			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
 			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
-			
+
+			if (StringUtil.isNotEmpty(conCurrentCoe))
+				serviceOrderDto.setConCurrentCoe(conCurrentCoe);
+
 			if(commissionOrderService.addCommissionOrderTemp(tempDTO) > 0){
 				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0) // 同时更改服务订单状态
 					return new Response(0, "success", tempDTO);
@@ -3547,7 +3557,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			String invoiceVoucherImageUrl2, String invoiceVoucherImageUrl3, String invoiceVoucherImageUrl4, String invoiceVoucherImageUrl5,
 			String dob, String startDate, String endDate, String tuitionFee, String perTermTuitionFee, Integer receiveTypeId,
 			String receiveDate, String perAmount, String amount, String remarks, String studentCode, int serviceOrderId,
-			String expectAmount, String currency, String exchangeRate, String verifyCode,CommissionOrderTempDTO tempDTO,ServiceOrderDTO serviceOrderDto
+			String expectAmount, String currency, String exchangeRate, String verifyCode, String conCurrentCoe, CommissionOrderTempDTO tempDTO,ServiceOrderDTO serviceOrderDto
 	){
 		try {
 			/*
@@ -3702,7 +3712,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			//	serviceOrderDto.setInvoiceVoucherImageUrl4(invoiceVoucherImageUrl4);
 			//if (StringUtil.isNotEmpty(invoiceVoucherImageUrl5))
 			//	serviceOrderDto.setInvoiceVoucherImageUrl5(invoiceVoucherImageUrl5);
-			
+
+			if (StringUtil.isNotEmpty(conCurrentCoe))
+				serviceOrderDto.setConCurrentCoe(conCurrentCoe);
+
 			if (commissionOrderService.updateCommissionOrderTemp(tempDTO) > 0){
 				if (serviceOrderService.updateServiceOrder(serviceOrderDto) > 0 )
 					return new Response(0,"success",tempDTO);
