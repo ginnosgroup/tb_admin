@@ -866,6 +866,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (sorter.getAdviserName() != null)
                 orderBy = StringUtil.merge("ORDER BY ", sorter.getOrderBy("a.name", sorter.getAdviserName()));
         }
+        if ("OVST".equalsIgnoreCase(type)) {
+            isManage = null;
+        }
         try {
             if (bindingList != null && bindingList) {
                 if ("OVST".equalsIgnoreCase(type)) {
