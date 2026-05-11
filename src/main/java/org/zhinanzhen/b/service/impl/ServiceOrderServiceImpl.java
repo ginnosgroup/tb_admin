@@ -183,6 +183,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Resource
     private WebLogDAO webLogDAO;
 
+    @Resource
+    private ReviewAIDAO reviewAIDAO;
+
     private ServiceOrderBatchLoader batchLoader;
 
     private ServiceOrderBatchLoader getBatchLoader() {
@@ -194,7 +197,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     visaDao, serviceAssessDao, regionDAO, commissionOrderTempDao,
                     schoolCourseDAO, schoolInstitutionDAO, schoolInstitutionLocationDAO,
                     customerInformationDAO, serviceOrderApplicantDao, officialHandoverLogDao,
-                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO
+                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO, reviewAIDAO
             );
         }
         return batchLoader;
@@ -1870,6 +1873,11 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         List<WebLogDTO> webLogDTOList = ctx.webLogMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
         if (!webLogDTOList.isEmpty()) {
             serviceOrderDto.setContractDataList(webLogDTOList);
+        }
+        // 获取AI审核数据
+        List<ReviewAIDO> reviewAIList = ctx.reviewAIMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
+        if (!reviewAIList.isEmpty()) {
+            serviceOrderDto.setReviewAIList(reviewAIList);
         }
         return serviceOrderDto;
     }

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -103,6 +104,18 @@ public class UserController extends BaseController {
 							email, wechatUsername, firstControllerContents, visaCode,
 							new Date(Long.parseLong(visaExpirationDate)), source, StringUtil.toInt(adviserId),
 							StringUtil.toInt(regionId), stateText, channelSource));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+
+	@RequestMapping(value = "/addByWechat", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> addByWechat(@RequestParam(value = "jsonStr") String jsonStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			return new Response<Integer>(0, userService.addUserByWechat(jsonStr));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}

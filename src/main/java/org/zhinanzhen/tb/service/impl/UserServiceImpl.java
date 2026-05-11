@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonParser;
 import com.lark.oapi.Client;
@@ -91,6 +92,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private ServicePackageDAO servicePackageDAO;
 	@Resource
 	private ServiceAssessDao serviceAssessDao;
+	@Resource
+	private WechatUserTagDAO wechatUserTagDao;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -168,6 +171,85 @@ public class UserServiceImpl extends BaseService implements UserService {
 			return userDo.getId();
 		} else
 			return 0;
+	}
+
+	@Override
+	@Transactional(rollbackFor = ServiceException.class)
+	public int addUserByWechat(String jsonStr) throws ServiceException {
+		JSONObject json = JSONObject.parseObject(jsonStr);
+		int errcode = json.getIntValue("errcode");
+		if (errcode != 0) {
+			throw new ServiceException("企微回调异常: errcode=" + errcode + ", errmsg=" + json.getString("errmsg"));
+		}
+		JSONObject externalContact = json.getJSONObject("external_contact");
+		if (externalContact == null) {
+			throw new ServiceException("缺少external_contact数据");
+		}
+		String externalUserid = externalContact.getString("external_userid");
+		if (StringUtil.isEmpty(externalUserid)) {
+			throw new ServiceException("缺少external_userid");
+		}
+		// 检查是否已存在该企微用户
+		UserDO existUser = userDao.getUserByExternalUserid(externalUserid);
+		JSONArray followUserArr = json.getJSONArray("follow_user");
+		JSONObject followUser = (followUserArr != null && !followUserArr.isEmpty())
+				? followUserArr.getJSONObject(0) : null;
+		String phone = null;
+		if (followUser != null) {
+			JSONArray mobiles = followUser.getJSONArray("remark_mobiles");
+			if (mobiles != null && !mobiles.isEmpty()) {
+				phone = mobiles.getString(0);
+			}
+		}
+		String name = externalContact.getString("user_name");
+		String email = externalContact.getString("email");
+		String avatar = externalContact.getString("avatar");
+		String unionid = externalContact.getString("unionid");
+
+		int userId;
+		if (existUser != null) {
+			userId = existUser.getId();
+			userDao.update(existUser.getId(), name, name, null, phone, email, null, null, null, null, null,
+					null, null, null, null);
+		} else {
+			UserDO userDo = new UserDO();
+			userDo.setName(name != null ? name : "");
+			userDo.setAuthNickname(name != null ? name : "");
+			userDo.setAuthType("WECHAT_WORK");
+			userDo.setAuthOpenid(unionid != null ? unionid : "");
+			userDo.setAuthLogo(avatar != null ? avatar : "");
+			userDo.setEmail(email != null ? email : "");
+			userDo.setPhone(phone != null ? phone : "");
+			userDo.setExternalUserid(externalUserid);
+			userDo.setBirthday(new Date());
+			userDo.setAreaCode("");
+			userDo.setSource("");
+			userDo.setAdviserId(0);
+			userDo.setRegionId(1);
+			if (userDao.addUser(userDo) > 0) {
+				userId = userDo.getId();
+			} else {
+				throw new ServiceException("添加用户失败");
+			}
+		}
+		// 保存标签
+		if (followUser != null) {
+			JSONArray tags = followUser.getJSONArray("tags");
+			if (tags != null && !tags.isEmpty()) {
+				wechatUserTagDao.deleteWechatUserTagByUserId(userId);
+				for (int i = 0; i < tags.size(); i++) {
+					JSONObject tag = tags.getJSONObject(i);
+					WechatUserTagDO tagDo = new WechatUserTagDO();
+					tagDo.setUserId(userId);
+					tagDo.setTagId(tag.getString("tag_id"));
+					tagDo.setTagName(tag.getString("tag_name"));
+					tagDo.setGroupName(tag.getString("group_name"));
+					tagDo.setType(tag.getIntValue("type"));
+					wechatUserTagDao.addWechatUserTag(tagDo);
+				}
+			}
+		}
+		return userId;
 	}
 
 	@Override

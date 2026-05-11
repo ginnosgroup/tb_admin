@@ -43,4 +43,5 @@ public class ServiceOrderBatchContext {
     public Map<Integer, SchoolCourseDO> schoolCourseMap = new HashMap<>();
     public Map<Integer, SchoolInstitutionDO> schoolInstitutionMap = new HashMap<>();
     public Map<Integer, SchoolInstitutionLocationDO> schoolInstitutionLocationMap = new HashMap<>();
+    public Map<Integer, List<ReviewAIDO>> reviewAIMap = new HashMap<>();
 }

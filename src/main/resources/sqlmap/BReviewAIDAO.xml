@@ -68,4 +68,14 @@
         DELETE FROM b_review_ai WHERE id = #{id, jdbcType=INTEGER}
     </delete>
 
+    <select id="listByServiceOrderIds" resultMap="ReviewAIResultMap">
+        SELECT id, gmt_create, gmt_modify, service_order_id, question, admin_user_id, review_results
+        FROM b_review_ai
+        WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="sid" open="(" separator="," close=")">
+            #{sid}
+        </foreach>
+        ORDER BY gmt_create DESC
+    </select>
+
 </mapper>

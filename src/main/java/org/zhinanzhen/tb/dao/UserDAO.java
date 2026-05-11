@@ -70,6 +70,8 @@ public interface UserDAO {
 
     UserDO getUserByName(@Param("name")String name, @Param("id") Integer id);
 
+	UserDO getUserByExternalUserid(@Param("externalUserid") String externalUserid);
+
 	public List<UserDO> listByIds(@Param("ids") List<Integer> ids);
 
 	public List<UserAdviserDO> listUserAdviserByUserIds(@Param("userIds") List<Integer> userIds);
