@@ -230,4 +230,6 @@ public class ServiceOrderDO implements Serializable {
 
 	private String isTransfer; // 是否转学
 
+	private List<ReviewAIDO> reviewAIList;
+
 }

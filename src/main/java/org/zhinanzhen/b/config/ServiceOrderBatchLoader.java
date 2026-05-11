@@ -41,6 +41,7 @@ public class ServiceOrderBatchLoader {
     private final ServicePackagePriceDAO servicePackagePriceDAO;
     private final ServiceOrderManageDAO serviceOrderManageDAO;
     private final WebLogDAO webLogDAO;
+    private final ReviewAIDAO reviewAIDAO;
 
     public ServiceOrderBatchLoader(ServiceOrderDAO serviceOrderDao, SchoolDAO schoolDao,
                                    SubagencyDAO subagencyDao, ServiceDAO serviceDao,
@@ -57,7 +58,8 @@ public class ServiceOrderBatchLoader {
                                    OfficialHandoverLogDao officialHandoverLogDao,
                                    ServicePackagePriceDAO servicePackagePriceDAO,
                                    ServiceOrderManageDAO serviceOrderManageDAO,
-                                   WebLogDAO webLogDAO) {
+                                   WebLogDAO webLogDAO,
+                                   ReviewAIDAO reviewAIDAO) {
         this.serviceOrderDao = serviceOrderDao;
         this.schoolDao = schoolDao;
         this.subagencyDao = subagencyDao;
@@ -83,6 +85,7 @@ public class ServiceOrderBatchLoader {
         this.servicePackagePriceDAO = servicePackagePriceDAO;
         this.serviceOrderManageDAO = serviceOrderManageDAO;
         this.webLogDAO = webLogDAO;
+        this.reviewAIDAO = reviewAIDAO;
     }
 
     public ServiceOrderBatchContext batchLoadRelatedData(List<ServiceOrderDO> orders) {
@@ -256,6 +259,14 @@ public class ServiceOrderBatchLoader {
         if (!locationIds.isEmpty()) {
             List<SchoolInstitutionLocationDO> silList = schoolInstitutionLocationDAO.listByIds(new ArrayList<>(locationIds));
             silList.forEach(sil -> ctx.schoolInstitutionLocationMap.put(sil.getId(), sil));
+        }
+
+        // 24. review AI
+        if (!serviceOrderIds.isEmpty()) {
+            List<ReviewAIDO> reviewAIList = reviewAIDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+            for (ReviewAIDO r : reviewAIList) {
+                ctx.reviewAIMap.computeIfAbsent(r.getServiceOrderId(), k -> new ArrayList<>()).add(r);
+            }
         }
 
         // 第二阶段：依赖 advisers 结果的 regions 查询

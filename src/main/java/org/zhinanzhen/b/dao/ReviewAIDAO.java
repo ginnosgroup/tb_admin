@@ -21,4 +21,6 @@ public interface ReviewAIDAO {
                       @Param("adminUserId") Integer adminUserId);
 
     int deleteReviewAIById(@Param("id") int id);
+
+    List<ReviewAIDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
 }

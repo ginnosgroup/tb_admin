@@ -175,7 +175,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     visaDao, serviceAssessDao, regionDAO, commissionOrderTempDao,
                     schoolCourseDAO, schoolInstitutionDAO, schoolInstitutionLocationDAO,
                     customerInformationDAO, serviceOrderApplicantDao, officialHandoverLogDao,
-                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO
+                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO, reviewAIDAO
             );
         }
         return batchLoader;
@@ -917,6 +917,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         List<WebLogDTO> webLogDTOList = ctx.webLogMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
         if (!webLogDTOList.isEmpty()) {
             serviceOrderDto.setContractDataList(webLogDTOList);
+        }
+        // 获取AI审核数据
+        List<ReviewAIDO> reviewAIList = ctx.reviewAIMap.getOrDefault(serviceOrderDto.getId(), new ArrayList<>());
+        if (!reviewAIList.isEmpty()) {
+            serviceOrderDto.setReviewAIList(reviewAIList);
         }
         return serviceOrderDto;
     }
