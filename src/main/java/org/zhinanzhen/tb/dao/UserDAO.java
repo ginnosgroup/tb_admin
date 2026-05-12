@@ -72,6 +72,8 @@ public interface UserDAO {
 
 	UserDO getUserByExternalUserid(@Param("externalUserid") String externalUserid);
 
+	boolean updateExternalUserid(@Param("id") int id, @Param("externalUserid") String externalUserid);
+
 	public List<UserDO> listByIds(@Param("ids") List<Integer> ids);
 
 	public List<UserAdviserDO> listUserAdviserByUserIds(@Param("userIds") List<Integer> userIds);

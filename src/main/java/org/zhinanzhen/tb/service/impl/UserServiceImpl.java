@@ -175,80 +175,90 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
-	public int addUserByWechat(String jsonStr) throws ServiceException {
+	public int createOrUpdateUserByWechat(String jsonStr) throws ServiceException {
 		JSONObject json = JSONObject.parseObject(jsonStr);
-		int errcode = json.getIntValue("errcode");
-		if (errcode != 0) {
-			throw new ServiceException("企微回调异常: errcode=" + errcode + ", errmsg=" + json.getString("errmsg"));
+		String realName = json.getString("realName");
+		String email = json.getString("email");
+		String phone = json.getString("phone");
+		String areaCode = json.getString("areaCode");
+		String wechatUsername = json.getString("wechatUsername");
+		String source = json.getString("source");
+		String authNickname = json.getString("authNickname");
+		String wxUserId = json.getString("wxUserId");
+		String qyUserEmail = json.getString("qyUserEmail");
+		String tagName = json.getString("tagName");
+
+		if (StringUtil.isEmpty(qyUserEmail)) {
+			throw new ServiceException("缺少顾问邮箱(qyUserEmail)");
 		}
-		JSONObject externalContact = json.getJSONObject("external_contact");
-		if (externalContact == null) {
-			throw new ServiceException("缺少external_contact数据");
+		if (StringUtil.isEmpty(wxUserId)) {
+			throw new ServiceException("缺少企微用户ID(wxUserId)");
 		}
-		String externalUserid = externalContact.getString("external_userid");
-		if (StringUtil.isEmpty(externalUserid)) {
-			throw new ServiceException("缺少external_userid");
+
+		// 通过顾问邮箱查找顾问
+		AdviserDO adviserDo = adviserDao.getAdviserByEmail(email);
+		if (adviserDo == null) {
+			throw new ServiceException("未找到该顾问: " + email);
 		}
-		// 检查是否已存在该企微用户
-		UserDO existUser = userDao.getUserByExternalUserid(externalUserid);
-		JSONArray followUserArr = json.getJSONArray("follow_user");
-		JSONObject followUser = (followUserArr != null && !followUserArr.isEmpty())
-				? followUserArr.getJSONObject(0) : null;
-		String phone = null;
-		if (followUser != null) {
-			JSONArray mobiles = followUser.getJSONArray("remark_mobiles");
-			if (mobiles != null && !mobiles.isEmpty()) {
-				phone = mobiles.getString(0);
-			}
-		}
-		String name = externalContact.getString("user_name");
-		String email = externalContact.getString("email");
-		String avatar = externalContact.getString("avatar");
-		String unionid = externalContact.getString("unionid");
+		int adviserId = adviserDo.getId();
+
+		// 通过邮箱查找用户是否存在
+		List<UserDO> userList = userDao.listUser(null, realName, null, null,
+				null, null, qyUserEmail, null, adviserDo.getId(), null, null, null, null, null, 0, 1);
+		UserDO existUser = (userList != null && !userList.isEmpty()) ? userList.get(0) : null;
 
 		int userId;
 		if (existUser != null) {
+			// 用户存在，更新external_userid和其他信息
 			userId = existUser.getId();
-			userDao.update(existUser.getId(), name, name, null, phone, email, null, null, null, null, null,
-					null, null, null, null);
+			userDao.updateExternalUserid(userId, wxUserId);
+			userDao.update(userId, realName, StringUtil.isNotEmpty(authNickname) ? authNickname : realName,
+					null, phone, qyUserEmail, areaCode, wechatUsername, null, null, null, source,
+					null, null, null);
 		} else {
+			// 用户不存在，创建新用户
 			UserDO userDo = new UserDO();
-			userDo.setName(name != null ? name : "");
-			userDo.setAuthNickname(name != null ? name : "");
+			userDo.setName(realName != null ? realName : "");
+			userDo.setAuthNickname(StringUtil.isNotEmpty(authNickname) ? authNickname : (realName != null ? realName : ""));
 			userDo.setAuthType("WECHAT_WORK");
-			userDo.setAuthOpenid(unionid != null ? unionid : "");
-			userDo.setAuthLogo(avatar != null ? avatar : "");
-			userDo.setEmail(email != null ? email : "");
+			userDo.setAuthOpenid("");
+			userDo.setEmail(qyUserEmail != null ? qyUserEmail : "");
 			userDo.setPhone(phone != null ? phone : "");
-			userDo.setExternalUserid(externalUserid);
+			userDo.setExternalUserid(wxUserId);
+			userDo.setWechatUsername(wechatUsername != null ? wechatUsername : "");
 			userDo.setBirthday(new Date());
-			userDo.setAreaCode("");
-			userDo.setSource("");
-			userDo.setAdviserId(0);
-			userDo.setRegionId(1);
+			userDo.setAreaCode(areaCode != null ? areaCode : "");
+			userDo.setSource(source != null ? source : "");
+			userDo.setAdviserId(adviserId);
+			userDo.setRegionId(adviserDo.getRegionId() > 0 ? adviserDo.getRegionId() : 1);
 			if (userDao.addUser(userDo) > 0) {
 				userId = userDo.getId();
+				// 创建用户-顾问关联
+				userDao.addUserAdviser(userId, adviserId, true);
 			} else {
 				throw new ServiceException("添加用户失败");
 			}
 		}
-		// 保存标签
-		if (followUser != null) {
-			JSONArray tags = followUser.getJSONArray("tags");
-			if (tags != null && !tags.isEmpty()) {
-				wechatUserTagDao.deleteWechatUserTagByUserId(userId);
-				for (int i = 0; i < tags.size(); i++) {
-					JSONObject tag = tags.getJSONObject(i);
-					WechatUserTagDO tagDo = new WechatUserTagDO();
-					tagDo.setUserId(userId);
-					tagDo.setTagId(tag.getString("tag_id"));
-					tagDo.setTagName(tag.getString("tag_name"));
-					tagDo.setGroupName(tag.getString("group_name"));
-					tagDo.setType(tag.getIntValue("type"));
-					wechatUserTagDao.addWechatUserTag(tagDo);
+
+		// 处理企微标签，写入b_wechat_user_tag表
+		if (StringUtil.isNotEmpty(tagName)) {
+			wechatUserTagDao.deleteWechatUserTagByUserId(userId);
+			String[] tagNames = tagName.split(",");
+			for (String tn : tagNames) {
+				tn = tn.trim();
+				if (StringUtil.isEmpty(tn)) {
+					continue;
 				}
+				WechatUserTagDO tagDo = new WechatUserTagDO();
+				tagDo.setUserId(userId);
+				tagDo.setTagName(tn);
+				tagDo.setTagId("");
+				tagDo.setGroupName("");
+				tagDo.setType(0);
+				wechatUserTagDao.addWechatUserTag(tagDo);
 			}
 		}
+
 		return userId;
 	}
 

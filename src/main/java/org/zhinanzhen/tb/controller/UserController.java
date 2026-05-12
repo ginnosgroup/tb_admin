@@ -115,7 +115,7 @@ public class UserController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
-			return new Response<Integer>(0, userService.addUserByWechat(jsonStr));
+			return new Response<Integer>(0, userService.createOrUpdateUserByWechat(jsonStr));
 		} catch (ServiceException e) {
 			return new Response<Integer>(1, e.getMessage(), -1);
 		}
