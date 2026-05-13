@@ -205,8 +205,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		int adviserId = adviserDo.getId();
 
-		// 通过邮箱查找用户是否存在
-		List<UserDO> userList = userDao.listUser(null, realName, null, null, null, null, email, null, null, null, null, null, null, null, 0, 1);
+		// 通过姓名和电话号码查找用户是否存在
+		List<UserDO> userList = userDao.listUser(null, realName, null, null, phone, null, null, null, null, null, null, null, null, null, 0, 1);
 		UserDO existUser = (userList != null && !userList.isEmpty()) ? userList.get(0) : null;
 
 		if (existUser != null) {
@@ -258,7 +258,40 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 		}
 
+		// add applicant
+		addApplicantFromJson(json, userId, adviserId);
+
 		return userId;
+	}
+
+	/**
+	 * 从JSON解析并添加申请人
+	 */
+	private void addApplicantFromJson(JSONObject json, int userId, int adviserId) {
+		String realName = json.getString("realName");
+		if (StringUtil.isEmpty(realName)) {
+			return;
+		}
+		String[] nameParts = realName.trim().split(" ", 2);
+		String firstname = nameParts.length > 0 ? nameParts[0] : "";
+		String surname = nameParts.length > 1 ? nameParts[1] : "";
+		ApplicantDO applicantDo = new ApplicantDO();
+		applicantDo.setFirstname(firstname);
+		applicantDo.setSurname(surname);
+		String applicantBirthday = json.getString("applicantBirthday");
+		if (StringUtil.isNotEmpty(applicantBirthday)) {
+			try {
+				applicantDo.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(applicantBirthday));
+			} catch (Exception e) {
+				applicantDo.setBirthday(new Date());
+			}
+		} else {
+			applicantDo.setBirthday(new Date());
+		}
+		applicantDo.setType("BR");
+		applicantDo.setUserId(userId);
+		applicantDo.setAdviserId(adviserId);
+		applicantDao.add(applicantDo);
 	}
 
 	@Override

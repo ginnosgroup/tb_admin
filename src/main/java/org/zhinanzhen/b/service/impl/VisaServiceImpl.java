@@ -340,7 +340,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 						sendMail(officialDo.getEmail(), "尾款支付完成提醒", StringUtil.merge("亲爱的:", officialDo.getName(),
 								"<br/>", "您的服务订单已经完成尾款支付，请及时提交移民局申请。<br>订单号:", serviceOrderId,
 								"<br/>服务类型:签证<br/>申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(),
-								"/文案:", officialDo.getName(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:",
+								"/文案:", officialDo.getName(), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:",
 								applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
 								serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date));
 					}

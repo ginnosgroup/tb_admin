@@ -585,8 +585,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         StringUtil.merge("亲爱的mara:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
                                 serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
                                 adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
-                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                                 serviceOrderDo.getRemarks(),"<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             }
             return i;
@@ -654,7 +654,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已经变更。", "<br>订单号:",
                             serviceOrderDo.getId(), "<br/>申请人名称:", getApplicantName(applicantDto), "<br/>顾问:",
                             adviserDo.getName(), "<br/>文案:", officialDo.getName(), "<br/>属性:",
-                            getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
+                            getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()),
                             "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
                             "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                             serviceOrderMailDetail.getServiceOrderUrl()));
@@ -668,8 +668,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>", "您有一条新的服务订单任务请及时处理。", "<br>订单号:",
                                 serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
                                 adviserDo.getName(), "/文案:", officialDo.getName(), "/MARA:", maraDo.getName(),
-                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                                 serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
                                 "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                 sendMail(_maraDo.getEmail(), "变更任务提醒:", StringUtil.merge("亲爱的", _maraDo.getName(), ":<br/>", "您有的订单号:",
@@ -684,7 +684,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
                                 serviceOrderMailDetail.getDetail(), "/顾问:", adviserDo.getName(), "/文案:",
                                 officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-                                "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>申请人基本信息:", applicantDto.getContent(),
+                                "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>申请人基本信息:", applicantDto.getContent(),
                                 "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
                                 "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             if (StringUtil.equals("Retracted", serviceOrderDo.getStateMark2())) // 顾问提交审核后又撤回，提醒文案不同
@@ -692,7 +692,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         StringUtil.merge("亲爱的", _officialDo.getName(), ":<br/>您有一条服务订单已被撤回,如有服务相关问题请及时与顾问沟通<br/>订单号:",
                                 serviceOrderDo.getId(), "<br/>服务类型:", serviceOrderMailDetail.getType(),
                                 serviceOrderMailDetail.getDetail(), "<br/>顾问:", adviserDo.getName(), "<br/>申请人基本信息:",
-                                applicantDto.getContent(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
+                                applicantDto.getContent(), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>备注:",
                                 serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
                                 "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             else if (!"PENDING".equalsIgnoreCase(serviceOrderDo.getState()))
@@ -731,8 +731,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 sendMail(kjEmails, "服务项目变更提醒:签证",
                                         StringUtil.merge("亲爱的会计", ":<br/>", "佣金订单关联服务项目已发生变更，如有问题请与顾问联系．<br/>佣金订单编号:",
                                                 visaIds, "<br/>申请人基本信息:", applicantDto.getContent(), "<br/>顾问:",
-                                                adviserDo.getName(), "<br/>文案:", _officialDo.getName(), "<br/>坚果云资料地址:",
-                                                applicantDto.getUrl(), "<br/>备注:", serviceOrderDo.getRemarks(),
+                                                adviserDo.getName(), "<br/>文案:", _officialDo.getName(), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>备注:", serviceOrderDo.getRemarks(),
+
                                                 "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date,
                                                 "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                             }
@@ -747,7 +747,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 sendMail(kjEmails, "服务项目变更提醒:留学", StringUtil.merge("亲爱的会计", ":<br/>",
                                         "佣金订单关联服务项目已发生变更，如有问题请与顾问联系．<br/>佣金订单编号:", commissionOrderIds, "<br/>申请人基本信息:",
                                         applicantDto.getContent(), "<br/>顾问:", adviserDo.getName(), "<br/>文案:",
-                                        _officialDo.getName(), "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>备注:",
+                                        _officialDo.getName(), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>备注:",
                                         serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
                                         "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                             }
@@ -2008,16 +2008,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
                             "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
                             getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                            getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                            applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                            getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                             serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(), "<br/>创建时间:",
                             date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     // 发送给文案
                     sendMail(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>",
                             "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDoT.getId(), "<br/>服务类型:签证/申请人名称:",
                             getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                            getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                            applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                            getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                             serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(), "<br/>创建时间:",
                             date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     // 写入审核时间
@@ -2032,8 +2032,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         serviceOrderDoT.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
                         adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
                         getPeopleTypeStr(serviceOrderDoT.getPeopleType()),
-                        "<br/>坚果云资料地址:",
-                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                        "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                         serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(), "<br/>创建时间:", date,
                         "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             }
@@ -2042,8 +2042,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
                         "您的服务订单已经提交移民局申请。<br>订单号:", serviceOrderDoT.getId(), "<br/>服务类型:签证/申请人名称:",
                         getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
-                        "<br/>属性:", getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                        "<br/>属性:", getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                         serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(), "<br/>创建时间:", date,
                         "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
             }
@@ -2054,8 +2054,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id,
                                 "<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
                                 "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                 "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                 "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl());
                 if (officialDo != null) {
@@ -2066,8 +2066,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     "您有一条新的服务订单任务请及时处理。<br>订单号:", id, "<br/>服务类型:留学/申请人名称:",
                                     getApplicantName(applicantDto), "/学校:", schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:",
                                     adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                     "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl());
                     } else if (serviceOrderDoT.getCourseId() > 0) {
@@ -2077,8 +2077,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     "您有一条新的服务订单任务请及时处理。<br>订单号:", id, "<br/>服务类型:留学/申请人名称:",
                                     getApplicantName(applicantDto), "/学校:", institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(), "/顾问:",
                                     adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                     "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl());
                     }
@@ -2094,8 +2094,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         StringUtil.merge("亲爱的", adviserDo.getName(), ":<br/>您有一条服务订单已正在处理中。<br/>订单号:", id, "/服务类型:",
                                 serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(), "/顾问:",
                                 adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>创建时间:", date, "<br/>属性:",
-                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                 "<br/>备注:",
                                 serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(), "<br/>",
                                 serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2112,8 +2112,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     sendMail(adviserDo.getEmail(), _title, StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
                             "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDoT.getId(), "/服务类型:签证/申请人名称:", getApplicantName(applicantDto),
                             "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                            getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                            applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                            getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                             serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(), "<br/>创建时间:",
                             date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     MaraDO maraDo = maraDao.getMaraById(serviceOrderDoT.getMaraId());
@@ -2122,8 +2122,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         sendMail(maraDo.getEmail(), _title, StringUtil.merge("亲爱的:", maraDo.getName(), "<br/>",
                                 "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDoT.getId(), "<br/>服务类型:签证/申请人名称:",
                                 getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                 "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                 "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     }
@@ -2144,8 +2144,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 stateTips, serviceOrderDoT.getId(), "<br/>服务类型:留学/申请人名称:",
                                 getApplicantName(applicantDto), "/学校:", schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:",
                                 adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                 "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                 "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     } else if (serviceOrderDoT.getCourseId() > 0) {
@@ -2155,8 +2155,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     stateTips, serviceOrderDoT.getId(), "<br/>服务类型:留学/申请人名称:",
                                     getApplicantName(applicantDto), "/学校:", institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(), "/顾问:",
                                     adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                     "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     }
@@ -2175,8 +2175,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                         "您有一条服务订单任务财务审核通过请及时处理。<br>订单号:", serviceOrderDoT.getId(), "<br/>服务类型:留学/申请人名称:",
                                         getApplicantName(applicantDto), "/学校:", schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:",
                                         adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                        getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                        getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                         "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                         "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                         } else if (serviceOrderDoT.getCourseId() > 0) {
@@ -2186,8 +2186,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                         "您有一条服务订单任务财务审核通过请及时处理。<br>订单号:", serviceOrderDoT.getId(), "<br/>服务类型:留学/申请人名称:",
                                         getApplicantName(applicantDto), "/学校:", institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(), "/顾问:",
                                         adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                        getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                        getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                         "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                         "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                         }
@@ -2223,7 +2223,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     "<br/>服务类型:留学/申请人名称:", getApplicantName(applicantDto), "/学校:", schoolDo.getName(),
                                     "/专业:", schoolDo.getSubject(), "/顾问:", adviserDo.getName(), "/文案:",
                                     officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDoT.getPeopleType()),
-                                    "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
                                     "<br/>备注:", serviceOrderDoT.getRemarks(), "<br/>驳回原因:",
                                     serviceOrderDoT.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                     serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2236,8 +2236,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                         "<br/>服务类型:留学/申请人名称:", getApplicantName(applicantDto), "/学校:",
                                         institution.getName(), "/专业:", institution.getSchoolCourseDO().getCourseName(),
                                         "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                        getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>坚果云资料地址:",
-                                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                        getPeopleTypeStr(serviceOrderDoT.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDoT.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                                         serviceOrderDoT.getRemarks(), "<br/>驳回原因:", serviceOrderDoT.getRefuseReason(),
                                         "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                         }
@@ -2278,8 +2278,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     maraDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id, "<br/>服务类型:",
                                     serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
                                     "/顾问:" + adviserDo.getName() + "/文案:" + officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(),
                                     "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                     }
@@ -2290,16 +2290,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 "您的订单已经审核完成请查看并进行下一步操作。<br/>如有尾款请联系客户立即支付，避免影响文案提交申请。<br/>订单号:", serviceOrderDo.getId(),
                                 "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:",
                                 officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-                                "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                                 serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
                                 date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                         // 发送给文案
                         sendMail(officialDo.getEmail(), _title, StringUtil.merge("亲爱的:", officialDo.getName(),
                                 "<br/>", "您的订单已经审核完成请查看并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
                                 getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+                                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
+
                                 serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
                                 date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl()));
                         // 写入审核时间
@@ -2313,8 +2313,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 StringUtil.merge("亲爱的", officialDo.getName(), ":<br/>您有一条新的服务订单任务请及时处理。<br/>订单号:", id,
                                         "<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
                                         "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                        getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                        getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                         "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                         serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                         serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2327,8 +2327,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                 StringUtil.merge("亲爱的", adviserDo.getName(), ":<br/>您有一条服务订单已正在处理中。<br/>订单号:", id,
                                         "<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
                                         "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                        getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                        applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                        getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                         "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                         serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                         serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2341,8 +2341,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>",
                                             "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:",
                                             getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(),
-                                            "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                            applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                            "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                             "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                             serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                             serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2353,7 +2353,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                         "<br/>", "您的订单已经申请成功，请检查并进行下一步操作。<br>订单号:", serviceOrderDo.getId(),
                                         "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:", adviserDo.getName(), "/文案:",
                                         officialDo.getName(), "<br/>属性:", getPeopleTypeStr(serviceOrderDo.getPeopleType()),
-                                        "<br/>坚果云资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:",
+                                        "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:",
                                         applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
                                         "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                         serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2372,8 +2372,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                 "<br/>服务类型:留学/申请人名称:", getApplicantName(applicantDto), "/学校:", schoolDo.getName(), "/专业:",
                                                 schoolDo.getSubject(), "/顾问:", adviserDo.getName(), "/文案:",
                                                 officialDo.getName(), "<br/>属性:",
-                                                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                                applicantDto.getUrl(), "<br/>客户基本信息:",
+                                                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:",
+
                                                 applicantDto.getContent(), "<br/>备注:", serviceOrderDo.getRemarks(),
                                                 "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                                 serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2409,8 +2409,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                             serviceOrderDo.getId(), "<br/>服务类型:留学/申请人名称:", getApplicantName(applicantDto), "/学校:",
                                             schoolDo.getName(), "/专业:", schoolDo.getSubject(), "/顾问:", adviserDo.getName(),
                                             "/文案:", officialDo.getName(), "<br/>属性:",
-                                            getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                            applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                            getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                             "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                             serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                             serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2445,8 +2445,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             StringUtil.merge("亲爱的:", adviserDo.getName(), "<br/>", "您的订单已被驳回。<br>订单号:",
                                     serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
                                     adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                     serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                     serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2457,8 +2457,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             StringUtil.merge("亲爱的:", officialDo.getName(), "<br/>", "您的订单已被驳回。<br>订单号:",
                                     serviceOrderDo.getId(), "<br/>服务类型:签证/申请人名称:", getApplicantName(applicantDto), "/顾问:",
                                     adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                     serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                     serviceOrderMailDetail.getServiceOrderUrl()));
@@ -2468,8 +2468,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             StringUtil.merge("亲爱的", adviserDo.getName(), ":<br/>您有一条服务订单已被驳回。<br/>订单号:", id,
                                     "<br/>服务类型:", serviceOrderMailDetail.getType(), serviceOrderMailDetail.getDetail(),
                                     "/顾问:", adviserDo.getName(), "/文案:", officialDo.getName(), "<br/>属性:",
-                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:",
-                                    applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(),
+                                    getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()), "<br/>客户基本信息:", applicantDto.getContent(),
+
                                     "<br/>备注:", serviceOrderDo.getRemarks(), "<br/>驳回原因:",
                                     serviceOrderDo.getRefuseReason(), "<br/>创建时间:", date, "<br/>",
                                     serviceOrderMailDetail.getServiceOrderUrl()));
