@@ -191,7 +191,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		String qyUserEmail = json.getString("qyUserEmail");
 		String tagName = json.getString("tagName");
 
-		if (StringUtil.isEmpty(email)) {
+		if (StringUtil.isEmpty(qyUserEmail)) {
 			throw new ServiceException("缺少顾问邮箱(email)");
 		}
 		if (StringUtil.isEmpty(wxUserId)) {
@@ -199,14 +199,14 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 
 		// 通过顾问邮箱查找顾问
-		AdviserDO adviserDo = adviserDao.getAdviserByEmail(email);
+		AdviserDO adviserDo = adviserDao.getAdviserByEmail(qyUserEmail);
 		if (adviserDo == null) {
-			throw new ServiceException("未找到该顾问: " + email);
+			throw new ServiceException("未找到该顾问: " + qyUserEmail);
 		}
 		int adviserId = adviserDo.getId();
 
 		// 通过邮箱查找用户是否存在
-		List<UserDO> userList = userDao.listUser(null, realName, null, null, null, null, qyUserEmail, null, null, null, null, null, null, null, 0, 1);
+		List<UserDO> userList = userDao.listUser(null, realName, null, null, null, null, email, null, null, null, null, null, null, null, 0, 1);
 		UserDO existUser = (userList != null && !userList.isEmpty()) ? userList.get(0) : null;
 
 		if (existUser != null) {
