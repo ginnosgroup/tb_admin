@@ -349,7 +349,7 @@
         SET gmt_modify = now(), external_userid = #{externalUserid}
         WHERE id = #{id};
     </update>
-    
+
     <select id="listUserByRecommendOpenId" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         SELECT
         id,

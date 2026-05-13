@@ -34,6 +34,7 @@ import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
@@ -58,6 +59,8 @@ import com.ikasoa.core.utils.StringUtil;
 public class UserServiceImpl extends BaseService implements UserService {
 	@Resource
 	private UserDAO userDao;
+	@Resource
+	private AdminUserDAO adminUserDao;
 	@Resource
 	private AdviserDAO adviserDao;
 	@Resource
@@ -188,8 +191,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		String qyUserEmail = json.getString("qyUserEmail");
 		String tagName = json.getString("tagName");
 
-		if (StringUtil.isEmpty(qyUserEmail)) {
-			throw new ServiceException("缺少顾问邮箱(qyUserEmail)");
+		if (StringUtil.isEmpty(email)) {
+			throw new ServiceException("缺少顾问邮箱(email)");
 		}
 		if (StringUtil.isEmpty(wxUserId)) {
 			throw new ServiceException("缺少企微用户ID(wxUserId)");
@@ -203,41 +206,37 @@ public class UserServiceImpl extends BaseService implements UserService {
 		int adviserId = adviserDo.getId();
 
 		// 通过邮箱查找用户是否存在
-		List<UserDO> userList = userDao.listUser(null, realName, null, null,
-				null, null, qyUserEmail, null, adviserDo.getId(), null, null, null, null, null, 0, 1);
+		List<UserDO> userList = userDao.listUser(null, realName, null, null, null, null, qyUserEmail, null, null, null, null, null, null, null, 0, 1);
 		UserDO existUser = (userList != null && !userList.isEmpty()) ? userList.get(0) : null;
 
-		int userId;
 		if (existUser != null) {
-			// 用户存在，更新external_userid和其他信息
-			userId = existUser.getId();
-			userDao.updateExternalUserid(userId, wxUserId);
-			userDao.update(userId, realName, StringUtil.isNotEmpty(authNickname) ? authNickname : realName,
-					null, phone, qyUserEmail, areaCode, wechatUsername, null, null, null, source,
-					null, null, null);
+			ServiceException se = new ServiceException("用户" + realName + "(" + existUser.getId() + ")已存在");
+			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw se;
+		}
+
+		// 用户不存在，创建新用户
+		UserDO userDo = new UserDO();
+		userDo.setName(realName != null ? realName : "");
+		userDo.setAuthNickname(StringUtil.isNotEmpty(authNickname) ? authNickname : (realName != null ? realName : ""));
+		userDo.setAuthType("WECHAT_WORK");
+		userDo.setAuthOpenid("");
+		userDo.setEmail(email != null ? email : "");
+		userDo.setPhone(phone != null ? phone : "");
+		userDo.setExternalUserid(wxUserId);
+		userDo.setWechatUsername(wechatUsername != null ? wechatUsername : "");
+		userDo.setBirthday(new Date());
+		userDo.setAreaCode(areaCode != null ? areaCode : "");
+		userDo.setSource(source != null ? source : "");
+		userDo.setAdviserId(adviserId);
+		userDo.setRegionId(adviserDo.getRegionId() > 0 ? adviserDo.getRegionId() : 1);
+		int userId;
+		if (userDao.addUser(userDo) > 0) {
+			userId = userDo.getId();
+			// 创建用户-顾问关联
+			userDao.addUserAdviser(userId, adviserId, true);
 		} else {
-			// 用户不存在，创建新用户
-			UserDO userDo = new UserDO();
-			userDo.setName(realName != null ? realName : "");
-			userDo.setAuthNickname(StringUtil.isNotEmpty(authNickname) ? authNickname : (realName != null ? realName : ""));
-			userDo.setAuthType("WECHAT_WORK");
-			userDo.setAuthOpenid("");
-			userDo.setEmail(qyUserEmail != null ? qyUserEmail : "");
-			userDo.setPhone(phone != null ? phone : "");
-			userDo.setExternalUserid(wxUserId);
-			userDo.setWechatUsername(wechatUsername != null ? wechatUsername : "");
-			userDo.setBirthday(new Date());
-			userDo.setAreaCode(areaCode != null ? areaCode : "");
-			userDo.setSource(source != null ? source : "");
-			userDo.setAdviserId(adviserId);
-			userDo.setRegionId(adviserDo.getRegionId() > 0 ? adviserDo.getRegionId() : 1);
-			if (userDao.addUser(userDo) > 0) {
-				userId = userDo.getId();
-				// 创建用户-顾问关联
-				userDao.addUserAdviser(userId, adviserId, true);
-			} else {
-				throw new ServiceException("添加用户失败");
-			}
+			throw new ServiceException("添加用户失败");
 		}
 
 		// 处理企微标签，写入b_wechat_user_tag表
@@ -260,6 +259,48 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 
 		return userId;
+	}
+
+	@Override
+	public boolean bindWechatUser(int userId, String wxUserId, String qyUserId, String qyEmail) throws ServiceException {
+		// 通过qyUserId(对应oper_userid)和qyEmail(对应username)查询admin_user
+		AdminUserDO adminUser = adminUserDao.getAdminUserByOpenUserId(qyUserId);
+		if (adminUser == null || !qyEmail.equals(adminUser.getUsername())) {
+			throw new ServiceException("未找到匹配的顾问账号");
+		}
+		// 检查是否为顾问(有adviser_id)
+		if (adminUser.getAdviserId() == null || adminUser.getAdviserId() <= 0) {
+			throw new ServiceException("该账号不是顾问");
+		}
+		// 查询顾问信息
+		AdviserDO adviserDo = adviserDao.getAdviserById(adminUser.getAdviserId());
+		if (adviserDo == null) {
+			throw new ServiceException("未找到顾问信息");
+		}
+		// 查询用户
+		UserDO userDo = userDao.getUserById(userId);
+		if (userDo == null) {
+			throw new ServiceException("没有该用户");
+		}
+		// 检查用户是否属于该顾问
+		boolean belongsToAdviser = userDo.getAdviserId() == adviserDo.getId();
+		if (!belongsToAdviser) {
+			List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserId(userId);
+			if (userAdviserList != null) {
+				for (UserAdviserDO ua : userAdviserList) {
+					if (ua.getAdviserId() == adviserDo.getId()) {
+						belongsToAdviser = true;
+						break;
+					}
+				}
+			}
+		}
+		if (!belongsToAdviser) {
+			throw new ServiceException("该用户不属于此顾问");
+		}
+		// 更新wxUserId到external_userid
+		userDao.updateExternalUserid(userId, wxUserId);
+		return true;
 	}
 
 	@Override
