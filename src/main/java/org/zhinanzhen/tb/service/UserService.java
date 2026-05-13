@@ -91,6 +91,8 @@ public interface UserService {
 
 	String reviewForAI(List<String> urls, List<String> fileNames);
 
-	int addUserByWechat(String jsonStr) throws ServiceException;
+	int createOrUpdateUserByWechat(String jsonStr) throws ServiceException;
+
+	boolean bindWechatUser(int userId, String wxUserId, String qyUserId, String qyEmail) throws ServiceException;
 
 }
