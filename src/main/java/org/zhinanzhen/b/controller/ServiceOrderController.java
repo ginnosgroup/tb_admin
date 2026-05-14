@@ -51,8 +51,10 @@ import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.RegionService;
@@ -151,6 +153,8 @@ public class ServiceOrderController extends BaseController {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private ServiceOrderDAO serviceOrderDAO;
+    @Autowired
+    private AdminUserDAO adminUserDAO;
     @Autowired
     private UserDAO userDAO;
     @Autowired
@@ -2029,6 +2033,48 @@ public class ServiceOrderController extends BaseController {
              * so.setCommissionOrderDTOList(serviceOrderService.getCommissionOrderList(so.
              * getId())); } }
              */
+            if (serviceOrderList == null) {
+                serviceOrderList = new ArrayList<>();
+            }
+            return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
+        } catch (ServiceException e) {
+            return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/listForUserId", method = RequestMethod.POST)
+    @ResponseBody
+    public ListResponse<List<ServiceOrderDTO>> listServiceOrderForUserId(
+            @RequestParam(value = "qyEmail") String qyEmail,
+            @RequestParam(value = "userId") Integer userId,
+            @RequestParam(value = "pageNum") int pageNum,
+            @RequestParam(value = "pageSize") int pageSize,
+            @RequestParam(value = "sorter", required = false) String sorter,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            AdminUserDO adminUser = adminUserDAO.getAdminUserByUsername(qyEmail);
+            if (adminUser == null || adminUser.getAdviserId() == null) {
+                return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null,
+                        "未找到匹配的顾问账号");
+            }
+            Integer adviserId = adminUser.getAdviserId();
+
+            Sorter _sorter = null;
+            if (sorter != null)
+                _sorter = JSON.parseObject(sorter.replace("adviser,name", "adviserName"), Sorter.class);
+
+            int total = serviceOrderService.countServiceOrder(null, null, null, null,
+                    null, null, null, null, null,
+                    null, null, null, null, null, null,
+                    null, null, userId, null, null, null, adviserId, null, null, 0, 0,
+                    false, null, null, null, null, null, null, null, null, null, null, null);
+            List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(null, null,
+                    null, null, null, null, null, null,
+                    null, null, null, null, null, null, null,
+                    null, null, userId, null, null, null, adviserId, null,
+                    null, 0, 0, false, pageNum, pageSize, _sorter,
+                    null, null, null, null, null, null, null, null, null, null, null, null);
             if (serviceOrderList == null) {
                 serviceOrderList = new ArrayList<>();
             }

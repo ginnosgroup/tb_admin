@@ -436,14 +436,20 @@ public class ServiceOrderManageController extends BaseController {
     }
 
     private void amountAllocation(List<ServiceOrderDTO> serviceOrderJson) throws ServiceException {
-        boolean isAllocation = false;
-        if (serviceOrderJson.stream().anyMatch(p -> p.getServiceId() == 16)) {
-            isAllocation = true;
+        if (serviceOrderJson.size() == 1) {
+            return;
+        }
+
+        int isAllocation = 0;
+        for (ServiceOrderDTO serviceOrderDTO : serviceOrderJson) {
+            if (serviceOrderDTO.getServiceId() == 16 || serviceOrderDTO.getServiceId() == 14) {
+                isAllocation++;
+            }
         }
         serviceOrderJson = serviceOrderJson.stream().sorted(Comparator.comparing(ServiceOrderDTO::getServiceId)).collect(Collectors.toList());
         for (ServiceOrderDTO serviceOrderJsonRequest : serviceOrderJson) {
             Double amount600 = 220.00;
-            if (isAllocation && serviceOrderJsonRequest.getServiceId() == 16) {
+            if (isAllocation >= 2 && serviceOrderJsonRequest.getServiceId() == 16) {
                 if ("CNY".equalsIgnoreCase(serviceOrderJsonRequest.getCurrency())) {
                     amount600 = amount600 * serviceOrderJsonRequest.getExchangeRate();
                 }
@@ -462,7 +468,7 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderJsonRequest.setExpectAmount(expectAmount - amount600);
                 serviceOrderJsonRequest.setPerAmount(perAmount - amount600);
             }
-            if (isAllocation && serviceOrderJsonRequest.getServiceId() == 19 && !serviceOrderJsonRequest.isPay()) {
+            if (isAllocation >= 2 && serviceOrderJsonRequest.getServiceId() == 19 && !serviceOrderJsonRequest.isPay()) {
                 if ("CNY".equalsIgnoreCase(serviceOrderJsonRequest.getCurrency())) {
                     amount600 = amount600 * serviceOrderJsonRequest.getExchangeRate();
                 }
