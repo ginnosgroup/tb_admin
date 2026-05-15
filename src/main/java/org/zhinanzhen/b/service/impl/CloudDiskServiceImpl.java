@@ -182,34 +182,22 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         .parallelSha1Ctx(partInfoList0ParallelSha1Ctx)
                         .build();
 
-                CreateFileRequest createFileRequest = null;
-                if (id == null) {
-                    createFileRequest = CreateFileRequest.builder()
-                            .name(fileName)
-                            .type(type)
-                            .parentFileId(parentFileId)
-                            .driveId("1020")
-                            .size(fileTmp.length())
-                            .partInfoList(java.util.Arrays.asList(
-                                    partInfoList0
-                            ))
-                            .build();
-                }
                 cloudDiskFile = cloudDiskFileDAO.getById(id, parentFileId, null, fileName, null);
-                if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
-                    return -1;
-//                    createFileRequest = CreateFileRequest.builder()
-//                            .name(fileName)
-//                            .type(type)
-//                            .parentFileId(parentFileId)
-//                            .driveId("101")
-//                            .size(fileTmp.length())
-//                            .fileId(cloudDiskFile.getFileId())
-//                            .partInfoList(java.util.Arrays.asList(
-//                                    partInfoList0
-//                            ))
-//                            .build();
+                boolean isOverwrite = cloudDiskFile != null && cloudDiskFile.getName().equals(fileName);
+
+                CreateFileRequest.Builder createFileRequestBuilder = CreateFileRequest.builder()
+                        .name(fileName)
+                        .type(type)
+                        .parentFileId(parentFileId)
+                        .driveId("1020")
+                        .size(fileTmp.length())
+                        .partInfoList(java.util.Arrays.asList(
+                                partInfoList0
+                        ));
+                if (isOverwrite) {
+                    createFileRequestBuilder.fileId(cloudDiskFile.getFileId());
                 }
+                CreateFileRequest createFileRequest = createFileRequestBuilder.build();
                 // Asynchronously get the return value of the API request
                 CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
                 // Synchronously get the return value of the API request
@@ -285,7 +273,11 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 // Finally, close the client
                 client.close();
 
-                if (id == null) {
+                if (isOverwrite) {
+                    cloudDiskFile.setFileSize(fileSize);
+                    cloudDiskFileDAO.update(cloudDiskFile);
+                    return 1;
+                } else {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
                             domainId("bj21743").name(fileName).type(type).driveId(driveId).applicantId(applicantId)
                             .userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
@@ -303,9 +295,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         OfficialDO officialById = officialDAO.getOfficialById(officialId);
                         cloudDiskFile.setOperator(officialById.getName());
                     }
-                    String downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
-                    String[] split = downloadUrl.split("&&&");
-                    cloudDiskFile.setDownloadUrl(split[0]);
                     int add = cloudDiskFileDAO.add(cloudDiskFile);
                     if (add > 0) {
                         return add;
@@ -404,16 +393,13 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     try {
                         CloudDiskFile cloudDiskFile = new CloudDiskFile();
                         cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, fileName, null);
-                        if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
-                            return -1;
-                        }
+                        boolean isOverwrite = cloudDiskFile != null && cloudDiskFile.getName().equals(fileName);
+
                         // 创建上传文件的请求并获取上传链接
-                        // Configure Credentials authentication information, including ak, secret, token
                         AsyncClient client = getAsyncClient();
 
                         File fileTmp = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
                         file.transferTo(fileTmp);
-                        // Parameter settings for API request
                         CreateFileRequest.ParallelSha1Ctx partInfoList0ParallelSha1Ctx = CreateFileRequest.ParallelSha1Ctx.builder()
                                 .partOffset(fileTmp.length())
                                 .build();
@@ -422,8 +408,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .parallelSha1Ctx(partInfoList0ParallelSha1Ctx)
                                 .build();
 
-                        CreateFileRequest createFileRequest = null;
-                        createFileRequest = CreateFileRequest.builder()
+                        CreateFileRequest.Builder createFileRequestBuilder = CreateFileRequest.builder()
                                 .name(fileName)
                                 .type("file")
                                 .parentFileId(parentFileId)
@@ -431,23 +416,11 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 .size(fileTmp.length())
                                 .partInfoList(java.util.Arrays.asList(
                                         partInfoList0
-                                ))
-                                .build();
-                        cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, fileName, null);
-                        if (cloudDiskFile != null && cloudDiskFile.getName().equals(fileName)) {
-                            return -1;
-//                    createFileRequest = CreateFileRequest.builder()
-//                            .name(fileName)
-//                            .type(type)
-//                            .parentFileId(parentFileId)
-//                            .driveId("101")
-//                            .size(fileTmp.length())
-//                            .fileId(cloudDiskFile.getFileId())
-//                            .partInfoList(java.util.Arrays.asList(
-//                                    partInfoList0
-//                            ))
-//                            .build();
+                                ));
+                        if (isOverwrite) {
+                            createFileRequestBuilder.fileId(cloudDiskFile.getFileId());
                         }
+                        CreateFileRequest createFileRequest = createFileRequestBuilder.build();
                         // Asynchronously get the return value of the API request
                         CompletableFuture<CreateFileResponse> response = client.createFile(createFileRequest);
                         // Synchronously get the return value of the API request
@@ -523,29 +496,31 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         // Finally, close the client
                         client.close();
 
-                        cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
-                                domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
-                        if ("root".equalsIgnoreCase(parentFileId)) {
-                            cloudDiskFile.setRelativePath("/root" + "/" + fileName);
+                        if (isOverwrite) {
+                            cloudDiskFile.setFileSize(fileSize);
+                            cloudDiskFileDAO.update(cloudDiskFile);
+                            return 1;
                         } else {
-                            CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null, null);
-                            cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + fileName);
-                        }
-                        if (adviserId != null) {
-                            AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
-                            cloudDiskFile.setOperator(adviserById.getName());
-                        }
-                        if (officialId != null) {
-                            OfficialDO officialById = officialDAO.getOfficialById(officialId);
-                            cloudDiskFile.setOperator(officialById.getName());
-                        }
-                        String downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
-                        String[] split1 = downloadUrl.split("&&&");
-                        cloudDiskFile.setDownloadUrl(split1[0]);
-                        cloudDiskFile.setDownloadUrl(downloadUrl);
-                        int add = cloudDiskFileDAO.add(cloudDiskFile);
-                        if (add > 0) {
-                            return add;
+                            cloudDiskFile = CloudDiskFile.builder().fileId(fileIdTmp).parentFileId(parentFileIdTmp).
+                                    domainId("bj21743").name(fileName).type("file").driveId(driveId).userId(userId).adviserId(adviserId).officialId(officialId).fileSize(fileSize).build();
+                            if ("root".equalsIgnoreCase(parentFileId)) {
+                                cloudDiskFile.setRelativePath("/root" + "/" + fileName);
+                            } else {
+                                CloudDiskFile byId = cloudDiskFileDAO.getById(null, null, parentFileId, null, null);
+                                cloudDiskFile.setRelativePath(byId.getRelativePath() + "/" + fileName);
+                            }
+                            if (adviserId != null) {
+                                AdviserDO adviserById = adviserDAO.getAdviserById(adviserId);
+                                cloudDiskFile.setOperator(adviserById.getName());
+                            }
+                            if (officialId != null) {
+                                OfficialDO officialById = officialDAO.getOfficialById(officialId);
+                                cloudDiskFile.setOperator(officialById.getName());
+                            }
+                            int add = cloudDiskFileDAO.add(cloudDiskFile);
+                            if (add > 0) {
+                                return add;
+                            }
                         }
                     } catch (ExecutionException | InterruptedException ex) {
                         ex.printStackTrace();
