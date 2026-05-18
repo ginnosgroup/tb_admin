@@ -47,4 +47,6 @@ public interface CloudDiskService {
 
     void getAIEvaluation(String folderName);
 
+    String resourceDownloads(String fileId);
+
 }

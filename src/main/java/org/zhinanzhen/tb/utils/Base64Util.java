@@ -24,11 +24,4 @@ public class Base64Util {
          Object retObj=mainMethod.invoke(null, input);  
          return (byte[])retObj;  
     }
-
-    public static void main(String[] args) throws Exception {
-        byte[] bytes = decodeBase64("54mb5o6w");
-        String text = new String(bytes, StandardCharsets.UTF_8);
-        System.out.println(text);
-
-    }
-}  
+}

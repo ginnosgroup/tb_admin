@@ -432,7 +432,7 @@ public class WebLogAspect extends BaseController{
 
 
             if (adminUserLoginInfo == null) {
-                return null;
+                return result;
             }
 
             boolean isManage = false;

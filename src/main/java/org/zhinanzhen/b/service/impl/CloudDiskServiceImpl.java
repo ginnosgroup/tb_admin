@@ -1896,4 +1896,109 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             return path.substring(startIndex, endIndex);
         }
     }
+
+    @Override
+    public String resourceDownloads(String fileId) {
+        log.info("resourceDownloads 开始, fileId={}", fileId);
+
+        // 1. 查数据库确认文件/文件夹是否存在
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null, null);
+        if (ObjectUtil.isNull(cloudDiskFile) || !fileId.equalsIgnoreCase(cloudDiskFile.getFileId())) {
+            throw new RuntimeException("文件信息错误或不存在, fileId=" + fileId);
+        }
+
+        AsyncClient client = getAsyncClient();
+        try {
+            // 2. 第一步：调用 archiveFiles 获取打包任务 ID
+            ArchiveFilesRequest archiveFilesRequest = ArchiveFilesRequest.builder()
+                    .driveId("1020")
+                    .fileIds(java.util.Arrays.asList(fileId))
+                    .name(cloudDiskFile.getName())
+                    .build();
+
+            CompletableFuture<ArchiveFilesResponse> archiveResponse = client.archiveFiles(archiveFilesRequest);
+            ArchiveFilesResponse archiveResp = archiveResponse.get();
+            String archiveJson = new Gson().toJson(archiveResp);
+            log.info("archiveFiles 响应: {}", archiveJson);
+            JSONObject archiveJsonObj = JSON.parseObject(archiveJson);
+            JSONObject archiveBody = archiveJsonObj.getJSONObject("body");
+
+            if (archiveBody == null) {
+                throw new RuntimeException("打包请求失败, 响应body为空");
+            }
+
+            // 获取异步任务ID
+            String asyncTaskId = archiveBody.getString("asyncTaskId");
+            if (StringUtils.isEmpty(asyncTaskId)) {
+                asyncTaskId = archiveBody.getString("taskId");
+            }
+            if (StringUtils.isEmpty(asyncTaskId)) {
+                throw new RuntimeException("获取打包任务ID失败, 响应: " + archiveJson);
+            }
+            log.info("打包任务ID: {}", asyncTaskId);
+
+            // 3. 第二步：轮询异步任务状态，获取下载链接
+            String downloadUrl = null;
+            int maxRetry = 30; // 最多轮询30次
+            int retryInterval = 1000; // 每次间隔1秒
+            for (int i = 0; i < maxRetry; i++) {
+                Thread.sleep(retryInterval);
+
+                GetAsyncTaskRequest getAsyncTaskRequest = GetAsyncTaskRequest.builder()
+                        .asyncTaskId(asyncTaskId)
+                        .build();
+                CompletableFuture<GetAsyncTaskResponse> taskResponse = client.getAsyncTask(getAsyncTaskRequest);
+                GetAsyncTaskResponse taskResp = taskResponse.get();
+                String taskJson = new Gson().toJson(taskResp);
+                JSONObject taskJsonObj = JSON.parseObject(taskJson);
+                JSONObject taskBody = taskJsonObj.getJSONObject("body");
+
+                if (taskBody == null) {
+                    log.warn("查询任务状态失败, 第{}次重试, 响应: {}", i + 1, taskJson);
+                    continue;
+                }
+
+                String state = taskBody.getString("state");
+                log.info("打包任务状态[{}]: {}", i + 1, state);
+
+                if ("Succeed".equalsIgnoreCase(state) || "Success".equalsIgnoreCase(state)) {
+                    // 任务完成，提取下载链接
+                    downloadUrl = taskBody.getString("downloadUrl");
+                    if (StringUtils.isEmpty(downloadUrl)) {
+                        // 尝试从其他字段获取
+                        downloadUrl = taskBody.getString("url");
+                    }
+                    if (StringUtils.isEmpty(downloadUrl)) {
+                        // 可能返回的是压缩后的文件ID，通过文件ID获取下载链接
+                        String compressedFileId = taskBody.getString("fileId");
+                        if (StringUtils.isNotEmpty(compressedFileId)) {
+                            downloadUrl = getDownloadUrl(compressedFileId);
+                            if (downloadUrl != null && downloadUrl.contains("&&&")) {
+                                downloadUrl = downloadUrl.split("&&&")[0];
+                            }
+                        }
+                    }
+                    break;
+                } else if ("Failed".equalsIgnoreCase(state) || "Fail".equalsIgnoreCase(state)) {
+                    throw new RuntimeException("打包任务失败, asyncTaskId=" + asyncTaskId);
+                }
+                // 其他状态(Running等)继续等待
+            }
+
+            if (StringUtils.isEmpty(downloadUrl)) {
+                throw new RuntimeException("打包任务超时未完成, asyncTaskId=" + asyncTaskId);
+            }
+
+            log.info("打包下载链接获取成功: {}", downloadUrl);
+            return downloadUrl;
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("打包任务被中断", e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("打包任务执行异常", e);
+        } finally {
+            client.close();
+        }
+    }
 }
