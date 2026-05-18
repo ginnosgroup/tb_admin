@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.controller.aop;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONUtil;
@@ -343,7 +344,10 @@ public class WebLogAspect extends BaseController{
 
                 }
             }
-            String apList = adminUserLoginInfo.getApList();
+            String apList = "";
+            if (ObjectUtil.isNotEmpty(adminUserLoginInfo)) {
+                apList = adminUserLoginInfo.getApList();
+            }
             switch (apList) {
                 case "GW":
                     apList = "顾问";

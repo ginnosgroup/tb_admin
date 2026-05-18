@@ -62,6 +62,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.RegionDTO;
+import org.zhinanzhen.tb.utils.Base64Util;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
@@ -74,6 +75,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -2042,11 +2044,12 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/listForUserId", method = RequestMethod.POST)
+    @RequestMapping(value = "/listForUserId", method = RequestMethod.GET)
     @ResponseBody
     public ListResponse<List<ServiceOrderDTO>> listServiceOrderForUserId(
             @RequestParam(value = "qyEmail") String qyEmail,
             @RequestParam(value = "userId") Integer userId,
+            @RequestParam(value = "key") String key,
             @RequestParam(value = "pageNum") int pageNum,
             @RequestParam(value = "pageSize") int pageSize,
             @RequestParam(value = "sorter", required = false) String sorter,
@@ -2057,6 +2060,14 @@ public class ServiceOrderController extends BaseController {
             if (adminUser == null || adminUser.getAdviserId() == null) {
                 return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null,
                         "未找到匹配的顾问账号");
+            }
+            byte[] bytes = Base64Util.decodeBase64(key);
+            String text = new String(bytes, StandardCharsets.UTF_8);
+            String[] split = text.split("#");
+            for (String s : split) {
+                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
+                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
+                }
             }
             Integer adviserId = adminUser.getAdviserId();
 
@@ -2081,6 +2092,8 @@ public class ServiceOrderController extends BaseController {
             return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
         } catch (ServiceException e) {
             return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
