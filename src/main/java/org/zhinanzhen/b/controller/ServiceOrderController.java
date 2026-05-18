@@ -2061,14 +2061,14 @@ public class ServiceOrderController extends BaseController {
                 return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null,
                         "未找到匹配的顾问账号");
             }
-//            byte[] bytes = Base64Util.decodeBase64(key);
-//            String text = new String(bytes, StandardCharsets.UTF_8);
-//            String[] split = text.split("#");
-//            for (String s : split) {
-//                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
-//                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
-//                }
-//            }
+            byte[] bytes = Base64Util.decodeBase64(key);
+            String text = new String(bytes, StandardCharsets.UTF_8);
+            String[] split = text.split("#");
+            for (String s : split) {
+                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
+                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
+                }
+            }
             Integer adviserId = adminUser.getAdviserId();
 
             Sorter _sorter = null;
