@@ -274,7 +274,13 @@ public class VisaOfficialCheck {
 
             // 3. 发送邮件
             SendEmailUtil.sendExcel(
-                    "yoyo.liu@zhinanzhen.org",
+                    "kalea.zhou@zhinanzhen.org",
+                    "VISA 报告",
+                    "附件为最新生成的 VISA 报告，请查阅。",
+                    new File(excelFilePath)
+            );
+            SendEmailUtil.sendExcel(
+                    "vera.tang@zhinanzhen.org",
                     "VISA 报告",
                     "附件为最新生成的 VISA 报告，请查阅。",
                     new File(excelFilePath)
