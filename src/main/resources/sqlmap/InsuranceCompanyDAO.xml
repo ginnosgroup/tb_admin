@@ -106,4 +106,19 @@
         </foreach>
     </select>
 
+    <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.InsuranceCompanyDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            name,
+            marks,
+            is_recommend AS isRecommend
+        FROM b_insurance_company
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>
