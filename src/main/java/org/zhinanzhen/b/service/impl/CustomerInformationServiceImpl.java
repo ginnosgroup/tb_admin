@@ -251,7 +251,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                         : "unknown",
                 "/顾问:", adviserDao.getAdviserById(serviceOrderDo.getAdviserId()).getName(), "/文案:",
                 officialDAO.getOfficialById(serviceOrderDo.getOfficialId()).getName(), "<br/>", "属性:",
-                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>客户的资料地址:", ("https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=" + serviceOrderDo.getId()),
+                getPeopleTypeStr(serviceOrderDo.getPeopleType()), "<br/>坚果云资料地址:", applicantDto.getUrl(),
                 "<br/>在线资料地址:", applicantDto.getUrl(), "<br/>客户基本信息:", applicantDto.getContent(), "<br/>备注:",
                 serviceOrderDo.getRemarks(), "<br/>驳回原因:", serviceOrderDo.getRefuseReason(), "<br/>创建时间:",
                 serviceOrderDo.getGmtCreate(),
