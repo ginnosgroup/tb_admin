@@ -8,55 +8,58 @@ import lombok.Data;
 @Data
 public class UserDO implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private int id;
+    private int id;
 
-	private Date gmtCreate;
+    private Date gmtCreate;
 
-	private String name;
+    private String name;
 
-	private Date birthday;
-	
-	private String areaCode;
+    private Date birthday;
 
-	private String phone;
+    private String areaCode;
 
-	private String email;
-	
-	private String wechatUsername;
+    private String phone;
 
-	private String firstControllerContents;
+    private String email;
 
-	private String visaCode;
+    private String wechatUsername;
 
-	private Date visaExpirationDate;
+    private String firstControllerContents;
 
-	private String source;
+    private String visaCode;
 
-	private String authType;
+    private Date visaExpirationDate;
 
-	private String authOpenid;
+    private String source;
 
-	private String authUsername;
+    private String authType;
 
-	private String authNickname;
+    private String authOpenid;
 
-	private String authLogo;
+    private String authUsername;
 
-	private double balance;
+    private String authNickname;
 
-	private int regionId; // 即将废弃
+    private String authLogo;
 
-	private int adviserId;
+    private double balance;
 
-	private String recommendOpenid;
+    private int regionId;
 
-	private Date dob;
+    private int adviserId;
 
-	private String stateText; // 添加方式
+    private String recommendOpenid;
 
-	private String channelSource; // 渠道来源
+    private Date dob;
 
-	private String externalUserid; // 企业微信外部联系人ID
+    private String stateText;
+
+    private String channelSource;
+
+    private String externalUserid;
+
+    private String maraMark;
+
 }

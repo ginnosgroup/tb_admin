@@ -531,4 +531,11 @@
         </if>
     </select>
 
+
+    <update id="updateMaraMark">
+        UPDATE tb_user
+        SET gmt_modify = now(),
+            mara_mark = #{maraMark}
+        WHERE id = #{id};
+    </update>
 </mapper>
