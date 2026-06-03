@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -1266,6 +1267,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 			@RequestParam(value = "schoolId", required = false) Integer schoolId,
 			@RequestParam(value = "isSettle", required = false) Boolean isSettle,
 			@RequestParam(value = "state", required = false) String state,
+			@RequestParam(value = "applyState", required = false) String applyState,
 			@RequestParam(value = "commissionState", required = false) String commissionState,
 			@RequestParam(value = "startKjApprovalDate", required = false) String startKjApprovalDate,
 			@RequestParam(value = "endKjApprovalDate", required = false) String endKjApprovalDate,
@@ -1340,12 +1342,25 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 //			if (endKjApprovalDate != null)
 //				_endKjApprovalDate = new Date(Long.parseLong(endKjApprovalDate));
 
-			List<CommissionOrderListDTO> commissionOrderList = commissionOrderService.listCommissionOrder(id,
-					regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
-					isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
-					startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, state, 0, 9999, null);
-			
-			if (commissionOrderList == null)
+			// 分批次查询，每批200条，避免一次性9999条导致N+1查询爆炸
+			List<CommissionOrderListDTO> commissionOrderList = new ArrayList<>();
+			final int DOWN_BATCH_SIZE = 200;
+			int batchPageNum = 0;
+			long l = System.currentTimeMillis();
+			while (true) {
+				List<CommissionOrderListDTO> batch = commissionOrderService.listCommissionOrder(id,
+						regionIdList, maraId, adviserId, officialId, userId, name, applicantName, phone, wechatUsername, schoolId,
+						isSettle, stateList, commissionStateList, startKjApprovalDate, endKjApprovalDate,startDate,endDate,
+						startInvoiceCreate, endInvoiceCreate, isYzyAndYjy, applyState, batchPageNum, DOWN_BATCH_SIZE, null);
+				if (batch == null || batch.isEmpty())
+					break;
+				commissionOrderList.addAll(batch);
+				if (batch.size() < DOWN_BATCH_SIZE)
+					break;
+				batchPageNum++;
+			}
+			log.info("耗时--------------------" + (System.currentTimeMillis() - l));
+			if (commissionOrderList.isEmpty())
 				throw new Exception("查询佣金订单数据错误!");
 			System.out.println("导出佣金订单数据量:" + commissionOrderList.size());
 
@@ -1384,6 +1399,11 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				int i = 1;
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
+				// 预加载 subagency 名称，避免循环内逐行查DB
+				Set<Integer> soIdSet = commissionOrderList.stream().map(CommissionOrderListDTO::getServiceOrderId).filter(soid -> soid > 0).collect(Collectors.toSet());
+				Map<Integer, String> subagencyNameMap = new HashMap<>();
+				for (Integer soId : soIdSet)
+					subagencyNameMap.put(soId, subagencyService.getSubagencyByServiceOrderId(soId));
 				for (CommissionOrderListDTO commissionOrderListDto : commissionOrderList) {
 					WritableCellFormat activeFormat = cellFormat;
 					if (commissionOrderListDto.getServiceOrder() != null) {
@@ -1484,7 +1504,7 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 					else
 						sheet.addCell(new Label(35, i, "", activeFormat));
 					// sub
-					String subagencyName = subagencyService.getSubagencyByServiceOrderId(commissionOrderListDto.getServiceOrderId());
+					String subagencyName = subagencyNameMap.getOrDefault(commissionOrderListDto.getServiceOrderId(), "");
 					if (StringUtil.isNotEmpty(subagencyName)) {
 						sheet.addCell(new Label(36, i, subagencyName, activeFormat));
 					} else {
@@ -1672,11 +1692,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						else
 							sheet.addCell(new Label(42, i, "", activeFormat));
 						sheet.addCell(new Label(43, i, commissionOrderListDto.getRemarks(), activeFormat));
-						ServiceOrderDTO serviceOrderDTO = serviceOrderService
-								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+						ServiceOrderDO soDo = commissionOrderListDto.getServiceOrder();
 						sheet.addCell(new Label(44, i,
-								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
-										: "",
+								soDo != null && soDo.getRemarks() != null ? soDo.getRemarks() : "",
 								activeFormat));
 						i++;
 					}
@@ -1837,11 +1855,9 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 						else
 							sheet.addCell(new Label(43, i, "", activeFormat));
 						sheet.addCell(new Label(44, i, commissionOrderListDto.getRemarks(), activeFormat));
-						ServiceOrderDTO serviceOrderDTO = serviceOrderService
-								.getServiceOrderById(commissionOrderListDto.getServiceOrderId());
+						ServiceOrderDO soDo = commissionOrderListDto.getServiceOrder();
 						sheet.addCell(new Label(45, i,
-								serviceOrderDTO != null && serviceOrderDTO.getRemarks() != null ? serviceOrderDTO.getRemarks()
-										: "",
+								soDo != null && soDo.getRemarks() != null ? soDo.getRemarks() : "",
 								activeFormat));
 						i++;
 					}
