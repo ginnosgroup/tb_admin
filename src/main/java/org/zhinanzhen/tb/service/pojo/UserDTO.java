@@ -12,72 +12,74 @@ import lombok.Data;
 @Data
 public class UserDTO {
 
-	private int id;
+    private int id;
 
-	private Date gmtCreate;
+    private Date gmtCreate;
 
-	private String name;
+    private String name;
 
-	private Date birthday;
-	
-	private String areaCode;
+    private Date birthday;
 
-	private String phone;
+    private String areaCode;
 
-	private String email;
+    private String phone;
 
-	private String wechatUsername;
+    private String email;
 
-	private String firstControllerContents;
+    private String wechatUsername;
 
-	private String visaCode;
+    private String firstControllerContents;
 
-	private Date visaExpirationDate;
+    private String visaCode;
 
-	private String source;
+    private Date visaExpirationDate;
 
-	private UserAuthTypeEnum authType;
+    private String source;
 
-	private String authOpenid;
+    private UserAuthTypeEnum authType;
 
-	private String authUsername;
+    private String authOpenid;
 
-	private String authNickname;
+    private String authUsername;
 
-	private String authLogo;
+    private String authNickname;
 
-	private double balance;
+    private String authLogo;
 
-	private int regionId;
+    private double balance;
 
-	private int adviserId;
+    private int regionId;
 
-	private String recommendOpenid;
+    private int adviserId;
 
-	private AdviserDTO adviserDto;
+    private String recommendOpenid;
 
-	private UserDTO recommendUserDto;
-	
-	private List<TagDTO> tagList;
+    private AdviserDTO adviserDto;
 
-	private Date dob;
-	
-	private List<UserAdviserDTO> userAdviserList;
-	
-	private List<ApplicantDTO> applicantList;
+    private UserDTO recommendUserDto;
 
-	private List<MailRemindDTO> mailRemindDTOS;
+    private List<TagDTO> tagList;
 
-	private String stateText; // 添加方式
+    private Date dob;
 
-	private String channelSource; // 渠道来源
+    private List<UserAdviserDTO> userAdviserList;
 
-	private String firstFileId;
+    private List<ApplicantDTO> applicantList;
 
-	private Integer visaCount;
+    private List<MailRemindDTO> mailRemindDTOS;
 
-	private Integer ovstCount;
+    private String stateText;
 
-	private double orderAmount;
-	
+    private String channelSource;
+
+    private String firstFileId;
+
+    private Integer visaCount;
+
+    private Integer ovstCount;
+
+    private double orderAmount;
+
+    private String maraMark;
+
 }
