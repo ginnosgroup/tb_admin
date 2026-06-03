@@ -1,6 +1,7 @@
 package org.zhinanzhen.tb.utils;
 
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 
 public class Base64Util {  
     /*** 
@@ -22,5 +23,5 @@ public class Base64Util {
         mainMethod.setAccessible(true);  
          Object retObj=mainMethod.invoke(null, input);  
          return (byte[])retObj;  
-    }  
-}  
+    }
+}

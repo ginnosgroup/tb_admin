@@ -21,4 +21,6 @@ public interface InsuranceCompanyDAO {
     ServiceOrderInsuranceDO listServiceOrderInsuranceDOByServiceOrderId(Integer serviceOrderId);
 
     List<ServiceOrderInsuranceDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
+    List<InsuranceCompanyDO> listByIds(@Param("ids") List<Integer> ids);
 }

@@ -292,6 +292,21 @@ public class CloudDiskController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/resourceDownloads", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<String> resourceDownloads(
+            @RequestParam(value = "fileId") String fileId,
+            HttpServletRequest request, HttpServletResponse response) {
+        super.setGetHeader(response);
+        try {
+            String downloadUrl = cloudDiskService.resourceDownloads(fileId);
+            return new Response<String>(0, "获取成功", downloadUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<String>(1, "获取失败: " + e.getMessage(), null);
+        }
+    }
+
     @RequestMapping(value = "/fileTransformation", method = RequestMethod.GET)
     @ResponseBody
     public void fileTransformation(@RequestParam(value = "fileId", required = false) String fileId, HttpServletResponse response) {

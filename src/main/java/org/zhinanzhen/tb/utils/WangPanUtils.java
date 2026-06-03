@@ -28,6 +28,9 @@ public class WangPanUtils {
     @Value("${aliyun.ACCESSKEYSECRET}")
     private String ACCESS_KEY_SECRET;
 
+    @Value("${aliyun.PDSENDPOINT}")
+    private String PDS_ENDPOINT;
+
     public JsonNode listFile(String driveId, String parentFileId) throws IOException, ExecutionException, InterruptedException {
         AsyncClient asyncClient = getAsyncClient();
         ListFileRequest listFileRequest = ListFileRequest.builder()
@@ -129,7 +132,7 @@ public class WangPanUtils {
                 .overrideConfiguration(
                         ClientOverrideConfiguration.create()
                                 // Endpoint 请参考 https://api.aliyun.com/product/pds
-                                .setEndpointOverride("bj21743.api.aliyunpds.com")
+                                .setEndpointOverride(PDS_ENDPOINT)
                         //.setConnectTimeout(Duration.ofSeconds(30))
                 )
                 .build();

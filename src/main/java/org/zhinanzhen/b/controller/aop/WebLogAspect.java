@@ -72,7 +72,14 @@ public class WebLogAspect extends BaseController{
             "execution(public * org.zhinanzhen.b.controller.ServiceOrderManageController.*(..)) || " +
             "execution(public * org.zhinanzhen.tb.controller.UserController.addUser(..)) || " +
             "execution(public * org.zhinanzhen.tb.controller.AdminUserController.login(..)) ||" +
-            "execution(public * org.zhinanzhen.tb.controller.AdminUserController.outLogin(..))"
+            "execution(public * org.zhinanzhen.tb.controller.AdminUserController.outLogin(..)) ||" +
+            "(execution(public * org.zhinanzhen.b.controller.SubagencyController.*(..)) && !execution(public * org.zhinanzhen.b.controller.SubagencyController.listSubagency(..))) ||" +
+            "execution(public * org.zhinanzhen.tb.controller.AdviserController.addAdviser(..)) ||" +
+            "execution(public * org.zhinanzhen.tb.controller.AdviserController.updateAdviser(..)) ||" +
+            "execution(public * org.zhinanzhen.b.controller.OfficialController.addOfficial(..)) ||" +
+            "execution(public * org.zhinanzhen.b.controller.OfficialController.updateOfficial(..)) ||" +
+            "execution(public * org.zhinanzhen.b.controller.KjController.addKj(..)) ||" +
+            "execution(public * org.zhinanzhen.b.controller.KjController.updateKj(..))"
     )
     public void webLog() {
 

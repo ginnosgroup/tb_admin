@@ -1517,6 +1517,23 @@
         GROUP BY applicant_id;
     </select>
 
+    <select id="ApplicantListByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.ApplicantListDO">
+        SELECT
+            so.id,
+            so.applicant_id AS applicantId,
+            so.applicant_parent_id AS applicantParentId,
+            so.service_package_id AS servicePackageId
+        FROM b_service_order so
+        WHERE so.applicant_parent_id IN
+        <foreach collection="serviceOrderIds" item="sid" open="(" close=")" separator=",">
+            #{sid}
+        </foreach>
+        OR so.id IN
+        <foreach collection="serviceOrderIds" item="sid" open="(" close=")" separator=",">
+            #{sid}
+        </foreach>
+    </select>
+
     <select id="getDeriveOrder" resultMap="ServicePackage">
         SELECT
             so.id AS id,

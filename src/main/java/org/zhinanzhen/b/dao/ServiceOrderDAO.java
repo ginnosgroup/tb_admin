@@ -122,6 +122,9 @@ public interface ServiceOrderDAO {
     //获取多个申请人列表
     List<ApplicantListDO> ApplicantListByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
 
+    //批量获取申请人列表
+    List<ApplicantListDO> ApplicantListByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
     // 根据父订单获取子订单
     List<ServiceOrderDTO> getDeriveOrder(@Param("id") int id);
 

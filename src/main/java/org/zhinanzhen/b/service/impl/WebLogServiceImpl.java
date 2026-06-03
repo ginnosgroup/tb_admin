@@ -126,6 +126,9 @@ public class WebLogServiceImpl implements WebLogService {
                             }
                         } else {
                             AdviserDO adviserDOOld = adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
+                            if (adviserDOOld == null) {
+                                continue;
+                            }
                             serviceOrderOriginallyDOList.add(startTime + "    顾问" + ":"  + adviserDOOld.getName() + "    提交并修改订单" + "    操作人:" + userName);
                         }
 
