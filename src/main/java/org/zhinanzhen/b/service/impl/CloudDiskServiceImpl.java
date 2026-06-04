@@ -1955,13 +1955,20 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             throw new RuntimeException("文件信息错误或不存在, fileId=" + fileId);
         }
 
-        AsyncClient client = getAsyncClient();
+        String driveId = DRIVE_ID;
+        AsyncClient client;
+        if (cloudDiskFile != null && "1020".equals(cloudDiskFile.getDriveId())) {
+            client = getAsyncClientBJ();
+            driveId = BJ_DRIVE_ID;
+        } else {
+            client = getAsyncClient();
+        }
         try {
             // 2. 第一步：调用 archiveFiles 获取打包任务 ID
             ArchiveFilesRequest archiveFilesRequest = ArchiveFilesRequest.builder()
-                    .driveId(DRIVE_ID)
+                    .driveId(driveId)
                     .fileIds(java.util.Arrays.asList(fileId))
-                    .name(cloudDiskFile.getName())
+                    .name(cloudDiskFile.getName() + ".zip")
                     .build();
 
             CompletableFuture<ArchiveFilesResponse> archiveResponse = client.archiveFiles(archiveFilesRequest);
