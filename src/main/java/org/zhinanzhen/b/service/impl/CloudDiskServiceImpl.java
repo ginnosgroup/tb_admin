@@ -82,6 +82,18 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     @Value("${aliyun.PDSSHAREURL}")
     private String PDS_SHARE_URL;
 
+    @Value("${aliyun.BJ_PDSENDPOINT}")
+    private String BJ_PDS_ENDPOINT;
+
+    @Value("${aliyun.BJ_DRIVEID}")
+    private String BJ_DRIVE_ID;
+
+    @Value("${aliyun.BJ_PDSDOMAINID}")
+    private String BJ_PDS_DOMAIN_ID;
+
+    @Value("${aliyun.BJ_PDSSHAREURL}")
+    private String BJ_PDS_SHARE_URL;
+
     @Resource
     private CloudDiskFileDAO cloudDiskFileDAO;
 
@@ -1788,11 +1800,35 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         return client;
     }
 
+    private AsyncClient getAsyncClientBJ() {
+        StaticCredentialProvider provider = StaticCredentialProvider.create(Credential.builder()
+                .accessKeyId(ACCESS_KEY_ID)
+                .accessKeySecret(ACCESS_KEY_SECRET)
+                .build());
+        AsyncClient client = AsyncClient.builder()
+                .region("cn-beijing")
+                .credentialsProvider(provider)
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.create()
+                                .setEndpointOverride(BJ_PDS_ENDPOINT)
+                )
+                .build();
+        return client;
+    }
+
     private String getDownloadUrl(String fileId) {
         try {
-            AsyncClient asyncClient = getAsyncClient();
+            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null, null);
+            String driveId = DRIVE_ID;
+            AsyncClient asyncClient;
+            if (cloudDiskFile != null && "1020".equals(cloudDiskFile.getDriveId())) {
+                asyncClient = getAsyncClientBJ();
+                driveId = BJ_DRIVE_ID;
+            } else {
+                asyncClient = getAsyncClient();
+            }
             GetFileRequest getFileRequest = GetFileRequest.builder()
-                    .driveId(DRIVE_ID)
+                    .driveId(driveId)
                     .fileId(fileId)
                     .fields("*")
                     .build();
