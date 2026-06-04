@@ -109,12 +109,22 @@ public class FileMaraAnnotationController extends BaseController {
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
-    public Response<FileMaraAnnotationDTO> get(@RequestParam(value = "id") int id,
-                                               HttpServletResponse response) {
+    public Response<FileMaraAnnotationDTO> get(
+            @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+            @RequestParam(value = "userId", required = false) Integer userId,
+            @RequestParam(value = "officialId", required = false) Integer officialId,
+            HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            FileMaraAnnotationDTO dto = fileMaraAnnotationService.getById(id);
-            if (dto != null) {
+            List<FileMaraAnnotationDTO> dtoList = fileMaraAnnotationService.list(serviceOrderId, userId, officialId);
+            if (dtoList != null && !dtoList.isEmpty()) {
+                FileMaraAnnotationDTO dto = dtoList.get(0);
+                if (dto.getUserId() > 0) {
+                    UserDO userDo = userDao.getUserById(dto.getUserId());
+                    if (userDo != null) {
+                        dto.setMaraMark(userDo.getMaraMark());
+                    }
+                }
                 return new Response<FileMaraAnnotationDTO>(0, dto);
             } else {
                 return new Response<FileMaraAnnotationDTO>(1, "未找到数据.", null);
