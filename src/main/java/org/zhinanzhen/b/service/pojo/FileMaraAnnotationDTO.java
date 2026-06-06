@@ -19,11 +19,15 @@ public class FileMaraAnnotationDTO {
 
     private int officialId;
 
-    private int cloudDiskFileId;
+    private int maraId;
 
-    private boolean isAnnotation;
+    private String cloudDiskFileId;
+
+    private boolean annotationStatus;
 
     private boolean isCheck;
+
+    private String maraAnnotation;
 
     private String maraMark;
 

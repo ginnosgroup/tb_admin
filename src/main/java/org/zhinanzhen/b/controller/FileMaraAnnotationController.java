@@ -38,8 +38,10 @@ public class FileMaraAnnotationController extends BaseController {
     public Response<Integer> add(@RequestParam(value = "serviceOrderId") int serviceOrderId,
                                 @RequestParam(value = "userId") int userId,
                                 @RequestParam(value = "officialId", required = false, defaultValue = "0") int officialId,
-                                @RequestParam(value = "cloudDiskFileId", required = false, defaultValue = "0") int cloudDiskFileId,
+                                @RequestParam(value = "maraId", required = false, defaultValue = "0") int maraId,
+                                @RequestParam(value = "cloudDiskFileId", required = false) String cloudDiskFileId,
                                 @RequestParam(value = "isAnnotation", required = false, defaultValue = "0") String isAnnotation,
+                                @RequestParam(value = "annotation", required = false) String annotationContent,
                                 @RequestParam(value = "maraMark", required = false) String maraMark,
                                 HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -48,9 +50,11 @@ public class FileMaraAnnotationController extends BaseController {
             dto.setServiceOrderId(serviceOrderId);
             dto.setUserId(userId);
             dto.setOfficialId(officialId);
+            dto.setMaraId(maraId);
             dto.setCloudDiskFileId(cloudDiskFileId);
-            dto.setAnnotation("1".equals(isAnnotation));
+            dto.setAnnotationStatus("1".equals(isAnnotation));
             dto.setCheck(false);
+            dto.setMaraAnnotation(annotationContent);
             if (fileMaraAnnotationService.add(dto) > 0) {
                 if (StringUtil.isNotEmpty(maraMark)) {
                     userDao.updateMaraMark(userId, maraMark);
@@ -70,9 +74,11 @@ public class FileMaraAnnotationController extends BaseController {
                                    @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
                                    @RequestParam(value = "userId", required = false) Integer userId,
                                    @RequestParam(value = "officialId", required = false) Integer officialId,
-                                   @RequestParam(value = "cloudDiskFileId", required = false) Integer cloudDiskFileId,
+                                   @RequestParam(value = "maraId", required = false) Integer maraId,
+                                   @RequestParam(value = "cloudDiskFileId", required = false) String cloudDiskFileId,
                                    @RequestParam(value = "isAnnotation", required = false) String isAnnotation,
                                    @RequestParam(value = "isCheck", required = false) String isCheck,
+                                   @RequestParam(value = "annotation", required = false) String annotationContent,
                                    @RequestParam(value = "maraMark", required = false) String maraMark,
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -88,14 +94,20 @@ public class FileMaraAnnotationController extends BaseController {
             if (officialId != null) {
                 dto.setOfficialId(officialId);
             }
+            if (maraId != null) {
+                dto.setMaraId(maraId);
+            }
             if (cloudDiskFileId != null) {
                 dto.setCloudDiskFileId(cloudDiskFileId);
             }
             if (isAnnotation != null) {
-                dto.setAnnotation("1".equals(isAnnotation));
+                dto.setAnnotationStatus("1".equals(isAnnotation));
             }
             if (isCheck != null) {
                 dto.setCheck("1".equals(isCheck));
+            }
+            if (annotationContent != null) {
+                dto.setMaraAnnotation(annotationContent);
             }
             int result = fileMaraAnnotationService.update(dto);
             if (result > 0 && StringUtil.isNotEmpty(maraMark) && userId != null) {

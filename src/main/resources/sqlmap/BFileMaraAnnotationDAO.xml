@@ -12,9 +12,11 @@
         <result property="serviceOrderId" column="service_order_id"/>
         <result property="userId" column="user_id"/>
         <result property="officialId" column="official_id"/>
+        <result property="maraId" column="mara_id"/>
         <result property="cloudDiskFileId" column="cloud_disk_file_id"/>
-        <result property="isAnnotation" column="is_annotation"/>
+        <result property="annotationStatus" column="is_annotation"/>
         <result property="isCheck" column="is_check"/>
+        <result property="maraAnnotation" column="mara_annotation"/>
     </resultMap>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.FileMaraAnnotationDO" useGeneratedKeys="true" keyProperty="id">
@@ -24,18 +26,22 @@
             service_order_id,
             user_id,
             official_id,
+            mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check
+            is_check,
+            annotation
         ) VALUES (
             now(),
             now(),
             #{serviceOrderId},
             #{userId},
             #{officialId},
+            #{maraId},
             #{cloudDiskFileId},
-            #{isAnnotation},
-            #{isCheck}
+            #{annotationStatus},
+            #{isCheck},
+            #{maraAnnotation}
         );
     </insert>
 
@@ -51,14 +57,20 @@
         <if test="officialId > 0">
             , official_id = #{officialId}
         </if>
-        <if test="cloudDiskFileId > 0">
+        <if test="maraId > 0">
+            , mara_id = #{maraId}
+        </if>
+        <if test="cloudDiskFileId != null and cloudDiskFileId != ''">
             , cloud_disk_file_id = #{cloudDiskFileId}
         </if>
-        <if test="isAnnotation != null">
-            , is_annotation = #{isAnnotation}
+        <if test="annotationStatus != null">
+            , is_annotation = #{annotationStatus}
         </if>
         <if test="isCheck != null">
             , is_check = #{isCheck}
+        </if>
+        <if test="annotation != null">
+            , annotation = #{maraAnnotation}
         </if>
         WHERE id = #{id};
     </update>
@@ -71,9 +83,11 @@
             service_order_id,
             user_id,
             official_id,
+            mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check
+            is_check,
+            annotation
         FROM b_file_mara_annotation
         WHERE id = #{id};
     </select>
@@ -86,9 +100,11 @@
             service_order_id,
             user_id,
             official_id,
+            mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check
+            is_check,
+            annotation
         FROM b_file_mara_annotation
         WHERE 1 = 1
         <if test="serviceOrderId != null">

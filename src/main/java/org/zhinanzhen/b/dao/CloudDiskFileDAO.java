@@ -43,6 +43,11 @@ public interface CloudDiskFileDAO {
     void deleteUserCloud(Integer id);
 
     List<CloudDiskFile> listByUserIds(@Param("userIds") List<Integer> userIds);
+    List<CloudDiskFile> listByDriveId(@Param("driveId") String driveId);
 
+    /** 迁移专用：强制更新 fileId, driveId, domainId, parentFileId, fileSize */
+    int updateForMigration(CloudDiskFile cloudDiskFile);
 
+    /** 批量更新：按 id 列表批量更新 driveId, domainId, parentFileId */
+    int batchUpdateForMigration(@Param("list") List<CloudDiskFile> list);
 }

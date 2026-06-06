@@ -270,4 +270,42 @@
     </select>
 
 
+
+    <select id="listByDriveId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        SELECT
+            id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+            applicant_id AS applicantId, adviser_id AS adviserId,
+            name, type, url, parent_file_id AS parentFileId,
+            domain_id AS domainId, drive_id AS driveId, file_id AS fileId,
+            is_delete AS isDelete, official_id AS officialId, user_id AS userId,
+            operator, relative_path AS relativePath, file_size AS fileSize,
+            download_url AS downloadUrl, hash_code AS hashCode
+        FROM b_cloud_disk_file
+        WHERE drive_id = #{driveId}
+        ORDER BY id ASC
+    </select>
+
+    <update id="updateForMigration">
+        UPDATE b_cloud_disk_file
+        SET gmt_modify = now(),
+            file_id = #{fileId},
+            drive_id = #{driveId},
+            domain_id = #{domainId},
+            parent_file_id = #{parentFileId},
+            file_size = #{fileSize}
+        WHERE id = #{id}
+    </update>
+
+    <update id="batchUpdateForMigration" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE b_cloud_disk_file
+            SET gmt_modify = now(),
+                file_id = #{item.fileId},
+                drive_id = #{item.driveId},
+                domain_id = #{item.domainId},
+                parent_file_id = #{item.parentFileId},
+                file_size = #{item.fileSize}
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
 </mapper>
