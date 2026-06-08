@@ -14,9 +14,9 @@
         <result property="officialId" column="official_id"/>
         <result property="maraId" column="mara_id"/>
         <result property="cloudDiskFileId" column="cloud_disk_file_id"/>
-        <result property="annotationStatus" column="is_annotation"/>
+        <result property="isAnnotation" column="is_annotation"/>
         <result property="isCheck" column="is_check"/>
-        <result property="maraAnnotation" column="mara_annotation"/>
+        <result property="maraMark" column="mara_mark"/>
     </resultMap>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.FileMaraAnnotationDO" useGeneratedKeys="true" keyProperty="id">
@@ -30,7 +30,7 @@
             cloud_disk_file_id,
             is_annotation,
             is_check,
-            annotation
+            mara_mark
         ) VALUES (
             now(),
             now(),
@@ -39,9 +39,9 @@
             #{officialId},
             #{maraId},
             #{cloudDiskFileId},
-            #{annotationStatus},
+            #{isAnnotation},
             #{isCheck},
-            #{maraAnnotation}
+            #{maraMark}
         );
     </insert>
 
@@ -63,14 +63,14 @@
         <if test="cloudDiskFileId != null and cloudDiskFileId != ''">
             , cloud_disk_file_id = #{cloudDiskFileId}
         </if>
-        <if test="annotationStatus != null">
-            , is_annotation = #{annotationStatus}
+        <if test="isAnnotation != null">
+            , is_annotation = #{isAnnotation}
         </if>
         <if test="isCheck != null">
             , is_check = #{isCheck}
         </if>
-        <if test="annotation != null">
-            , annotation = #{maraAnnotation}
+        <if test="maraMark != null">
+            , mara_mark = #{maraMark}
         </if>
         WHERE id = #{id};
     </update>
@@ -87,7 +87,7 @@
             cloud_disk_file_id,
             is_annotation,
             is_check,
-            annotation
+            mara_mark
         FROM b_file_mara_annotation
         WHERE id = #{id};
     </select>
@@ -104,7 +104,7 @@
             cloud_disk_file_id,
             is_annotation,
             is_check,
-            annotation
+            mara_mark
         FROM b_file_mara_annotation
         WHERE 1 = 1
         <if test="serviceOrderId != null">

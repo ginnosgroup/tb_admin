@@ -52,9 +52,9 @@ public class FileMaraAnnotationController extends BaseController {
             dto.setOfficialId(officialId);
             dto.setMaraId(maraId);
             dto.setCloudDiskFileId(cloudDiskFileId);
-            dto.setAnnotationStatus("1".equals(isAnnotation));
-            dto.setCheck(false);
-            dto.setMaraAnnotation(annotationContent);
+            dto.setIsAnnotation("1".equals(isAnnotation));
+            dto.setIsCheck(false);
+            dto.setMaraMark(annotationContent);
             if (fileMaraAnnotationService.add(dto) > 0) {
                 if (StringUtil.isNotEmpty(maraMark)) {
                     userDao.updateMaraMark(userId, maraMark);
@@ -101,13 +101,13 @@ public class FileMaraAnnotationController extends BaseController {
                 dto.setCloudDiskFileId(cloudDiskFileId);
             }
             if (isAnnotation != null) {
-                dto.setAnnotationStatus("1".equals(isAnnotation));
+                dto.setIsAnnotation("1".equals(isAnnotation));
             }
             if (isCheck != null) {
-                dto.setCheck("1".equals(isCheck));
+                dto.setIsCheck("1".equals(isCheck));
             }
             if (annotationContent != null) {
-                dto.setMaraAnnotation(annotationContent);
+                dto.setMaraMark(annotationContent);
             }
             int result = fileMaraAnnotationService.update(dto);
             if (result > 0 && StringUtil.isNotEmpty(maraMark) && userId != null) {
@@ -134,7 +134,7 @@ public class FileMaraAnnotationController extends BaseController {
                 if (dto.getUserId() > 0) {
                     UserDO userDo = userDao.getUserById(dto.getUserId());
                     if (userDo != null) {
-                        dto.setMaraMark(userDo.getMaraMark());
+                        dto.setUserMaraMark(userDo.getMaraMark());
                     }
                 }
                 return new Response<FileMaraAnnotationDTO>(0, dto);
@@ -161,7 +161,7 @@ public class FileMaraAnnotationController extends BaseController {
                     if (dto.getUserId() > 0) {
                         UserDO userDo = userDao.getUserById(dto.getUserId());
                         if (userDo != null) {
-                            dto.setMaraMark(userDo.getMaraMark());
+                            dto.setUserMaraMark(userDo.getMaraMark());
                         }
                     }
                 }

@@ -26,10 +26,10 @@ public class FileMaraAnnotationDO implements Serializable {
 
     private String cloudDiskFileId;
 
-    private boolean annotationStatus;
+    private Boolean isAnnotation;
 
-    private boolean isCheck;
+    private Boolean isCheck;
 
-    private String maraAnnotation;
+    private String maraMark;
 
 }
