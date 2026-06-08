@@ -108,4 +108,15 @@ public class FileMaraAnnotationServiceImpl extends BaseService implements FileMa
         }
     }
 
+    @Override
+    public int updateIsCheckByServiceOrderId(int serviceOrderId) throws ServiceException {
+        try {
+            return fileMaraAnnotationDao.updateIsCheckByServiceOrderId(serviceOrderId);
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
 }

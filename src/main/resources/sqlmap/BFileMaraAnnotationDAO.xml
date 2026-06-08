@@ -123,4 +123,10 @@
         DELETE FROM b_file_mara_annotation WHERE id = #{id, jdbcType=INTEGER};
     </delete>
 
+    <update id="updateIsCheckByServiceOrderId">
+        UPDATE b_file_mara_annotation
+        SET gmt_modify = now(), is_check = 1
+        WHERE service_order_id = #{serviceOrderId}
+    </update>
+
 </mapper>

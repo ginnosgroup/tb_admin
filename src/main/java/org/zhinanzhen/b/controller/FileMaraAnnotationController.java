@@ -70,7 +70,7 @@ public class FileMaraAnnotationController extends BaseController {
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ResponseBody
-    public Response<Integer> update(@RequestParam(value = "id") int id,
+    public Response<Integer> update(@RequestParam(value = "id", required = false, defaultValue = "0") int id,
                                    @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
                                    @RequestParam(value = "userId", required = false) Integer userId,
                                    @RequestParam(value = "officialId", required = false) Integer officialId,
@@ -83,6 +83,13 @@ public class FileMaraAnnotationController extends BaseController {
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
+
+            // 只传 serviceOrderId 不传 id → 批量将该订单下所有记录的 isCheck 改为 1
+            if (id == 0 && serviceOrderId != null) {
+                int result = fileMaraAnnotationService.updateIsCheckByServiceOrderId(serviceOrderId);
+                return new Response<Integer>(0, result);
+            }
+
             FileMaraAnnotationDTO dto = new FileMaraAnnotationDTO();
             dto.setId(id);
             if (serviceOrderId != null) {

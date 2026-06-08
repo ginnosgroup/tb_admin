@@ -17,4 +17,6 @@ public interface FileMaraAnnotationService {
 
     int deleteById(int id) throws ServiceException;
 
+    int updateIsCheckByServiceOrderId(int serviceOrderId) throws ServiceException;
+
 }
