@@ -30,6 +30,6 @@ public class FileMaraAnnotationDO implements Serializable {
 
     private Boolean isCheck;
 
-    private String maraMark;
+    private String annotationMark;
 
 }

@@ -27,7 +27,7 @@ public class FileMaraAnnotationDTO {
 
     private Boolean isCheck;
 
-    private String maraMark;
+    private String annotationMark;
 
     private String userMaraMark;
 

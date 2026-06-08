@@ -16,7 +16,7 @@
         <result property="cloudDiskFileId" column="cloud_disk_file_id"/>
         <result property="isAnnotation" column="is_annotation"/>
         <result property="isCheck" column="is_check"/>
-        <result property="maraMark" column="mara_mark"/>
+        <result property="annotationMark" column="annotation_mark"/>
     </resultMap>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.FileMaraAnnotationDO" useGeneratedKeys="true" keyProperty="id">
@@ -30,7 +30,7 @@
             cloud_disk_file_id,
             is_annotation,
             is_check,
-            mara_mark
+            annotation_mark
         ) VALUES (
             now(),
             now(),
@@ -41,7 +41,7 @@
             #{cloudDiskFileId},
             #{isAnnotation},
             #{isCheck},
-            #{maraMark}
+            #{annotationMark}
         );
     </insert>
 
@@ -69,8 +69,8 @@
         <if test="isCheck != null">
             , is_check = #{isCheck}
         </if>
-        <if test="maraMark != null">
-            , mara_mark = #{maraMark}
+        <if test="annotationMark != null">
+            , annotation_mark = #{annotationMark}
         </if>
         WHERE id = #{id};
     </update>
@@ -87,7 +87,7 @@
             cloud_disk_file_id,
             is_annotation,
             is_check,
-            mara_mark
+            annotation_mark
         FROM b_file_mara_annotation
         WHERE id = #{id};
     </select>
@@ -104,7 +104,7 @@
             cloud_disk_file_id,
             is_annotation,
             is_check,
-            mara_mark
+            annotation_mark
         FROM b_file_mara_annotation
         WHERE 1 = 1
         <if test="serviceOrderId != null">
