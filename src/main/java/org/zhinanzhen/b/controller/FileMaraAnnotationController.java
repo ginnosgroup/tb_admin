@@ -78,7 +78,7 @@ public class FileMaraAnnotationController extends BaseController {
                                    @RequestParam(value = "cloudDiskFileId", required = false) String cloudDiskFileId,
                                    @RequestParam(value = "isAnnotation", required = false) String isAnnotation,
                                    @RequestParam(value = "isCheck", required = false) String isCheck,
-                                   @RequestParam(value = "annotation", required = false) String annotationContent,
+                                   @RequestParam(value = "annotationMark", required = false) String annotationMark,
                                    @RequestParam(value = "maraMark", required = false) String maraMark,
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -106,8 +106,8 @@ public class FileMaraAnnotationController extends BaseController {
             if (isCheck != null) {
                 dto.setIsCheck("1".equals(isCheck));
             }
-            if (annotationContent != null) {
-                dto.setAnnotationMark(annotationContent);
+            if (annotationMark != null) {
+                dto.setAnnotationMark(annotationMark);
             }
             int result = fileMaraAnnotationService.update(dto);
             if (result > 0 && StringUtil.isNotEmpty(maraMark) && userId != null) {
