@@ -15,9 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.FileMaraAnnotationService;
 import org.zhinanzhen.b.service.pojo.FileMaraAnnotationDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.b.service.OrderMaraAnnotationService;
 import org.zhinanzhen.tb.controller.Response;
-import org.zhinanzhen.tb.dao.UserDAO;
-import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.utils.StringUtil;
@@ -31,7 +30,7 @@ public class FileMaraAnnotationController extends BaseController {
     private FileMaraAnnotationService fileMaraAnnotationService;
 
     @Resource
-    private UserDAO userDao;
+    private OrderMaraAnnotationService orderMaraAnnotationService;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -57,7 +56,7 @@ public class FileMaraAnnotationController extends BaseController {
             dto.setAnnotationMark(annotationMark);
             if (fileMaraAnnotationService.add(dto) > 0) {
                 if (StringUtil.isNotEmpty(maraMark)) {
-                    userDao.updateMaraMark(userId, maraMark);
+                    orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
                 }
                 return new Response<Integer>(0, dto.getId());
             } else {
@@ -110,8 +109,8 @@ public class FileMaraAnnotationController extends BaseController {
                 dto.setAnnotationMark(annotationMark);
             }
             int result = fileMaraAnnotationService.update(dto);
-            if (result > 0 && StringUtil.isNotEmpty(maraMark) && userId != null) {
-                userDao.updateMaraMark(userId, maraMark);
+            if (result > 0 && StringUtil.isNotEmpty(maraMark) && serviceOrderId != null) {
+                orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
             }
             return new Response<Integer>(0, result);
         } catch (ServiceException e) {
@@ -131,11 +130,8 @@ public class FileMaraAnnotationController extends BaseController {
             List<FileMaraAnnotationDTO> dtoList = fileMaraAnnotationService.list(serviceOrderId, userId, officialId);
             if (dtoList != null && !dtoList.isEmpty()) {
                 FileMaraAnnotationDTO dto = dtoList.get(0);
-                if (dto.getUserId() > 0) {
-                    UserDO userDo = userDao.getUserById(dto.getUserId());
-                    if (userDo != null) {
-                        dto.setUserMaraMark(userDo.getMaraMark());
-                    }
+                if (dto.getServiceOrderId() > 0) {
+                    dto.setUserMaraMark(orderMaraAnnotationService.getMaraMarkByServiceOrderId(dto.getServiceOrderId()));
                 }
                 return new Response<FileMaraAnnotationDTO>(0, dto);
             } else {
@@ -158,11 +154,8 @@ public class FileMaraAnnotationController extends BaseController {
             List<FileMaraAnnotationDTO> dtoList = fileMaraAnnotationService.list(serviceOrderId, userId, officialId);
             if (dtoList != null) {
                 for (FileMaraAnnotationDTO dto : dtoList) {
-                    if (dto.getUserId() > 0) {
-                        UserDO userDo = userDao.getUserById(dto.getUserId());
-                        if (userDo != null) {
-                            dto.setUserMaraMark(userDo.getMaraMark());
-                        }
+                    if (dto.getServiceOrderId() > 0) {
+                        dto.setUserMaraMark(orderMaraAnnotationService.getMaraMarkByServiceOrderId(dto.getServiceOrderId()));
                     }
                 }
             }
