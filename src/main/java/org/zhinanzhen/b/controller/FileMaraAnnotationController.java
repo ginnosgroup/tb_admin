@@ -41,7 +41,6 @@ public class FileMaraAnnotationController extends BaseController {
                                 @RequestParam(value = "cloudDiskFileId", required = false) String cloudDiskFileId,
                                 @RequestParam(value = "isAnnotation", required = false, defaultValue = "0") String isAnnotation,
                                 @RequestParam(value = "annotationMark", required = false) String annotationMark,
-                                @RequestParam(value = "maraMark", required = false) String maraMark,
                                 HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -55,9 +54,6 @@ public class FileMaraAnnotationController extends BaseController {
             dto.setIsCheck(false);
             dto.setAnnotationMark(annotationMark);
             if (fileMaraAnnotationService.add(dto) > 0) {
-                if (StringUtil.isNotEmpty(maraMark)) {
-                    orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
-                }
                 return new Response<Integer>(0, dto.getId());
             } else {
                 return new Response<Integer>(1, "创建失败.", 0);
@@ -78,7 +74,6 @@ public class FileMaraAnnotationController extends BaseController {
                                    @RequestParam(value = "isAnnotation", required = false) String isAnnotation,
                                    @RequestParam(value = "isCheck", required = false) String isCheck,
                                    @RequestParam(value = "annotationMark", required = false) String annotationMark,
-                                   @RequestParam(value = "maraMark", required = false) String maraMark,
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
@@ -109,10 +104,41 @@ public class FileMaraAnnotationController extends BaseController {
                 dto.setAnnotationMark(annotationMark);
             }
             int result = fileMaraAnnotationService.update(dto);
-            if (result > 0 && StringUtil.isNotEmpty(maraMark) && serviceOrderId != null) {
-                orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
-            }
             return new Response<Integer>(0, result);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+        }
+    }
+
+    @RequestMapping(value = "/addMaraMark", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> addMaraMark(@RequestParam(value = "serviceOrderId") int serviceOrderId,
+                                         @RequestParam(value = "maraMark") String maraMark,
+                                         HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            if (StringUtil.isEmpty(maraMark)) {
+                return new Response<Integer>(1, "maraMark 不能为空", 0);
+            }
+            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
+            return new Response<Integer>(0, 1);
+        } catch (ServiceException e) {
+            return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+        }
+    }
+
+    @RequestMapping(value = "/updateMaraMark", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> updateMaraMark(@RequestParam(value = "serviceOrderId") int serviceOrderId,
+                                            @RequestParam(value = "maraMark") String maraMark,
+                                            HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            if (StringUtil.isEmpty(maraMark)) {
+                return new Response<Integer>(1, "maraMark 不能为空", 0);
+            }
+            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
+            return new Response<Integer>(0, 1);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
         }
