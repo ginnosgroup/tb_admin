@@ -15,7 +15,6 @@
         <result property="maraId" column="mara_id"/>
         <result property="cloudDiskFileId" column="cloud_disk_file_id"/>
         <result property="isAnnotation" column="is_annotation"/>
-        <result property="isCheck" column="is_check"/>
         <result property="annotationMark" column="annotation_mark"/>
     </resultMap>
 
@@ -29,7 +28,6 @@
             mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check,
             annotation_mark
         ) VALUES (
             now(),
@@ -40,7 +38,6 @@
             #{maraId},
             #{cloudDiskFileId},
             #{isAnnotation},
-            #{isCheck},
             #{annotationMark}
         );
     </insert>
@@ -66,9 +63,6 @@
         <if test="isAnnotation != null">
             , is_annotation = #{isAnnotation}
         </if>
-        <if test="isCheck != null">
-            , is_check = #{isCheck}
-        </if>
         <if test="annotationMark != null">
             , annotation_mark = #{annotationMark}
         </if>
@@ -86,7 +80,6 @@
             mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check,
             annotation_mark
         FROM b_file_mara_annotation
         WHERE id = #{id};
@@ -103,7 +96,6 @@
             mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check,
             annotation_mark
         FROM b_file_mara_annotation
         WHERE 1 = 1
@@ -123,10 +115,23 @@
         DELETE FROM b_file_mara_annotation WHERE id = #{id, jdbcType=INTEGER};
     </delete>
 
-    <update id="updateIsCheckByServiceOrderId">
-        UPDATE b_file_mara_annotation
-        SET gmt_modify = now(), is_check = 1
-        WHERE service_order_id = #{serviceOrderId}
-    </update>
+    <select id="listByCloudDiskFileIds" resultMap="fileMaraAnnotationResultMap">
+        SELECT
+            id,
+            gmt_create,
+            gmt_modify,
+            service_order_id,
+            user_id,
+            official_id,
+            mara_id,
+            cloud_disk_file_id,
+            is_annotation,
+            annotation_mark
+        FROM b_file_mara_annotation
+        WHERE cloud_disk_file_id IN
+        <foreach collection="cloudDiskFileIds" item="fileId" open="(" close=")" separator=",">
+            #{fileId}
+        </foreach>
+    </select>
 
 </mapper>

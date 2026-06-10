@@ -20,4 +20,10 @@ public class OrderMaraAnnotationDO implements Serializable {
 
     private String maraMark;
 
+    private Boolean isCheck;
+
+    private Date checkTime;
+
+    private Integer officialId;
+
 }

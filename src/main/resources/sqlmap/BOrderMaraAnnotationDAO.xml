@@ -9,6 +9,9 @@
         <result property="gmtModify" column="gmt_modify"/>
         <result property="serviceOrderId" column="service_order_id"/>
         <result property="maraMark" column="mara_mark"/>
+        <result property="isCheck" column="is_check"/>
+        <result property="checkTime" column="check_time"/>
+        <result property="officialId" column="official_id"/>
     </resultMap>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.OrderMaraAnnotationDO" useGeneratedKeys="true" keyProperty="id">
@@ -16,19 +19,36 @@
             gmt_create,
             gmt_modify,
             service_order_id,
-            mara_mark
+            mara_mark,
+            is_check,
+            check_time,
+            official_id
         ) VALUES (
             now(),
             now(),
             #{serviceOrderId},
-            #{maraMark}
+            #{maraMark},
+            #{isCheck},
+            #{checkTime},
+            #{officialId}
         );
     </insert>
 
     <update id="update" parameterType="org.zhinanzhen.b.dao.pojo.OrderMaraAnnotationDO">
         UPDATE b_order_mara_annotation
-        SET gmt_modify = now(),
-            mara_mark = #{maraMark}
+        SET gmt_modify = now()
+        <if test="maraMark != null">
+            , mara_mark = #{maraMark}
+        </if>
+        <if test="isCheck != null">
+            , is_check = #{isCheck}
+        </if>
+        <if test="checkTime != null">
+            , check_time = #{checkTime}
+        </if>
+        <if test="officialId != null">
+            , official_id = #{officialId}
+        </if>
         WHERE service_order_id = #{serviceOrderId}
     </update>
 
@@ -38,7 +58,10 @@
             gmt_create,
             gmt_modify,
             service_order_id,
-            mara_mark
+            mara_mark,
+            is_check,
+            check_time,
+            official_id
         FROM b_order_mara_annotation
         WHERE service_order_id = #{serviceOrderId}
         LIMIT 1;

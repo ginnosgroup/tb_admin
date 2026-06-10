@@ -51,7 +51,6 @@ public class FileMaraAnnotationController extends BaseController {
             dto.setMaraId(maraId);
             dto.setCloudDiskFileId(cloudDiskFileId);
             dto.setIsAnnotation("1".equals(isAnnotation));
-            dto.setIsCheck(false);
             dto.setAnnotationMark(annotationMark);
             if (fileMaraAnnotationService.add(dto) > 0) {
                 return new Response<Integer>(0, dto.getId());
@@ -72,7 +71,6 @@ public class FileMaraAnnotationController extends BaseController {
                                    @RequestParam(value = "maraId", required = false) Integer maraId,
                                    @RequestParam(value = "cloudDiskFileId", required = false) String cloudDiskFileId,
                                    @RequestParam(value = "isAnnotation", required = false) String isAnnotation,
-                                   @RequestParam(value = "isCheck", required = false) String isCheck,
                                    @RequestParam(value = "annotationMark", required = false) String annotationMark,
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -96,9 +94,6 @@ public class FileMaraAnnotationController extends BaseController {
             }
             if (isAnnotation != null) {
                 dto.setIsAnnotation("1".equals(isAnnotation));
-            }
-            if (isCheck != null) {
-                dto.setIsCheck("1".equals(isCheck));
             }
             if (annotationMark != null) {
                 dto.setAnnotationMark(annotationMark);
@@ -206,10 +201,13 @@ public class FileMaraAnnotationController extends BaseController {
     @RequestMapping(value = "/officialCheck", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> officialCheck(@RequestParam(value = "serviceOrderId") int serviceOrderId,
+                                           HttpServletRequest request,
                                            HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            int result = fileMaraAnnotationService.updateIsCheckByServiceOrderId(serviceOrderId);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            int officialId = adminUserLoginInfo.getOfficialId() != null ? adminUserLoginInfo.getOfficialId() : 0;
+            int result = orderMaraAnnotationService.officialCheck(serviceOrderId, officialId);
             return new Response<Integer>(0, result);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);

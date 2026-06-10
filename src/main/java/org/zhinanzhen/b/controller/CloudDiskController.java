@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.CloudDiskService;
+import org.zhinanzhen.b.service.FileMaraAnnotationService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.FileMaraAnnotationDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -32,6 +34,9 @@ public class CloudDiskController extends BaseController {
 
     @Resource
     private CloudDiskService cloudDiskService;
+
+    @Resource
+    private FileMaraAnnotationService fileMaraAnnotationService;
 
     @RequestMapping(value = "/put", method = RequestMethod.POST)
     @ResponseBody
@@ -136,6 +141,23 @@ public class CloudDiskController extends BaseController {
             super.setPostHeader(response);
             int total = cloudDiskService.count(id, parentFileId, name, applicantId, userId);
             List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize, false);
+            // 关联 b_file_mara_annotation
+            if (cloudDiskFileList != null && !cloudDiskFileList.isEmpty()) {
+                List<String> fileIds = cloudDiskFileList.stream()
+                        .map(CloudDiskFile::getFileId)
+                        .filter(StringUtils::isNotEmpty)
+                        .collect(Collectors.toList());
+                if (!fileIds.isEmpty()) {
+                    List<FileMaraAnnotationDTO> annotationList = fileMaraAnnotationService.listByCloudDiskFileIds(fileIds);
+                    if (annotationList != null && !annotationList.isEmpty()) {
+                        Map<String, FileMaraAnnotationDTO> annotationMap = annotationList.stream()
+                                .collect(Collectors.toMap(FileMaraAnnotationDTO::getCloudDiskFileId, a -> a, (a, b) -> a));
+                        for (CloudDiskFile f : cloudDiskFileList) {
+                            f.setFileMaraAnnotation(annotationMap.get(f.getFileId()));
+                        }
+                    }
+                }
+            }
             return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, "");
         } catch (Exception e) {
             e.printStackTrace();

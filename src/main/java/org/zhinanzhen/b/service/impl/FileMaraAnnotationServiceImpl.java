@@ -109,9 +109,16 @@ public class FileMaraAnnotationServiceImpl extends BaseService implements FileMa
     }
 
     @Override
-    public int updateIsCheckByServiceOrderId(int serviceOrderId) throws ServiceException {
+    public List<FileMaraAnnotationDTO> listByCloudDiskFileIds(List<String> cloudDiskFileIds) throws ServiceException {
         try {
-            return fileMaraAnnotationDao.updateIsCheckByServiceOrderId(serviceOrderId);
+            List<FileMaraAnnotationDTO> dtoList = new ArrayList<>();
+            List<FileMaraAnnotationDO> doList = fileMaraAnnotationDao.listByCloudDiskFileIds(cloudDiskFileIds);
+            if (doList != null) {
+                for (FileMaraAnnotationDO fileMaraAnnotationDo : doList) {
+                    dtoList.add(mapper.map(fileMaraAnnotationDo, FileMaraAnnotationDTO.class));
+                }
+            }
+            return dtoList;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

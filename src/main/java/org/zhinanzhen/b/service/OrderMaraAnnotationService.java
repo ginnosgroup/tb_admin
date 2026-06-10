@@ -8,4 +8,6 @@ public interface OrderMaraAnnotationService {
 
     String getMaraMarkByServiceOrderId(int serviceOrderId) throws ServiceException;
 
+    int officialCheck(int serviceOrderId, int officialId) throws ServiceException;
+
 }

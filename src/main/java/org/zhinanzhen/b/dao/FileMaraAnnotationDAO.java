@@ -19,6 +19,6 @@ public interface FileMaraAnnotationDAO {
 
     int deleteById(@Param("id") int id);
 
-    int updateIsCheckByServiceOrderId(@Param("serviceOrderId") int serviceOrderId);
+    List<FileMaraAnnotationDO> listByCloudDiskFileIds(@Param("cloudDiskFileIds") List<String> cloudDiskFileIds);
 
 }

@@ -2,6 +2,8 @@ package org.zhinanzhen.b.service.impl;
 
 import javax.annotation.Resource;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.OrderMaraAnnotationDAO;
 import org.zhinanzhen.b.dao.pojo.OrderMaraAnnotationDO;
@@ -46,6 +48,30 @@ public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationServic
         try {
             OrderMaraAnnotationDO result = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
             return result != null ? result.getMaraMark() : null;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
+    @Override
+    public int officialCheck(int serviceOrderId, int officialId) throws ServiceException {
+        try {
+            OrderMaraAnnotationDO exist = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
+            if (exist != null) {
+                exist.setIsCheck(true);
+                exist.setCheckTime(new Date());
+                exist.setOfficialId(officialId);
+                return orderMaraAnnotationDao.update(exist);
+            } else {
+                OrderMaraAnnotationDO newDo = new OrderMaraAnnotationDO();
+                newDo.setServiceOrderId(serviceOrderId);
+                newDo.setIsCheck(true);
+                newDo.setCheckTime(new Date());
+                newDo.setOfficialId(officialId);
+                return orderMaraAnnotationDao.add(newDo);
+            }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
