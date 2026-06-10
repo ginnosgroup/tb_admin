@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.FileMaraAnnotationService;
+import org.zhinanzhen.b.service.OrderMaraAnnotationService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.FileMaraAnnotationDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -37,6 +38,9 @@ public class CloudDiskController extends BaseController {
 
     @Resource
     private FileMaraAnnotationService fileMaraAnnotationService;
+
+    @Resource
+    private OrderMaraAnnotationService orderMaraAnnotationService;
 
     @RequestMapping(value = "/put", method = RequestMethod.POST)
     @ResponseBody
@@ -135,6 +139,7 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "applicantId", required = false) Integer applicantId,
             @RequestParam(value = "userId", required = false) Integer userId,
+            @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
             HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -158,7 +163,15 @@ public class CloudDiskController extends BaseController {
                     }
                 }
             }
-            return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, "");
+            // 如果传了 serviceOrderId，查询 b_order_mara_annotation 的 mara_mark 放入 message
+            String message = "";
+            if (serviceOrderId != null && serviceOrderId > 0) {
+                String maraMark = orderMaraAnnotationService.getMaraMarkByServiceOrderId(serviceOrderId);
+                if (maraMark != null) {
+                    message = maraMark;
+                }
+            }
+            return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, message);
         } catch (Exception e) {
             e.printStackTrace();
             return new ListResponse<List<CloudDiskFile>>(false, pageSize, 0, null, e.getMessage());

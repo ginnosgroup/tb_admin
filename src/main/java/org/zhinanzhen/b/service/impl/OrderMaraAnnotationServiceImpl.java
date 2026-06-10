@@ -34,12 +34,14 @@ public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationServic
             OrderMaraAnnotationDO exist = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
             if (exist != null) {
                 exist.setMaraMark(maraMark);
+                exist.setIsCheck(isCheck);
+                if (officialId > 0) {
+                    exist.setOfficialId(officialId);
+                }
                 if (isCheck) {
-                    exist.setIsCheck(true);
                     exist.setCheckTime(new Date());
-                    if (officialId > 0) {
-                        exist.setOfficialId(officialId);
-                    }
+                } else {
+                    exist.setCheckTime(null);
                 }
                 return orderMaraAnnotationDao.update(exist);
             } else {
@@ -47,11 +49,11 @@ public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationServic
                 newDo.setServiceOrderId(serviceOrderId);
                 newDo.setMaraMark(maraMark);
                 newDo.setIsCheck(isCheck);
+                if (officialId > 0) {
+                    newDo.setOfficialId(officialId);
+                }
                 if (isCheck) {
                     newDo.setCheckTime(new Date());
-                    if (officialId > 0) {
-                        newDo.setOfficialId(officialId);
-                    }
                 }
                 return orderMaraAnnotationDao.add(newDo);
             }

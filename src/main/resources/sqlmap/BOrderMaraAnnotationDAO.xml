@@ -40,12 +40,8 @@
         <if test="maraMark != null">
             , mara_mark = #{maraMark}
         </if>
-        <if test="isCheck != null">
             , is_check = #{isCheck}
-        </if>
-        <if test="checkTime != null">
             , check_time = #{checkTime}
-        </if>
         <if test="officialId != null">
             , official_id = #{officialId}
         </if>
