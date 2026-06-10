@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.zhinanzhen.b.service.FileMaraAnnotationService;
-import org.zhinanzhen.b.service.pojo.FileMaraAnnotationDTO;
-import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.b.service.OrderMaraAnnotationService;
+import org.zhinanzhen.b.service.pojo.FileMaraAnnotationDTO;
+import org.zhinanzhen.b.service.pojo.SelectOfficialCheckDTO;
+import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
-import com.ikasoa.core.utils.StringUtil;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -109,11 +109,10 @@ public class FileMaraAnnotationController extends BaseController {
     @ResponseBody
     public Response<Integer> addMaraMark(@RequestParam(value = "serviceOrderId") int serviceOrderId,
                                          @RequestParam(value = "maraMark", required = false) String maraMark,
-                                         @RequestParam(value = "officialId", required = false, defaultValue = "0") int officialId,
                                          HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark == null ? "" : maraMark, false, officialId);
+            orderMaraAnnotationService.saveMaraMarkFromServiceOrder(serviceOrderId, maraMark == null ? "" : maraMark);
             return new Response<Integer>(0, 1);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
@@ -204,6 +203,26 @@ public class FileMaraAnnotationController extends BaseController {
             return new Response<Integer>(0, result);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
+        }
+    }
+
+    @RequestMapping(value = "/selectOfficialCheck", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<List<SelectOfficialCheckDTO>> selectOfficialCheck(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo.getOfficialId() == null) {
+                return new Response<List<SelectOfficialCheckDTO>>(1, "当前用户没有 officialId", null);
+            }
+            int officialId = adminUserLoginInfo.getOfficialId();
+            List<SelectOfficialCheckDTO> resultList = orderMaraAnnotationService.selectOfficialCheck(officialId);
+            if (resultList == null || resultList.isEmpty()) {
+                return new Response<List<SelectOfficialCheckDTO>>(1, "未查询到 b_order_mara_annotation 数据", null);
+            }
+            return new Response<List<SelectOfficialCheckDTO>>(0, resultList);
+        } catch (ServiceException e) {
+            return new Response<List<SelectOfficialCheckDTO>>(e.getCode(), e.getMessage(), null);
         }
     }
 

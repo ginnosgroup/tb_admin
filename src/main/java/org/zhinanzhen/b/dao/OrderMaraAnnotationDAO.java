@@ -15,4 +15,6 @@ public interface OrderMaraAnnotationDAO {
 
     List<OrderMaraAnnotationDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
 
+    List<OrderMaraAnnotationDO> listByOfficialId(@Param("officialId") int officialId);
+
 }

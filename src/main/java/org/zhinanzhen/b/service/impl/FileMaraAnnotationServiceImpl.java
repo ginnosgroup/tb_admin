@@ -138,6 +138,39 @@ public class FileMaraAnnotationServiceImpl extends BaseService implements FileMa
         }
     }
 
+    @Override
+    public List<FileMaraAnnotationDTO> listSimple(Integer serviceOrderId, Integer userId, Integer officialId) throws ServiceException {
+        try {
+            List<FileMaraAnnotationDTO> dtoList = new ArrayList<>();
+            List<FileMaraAnnotationDO> doList = fileMaraAnnotationDao.list(serviceOrderId, userId, officialId);
+            if (doList == null) {
+                return dtoList;
+            }
+            // 收集 cloudDiskFileId
+            Set<String> fIds = new LinkedHashSet<>();
+            for (FileMaraAnnotationDO d : doList) {
+                if (d.getCloudDiskFileId() != null && d.getCloudDiskFileId().length() > 0) fIds.add(d.getCloudDiskFileId());
+            }
+            Map<String, CloudDiskFile> cdMap = new HashMap<>();
+            if (!fIds.isEmpty()) {
+                for (CloudDiskFile cf : cloudDiskFileDao.listByFileIds(new ArrayList<>(fIds)))
+                    cdMap.put(cf.getFileId(), cf);
+            }
+            for (FileMaraAnnotationDO d : doList) {
+                FileMaraAnnotationDTO dto = mapper.map(d, FileMaraAnnotationDTO.class);
+                if (dto.getCloudDiskFileId() != null && dto.getCloudDiskFileId().length() > 0) {
+                    dto.setCloudDiskFile(cdMap.get(dto.getCloudDiskFileId()));
+                }
+                dtoList.add(dto);
+            }
+            return dtoList;
+        } catch (Exception e) {
+            ServiceException se = new ServiceException(e);
+            se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+            throw se;
+        }
+    }
+
     private List<FileMaraAnnotationDTO> assembleRelatedData(List<FileMaraAnnotationDO> doList) {
         List<FileMaraAnnotationDTO> dtoList = new ArrayList<>();
         if (doList == null || doList.isEmpty()) {
