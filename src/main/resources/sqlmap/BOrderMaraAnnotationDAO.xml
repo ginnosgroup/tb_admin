@@ -67,4 +67,21 @@
         LIMIT 1;
     </select>
 
+    <select id="listByServiceOrderIds" resultMap="orderMaraAnnotationResultMap">
+        SELECT
+            id,
+            gmt_create,
+            gmt_modify,
+            service_order_id,
+            mara_mark,
+            is_check,
+            check_time,
+            official_id
+        FROM b_order_mara_annotation
+        WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="soId" open="(" close=")" separator=",">
+            #{soId}
+        </foreach>
+    </select>
+
 </mapper>

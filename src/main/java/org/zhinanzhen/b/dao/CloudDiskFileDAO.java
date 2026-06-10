@@ -45,6 +45,8 @@ public interface CloudDiskFileDAO {
     List<CloudDiskFile> listByUserIds(@Param("userIds") List<Integer> userIds);
     List<CloudDiskFile> listByDriveId(@Param("driveId") String driveId);
 
+    List<CloudDiskFile> listByFileIds(@Param("fileIds") List<String> fileIds);
+
     /** 迁移专用：强制更新 fileId, driveId, domainId, parentFileId, fileSize */
     int updateForMigration(CloudDiskFile cloudDiskFile);
 

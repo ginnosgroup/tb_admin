@@ -11,7 +11,6 @@ import org.zhinanzhen.b.service.OrderMaraAnnotationService;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.ErrorCodeEnum;
-import com.ikasoa.core.utils.StringUtil;
 
 @Service("OrderMaraAnnotationService")
 public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationService {
@@ -21,19 +20,39 @@ public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationServic
 
     @Override
     public int saveMaraMark(int serviceOrderId, String maraMark) throws ServiceException {
-        if (StringUtil.isEmpty(maraMark)) {
-            return 0;
-        }
+        return saveMaraMark(serviceOrderId, maraMark, false);
+    }
+
+    @Override
+    public int saveMaraMark(int serviceOrderId, String maraMark, boolean isCheck) throws ServiceException {
+        return saveMaraMark(serviceOrderId, maraMark, isCheck, 0);
+    }
+
+    @Override
+    public int saveMaraMark(int serviceOrderId, String maraMark, boolean isCheck, int officialId) throws ServiceException {
         try {
-            // 一个 serviceOrderId 只有一条，有则更新，无则新增
             OrderMaraAnnotationDO exist = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
             if (exist != null) {
                 exist.setMaraMark(maraMark);
+                if (isCheck) {
+                    exist.setIsCheck(true);
+                    exist.setCheckTime(new Date());
+                    if (officialId > 0) {
+                        exist.setOfficialId(officialId);
+                    }
+                }
                 return orderMaraAnnotationDao.update(exist);
             } else {
                 OrderMaraAnnotationDO newDo = new OrderMaraAnnotationDO();
                 newDo.setServiceOrderId(serviceOrderId);
                 newDo.setMaraMark(maraMark);
+                newDo.setIsCheck(isCheck);
+                if (isCheck) {
+                    newDo.setCheckTime(new Date());
+                    if (officialId > 0) {
+                        newDo.setOfficialId(officialId);
+                    }
+                }
                 return orderMaraAnnotationDao.add(newDo);
             }
         } catch (Exception e) {
@@ -45,9 +64,14 @@ public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationServic
 
     @Override
     public String getMaraMarkByServiceOrderId(int serviceOrderId) throws ServiceException {
+        OrderMaraAnnotationDO result = getByServiceOrderId(serviceOrderId);
+        return result != null ? result.getMaraMark() : null;
+    }
+
+    @Override
+    public OrderMaraAnnotationDO getByServiceOrderId(int serviceOrderId) throws ServiceException {
         try {
-            OrderMaraAnnotationDO result = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
-            return result != null ? result.getMaraMark() : null;
+            return orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

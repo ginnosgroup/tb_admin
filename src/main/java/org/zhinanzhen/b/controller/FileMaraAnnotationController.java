@@ -108,14 +108,12 @@ public class FileMaraAnnotationController extends BaseController {
     @RequestMapping(value = "/addMaraMark", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> addMaraMark(@RequestParam(value = "serviceOrderId") int serviceOrderId,
-                                         @RequestParam(value = "maraMark") String maraMark,
+                                         @RequestParam(value = "maraMark", required = false) String maraMark,
+                                         @RequestParam(value = "officialId", required = false, defaultValue = "0") int officialId,
                                          HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            if (StringUtil.isEmpty(maraMark)) {
-                return new Response<Integer>(1, "maraMark 不能为空", 0);
-            }
-            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
+            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark == null ? "" : maraMark, false, officialId);
             return new Response<Integer>(0, 1);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
@@ -125,14 +123,14 @@ public class FileMaraAnnotationController extends BaseController {
     @RequestMapping(value = "/updateMaraMark", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> updateMaraMark(@RequestParam(value = "serviceOrderId") int serviceOrderId,
-                                            @RequestParam(value = "maraMark") String maraMark,
+                                            @RequestParam(value = "maraMark", required = false) String maraMark,
+                                            @RequestParam(value = "isCheck", required = false) String isCheck,
+                                            @RequestParam(value = "officialId", required = false, defaultValue = "0") int officialId,
                                             HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            if (StringUtil.isEmpty(maraMark)) {
-                return new Response<Integer>(1, "maraMark 不能为空", 0);
-            }
-            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark);
+            boolean check = "1".equals(isCheck);
+            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark == null ? "" : maraMark, check, officialId);
             return new Response<Integer>(0, 1);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
@@ -150,11 +148,7 @@ public class FileMaraAnnotationController extends BaseController {
             super.setGetHeader(response);
             List<FileMaraAnnotationDTO> dtoList = fileMaraAnnotationService.list(serviceOrderId, userId, officialId);
             if (dtoList != null && !dtoList.isEmpty()) {
-                FileMaraAnnotationDTO dto = dtoList.get(0);
-                if (dto.getServiceOrderId() > 0) {
-                    dto.setUserMaraMark(orderMaraAnnotationService.getMaraMarkByServiceOrderId(dto.getServiceOrderId()));
-                }
-                return new Response<FileMaraAnnotationDTO>(0, dto);
+                return new Response<FileMaraAnnotationDTO>(0, dtoList.get(0));
             } else {
                 return new Response<FileMaraAnnotationDTO>(1, "未找到数据.", null);
             }
@@ -173,13 +167,6 @@ public class FileMaraAnnotationController extends BaseController {
         try {
             super.setGetHeader(response);
             List<FileMaraAnnotationDTO> dtoList = fileMaraAnnotationService.list(serviceOrderId, userId, officialId);
-            if (dtoList != null) {
-                for (FileMaraAnnotationDTO dto : dtoList) {
-                    if (dto.getServiceOrderId() > 0) {
-                        dto.setUserMaraMark(orderMaraAnnotationService.getMaraMarkByServiceOrderId(dto.getServiceOrderId()));
-                    }
-                }
-            }
             return new Response<List<FileMaraAnnotationDTO>>(0, dtoList);
         } catch (ServiceException e) {
             return new Response<List<FileMaraAnnotationDTO>>(e.getCode(), e.getMessage(), null);
