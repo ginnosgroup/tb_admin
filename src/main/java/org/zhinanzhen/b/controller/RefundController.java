@@ -92,6 +92,15 @@ public class RefundController extends BaseController {
 	@Resource
 	private AdviserService adviserService;
 
+	@Resource
+	private CommissionOrderService commissionOrderService;
+
+	@Resource
+	private SchoolInstitutionService schoolInstitutionService;
+
+	@Resource
+	private SchoolService schoolService;
+
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public enum RefundStateEnum {
@@ -144,6 +153,22 @@ public class RefundController extends BaseController {
 					ExchangeRateDTO exchangeRateDto = exchangeRateService.getExchangeRate();
 					if (ObjectUtil.isNotNull(exchangeRateDto))
 						refundDto.setExchangeRate(exchangeRateDto.getRate());
+				}
+			}
+			// 如果 commissionOrderId 不为空，计算 expectAmount
+			if (refundDto.getCommissionOrderId() != null && refundDto.getCommissionOrderId() > 0) {
+				CommissionOrderListDTO commissionOrderListDto = commissionOrderService
+						.getCommissionOrderById(refundDto.getCommissionOrderId());
+				if (commissionOrderListDto != null) {
+					commissionOrderListDto.setAmount(refundDto.getAmount());
+					if (commissionOrderListDto.getSchoolId() > 0) {
+						schoolService.updateSchoolSetting(commissionOrderListDto);
+					} else {
+						schoolInstitutionService.updateSchoolSetting(commissionOrderListDto);
+					}
+					commissionOrderListDto = commissionOrderService
+							.getCommissionOrderById(refundDto.getCommissionOrderId());
+					refundDto.setExpectAmount(commissionOrderListDto.getExpectAmount());
 				}
 			}
 			if (refundService.addRefund(refundDto) > 0) {

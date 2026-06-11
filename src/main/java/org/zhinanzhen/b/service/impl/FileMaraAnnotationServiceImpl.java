@@ -107,7 +107,18 @@ public class FileMaraAnnotationServiceImpl extends BaseService implements FileMa
     public List<FileMaraAnnotationDTO> list(Integer serviceOrderId, Integer userId, Integer officialId) throws ServiceException {
         try {
             List<FileMaraAnnotationDO> doList = fileMaraAnnotationDao.list(serviceOrderId, userId, officialId);
-            return assembleRelatedData(doList);
+            List<FileMaraAnnotationDTO> result = assembleRelatedData(doList);
+            // b_file_mara_annotation 没有记录，但 b_order_mara_annotation 有 → 新建空 DTO 带 orderMaraAnnotation 返回
+            if (result.isEmpty() && serviceOrderId != null && serviceOrderId > 0) {
+                OrderMaraAnnotationDO om = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
+                if (om != null) {
+                    FileMaraAnnotationDTO dto = new FileMaraAnnotationDTO();
+                    dto.setServiceOrderId(serviceOrderId);
+                    dto.setOrderMaraAnnotation(om);
+                    result.add(dto);
+                }
+            }
+            return result;
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

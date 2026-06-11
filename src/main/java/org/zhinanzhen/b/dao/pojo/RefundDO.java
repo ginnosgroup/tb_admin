@@ -90,4 +90,6 @@ public class RefundDO implements Serializable {
 
 	private String note;
 
+	private Double expectAmount;
+
 }

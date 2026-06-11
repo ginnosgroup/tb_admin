@@ -36,4 +36,7 @@ public interface MailRemindDAO {
                                      @Param("visaIdList") List<Integer> visaIdList,
                                      @Param("isToday") boolean isToday,
                                      @Param("isAll") boolean isAll);
+
+    List<MailRemindDO> listByServiceOrderIds(@Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
 }

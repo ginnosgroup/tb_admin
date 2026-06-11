@@ -197,7 +197,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                     visaDao, serviceAssessDao, regionDAO, commissionOrderTempDao,
                     schoolCourseDAO, schoolInstitutionDAO, schoolInstitutionLocationDAO,
                     customerInformationDAO, serviceOrderApplicantDao, officialHandoverLogDao,
-                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO, reviewAIDAO
+                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO, reviewAIDAO,
+                    mailRemindDAO
             );
         }
         return batchLoader;
@@ -872,6 +873,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             isManage = null;
         }
         try {
+            long t0 = System.currentTimeMillis();
             if (bindingList != null && bindingList) {
                 if ("OVST".equalsIgnoreCase(type)) {
                     type = "bindingList2";
@@ -913,6 +915,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         theDateTo23_59_59(endReadcommittedDate), theDateTo00_00_00(startFinishDate), theDateTo23_59_59(endFinishDate), adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId,
                         parentId, applicantParentId, isNotApproved, serviceId, servicePackageId, schoolId, isPay, isSettle,null, pageNum * pageSize, pageSize, orderBy, courseId, tradingName, schoolLocation, null, null, isManage);
             }
+            long t1 = System.currentTimeMillis();
+            LOG.info("[listServiceOrder] SQL查询完成, 耗时: {}ms, 结果数: {}", t1 - t0, serviceOrderDoList == null ? 0 : serviceOrderDoList.size());
             if (serviceOrderDoList == null)
                 return null;
 
@@ -925,6 +929,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
             // 批量预加载关联数据
             ServiceOrderBatchContext batchContext = batchLoadRelatedData(collect);
+            long t2 = System.currentTimeMillis();
+            LOG.info("[listServiceOrder] 批量预加载完成, 耗时: {}ms", t2 - t1);
             CountDownLatch latch = new CountDownLatch(collect.size());
             for (int i = 0; i < collect.size(); i++) {
                 ServiceOrderDO serviceOrderDo = collect.get(i);
@@ -957,6 +963,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 });
             }
             latch.await();
+            long t3 = System.currentTimeMillis();
+            LOG.info("[listServiceOrder] 逐条组装完成, 耗时: {}ms", t3 - t2);
             if (!serviceOrderDtoList.isEmpty()) {
                 serviceOrderDtoList.get(0).setBindingOrderCount(count);
             }
@@ -1691,7 +1699,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (serviceOrderDto.getServiceAssessId() != null && "0".equalsIgnoreCase(serviceOrderDto.getServiceAssessId())) {
             serviceOrderDto.setServiceAssessDO(new ServiceAssessDO());
         }
-        List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
+        List<MailRemindDO> mailRemindDOS = ctx.mailRemindMap.getOrDefault(serviceOrderDO.getId(), new ArrayList<>());
         if (mailRemindDOS.size() > 0) {
             List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
             mailRemindDOS.forEach(mailRemindDO -> {

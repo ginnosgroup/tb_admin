@@ -175,7 +175,8 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                     visaDao, serviceAssessDao, regionDAO, commissionOrderTempDao,
                     schoolCourseDAO, schoolInstitutionDAO, schoolInstitutionLocationDAO,
                     customerInformationDAO, serviceOrderApplicantDao, officialHandoverLogDao,
-                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO, reviewAIDAO
+                    servicePackagePriceDAO, serviceOrderManageDAO, webLogDAO, reviewAIDAO,
+                    mailRemindDAO
             );
         }
         return batchLoader;
@@ -736,7 +737,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         if (serviceOrderDto.getServiceAssessId() != null && "0".equalsIgnoreCase(serviceOrderDto.getServiceAssessId())) {
             serviceOrderDto.setServiceAssessDO(new ServiceAssessDO());
         }
-        List<MailRemindDO> mailRemindDOS = mailRemindDAO.list(null, null, null, serviceOrderDO.getId(), null, null, null, false, true);
+        List<MailRemindDO> mailRemindDOS = ctx.mailRemindMap.getOrDefault(serviceOrderDO.getId(), new ArrayList<>());
         if (mailRemindDOS.size() > 0) {
             List<MailRemindDTO> mailRemindDTOS = new ArrayList<>();
             mailRemindDOS.forEach(mailRemindDO -> {

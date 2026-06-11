@@ -213,4 +213,29 @@
         </where>
         ORDER BY send_date DESC;
     </select>
+
+    <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.MailRemindDO">
+        SELECT
+        id,
+        gmt_create AS gmtCreate,
+        gmt_modify AS gmtModify,
+        code,
+        mail,
+        title,
+        content,
+        send_date AS sendDate,
+        service_order_id AS serviceOrderId,
+        visa_id AS visaId,
+        commission_order_id AS commissionOrderId,
+        adviser_id AS adviserId,
+        offcial_id AS offcialId,
+        kj_id AS kjId,
+        user_id AS userId,
+        need_remind AS needRemind
+        FROM b_mail_remind
+        WHERE service_order_id IN
+        <foreach collection="serviceOrderIds" item="sid" open="(" close=")" separator=",">
+            #{sid}
+        </foreach>
+    </select>
 </mapper>

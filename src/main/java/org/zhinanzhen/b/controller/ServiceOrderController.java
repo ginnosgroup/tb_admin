@@ -2009,17 +2009,22 @@ public class ServiceOrderController extends BaseController {
                     applicantName = applicantDTO.getFirstname() + " " + applicantDTO.getSurname();
                 }
             }
+            long t0 = System.currentTimeMillis();
             int total = serviceOrderService.countServiceOrder(type, excludeTypeList, excludeState, stateList,
                     auditingState, reviewStateList, urgentState, startMaraApprovalDate, endMaraApprovalDate,
                     startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate, endReadcommittedDate, startFinishDate, endFinishDate,
                     adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId, officialTagId, 0, 0,
                     isNotApproved != null ? isNotApproved : false, serviceId, servicePackageId, schoolId, null, isSettle, bindingList, courseId, tradingName, schoolLocation, isAssess, price);
+            long t1 = System.currentTimeMillis();
+            LOG.info("[listServiceOrder] countServiceOrder 耗时: {}ms, 总数: {}", t1 - t0, total);
             List<ServiceOrderDTO> serviceOrderList = serviceOrderService.listServiceOrder(type, excludeTypeList,
                     excludeState, stateList, auditingState, reviewStateList, urgentState, startMaraApprovalDate,
                     endMaraApprovalDate, startOfficialApprovalDate, endOfficialApprovalDate, startReadcommittedDate,
                     endReadcommittedDate, startFinishDate, endFinishDate, adviserRegionIdList, officialRegionIdList, userId, userName, applicantName, maraId, adviserId, officialId,
                     officialTagId, 0, 0, isNotApproved != null ? isNotApproved : false, pageNum, pageSize, _sorter,
                     serviceId, servicePackageId, schoolId, null, isSettle, bindingList, courseId, tradingName, schoolLocation, isAssess, price, isManage);
+            long t2 = System.currentTimeMillis();
+            LOG.info("[listServiceOrder] listServiceOrder 耗时: {}ms, 结果数: {}", t2 - t1, serviceOrderList == null ? 0 : serviceOrderList.size());
             if (bindingList != null && bindingList && "OVST".equals(type)) {
                 total = (int) (total - serviceOrderList.get(0).getBindingOrderCount());
             }
