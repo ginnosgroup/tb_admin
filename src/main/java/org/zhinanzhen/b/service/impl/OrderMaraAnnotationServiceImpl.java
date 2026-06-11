@@ -50,7 +50,9 @@ public class OrderMaraAnnotationServiceImpl implements OrderMaraAnnotationServic
         try {
             OrderMaraAnnotationDO exist = orderMaraAnnotationDao.getByServiceOrderId(serviceOrderId);
             if (exist != null) {
-                exist.setMaraMark(maraMark);
+                if (maraMark != null) {
+                    exist.setMaraMark(maraMark);
+                }
                 exist.setIsCheck(isCheck);
                 if (officialId > 0) {
                     exist.setOfficialId(officialId);

@@ -128,14 +128,16 @@ public class FileMaraAnnotationController extends BaseController {
                                             HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            String newMaraMark = maraMark == null ? "" : maraMark;
-            String oldMaraMark = orderMaraAnnotationService.getMaraMarkByServiceOrderId(serviceOrderId);
             boolean check = "1".equals(isCheck);
-            // maraMark 有修改则重置 isCheck 为 0
-            if (!newMaraMark.equals(oldMaraMark == null ? "" : oldMaraMark)) {
-                check = false;
+            if (maraMark != null) {
+                String newMaraMark = maraMark;
+                String oldMaraMark = orderMaraAnnotationService.getMaraMarkByServiceOrderId(serviceOrderId);
+                // maraMark 有修改则重置 isCheck 为 0
+                if (!newMaraMark.equals(oldMaraMark == null ? "" : oldMaraMark)) {
+                    check = false;
+                }
             }
-            orderMaraAnnotationService.saveMaraMark(serviceOrderId, newMaraMark, check, officialId);
+            orderMaraAnnotationService.saveMaraMark(serviceOrderId, maraMark, check, officialId);
             return new Response<Integer>(0, 1);
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
