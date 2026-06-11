@@ -119,7 +119,7 @@ public class FileMaraAnnotationController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/updateMaraMark", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateMaraMark", method = RequestMethod.GET)
     @ResponseBody
     public Response<Integer> updateMaraMark(@RequestParam(value = "serviceOrderId") int serviceOrderId,
                                             @RequestParam(value = "maraMark", required = false) String maraMark,
