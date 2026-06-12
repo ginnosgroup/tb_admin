@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.CloudDiskFileDAO;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.CloudDiskService;
 import org.zhinanzhen.b.service.FileMaraAnnotationService;
@@ -24,6 +26,9 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.Signature;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +46,26 @@ public class CloudDiskController extends BaseController {
 
     @Resource
     private OrderMaraAnnotationService orderMaraAnnotationService;
+
+    @Resource
+    private CloudDiskFileDAO cloudDiskFileDAO;
+
+    @Value("${aliyun.DRIVEID}")
+    private String PDS_DRIVE_ID;
+
+    @Value("${aliyun.PDSDOMAINID}")
+    private String PDS_DOMAIN_ID;
+
+    @Value("${pds.app.clientId:}")
+    private String PDS_APP_CLIENT_ID;
+
+    @Value("${pds.app.privateKey:}")
+    private String PDS_APP_PRIVATE_KEY;
+
+    private static final okhttp3.OkHttpClient OKHTTP_CLIENT = new okhttp3.OkHttpClient.Builder()
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .build();
 
     @RequestMapping(value = "/put", method = RequestMethod.POST)
     @ResponseBody
@@ -423,6 +448,68 @@ public class CloudDiskController extends BaseController {
     /**
      * 根据文件名获取 MIME 类型
      */
+    @RequestMapping(value = "/editOnline", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<Map<String, String>> editOnline(
+            @RequestParam(value = "fileId") String fileId,
+            HttpServletResponse response) {
+        try {
+            super.setGetHeader(response);
+            if (PDS_APP_CLIENT_ID == null || PDS_APP_CLIENT_ID.isEmpty()
+                    || PDS_APP_PRIVATE_KEY == null || PDS_APP_PRIVATE_KEY.isEmpty()) {
+                return new Response<>(1, "未配置 pds.app.clientId / pds.app.privateKey", null);
+            }
+
+            // 查数据库取 driveId
+            CloudDiskFile diskFile = cloudDiskFileDAO.getById(null, null, fileId, null, null);
+            String driveId;
+            if (diskFile != null && diskFile.getDriveId() != null) {
+                driveId = diskFile.getDriveId();
+            } else {
+                driveId = PDS_DRIVE_ID; // 兜底
+            }
+
+            String domainId = PDS_DOMAIN_ID != null ? PDS_DOMAIN_ID : "sg2601";
+            String endpoint = domainId + ".api.aliyunpds.com";
+
+            // JWT 换 token
+            String token = getJwtToken(PDS_APP_CLIENT_ID, PDS_APP_PRIVATE_KEY, domainId);
+
+            // 调 get_office_edit_url
+            Map<String, Object> option = new HashMap<>();
+            option.put("readonly", false);
+            option.put("copy", true);
+            Map<String, Object> body = new HashMap<>();
+            body.put("drive_id", driveId);
+            body.put("file_id", fileId);
+            body.put("option", option);
+            String jsonBody = com.alibaba.fastjson.JSON.toJSONString(body);
+
+            okhttp3.Request apiReq = new okhttp3.Request.Builder()
+                    .url("https://" + endpoint + "/v2/file/get_office_edit_url")
+                    .post(okhttp3.RequestBody.create(
+                            okhttp3.MediaType.parse("application/json"), jsonBody))
+                    .addHeader("Authorization", "Bearer " + token)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            okhttp3.Response apiResp = OKHTTP_CLIENT.newCall(apiReq).execute();
+            String respBody = apiResp.body() != null ? apiResp.body().string() : "";
+            if (apiResp.code() != 200) {
+                return new Response<>(1, "获取编辑地址失败: " + respBody, null);
+            }
+
+            JSONObject respJson = com.alibaba.fastjson.JSON.parseObject(respBody);
+            Map<String, String> result = new HashMap<>();
+            result.put("edit_url", respJson.getString("edit_url"));
+            result.put("office_access_token", respJson.getString("office_access_token"));
+            result.put("office_refresh_token", respJson.getString("office_refresh_token"));
+            return new Response<>(0, result);
+        } catch (Exception e) {
+            log.error("editOnline 失败", e);
+            return new Response<>(1, e.getMessage(), null);
+        }
+    }
+
     private String getContentType(String fileName) {
         if (fileName == null) {
             return "application/octet-stream";
@@ -542,4 +629,56 @@ public class CloudDiskController extends BaseController {
         // 注意：.doc, .docx, .xls, .xlsx, .ppt, .pptx 浏览器不支持直接预览
         // 这些需要转换为 PDF 或使用 Office Online 才能预览
     }
+
+    // ==================== 在线编辑 JWT 辅助方法 ====================
+
+    private String getJwtToken(String clientId, String privateKeyPem, String domainId) throws Exception {
+        long now = System.currentTimeMillis() / 1000;
+        String[][] payloads = {
+            {"service", domainId},
+            {"user", "1cc43dd77f0e4cdb9e382890e52e954c"},
+        };
+        for (String[] p : payloads) {
+            String payload = "{\"sub\":\"" + p[1] + "\""
+                    + ",\"sub_type\":\"" + p[0] + "\""
+                    + ",\"iss\":\"" + clientId + "\""
+                    + ",\"aud\":\"" + domainId + "\""
+                    + ",\"jti\":\"" + java.util.UUID.randomUUID().toString() + "\""
+                    + ",\"nbf\":" + (now - 10)
+                    + ",\"exp\":" + (now + 300)
+                    + ",\"auto_create\":true}";
+            String input = base64UrlEncode("{\"alg\":\"RS256\",\"typ\":\"JWT\"}".getBytes("UTF-8"))
+                    + "." + base64UrlEncode(payload.getBytes("UTF-8"));
+            java.security.spec.PKCS8EncodedKeySpec spec = new java.security.spec.PKCS8EncodedKeySpec(
+                    java.util.Base64.getDecoder().decode(privateKeyPem
+                            .replace("-----BEGIN PRIVATE KEY-----", "")
+                            .replace("-----END PRIVATE KEY-----", "")
+                            .replace("-----BEGIN RSA PRIVATE KEY-----", "")
+                            .replace("-----END RSA PRIVATE KEY-----", "")
+                            .replaceAll("\\s", "")));
+            java.security.PrivateKey pk = java.security.KeyFactory.getInstance("RSA").generatePrivate(spec);
+            java.security.Signature signer = java.security.Signature.getInstance("SHA256withRSA");
+            signer.initSign(pk);
+            signer.update(input.getBytes("UTF-8"));
+            String jwt = input + "." + base64UrlEncode(signer.sign());
+            okhttp3.FormBody fb = new okhttp3.FormBody.Builder()
+                    .add("client_id", clientId)
+                    .add("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    .add("assertion", jwt).build();
+            okhttp3.Response r = OKHTTP_CLIENT.newCall(
+                    new okhttp3.Request.Builder()
+                            .url("https://" + domainId + ".api.aliyunpds.com/v2/oauth/token")
+                            .post(fb).build()).execute();
+            String rb = r.body() != null ? r.body().string() : "";
+            com.alibaba.fastjson.JSONObject j = com.alibaba.fastjson.JSON.parseObject(rb);
+            String at = j.getString("access_token");
+            if (at != null) return at;
+        }
+        throw new RuntimeException("获取 PDS token 失败");
+    }
+
+    private String base64UrlEncode(byte[] bytes) {
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
 }
