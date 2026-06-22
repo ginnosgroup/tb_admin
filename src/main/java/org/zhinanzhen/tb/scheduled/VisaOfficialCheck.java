@@ -154,7 +154,9 @@ public class VisaOfficialCheck {
                 row.createCell(2).setCellValue(visaDTO.getHandlingDate() == null ? "" : sdf.format(visaDTO.getHandlingDate()));
                 row.createCell(3).setCellValue(sdf.format(visaDTO.getServiceOrder().getGmtCreate()));
                 row.createCell(4).setCellValue(visaDTO.getUserName());
-                row.createCell(5).setCellValue(StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()));
+                String applicantFullName = (visaDTO.getApplicant() != null && !visaDTO.getApplicant().isEmpty())
+                        ? StringUtil.merge(visaDTO.getApplicant().get(0).getFirstname(), " ", visaDTO.getApplicant().get(0).getSurname()) : "";
+                row.createCell(5).setCellValue(applicantFullName);
                 row.createCell(6).setCellValue(visaDTO.getReceiveDate() == null ? "" : sdf.format(visaDTO.getReceiveDate()));
                 row.createCell(7).setCellValue(visaDTO.getCurrency());
                 row.createCell(8).setCellValue(visaDTO.getExchangeRate());
@@ -286,7 +288,7 @@ public class VisaOfficialCheck {
                     new File(excelFilePath)
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("visaOfficialExcel 定时任务执行失败: {}", e.getMessage(), e);
         }
     }
 
