@@ -6,7 +6,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class FileMaraAnnotationDO implements Serializable {
+public class OrderMaraAnnotationDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -18,16 +18,12 @@ public class FileMaraAnnotationDO implements Serializable {
 
     private int serviceOrderId;
 
-    private int userId;
+    private String maraMark;
 
-    private int officialId;
+    private Boolean isCheck;
 
-    private int maraId;
+    private Date checkTime;
 
-    private String cloudDiskFileId;
-
-    private Boolean isAnnotation;
-
-    private String annotationMark;
+    private Integer officialId;
 
 }

@@ -17,4 +17,8 @@ public interface FileMaraAnnotationService {
 
     int deleteById(int id) throws ServiceException;
 
+    List<FileMaraAnnotationDTO> listByCloudDiskFileIds(List<String> cloudDiskFileIds) throws ServiceException;
+
+    List<FileMaraAnnotationDTO> listSimple(Integer serviceOrderId, Integer userId, Integer officialId) throws ServiceException;
+
 }

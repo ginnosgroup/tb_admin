@@ -12,9 +12,10 @@
         <result property="serviceOrderId" column="service_order_id"/>
         <result property="userId" column="user_id"/>
         <result property="officialId" column="official_id"/>
+        <result property="maraId" column="mara_id"/>
         <result property="cloudDiskFileId" column="cloud_disk_file_id"/>
         <result property="isAnnotation" column="is_annotation"/>
-        <result property="isCheck" column="is_check"/>
+        <result property="annotationMark" column="annotation_mark"/>
     </resultMap>
 
     <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.FileMaraAnnotationDO" useGeneratedKeys="true" keyProperty="id">
@@ -24,18 +25,20 @@
             service_order_id,
             user_id,
             official_id,
+            mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check
+            annotation_mark
         ) VALUES (
             now(),
             now(),
             #{serviceOrderId},
             #{userId},
             #{officialId},
+            #{maraId},
             #{cloudDiskFileId},
             #{isAnnotation},
-            #{isCheck}
+            #{annotationMark}
         );
     </insert>
 
@@ -51,14 +54,17 @@
         <if test="officialId > 0">
             , official_id = #{officialId}
         </if>
-        <if test="cloudDiskFileId > 0">
+        <if test="maraId > 0">
+            , mara_id = #{maraId}
+        </if>
+        <if test="cloudDiskFileId != null and cloudDiskFileId != ''">
             , cloud_disk_file_id = #{cloudDiskFileId}
         </if>
         <if test="isAnnotation != null">
             , is_annotation = #{isAnnotation}
         </if>
-        <if test="isCheck != null">
-            , is_check = #{isCheck}
+        <if test="annotationMark != null">
+            , annotation_mark = #{annotationMark}
         </if>
         WHERE id = #{id};
     </update>
@@ -71,9 +77,10 @@
             service_order_id,
             user_id,
             official_id,
+            mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check
+            annotation_mark
         FROM b_file_mara_annotation
         WHERE id = #{id};
     </select>
@@ -86,9 +93,10 @@
             service_order_id,
             user_id,
             official_id,
+            mara_id,
             cloud_disk_file_id,
             is_annotation,
-            is_check
+            annotation_mark
         FROM b_file_mara_annotation
         WHERE 1 = 1
         <if test="serviceOrderId != null">
@@ -106,5 +114,24 @@
     <delete id="deleteById" parameterType="java.lang.Integer">
         DELETE FROM b_file_mara_annotation WHERE id = #{id, jdbcType=INTEGER};
     </delete>
+
+    <select id="listByCloudDiskFileIds" resultMap="fileMaraAnnotationResultMap">
+        SELECT
+            id,
+            gmt_create,
+            gmt_modify,
+            service_order_id,
+            user_id,
+            official_id,
+            mara_id,
+            cloud_disk_file_id,
+            is_annotation,
+            annotation_mark
+        FROM b_file_mara_annotation
+        WHERE cloud_disk_file_id IN
+        <foreach collection="cloudDiskFileIds" item="fileId" open="(" close=")" separator=",">
+            #{fileId}
+        </foreach>
+    </select>
 
 </mapper>

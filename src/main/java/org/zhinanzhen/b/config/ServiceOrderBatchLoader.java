@@ -42,6 +42,7 @@ public class ServiceOrderBatchLoader {
     private final ServiceOrderManageDAO serviceOrderManageDAO;
     private final WebLogDAO webLogDAO;
     private final ReviewAIDAO reviewAIDAO;
+    private final MailRemindDAO mailRemindDAO;
 
     public ServiceOrderBatchLoader(ServiceOrderDAO serviceOrderDao, SchoolDAO schoolDao,
                                    SubagencyDAO subagencyDao, ServiceDAO serviceDao,
@@ -59,7 +60,8 @@ public class ServiceOrderBatchLoader {
                                    ServicePackagePriceDAO servicePackagePriceDAO,
                                    ServiceOrderManageDAO serviceOrderManageDAO,
                                    WebLogDAO webLogDAO,
-                                   ReviewAIDAO reviewAIDAO) {
+                                   ReviewAIDAO reviewAIDAO,
+                                   MailRemindDAO mailRemindDAO) {
         this.serviceOrderDao = serviceOrderDao;
         this.schoolDao = schoolDao;
         this.subagencyDao = subagencyDao;
@@ -86,6 +88,7 @@ public class ServiceOrderBatchLoader {
         this.serviceOrderManageDAO = serviceOrderManageDAO;
         this.webLogDAO = webLogDAO;
         this.reviewAIDAO = reviewAIDAO;
+        this.mailRemindDAO = mailRemindDAO;
     }
 
     public ServiceOrderBatchContext batchLoadRelatedData(List<ServiceOrderDO> orders) {
@@ -266,6 +269,14 @@ public class ServiceOrderBatchLoader {
             List<ReviewAIDO> reviewAIList = reviewAIDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
             for (ReviewAIDO r : reviewAIList) {
                 ctx.reviewAIMap.computeIfAbsent(r.getServiceOrderId(), k -> new ArrayList<>()).add(r);
+            }
+        }
+
+        // 25. mail remind
+        if (!serviceOrderIds.isEmpty()) {
+            List<MailRemindDO> mrList = mailRemindDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+            for (MailRemindDO mr : mrList) {
+                ctx.mailRemindMap.computeIfAbsent(mr.getServiceOrderId(), k -> new ArrayList<>()).add(mr);
             }
         }
 

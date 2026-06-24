@@ -245,7 +245,8 @@
         adviser_id AS adviserId,
         region_id AS regionId,
         channel_source AS channelsource,
-        state_text AS stateText
+        state_text AS stateText,
+        mara_mark AS maraMark
         FROM tb_user
         WHERE id = #{id, jdbcType=INTEGER};
     </select>

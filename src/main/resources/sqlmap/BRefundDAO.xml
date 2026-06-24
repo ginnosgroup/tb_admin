@@ -40,7 +40,8 @@
             rmb_remarks,
             reason,
             remarks,
-            note)
+            note,
+            expect_amount)
         VALUES (
                    now(),
                    now(),
@@ -76,7 +77,8 @@
                    #{rmbRemarks},
                    #{reason},
                    #{remarks},
-                   #{note});
+                   #{note},
+                   #{expectAmount});
     </insert>
 
     <select id="countRefund" resultType="java.lang.Integer">
@@ -152,7 +154,8 @@
         r.rmb_remarks AS rmbRemarks,
         r.reason AS reason,
         r.remarks,
-        r.note
+        r.note,
+        r.expect_amount AS expectAmount
         FROM tb_user u, tb_adviser a, tb_region re, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id
         <if test='type != null and type != ""'>
@@ -224,7 +227,8 @@
             r.rmb_remarks AS rmbRemarks,
             r.reason AS reason,
             r.remarks,
-            r.note
+            r.note,
+            r.expect_amount AS expectAmount
         FROM tb_user u, tb_adviser a, tb_region re, b_refund r left join b_official o ON r.official_id = o.id
         WHERE r.user_id = u.id AND r.adviser_id = a.id AND re.id = a.region_id AND r.id = #{id, jdbcType=INTEGER};
     </select>
@@ -266,7 +270,8 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks,
-            note
+            note,
+            expect_amount AS expectAmount
         FROM b_refund
         WHERE state != 'CLOSE' AND commission_order_id = #{commissionOrderId, jdbcType=INTEGER};
     </select>
@@ -308,7 +313,8 @@
             rmb_remarks AS rmbRemarks,
             reason AS reason,
             remarks,
-            note
+            note,
+            expect_amount AS expectAmount
         FROM b_refund
         WHERE state != 'CLOSE' AND visa_id = #{visaId, jdbcType=INTEGER};
     </select>
@@ -327,7 +333,8 @@
             refund_voucher_image_url AS refundVoucherImageUrl, refund_detail_id AS refundDetailId,
             refund_detail AS refundDetail, currency_type AS currencyType,
             account_name AS accountName, bank_name AS bankName, bsb,
-            rmb_remarks AS rmbRemarks, reason AS reason, remarks, note
+            rmb_remarks AS rmbRemarks, reason AS reason, remarks, note,
+            expect_amount AS expectAmount
         FROM b_refund
         WHERE state != 'CLOSE'
         AND visa_id IN
@@ -425,6 +432,9 @@
         </if>
         <if test='note != null and note != ""'>
             , note = #{note}
+        </if>
+        <if test='expectAmount != null'>
+            , expect_amount = #{expectAmount}
         </if>
         WHERE id = #{id};
     </update>

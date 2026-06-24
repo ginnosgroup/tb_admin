@@ -268,7 +268,7 @@ public class VisaController extends BaseCommissionOrderController {
 			visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 			visaDto.setExpectAmount(commission);
 			ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
-			if (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482")) {
+			if ("签证".equalsIgnoreCase(serviceDTO.getName()) && (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482"))) {
 				visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
 				visaDto.setBonus(visaDto.getBonus() * 0.4);
 			}

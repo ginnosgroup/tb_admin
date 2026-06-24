@@ -52,4 +52,6 @@ public class CloudDiskFile {
     private String downloadUrl;
 
     private String hashCode;
+
+    private FileMaraAnnotationDTO fileMaraAnnotation;
 }
