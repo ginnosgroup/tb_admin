@@ -28,3 +28,7 @@ hs_err_pid*
 /target/
 /src/test/
 /src/main/java/org/zhinanzhen/tb/utils/SimpleSendEmailTool.java
+
+# 本地密钥配置（不提交）
+src/main/resources/application.properties
+src/main/resources/application.properties
