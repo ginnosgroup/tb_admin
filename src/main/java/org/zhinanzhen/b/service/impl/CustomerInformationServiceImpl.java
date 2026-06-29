@@ -1,7 +1,14 @@
 package org.zhinanzhen.b.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
 import com.aliyun.darabonba.stream.Client;
+import com.aliyun.sdk.service.pds20220301.AsyncClient;
+import com.aliyun.sdk.service.pds20220301.models.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
@@ -24,7 +31,10 @@ import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.b.dao.pojo.IdentifyingInformationDO;
 import org.zhinanzhen.b.dao.pojo.customer.MainInformation;
 import org.zhinanzhen.b.service.CustomerInformationService;
+import org.zhinanzhen.b.service.UploadResponseData;
 import org.zhinanzhen.b.service.pojo.ApplicantDTO;
+import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.PartInfo;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -32,6 +42,11 @@ import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.utils.AESUtils;
 import org.zhinanzhen.tb.utils.Base64Util;
 import org.zhinanzhen.tb.utils.WebDavUtils;
+
+import darabonba.core.client.ClientOverrideConfiguration;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -43,7 +58,10 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service("CustomerInformationService")
 public class CustomerInformationServiceImpl extends BaseService implements CustomerInformationService {
@@ -68,11 +86,26 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
     @Resource
     private AdviserDAO adviserDao;
 
+    @Resource
+    private CloudDiskFileDAO cloudDiskFileDAO;
+
     @Value("${tencent.SecretId}")
     private String secretId;
 
     @Value("${tencent.SecretKey}")
     private String secretKey;
+
+    @Value("${aliyun.ACCESSKEYID}")
+    private String aliyunAccessKeyId;
+
+    @Value("${aliyun.ACCESSKEYSECRET}")
+    private String aliyunAccessKeySecret;
+
+    @Value("${aliyun.PDSENDPOINT}")
+    private String aliyunPdsEndpoint;
+
+    @Value("${aliyun.PDSDOMAINID}")
+    private String aliyunPdsDomainId;
 
     @Override
     public void add(CustomerInformationDO customerInformationDO) throws ServiceException {
@@ -82,9 +115,25 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
             throw se;
         }
         try {
-            String webdav = webdav(customerInformationDO);
-            customerInformationDO.setMmdiskPath(webdav);
+            Map<String, Object> webdavResult = webdav(customerInformationDO);
+            String folderFileId = (String) webdavResult.get("folderFileId");
+            customerInformationDO.setMmdiskPath(folderFileId);
             customerInformationDAO.insert(customerInformationDO);
+
+            // 保存CloudDiskFile记录
+            @SuppressWarnings("unchecked")
+            List<CloudDiskFile> cloudDiskFiles = (List<CloudDiskFile>) webdavResult.get("cloudDiskFiles");
+            if (cloudDiskFiles != null && !cloudDiskFiles.isEmpty()) {
+                ServiceOrderDO serviceOrder = serviceOrderDAO.getServiceOrderById(customerInformationDO.getServiceOrderId());
+                for (CloudDiskFile cdf : cloudDiskFiles) {
+                    cdf.setUserId(serviceOrder.getUserId());
+                    cdf.setApplicantId(serviceOrder.getApplicantId());
+                    cdf.setAdviserId(serviceOrder.getAdviserId());
+                    cdf.setOfficialId(serviceOrder.getOfficialId());
+                    cloudDiskFileDAO.add(cdf);
+                }
+            }
+
             sendRemind(customerInformationDO.getServiceOrderId());
             deleteAll(customerInformationDO);
         } catch (Exception e) {
@@ -327,12 +376,13 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
         }
         return s;
     }
-    private String webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
+    private Map<String, Object> webdav(CustomerInformationDO customerInformationDO) throws IOException, ServiceException {
         if(customerInformationDO.getMainInformation().getFamilyName().contains(" ")){
             ServiceException se = new ServiceException("上传失败！客户姓有空格符，请修改后重新上传!");
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
-        }try {
+        }
+        try {
             String givenName = customerInformationDO.getMainInformation().getGivenName();
             String familyName = customerInformationDO.getMainInformation().getFamilyName();
             String rgivenName = givenName.replace(" ", "");
@@ -342,32 +392,152 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 char charAt = split[i].charAt(0);
                 mgivenName.append(charAt);
             }
-            LocalDate date = LocalDate.now(); // get the current date
+            LocalDate date = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
             String formatdate = date.format(formatter);
-            String netDiskPath = "https://dav.jianguoyun.com/dav/MMtest/" + familyName  + mgivenName + "_" + formatdate ;
-            //String filePath = "C:/Users/yjt/Desktop/data/uploads/customerInformation/" + familyName +"_"+ rgivenName  ;
-//            String testnetDiskPath="https://dav.jianguoyun.com/dav/MMtest/MAK_21072023/afp01_MAK_21072023.jpg";
-//            String testfilePath="/data/uploads/customerInformation/MA_KE/afp01_MAK_21072023.jpg";
-//            List<String> path = getFilePath(filePath);
-//            if (path.size()==0){
-//                ServiceException se = new ServiceException("文件未上传成功，请重新上传"+filePath);
-//                se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
-//                throw se;
-//            }
-            List<String> list = getUrlList(customerInformationDO);
-            WebDavUtils.upload2(netDiskPath,list);
-            String mmdir = netDiskPath.substring(netDiskPath.lastIndexOf("/") + 1);
-            return mmdir;
-            //文件上传
+            String folderName = familyName + mgivenName + "_" + formatdate;
 
-            //WebDavUtils.upload2(netDiskPath, path);
-        }catch (Exception e) {
+            // 使用阿里云PDS上传文件，driveId=10810
+            String driveId = "10810";
+            AsyncClient client = getAliyunPdsClient();
+
+            // 1. 创建文件夹
+            CreateFileRequest createFolderRequest = CreateFileRequest.builder()
+                    .name(folderName)
+                    .type("folder")
+                    .parentFileId("root")
+                    .driveId(driveId)
+                    .build();
+            CompletableFuture<CreateFileResponse> folderResponse = client.createFile(createFolderRequest);
+            CreateFileResponse folderResp = folderResponse.get();
+            String folderJson = new Gson().toJson(folderResp);
+            JSONObject folderJsonObject = JSON.parseObject(folderJson);
+            JSONObject folderBody = folderJsonObject.getJSONObject("body");
+            String folderFileId = folderBody.get("fileId").toString();
+
+            // 2. 获取文件列表并逐个上传
+            List<String> list = getUrlList(customerInformationDO);
+            List<CloudDiskFile> cloudDiskFiles = new ArrayList<>();
+            if (list != null && !list.isEmpty()) {
+                for (String filePath : list) {
+                    File file = new File(filePath);
+                    if (!file.exists()) {
+                        continue;
+                    }
+                    String fileName = file.getName();
+                    long fileSize = file.length();
+
+                    // 创建文件元信息，获取上传URL
+                    CreateFileRequest.ParallelSha1Ctx partInfoParallelSha1Ctx = CreateFileRequest.ParallelSha1Ctx.builder()
+                            .partOffset(fileSize)
+                            .build();
+                    CreateFileRequest.PartInfoList partInfo = CreateFileRequest.PartInfoList.builder()
+                            .partNumber(1)
+                            .parallelSha1Ctx(partInfoParallelSha1Ctx)
+                            .build();
+
+                    CreateFileRequest createFileRequest = CreateFileRequest.builder()
+                            .name(fileName)
+                            .type("file")
+                            .parentFileId(folderFileId)
+                            .driveId(driveId)
+                            .size(fileSize)
+                            .partInfoList(java.util.Arrays.asList(partInfo))
+                            .build();
+                    CompletableFuture<CreateFileResponse> fileResponse = client.createFile(createFileRequest);
+                    CreateFileResponse fileResp = fileResponse.get();
+                    String fileJson = new Gson().toJson(fileResp);
+                    JSONObject fileJsonObject = JSON.parseObject(fileJson);
+                    JSONObject fileBody = fileJsonObject.getJSONObject("body");
+                    String fileId = fileBody.get("fileId").toString();
+                    String uploadId = fileBody.get("uploadId").toString();
+
+                    // 上传文件内容
+                    String partInfoJsonString = JSONObject.toJSONString(fileBody);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    UploadResponseData responseData = objectMapper.readValue(partInfoJsonString, UploadResponseData.class);
+                    List<PartInfo> partInfoList = responseData.getPartInfoList();
+
+                    for (PartInfo uploadPartInfo : partInfoList) {
+                        int number = uploadPartInfo.getPartNumber();
+                        long pos = (number - 1) * fileSize;
+                        long size = fileSize;
+                        byte[] partContent = new byte[(int) size];
+
+                        java.io.RandomAccessFile randomAccessFile = new java.io.RandomAccessFile(file, "r");
+                        randomAccessFile.seek(pos);
+                        randomAccessFile.readFully(partContent, 0, (int) size);
+                        randomAccessFile.close();
+
+                        RequestBody body = RequestBody.create(null, partContent);
+                        Request uploadRequest = new Request.Builder()
+                                .url(uploadPartInfo.getUploadUrl())
+                                .header("Content-Length", String.valueOf(size))
+                                .put(body)
+                                .build();
+
+                        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+                        okhttp3.Response uploadResponse = okHttpClient.newCall(uploadRequest).execute();
+                        if (!uploadResponse.isSuccessful()) {
+                            throw new RuntimeException("上传文件分片失败, partNumber:" + number);
+                        }
+                    }
+
+                    // 完成文件上传
+                    CompleteFileRequest completeFileRequest = CompleteFileRequest.builder()
+                            .driveId(driveId)
+                            .fileId(fileId)
+                            .uploadId(uploadId)
+                            .build();
+                    CompletableFuture<CompleteFileResponse> completeResponse = client.completeFile(completeFileRequest);
+                    CompleteFileResponse completeResp = completeResponse.get();
+
+                    // 记录文件信息
+                    CloudDiskFile cloudDiskFile = CloudDiskFile.builder()
+                            .fileId(fileId)
+                            .name(fileName)
+                            .type("file")
+                            .parentFileId(folderFileId)
+                            .driveId(driveId)
+                            .domainId(aliyunPdsDomainId)
+                            .fileSize(fileSize)
+                            .relativePath("/root/" + folderName + "/" + fileName)
+                            .build();
+                    cloudDiskFiles.add(cloudDiskFile);
+                }
+            }
+
+            client.close();
+
+            // 构建返回结果：文件夹fileId + 文件信息列表
+            Map<String, Object> result = new HashMap<>();
+            result.put("folderFileId", folderFileId);
+            result.put("cloudDiskFiles", cloudDiskFiles);
+            return result;
+        } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
             throw se;
         }
+    }
 
+    /**
+     * 获取阿里云PDS客户端
+     */
+    private AsyncClient getAliyunPdsClient() {
+        StaticCredentialProvider provider = StaticCredentialProvider.create(com.aliyun.auth.credentials.Credential.builder()
+                .accessKeyId(aliyunAccessKeyId)
+                .accessKeySecret(aliyunAccessKeySecret)
+                .build());
+
+        return AsyncClient.builder()
+                .credentialsProvider(provider)
+                .overrideConfiguration(
+                        ClientOverrideConfiguration.create()
+                                .setEndpointOverride(aliyunPdsEndpoint)
+                )
+                .build();
     }
     /**
      * 获取文件夹下所有文件的路径

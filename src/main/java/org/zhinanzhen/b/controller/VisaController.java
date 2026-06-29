@@ -272,10 +272,10 @@ public class VisaController extends BaseCommissionOrderController {
 				visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
 				visaDto.setBonus(visaDto.getBonus() * 0.4);
 			}
-//			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-//				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
-//				visaDto.setBonus(visaDto.getBonus() * 0.25);
-//			}
+			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
+				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.4);
+				visaDto.setBonus(visaDto.getBonus() * 0.4);
+			}
 //			if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
 //				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
 //				visaDto.setBonus(visaDto.getBonus() * 0.25);

@@ -24,37 +24,35 @@ public class DataListUtils {
     public final static String GET_CLOUDDISK = "http://127.0.0.1:8001/admin_v2.1/externalInterface/getCloudDisk?";
     public final static String LIST_BYRELATIVEPATH = "http://127.0.0.1:8001/admin_v2.1/externalInterface/getCloudDisk?";
 
+    private static final String LOGIN_URL = "http://127.0.0.1:8001/admin_v2.1/admin_user/login";
+
+    // 缓存 JSESSIONID，避免每次请求都登录，防止后端 Session 堆积内存溢出
+    private static volatile String cachedJsessionId;
+    private static volatile String cachedLoginParams;
+
     // GET请求发送
     public static JSONObject sendGet(String url) {
         JSONObject jsonss = null;
         BufferedReader in = null;
         try {
-            //String urlNameString = url + "?" + param;
             url = encodeParameterValues(url);
             URL realUrl = new URL(url);
-//            System.out.println("请求路径为：" + url);
-            // 打开和URL之间的连接
             URLConnection connection = realUrl.openConnection();
-            // 设置通用的请求属性
             connection.setRequestProperty("accept", "*/*");
             connection.setRequestProperty("connection", "Keep-Alive");
-            //connection.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
-            // 建立实际的连接
             connection.connect();
 
-            // 获取所有响应头字段
             in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), "UTF-8") // 明确指定字符集
+                    new InputStreamReader(connection.getInputStream(), "UTF-8")
             );
 
             String line;
 
-            StringBuilder result = new StringBuilder(); // 建议使用 StringBuilder 拼接字符串
+            StringBuilder result = new StringBuilder();
             while ((line = in.readLine()) != null) {
                 result.append(line);
             }
 
-            // 解析完整的 JSON 字符串
             if (result.length() > 0) {
                 jsonss = JSONObject.parseObject(result.toString());
             }
@@ -75,63 +73,66 @@ public class DataListUtils {
     }
 
     // POST请求发送
-    public static JSONObject sendPost(String url,String params, StringBuilder formData) {
+    public static JSONObject sendPost(String url, String params, StringBuilder formData) {
         JSONObject jsonss = null;
+        String jsessionid = getJsessionId(params);
+        if (jsessionid == null) {
+            return null;
+        }
+
         try {
             String strRead = null;
-            String jsessionid = "";
-            // 登录并保存JSESSIONID
-            URL urlT = new URL("http://127.0.0.1:8001/admin_v2.1/admin_user/login");
-            HttpURLConnection conn = (HttpURLConnection) urlT.openConnection();
 
-            // 设置POST请求
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-
-            // 发送登录数据（示例）
-//            String params = "username=2&password=sulei123&captcha=znz24qwe";
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(params.getBytes());
-            }
-
-            // 从响应头提取JSESSIONID
-            String cookieHeader = conn.getHeaderField("Set-Cookie");
-            if (cookieHeader != null) {
-                // 简化提取：实际应解析所有Cookie
-                jsessionid = cookieHeader.split(";")[0];
-//                System.out.println("获取到JSESSIONID: " + jsessionid);
-            }
-            conn.disconnect();
-
-
-            // 移除URL末尾的问号，除非你有实际参数
             URL realUrl = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
             connection.setRequestMethod("POST");
             connection.setDoInput(true);
             connection.setDoOutput(true);
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
 
-            // 设置请求头（明确指定UTF-8编码）
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Cookie", jsessionid);
 
-            // 发送请求数据（使用UTF-8编码）
             try (OutputStream os = connection.getOutputStream();
                  OutputStreamWriter writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
                 writer.write(formData.toString());
                 writer.flush();
             }
 
-            // 检查响应代码
             int responseCode = connection.getResponseCode();
-//            System.out.println("Response Code: " + responseCode);
 
-            // 读取响应
-            try (InputStream is = connection.getInputStream();
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                while ((strRead = reader.readLine()) != null) {
-                    jsonss = JSONObject.parseObject(strRead);
+            // Session 过期 → 重新登录重试一次
+            if (responseCode == 401 || responseCode == 403) {
+                cachedJsessionId = null;
+                jsessionid = getJsessionId(params);
+                if (jsessionid != null) {
+                    connection.disconnect();
+                    connection = (HttpURLConnection) realUrl.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);
+                    connection.setConnectTimeout(15000);
+                    connection.setReadTimeout(15000);
+                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setRequestProperty("Cookie", jsessionid);
+                    try (OutputStream os = connection.getOutputStream();
+                         OutputStreamWriter writer = new OutputStreamWriter(os, StandardCharsets.UTF_8)) {
+                        writer.write(formData.toString());
+                        writer.flush();
+                    }
+                    responseCode = connection.getResponseCode();
+                }
+            }
+
+            if (responseCode == 200) {
+                try (InputStream is = connection.getInputStream();
+                     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    while ((strRead = reader.readLine()) != null) {
+                        jsonss = JSONObject.parseObject(strRead);
+                    }
                 }
             }
             connection.disconnect();
@@ -141,31 +142,66 @@ public class DataListUtils {
         return jsonss;
     }
 
+    /**
+     * 获取 JSESSIONID（带缓存，避免每次请求都登录导致后端 Session 堆积）
+     */
+    private static String getJsessionId(String params) {
+        if (cachedJsessionId != null && params.equals(cachedLoginParams)) {
+            return cachedJsessionId;
+        }
+
+        try {
+            URL urlT = new URL(LOGIN_URL);
+            HttpURLConnection conn = (HttpURLConnection) urlT.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(params.getBytes(StandardCharsets.UTF_8));
+            }
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode != 200) {
+                conn.disconnect();
+                return null;
+            }
+
+            String cookieHeader = conn.getHeaderField("Set-Cookie");
+            if (cookieHeader != null) {
+                String jsessionid = cookieHeader.split(";")[0];
+                cachedJsessionId = jsessionid;
+                cachedLoginParams = params;
+                conn.disconnect();
+                return jsessionid;
+            }
+            conn.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * 编码URL中的参数值
-     * @param url 原始URL
-     * @return 参数值编码后的URL
-     * @throws UnsupportedEncodingException 如果编码失败
      */
     public static String encodeParameterValues(String url) throws UnsupportedEncodingException {
         if (url == null || url.isEmpty()) {
             return url;
         }
 
-        // 分割URL和参数部分
         String[] parts = url.split("\\?", 2);
         if (parts.length < 2) {
-            return url; // 没有参数部分，直接返回
+            return url;
         }
 
         String baseUrl = parts[0];
         String queryString = parts[1];
 
-        // 解析参数
         Map<String, String> params = parseQueryString(queryString);
 
-        // 编码参数值并重新构建查询字符串
         StringBuilder encodedQuery = new StringBuilder();
         for (Map.Entry<String, String> entry : params.entrySet()) {
             if (encodedQuery.length() > 0) {
@@ -179,11 +215,6 @@ public class DataListUtils {
         return baseUrl + "?" + encodedQuery.toString();
     }
 
-    /**
-     * 解析查询字符串为键值对
-     * @param queryString 查询字符串
-     * @return 参数键值对
-     */
     private static Map<String, String> parseQueryString(String queryString) {
         Map<String, String> params = new LinkedHashMap<>();
         if (queryString == null || queryString.isEmpty()) {

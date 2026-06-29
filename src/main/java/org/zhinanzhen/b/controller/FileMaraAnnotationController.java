@@ -214,6 +214,9 @@ public class FileMaraAnnotationController extends BaseController {
         try {
             super.setGetHeader(response);
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            if (adminUserLoginInfo == null) {
+                return new Response<List<SelectOfficialCheckDTO>>(1, "用户未登录", null);
+            }
             if (adminUserLoginInfo.getOfficialId() == null) {
                 return new Response<List<SelectOfficialCheckDTO>>(1, "当前用户没有 officialId", null);
             }
