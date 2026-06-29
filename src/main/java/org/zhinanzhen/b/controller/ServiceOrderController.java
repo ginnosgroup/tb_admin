@@ -45,6 +45,7 @@ import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.*;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderExportDTO;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
