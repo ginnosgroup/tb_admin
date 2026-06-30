@@ -385,10 +385,9 @@ public class ServiceOrderManageController extends BaseController {
         if (isHistory != null && "true".equalsIgnoreCase(isHistory)) {
             serviceOrderDto.setRealPeopleNumber(0);
         }
-        if (StringUtil.isNotEmpty(verifyCode)) {
-            serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-        }
-        if (StringUtil.isNotEmpty(verifyCode)) {
+        String cleanedVerifyCode = cleanVerifyCode(verifyCode);
+        if (StringUtil.isNotEmpty(cleanedVerifyCode)) {
+            serviceOrderDto.setVerifyCode(cleanedVerifyCode);
             serviceOrderDto.setRefNo(refNo);
         }
         if (StringUtil.isNotEmpty(adviserId)) {
@@ -414,6 +413,7 @@ public class ServiceOrderManageController extends BaseController {
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
                 // 143和600组合金额分配
+                boolean verifyCodeAssigned = false;
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
@@ -425,7 +425,14 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl5(paymentVoucherImageUrl5);
                     serviceOrderJsonRequest.setReceiveDate(receiveDate);
                     serviceOrderJsonRequest.setContractData(contractData);
-                    serviceOrderJsonRequest.setVerifyCode(verifyCode);
+                    if (!verifyCodeAssigned && StringUtil.isNotEmpty(cleanedVerifyCode)) {
+                        serviceOrderJsonRequest.setVerifyCode(cleanedVerifyCode);
+                        serviceOrderJsonRequest.setRefNo(refNo);
+                        verifyCodeAssigned = true;
+                    } else {
+                        serviceOrderJsonRequest.setVerifyCode(null);
+                        serviceOrderJsonRequest.setRefNo(null);
+                    }
                     addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
                 }
             }
@@ -434,6 +441,18 @@ public class ServiceOrderManageController extends BaseController {
             return new Response<Integer>(0, "创建成功.", serviceOrderDto.getId());
         }
         return null;
+    }
+
+    private String cleanVerifyCode(String verifyCode) {
+        if (StringUtil.isEmpty(verifyCode)) {
+            return null;
+        }
+        return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
+    }
+
+    private void clearVerifyCodeAndRefNo(ServiceOrderDTO serviceOrderDto) {
+        serviceOrderDto.setVerifyCode(null);
+        serviceOrderDto.setRefNo(null);
     }
 
     private void amountAllocation(List<ServiceOrderDTO> serviceOrderJson) throws ServiceException {
@@ -5770,10 +5789,11 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setRealPeopleNumber(0);
             else
                 serviceOrderDto.setRealPeopleNumber(peopleNumber != null && peopleNumber > 0 ? peopleNumber : 1);
-            if (StringUtil.isNotEmpty(verifyCode))
-                serviceOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-            if (StringUtil.isNotEmpty(verifyCode))
+            String cleanedVerifyCode = cleanVerifyCode(verifyCode);
+            if (StringUtil.isNotEmpty(cleanedVerifyCode)) {
+                serviceOrderDto.setVerifyCode(cleanedVerifyCode);
                 serviceOrderDto.setRefNo(refNo);
+            }
             if (courseId != null && courseId > 0) {
                 serviceOrderDto.setCourseId(courseId);
                 serviceOrderDto.setSchoolId(0);
@@ -5888,6 +5908,7 @@ public class ServiceOrderManageController extends BaseController {
                 if (adminUserLoginInfo != null)
                     serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
                             serviceOrderDto.getState(), null, null, null);
+                clearVerifyCodeAndRefNo(serviceOrderDto);
                 // 虽然设计了可以逗号分割保存多个申请人ID，但后来讨论需求后要求如果有多个申请人则创建多条子订单
                 if (!ListUtil.isEmpty(serviceOrderApplicantList) && serviceOrderApplicantList.size() >= 1) {
                     for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
