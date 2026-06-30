@@ -81,6 +81,9 @@ public class CloudDiskController extends BaseController {
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null) {
+            return new Response<String>(2, "未登录", null);
+        }
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
@@ -116,6 +119,9 @@ public class CloudDiskController extends BaseController {
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null) {
+            return new Response<String>(2, "未登录", null);
+        }
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
@@ -251,6 +257,9 @@ public class CloudDiskController extends BaseController {
             HttpServletRequest request, HttpServletResponse response) {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null) {
+            return new Response<List<CloudDiskFile>>(2, "未登录", null);
+        }
         Integer adviserId = adminUserLoginInfo.getAdviserId();
         Integer officialId = adminUserLoginInfo.getOfficialId();
         try {
