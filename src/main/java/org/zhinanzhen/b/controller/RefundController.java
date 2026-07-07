@@ -199,6 +199,16 @@ public class RefundController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
+			if (isSuperAdminUser(request)) {
+				return new ListResponse<List<RefundDTO>>(true, pageSize,
+						refundService.countRefund(type, state, visaId, commissionOrderId, regionId, null, adviserName,
+								startDate, endDate, startReviewedDate, endReviewedDate, startCompletedDate,
+								endCompletedDate),
+						refundService.listRefund(type, state, visaId, commissionOrderId, regionId, null, adviserName, startDate,
+								endDate, startReviewedDate, endReviewedDate, startCompletedDate, endCompletedDate,
+								pageNum, pageSize),
+						null);
+			}
 			if (getKjId(request) != null) {
 				if (state == null)
 					state = "REVIEW";

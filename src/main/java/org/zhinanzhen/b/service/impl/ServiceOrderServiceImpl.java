@@ -856,7 +856,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                                   boolean isNotApproved, int pageNum, int pageSize, Sorter sorter, Integer serviceId, Integer servicePackageId, Integer schoolId,
                                                   Boolean isPay, Boolean isSettle, Boolean bindingList, Integer courseId, String tradingName, Integer schoolLocation, String isAssess, String price, Boolean isManage) throws ServiceException {
         schoolId = null;
-        List<ServiceOrderDTO> serviceOrderDtoList = new ArrayList<ServiceOrderDTO>();
+        List<ServiceOrderDTO> serviceOrderDtoList = Collections.synchronizedList(new ArrayList<ServiceOrderDTO>());
         List<ServiceOrderDO> serviceOrderDoList = new ArrayList<ServiceOrderDO>();
         if (pageNum < 0)
             pageNum = DEFAULT_PAGE_NUM;

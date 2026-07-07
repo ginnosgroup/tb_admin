@@ -840,7 +840,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         for (VisaDO visaDO : visaDOS) {
             RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDO.getId());
             if (ObjectUtil.isNotNull(refundByVisaId)) {
-                visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount() * proportion);
+                visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount());
             }
         }
         // EOI数量判断
@@ -1297,10 +1297,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 amount = amount * 0.5;
                 countB = 0.5;
             }
+            bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV, calculateProportion, 1000034 == officialById.getRegionId()) * countB;
             if (longTermVisa) {
                 amount = amount * 0.5;
+                bingdingOrderAmount = bingdingOrderAmount * 0.5;
             }
-            bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV, calculateProportion, 1000034 == officialById.getRegionId()) * countB;
             if (isSIV && "EOI".equalsIgnoreCase(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 for (ServiceOrderDTO a : deriveOrder) {

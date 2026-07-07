@@ -430,7 +430,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 
 		// 收集所有 userIds 和 adviserIds
-		Set<Integer> adviserIds = userDoList.stream().map(UserDO::getAdviserId).collect(Collectors.toSet());
+		Set<Integer> adviserIds = userDoList.stream().map(UserDO::getAdviserId).filter(id -> id > 0).collect(Collectors.toSet());
 		List<Integer> adviserIdList = new ArrayList<>(adviserIds);
 		List<Integer> userIds = userDoList.stream().map(UserDO::getId).collect(Collectors.toList());
 
@@ -455,10 +455,24 @@ public class UserServiceImpl extends BaseService implements UserService {
 			List<UserAdviserDO> userAdviserList = userDao.listUserAdviserByUserIds(userIds);
 			for (UserAdviserDO ua : userAdviserList) {
 				userAdviserMap.computeIfAbsent(ua.getUserId(), k -> new ArrayList<>()).add(ua);
+				if (ua.getAdviserId() > 0) {
+					adviserIds.add(ua.getAdviserId());
+				}
 			}
 		}
 
 		// 批量查询 applicant，按 userId 分组
+		List<Integer> missingAdviserIds = new ArrayList<>();
+		for (Integer id : adviserIds) {
+			if (!adviserDOMap.containsKey(id)) {
+				missingAdviserIds.add(id);
+			}
+		}
+		if (!missingAdviserIds.isEmpty()) {
+			List<AdviserDO> adviserDOS = adviserDao.listByIds(missingAdviserIds);
+			adviserDOMap.putAll(adviserDOS.stream().collect(Collectors.toMap(AdviserDO::getId, Function.identity(), (v1, v2) -> v2)));
+		}
+
 		Map<Integer, List<ApplicantDO>> applicantMap = new HashMap<>();
 		if (!userIds.isEmpty()) {
 			Integer queryAdviserId = adviserId > 0 ? adviserId : null;
