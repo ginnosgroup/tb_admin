@@ -1256,6 +1256,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDAO.getByServiceId(serviceOrderById.getServiceId());
         ServiceDO serviceDO = serviceDao.getServiceById(serviceOrderById.getServiceId());
         ServicePackagePriceV2DTO servicePackagePriceV2DTO = new ServicePackagePriceV2DTO();
+        ServicePackageDO servicePackageDOT = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
         if (region == 1) {
             double quarterExchangeRate = exchangeRateService.getQuarterExchangeRate();
             visaOfficialDO.setExchangeRate(quarterExchangeRate);
@@ -1294,7 +1295,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             double countB = 1;
             if (isSIV || isNSV) {
                 getBindingOrderId = serviceOrderByParentId.getId();
-                amount = amount * 0.5;
+                if (serviceOrderById.getServiceId() != 1000104 && ("TM".equalsIgnoreCase(servicePackageDOT.getType()) || "DB".equalsIgnoreCase(servicePackageDOT.getType()))) {
+                    amount = amount * 0.25;
+                } else {
+                    amount = amount * 0.5;
+                }
                 countB = 0.5;
             }
             bingdingOrderAmount = getBingdingOrderAmount(serviceOrderById, installment, longTermVisa, getBindingOrderId, bingdingOrderAmount, isSIV, isNSV, calculateProportion, 1000034 == officialById.getRegionId()) * countB;
@@ -1302,7 +1307,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 amount = amount * 0.5;
                 bingdingOrderAmount = bingdingOrderAmount * 0.5;
             }
-            if (isSIV && "EOI".equalsIgnoreCase(servicePackageDAO.getById(serviceOrderById.getServicePackageId()).getType())) {
+            if (isSIV && "EOI".equalsIgnoreCase(servicePackageDOT.getType())) {
                 List<VisaOfficialDO> visaOfficialDOS = new ArrayList<>();
                 for (ServiceOrderDTO a : deriveOrder) {
                     ServicePackageDO servicePackageDO = servicePackageDAO.getById(a.getServicePackageId());

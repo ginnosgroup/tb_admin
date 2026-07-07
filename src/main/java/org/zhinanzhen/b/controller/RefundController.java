@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -132,6 +135,7 @@ public class RefundController extends BaseController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
+	@Transactional(rollbackFor = ServiceException.class)
 	public Response<Integer> add(@RequestBody RefundDTO refundDto, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -172,11 +176,13 @@ public class RefundController extends BaseController {
 				}
 			}
 			if (refundService.addRefund(refundDto) > 0) {
+				refreshVisaOfficialByRefund(refundDto);
 				return new Response<Integer>(0, refundDto.getId());
 			} else {
 				return new Response<Integer>(0, "创建失败.", 0);
 			}
 		} catch (ServiceException e) {
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
 	}
@@ -377,6 +383,43 @@ public class RefundController extends BaseController {
 				wb.close();
 			LOG.debug("wb is close");
 		}
+	}
+
+	private List<Integer> refreshVisaOfficialByRefund(RefundDTO refundDto) throws ServiceException {
+		List<Integer> visaOfficialIds = new ArrayList<>();
+		if (refundDto == null || refundDto.getVisaId() == null || refundDto.getVisaId() <= 0) {
+			return visaOfficialIds;
+		}
+		VisaDTO visaById = visaService.getVisaById(refundDto.getVisaId());
+		if (visaById == null || visaById.getServiceOrderId() <= 0) {
+			return visaOfficialIds;
+		}
+		List<ServiceOrderDTO> childOrderList = serviceOrderService.getZiServiceOrderById(visaById.getServiceOrderId());
+		if (childOrderList != null && !childOrderList.isEmpty()) {
+			for (ServiceOrderDTO childOrder : childOrderList) {
+				if (childOrder != null) {
+					refreshVisaOfficial(visaOfficialService.getByServiceOrderId(childOrder.getId()), visaOfficialIds);
+				}
+			}
+		} else {
+			List<VisaOfficialDTO> visaOfficialList = visaOfficialService.getAllvisaOfficialByServiceOrderId(visaById.getServiceOrderId());
+			if (visaOfficialList != null) {
+				for (VisaOfficialDTO visaOfficialDTO : visaOfficialList) {
+					refreshVisaOfficial(visaOfficialDTO, visaOfficialIds);
+				}
+			}
+		}
+		return visaOfficialIds;
+	}
+
+	private void refreshVisaOfficial(VisaOfficialDTO visaOfficialDTO, List<Integer> visaOfficialIds)
+			throws ServiceException {
+		if (ObjectUtil.isNull(visaOfficialDTO)) {
+			return;
+		}
+		visaOfficialIds.add(visaOfficialDTO.getId());
+		visaOfficialDTO.setIsRefund(true);
+		visaOfficialService.addVisa(visaOfficialDTO);
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
