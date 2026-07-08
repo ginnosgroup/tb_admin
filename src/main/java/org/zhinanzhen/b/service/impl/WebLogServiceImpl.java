@@ -48,15 +48,17 @@ public class WebLogServiceImpl implements WebLogService {
     private ServiceOrderDAO serviceOrderDAO;
 
     @Override
-    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer userId, Integer isLogin, Integer operatedUser, Integer offset, Integer rows) {
+    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer schoolId, Integer userId,
+                                                Integer isLogin, Integer operatedUser, Integer offset, Integer rows) {
         try {
             String login = "";
             if (isLogin != null && isLogin == 1) {
                 login = "login";
             }
-            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, userId, login, operatedUser, offset, rows);
+            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, schoolId, userId, login, operatedUser, offset, rows);
             String userName = "";
             for (int i = 0; i < webLogDTOS.size(); i++) {
+                userName = "";
                 WebLogDTO webLogDTO = webLogDTOS.get(i);
                 String uri = webLogDTO.getUri();
                 String[] split = uri.split("/");
@@ -177,6 +179,22 @@ public class WebLogServiceImpl implements WebLogService {
                         }
                     }
                 }
+                if ("schoolInstitution".equalsIgnoreCase(split[2])) {
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    setOperationDescription(webLogDTO, startTime, userName,
+                            buildSchoolInstitutionOperationDescription(split[split.length - 1]));
+                }
+                if ("schoolCourse".equalsIgnoreCase(split[2])) {
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    setOperationDescription(webLogDTO, startTime, userName,
+                            buildSchoolCourseOperationDescription(split[split.length - 1]));
+                }
                 if ("login".equalsIgnoreCase(split[3])) {
                     List<String> serviceOrderOriginallyDOList = new ArrayList<>();
                     serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    " + "登录");
@@ -204,17 +222,75 @@ public class WebLogServiceImpl implements WebLogService {
     }
 
     @Override
-    public Integer count(Integer serviceOrderId, Integer userId, Integer isLogin, Integer operatedUser) {
+    public Integer count(Integer serviceOrderId, Integer schoolId, Integer userId, Integer isLogin, Integer operatedUser) {
         String login = "";
         if (isLogin != null && isLogin == 1) {
             login = "login";
         }
-        return webLogDAO.count(serviceOrderId, userId, login, operatedUser);
+        return webLogDAO.count(serviceOrderId, schoolId, userId, login, operatedUser);
     }
 
     @Override
     public int addWebLogs(WebLogDTO webLog) {
         return webLogDAO.addWebLogs(webLog);
+    }
+
+    private void setOperationDescription(WebLogDTO webLogDTO, String startTime, String userName, String operationDescription) {
+        if (operationDescription == null || operationDescription.length() == 0) {
+            return;
+        }
+        List<String> operationDescriptionList = new ArrayList<>();
+        operationDescriptionList.add(startTime + "    " + webLogDTO.getRole() + ":" + userName
+                + "    " + operationDescription + "    " + "操作人" + ":" + userName);
+        webLogDTO.setOperationDescription(operationDescriptionList);
+    }
+
+    private String buildSchoolInstitutionOperationDescription(String methodName) {
+        switch (methodName) {
+            case "upload_contract_file":
+                return "上传学校合同文件";
+            case "updateSchoolAttachments":
+                return "更新学校附件";
+            case "deleteSchoolAttachments":
+                return "删除学校附件";
+            case "add":
+                return "添加学校";
+            case "update":
+                return "修改学校";
+            case "delete":
+                return "删除学校";
+            case "addSetting1":
+                return "添加学校佣金规则";
+            case "addSetting2":
+                return "添加学校佣金规则";
+            case "addSetting4":
+                return "添加学校佣金规则";
+            case "addSetting7":
+                return "添加学校佣金规则";
+            case "updateSetting":
+                return "修改学校佣金规则";
+            case "deleteSetting":
+                return "删除学校佣金规则";
+            case "addComment":
+                return "添加学校评论";
+            case "deleteComment":
+                return "删除学校评论";
+            default:
+                return "";
+        }
+    }
+
+    private String buildSchoolCourseOperationDescription(String methodName) {
+        switch (methodName) {
+            case "add":
+                return "添加学校课程";
+            case "update":
+                return "修改学校课程";
+            case "delete":
+                return "删除学校课程";
+            default:
+                return "";
+        }
     }
 
     public String buildOperationDescription(String state) {

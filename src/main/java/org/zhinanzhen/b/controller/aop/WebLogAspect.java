@@ -18,9 +18,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.zhinanzhen.b.dao.SchoolCourseDAO;
+import org.zhinanzhen.b.dao.SchoolInstitutionCommentDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderManageDAO;
+import org.zhinanzhen.b.dao.SchoolSettingNewDAO;
 import org.zhinanzhen.b.dao.WebLogDAO;
+import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
+import org.zhinanzhen.b.dao.pojo.SchoolInstitutionCommentDO;
+import org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
 import org.zhinanzhen.b.service.pojo.WebLogDTO;
@@ -30,6 +36,7 @@ import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.Instant;
@@ -63,6 +70,12 @@ public class WebLogAspect extends BaseController{
     private ServiceOrderDAO serviceOrderDAO;
     @Autowired
     private ServiceOrderManageDAO serviceOrderManageDAO;
+    @Autowired
+    private SchoolCourseDAO schoolCourseDAO;
+    @Autowired
+    private SchoolSettingNewDAO schoolSettingNewDAO;
+    @Autowired
+    private SchoolInstitutionCommentDAO schoolInstitutionCommentDAO;
 
     //定义切点表达式,指定通知功能被应用的范围
 //                "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
@@ -79,7 +92,17 @@ public class WebLogAspect extends BaseController{
             "execution(public * org.zhinanzhen.b.controller.OfficialController.addOfficial(..)) ||" +
             "execution(public * org.zhinanzhen.b.controller.OfficialController.updateOfficial(..)) ||" +
             "execution(public * org.zhinanzhen.b.controller.KjController.addKj(..)) ||" +
-            "execution(public * org.zhinanzhen.b.controller.KjController.updateKj(..))"
+            "execution(public * org.zhinanzhen.b.controller.KjController.updateKj(..)) ||" +
+            "(execution(public * org.zhinanzhen.b.controller.SchoolInstitutionController.*(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolInstitutionController.list(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolInstitutionController.get(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolInstitutionController.getTradingNamesById(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolInstitutionController.getSetting(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolInstitutionController.listComment(..))) ||" +
+            "(execution(public * org.zhinanzhen.b.controller.SchoolCourseController.*(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.list(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.getCourseLevel(..)) && " +
+            "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.getCourseToSetting(..)))"
     )
     public void webLog() {
 
@@ -153,7 +176,7 @@ public class WebLogAspect extends BaseController{
                                 String id = matcher.group(1);
                                 if (urlStr.contains("user")) {
                                     webLog.setOperatedUser(Integer.valueOf(id));
-                                } else {
+                                } else if (isServiceOrderUri(urlStr)) {
                                     webLog.setServiceOrderId(Integer.valueOf(id));
                                 }
                                 log.info("ID: " + id);
@@ -173,7 +196,9 @@ public class WebLogAspect extends BaseController{
                             if (matcher.find()) {
                                 // 提取匹配的数字
                                 String id = matcher.group(1);
-                                webLog.setServiceOrderId(Integer.valueOf(id));
+                                if (isServiceOrderUri(urlStr)) {
+                                    webLog.setServiceOrderId(Integer.valueOf(id));
+                                }
                                 log.info("ID: " + id);
                             } else {
                                 System.out.println("未找到ID");
@@ -274,13 +299,22 @@ public class WebLogAspect extends BaseController{
             }
             //记录请求信息
             WebLogDTO webLog = new WebLogDTO();
-
-            //前面是前置通知，后面是后置通知
-            Object result = joinPoint.proceed();
-
             Signature signature = joinPoint.getSignature();
             MethodSignature methodSignature = (MethodSignature) signature;
             Method method = methodSignature.getMethod();
+            String requestURI = request.getRequestURI();
+            String[] split = requestURI.split("/");
+            String methodName = split[split.length - 1];
+            String controllerName = split.length > 2 ? split[2] : "";
+            List<Object> parameter = getParameter(method, joinPoint.getArgs());
+            Integer schoolId = getSchoolId(controllerName, methodName, parameter, null);
+
+            //前面是前置通知，后面是后置通知
+            Object result = joinPoint.proceed();
+            if (schoolId == null || schoolId <= 0) {
+                schoolId = getSchoolId(controllerName, methodName, parameter, result);
+            }
+
             long endTime = System.currentTimeMillis();
             String urlStr = request.getRequestURL().toString();
             webLog.setBasePath(StrUtil.removeSuffix(urlStr, URLUtil.url(urlStr).getPath()));
@@ -297,12 +331,9 @@ public class WebLogAspect extends BaseController{
             String formattedDate = dateTime.format(formatter);
 
             webLog.setStartTime(formattedDate);
-            String requestURI = request.getRequestURI();
             webLog.setUri(requestURI);
             webLog.setUrl(request.getRequestURL().toString());
-            String[] split = requestURI.split("/");
-            String methodName = split[split.length - 1];
-            List<Object> parameter = getParameter(method, joinPoint.getArgs());
+            webLog.setSchoolId(schoolId);
             if (parameter != null && !methodName.contains("upload") && !methodName.equalsIgnoreCase("add")) {
                 for (Object o : parameter) {
                     if (o.toString().contains("id")) {
@@ -320,7 +351,7 @@ public class WebLogAspect extends BaseController{
                             if (urlStr.contains("user")) {
                                 operatedUser = Integer.valueOf(id);
                                 webLog.setOperatedUser(Integer.valueOf(id));
-                            } else {
+                            } else if (isServiceOrderUri(urlStr)) {
                                 serviceorderId = Integer.valueOf(id);
                                 webLog.setServiceOrderId(serviceorderId);
                             }
@@ -341,8 +372,10 @@ public class WebLogAspect extends BaseController{
                         if (matcher.find()) {
                             // 提取匹配的数字
                             String id = matcher.group(1);
-                            serviceorderId = Integer.valueOf(id);
-                            webLog.setServiceOrderId(serviceorderId);
+                            if (isServiceOrderUri(urlStr)) {
+                                serviceorderId = Integer.valueOf(id);
+                                webLog.setServiceOrderId(serviceorderId);
+                            }
                             log.info("ID: " + id);
                         } else {
                             System.out.println("未找到ID");
@@ -407,7 +440,7 @@ public class WebLogAspect extends BaseController{
                     contractData1 = "";
                 }
                 if (!collect.isEmpty()) {
-                    List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(webLog.getServiceOrderId(), null, null, null, 0, 999);
+                    List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(webLog.getServiceOrderId(), null, null, null, null, 0, 999);
                     if (webLogDTOS != null && !webLogDTOS.isEmpty() && !StringUtils.isEmpty(contractData1)) {
                         List<WebLogDTO> collect1 = webLogDTOS.stream().filter(A -> contractData1.equalsIgnoreCase(A.getParameter())).collect(Collectors.toList());
                         if (collect1.isEmpty()) {
@@ -444,40 +477,38 @@ public class WebLogAspect extends BaseController{
 
             boolean isManage = false;
 
-            if (!StringUtils.isEmpty(methodName)) {
-                if (!methodName.contains("list") && !methodName.contains("upload") && !methodName.contains("img") && !methodName.contains("count")){
-                    int i = webLogDAO.addWebLogs(webLog);
-                    if (i > 0) {
-                        Integer serviceOrderId = webLog.getServiceOrderId();
-                        if (serviceOrderId != null && serviceOrderId != 0) {
-                            ServiceOrderDO serviceOrderById = null;
-                            Integer firsted = firstPlace(serviceOrderId);
-                            if (firsted == 1) {
-                                serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
-                            } else {
-                                isManage = true;
-                                serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderId);
-                            }
-                            if (serviceOrderById.getApplicantParentId() > 0 && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
-                                ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
-                                List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
-                                webLog.setServiceOrderId(serviceOrderByParent.getId());
+            if (shouldSaveWebLog(controllerName, methodName)) {
+                int i = webLogDAO.addWebLogs(webLog);
+                if (i > 0) {
+                    Integer serviceOrderId = webLog.getServiceOrderId();
+                    if (serviceOrderId != null && serviceOrderId != 0) {
+                        ServiceOrderDO serviceOrderById = null;
+                        Integer firsted = firstPlace(serviceOrderId);
+                        if (firsted == 1) {
+                            serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+                        } else {
+                            isManage = true;
+                            serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderId);
+                        }
+                        if (serviceOrderById != null && serviceOrderById.getApplicantParentId() > 0 && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
+                            ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
+                            List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
+                            webLog.setServiceOrderId(serviceOrderByParent.getId());
+                            webLogDAO.addWebLogs(webLog);
+                            for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
+                                if (serviceOrderDO.getId() == serviceOrderId) {
+                                    continue;
+                                }
+                                webLog.setServiceOrderId(serviceOrderDO.getId());
                                 webLogDAO.addWebLogs(webLog);
-                                for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
-                                    if (serviceOrderDO.getId() == serviceOrderId) {
-                                        continue;
-                                    }
+                            }
+                        }
+                        if (isManage) {
+                            List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(serviceOrderId);
+                            if (serviceOrderDTOS != null && !serviceOrderDTOS.isEmpty()) {
+                                for (ServiceOrderDTO serviceOrderDO : serviceOrderDTOS) {
                                     webLog.setServiceOrderId(serviceOrderDO.getId());
                                     webLogDAO.addWebLogs(webLog);
-                                }
-                            }
-                            if (isManage) {
-                                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(serviceOrderId);
-                                if (serviceOrderDTOS != null && !serviceOrderDTOS.isEmpty()) {
-                                    for (ServiceOrderDTO serviceOrderDO : serviceOrderDTOS) {
-                                        webLog.setServiceOrderId(serviceOrderDO.getId());
-                                        webLogDAO.addWebLogs(webLog);
-                                    }
                                 }
                             }
                         }
@@ -495,6 +526,143 @@ public class WebLogAspect extends BaseController{
     /**
      * 根据方法和传入的参数获取请求参数
      */
+    private boolean isServiceOrderUri(String urlStr) {
+        return urlStr != null && urlStr.contains("serviceOrder");
+    }
+
+    private boolean shouldSaveWebLog(String controllerName, String methodName) {
+        if (StringUtils.isEmpty(methodName)) {
+            return false;
+        }
+        boolean isSchoolContractUpload = "schoolInstitution".equalsIgnoreCase(controllerName)
+                && "upload_contract_file".equalsIgnoreCase(methodName);
+        return !methodName.contains("list")
+                && (!methodName.contains("upload") || isSchoolContractUpload)
+                && !methodName.contains("img")
+                && !methodName.contains("count");
+    }
+
+    private Integer getSchoolId(String controllerName, String methodName, List<Object> parameter, Object result) {
+        if ("schoolInstitution".equalsIgnoreCase(controllerName)) {
+            return getSchoolInstitutionId(methodName, parameter, result);
+        }
+        if ("schoolCourse".equalsIgnoreCase(controllerName)) {
+            return getSchoolCourseProviderId(parameter);
+        }
+        return null;
+    }
+
+    private Integer getSchoolInstitutionId(String methodName, List<Object> parameter, Object result) {
+        if ("deleteSetting".equalsIgnoreCase(methodName)) {
+            Integer settingId = getIntegerParameter(parameter, "id");
+            if (settingId != null && settingId > 0) {
+                SchoolSettingNewDO setting = schoolSettingNewDAO.getSchoolSettingNewById(settingId);
+                if (setting != null && setting.getProviderId() > 0) {
+                    return setting.getProviderId();
+                }
+            }
+            return null;
+        }
+        if ("deleteComment".equalsIgnoreCase(methodName)) {
+            Integer commentId = getIntegerParameter(parameter, "id");
+            if (commentId != null && commentId > 0) {
+                SchoolInstitutionCommentDO comment = schoolInstitutionCommentDAO.getCommentById(commentId);
+                if (comment != null && comment.getSchoolInstitutionId() > 0) {
+                    return comment.getSchoolInstitutionId();
+                }
+            }
+            return null;
+        }
+        Integer schoolId = getIntegerParameter(parameter, "providerId");
+        if (schoolId != null && schoolId > 0) {
+            return schoolId;
+        }
+        schoolId = getIntegerParameter(parameter, "schoolInstitutionId");
+        if (schoolId != null && schoolId > 0) {
+            return schoolId;
+        }
+        if ("add".equalsIgnoreCase(methodName)) {
+            return getResponseDataAsInteger(result);
+        }
+        schoolId = getIntegerParameter(parameter, "id");
+        return schoolId != null && schoolId > 0 ? schoolId : null;
+    }
+
+    private Integer getSchoolCourseProviderId(List<Object> parameter) {
+        Integer schoolId = getIntegerParameter(parameter, "providerId");
+        if (schoolId != null && schoolId > 0) {
+            return schoolId;
+        }
+        Integer courseId = getIntegerParameter(parameter, "id");
+        if (courseId != null && courseId > 0) {
+            SchoolCourseDO schoolCourseDO = schoolCourseDAO.schoolCourseById(courseId);
+            if (schoolCourseDO != null && schoolCourseDO.getProviderId() > 0) {
+                return schoolCourseDO.getProviderId();
+            }
+        }
+        return null;
+    }
+
+    private Integer getResponseDataAsInteger(Object result) {
+        if (result instanceof Response) {
+            return getIntegerValue(((Response) result).getData());
+        }
+        return null;
+    }
+
+    private Integer getIntegerParameter(List<Object> parameter, String key) {
+        if (parameter == null || parameter.isEmpty()) {
+            return null;
+        }
+        for (Object item : parameter) {
+            Integer value = getIntegerValue(readValue(item, key));
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private Object readValue(Object source, String key) {
+        if (source == null || key == null) {
+            return null;
+        }
+        if (source instanceof Map) {
+            return ((Map) source).get(key);
+        }
+        String methodName = "get" + Character.toUpperCase(key.charAt(0)) + key.substring(1);
+        try {
+            Method method = source.getClass().getMethod(methodName);
+            return method.invoke(source);
+        } catch (Exception e) {
+            try {
+                Field field = source.getClass().getDeclaredField(key);
+                field.setAccessible(true);
+                return field.get(source);
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+    }
+
+    private Integer getIntegerValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        String str = value.toString();
+        if (StringUtils.isEmpty(str)) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(str);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     private List<Object> getParameter(Method method, Object[] args)
    {
         List<Object> argList = new ArrayList<>();
