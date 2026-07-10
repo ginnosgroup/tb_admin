@@ -486,9 +486,8 @@ public class VisaOfficialCheck {
         }
     }
 
-    // 每个周一第一天1点触发
-//    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 1 * * MON")
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 1 * * MON")
+    // 每周一和周六凌晨1点20分触发
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 20 1 * * MON,SAT")
     public void orderStatistics() {
         executor.execute(() -> {
             // 获取今天的日期
