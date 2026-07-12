@@ -486,156 +486,213 @@ public class VisaOfficialCheck {
         }
     }
 
-    // 每周日和周一凌晨1点20分触发
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 20 1 * * SUN,MON")
+    // 每周日和周一北京时间凌晨1点20分触发
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 20 1 * * SUN,MON", zone = "Asia/Shanghai")
     public void orderStatistics() {
-        executor.execute(() -> {
-            // 获取今天的日期
-            LocalDate today = LocalDate.now();
+        String taskId = UUID.randomUUID().toString();
+        log.info("[orderStatistics][{}] 定时任务触发，准备提交线程池，调度线程={}",
+                taskId, Thread.currentThread().getName());
+        try {
+            executor.execute(() -> executeOrderStatistics(taskId));
+            log.info("[orderStatistics][{}] 已提交线程池", taskId);
+        } catch (Exception e) {
+            log.error("[orderStatistics][{}] 提交线程池失败", taskId, e);
+        }
+    }
 
-            // 获取本周的周一日期
-            LocalDate thisMonday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
-
-            // 获取上周的周一日期（本周周一减去一周）
-            LocalDate lastMonday = thisMonday.minusWeeks(1);
-
-            // 获取上周的周日日期（上周一加上6天）
-            LocalDate lastSunday = lastMonday.plusDays(6);
-
-            // 设置时间为00:00:00
+    private void executeOrderStatistics(String taskId) {
+        long startMillis = System.currentTimeMillis();
+        log.info("[orderStatistics][{}] 开始执行，业务线程={}，currentEnvironment={}",
+                taskId, Thread.currentThread().getName(), currentEnvironment);
+        try {
+            LocalDate today = LocalDate.now(ZoneId.of("Asia/Shanghai"));
+            LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+            LocalDate lastMonday = lastSunday.minusDays(6);
             LocalDateTime startOfWeek = LocalDateTime.of(lastMonday, LocalTime.MIDNIGHT);
-
-            // 设置时间为23:59:59
             LocalDateTime endOfWeek = LocalDateTime.of(lastSunday, LocalTime.of(23, 59, 59));
-
-            // 定义日期时间格式化器
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String startOfLastWeek = startOfWeek.format(formatter);
+            String endOfLastWeek = endOfWeek.format(formatter);
 
-            // 格式化并打印上个月的第一天和最后一天的时间
-            String startOfLastMonth = startOfWeek.format(formatter);
-            String endOfLastMonth = endOfWeek.format(formatter);
+            log.info("[orderStatistics][{}] 统计日期={}，查询范围={} 至 {}",
+                    taskId, today, startOfLastWeek, endOfLastWeek);
 
-            log.info("获取上周订单情况开始时间---------------------" + startOfLastMonth);
-            log.info("获取上周订单情况结束时间---------------------" + endOfLastMonth);
-
-            String orderWeekCountStr = "上周新增签证总量：";
-            StringBuilder orderWeektTopStr = new StringBuilder("上周服务内容数量TOP10：");
-            StringBuilder eoiWeektStr = new StringBuilder("上周eoi总数：");
-            StringBuilder careerAssessmentWeektStr = new StringBuilder("上周职业评估名称：");
-            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(startOfLastMonth, endOfLastMonth, null, null, null, null, null,
-                    null, null, null, null,
-                    null, null, null,
-                    null, null, null, null, null, null,
-                    null, null, null, null, null, null
-                    , null, 0, null, null, null
-                    , null, null, null, null, 0, 9999, null, null, null, null, null, null, false);
-            Map<String, List<ServiceOrderDO>> eoiCountHashMap = new HashMap<>(); // eoi计算容器
-            Map<String, List<ServiceOrderDO>> careerAssessmentHashMap = new HashMap<>(); // 职业评估计算容器
-            List<ServiceOrderDO> collect = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.toList());
-            // 上周EOI数量排序
-            for (ServiceOrderDO a : collect) {
-                String eoiCount = "";
-                List<ServiceOrderDO> serviceOrderDOList = new ArrayList<>();
-                ServiceDO serviceById = serviceDAO.getServiceById(a.getServiceId());
-                ServicePackageDO servicePackageDO = servicePackageDAO.getById(a.getServicePackageId());
-                if (ObjectUtil.isNotNull(serviceById) && serviceById.getCode().contains("EOI")) {
-                    eoiCount = serviceById.getName() + "-" + serviceById.getCode();
-                    serviceOrderDOList.add(a);
-                }
-                if (ObjectUtil.isNotNull(servicePackageDO) && "EOI".equals(servicePackageDO.getType())) {
-                    eoiCount = serviceById.getCode() + "-" + "EOI";
-                    serviceOrderDOList.add(a);
-                }
-                if (careerAssessmentHashMap.get(eoiCount) != null) {
-                    serviceOrderDOList.addAll(eoiCountHashMap.get(eoiCount));
-                }
-                eoiCountHashMap.put(eoiCount, serviceOrderDOList);
+            List<ServiceOrderDO> serviceOrderDOS = serviceOrderDAO.listServiceOrder(startOfLastWeek, endOfLastWeek,
+                    null, null, null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null, null, null, null,
+                    null, 0, null, null, null, null, null, null, null, 0, 9999,
+                    null, null, null, null, null, null, false);
+            if (serviceOrderDOS == null) {
+                log.warn("[orderStatistics][{}] 订单查询结果为null，按空列表继续执行", taskId);
+                serviceOrderDOS = Collections.emptyList();
             }
-            eoiCountHashMap.remove("");
-            Map<String, List<ServiceOrderDO>> eoiListSize = eoiCountHashMap.entrySet().stream()
-                    .sorted(Map.Entry.<String, List<ServiceOrderDO>>comparingByValue(Comparator.comparingInt(List::size)).reversed())
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (oldValue, newValue) -> oldValue, // 如果出现键冲突，保留旧值（理论上不应该出现键冲突）
-                            LinkedHashMap::new // 使用 LinkedHashMap 以保持插入顺序
-                    ));
-            AtomicInteger eoiWeektCount = new AtomicInteger(1);
-            eoiListSize.forEach((k, v) -> {
-                eoiWeektStr.append("\n").append(eoiWeektCount.get()).append(".").append(k).append(":").append(v.size()).append("个");
-            });
-            // 上周职业评估情况排序
-            for (ServiceOrderDO a : collect) {
-                String careerAssessment = "";
-                List<ServiceOrderDO> serviceOrderDOList = new ArrayList<>();
-                ServiceDO serviceById = serviceDAO.getServiceById(a.getServiceId());
-                ServicePackageDO servicePackageDO = servicePackageDAO.getById(a.getServicePackageId());
-                if ("职评".equals(serviceById.getCode())) {
-                    careerAssessment = serviceById.getName() + "-" + serviceById.getCode();
-                    serviceOrderDOList.add(a);
+            log.info("[orderStatistics][{}] 订单查询完成，共{}条", taskId, serviceOrderDOS.size());
+
+            List<ServiceOrderDO> validOrders = serviceOrderDOS.stream()
+                    .filter(Objects::nonNull)
+                    .filter(order -> !"OVST".equals(order.getType()))
+                    .collect(Collectors.toList());
+            log.info("[orderStatistics][{}] 排除空订单和OVST订单后剩余{}条", taskId, validOrders.size());
+
+            Map<String, List<ServiceOrderDO>> eoiCountMap = new HashMap<>();
+            for (ServiceOrderDO order : validOrders) {
+                try {
+                    ServiceDO service = serviceDAO.getServiceById(order.getServiceId());
+                    ServicePackageDO servicePackage = servicePackageDAO.getById(order.getServicePackageId());
+                    if (service == null) {
+                        log.warn("[orderStatistics][{}] EOI统计跳过订单：orderId={}，serviceId={}不存在",
+                                taskId, order.getId(), order.getServiceId());
+                        continue;
+                    }
+
+                    String eoiName = null;
+                    if (service.getCode() != null && service.getCode().contains("EOI")) {
+                        eoiName = service.getName() + "-" + service.getCode();
+                    }
+                    if (servicePackage != null && "EOI".equals(servicePackage.getType())) {
+                        eoiName = service.getCode() + "-EOI";
+                    }
+                    if (eoiName != null) {
+                        eoiCountMap.computeIfAbsent(eoiName, key -> new ArrayList<>()).add(order);
+                    }
+                } catch (Exception e) {
+                    log.error("[orderStatistics][{}] EOI统计订单失败，已跳过：orderId={}，serviceId={}，servicePackageId={}",
+                            taskId, order.getId(), order.getServiceId(), order.getServicePackageId(), e);
                 }
-                if (ObjectUtil.isNotNull(servicePackageDO) && "CA".equals(servicePackageDO.getType())) {
-                    careerAssessment = serviceById.getCode() + "-" + "职业评估";
-                    serviceOrderDOList.add(a);
-                }
-                if (careerAssessmentHashMap.get(careerAssessment) != null) {
-                    serviceOrderDOList.addAll(careerAssessmentHashMap.get(careerAssessment));
-                }
-                careerAssessmentHashMap.put(careerAssessment, serviceOrderDOList);
             }
-            careerAssessmentHashMap.remove("");
-            Map<String, List<ServiceOrderDO>> careerAssessmentListSize = careerAssessmentHashMap.entrySet().stream()
-                    .sorted(Map.Entry.<String, List<ServiceOrderDO>>comparingByValue(Comparator.comparingInt(List::size)).reversed())
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (oldValue, newValue) -> oldValue, // 如果出现键冲突，保留旧值（理论上不应该出现键冲突）
-                            LinkedHashMap::new // 使用 LinkedHashMap 以保持插入顺序
-                    ));
-            AtomicInteger careerAssessmentWeektCount = new AtomicInteger(1);
-            careerAssessmentListSize.forEach((k, v) -> {
-                careerAssessmentWeektStr.append("\n").append(careerAssessmentWeektCount.get()).append(".").append(k).append(":").append(v.size()).append("个");
-            });
-            // 上周订单类型前十排序
-            Map<Integer, List<ServiceOrderDO>> groupByService = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).collect(Collectors.groupingBy(ServiceOrderDO::getServiceId));
-            groupByService.forEach((k, v) -> {
-                ServiceDO serviceById = serviceDAO.getServiceById(k);
-                if ("独立技术移民".equals(serviceById.getName())) {
-                    List<ServiceOrderDO> filteredOrders = v.stream()
-                            .filter(e -> "SIV".equals(e.getType()))
-                            .collect(Collectors.toList());
-                    groupByService.put(k, filteredOrders);
+
+            Map<String, List<ServiceOrderDO>> sortedEoiMap = eoiCountMap.entrySet().stream()
+                    .sorted(Map.Entry.<String, List<ServiceOrderDO>>comparingByValue(
+                            Comparator.comparingInt(List::size)).reversed())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            StringBuilder eoiWeekStr = new StringBuilder("上周eoi总数：");
+            int eoiIndex = 1;
+            for (Map.Entry<String, List<ServiceOrderDO>> entry : sortedEoiMap.entrySet()) {
+                eoiWeekStr.append("\n").append(eoiIndex++).append(".").append(entry.getKey())
+                        .append(":").append(entry.getValue().size()).append("个");
+            }
+            log.info("[orderStatistics][{}] EOI统计完成，共{}个分类", taskId, sortedEoiMap.size());
+
+            Map<String, List<ServiceOrderDO>> careerAssessmentMap = new HashMap<>();
+            for (ServiceOrderDO order : validOrders) {
+                try {
+                    ServiceDO service = serviceDAO.getServiceById(order.getServiceId());
+                    ServicePackageDO servicePackage = servicePackageDAO.getById(order.getServicePackageId());
+                    if (service == null) {
+                        log.warn("[orderStatistics][{}] 职业评估统计跳过订单：orderId={}，serviceId={}不存在",
+                                taskId, order.getId(), order.getServiceId());
+                        continue;
+                    }
+
+                    String careerAssessmentName = null;
+                    if ("职评".equals(service.getCode())) {
+                        careerAssessmentName = service.getName() + "-" + service.getCode();
+                    }
+                    if (servicePackage != null && "CA".equals(servicePackage.getType())) {
+                        careerAssessmentName = service.getCode() + "-职业评估";
+                    }
+                    if (careerAssessmentName != null) {
+                        careerAssessmentMap.computeIfAbsent(careerAssessmentName, key -> new ArrayList<>()).add(order);
+                    }
+                } catch (Exception e) {
+                    log.error("[orderStatistics][{}] 职业评估统计订单失败，已跳过：orderId={}，serviceId={}，servicePackageId={}",
+                            taskId, order.getId(), order.getServiceId(), order.getServicePackageId(), e);
                 }
-            });
-            // 然后将Map转换为一个Stream，并根据List的长度进行排序
+            }
+
+            Map<String, List<ServiceOrderDO>> sortedCareerAssessmentMap = careerAssessmentMap.entrySet().stream()
+                    .sorted(Map.Entry.<String, List<ServiceOrderDO>>comparingByValue(
+                            Comparator.comparingInt(List::size)).reversed())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+            StringBuilder careerAssessmentWeekStr = new StringBuilder("上周职业评估名称：");
+            int careerAssessmentIndex = 1;
+            for (Map.Entry<String, List<ServiceOrderDO>> entry : sortedCareerAssessmentMap.entrySet()) {
+                careerAssessmentWeekStr.append("\n").append(careerAssessmentIndex++).append(".")
+                        .append(entry.getKey()).append(":").append(entry.getValue().size()).append("个");
+            }
+            log.info("[orderStatistics][{}] 职业评估统计完成，共{}个分类",
+                    taskId, sortedCareerAssessmentMap.size());
+
+            Map<Integer, List<ServiceOrderDO>> groupByService = validOrders.stream()
+                    .collect(Collectors.groupingBy(ServiceOrderDO::getServiceId));
+            Iterator<Map.Entry<Integer, List<ServiceOrderDO>>> groupIterator = groupByService.entrySet().iterator();
+            while (groupIterator.hasNext()) {
+                Map.Entry<Integer, List<ServiceOrderDO>> entry = groupIterator.next();
+                try {
+                    ServiceDO service = serviceDAO.getServiceById(entry.getKey());
+                    if (service == null) {
+                        log.warn("[orderStatistics][{}] TOP10统计移除serviceId={}：服务不存在，关联订单数={}",
+                                taskId, entry.getKey(), entry.getValue().size());
+                        groupIterator.remove();
+                        continue;
+                    }
+                    if ("独立技术移民".equals(service.getName())) {
+                        entry.setValue(entry.getValue().stream()
+                                .filter(order -> "SIV".equals(order.getType()))
+                                .collect(Collectors.toList()));
+                    }
+                } catch (Exception e) {
+                    log.error("[orderStatistics][{}] TOP10预处理失败，已移除该分类：serviceId={}",
+                            taskId, entry.getKey(), e);
+                    groupIterator.remove();
+                }
+            }
+
             Map<Integer, List<ServiceOrderDO>> sortedByListSize = groupByService.entrySet().stream()
-                    .sorted(Map.Entry.<Integer, List<ServiceOrderDO>>comparingByValue(Comparator.comparingInt(List::size)).reversed())
-//                .limit(10)
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            (oldValue, newValue) -> oldValue, // 如果出现键冲突，保留旧值（理论上不应该出现键冲突）
-                            LinkedHashMap::new // 使用 LinkedHashMap 以保持插入顺序
-                    ));
-            AtomicInteger orderWeektTopCount = new AtomicInteger(1);
-            AtomicInteger orderWeektCount = new AtomicInteger(0);
-            sortedByListSize.forEach((k, v) -> {
-                ServiceDO serviceById = serviceDAO.getServiceById(k);
-                if (orderWeektTopCount.get() <= 10) {
-                    orderWeektTopStr.append("\n").append(orderWeektTopCount.get()).append(".").append(serviceById.getName()).append("-").append(serviceById.getCode()).append(":").append(v.size()).append("个");
+                    .sorted(Map.Entry.<Integer, List<ServiceOrderDO>>comparingByValue(
+                            Comparator.comparingInt(List::size)).reversed())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+            StringBuilder orderWeekTopStr = new StringBuilder("上周服务内容数量TOP10：");
+            int orderWeekTopIndex = 1;
+            int orderWeekCount = 0;
+            for (Map.Entry<Integer, List<ServiceOrderDO>> entry : sortedByListSize.entrySet()) {
+                orderWeekCount += entry.getValue().size();
+                if (orderWeekTopIndex > 10) {
+                    continue;
                 }
-                orderWeektTopCount.getAndIncrement();
-                orderWeektCount.getAndAdd(v.size());
-            });
-            orderWeekCountStr = orderWeekCountStr + orderWeektCount.get();
-            System.out.println(orderWeekCountStr);
-            System.out.println(orderWeektTopStr);
-            System.out.println(careerAssessmentWeektStr);
-            System.out.println(eoiWeektStr);
-            if (!currentEnvironment.equalsIgnoreCase("test")) {
-                WXWorkAPI.sendWecomRotMsg(orderWeekCountStr + "\n" + "\n" + orderWeektTopStr + "\n" + "\n" + careerAssessmentWeektStr + "\n" + eoiWeektStr);
+                try {
+                    ServiceDO service = serviceDAO.getServiceById(entry.getKey());
+                    if (service == null) {
+                        log.warn("[orderStatistics][{}] TOP10输出跳过serviceId={}：服务不存在",
+                                taskId, entry.getKey());
+                        continue;
+                    }
+                    orderWeekTopStr.append("\n").append(orderWeekTopIndex++).append(".")
+                            .append(service.getName()).append("-").append(service.getCode()).append(":")
+                            .append(entry.getValue().size()).append("个");
+                } catch (Exception e) {
+                    log.error("[orderStatistics][{}] TOP10输出失败，已跳过：serviceId={}",
+                            taskId, entry.getKey(), e);
+                }
             }
-        });
+            log.info("[orderStatistics][{}] 服务TOP10统计完成，共{}个分类，订单总数={}",
+                    taskId, sortedByListSize.size(), orderWeekCount);
+
+            String orderWeekCountStr = "上周新增签证总量：" + orderWeekCount;
+            String message = orderWeekCountStr + "\n\n" + orderWeekTopStr + "\n\n"
+                    + careerAssessmentWeekStr + "\n" + eoiWeekStr;
+            log.info("[orderStatistics][{}] 最终统计结果：\n{}", taskId, message);
+
+            if (!"test".equalsIgnoreCase(currentEnvironment)) {
+                boolean sendSuccess = WXWorkAPI.sendWecomRotMsg(message);
+                if (sendSuccess) {
+                    log.info("[orderStatistics][{}] 企业微信消息发送成功", taskId);
+                } else {
+                    log.error("[orderStatistics][{}] 企业微信消息发送失败，sendWecomRotMsg返回false", taskId);
+                }
+            } else {
+                log.info("[orderStatistics][{}] 当前为test环境，跳过企业微信发送", taskId);
+            }
+        } catch (Exception e) {
+            log.error("[orderStatistics][{}] 任务执行失败", taskId, e);
+        } finally {
+            log.info("[orderStatistics][{}] 任务结束，总耗时={}ms",
+                    taskId, System.currentTimeMillis() - startMillis);
+        }
     }
 
     // 半个小时执行一次
