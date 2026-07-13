@@ -487,7 +487,7 @@ public class VisaOfficialCheck {
     }
 
     // 每周日和周一北京时间凌晨1点20分触发
-    @org.springframework.scheduling.annotation.Scheduled(cron = "0 20 1 * * SUN,MON", zone = "Asia/Shanghai")
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 20 1 * * MON", zone = "Asia/Shanghai")
     public void orderStatistics() {
         String taskId = UUID.randomUUID().toString();
         log.info("[orderStatistics][{}] 定时任务触发，准备提交线程池，调度线程={}",
