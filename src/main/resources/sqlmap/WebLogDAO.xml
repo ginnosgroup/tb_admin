@@ -19,6 +19,9 @@
             result,
             description,
             service_order_id,
+            commission_order_id,
+            visa_id,
+            visa_official_id,
             school_id,
             operated_user)
         VALUES (
@@ -35,6 +38,9 @@
             #{result},
             #{description},
             #{serviceOrderId},
+            #{commissionOrderId},
+            #{visaId},
+            #{visaOfficialId},
             #{schoolId},
             #{operatedUser}
                 );
@@ -54,12 +60,24 @@
         result,
         description,
         service_order_id AS serviceOrderId,
+        commission_order_id AS commissionOrderId,
+        visa_id AS visaId,
+        visa_official_id AS visaOfficialId,
         school_id AS schoolId,
         operated_user AS operatedUser
         from b_web_log
         where 1 = 1
         <if test='serviceOrderId != null and serviceOrderId != ""'>
             AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='commissionOrderId != null and commissionOrderId != ""'>
+            AND commission_order_id = #{commissionOrderId}
+        </if>
+        <if test='visaId != null and visaId != ""'>
+            AND visa_id = #{visaId}
+        </if>
+        <if test='visaOfficialId != null and visaOfficialId != ""'>
+            AND visa_official_id = #{visaOfficialId}
         </if>
         <if test='schoolId != null and schoolId != ""'>
             AND school_id = #{schoolId}
@@ -81,6 +99,15 @@
         where 1 = 1
         <if test='serviceOrderId != null and serviceOrderId != ""'>
             AND service_order_id = #{serviceOrderId}
+        </if>
+        <if test='commissionOrderId != null and commissionOrderId != ""'>
+            AND commission_order_id = #{commissionOrderId}
+        </if>
+        <if test='visaId != null and visaId != ""'>
+            AND visa_id = #{visaId}
+        </if>
+        <if test='visaOfficialId != null and visaOfficialId != ""'>
+            AND visa_official_id = #{visaOfficialId}
         </if>
         <if test='schoolId != null and schoolId != ""'>
             AND school_id = #{schoolId}

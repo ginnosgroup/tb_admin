@@ -30,6 +30,12 @@
         WHERE commission_order_id = #{commissionOrderId}
         ORDER BY gmt_create DESC;
     </select>
+
+    <select id="getCommissionOrderIdById" resultType="java.lang.Integer">
+        SELECT commission_order_id
+        FROM b_commission_order_comment
+        WHERE id = #{id}
+    </select>
     
     <delete id="delete" parameterType="java.lang.Integer">
 		DELETE FROM b_commission_order_comment WHERE id = #{id, jdbcType=INTEGER}

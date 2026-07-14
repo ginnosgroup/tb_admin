@@ -28,6 +28,9 @@ public class WebLogController extends BaseController {
     @ResponseBody
     public ListResponse<List<WebLogDTO>> listServiceOrder(
             @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
+            @RequestParam(value = "commissionOrderId", required = false) Integer commissionOrderId,
+            @RequestParam(value = "visaId", required = false) Integer visaId,
+            @RequestParam(value = "visaOfficialId", required = false) Integer visaOfficialId,
             @RequestParam(value = "schoolId", required = false) Integer schoolId,
             @RequestParam(value = "operatedUser", required = false) Integer operatedUser,
             @RequestParam(value = "isLogin", required = false) Integer isLogin,
@@ -37,8 +40,10 @@ public class WebLogController extends BaseController {
         try {
             super.setGetHeader(response);
             Integer total = 0;
-            total = webLogService.count(serviceOrderId, schoolId, userId, isLogin, operatedUser);
-            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, schoolId, userId, isLogin, operatedUser, pageNum * pageSize, pageSize);
+            total = webLogService.count(serviceOrderId, commissionOrderId, visaId, visaOfficialId, schoolId, userId,
+                    isLogin, operatedUser);
+            List<WebLogDTO> webLogDTOS = webLogService.listByServiceOrderId(serviceOrderId, commissionOrderId,
+                    visaId, visaOfficialId, schoolId, userId, isLogin, operatedUser, pageNum * pageSize, pageSize);
             if (webLogDTOS != null && webLogDTOS.size() > 0 && isLogin == null) {
                 webLogDTOS = webLogDTOS.stream().filter(WebLogDTO -> WebLogDTO.getOperationDescription() != null).collect(Collectors.toList());
             }

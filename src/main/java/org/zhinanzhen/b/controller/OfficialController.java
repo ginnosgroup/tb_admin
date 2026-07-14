@@ -498,19 +498,15 @@ public class OfficialController extends BaseController {
 					if (integer == 0) {
 						continue;
 					}
-					OfficialDTO officialById = officialService.getOfficialById(integer);
 					OfficialEvaluate officialEvaluate = officialService.getOfficialEvaluate(integer, adviserId, startCollaborationTime, endCollaborationTime, null);
 					if (officialEvaluate != null) {
-						AdviserDTO adviserById = adviserService.getAdviserById(officialEvaluate.getAdviserId());
-						if (adviserById != null) {
-							officialById.setEvaluateAdviser(adviserById.getName());
-						}
-						Double averageScore = officialService.getAverageScore(officialEvaluate, collaborationTime, 3, false);
-						officialById.setAverageScore(DECIMAL_FORMAT.format(averageScore));
-						officialById.setOfficialEvaluate(officialEvaluate);
 						count++;
+						continue;
 					}
-					officialDOS.add(officialById);
+					OfficialDTO officialById = officialService.getOfficialById(integer);
+					if (officialById != null) {
+						officialDOS.add(officialById);
+					}
 				}
 				if (count == officials.size() && count != 0) {
 					isAllCooperation = "true";
@@ -526,7 +522,7 @@ public class OfficialController extends BaseController {
 
 	@RequestMapping(value = "/listOfficialEvaluate", method = RequestMethod.GET)
 	@ResponseBody
-	public ListResponse<List<OfficialEvaluate>> addOfficialEvaluate(@RequestParam(value = "officialId", required = false) Integer officialId,
+	public ListResponse<List<OfficialEvaluate>> listOfficialEvaluate(@RequestParam(value = "officialId", required = false) Integer officialId,
 												 @RequestParam(value = "adviserId", required = false) Integer adviserId,
 												 @RequestParam(value = "startCollaborationTime", required = false) String startCollaborationTime,
 												 @RequestParam(value = "endCollaborationTime", required = false) String endCollaborationTime,

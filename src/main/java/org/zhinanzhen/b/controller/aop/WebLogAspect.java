@@ -18,12 +18,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.zhinanzhen.b.dao.CommissionOrderCommentDAO;
+import org.zhinanzhen.b.dao.CommissionOrderDAO;
 import org.zhinanzhen.b.dao.SchoolCourseDAO;
 import org.zhinanzhen.b.dao.SchoolInstitutionCommentDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ServiceOrderManageDAO;
 import org.zhinanzhen.b.dao.SchoolSettingNewDAO;
+import org.zhinanzhen.b.dao.VisaCommentDAO;
 import org.zhinanzhen.b.dao.WebLogDAO;
+import org.zhinanzhen.b.dao.pojo.CommissionOrderDO;
 import org.zhinanzhen.b.dao.pojo.SchoolCourseDO;
 import org.zhinanzhen.b.dao.pojo.SchoolInstitutionCommentDO;
 import org.zhinanzhen.b.dao.pojo.SchoolSettingNewDO;
@@ -36,6 +40,7 @@ import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -76,6 +81,12 @@ public class WebLogAspect extends BaseController{
     private SchoolSettingNewDAO schoolSettingNewDAO;
     @Autowired
     private SchoolInstitutionCommentDAO schoolInstitutionCommentDAO;
+    @Autowired
+    private CommissionOrderDAO commissionOrderDAO;
+    @Autowired
+    private CommissionOrderCommentDAO commissionOrderCommentDAO;
+    @Autowired
+    private VisaCommentDAO visaCommentDAO;
 
     //定义切点表达式,指定通知功能被应用的范围
 //                "execution(public * org.zhinanzhen.b.controller.AdviserDataController.adviserDataMigration(..)) || " +
@@ -102,7 +113,10 @@ public class WebLogAspect extends BaseController{
             "(execution(public * org.zhinanzhen.b.controller.SchoolCourseController.*(..)) && " +
             "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.list(..)) && " +
             "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.getCourseLevel(..)) && " +
-            "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.getCourseToSetting(..)))"
+            "!execution(public * org.zhinanzhen.b.controller.SchoolCourseController.getCourseToSetting(..))) || " +
+            "execution(public * org.zhinanzhen.b.controller.CommissionOrderController.*(..)) || " +
+            "execution(public * org.zhinanzhen.b.controller.VisaOfficialController.*(..)) || " +
+            "execution(public * org.zhinanzhen.b.controller.VisaController.*(..))"
     )
     public void webLog() {
 
@@ -304,15 +318,60 @@ public class WebLogAspect extends BaseController{
             Method method = methodSignature.getMethod();
             String requestURI = request.getRequestURI();
             String[] split = requestURI.split("/");
-            String methodName = split[split.length - 1];
-            String controllerName = split.length > 2 ? split[2] : "";
+            String methodName = getLastPathSegment(requestURI);
+            String controllerName = getControllerName(methodSignature.getDeclaringType(), split);
             List<Object> parameter = getParameter(method, joinPoint.getArgs());
             Integer schoolId = getSchoolId(controllerName, methodName, parameter, null);
+            List<Integer> relatedServiceOrderIds = new ArrayList<>();
+            collectIntegerValues(parameter, "serviceOrderId", relatedServiceOrderIds);
+            collectIntegerValues(parameter, "serviceorderid", relatedServiceOrderIds);
+            addUnique(relatedServiceOrderIds, getIntegerValue(request.getParameter("serviceOrderId")));
+            addUnique(relatedServiceOrderIds, getIntegerValue(request.getParameter("serviceorderid")));
+            List<Integer> commissionOrderIds = getCommissionOrderIds(controllerName, methodName, parameter, null);
+            List<Integer> visaIds = getVisaIds(controllerName, methodName, parameter, null);
+            List<Integer> visaOfficialIds = getVisaOfficialIds(controllerName, methodName, parameter, null);
+            if ("commissionOrder".equalsIgnoreCase(controllerName)) {
+                addUnique(commissionOrderIds, getIntegerValue(request.getParameter("commissionOrderId")));
+                if (usesCommissionOrderIdParameter(methodName)) {
+                    addUnique(commissionOrderIds, getIntegerValue(request.getParameter("id")));
+                }
+            }
+            if ("visaOfficial".equalsIgnoreCase(controllerName)) {
+                addUnique(visaOfficialIds, getIntegerValue(request.getParameter("visaOfficialId")));
+                if ("updateOfficialVisa".equalsIgnoreCase(methodName)) {
+                    addUnique(visaOfficialIds, getIntegerValue(request.getParameter("id")));
+                }
+            }
+            if ("visa".equalsIgnoreCase(controllerName)) {
+                addUnique(visaIds, getIntegerValue(request.getParameter("visaId")));
+                if (usesVisaIdParameter(methodName)) {
+                    addUnique(visaIds, getIntegerValue(request.getParameter("id")));
+                }
+            }
 
             //前面是前置通知，后面是后置通知
             Object result = joinPoint.proceed();
             if (schoolId == null || schoolId <= 0) {
                 schoolId = getSchoolId(controllerName, methodName, parameter, result);
+            }
+            addUnique(commissionOrderIds, getCommissionOrderIds(controllerName, methodName, null, result));
+            addUnique(visaIds, getVisaIds(controllerName, methodName, null, result));
+            addUnique(visaOfficialIds, getVisaOfficialIds(controllerName, methodName, null, result));
+            collectIntegerValues(getResponseData(result), "serviceOrderId", relatedServiceOrderIds);
+            if ("commissionOrder".equalsIgnoreCase(controllerName)
+                    && usesServiceOrderCommissionIds(methodName)) {
+                for (Integer relatedServiceOrderId : relatedServiceOrderIds) {
+                    try {
+                        List<CommissionOrderDO> commissionOrders = commissionOrderDAO
+                                .listCommissionOrderByServiceOrderId(relatedServiceOrderId);
+                        if (commissionOrders != null) {
+                            collectIntegerValues(commissionOrders, "id", commissionOrderIds);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to resolve commission order ids by service order id: {}",
+                                relatedServiceOrderId, e);
+                    }
+                }
             }
 
             long endTime = System.currentTimeMillis();
@@ -334,6 +393,18 @@ public class WebLogAspect extends BaseController{
             webLog.setUri(requestURI);
             webLog.setUrl(request.getRequestURL().toString());
             webLog.setSchoolId(schoolId);
+            if (!relatedServiceOrderIds.isEmpty()) {
+                webLog.setServiceOrderId(relatedServiceOrderIds.get(0));
+            }
+            if (!commissionOrderIds.isEmpty()) {
+                webLog.setCommissionOrderId(commissionOrderIds.get(0));
+            }
+            if (!visaIds.isEmpty()) {
+                webLog.setVisaId(visaIds.get(0));
+            }
+            if (!visaOfficialIds.isEmpty()) {
+                webLog.setVisaOfficialId(visaOfficialIds.get(0));
+            }
             if (parameter != null && !methodName.contains("upload") && !methodName.equalsIgnoreCase("add")) {
                 for (Object o : parameter) {
                     if (o.toString().contains("id")) {
@@ -383,6 +454,11 @@ public class WebLogAspect extends BaseController{
                     }
 
                 }
+            }
+            Integer requestServiceOrderId = getIntegerParameter(parameter, "serviceOrderId");
+            if (requestServiceOrderId != null && requestServiceOrderId > 0) {
+                serviceorderId = requestServiceOrderId;
+                webLog.setServiceOrderId(requestServiceOrderId);
             }
             String apList = "";
             if (ObjectUtil.isNotEmpty(adminUserLoginInfo)) {
@@ -440,7 +516,8 @@ public class WebLogAspect extends BaseController{
                     contractData1 = "";
                 }
                 if (!collect.isEmpty()) {
-                    List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(webLog.getServiceOrderId(), null, null, null, null, 0, 999);
+                    List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(webLog.getServiceOrderId(), null, null, null,
+                            null, null, null, null, 0, 999);
                     if (webLogDTOS != null && !webLogDTOS.isEmpty() && !StringUtils.isEmpty(contractData1)) {
                         List<WebLogDTO> collect1 = webLogDTOS.stream().filter(A -> contractData1.equalsIgnoreCase(A.getParameter())).collect(Collectors.toList());
                         if (collect1.isEmpty()) {
@@ -475,45 +552,8 @@ public class WebLogAspect extends BaseController{
                 return result;
             }
 
-            boolean isManage = false;
-
             if (shouldSaveWebLog(controllerName, methodName)) {
-                int i = webLogDAO.addWebLogs(webLog);
-                if (i > 0) {
-                    Integer serviceOrderId = webLog.getServiceOrderId();
-                    if (serviceOrderId != null && serviceOrderId != 0) {
-                        ServiceOrderDO serviceOrderById = null;
-                        Integer firsted = firstPlace(serviceOrderId);
-                        if (firsted == 1) {
-                            serviceOrderById = serviceOrderDAO.getServiceOrderById(serviceOrderId);
-                        } else {
-                            isManage = true;
-                            serviceOrderById = serviceOrderManageDAO.getServiceOrderById(serviceOrderId);
-                        }
-                        if (serviceOrderById != null && serviceOrderById.getApplicantParentId() > 0 && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
-                            ServiceOrderDO serviceOrderByParent = serviceOrderDAO.getServiceOrderById(serviceOrderById.getApplicantParentId());
-                            List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
-                            webLog.setServiceOrderId(serviceOrderByParent.getId());
-                            webLogDAO.addWebLogs(webLog);
-                            for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
-                                if (serviceOrderDO.getId() == serviceOrderId) {
-                                    continue;
-                                }
-                                webLog.setServiceOrderId(serviceOrderDO.getId());
-                                webLogDAO.addWebLogs(webLog);
-                            }
-                        }
-                        if (isManage) {
-                            List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO.listChildrenServiceOrder(serviceOrderId);
-                            if (serviceOrderDTOS != null && !serviceOrderDTOS.isEmpty()) {
-                                for (ServiceOrderDTO serviceOrderDO : serviceOrderDTOS) {
-                                    webLog.setServiceOrderId(serviceOrderDO.getId());
-                                    webLogDAO.addWebLogs(webLog);
-                                }
-                            }
-                        }
-                    }
-                }
+                saveWebLogs(webLog, commissionOrderIds, visaIds, visaOfficialIds);
             }
             log.info("{}", JSONUtil.parse(webLog));
             return result;
@@ -534,12 +574,296 @@ public class WebLogAspect extends BaseController{
         if (StringUtils.isEmpty(methodName)) {
             return false;
         }
-        boolean isSchoolContractUpload = "schoolInstitution".equalsIgnoreCase(controllerName)
-                && "upload_contract_file".equalsIgnoreCase(methodName);
+        String lowerMethodName = methodName.toLowerCase();
+        if (lowerMethodName.contains("upload") || lowerMethodName.contains("img")) {
+            return false;
+        }
+        if ("serviceOrder".equalsIgnoreCase(controllerName)
+                && "get".equalsIgnoreCase(methodName)) {
+            return false;
+        }
+        if ("commissionOrder".equalsIgnoreCase(controllerName)
+                || "visaOfficial".equalsIgnoreCase(controllerName)
+                || "visa".equalsIgnoreCase(controllerName)) {
+            return !isQueryMethod(methodName);
+        }
         return !methodName.contains("list")
-                && (!methodName.contains("upload") || isSchoolContractUpload)
-                && !methodName.contains("img")
                 && !methodName.contains("count");
+    }
+
+    private boolean isQueryMethod(String methodName) {
+        String lowerMethodName = methodName.toLowerCase();
+        return lowerMethodName.startsWith("list")
+                || lowerMethodName.startsWith("count")
+                || lowerMethodName.startsWith("get")
+                || lowerMethodName.startsWith("down");
+    }
+
+    private void saveWebLogs(WebLogDTO webLog, List<Integer> commissionOrderIds, List<Integer> visaIds,
+                             List<Integer> visaOfficialIds) {
+        if (commissionOrderIds != null && !commissionOrderIds.isEmpty()) {
+            webLog.setServiceOrderId(null);
+            webLog.setVisaId(null);
+            webLog.setVisaOfficialId(null);
+            for (Integer commissionOrderId : commissionOrderIds) {
+                webLog.setCommissionOrderId(commissionOrderId);
+                saveWebLogWithServiceOrderRelations(webLog);
+            }
+            return;
+        }
+        if (visaIds != null && !visaIds.isEmpty()) {
+            webLog.setServiceOrderId(null);
+            webLog.setCommissionOrderId(null);
+            webLog.setVisaOfficialId(null);
+            for (Integer visaId : visaIds) {
+                webLog.setVisaId(visaId);
+                saveWebLogWithServiceOrderRelations(webLog);
+            }
+            return;
+        }
+        if (visaOfficialIds != null && !visaOfficialIds.isEmpty()) {
+            webLog.setServiceOrderId(null);
+            webLog.setCommissionOrderId(null);
+            webLog.setVisaId(null);
+            for (Integer visaOfficialId : visaOfficialIds) {
+                webLog.setVisaOfficialId(visaOfficialId);
+                saveWebLogWithServiceOrderRelations(webLog);
+            }
+            return;
+        }
+        saveWebLogWithServiceOrderRelations(webLog);
+    }
+
+    private void saveWebLogWithServiceOrderRelations(WebLogDTO webLog) {
+        Integer originalServiceOrderId = webLog.getServiceOrderId();
+        int inserted = webLogDAO.addWebLogs(webLog);
+        if (inserted <= 0 || originalServiceOrderId == null || originalServiceOrderId == 0) {
+            return;
+        }
+        try {
+            boolean isManage = firstPlace(originalServiceOrderId) != 1;
+            ServiceOrderDO serviceOrderById = isManage
+                    ? serviceOrderManageDAO.getServiceOrderById(originalServiceOrderId)
+                    : serviceOrderDAO.getServiceOrderById(originalServiceOrderId);
+            if (serviceOrderById != null && serviceOrderById.getApplicantParentId() > 0
+                    && !"OVST".equalsIgnoreCase(serviceOrderById.getType())) {
+                ServiceOrderDO serviceOrderByParent = serviceOrderDAO
+                        .getServiceOrderById(serviceOrderById.getApplicantParentId());
+                if (serviceOrderByParent != null) {
+                    List<ServiceOrderDTO> deriveOrder = serviceOrderDAO.getDeriveOrder(serviceOrderByParent.getId());
+                    webLog.setServiceOrderId(serviceOrderByParent.getId());
+                    webLogDAO.addWebLogs(webLog);
+                    if (deriveOrder != null) {
+                        for (ServiceOrderDTO serviceOrderDO : deriveOrder) {
+                            if (originalServiceOrderId.equals(serviceOrderDO.getId())) {
+                                continue;
+                            }
+                            webLog.setServiceOrderId(serviceOrderDO.getId());
+                            webLogDAO.addWebLogs(webLog);
+                        }
+                    }
+                }
+            }
+            if (isManage) {
+                List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageDAO
+                        .listChildrenServiceOrder(originalServiceOrderId);
+                if (serviceOrderDTOS != null) {
+                    for (ServiceOrderDTO serviceOrderDO : serviceOrderDTOS) {
+                        webLog.setServiceOrderId(serviceOrderDO.getId());
+                        webLogDAO.addWebLogs(webLog);
+                    }
+                }
+            }
+        } finally {
+            webLog.setServiceOrderId(originalServiceOrderId);
+        }
+    }
+
+    private List<Integer> getCommissionOrderIds(String controllerName, String methodName, List<Object> parameter,
+                                                 Object result) {
+        List<Integer> ids = new ArrayList<>();
+        if (!"commissionOrder".equalsIgnoreCase(controllerName)) {
+            return ids;
+        }
+        collectIntegerValues(parameter, "commissionOrderId", ids);
+        if ("deleteComment".equalsIgnoreCase(methodName)) {
+            Integer commentId = getIntegerParameter(parameter, "id");
+            if (commentId != null && commentId > 0) {
+                try {
+                    addUnique(ids, commissionOrderCommentDAO.getCommissionOrderIdById(commentId));
+                } catch (Exception e) {
+                    log.warn("Failed to resolve commission order id by comment id: {}", commentId, e);
+                }
+            }
+        }
+        if (usesCommissionOrderIdParameter(methodName)) {
+            collectIntegerValues(parameter, "id", ids);
+        }
+        if (usesResponseBusinessIds(methodName)) {
+            collectIntegerValues(getResponseData(result), "id", ids);
+        }
+        return ids;
+    }
+
+    private String getLastPathSegment(String requestURI) {
+        if (StringUtils.isEmpty(requestURI)) {
+            return "";
+        }
+        String normalizedUri = requestURI;
+        while (normalizedUri.endsWith("/")) {
+            normalizedUri = normalizedUri.substring(0, normalizedUri.length() - 1);
+        }
+        int lastSlash = normalizedUri.lastIndexOf('/');
+        return lastSlash >= 0 ? normalizedUri.substring(lastSlash + 1) : normalizedUri;
+    }
+
+    private String getControllerName(Class<?> declaringType, String[] uriSegments) {
+        if (declaringType != null) {
+            String simpleName = declaringType.getSimpleName();
+            if (simpleName.endsWith("Controller") && simpleName.length() > "Controller".length()) {
+                String name = simpleName.substring(0, simpleName.length() - "Controller".length());
+                return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+            }
+        }
+        return uriSegments.length > 2 ? uriSegments[2] : "";
+    }
+
+    private List<Integer> getVisaOfficialIds(String controllerName, String methodName, List<Object> parameter,
+                                              Object result) {
+        List<Integer> ids = new ArrayList<>();
+        if (!"visaOfficial".equalsIgnoreCase(controllerName)) {
+            return ids;
+        }
+        collectIntegerValues(parameter, "visaOfficialId", ids);
+        if ("updateOfficialVisa".equalsIgnoreCase(methodName)) {
+            collectIntegerValues(parameter, "id", ids);
+        }
+        if ("add".equalsIgnoreCase(methodName)) {
+            collectIntegerValues(getResponseData(result), "id", ids);
+        }
+        return ids;
+    }
+
+    private List<Integer> getVisaIds(String controllerName, String methodName, List<Object> parameter,
+                                     Object result) {
+        List<Integer> ids = new ArrayList<>();
+        if (!"visa".equalsIgnoreCase(controllerName)) {
+            return ids;
+        }
+        collectIntegerValues(parameter, "visaId", ids);
+        if ("deleteComment".equalsIgnoreCase(methodName)) {
+            Integer commentId = getIntegerParameter(parameter, "id");
+            if (commentId != null && commentId > 0) {
+                try {
+                    addUnique(ids, visaCommentDAO.getVisaIdById(commentId));
+                } catch (Exception e) {
+                    log.warn("Failed to resolve visa id by comment id: {}", commentId, e);
+                }
+            }
+        }
+        if (usesVisaIdParameter(methodName)) {
+            collectIntegerValues(parameter, "id", ids);
+        }
+        if (usesVisaResponseBusinessIds(methodName)) {
+            collectIntegerValues(getResponseData(result), "id", ids);
+        }
+        return ids;
+    }
+
+    private boolean usesVisaIdParameter(String methodName) {
+        return "update".equalsIgnoreCase(methodName)
+                || "kjUpdate".equalsIgnoreCase(methodName)
+                || "updateKjApprovalDate".equalsIgnoreCase(methodName)
+                || "close".equalsIgnoreCase(methodName)
+                || "reopen".equalsIgnoreCase(methodName)
+                || "delete".equalsIgnoreCase(methodName)
+                || "approval".equalsIgnoreCase(methodName)
+                || "refuse".equalsIgnoreCase(methodName);
+    }
+
+    private boolean usesVisaResponseBusinessIds(String methodName) {
+        return "add".equalsIgnoreCase(methodName)
+                || "update".equalsIgnoreCase(methodName)
+                || "kjUpdate".equalsIgnoreCase(methodName)
+                || "updateKjApprovalDate".equalsIgnoreCase(methodName)
+                || "approval".equalsIgnoreCase(methodName)
+                || "refuse".equalsIgnoreCase(methodName);
+    }
+
+    private boolean usesCommissionOrderIdParameter(String methodName) {
+        return "update".equalsIgnoreCase(methodName)
+                || "kjUpdate".equalsIgnoreCase(methodName)
+                || "updateKjApprovalDate".equalsIgnoreCase(methodName)
+                || "updateCommission".equalsIgnoreCase(methodName)
+                || "close".equalsIgnoreCase(methodName)
+                || "approval".equalsIgnoreCase(methodName)
+                || "refuse".equalsIgnoreCase(methodName)
+                || "deleteCommissionOrder".equalsIgnoreCase(methodName);
+    }
+
+    private boolean usesResponseBusinessIds(String methodName) {
+        return "add".equalsIgnoreCase(methodName)
+                || "update".equalsIgnoreCase(methodName)
+                || "kjUpdate".equalsIgnoreCase(methodName)
+                || "updateKjApprovalDate".equalsIgnoreCase(methodName)
+                || "updateCommission".equalsIgnoreCase(methodName)
+                || "close".equalsIgnoreCase(methodName)
+                || "approval".equalsIgnoreCase(methodName)
+                || "refuse".equalsIgnoreCase(methodName)
+                || "updateSubmitted".equalsIgnoreCase(methodName);
+    }
+
+    private boolean usesServiceOrderCommissionIds(String methodName) {
+        return "updateInfo".equalsIgnoreCase(methodName) || "updateSubmitted".equalsIgnoreCase(methodName);
+    }
+
+    private Object getResponseData(Object result) {
+        if (result instanceof Response) {
+            return ((Response) result).getData();
+        }
+        return null;
+    }
+
+    private void collectIntegerValues(Object source, String key, List<Integer> values) {
+        if (source == null) {
+            return;
+        }
+        if (source instanceof Map) {
+            Map map = (Map) source;
+            addUnique(values, getIntegerValue(map.get(key)));
+            for (Object value : map.values()) {
+                collectIntegerValues(value, key, values);
+            }
+            return;
+        }
+        if (source instanceof Iterable) {
+            for (Object item : (Iterable) source) {
+                collectIntegerValues(item, key, values);
+            }
+            return;
+        }
+        if (source.getClass().isArray()) {
+            for (int i = 0; i < Array.getLength(source); i++) {
+                collectIntegerValues(Array.get(source, i), key, values);
+            }
+            return;
+        }
+        addUnique(values, getIntegerValue(readValue(source, key)));
+    }
+
+    private void addUnique(List<Integer> values, Integer value) {
+        if (value != null && value > 0 && !values.contains(value)) {
+            values.add(value);
+        }
+    }
+
+    private void addUnique(List<Integer> values, List<Integer> newValues) {
+        if (newValues == null) {
+            return;
+        }
+        for (Integer value : newValues) {
+            addUnique(values, value);
+        }
     }
 
     private Integer getSchoolId(String controllerName, String methodName, List<Object> parameter, Object result) {

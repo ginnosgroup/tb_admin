@@ -8,14 +8,20 @@ import java.util.List;
 public interface WebLogDAO {
     int addWebLogs (WebLogDTO webLog);
 
-    List<WebLogDTO> listWebLogs (@Param("serviceOrderId") Integer serviceOrderId, @Param("schoolId") Integer schoolId,
-                                 @Param("userId") Integer userId, @Param("isLogin") String isLogin,
-                                 @Param("operatedUser") Integer operatedUser, @Param("offset") Integer offset,
-                                 @Param("rows") Integer rows);
+    List<WebLogDTO> listWebLogs (@Param("serviceOrderId") Integer serviceOrderId,
+                                 @Param("commissionOrderId") Integer commissionOrderId,
+                                 @Param("visaId") Integer visaId,
+                                 @Param("visaOfficialId") Integer visaOfficialId,
+                                 @Param("schoolId") Integer schoolId, @Param("userId") Integer userId,
+                                 @Param("isLogin") String isLogin, @Param("operatedUser") Integer operatedUser,
+                                 @Param("offset") Integer offset, @Param("rows") Integer rows);
 
-    Integer count(@Param("serviceOrderId") Integer serviceOrderId, @Param("schoolId") Integer schoolId,
-                  @Param("userId") Integer userId, @Param("isLogin") String isLogin,
-                  @Param("operatedUser") Integer operatedUser);
+    Integer count(@Param("serviceOrderId") Integer serviceOrderId,
+                  @Param("commissionOrderId") Integer commissionOrderId,
+                  @Param("visaId") Integer visaId,
+                  @Param("visaOfficialId") Integer visaOfficialId,
+                  @Param("schoolId") Integer schoolId, @Param("userId") Integer userId,
+                  @Param("isLogin") String isLogin, @Param("operatedUser") Integer operatedUser);
 
     List<WebLogDTO> listContractData(@Param("serviceOrderId") int id);
 

@@ -48,14 +48,16 @@ public class WebLogServiceImpl implements WebLogService {
     private ServiceOrderDAO serviceOrderDAO;
 
     @Override
-    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer schoolId, Integer userId,
+    public List<WebLogDTO> listByServiceOrderId(Integer serviceOrderId, Integer commissionOrderId,
+                                                Integer visaId, Integer visaOfficialId, Integer schoolId, Integer userId,
                                                 Integer isLogin, Integer operatedUser, Integer offset, Integer rows) {
         try {
             String login = "";
             if (isLogin != null && isLogin == 1) {
                 login = "login";
             }
-            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, schoolId, userId, login, operatedUser, offset, rows);
+            List<WebLogDTO> webLogDTOS = webLogDAO.listWebLogs(serviceOrderId, commissionOrderId, visaId,
+                    visaOfficialId, schoolId, userId, login, operatedUser, offset, rows);
             String userName = "";
             for (int i = 0; i < webLogDTOS.size(); i++) {
                 userName = "";
@@ -195,6 +197,30 @@ public class WebLogServiceImpl implements WebLogService {
                     setOperationDescription(webLogDTO, startTime, userName,
                             buildSchoolCourseOperationDescription(split[split.length - 1]));
                 }
+                if ("commissionOrder".equalsIgnoreCase(split[2])) {
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    setOperationDescription(webLogDTO, startTime, userName,
+                            buildCommissionOrderOperationDescription(split[split.length - 1]));
+                }
+                if ("visaOfficial".equalsIgnoreCase(split[2])) {
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    setOperationDescription(webLogDTO, startTime, userName,
+                            buildVisaOfficialOperationDescription(split[split.length - 1]));
+                }
+                if ("visa".equalsIgnoreCase(split[2])) {
+                    AdminUserDO adminUserById = adminUserDAO.getAdminUserById(webLogDTO.getUserId());
+                    if (adminUserById != null) {
+                        userName = adminUserById.getUsername();
+                    }
+                    setOperationDescription(webLogDTO, startTime, userName,
+                            buildVisaOperationDescription(split[split.length - 1]));
+                }
                 if ("login".equalsIgnoreCase(split[3])) {
                     List<String> serviceOrderOriginallyDOList = new ArrayList<>();
                     serviceOrderOriginallyDOList.add(startTime + "    " +  webLogDTO.getRole() + ":" + userName + "    " + "登录");
@@ -222,12 +248,14 @@ public class WebLogServiceImpl implements WebLogService {
     }
 
     @Override
-    public Integer count(Integer serviceOrderId, Integer schoolId, Integer userId, Integer isLogin, Integer operatedUser) {
+    public Integer count(Integer serviceOrderId, Integer commissionOrderId, Integer visaId, Integer visaOfficialId,
+                         Integer schoolId, Integer userId, Integer isLogin, Integer operatedUser) {
         String login = "";
         if (isLogin != null && isLogin == 1) {
             login = "login";
         }
-        return webLogDAO.count(serviceOrderId, schoolId, userId, login, operatedUser);
+        return webLogDAO.count(serviceOrderId, commissionOrderId, visaId, visaOfficialId, schoolId, userId, login,
+                operatedUser);
     }
 
     @Override
@@ -290,6 +318,88 @@ public class WebLogServiceImpl implements WebLogService {
                 return "删除学校课程";
             default:
                 return "";
+        }
+    }
+
+    private String buildCommissionOrderOperationDescription(String methodName) {
+        switch (methodName) {
+            case "add":
+                return "创建留学佣金订单";
+            case "addCommissionOrderTemp":
+                return "创建留学佣金订单暂存信息";
+            case "update":
+                return "修改留学佣金订单";
+            case "kjUpdate":
+                return "修改留学佣金财务信息";
+            case "updateKjApprovalDate":
+                return "修改留学佣金财务审核时间";
+            case "updateCommission":
+                return "重新计算留学佣金";
+            case "close":
+                return "关闭留学佣金订单";
+            case "approval":
+                return "审核留学佣金订单";
+            case "refuse":
+                return "驳回留学佣金订单";
+            case "addComment":
+                return "添加留学佣金订单评论";
+            case "deleteComment":
+                return "删除留学佣金订单评论";
+            case "deleteCommissionOrder":
+                return "删除留学佣金订单";
+            case "updateInfo":
+                return "批量修改留学佣金订单";
+            case "updateSubmitted":
+            case "updateSubmitted22":
+                return "提交留学佣金订单";
+            case "upload":
+                return "导入留学佣金订单";
+            case "upload_img":
+                return "上传留学佣金付款凭证";
+            case "delete_visa_upload_img":
+                return "删除留学佣金附件";
+            default:
+                return "操作留学佣金订单";
+        }
+    }
+
+    private String buildVisaOfficialOperationDescription(String methodName) {
+        switch (methodName) {
+            case "add":
+                return "创建文案佣金订单";
+            case "updateOfficialVisa":
+                return "修改文案佣金订单";
+            default:
+                return "操作文案佣金订单";
+        }
+    }
+
+    private String buildVisaOperationDescription(String methodName) {
+        switch (methodName) {
+            case "add":
+                return "创建签证佣金订单";
+            case "update":
+                return "修改签证佣金订单";
+            case "kjUpdate":
+                return "修改签证佣金财务信息";
+            case "updateKjApprovalDate":
+                return "修改签证佣金财务审核时间";
+            case "close":
+                return "关闭签证佣金订单";
+            case "reopen":
+                return "重新打开签证佣金订单";
+            case "delete":
+                return "删除签证佣金订单";
+            case "approval":
+                return "审核签证佣金订单";
+            case "refuse":
+                return "驳回签证佣金订单";
+            case "addComment":
+                return "添加签证佣金订单评论";
+            case "deleteComment":
+                return "删除签证佣金订单评论";
+            default:
+                return "操作签证佣金订单";
         }
     }
 

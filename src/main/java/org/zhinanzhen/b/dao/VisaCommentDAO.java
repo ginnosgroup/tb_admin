@@ -11,6 +11,8 @@ public interface VisaCommentDAO {
 
 	public List<VisaCommentDO> list(@Param("visaId") Integer visaId);
 
+	Integer getVisaIdById(@Param("id") Integer id);
+
 	public int delete(int id);
 
 }

@@ -69,6 +69,12 @@ public class WebLogDTO {
 
     private Integer serviceOrderId;
 
+    private Integer commissionOrderId;
+
+    private Integer visaId;
+
+    private Integer visaOfficialId;
+
     private Integer schoolId;
 
     private Integer operatedUser;

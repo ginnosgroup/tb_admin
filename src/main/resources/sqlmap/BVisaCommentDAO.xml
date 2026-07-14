@@ -30,6 +30,12 @@
         WHERE visa_id = #{visaId}
         ORDER BY gmt_create DESC;
     </select>
+
+    <select id="getVisaIdById" resultType="java.lang.Integer">
+        SELECT visa_id
+        FROM b_visa_comment
+        WHERE id = #{id}
+    </select>
     
     <delete id="delete" parameterType="java.lang.Integer">
 		DELETE FROM b_visa_comment WHERE id = #{id, jdbcType=INTEGER}

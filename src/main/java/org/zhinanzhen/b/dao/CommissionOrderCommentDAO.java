@@ -11,6 +11,8 @@ public interface CommissionOrderCommentDAO {
 
 	public List<CommissionOrderCommentDO> list(@Param("commissionOrderId") Integer commissionOrderId);
 
+	Integer getCommissionOrderIdById(@Param("id") Integer id);
+
 	public int delete(int id);
 
 }
