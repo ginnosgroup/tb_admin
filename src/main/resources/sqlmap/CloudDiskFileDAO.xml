@@ -49,6 +49,70 @@
         )
     </insert>
 
+    <insert id="batchUpsert">
+        INSERT INTO b_cloud_disk_file (
+            gmt_create,
+            gmt_modify,
+            applicant_id,
+            adviser_id,
+            name,
+            type,
+            url,
+            parent_file_id,
+            domain_id,
+            drive_id,
+            file_id,
+            is_delete,
+            official_id,
+            user_id,
+            operator,
+            relative_path,
+            file_size,
+            download_url,
+            hash_code
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                NOW(),
+                NOW(),
+                #{item.applicantId},
+                #{item.adviserId},
+                #{item.name},
+                #{item.type},
+                #{item.url},
+                #{item.parentFileId},
+                #{item.domainId},
+                #{item.driveId},
+                #{item.fileId},
+                #{item.isDelete},
+                #{item.officialId},
+                #{item.userId},
+                #{item.operator},
+                #{item.relativePath},
+                #{item.fileSize},
+                #{item.downloadUrl},
+                #{item.hashCode}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            gmt_modify = NOW(),
+            applicant_id = COALESCE(VALUES(applicant_id), applicant_id),
+            adviser_id = COALESCE(VALUES(adviser_id), adviser_id),
+            name = COALESCE(VALUES(name), name),
+            type = COALESCE(VALUES(type), type),
+            url = COALESCE(VALUES(url), url),
+            parent_file_id = COALESCE(VALUES(parent_file_id), parent_file_id),
+            domain_id = COALESCE(VALUES(domain_id), domain_id),
+            is_delete = VALUES(is_delete),
+            official_id = COALESCE(VALUES(official_id), official_id),
+            user_id = COALESCE(VALUES(user_id), user_id),
+            operator = COALESCE(VALUES(operator), operator),
+            relative_path = COALESCE(VALUES(relative_path), relative_path),
+            file_size = COALESCE(VALUES(file_size), file_size),
+            download_url = COALESCE(VALUES(download_url), download_url),
+            hash_code = COALESCE(VALUES(hash_code), hash_code)
+    </insert>
+
     <insert id="addUserCloud" parameterType="org.zhinanzhen.b.dao.pojo.UserCloud" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         insert into b_user_cloud (
             gmt_create,
@@ -282,6 +346,32 @@
             download_url AS downloadUrl, hash_code AS hashCode
         FROM b_cloud_disk_file
         WHERE drive_id = #{driveId}
+        ORDER BY id ASC
+    </select>
+
+    <select id="listForSync" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        SELECT
+            id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+            applicant_id AS applicantId, adviser_id AS adviserId,
+            name, type, url, parent_file_id AS parentFileId,
+            domain_id AS domainId, drive_id AS driveId, file_id AS fileId,
+            is_delete AS isDelete, official_id AS officialId, user_id AS userId,
+            operator, relative_path AS relativePath, file_size AS fileSize,
+            download_url AS downloadUrl, hash_code AS hashCode
+        FROM b_cloud_disk_file
+        WHERE drive_id = #{driveId}
+          AND is_delete = 0
+        <choose>
+            <when test="userIds != null and userIds.size() > 0">
+                AND user_id IN
+                <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                AND 1 = 0
+            </otherwise>
+        </choose>
         ORDER BY id ASC
     </select>
 

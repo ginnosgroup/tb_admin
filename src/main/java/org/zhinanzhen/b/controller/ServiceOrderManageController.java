@@ -59,6 +59,8 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -66,14 +68,18 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -85,6 +91,10 @@ import java.util.zip.ZipOutputStream;
 public class ServiceOrderManageController extends BaseController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderManageController.class);
+
+    private static final String CONTRACT_UPLOAD_DIR = "/uploads/contract_data_image_url_s3/";
+    private static final long MAX_CONTRACT_PDF_SIZE = 20L * 1024L * 1024L;
+    private static final Pattern SERVICE_CODE_PATTERN = Pattern.compile("\\d+");
 
     private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
@@ -409,6 +419,21 @@ public class ServiceOrderManageController extends BaseController {
             }
         }
 
+        if (StringUtil.isNotEmpty(contractData)) {
+            try {
+                File contractPdfFile = resolveContractPdf(contractData, request);
+                log.debug("合同PDF完整路径: {}", contractPdfFile.getAbsolutePath());
+                String contractValidationError = validateContractPdf(
+                        contractPdfFile, serviceOrderDto, serviceOrderJson);
+                if (contractValidationError != null) {
+                    return new Response<Integer>(1, contractValidationError, 0);
+                }
+            } catch (IOException e) {
+                log.warn("创建服务订单时解析合同PDF失败, contractData={}", contractData, e);
+                return new Response<Integer>(1, "合同PDF解析失败：" + e.getMessage(), 0);
+            }
+        }
+
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
@@ -448,6 +473,253 @@ public class ServiceOrderManageController extends BaseController {
             return null;
         }
         return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
+    }
+
+    private String validateContractPdf(File contractPdfFile, ServiceOrderDTO serviceOrderDto,
+                                       List<ServiceOrderJsonRequest> serviceOrderJson)
+            throws IOException, ServiceException {
+        ContractPdfInfo contractPdfInfo = parseContractPdf(contractPdfFile);
+        List<String> errors = new ArrayList<>();
+
+        boolean applicantMatched = false;
+        if (StringUtil.isEmpty(contractPdfInfo.getName())) {
+            errors.add("未从合同中提取到学生姓名");
+        } else {
+            for (ServiceOrderJsonRequest childOrder : serviceOrderJson) {
+                Integer applicantId = parsePositiveInteger(childOrder.getApplicantId());
+                if (applicantId == null) {
+                    continue;
+                }
+                ApplicantDTO applicantById = applicantService.getById(applicantId);
+                if (applicantById != null && isApplicantNameMatched(
+                        contractPdfInfo.getName(),
+                        applicantById.getSurname(),
+                        applicantById.getFirstname())) {
+                    applicantMatched = true;
+                    break;
+                }
+            }
+            if (!applicantMatched) {
+                errors.add("合同学生姓名与所有子订单申请人均不一致");
+            }
+        }
+
+        BigDecimal contractAmount = contractPdfInfo.getAmount();
+        BigDecimal orderAmount = BigDecimal.valueOf(serviceOrderDto.getAmount());
+        if (contractAmount == null) {
+            errors.add("未从合同中提取到Total金额");
+        } else if (contractAmount.compareTo(orderAmount) != 0) {
+            errors.add("合同Total金额与主订单amount不一致");
+        }
+
+        boolean serviceMatched = false;
+        if (StringUtil.isEmpty(contractPdfInfo.getServiceCode())) {
+            errors.add("未从合同中提取到服务项目编号");
+        } else {
+            for (ServiceOrderJsonRequest childOrder : serviceOrderJson) {
+                Integer serviceId = parsePositiveInteger(childOrder.getServiceId());
+                if (serviceId == null) {
+                    continue;
+                }
+                ServiceDTO service = serviceService.getServiceById(serviceId);
+                if (service != null && containsServiceCode(service.getCode(), contractPdfInfo.getServiceCode())) {
+                    serviceMatched = true;
+                    break;
+                }
+            }
+            if (!serviceMatched) {
+                errors.add("合同服务项目与所有子订单的服务code均不一致");
+            }
+        }
+
+        return errors.isEmpty() ? null : "合同校验失败：" + String.join("；", errors);
+    }
+
+    private File resolveContractPdf(String contractData, HttpServletRequest request) throws IOException {
+        String path = contractData == null ? "" : contractData.trim();
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            path = new URL(path).getPath();
+        } else {
+            int queryIndex = path.indexOf('?');
+            if (queryIndex >= 0) {
+                path = path.substring(0, queryIndex);
+            }
+        }
+        path = URLDecoder.decode(path, "UTF-8").replace('\\', '/');
+
+        int uploadDirIndex = path.indexOf(CONTRACT_UPLOAD_DIR);
+        if (uploadDirIndex < 0) {
+            throw new IOException("合同文件路径不属于服务订单合同上传目录");
+        }
+        String relativePath = path.substring(uploadDirIndex + CONTRACT_UPLOAD_DIR.length());
+        if (relativePath.isEmpty() || relativePath.contains("/")) {
+            throw new IOException("合同文件路径无效");
+        }
+        if (!relativePath.toLowerCase(Locale.ENGLISH).endsWith(".pdf")) {
+            throw new IOException("上传的合同不是PDF文件");
+        }
+
+        String uploadedPath = path.substring(uploadDirIndex);
+        String uploadedRelativePath = uploadedPath.startsWith("/")
+                ? uploadedPath.substring(1) : uploadedPath;
+        String contractRelativePath = CONTRACT_UPLOAD_DIR.startsWith("/")
+                ? CONTRACT_UPLOAD_DIR.substring(1) : CONTRACT_UPLOAD_DIR;
+        boolean isWindows = System.getProperty("os.name", "")
+                .toLowerCase(Locale.ENGLISH).contains("win");
+        File dataRoot;
+        if (isWindows) {
+            Object tempDir = request.getServletContext().getAttribute("javax.servlet.context.tempdir");
+            if (!(tempDir instanceof File)) {
+                throw new IOException("无法取得Tomcat临时工作目录");
+            }
+            // Windows下MultipartFile.transferTo会把/data解析为Web应用临时目录下的data。
+            dataRoot = new File((File) tempDir, "data");
+        } else {
+            dataRoot = new File("/data");
+        }
+
+        File contractRoot = new File(dataRoot, contractRelativePath).getCanonicalFile();
+        File completePdfPath = new File(dataRoot, uploadedRelativePath).getCanonicalFile();
+        String contractRootPath = contractRoot.getPath() + File.separator;
+        if (!completePdfPath.getPath().startsWith(contractRootPath)) {
+            throw new IOException("合同文件路径越界");
+        }
+        File pdfFile = findContractPdfFile(completePdfPath);
+        if (pdfFile.length() == 0 || pdfFile.length() > MAX_CONTRACT_PDF_SIZE) {
+            throw new IOException("合同PDF为空或超过20MB");
+        }
+        return pdfFile;
+    }
+
+    private File findContractPdfFile(File completePdfPath) throws IOException {
+        log.debug("准备读取合同PDF完整路径: {}", completePdfPath.getAbsolutePath());
+        if (!completePdfPath.isFile()) {
+            throw new IOException("合同PDF文件不存在：" + completePdfPath.getAbsolutePath());
+        }
+        return completePdfPath;
+    }
+
+    private ContractPdfInfo parseContractPdf(File pdfFile) throws IOException {
+        try (PDDocument document = PDDocument.load(pdfFile)) {
+            if (document.getNumberOfPages() == 0) {
+                throw new IOException("合同PDF没有页面");
+            }
+
+            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+            if (acroForm == null) {
+                throw new IOException("合同PDF不包含固定格式的表单字段");
+            }
+
+            String applicantName = getPdfFieldValue(acroForm, "Text1");
+            String serviceCode = retainDigits(getPdfFieldValue(acroForm, "Text9"));
+            String totalAmount = getPdfFieldValue(acroForm, "Text29");
+            if (StringUtil.isEmpty(totalAmount)) {
+                totalAmount = getPdfFieldValue(acroForm, "Text26");
+            }
+
+            return new ContractPdfInfo(applicantName, parseContractAmount(totalAmount), serviceCode);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException("读取合同固定字段失败", e);
+        }
+    }
+
+    private String getPdfFieldValue(PDAcroForm acroForm, String fieldName) {
+        PDField field = acroForm.getField(fieldName);
+        if (field == null || field.getValueAsString() == null) {
+            return null;
+        }
+        String value = field.getValueAsString().trim();
+        return value.isEmpty() ? null : value;
+    }
+
+    private BigDecimal parseContractAmount(String value) {
+        if (StringUtil.isEmpty(value)) {
+            return null;
+        }
+        String normalized = value.replace(",", "").replaceAll("[^0-9.\\-]", "");
+        if (normalized.isEmpty()) {
+            return null;
+        }
+        try {
+            return new BigDecimal(normalized);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private boolean isApplicantNameMatched(String contractName, String surname, String firstname) {
+        String normalizedContractName = normalizePersonName(contractName);
+        if (normalizedContractName.isEmpty()) {
+            return false;
+        }
+        String surnameThenFirstname = safeString(surname) + " " + safeString(firstname);
+        String firstnameThenSurname = safeString(firstname) + " " + safeString(surname);
+        return normalizedContractName.equals(normalizePersonName(surnameThenFirstname))
+                || normalizedContractName.equals(normalizePersonName(firstnameThenSurname));
+    }
+
+    private String normalizePersonName(String value) {
+        return value == null ? ""
+                : value.replaceAll("[\\s\\p{Punct}]", "").toUpperCase(Locale.ENGLISH);
+    }
+
+    private boolean containsServiceCode(String serviceCode, String contractServiceCode) {
+        if (StringUtil.isEmpty(serviceCode) || StringUtil.isEmpty(contractServiceCode)) {
+            return false;
+        }
+        Matcher matcher = SERVICE_CODE_PATTERN.matcher(serviceCode);
+        while (matcher.find()) {
+            if (contractServiceCode.equals(matcher.group())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String retainDigits(String value) {
+        return value == null ? null : value.replaceAll("\\D", "");
+    }
+
+    private Integer parsePositiveInteger(String value) {
+        if (StringUtil.isEmpty(value)) {
+            return null;
+        }
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private String safeString(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static class ContractPdfInfo {
+        private final String name;
+        private final BigDecimal amount;
+        private final String serviceCode;
+
+        private ContractPdfInfo(String name, BigDecimal amount, String serviceCode) {
+            this.name = name;
+            this.amount = amount;
+            this.serviceCode = serviceCode;
+        }
+
+        private String getName() {
+            return name;
+        }
+
+        private BigDecimal getAmount() {
+            return amount;
+        }
+
+        private String getServiceCode() {
+            return serviceCode;
+        }
     }
 
     private void clearVerifyCodeAndRefNo(ServiceOrderDTO serviceOrderDto) {

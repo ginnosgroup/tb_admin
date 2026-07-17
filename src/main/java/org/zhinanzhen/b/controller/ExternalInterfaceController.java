@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.ExternalInterfaceService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.SyncBootstrapData;
+import org.zhinanzhen.b.service.pojo.SyncBootstrapRequest;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -43,6 +45,37 @@ public class ExternalInterfaceController extends BaseController {
             return new Response<Integer>(0, "添加成功", id);
         } catch (Exception e) {
             return new Response<Integer>(1, "添加失败:" + e.getMessage(), 1);
+        }
+    }
+
+    @RequestMapping(value = "/batchUpsertCloudDiskFiles", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<Integer> batchUpsertCloudDiskFiles(@RequestBody List<CloudDiskFile> cloudDiskFiles,
+                                                        HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            Integer processed = externalInterfaceService.batchUpsertCloudDiskFiles(cloudDiskFiles);
+            return new Response<Integer>(0, "Batch upsert succeeded", processed);
+        } catch (IllegalArgumentException e) {
+            return new Response<Integer>(1, e.getMessage(), 0);
+        } catch (Exception e) {
+            return new Response<Integer>(1, "Batch upsert failed: " + e.getMessage(), 0);
+        }
+    }
+
+    @RequestMapping(value = "/syncBootstrap", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<SyncBootstrapData> syncBootstrap(@RequestBody SyncBootstrapRequest request,
+                                                     HttpServletResponse response) {
+        try {
+            super.setPostHeader(response);
+            SyncBootstrapData data = externalInterfaceService.getSyncBootstrap(
+                    request.getUsername(), request.getDriveId(), request.getUserIds());
+            return new Response<SyncBootstrapData>(0, "Sync bootstrap loaded", data);
+        } catch (IllegalArgumentException e) {
+            return new Response<SyncBootstrapData>(1, e.getMessage(), null);
+        } catch (Exception e) {
+            return new Response<SyncBootstrapData>(1, "Sync bootstrap failed: " + e.getMessage(), null);
         }
     }
 

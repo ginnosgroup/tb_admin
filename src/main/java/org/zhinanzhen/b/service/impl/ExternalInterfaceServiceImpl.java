@@ -3,11 +3,13 @@ package org.zhinanzhen.b.service.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.CloudDiskFileDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.ExternalInterfaceService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.SyncBootstrapData;
 import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -16,6 +18,7 @@ import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -92,6 +95,74 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
             cloudDiskFile.setHashCode(hashCode);
         }
         return cloudDiskFileDAO.add(cloudDiskFile);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Integer batchUpsertCloudDiskFiles(List<CloudDiskFile> cloudDiskFiles) {
+        if (cloudDiskFiles == null || cloudDiskFiles.isEmpty()) {
+            return 0;
+        }
+        if (cloudDiskFiles.size() > 500) {
+            throw new IllegalArgumentException("A metadata batch cannot contain more than 500 records");
+        }
+        for (CloudDiskFile cloudDiskFile : cloudDiskFiles) {
+            if (cloudDiskFile == null
+                    || cloudDiskFile.getDriveId() == null || cloudDiskFile.getDriveId().trim().isEmpty()
+                    || cloudDiskFile.getFileId() == null || cloudDiskFile.getFileId().trim().isEmpty()) {
+                throw new IllegalArgumentException("driveId and fileId are required for every metadata record");
+            }
+        }
+        cloudDiskFileDAO.batchUpsert(cloudDiskFiles);
+        return cloudDiskFiles.size();
+    }
+
+    @Override
+    public SyncBootstrapData getSyncBootstrap(String username, String driveId, List<Integer> userIds) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("username is required");
+        }
+        if (driveId == null || driveId.trim().isEmpty()) {
+            throw new IllegalArgumentException("driveId is required");
+        }
+        List<Integer> safeUserIds = userIds == null ? Collections.<Integer>emptyList() : userIds;
+        if (safeUserIds.size() > 2000) {
+            throw new IllegalArgumentException("Too many userIds in one bootstrap request");
+        }
+
+        AdminUserDO adminUser = adminUserDAO.getAdminUserByUsername(username);
+        if (adminUser == null) {
+            throw new IllegalArgumentException("Admin user not found");
+        }
+        adminUser.setPassword(null);
+        adminUser.setSessionId(null);
+        AdviserDO adviser = adminUser.getAdviserId() == null
+                ? null
+                : adviserDAO.getAdviserById(adminUser.getAdviserId());
+        OfficialDO official = adminUser.getOfficialId() == null
+                ? null
+                : officialDAO.getOfficialById(adminUser.getOfficialId());
+        List<UserDO> loadedUsers = safeUserIds.isEmpty()
+                ? Collections.<UserDO>emptyList()
+                : userDAO.listByIds(safeUserIds);
+        List<UserDO> users = new ArrayList<UserDO>();
+        if (loadedUsers != null) {
+            for (UserDO loadedUser : loadedUsers) {
+                UserDO syncUser = new UserDO();
+                syncUser.setId(loadedUser.getId());
+                syncUser.setName(loadedUser.getName());
+                users.add(syncUser);
+            }
+        }
+        List<CloudDiskFile> cloudDiskFiles = cloudDiskFileDAO.listForSync(driveId, safeUserIds);
+
+        return SyncBootstrapData.builder()
+                .adminUser(adminUser)
+                .adviser(adviser)
+                .official(official)
+                .users(users)
+                .cloudDiskFiles(cloudDiskFiles)
+                .build();
     }
 
     @Override
@@ -181,7 +252,7 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
                 }
             }
         }
-        return cloudDiskFileDAO.update(cloudDiskFile);
+        return update;
     }
 
     @Override

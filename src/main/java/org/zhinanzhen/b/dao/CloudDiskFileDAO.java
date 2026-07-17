@@ -10,6 +10,8 @@ public interface CloudDiskFileDAO {
 
     int add(CloudDiskFile cloudDiskFile);
 
+    int batchUpsert(@Param("list") List<CloudDiskFile> list);
+
     CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId, @Param("folderName") String folderName, @Param("userId") Integer userId);
 
     int update(CloudDiskFile cloudDiskFile);
@@ -44,6 +46,8 @@ public interface CloudDiskFileDAO {
 
     List<CloudDiskFile> listByUserIds(@Param("userIds") List<Integer> userIds);
     List<CloudDiskFile> listByDriveId(@Param("driveId") String driveId);
+
+    List<CloudDiskFile> listForSync(@Param("driveId") String driveId, @Param("userIds") List<Integer> userIds);
 
     List<CloudDiskFile> listByFileIds(@Param("fileIds") List<String> fileIds);
 

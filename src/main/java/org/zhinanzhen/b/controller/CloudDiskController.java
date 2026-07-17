@@ -173,10 +173,13 @@ public class CloudDiskController extends BaseController {
             @RequestParam(value = "serviceOrderId", required = false) Integer serviceOrderId,
             @RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
             HttpServletRequest request, HttpServletResponse response) {
+        int safePageNum = Math.max(0, pageNum);
+        int safePageSize = Math.max(1, Math.min(pageSize, 200));
         try {
             super.setPostHeader(response);
             int total = cloudDiskService.count(id, parentFileId, name, applicantId, userId);
-            List<CloudDiskFile> cloudDiskFileList =  cloudDiskService.list(id, parentFileId, name, applicantId, userId, pageNum, pageSize, false);
+            List<CloudDiskFile> cloudDiskFileList = cloudDiskService.list(
+                    id, parentFileId, name, applicantId, userId, safePageNum, safePageSize, false);
             // 关联 b_file_mara_annotation
             if (cloudDiskFileList != null && !cloudDiskFileList.isEmpty()) {
                 List<String> fileIds = cloudDiskFileList.stream()
@@ -202,10 +205,10 @@ public class CloudDiskController extends BaseController {
                     message = maraMark;
                 }
             }
-            return new ListResponse<List<CloudDiskFile>>(true, pageSize, total, cloudDiskFileList, message);
+            return new ListResponse<List<CloudDiskFile>>(true, safePageSize, total, cloudDiskFileList, message);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ListResponse<List<CloudDiskFile>>(false, pageSize, 0, null, e.getMessage());
+            return new ListResponse<List<CloudDiskFile>>(false, safePageSize, 0, null, e.getMessage());
         }
     }
 
