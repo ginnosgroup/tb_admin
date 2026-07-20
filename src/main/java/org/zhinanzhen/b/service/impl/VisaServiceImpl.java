@@ -280,7 +280,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				throw se;
 			}
 			for (VisaDO visaDO : visaDOS){
-				if (visaDO.getId() != visaDto.getId()){
+				if (visaDO.getId() != visaDto.getId() && !(visaDO.getServiceOrderId() ==  visaDto.getServiceOrderId())) {
 					ServiceException se = new ServiceException("对账code:"+visaDto.getVerifyCode()+"已经存在,请重新创建新的code!");
 					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 					throw se;

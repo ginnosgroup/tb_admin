@@ -932,7 +932,8 @@ public class VisaController extends BaseCommissionOrderController {
 		String message = "";
 		int n = 0;
 		Response<String> r = super.upload2(file, request.getSession(), "/tmp/");
-		try (InputStream is = new FileInputStream("/data" + r.getData())) {
+//		try (InputStream is = new FileInputStream("/data" + r.getData())) {
+		try (InputStream is = new FileInputStream("C:\\Users\\Admin\\AppData\\Local\\Temp\\tomcat.7266462568410552932.8080\\work\\Tomcat\\localhost\\admin_v2.1\\data" + r.getData())) {
 			jxl.Workbook wb = jxl.Workbook.getWorkbook(is);
 			Sheet sheet = wb.getSheet(0);
 			for (int i = 1; i < sheet.getRows(); i++) {

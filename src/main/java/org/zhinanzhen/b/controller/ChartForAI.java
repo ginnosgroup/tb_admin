@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.tb.controller.Response;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
@@ -80,6 +82,32 @@ public class ChartForAI {
         if (file == null || file.isEmpty()) {
             return new Response<JSONObject>(1, "请上传PDF文件", null);
         }
+
+        try {
+            return analyzePdf(file.getBytes(), getPdfFilename(file));
+        } catch (IOException e) {
+            log.error("读取PDF文件失败", e);
+            return new Response<JSONObject>(1, "读取PDF文件失败: " + e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 分析服务器本地已有的 PDF 文件，供其他业务流程复用。
+     */
+    public Response<JSONObject> analyzePdf(File file) {
+        if (file == null || !file.isFile() || file.length() == 0) {
+            return new Response<JSONObject>(1, "PDF文件不存在或为空", null);
+        }
+
+        try {
+            return analyzePdf(Files.readAllBytes(file.toPath()), file.getName());
+        } catch (IOException e) {
+            log.error("读取PDF文件失败, file={}", file.getAbsolutePath(), e);
+            return new Response<JSONObject>(1, "读取PDF文件失败: " + e.getMessage(), null);
+        }
+    }
+
+    private Response<JSONObject> analyzePdf(byte[] pdfBytes, String filename) {
         // 原OpenAI方式保留，需要切回时取消下面代码以及requestOpenAi调用的注释。
 //        if (openAiApiKey == null || openAiApiKey.trim().isEmpty()) {
 //            return new Response<JSONObject>(1, "请先在application.properties中填写openai.api.key", null);
@@ -90,13 +118,12 @@ public class ChartForAI {
         }
 
         try {
-            byte[] pdfBytes = file.getBytes();
             if (!isPdf(pdfBytes)) {
                 return new Response<JSONObject>(1, "上传的文件不是有效的PDF", null);
             }
 
             // 原OpenAI调用方式保留，需要时可直接切回。
-//            String result = requestOpenAi(pdfBytes, getPdfFilename(file));
+//            String result = requestOpenAi(pdfBytes, filename);
 
             String pdfText = extractPdfText(pdfBytes);
             if (pdfText.isEmpty()) {

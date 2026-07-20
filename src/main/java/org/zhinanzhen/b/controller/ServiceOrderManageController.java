@@ -59,8 +59,6 @@ import org.zhinanzhen.tb.utils.SendEmailUtil;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -168,6 +166,9 @@ public class ServiceOrderManageController extends BaseController {
     private ServiceDAO serviceDAO;
     @Autowired
     private ServiceOrderManageService serviceOrderManageService;
+
+    @Resource
+    private ChartForAI chartForAI;
 
     @Value("${deepseek.APIKEY}")
     private String DEEPSEEK_API_KEY;
@@ -423,8 +424,17 @@ public class ServiceOrderManageController extends BaseController {
             try {
                 File contractPdfFile = resolveContractPdf(contractData, request);
                 log.debug("合同PDF完整路径: {}", contractPdfFile.getAbsolutePath());
+                Response<JSONObject> analysisResponse = chartForAI.analyzePdf(contractPdfFile);
+                if (analysisResponse == null || analysisResponse.getCode() != 0
+                        || analysisResponse.getData() == null) {
+                    String analysisMessage = analysisResponse == null
+                            ? "未返回分析结果" : analysisResponse.getMessage();
+                    log.warn("创建服务订单时合同PDF AI分析失败, contractData={}, message={}",
+                            contractData, analysisMessage);
+                    return new Response<Integer>(1, "合同PDF AI分析失败：" + analysisMessage, 0);
+                }
                 String contractValidationError = validateContractPdf(
-                        contractPdfFile, serviceOrderDto, serviceOrderJson);
+                        analysisResponse.getData(), serviceOrderDto, serviceOrderJson);
                 if (contractValidationError != null) {
                     return new Response<Integer>(1, contractValidationError, 0);
                 }
@@ -475,10 +485,10 @@ public class ServiceOrderManageController extends BaseController {
         return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
     }
 
-    private String validateContractPdf(File contractPdfFile, ServiceOrderDTO serviceOrderDto,
+    private String validateContractPdf(JSONObject analysisResult, ServiceOrderDTO serviceOrderDto,
                                        List<ServiceOrderJsonRequest> serviceOrderJson)
-            throws IOException, ServiceException {
-        ContractPdfInfo contractPdfInfo = parseContractPdf(contractPdfFile);
+            throws ServiceException {
+        ContractPdfInfo contractPdfInfo = parseContractAnalysis(analysisResult);
         List<String> errors = new ArrayList<>();
 
         boolean applicantMatched = false;
@@ -486,16 +496,17 @@ public class ServiceOrderManageController extends BaseController {
             errors.add("未从合同中提取到学生姓名");
         } else {
             for (ServiceOrderJsonRequest childOrder : serviceOrderJson) {
-                Integer applicantId = parsePositiveInteger(childOrder.getApplicantId());
-                if (applicantId == null) {
-                    continue;
+                for (Integer applicantId : getApplicantIds(childOrder)) {
+                    ApplicantDTO applicantById = applicantService.getById(applicantId);
+                    if (applicantById != null && isApplicantNameMatched(
+                            contractPdfInfo.getName(),
+                            applicantById.getSurname(),
+                            applicantById.getFirstname())) {
+                        applicantMatched = true;
+                        break;
+                    }
                 }
-                ApplicantDTO applicantById = applicantService.getById(applicantId);
-                if (applicantById != null && isApplicantNameMatched(
-                        contractPdfInfo.getName(),
-                        applicantById.getSurname(),
-                        applicantById.getFirstname())) {
-                    applicantMatched = true;
+                if (applicantMatched) {
                     break;
                 }
             }
@@ -599,39 +610,12 @@ public class ServiceOrderManageController extends BaseController {
         return completePdfPath;
     }
 
-    private ContractPdfInfo parseContractPdf(File pdfFile) throws IOException {
-        try (PDDocument document = PDDocument.load(pdfFile)) {
-            if (document.getNumberOfPages() == 0) {
-                throw new IOException("合同PDF没有页面");
-            }
-
-            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
-            if (acroForm == null) {
-                throw new IOException("合同PDF不包含固定格式的表单字段");
-            }
-
-            String applicantName = getPdfFieldValue(acroForm, "Text1");
-            String serviceCode = retainDigits(getPdfFieldValue(acroForm, "Text9"));
-            String totalAmount = getPdfFieldValue(acroForm, "Text29");
-            if (StringUtil.isEmpty(totalAmount)) {
-                totalAmount = getPdfFieldValue(acroForm, "Text26");
-            }
-
-            return new ContractPdfInfo(applicantName, parseContractAmount(totalAmount), serviceCode);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IOException("读取合同固定字段失败", e);
-        }
-    }
-
-    private String getPdfFieldValue(PDAcroForm acroForm, String fieldName) {
-        PDField field = acroForm.getField(fieldName);
-        if (field == null || field.getValueAsString() == null) {
-            return null;
-        }
-        String value = field.getValueAsString().trim();
-        return value.isEmpty() ? null : value;
+    private ContractPdfInfo parseContractAnalysis(JSONObject analysisResult) {
+        Object amount = analysisResult.get("amount");
+        return new ContractPdfInfo(
+                analysisResult.getString("name"),
+                parseContractAmount(amount == null ? null : String.valueOf(amount)),
+                retainDigits(analysisResult.getString("service")));
     }
 
     private BigDecimal parseContractAmount(String value) {
@@ -692,6 +676,32 @@ public class ServiceOrderManageController extends BaseController {
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private Set<Integer> getApplicantIds(ServiceOrderJsonRequest childOrder) {
+        Set<Integer> applicantIds = new LinkedHashSet<>();
+
+        // 兼容旧请求中直接传递的 applicantId。
+        Integer directApplicantId = parsePositiveInteger(childOrder.getApplicantId());
+        if (directApplicantId != null) {
+            applicantIds.add(directApplicantId);
+        }
+
+        // 当前创建流程与 addServiceOrderForManage 一致，申请人实际存放在该 JSON 字符串中。
+        String applicantListJson = childOrder.getServiceOrderApplicantList();
+        if (StringUtil.isNotEmpty(applicantListJson)) {
+            List<ServiceOrderApplicantDTO> applicantList = JSONObject.parseArray(
+                    applicantListJson, ServiceOrderApplicantDTO.class);
+            if (!ListUtil.isEmpty(applicantList)) {
+                for (ServiceOrderApplicantDTO applicant : applicantList) {
+                    if (applicant.getApplicantId() > 0) {
+                        applicantIds.add(applicant.getApplicantId());
+                    }
+                }
+            }
+        }
+
+        return applicantIds;
     }
 
     private String safeString(String value) {

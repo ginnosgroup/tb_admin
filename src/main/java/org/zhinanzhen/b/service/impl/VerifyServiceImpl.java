@@ -510,7 +510,7 @@ public class VerifyServiceImpl implements VerifyService {
     }
 
     public enum regionEnum {
-        SYD("NSW & ACT"),BNE("QLD"),TAS("TAS"),MEL("VIC"),ADE("SA"),BJ("北京");
+        SYD("NSW & ACT"),BNE("QLD"),TAS("TAS"),MEL("VIC"),ADE("SA"),BJ("北京"),MAAT("MAAT");
 
         private String value;
         private regionEnum (String value) {
