@@ -41,6 +41,7 @@ import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.ContractPdfAnalysisCacheDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.*;
 import org.zhinanzhen.b.service.pojo.*;
@@ -71,6 +72,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -93,6 +96,9 @@ public class ServiceOrderManageController extends BaseController {
     private static final String CONTRACT_UPLOAD_DIR = "/uploads/contract_data_image_url_s3/";
     private static final long MAX_CONTRACT_PDF_SIZE = 20L * 1024L * 1024L;
     private static final Pattern SERVICE_CODE_PATTERN = Pattern.compile("\\d+");
+    private static final String PDF_ANALYSIS_PROCESSING = "PROCESSING";
+    private static final String PDF_ANALYSIS_SUCCESS = "SUCCESS";
+    private static final String PDF_ANALYSIS_FAILED = "FAILED";
 
     private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
@@ -169,6 +175,9 @@ public class ServiceOrderManageController extends BaseController {
 
     @Resource
     private ChartForAI chartForAI;
+
+    @Resource
+    private ContractPdfAnalysisCacheDAO contractPdfAnalysisCacheDAO;
 
     @Value("${deepseek.APIKEY}")
     private String DEEPSEEK_API_KEY;
@@ -424,7 +433,7 @@ public class ServiceOrderManageController extends BaseController {
             try {
                 File contractPdfFile = resolveContractPdf(contractData, request);
                 log.debug("合同PDF完整路径: {}", contractPdfFile.getAbsolutePath());
-                Response<JSONObject> analysisResponse = chartForAI.analyzePdf(contractPdfFile);
+                Response<JSONObject> analysisResponse = analyzeContractPdfWithCache(contractPdfFile);
                 if (analysisResponse == null || analysisResponse.getCode() != 0
                         || analysisResponse.getData() == null) {
                     String analysisMessage = analysisResponse == null
@@ -485,6 +494,96 @@ public class ServiceOrderManageController extends BaseController {
         return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
     }
 
+    private Response<JSONObject> analyzeContractPdfWithCache(File contractPdfFile) throws IOException {
+        String fileHash = calculateSha256(contractPdfFile);
+        ContractPdfAnalysisCacheDO cached = contractPdfAnalysisCacheDAO.getByFileHash(fileHash);
+        if (cached != null) {
+            log.info("Using cached contract PDF AI analysis, fileHash={}, status={}",
+                    fileHash, cached.getStatus());
+            return buildCachedAnalysisResponse(cached);
+        }
+
+        ContractPdfAnalysisCacheDO processing = new ContractPdfAnalysisCacheDO();
+        processing.setFileHash(fileHash);
+        processing.setFileName(truncateFileName(contractPdfFile.getName()));
+        processing.setStatus(PDF_ANALYSIS_PROCESSING);
+
+        // The unique file_hash index makes this reservation atomic across threads and instances.
+        if (contractPdfAnalysisCacheDAO.addIfAbsent(processing) == 0) {
+            cached = contractPdfAnalysisCacheDAO.getByFileHash(fileHash);
+            if (cached == null) {
+                return new Response<JSONObject>(1, "合同PDF AI分析缓存状态异常，请稍后重试", null);
+            }
+            return buildCachedAnalysisResponse(cached);
+        }
+
+        Response<JSONObject> analysisResponse = chartForAI.analyzePdf(contractPdfFile);
+        if (analysisResponse == null) {
+            analysisResponse = new Response<JSONObject>(1, "DeepSeek未返回分析结果", null);
+        }
+
+        boolean success = analysisResponse.getCode() == 0 && analysisResponse.getData() != null;
+        String analysisResult = analysisResponse.getData() == null
+                ? null : analysisResponse.getData().toJSONString();
+        int updated = contractPdfAnalysisCacheDAO.complete(
+                fileHash,
+                success ? PDF_ANALYSIS_SUCCESS : PDF_ANALYSIS_FAILED,
+                analysisResponse.getCode(),
+                analysisResponse.getMessage(),
+                analysisResult);
+        if (updated == 0) {
+            log.error("Failed to save contract PDF AI analysis result, fileHash={}", fileHash);
+            return new Response<JSONObject>(1, "合同PDF AI分析结果保存失败，请联系管理员", null);
+        }
+        return analysisResponse;
+    }
+
+    private Response<JSONObject> buildCachedAnalysisResponse(ContractPdfAnalysisCacheDO cached) {
+        if (PDF_ANALYSIS_PROCESSING.equals(cached.getStatus())) {
+            return new Response<JSONObject>(1, "相同合同PDF正在进行AI分析，请稍后重试", null);
+        }
+
+        JSONObject analysisResult = null;
+        if (StringUtil.isNotEmpty(cached.getAnalysisResult())) {
+            try {
+                analysisResult = JSON.parseObject(cached.getAnalysisResult());
+            } catch (Exception e) {
+                log.error("Cached contract PDF AI analysis result is invalid, fileHash={}",
+                        cached.getFileHash(), e);
+                return new Response<JSONObject>(1, "合同PDF AI分析缓存数据损坏，请联系管理员", null);
+            }
+        }
+        int responseCode = cached.getResponseCode() == null ? 1 : cached.getResponseCode();
+        return new Response<JSONObject>(responseCode, cached.getResponseMessage(), analysisResult);
+    }
+
+    private String calculateSha256(File file) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[8192];
+            try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
+                int length;
+                while ((length = input.read(buffer)) != -1) {
+                    digest.update(buffer, 0, length);
+                }
+            }
+            StringBuilder hash = new StringBuilder(64);
+            for (byte value : digest.digest()) {
+                hash.append(String.format("%02x", value & 0xff));
+            }
+            return hash.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 algorithm is unavailable", e);
+        }
+    }
+
+    private String truncateFileName(String fileName) {
+        if (fileName == null || fileName.length() <= 255) {
+            return fileName;
+        }
+        return fileName.substring(fileName.length() - 255);
+    }
+
     private String validateContractPdf(JSONObject analysisResult, ServiceOrderDTO serviceOrderDto,
                                        List<ServiceOrderJsonRequest> serviceOrderJson)
             throws ServiceException {
@@ -516,11 +615,11 @@ public class ServiceOrderManageController extends BaseController {
         }
 
         BigDecimal contractAmount = contractPdfInfo.getAmount();
-        BigDecimal orderAmount = BigDecimal.valueOf(serviceOrderDto.getAmount());
+        BigDecimal receivableAmount = BigDecimal.valueOf(serviceOrderDto.getReceivable());
         if (contractAmount == null) {
             errors.add("未从合同中提取到Total金额");
-        } else if (contractAmount.compareTo(orderAmount) != 0) {
-            errors.add("合同Total金额与主订单amount不一致");
+        } else if (contractAmount.compareTo(receivableAmount) != 0) {
+            errors.add("合同Total金额与主订单receivable不一致");
         }
 
         boolean serviceMatched = false;
