@@ -99,6 +99,8 @@ public class ServiceOrderManageController extends BaseController {
     private static final String PDF_ANALYSIS_PROCESSING = "PROCESSING";
     private static final String PDF_ANALYSIS_SUCCESS = "SUCCESS";
     private static final String PDF_ANALYSIS_FAILED = "FAILED";
+    private static final String CONTRACT_PDF_ANALYSIS_SOURCE =
+            "org.zhinanzhen.b.controller.ServiceOrderManageController#addServiceOrder";
 
     private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
@@ -433,7 +435,8 @@ public class ServiceOrderManageController extends BaseController {
             try {
                 File contractPdfFile = resolveContractPdf(contractData, request);
                 log.debug("合同PDF完整路径: {}", contractPdfFile.getAbsolutePath());
-                Response<JSONObject> analysisResponse = analyzeContractPdfWithCache(contractPdfFile);
+                Response<JSONObject> analysisResponse = analyzeContractPdfWithCache(
+                        contractPdfFile, adminUserLoginInfo.getId());
                 if (analysisResponse == null || analysisResponse.getCode() != 0
                         || analysisResponse.getData() == null) {
                     String analysisMessage = analysisResponse == null
@@ -494,7 +497,8 @@ public class ServiceOrderManageController extends BaseController {
         return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
     }
 
-    private Response<JSONObject> analyzeContractPdfWithCache(File contractPdfFile) throws IOException {
+    private Response<JSONObject> analyzeContractPdfWithCache(File contractPdfFile,
+                                                              Integer requestUserId) throws IOException {
         String fileHash = calculateSha256(contractPdfFile);
         ContractPdfAnalysisCacheDO cached = contractPdfAnalysisCacheDAO.getByFileHash(fileHash);
         if (cached != null) {
@@ -506,6 +510,8 @@ public class ServiceOrderManageController extends BaseController {
         ContractPdfAnalysisCacheDO processing = new ContractPdfAnalysisCacheDO();
         processing.setFileHash(fileHash);
         processing.setFileName(truncateFileName(contractPdfFile.getName()));
+        processing.setRequestSource(CONTRACT_PDF_ANALYSIS_SOURCE);
+        processing.setRequestUserId(requestUserId);
         processing.setStatus(PDF_ANALYSIS_PROCESSING);
 
         // The unique file_hash index makes this reservation atomic across threads and instances.

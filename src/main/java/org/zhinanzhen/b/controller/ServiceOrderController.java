@@ -93,6 +93,8 @@ import java.util.zip.ZipOutputStream;
 public class ServiceOrderController extends BaseController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceOrderController.class);
+    private static final String LOW_PRICE_IMAGE_ANALYSIS_SOURCE =
+            "org.zhinanzhen.b.controller.ServiceOrderController#uploadLowPriceImage";
 
     private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
@@ -122,6 +124,9 @@ public class ServiceOrderController extends BaseController {
 
     @Resource
     CommissionOrderService commissionOrderService;
+
+    @Resource
+    LowPriceApprovalImageAnalyzer lowPriceApprovalImageAnalyzer;
 
     @Resource
     ServiceOrderReadcommittedDateService serviceOrderReadcommittedDateService;
@@ -260,6 +265,27 @@ public class ServiceOrderController extends BaseController {
     public Response<String> uploadLowPriceImage(@RequestParam MultipartFile file, HttpServletRequest request,
                                                 HttpServletResponse response) throws IllegalStateException, IOException {
         super.setPostHeader(response);
+        AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+        if (adminUserLoginInfo == null) {
+            return new Response<String>(1, "请先登录", null);
+        }
+        LowPriceApprovalImageAnalyzer.AnalysisResult analysisResult;
+        try {
+            analysisResult = lowPriceApprovalImageAnalyzer.analyze(
+                    file, LOW_PRICE_IMAGE_ANALYSIS_SOURCE, adminUserLoginInfo.getId());
+        } catch (IOException e) {
+            log.error("低价审核凭证识别失败", e);
+            return new Response<String>(1, "审核凭证识别失败，请稍后重试", null);
+        }
+        if (analysisResult == null || !analysisResult.isApproved()) {
+            log.info("拒绝上传低价审核凭证, reason={}",
+                    analysisResult == null ? "分析结果为空" : analysisResult.getReason());
+            if (analysisResult != null
+                    && LowPriceApprovalImageAnalyzer.NO_TEXT_MESSAGE.equals(analysisResult.getReason())) {
+                return new Response<String>(1, LowPriceApprovalImageAnalyzer.NO_TEXT_MESSAGE, null);
+            }
+            return new Response<String>(1, "图片不是审核通过凭证", null);
+        }
         return super.upload2(file, request.getSession(), "/uploads/low_price_image_url/");
     }
 
