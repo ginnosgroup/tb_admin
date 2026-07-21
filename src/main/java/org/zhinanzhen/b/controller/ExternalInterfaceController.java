@@ -32,7 +32,7 @@ public class ExternalInterfaceController extends BaseController {
     public Response<Integer> addCloudDiskFile(@RequestParam(value = "applicantId", required = false) String applicantId,
                                               @RequestParam(value = "adviserId", required = false) String adviserId,
                                               @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) String type,
-                                              @RequestParam(value = "url", required = false) String url, @RequestParam(value = "parentFileId", required = false) String parentFileId,
+                                              @RequestParam(value = "shareLink", required = false) String shareLink, @RequestParam(value = "parentFileId", required = false) String parentFileId,
                                               @RequestParam(value = "domainId", required = false) String domainId, @RequestParam(value = "driveId", required = false) String driveId,
                                               @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) String officialId,
                                               @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
@@ -41,7 +41,7 @@ public class ExternalInterfaceController extends BaseController {
                                               @RequestParam(value = "downloadUrl", required = false) String downloadUrl, HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer id = externalInterfaceService.addCloudDiskFile(applicantId, adviserId, name, type, url, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode);
+            Integer id = externalInterfaceService.addCloudDiskFile(applicantId, adviserId, name, type, shareLink, parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode);
             return new Response<Integer>(0, "添加成功", id);
         } catch (Exception e) {
             return new Response<Integer>(1, "添加失败:" + e.getMessage(), 1);
@@ -101,7 +101,7 @@ public class ExternalInterfaceController extends BaseController {
     public Response<Integer> updateCloudDiskFile(@RequestParam(value = "id", required = false) String id, @RequestParam(value = "applicantId", required = false) String applicantId,
                                                  @RequestParam(value = "adviserId", required = false) String adviserId, @RequestParam(value = "isDelete", required = false) String isDelete,
                                                  @RequestParam(value = "name", required = false) String name, @RequestParam(value = "type", required = false) String type,
-                                                 @RequestParam(value = "url", required = false) String url, @RequestParam(value = "parentFileId", required = false) String parentFileId,
+                                                 @RequestParam(value = "shareLink", required = false) String shareLink, @RequestParam(value = "parentFileId", required = false) String parentFileId,
                                                  @RequestParam(value = "domainId", required = false) String domainId, @RequestParam(value = "driveId", required = false) String driveId,
                                                  @RequestParam(value = "fileId", required = false) String fileId, @RequestParam(value = "officialId", required = false) String officialId,
                                                  @RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "operator", required = false) String operator,
@@ -111,7 +111,7 @@ public class ExternalInterfaceController extends BaseController {
                                                  HttpServletResponse response) {
         try {
             super.setGetHeader(response);
-            Integer idT = externalInterfaceService.updateCloudDiskFile(id, isDelete, applicantId, adviserId, name, type, url,
+            Integer idT = externalInterfaceService.updateCloudDiskFile(id, isDelete, applicantId, adviserId, name, type, shareLink,
                     parentFileId, domainId, driveId, fileId, officialId, userId, operator, relativePath, fileSize, downloadUrl, hashCode, oldRelativePath, oldPart);
             return new Response<Integer>(0, "更新成功", idT);
         } catch (Exception e) {

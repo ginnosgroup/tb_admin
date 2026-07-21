@@ -2095,13 +2095,14 @@ public class ServiceOrderController extends BaseController {
             }
             byte[] bytes = Base64Util.decodeBase64(key);
             String text = new String(bytes, StandardCharsets.UTF_8);
-            String[] split = text.split("#");
-            for (String s : split) {
-                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
-                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
-                }
-            }
-            Integer adviserId = adminUser.getAdviserId();
+//            String[] split = text.split("#");
+//            for (String s : split) {
+//                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
+//                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
+//                }
+//            }
+//            Integer adviserId = adminUser.getAdviserId();
+            Integer adviserId = null;
 
             Sorter _sorter = null;
             if (sorter != null)
@@ -2120,6 +2121,18 @@ public class ServiceOrderController extends BaseController {
                     null, null, null, null, null, null, null, null, null, null, null, null);
             if (serviceOrderList == null) {
                 serviceOrderList = new ArrayList<>();
+            }
+            if (!serviceOrderList.isEmpty()) {
+                try {
+                    String cloudDiskShareLink = cloudDiskService.getServiceOrderRootShareUrl(userId);
+                    if (StringUtil.isNotEmpty(cloudDiskShareLink)) {
+                        for (ServiceOrderDTO serviceOrder : serviceOrderList) {
+                            serviceOrder.setShareLink(cloudDiskShareLink);
+                        }
+                    }
+                } catch (RuntimeException e) {
+                    LOG.error("[listServiceOrderForUserId] 组装网盘分享链接失败, userId={}", userId, e);
+                }
             }
             return new ListResponse<List<ServiceOrderDTO>>(true, pageSize, total, serviceOrderList, "");
         } catch (ServiceException e) {

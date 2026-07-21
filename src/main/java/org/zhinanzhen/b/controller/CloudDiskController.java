@@ -220,8 +220,8 @@ public class CloudDiskController extends BaseController {
             HttpServletRequest request, HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            String shareUrl = cloudDiskService.getShareUrl(userCode, parentFileId);
-            return new Response<String>(0, "获取成功", shareUrl);
+            String shareLink = cloudDiskService.getShareUrl(userCode, parentFileId);
+            return new Response<String>(0, "获取成功", shareLink);
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<String>(1, "获取失败", null);

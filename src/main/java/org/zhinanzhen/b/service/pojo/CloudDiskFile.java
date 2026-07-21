@@ -27,7 +27,9 @@ public class CloudDiskFile {
 
     private String type;
 
-    private String url;
+    private String shareLink;
+
+    private Date shareUrlExpiration;
 
     private String parentFileId;
 

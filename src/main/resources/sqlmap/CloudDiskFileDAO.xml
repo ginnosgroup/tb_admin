@@ -33,7 +33,7 @@
             #{adviserId},
             #{name},
             #{type},
-            #{url},
+            #{shareLink},
             #{parentFileId},
             #{domainId},
             #{driveId},
@@ -79,7 +79,7 @@
                 #{item.adviserId},
                 #{item.name},
                 #{item.type},
-                #{item.url},
+                #{item.shareLink},
                 #{item.parentFileId},
                 #{item.domainId},
                 #{item.driveId},
@@ -153,8 +153,8 @@
         <if test='type != null and type != ""'>
             , type = #{type}
         </if>
-        <if test='url != null and url != ""'>
-            , url = #{url}
+        <if test='shareLink != null and shareLink != ""'>
+            , url = #{shareLink}
         </if>
         <if test='parentFileId != null and parentFileId != ""'>
             , parent_file_id = #{parentFileId}
@@ -192,6 +192,15 @@
         WHERE id = #{id}
     </update>
 
+    <update id="updateShareLink">
+        UPDATE b_cloud_disk_file
+        SET gmt_modify = NOW(),
+            url = #{shareLink},
+            share_url_expiration = #{shareUrlExpiration}
+        WHERE id = #{id}
+          AND is_delete = 0
+    </update>
+
     <update id="updateofficialId">
         update b_cloud_disk_file set official_id = #{newOfficialId} where official_id = #{oldOfficialId}
     </update>
@@ -200,7 +209,7 @@
     </delete>
 
     <select id="getById" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
-        select * from b_cloud_disk_file where 1=1
+        select *, url AS shareLink from b_cloud_disk_file where 1=1
         <if test='id != null'>
            AND id = #{id}
         </if>
@@ -218,8 +227,30 @@
         </if>
         and is_delete = 0
     </select>
+
+    <select id="getRootFolderByUserId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        SELECT id,
+               gmt_create AS gmtCreate,
+               gmt_modify AS gmtModify,
+               url AS shareLink,
+               share_url_expiration AS shareUrlExpiration,
+               parent_file_id AS parentFileId,
+               drive_id AS driveId,
+               file_id AS fileId,
+               user_id AS userId,
+               adviser_id AS adviserId,
+               official_id AS officialId,
+               name,
+               type
+        FROM b_cloud_disk_file
+        WHERE user_id = #{userId}
+          AND parent_file_id = 'root'
+          AND is_delete = 0
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
     <select id="listByParentFileId" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
-        select * from b_cloud_disk_file where 1=1
+        select *, url AS shareLink from b_cloud_disk_file where 1=1
         <if test='parentFileId != null and parentFileId != ""'>
             AND parent_file_id = #{parentFileId}
         </if>
@@ -256,13 +287,13 @@
          and is_delete = 0
     </select>
     <select id="listByRelativePath" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
-        select * from b_cloud_disk_file where is_delete = 0
+        select *, url AS shareLink from b_cloud_disk_file where is_delete = 0
         <if test='oldRelativePath!= null and oldRelativePath!= ""'>
             AND relative_path like '${oldRelativePath}%'
         </if>
     </select>
     <select id="getCloudDisk" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
-        select * from b_cloud_disk_file where is_delete = 0 and relative_path = #{relativePath}
+        select *, url AS shareLink from b_cloud_disk_file where is_delete = 0 and relative_path = #{relativePath}
     </select>
     <select id="getUserCloud" resultType="org.zhinanzhen.b.dao.pojo.UserCloud">
         select * from b_user_cloud where 1=1
@@ -323,7 +354,7 @@
         </if>
     </select>
     <select id="listByUserIds" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
-        select * from b_cloud_disk_file
+        select *, url AS shareLink from b_cloud_disk_file
         where user_id IN
         <foreach collection="userIds" item="userId" open="(" separator="," close=")">
             #{userId}
@@ -339,7 +370,7 @@
         SELECT
             id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
             applicant_id AS applicantId, adviser_id AS adviserId,
-            name, type, url, parent_file_id AS parentFileId,
+            name, type, url AS shareLink, parent_file_id AS parentFileId,
             domain_id AS domainId, drive_id AS driveId, file_id AS fileId,
             is_delete AS isDelete, official_id AS officialId, user_id AS userId,
             operator, relative_path AS relativePath, file_size AS fileSize,
@@ -353,7 +384,7 @@
         SELECT
             id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
             applicant_id AS applicantId, adviser_id AS adviserId,
-            name, type, url, parent_file_id AS parentFileId,
+            name, type, url AS shareLink, parent_file_id AS parentFileId,
             domain_id AS domainId, drive_id AS driveId, file_id AS fileId,
             is_delete AS isDelete, official_id AS officialId, user_id AS userId,
             operator, relative_path AS relativePath, file_size AS fileSize,
@@ -403,7 +434,7 @@
         SELECT
             id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
             applicant_id AS applicantId, adviser_id AS adviserId,
-            name, type, url, parent_file_id AS parentFileId,
+            name, type, url AS shareLink, parent_file_id AS parentFileId,
             domain_id AS domainId, drive_id AS driveId, file_id AS fileId,
             is_delete AS isDelete, official_id AS officialId, user_id AS userId,
             operator, relative_path AS relativePath, file_size AS fileSize,

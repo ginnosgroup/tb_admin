@@ -201,6 +201,8 @@ public class ServiceOrderDTO {
 
 	private  String nutCloud;
 
+	private String shareLink;
+
 	private String serviceAssessId;
 
 	private Integer realPeopleNumber;

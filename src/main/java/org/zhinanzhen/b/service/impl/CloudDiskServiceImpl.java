@@ -55,6 +55,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -64,6 +67,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CloudDiskServiceImpl implements CloudDiskService  {
+    private static final int SERVICE_ORDER_SHARE_VALID_DAYS = 7;
+    private static final String SERVICE_ORDER_SHARE_USER_ID = "0aa14c588ad248d7a6a02b9c3379369d";
+    private static final ZoneId SERVICE_ORDER_SHARE_ZONE = ZoneId.of("Asia/Shanghai");
+    private static final DateTimeFormatter RFC3339_MILLIS_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
     @Value("${aliyun.ACCESSKEYID}")
     private String ACCESS_KEY_ID;
 
@@ -901,6 +910,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     ))
                     .userId(userCode)
                     .officeEditable(true)
+                    .expiration("")
                     // Request-level configuration rewrite, can set Http request parameters, etc.
                     // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
                     .build();
@@ -912,15 +922,73 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             JSONObject jsonObject = JSON.parseObject(json);
             JSONObject body = jsonObject.getJSONObject("body");
             String shareId = body.get("shareId").toString();
-            String shareUrl = PDS_SHARE_URL + shareId;
-            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, null, null);
-            cloudDiskFile.setUrl(shareUrl);
+            String shareLink = PDS_SHARE_URL + shareId;
+            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, parentFileId, null, null);
+            cloudDiskFile.setShareLink(shareLink);
             cloudDiskFileDAO.update(cloudDiskFile);
-            return shareUrl;
+            return shareLink;
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getServiceOrderRootShareUrl(Integer userId) {
+        if (userId == null) {
+            return null;
+        }
+
+        CloudDiskFile rootFolder = cloudDiskFileDAO.getRootFolderByUserId(userId);
+        if (rootFolder == null || StringUtils.isBlank(rootFolder.getFileId())) {
+            return null;
+        }
+
+        Date now = new Date();
+        if (StringUtils.isNotBlank(rootFolder.getShareLink())
+                && rootFolder.getShareUrlExpiration() != null
+                && rootFolder.getShareUrlExpiration().after(now)) {
+            return rootFolder.getShareLink();
+        }
+
+        OffsetDateTime expiration = OffsetDateTime.now(SERVICE_ORDER_SHARE_ZONE)
+                .plusDays(SERVICE_ORDER_SHARE_VALID_DAYS);
+        String expirationText = expiration.format(RFC3339_MILLIS_FORMATTER);
+        Date expirationDate = Date.from(expiration.toInstant());
+
+        String driveId = StringUtils.defaultIfBlank(rootFolder.getDriveId(), DRIVE_ID);
+        boolean useBeijingPds = StringUtils.isNotBlank(BJ_DRIVE_ID) && BJ_DRIVE_ID.equals(driveId);
+        AsyncClient client = useBeijingPds ? getAsyncClientBJ() : getAsyncClient();
+        String shareUrlPrefix = useBeijingPds ? BJ_PDS_SHARE_URL : PDS_SHARE_URL;
+
+        try {
+            CreateShareLinkRequest createShareLinkRequest = CreateShareLinkRequest.builder()
+                    .driveId(driveId)
+                    .shareAllFiles(false)
+                    .fileIdList(Collections.singletonList(rootFolder.getFileId()))
+                    .userId(SERVICE_ORDER_SHARE_USER_ID)
+                    .officeEditable(true)
+                    .expiration(expirationText)
+                    .build();
+            CreateShareLinkResponse response = client.createShareLink(createShareLinkRequest).get();
+            JSONObject responseJson = JSON.parseObject(new Gson().toJson(response));
+            JSONObject body = responseJson.getJSONObject("body");
+            String shareId = body == null ? null : body.getString("shareId");
+            if (StringUtils.isBlank(shareId)) {
+                throw new RuntimeException("创建网盘分享链接失败：接口未返回shareId");
+            }
+
+            String shareLink = shareUrlPrefix + shareId;
+            if (cloudDiskFileDAO.updateShareLink(rootFolder.getId(), shareLink, expirationDate) <= 0) {
+                throw new RuntimeException("保存网盘分享链接失败");
+            }
+            return shareLink;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("创建网盘分享链接被中断", e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException("创建网盘分享链接失败", e);
         }
     }
 

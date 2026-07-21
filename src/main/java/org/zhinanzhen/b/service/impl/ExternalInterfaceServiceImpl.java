@@ -42,7 +42,7 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     private AdminUserDAO adminUserDAO;
 
     @Override
-    public Integer addCloudDiskFile(String applicantId, String adviserId, String name, String type, String url,
+    public Integer addCloudDiskFile(String applicantId, String adviserId, String name, String type, String shareLink,
                                     String parentFileId, String domainId, String driveId, String fileId, String officialId,
                                     String userId, String operator, String relativePath, String fileSize, String downloadUrl, String hashCode) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
@@ -58,8 +58,8 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
         if (type != null && !"null".equals(type)) {
             cloudDiskFile.setType(type);
         }
-        if (url != null && !"null".equals(url)) {
-            cloudDiskFile.setUrl(url);
+        if (shareLink != null && !"null".equals(shareLink)) {
+            cloudDiskFile.setShareLink(shareLink);
         }
         if (parentFileId != null && !"null".equals(parentFileId)) {
             cloudDiskFile.setParentFileId(parentFileId);
@@ -172,7 +172,7 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
 
     @Override
     public Integer updateCloudDiskFile(String id, String isDelete, String applicantId, String adviserId, String name,
-                                       String type, String url, String parentFileId, String domainId, String driveId,
+                                       String type, String shareLink, String parentFileId, String domainId, String driveId,
                                        String fileId, String officialId, String userId, String operator, String relativePath, String fileSize, String downloadUrl, String hashCode, String oldRelativePath, String oldPart) {
         CloudDiskFile cloudDiskFile = new CloudDiskFile();
         if (id != null && !"null".equals(id)) {
@@ -193,8 +193,8 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
         if (type != null && !"null".equals(type)) {
             cloudDiskFile.setType(type);
         }
-        if (url != null && !"null".equals(url)) {
-            cloudDiskFile.setUrl(url);
+        if (shareLink != null && !"null".equals(shareLink)) {
+            cloudDiskFile.setShareLink(shareLink);
         }
         if (parentFileId != null && !"null".equals(parentFileId)) {
             cloudDiskFile.setParentFileId(parentFileId);

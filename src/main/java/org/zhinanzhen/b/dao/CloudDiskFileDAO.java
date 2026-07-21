@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 
+import java.util.Date;
 import java.util.List;
 
 public interface CloudDiskFileDAO {
@@ -14,7 +15,12 @@ public interface CloudDiskFileDAO {
 
     CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId, @Param("folderName") String folderName, @Param("userId") Integer userId);
 
+    CloudDiskFile getRootFolderByUserId(@Param("userId") Integer userId);
+
     int update(CloudDiskFile cloudDiskFile);
+
+    int updateShareLink(@Param("id") Integer id, @Param("shareLink") String shareLink,
+                        @Param("shareUrlExpiration") Date shareUrlExpiration);
 
     List<CloudDiskFile> listByParentFileId(@Param("id") Integer id, @Param("parentFileId") String parentFileId,
                                            @Param("name") String name, @Param("applicantId") Integer applicantId, @Param("userId") Integer userId,
