@@ -295,9 +295,23 @@ public class UserServiceImpl extends BaseService implements UserService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = ServiceException.class)
 	public boolean bindWechatUser(int userId, String wxUserId, String qyUserId, String qyEmail) throws ServiceException {
-		// 通过qyUserId(对应oper_userid)和qyEmail(对应username)查询admin_user
+		if (StringUtil.isEmpty(qyUserId) || StringUtil.isEmpty(qyEmail)) {
+			throw new ServiceException("企业微信用户ID或邮箱不能为空");
+		}
+		// 优先通过qyUserId（对应oper_userid）查询admin_user
 		AdminUserDO adminUser = adminUserDao.getAdminUserByOpenUserId(qyUserId);
+		// 未绑定企业微信用户ID时，使用qyEmail（对应username）查询并回填oper_userid
+		if (adminUser == null) {
+			adminUser = adminUserDao.getAdminUserByUsername(qyEmail);
+			if (adminUser != null) {
+				adminUser.setOperUserId(qyUserId);
+				if (!adminUserDao.updateOperUserId(adminUser.getId(), qyUserId)) {
+					throw new ServiceException("绑定企业微信账号失败");
+				}
+			}
+		}
 		if (adminUser == null || !qyEmail.equals(adminUser.getUsername())) {
 			throw new ServiceException("未找到匹配的顾问账号");
 		}
