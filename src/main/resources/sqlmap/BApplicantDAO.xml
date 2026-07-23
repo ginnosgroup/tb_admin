@@ -107,6 +107,15 @@
         FROM b_applicant
         WHERE id = #{id, jdbcType=INTEGER};
     </select>
+
+    <select id="getPrimaryByUserId" resultType="org.zhinanzhen.b.dao.pojo.ApplicantDO">
+        SELECT id
+        FROM b_applicant
+        WHERE user_id = #{userId, jdbcType=INTEGER}
+          AND type = 'BR'
+        ORDER BY id
+        LIMIT 1
+    </select>
     
     <update id="update">
         UPDATE b_applicant
@@ -142,6 +151,16 @@
             , user_id = #{userId}
         </if>
         WHERE id = #{id};
+    </update>
+
+    <update id="updateByWechat" parameterType="org.zhinanzhen.b.dao.pojo.ApplicantDO">
+        UPDATE b_applicant
+        SET gmt_modify = now(),
+            surname = #{surname, jdbcType=VARCHAR},
+            firstname = #{firstname, jdbcType=VARCHAR},
+            birthday = #{birthday, jdbcType=TIMESTAMP},
+            adviser_id = #{adviserId, jdbcType=INTEGER}
+        WHERE id = #{id, jdbcType=INTEGER}
     </update>
     
     <delete id="deleteById" parameterType="java.lang.Integer">

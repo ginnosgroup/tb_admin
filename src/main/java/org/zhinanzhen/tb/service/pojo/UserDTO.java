@@ -72,6 +72,10 @@ public class UserDTO {
 
     private String channelSource;
 
+    private String unionid;
+
+    private String externalUserid;
+
     private String firstFileId;
 
     private Integer visaCount;

@@ -121,6 +121,30 @@ public class UserController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/supplementByWechat", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> supplementByWechat(@RequestParam(value = "jsonStr") String jsonStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			return new Response<Integer>(0, userService.supplementUserByWechat(jsonStr));
+		} catch (ServiceException e) {
+			return new Response<Integer>(1, e.getMessage(), -1);
+		}
+	}
+
+	@RequestMapping(value = "/getByWechat", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<List<UserDTO>> getByWechat(@RequestParam(value = "jsonStr") String jsonStr,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			return new Response<List<UserDTO>>(0, userService.listUserByWechat(jsonStr));
+		} catch (ServiceException e) {
+			return new Response<List<UserDTO>>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/wxBind", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Boolean> wxBind(@RequestParam(value = "userId") String userId,

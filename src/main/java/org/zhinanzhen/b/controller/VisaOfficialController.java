@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
 import org.zhinanzhen.b.dao.ServicePackageDAO;
 import org.zhinanzhen.b.dao.ServicePackagePriceDAO;
@@ -92,6 +93,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     private ServicePackageDAO servicePackageDao;
     @Autowired
     private org.zhinanzhen.b.dao.ServiceOrderDAO serviceOrderDAO;
+    @Autowired
+    private InsuranceCompanyDAO insuranceCompanyDAO;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -437,12 +440,14 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             SXSSFWorkbook wb = new SXSSFWorkbook(100);
             org.apache.poi.ss.usermodel.Sheet sheet = wb.createSheet("Sheet1");
 
-            // 复制表头
+            // 复制表头，并在“是否保险公司”后插入“保险公司名称”
             Row headerRow = sheet.createRow(0);
             short lastCellNum = templateHeaderRow.getLastCellNum();
             for (int c = 0; c < lastCellNum; c++) {
-                headerRow.createCell(c).setCellValue(templateHeaderRow.getCell(c).getStringCellValue());
+                int targetColumn = c < 29 ? c : c + 1;
+                headerRow.createCell(targetColumn).setCellValue(templateHeaderRow.getCell(c).getStringCellValue());
             }
+            headerRow.createCell(29).setCellValue("保险公司名称");
 
             String servicePackageType = "";
             List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
@@ -453,7 +458,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             Set<Integer> bindingOrderIds = new HashSet<>();
             Set<Integer> servicePackageIds = new HashSet<>();
             Set<Integer> serviceIds = new HashSet<>();
+            Set<Integer> serviceOrderIds = new HashSet<>();
             for (VisaOfficialDTO vd : officialList) {
+                if (vd.getServiceOrderId() > 0) {
+                    serviceOrderIds.add(vd.getServiceOrderId());
+                }
                 ServiceOrderDTO so = vd.getServiceOrder();
                 if (so != null) {
                     if (so.getServiceId() > 0) serviceIds.add(so.getServiceId());
@@ -479,6 +488,27 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
             if (serviceIds.size() > serviceMap.size()) {
                 serviceMap = serviceDAO.listByIds(new ArrayList<>(serviceIds)).stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity()));
+            }
+
+            Map<Integer, String> insuranceCompanyNameMap = Collections.emptyMap();
+            if (!serviceOrderIds.isEmpty()) {
+                List<ServiceOrderInsuranceDO> serviceOrderInsuranceList = insuranceCompanyDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
+                Set<Integer> insuranceCompanyIds = serviceOrderInsuranceList.stream()
+                        .map(ServiceOrderInsuranceDO::getInsuranceCompanyId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+                if (!insuranceCompanyIds.isEmpty()) {
+                    Map<Integer, String> insuranceCompanyNameById = insuranceCompanyDAO
+                            .listByIds(new ArrayList<>(insuranceCompanyIds)).stream()
+                            .collect(Collectors.toMap(InsuranceCompanyDO::getId,
+                                    company -> company.getName() == null ? "" : company.getName(),
+                                    (first, second) -> first));
+                    insuranceCompanyNameMap = serviceOrderInsuranceList.stream()
+                            .filter(item -> item.getServiceOrderId() != null && item.getInsuranceCompanyId() != null)
+                            .collect(Collectors.toMap(ServiceOrderInsuranceDO::getServiceOrderId,
+                                    item -> insuranceCompanyNameById.getOrDefault(item.getInsuranceCompanyId(), ""),
+                                    (first, second) -> first));
+                }
             }
 
             for (VisaOfficialDTO visaDTO : officialList) {
@@ -600,16 +630,17 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 row.createCell(27).setCellValue(additionalAmount2A / visaDTO.getExchangeRate());
                 String isInsuranceCompany = so.getIsInsuranceCompany();
                 row.createCell(28).setCellValue(isInsuranceCompany == null ? "" : ("1".equalsIgnoreCase(isInsuranceCompany) ? "是" : "否"));
-                row.createCell(29).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
-                row.createCell(30).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
-                row.createCell(31).setCellValue(visaDTO.getRefundAmount());
-                row.createCell(32).setCellValue(visaDTO.getBingDingAmount());
-                row.createCell(33).setCellValue(visaDTO.isMerged() ? "是" : "否");
+                row.createCell(29).setCellValue(insuranceCompanyNameMap.getOrDefault(visaDTO.getServiceOrderId(), ""));
+                row.createCell(30).setCellValue(visaDTO.getPredictCommissionCNY() == null ? 0 : visaDTO.getPredictCommissionCNY());
+                row.createCell(31).setCellValue(visaDTO.getPredictCommission() == null ? 0 : visaDTO.getPredictCommission());
+                row.createCell(32).setCellValue(visaDTO.getRefundAmount());
+                row.createCell(33).setCellValue(visaDTO.getBingDingAmount());
+                row.createCell(34).setCellValue(visaDTO.isMerged() ? "是" : "否");
                 String states = visaDTO.getState() == null ? "" : visaDTO.getState();
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
-                row.createCell(34).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
-                row.createCell(35).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
+                row.createCell(35).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
+                row.createCell(36).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
                 i++;
             }
             wb.write(os);

@@ -60,6 +60,8 @@ public class UserDO implements Serializable {
 
     private String externalUserid;
 
+    private String unionid;
+
     private String maraMark;
 
 }

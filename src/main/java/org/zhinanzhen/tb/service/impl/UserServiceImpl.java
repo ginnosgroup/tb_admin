@@ -188,6 +188,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		String source = json.getString("source");
 		String authNickname = json.getString("authNickname");
 		String wxUserId = json.getString("wxUserId");
+		String externalUserid = json.getString("external_userid");
+		String unionid = json.getString("unionid");
 		String qyUserEmail = json.getString("qyUserEmail");
 		String tagName = json.getString("tagName");
 
@@ -206,7 +208,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 		int adviserId = adviserDo.getId();
 
 		// 通过姓名和电话号码查找用户是否存在
-		List<UserDO> userList = userDao.listUser(null, realName, null, null, phone, null, null, null, null, null, null, null, null, null, 0, 1);
+		List<UserDO> userList = null;
+		if (StringUtil.isNotEmpty(realName) || StringUtil.isNotEmpty(phone)) {
+			userList = userDao.listUser(null, realName, null, null, phone, null, null, null, null, null, null,
+					null, null, null, 0, 1);
+		}
 		UserDO existUser = (userList != null && !userList.isEmpty()) ? userList.get(0) : null;
 
 		if (existUser != null) {
@@ -223,9 +229,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		userDo.setAuthOpenid("");
 		userDo.setEmail(email != null ? email : "");
 		userDo.setPhone(phone != null ? phone : "");
-		userDo.setExternalUserid(wxUserId);
+		userDo.setExternalUserid(externalUserid != null ? externalUserid : "");
+		userDo.setUnionid(unionid != null ? unionid : "");
 		userDo.setWechatUsername(wechatUsername != null ? wechatUsername : "");
-		userDo.setBirthday(new Date());
+		userDo.setBirthday(null);
 		userDo.setAreaCode(areaCode != null ? areaCode : "");
 		userDo.setSource(source != null ? source : "");
 		userDo.setAdviserId(adviserId);
@@ -264,17 +271,133 @@ public class UserServiceImpl extends BaseService implements UserService {
 		return userId;
 	}
 
+	@Override
+	@Transactional(rollbackFor = ServiceException.class)
+	public int supplementUserByWechat(String jsonStr) throws ServiceException {
+		JSONObject json = JSONObject.parseObject(jsonStr);
+		String realName = json.getString("realName");
+		String email = json.getString("email");
+		String phone = json.getString("phone");
+		String areaCode = json.getString("areaCode");
+		String wechatUsername = json.getString("wechatUsername");
+		String source = json.getString("source");
+		String authNickname = json.getString("authNickname");
+		String wxUserId = json.getString("wxUserId");
+		String externalUserid = json.getString("external_userid");
+		String unionid = json.getString("unionid");
+		String qyUserEmail = json.getString("qyUserEmail");
+
+		if (StringUtil.isEmpty(qyUserEmail)) {
+			throw new ServiceException("缺少顾问邮箱(email)");
+		}
+		if (StringUtil.isEmpty(wxUserId)) {
+			throw new ServiceException("缺少企微用户ID(wxUserId)");
+		}
+		if (StringUtil.isEmpty(unionid)) {
+			throw new ServiceException("缺少用户UnionID(unionid)");
+		}
+		if (StringUtil.isEmpty(externalUserid)) {
+			throw new ServiceException("缺少企业微信外部联系人ID(external_userid)");
+		}
+
+		AdviserDO adviserDo = adviserDao.getAdviserByEmail(qyUserEmail);
+		if (adviserDo == null) {
+			throw new ServiceException("未找到该顾问: " + qyUserEmail);
+		}
+
+		List<UserDO> userList = userDao.listByUnionidAndExternalUserid(unionid, externalUserid);
+		if (userList == null || userList.isEmpty()) {
+			throw new ServiceException("未找到匹配的用户");
+		}
+		if (userList.size() > 1) {
+			ServiceException se = new ServiceException("匹配到多个用户，请检查unionid和external_userid");
+			se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw se;
+		}
+
+		UserDO userDo = userList.get(0);
+		userDo.setName(realName != null ? realName : "");
+		userDo.setAuthNickname(StringUtil.isNotEmpty(authNickname) ? authNickname : (realName != null ? realName : ""));
+		userDo.setAuthType("WECHAT_WORK");
+		userDo.setEmail(email != null ? email : "");
+		userDo.setPhone(phone != null ? phone : "");
+		userDo.setExternalUserid(externalUserid);
+		userDo.setUnionid(unionid);
+		userDo.setWechatUsername(wechatUsername != null ? wechatUsername : "");
+		userDo.setAreaCode(areaCode != null ? areaCode : "");
+		userDo.setSource(source != null ? source : "");
+		userDo.setAdviserId(adviserDo.getId());
+		userDo.setRegionId(adviserDo.getRegionId() > 0 ? adviserDo.getRegionId() : 1);
+
+		if (userDao.updateUserByWechat(userDo) <= 0) {
+			throw new ServiceException("补充用户数据失败");
+		}
+
+		ApplicantDO existingApplicant = applicantDao.getPrimaryByUserId(userDo.getId());
+		if (existingApplicant == null) {
+			throw new ServiceException("未找到该用户的本人申请人");
+		}
+		ApplicantDO applicantDo = buildApplicantFromJson(json, userDo.getId(), adviserDo.getId());
+		applicantDo.setId(existingApplicant.getId());
+		if (applicantDao.updateByWechat(applicantDo) <= 0) {
+			throw new ServiceException("补充申请人数据失败");
+		}
+		return userDo.getId();
+	}
+
+	@Override
+	public List<UserDTO> listUserByWechat(String jsonStr) throws ServiceException {
+		JSONObject json = JSONObject.parseObject(jsonStr);
+		String name = json.getString("name");
+		if (StringUtil.isEmpty(name)) {
+			name = json.getString("realName");
+		}
+		String phone = json.getString("phone");
+		String qyUserEmail = json.getString("qyUserEmail");
+
+		if (StringUtil.isEmpty(qyUserEmail)) {
+			throw new ServiceException("缺少顾问邮箱(qyUserEmail)");
+		}
+		AdviserDO adviserDo = adviserDao.getAdviserByEmail(qyUserEmail);
+		if (adviserDo == null) {
+			throw new ServiceException("未找到该顾问: " + qyUserEmail);
+		}
+
+		String normalizedName = name == null ? "" : name.trim().replaceAll("\\s+", " ");
+		String normalizedPhone = phone == null ? "" : phone;
+		List<UserDO> userDoList = userDao.listByAdviserIdAndNameAndPhone(adviserDo.getId(),
+				normalizedName, normalizedPhone);
+		if ((userDoList == null || userDoList.isEmpty()) && normalizedName.contains(" ")) {
+			String[] nameParts = normalizedName.split(" ", 2);
+			if (!StringUtil.isEmpty(nameParts[0]) && !StringUtil.isEmpty(nameParts[1])) {
+				userDoList = userDao.listByAdviserIdAndNamePartsAndPhone(adviserDo.getId(),
+						nameParts[0], nameParts[1], normalizedPhone);
+			}
+		}
+		if (userDoList == null || userDoList.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return userDoList.stream()
+				.map(userDo -> mapper.map(userDo, UserDTO.class))
+				.collect(Collectors.toList());
+	}
+
 	/**
 	 * 从JSON解析并添加申请人
 	 */
 	private void addApplicantFromJson(JSONObject json, int userId, int adviserId) {
+		applicantDao.add(buildApplicantFromJson(json, userId, adviserId));
+	}
+
+	private ApplicantDO buildApplicantFromJson(JSONObject json, int userId, int adviserId) {
 		String realName = json.getString("realName");
-		if (StringUtil.isEmpty(realName)) {
-			return;
+		String firstname = null;
+		String surname = null;
+		if (realName != null) {
+			String[] nameParts = realName.trim().split(" ", 2);
+			firstname = nameParts.length > 0 ? nameParts[0] : "";
+			surname = nameParts.length > 1 ? nameParts[1] : "";
 		}
-		String[] nameParts = realName.trim().split(" ", 2);
-		String firstname = nameParts.length > 0 ? nameParts[0] : "";
-		String surname = nameParts.length > 1 ? nameParts[1] : "";
 		ApplicantDO applicantDo = new ApplicantDO();
 		applicantDo.setFirstname(firstname);
 		applicantDo.setSurname(surname);
@@ -283,15 +406,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 			try {
 				applicantDo.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(applicantBirthday));
 			} catch (Exception e) {
-				applicantDo.setBirthday(new Date());
+				applicantDo.setBirthday(null);
 			}
 		} else {
-			applicantDo.setBirthday(new Date());
+			applicantDo.setBirthday(null);
 		}
 		applicantDo.setType("BR");
 		applicantDo.setUserId(userId);
 		applicantDo.setAdviserId(adviserId);
-		applicantDao.add(applicantDo);
+		return applicantDo;
 	}
 
 	@Override

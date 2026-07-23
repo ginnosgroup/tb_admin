@@ -17,7 +17,11 @@ public interface ApplicantDAO {
 
 	ApplicantDO getById(int id);
 
+	ApplicantDO getPrimaryByUserId(@Param("userId") int userId);
+
 	int update(ApplicantDO applicantDo);
+
+	int updateByWechat(ApplicantDO applicantDo);
 
 	int deleteById(int id);
 

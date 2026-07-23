@@ -27,7 +27,8 @@
         region_id,
         channel_source,
         state_text,
-        external_userid)
+        external_userid,
+        unionid)
         values (
         now(),
         now(),
@@ -51,7 +52,8 @@
         #{regionId},
         #{channelSource},
         #{stateText},
-        #{externalUserid})
+        #{externalUserid},
+        #{unionid})
     </insert>
     
     <insert id="addUserAdviser" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -147,6 +149,7 @@
         u.adviser_id AS adviserId,
         u.channel_source AS channelsource,
         u.state_text AS stateText,
+        u.unionid AS unionid,
         a.region_id AS regionId
         FROM tb_user u
             LEFT JOIN b_user_tag ut ON u.id = ut.user_id
@@ -246,6 +249,7 @@
         region_id AS regionId,
         channel_source AS channelsource,
         state_text AS stateText,
+        unionid,
         mara_mark AS maraMark
         FROM tb_user
         WHERE id = #{id, jdbcType=INTEGER};
@@ -276,7 +280,8 @@
         adviser_id AS adviserId,
         region_id AS regionId,
         channel_source AS channelsource,
-        state_text AS stateText
+        state_text AS stateText,
+        unionid
         from tb_user
         where
         auth_type =
@@ -370,7 +375,8 @@
         balance,
         adviser_id AS adviserId,
         channel_source AS channelsource,
-        state_text AS stateText
+        state_text AS stateText,
+        unionid
         FROM tb_user
         WHERE auth_type != 'V' AND recommend_openid = #{recommendOpenId}
         ORDER BY gmt_create DESC
@@ -405,7 +411,8 @@
         adviser_id AS adviserId,
         region_id AS regionId,
         channel_source AS channelsource,
-        state_text AS stateText
+        state_text AS stateText,
+        unionid
         FROM tb_user
         WHERE  auth_type = 'WECHAT_WORK' and auth_openid = #{authOpenid};
     </select>
@@ -499,7 +506,8 @@
         adviser_id AS adviserId,
         channel_source AS channelsource,
         state_text AS stateText,
-        recommend_openid AS recommendOpenid
+        recommend_openid AS recommendOpenid,
+        unionid
         FROM tb_user
         WHERE auth_type != 'V' AND recommend_openid IN
         <foreach collection="recommendOpenIds" item="recommendOpenId" open="(" separator="," close=")">
@@ -508,7 +516,7 @@
     </select>
 
     <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
-        SELECT id, gmt_create AS gmtCreate, name, birthday, area_code AS areaCode, phone, email, wechat_username AS wechatUsername, first_controller_contents AS firstControllerContents, visa_code AS visaCode, visa_expiration_date AS visaExpirationDate, source, auth_type AS authType, auth_openid AS authOpenid, auth_username AS authUsername, auth_nickname AS authNickname, auth_logo AS authLogo, balance, adviser_id AS adviserId, region_id AS regionId, channel_source AS channelsource, state_text AS stateText FROM tb_user WHERE id IN
+        SELECT id, gmt_create AS gmtCreate, name, birthday, area_code AS areaCode, phone, email, wechat_username AS wechatUsername, first_controller_contents AS firstControllerContents, visa_code AS visaCode, visa_expiration_date AS visaExpirationDate, source, auth_type AS authType, auth_openid AS authOpenid, auth_username AS authUsername, auth_nickname AS authNickname, auth_logo AS authLogo, balance, adviser_id AS adviserId, region_id AS regionId, channel_source AS channelsource, state_text AS stateText, unionid FROM tb_user WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
     <select id="getUserByExternalUserid" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
@@ -518,9 +526,109 @@
             auth_type AS authType, auth_openid AS authOpenid, auth_username AS authUsername,
             auth_nickname AS authNickname, auth_logo AS authLogo, balance, adviser_id AS adviserId,
             region_id AS regionId, channel_source AS channelSource, state_text AS stateText,
-            external_userid AS externalUserid
+            external_userid AS externalUserid, unionid
         FROM tb_user WHERE external_userid = #{externalUserid}
     </select>
+
+    <select id="listByUnionidAndExternalUserid" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT id
+        FROM tb_user
+        WHERE unionid = #{unionid}
+          AND external_userid = #{externalUserid}
+    </select>
+
+    <select id="listByAdviserIdAndNameAndPhone" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            birthday,
+            area_code AS areaCode,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            first_controller_contents AS firstControllerContents,
+            visa_code AS visaCode,
+            visa_expiration_date AS visaExpirationDate,
+            source,
+            auth_type AS authType,
+            auth_openid AS authOpenid,
+            auth_username AS authUsername,
+            auth_nickname AS authNickname,
+            auth_logo AS authLogo,
+            balance,
+            region_id AS regionId,
+            adviser_id AS adviserId,
+            recommend_openid AS recommendOpenid,
+            birthday AS dob,
+            state_text AS stateText,
+            channel_source AS channelSource,
+            external_userid AS externalUserid,
+            unionid,
+            mara_mark AS maraMark
+        FROM tb_user
+        WHERE adviser_id = #{adviserId}
+          AND name = #{name}
+          AND phone = #{phone}
+        ORDER BY id DESC
+    </select>
+
+    <select id="listByAdviserIdAndNamePartsAndPhone" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            name,
+            birthday,
+            area_code AS areaCode,
+            phone,
+            email,
+            wechat_username AS wechatUsername,
+            first_controller_contents AS firstControllerContents,
+            visa_code AS visaCode,
+            visa_expiration_date AS visaExpirationDate,
+            source,
+            auth_type AS authType,
+            auth_openid AS authOpenid,
+            auth_username AS authUsername,
+            auth_nickname AS authNickname,
+            auth_logo AS authLogo,
+            balance,
+            region_id AS regionId,
+            adviser_id AS adviserId,
+            recommend_openid AS recommendOpenid,
+            birthday AS dob,
+            state_text AS stateText,
+            channel_source AS channelSource,
+            external_userid AS externalUserid,
+            unionid,
+            mara_mark AS maraMark
+        FROM tb_user
+        WHERE adviser_id = #{adviserId}
+          AND phone = #{phone}
+          AND (
+            name LIKE CONCAT('%', #{surname}, '%')
+            OR name LIKE CONCAT('%', #{givenName}, '%')
+          )
+        ORDER BY id DESC
+    </select>
+
+    <update id="updateUserByWechat" parameterType="org.zhinanzhen.tb.dao.pojo.UserDO">
+        UPDATE tb_user
+        SET gmt_modify = now(),
+            name = #{name, jdbcType=VARCHAR},
+            email = #{email, jdbcType=VARCHAR},
+            phone = #{phone, jdbcType=VARCHAR},
+            area_code = #{areaCode, jdbcType=VARCHAR},
+            wechat_username = #{wechatUsername, jdbcType=VARCHAR},
+            source = #{source, jdbcType=VARCHAR},
+            auth_type = #{authType, jdbcType=VARCHAR},
+            auth_nickname = #{authNickname, jdbcType=VARCHAR},
+            adviser_id = #{adviserId, jdbcType=INTEGER},
+            region_id = #{regionId, jdbcType=INTEGER},
+            unionid = #{unionid, jdbcType=VARCHAR},
+            external_userid = #{externalUserid, jdbcType=VARCHAR}
+        WHERE id = #{id, jdbcType=INTEGER}
+    </update>
 
     <select id="getUserByName" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         select * from tb_user where 1=1
