@@ -265,6 +265,7 @@ public class ServiceOrderController extends BaseController {
     public Response<String> uploadLowPriceImage(@RequestParam MultipartFile file, HttpServletRequest request,
                                                 HttpServletResponse response) throws IllegalStateException, IOException {
         super.setPostHeader(response);
+        log.info("---------------------------------------------正在上传低价凭证");
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
         if (adminUserLoginInfo == null) {
             return new Response<String>(1, "请先登录", null);
