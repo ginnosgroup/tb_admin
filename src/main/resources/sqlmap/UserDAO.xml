@@ -537,7 +537,7 @@
           AND external_userid = #{externalUserid}
     </select>
 
-    <select id="listByAdviserIdAndNameAndPhone" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+    <select id="listByAdviserIdAndName" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -569,11 +569,10 @@
         FROM tb_user
         WHERE adviser_id = #{adviserId}
           AND name = #{name}
-          AND phone = #{phone}
         ORDER BY id DESC
     </select>
 
-    <select id="listByAdviserIdAndNamePartsAndPhone" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
+    <select id="listByAdviserIdAndNameParts" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -604,7 +603,6 @@
             mara_mark AS maraMark
         FROM tb_user
         WHERE adviser_id = #{adviserId}
-          AND phone = #{phone}
           AND (
             name LIKE CONCAT('%', #{surname}, '%')
             OR name LIKE CONCAT('%', #{givenName}, '%')

@@ -75,12 +75,11 @@ public interface UserDAO {
     List<UserDO> listByUnionidAndExternalUserid(@Param("unionid") String unionid,
                     @Param("externalUserid") String externalUserid);
 
-    List<UserDO> listByAdviserIdAndNameAndPhone(@Param("adviserId") Integer adviserId,
-                    @Param("name") String name, @Param("phone") String phone);
+    List<UserDO> listByAdviserIdAndName(@Param("adviserId") Integer adviserId,
+                    @Param("name") String name);
 
-    List<UserDO> listByAdviserIdAndNamePartsAndPhone(@Param("adviserId") Integer adviserId,
-                    @Param("surname") String surname, @Param("givenName") String givenName,
-                    @Param("phone") String phone);
+    List<UserDO> listByAdviserIdAndNameParts(@Param("adviserId") Integer adviserId,
+                    @Param("surname") String surname, @Param("givenName") String givenName);
 
     int updateUserByWechat(UserDO userDo);
 

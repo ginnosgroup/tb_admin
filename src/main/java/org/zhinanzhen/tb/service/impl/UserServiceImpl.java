@@ -352,7 +352,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 		if (StringUtil.isEmpty(name)) {
 			name = json.getString("realName");
 		}
-		String phone = json.getString("phone");
 		String qyUserEmail = json.getString("qyUserEmail");
 
 		if (StringUtil.isEmpty(qyUserEmail)) {
@@ -364,14 +363,12 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 
 		String normalizedName = name == null ? "" : name.trim().replaceAll("\\s+", " ");
-		String normalizedPhone = phone == null ? "" : phone;
-		List<UserDO> userDoList = userDao.listByAdviserIdAndNameAndPhone(adviserDo.getId(),
-				normalizedName, normalizedPhone);
+		List<UserDO> userDoList = userDao.listByAdviserIdAndName(adviserDo.getId(), normalizedName);
 		if ((userDoList == null || userDoList.isEmpty()) && normalizedName.contains(" ")) {
 			String[] nameParts = normalizedName.split(" ", 2);
 			if (!StringUtil.isEmpty(nameParts[0]) && !StringUtil.isEmpty(nameParts[1])) {
-				userDoList = userDao.listByAdviserIdAndNamePartsAndPhone(adviserDo.getId(),
-						nameParts[0], nameParts[1], normalizedPhone);
+				userDoList = userDao.listByAdviserIdAndNameParts(adviserDo.getId(),
+						nameParts[0], nameParts[1]);
 			}
 		}
 		if (userDoList == null || userDoList.isEmpty()) {
