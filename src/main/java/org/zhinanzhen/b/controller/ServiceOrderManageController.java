@@ -509,13 +509,13 @@ public class ServiceOrderManageController extends BaseController {
     public ListResponse<List<ContractPdfAnalysisCacheDO>> listContractPdfAnalysisCache(
             @RequestParam(value = "pageNum") int pageNum,
             @RequestParam(value = "pageSize") int pageSize) {
-        if (pageNum <= 0 || pageSize <= 0) {
+        if (pageNum < 0 || pageSize <= 0) {
             return new ListResponse<>(false, 0, 0, null,
-                    "pageNum和pageSize必须大于0");
+                    "pageNum不能小于0，pageSize必须大于0");
         }
         try {
             int total = contractPdfAnalysisCacheDAO.count();
-            int offset = (pageNum - 1) * pageSize;
+            int offset = pageNum * pageSize;
             List<ContractPdfAnalysisCacheDO> list =
                     contractPdfAnalysisCacheDAO.list(offset, pageSize);
             return new ListResponse<>(true, pageSize, total, list, "success");
