@@ -109,15 +109,15 @@ public class LowPriceApprovalImageAnalyzerImpl implements LowPriceApprovalImageA
     public AnalysisResult analyze(MultipartFile file, String requestSource,
                                   Integer requestUserId) throws IOException {
         if (file == null || file.isEmpty()) {
-            return AnalysisResult.rejected("图片为空");
+            return AnalysisResult.rejected(EMPTY_IMAGE_MESSAGE);
         }
         if (file.getSize() > MAX_IMAGE_BYTES) {
-            return AnalysisResult.rejected("图片超过7MB");
+            return AnalysisResult.rejected(IMAGE_TOO_LARGE_MESSAGE);
         }
 
         byte[] imageBytes = file.getBytes();
         if (!isSupportedImage(imageBytes)) {
-            return AnalysisResult.rejected("文件不是支持的PNG、JPG或BMP图片");
+            return AnalysisResult.rejected(UNSUPPORTED_IMAGE_MESSAGE);
         }
 
         String fileHash = calculateSha256(imageBytes);

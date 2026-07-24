@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -448,7 +449,13 @@ public class ServiceOrderManageController extends BaseController {
                 String contractValidationError = validateContractPdf(
                         analysisResponse.getData(), serviceOrderDto, serviceOrderJson);
                 if (contractValidationError != null) {
-                    return new Response<Integer>(1, contractValidationError, 0);
+                    String comparisonData = buildContractComparisonData(
+                            analysisResponse.getData(), serviceOrderDto, serviceOrderJson);
+                    recordContractValidationFailure(
+                            contractPdfFile, contractData, contractValidationError, comparisonData,
+                            resolveValidationAdviserId(adminUserLoginInfo));
+                    log.warn("合同PDF校验未通过但已放行创建服务订单, contractData={}, validationResult={}",
+                            contractData, contractValidationError);
                 }
             } catch (IOException e) {
                 log.warn("创建服务订单时解析合同PDF失败, contractData={}", contractData, e);
@@ -495,6 +502,28 @@ public class ServiceOrderManageController extends BaseController {
             return null;
         }
         return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
+    }
+
+    @RequestMapping(value = "/listContractPdfAnalysisCache", method = RequestMethod.GET)
+    @ResponseBody
+    public ListResponse<List<ContractPdfAnalysisCacheDO>> listContractPdfAnalysisCache(
+            @RequestParam(value = "pageNum") int pageNum,
+            @RequestParam(value = "pageSize") int pageSize) {
+        if (pageNum <= 0 || pageSize <= 0) {
+            return new ListResponse<>(false, 0, 0, null,
+                    "pageNum和pageSize必须大于0");
+        }
+        try {
+            int total = contractPdfAnalysisCacheDAO.count();
+            int offset = (pageNum - 1) * pageSize;
+            List<ContractPdfAnalysisCacheDO> list =
+                    contractPdfAnalysisCacheDAO.list(offset, pageSize);
+            return new ListResponse<>(true, pageSize, total, list, "success");
+        } catch (Exception e) {
+            log.error("查询合同PDF分析缓存失败, pageNum={}, pageSize={}",
+                    pageNum, pageSize, e);
+            return new ListResponse<>(false, 0, 0, null, e.getMessage());
+        }
     }
 
     private Response<JSONObject> analyzeContractPdfWithCache(File contractPdfFile,
@@ -561,6 +590,95 @@ public class ServiceOrderManageController extends BaseController {
         }
         int responseCode = cached.getResponseCode() == null ? 1 : cached.getResponseCode();
         return new Response<JSONObject>(responseCode, cached.getResponseMessage(), analysisResult);
+    }
+
+    private void recordContractValidationFailure(File contractPdfFile, String filePath,
+                                                 String validationResult, String comparisonData,
+                                                 Integer adviserId) {
+        try {
+            String fileHash = calculateSha256(contractPdfFile);
+            int updated = contractPdfAnalysisCacheDAO.updateValidationResult(
+                    fileHash, filePath, validationResult, comparisonData, adviserId);
+            if (updated == 0) {
+                log.error("未找到合同PDF AI缓存记录, fileHash={}, path={}",
+                        fileHash, filePath);
+            }
+        } catch (IOException | RuntimeException e) {
+            log.error("保存合同PDF校验结果失败, path={}", filePath, e);
+        }
+    }
+
+    private Integer resolveValidationAdviserId(AdminUserLoginInfo loginInfo) {
+        if (loginInfo == null || loginInfo.getApList() == null
+                || !loginInfo.getApList().toUpperCase(Locale.ENGLISH).contains("GW")
+                || loginInfo.getAdviserId() == null || loginInfo.getAdviserId() <= 0) {
+            return null;
+        }
+        try {
+            return adviserDAO.getAdviserById(loginInfo.getAdviserId()) == null
+                    ? null : loginInfo.getAdviserId();
+        } catch (RuntimeException e) {
+            log.warn("获取合同校验记录顾问ID失败, adminUserId={}, adviserId={}",
+                    loginInfo.getId(), loginInfo.getAdviserId(), e);
+            return null;
+        }
+    }
+
+    private String buildContractComparisonData(JSONObject analysisResult,
+                                               ServiceOrderDTO serviceOrderDto,
+                                               List<ServiceOrderJsonRequest> serviceOrderJson) {
+        ContractPdfInfo contractPdfInfo = parseContractAnalysis(analysisResult);
+
+        JSONObject contractExtracted = new JSONObject();
+        contractExtracted.put("name", analysisResult.get("name"));
+        contractExtracted.put("normalizedName",
+                normalizePersonName(contractPdfInfo.getName()));
+        contractExtracted.put("total", analysisResult.get("amount"));
+        contractExtracted.put("parsedTotal", contractPdfInfo.getAmount());
+
+        JSONObject orderInput = new JSONObject();
+        orderInput.put("receivable", BigDecimal.valueOf(serviceOrderDto.getReceivable()));
+
+        Set<Integer> applicantIds = new LinkedHashSet<>();
+        for (ServiceOrderJsonRequest childOrder : serviceOrderJson) {
+            applicantIds.addAll(getApplicantIds(childOrder));
+        }
+
+        JSONArray applicants = new JSONArray();
+        for (Integer applicantId : applicantIds) {
+            JSONObject applicantData = new JSONObject();
+            applicantData.put("applicantId", applicantId);
+            try {
+                ApplicantDTO applicant = applicantService.getById(applicantId);
+                applicantData.put("found", applicant != null);
+                if (applicant != null) {
+                    String surnameThenFirstname =
+                            (safeString(applicant.getSurname()) + " "
+                                    + safeString(applicant.getFirstname())).trim();
+                    String firstnameThenSurname =
+                            (safeString(applicant.getFirstname()) + " "
+                                    + safeString(applicant.getSurname())).trim();
+                    applicantData.put("surname", applicant.getSurname());
+                    applicantData.put("firstname", applicant.getFirstname());
+                    applicantData.put("surnameThenFirstname", surnameThenFirstname);
+                    applicantData.put("firstnameThenSurname", firstnameThenSurname);
+                    applicantData.put("normalizedSurnameThenFirstname",
+                            normalizePersonName(surnameThenFirstname));
+                    applicantData.put("normalizedFirstnameThenSurname",
+                            normalizePersonName(firstnameThenSurname));
+                }
+            } catch (ServiceException e) {
+                applicantData.put("found", false);
+                applicantData.put("lookupError", e.getMessage());
+            }
+            applicants.add(applicantData);
+        }
+        orderInput.put("applicants", applicants);
+
+        JSONObject comparisonData = new JSONObject();
+        comparisonData.put("contractExtracted", contractExtracted);
+        comparisonData.put("orderInput", orderInput);
+        return JSON.toJSONString(comparisonData, SerializerFeature.WriteMapNullValue);
     }
 
     private String calculateSha256(File file) throws IOException {

@@ -10,6 +10,9 @@ import java.io.IOException;
 public interface LowPriceApprovalImageAnalyzer {
 
     String NO_TEXT_MESSAGE = "未识别到文本";
+    String EMPTY_IMAGE_MESSAGE = "图片为空";
+    String IMAGE_TOO_LARGE_MESSAGE = "图片超过7MB";
+    String UNSUPPORTED_IMAGE_MESSAGE = "文件不是支持的PNG、JPG或BMP图片";
 
     AnalysisResult analyze(MultipartFile file, String requestSource,
                            Integer requestUserId) throws IOException;

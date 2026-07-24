@@ -15,10 +15,14 @@ public class ContractPdfAnalysisCacheDO implements Serializable {
     private Date gmtModify;
     private String fileHash;
     private String fileName;
+    private String filePath;
     private String requestSource;
     private Integer requestUserId;
+    private Integer adviserId;
     private String status;
     private Integer responseCode;
     private String responseMessage;
     private String analysisResult;
+    private String validationResult;
+    private String comparisonData;
 }

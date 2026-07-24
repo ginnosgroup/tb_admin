@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
+import org.zhinanzhen.b.dao.ContractPdfAnalysisCacheDAO;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
@@ -77,6 +78,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -173,6 +176,9 @@ public class ServiceOrderController extends BaseController {
     private ServiceDAO serviceDAO;
     @Autowired
     private ServiceOrderManageService serviceOrderManageService;
+
+    @Resource
+    private ContractPdfAnalysisCacheDAO contractPdfAnalysisCacheDAO;
 
 
     public enum ReviewAdviserStateEnum {
@@ -278,16 +284,91 @@ public class ServiceOrderController extends BaseController {
             log.error("低价审核凭证识别失败", e);
             return new Response<String>(1, "审核凭证识别失败，请稍后重试", null);
         }
-        if (analysisResult == null || !analysisResult.isApproved()) {
-            log.info("拒绝上传低价审核凭证, reason={}",
-                    analysisResult == null ? "分析结果为空" : analysisResult.getReason());
-            if (analysisResult != null
-                    && LowPriceApprovalImageAnalyzer.NO_TEXT_MESSAGE.equals(analysisResult.getReason())) {
-                return new Response<String>(1, LowPriceApprovalImageAnalyzer.NO_TEXT_MESSAGE, null);
-            }
+        if (analysisResult == null) {
+            log.info("拒绝上传低价审核凭证, reason=分析结果为空");
             return new Response<String>(1, "图片不是审核通过凭证", null);
         }
+        if (!analysisResult.isApproved()) {
+            log.info("拒绝上传低价审核凭证, reason={}",
+                    analysisResult.getReason());
+            String validationResult = LowPriceApprovalImageAnalyzer.NO_TEXT_MESSAGE.equals(
+                    analysisResult.getReason())
+                    ? LowPriceApprovalImageAnalyzer.NO_TEXT_MESSAGE
+                    : "图片不是审核通过凭证";
+            if (isLowPriceFileValidationFailure(analysisResult.getReason())) {
+                return new Response<String>(1, validationResult, null);
+            }
+
+            String fileHash = calculateSha256(file);
+            Response<String> uploadResponse = super.upload2(
+                    file, request.getSession(), "/uploads/low_price_image_url/");
+            if (uploadResponse.getCode() == 0) {
+                recordLowPriceValidationFailure(
+                        fileHash, uploadResponse.getData(), validationResult,
+                        resolveValidationAdviserId(adminUserLoginInfo));
+                log.info("低价审核凭证未通过但已上传并记录, path={}, validationResult={}",
+                        uploadResponse.getData(), validationResult);
+            }
+            return uploadResponse;
+        }
         return super.upload2(file, request.getSession(), "/uploads/low_price_image_url/");
+    }
+
+    private boolean isLowPriceFileValidationFailure(String reason) {
+        return LowPriceApprovalImageAnalyzer.EMPTY_IMAGE_MESSAGE.equals(reason)
+                || LowPriceApprovalImageAnalyzer.IMAGE_TOO_LARGE_MESSAGE.equals(reason)
+                || LowPriceApprovalImageAnalyzer.UNSUPPORTED_IMAGE_MESSAGE.equals(reason);
+    }
+
+    private String calculateSha256(MultipartFile file) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[8192];
+            try (InputStream input = file.getInputStream()) {
+                int length;
+                while ((length = input.read(buffer)) != -1) {
+                    digest.update(buffer, 0, length);
+                }
+            }
+            StringBuilder hash = new StringBuilder(64);
+            for (byte value : digest.digest()) {
+                hash.append(String.format("%02x", value & 0xff));
+            }
+            return hash.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 algorithm is unavailable", e);
+        }
+    }
+
+    private void recordLowPriceValidationFailure(String fileHash, String filePath,
+                                                 String validationResult, Integer adviserId) {
+        try {
+            int updated = contractPdfAnalysisCacheDAO.updateValidationResult(
+                    fileHash, filePath, validationResult, null, adviserId);
+            if (updated == 0) {
+                log.error("未找到低价审核凭证AI缓存记录, fileHash={}, path={}",
+                        fileHash, filePath);
+            }
+        } catch (RuntimeException e) {
+            log.error("保存低价审核凭证校验结果失败, fileHash={}, path={}",
+                    fileHash, filePath, e);
+        }
+    }
+
+    private Integer resolveValidationAdviserId(AdminUserLoginInfo loginInfo) {
+        if (loginInfo == null || loginInfo.getApList() == null
+                || !loginInfo.getApList().toUpperCase(Locale.ENGLISH).contains("GW")
+                || loginInfo.getAdviserId() == null || loginInfo.getAdviserId() <= 0) {
+            return null;
+        }
+        try {
+            return adviserDAO.getAdviserById(loginInfo.getAdviserId()) == null
+                    ? null : loginInfo.getAdviserId();
+        } catch (RuntimeException e) {
+            log.warn("获取低价审核记录顾问ID失败, adminUserId={}, adviserId={}",
+                    loginInfo.getId(), loginInfo.getAdviserId(), e);
+            return null;
+        }
     }
 
     @RequestMapping(value = "/delete_visa_voucher_img", method = RequestMethod.POST)
