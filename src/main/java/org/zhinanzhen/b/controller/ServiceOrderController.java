@@ -2095,14 +2095,14 @@ public class ServiceOrderController extends BaseController {
             }
             byte[] bytes = Base64Util.decodeBase64(key);
             String text = new String(bytes, StandardCharsets.UTF_8);
-//            String[] split = text.split("#");
-//            for (String s : split) {
-//                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
-//                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
-//                }
-//            }
-//            Integer adviserId = adminUser.getAdviserId();
-            Integer adviserId = null;
+            String[] split = text.split("#");
+            for (String s : split) {
+                if (!s.equalsIgnoreCase(userId.toString()) && !s.equalsIgnoreCase(qyEmail)) {
+                    return new ListResponse<List<ServiceOrderDTO>>(false, pageSize, 0, null, "非法的请求。");
+                }
+            }
+            Integer adviserId = adminUser.getAdviserId();
+//            Integer adviserId = null;
 
             Sorter _sorter = null;
             if (sorter != null)

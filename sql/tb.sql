@@ -107,10 +107,10 @@ ALTER TABLE `tb_adviser` ADD INDEX index_name (`state`);
 -- 客户
 CREATE TABLE `tb_user` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
-  `gmt_create` datetime NOT NULL COMMENT '创建时间',
-  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `name` varchar(64) NOT NULL COMMENT '名称',
-  `birthday` datetime NOT NULL COMMENT '生日',
+  `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modify` datetime DEFAULT NULL COMMENT '最后修改时间',
+  `name` varchar(64) DEFAULT NULL COMMENT '名称',
+  `birthday` datetime DEFAULT NULL COMMENT '生日',
   `phone` varchar(16) DEFAULT NULL COMMENT '电话号码',
   `email` varchar(128) DEFAULT NULL COMMENT '邮箱',
   `wechat_username` varchar(64) DEFAULT NULL COMMENT '微信帐号',
@@ -118,15 +118,16 @@ CREATE TABLE `tb_user` (
   `visa_code` varchar(16) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
   `source` varchar(32) DEFAULT NULL COMMENT '客户来源',
-  `auth_type` varchar(16) NOT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,QQ:QQ号,WEIBO:微博帐号,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户,WECHAT_WORK:企业微信)',
-  `auth_openid` varchar(64) NOT NULL COMMENT '授权帐号编号',
+  `auth_type` varchar(16) DEFAULT NULL COMMENT '登录授权分类 (WECHAT:微信,IOS_WECHAT:IOS微信,QQ:QQ号,WEIBO:微博帐号,FACEBOOK:facebook,BROKERAGE:佣金系统用户,V:虚拟用户,WECHAT_WORK:企业微信)',
+  `auth_openid` varchar(64) DEFAULT NULL COMMENT '授权帐号编号',
   `auth_username` varchar(64) DEFAULT NULL COMMENT '授权帐号',
   `auth_nickname` varchar(128) DEFAULT NULL COMMENT '授权帐号用户昵称',
   `auth_logo` varchar(255) DEFAULT NULL COMMENT '授权帐号Logo地址',
   `recommend_openid` varchar(64) DEFAULT NULL COMMENT '推荐人授权帐号编号',
-  `balance` decimal(8,2) NOT NULL DEFAULT '0.00' COMMENT '余额',
+  `balance` decimal(8,2) DEFAULT '0.00' COMMENT '余额',
   `adviser_id` int DEFAULT NULL COMMENT '所属顾问编号 (对应tb_adviser.id)',
-  `region_id` int NOT NULL COMMENT '所属区域编号 (对应tb_region.id)'
+  `region_id` int DEFAULT NULL COMMENT '所属区域编号 (对应tb_region.id)',
+  `unionid` varchar(64) DEFAULT NULL COMMENT '微信开放平台UnionID'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `tb_user` ADD INDEX index_name (`region_id`);
 
@@ -144,19 +145,19 @@ ALTER TABLE `tb_user_adviser` ADD INDEX index_name (`user_id`, `adviser_id`);
 -- 申请人
 CREATE TABLE `b_applicant` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '编号',
-  `gmt_create` datetime NOT NULL COMMENT '创建时间',
-  `gmt_modify` datetime NOT NULL COMMENT '最后修改时间',
-  `surname` varchar(32) NOT NULL COMMENT '姓',
-  `firstname` varchar(32) NOT NULL COMMENT '名',
-  `birthday` datetime NOT NULL COMMENT '生日',
-  `type` varchar(4) NOT NULL COMMENT '与客户关系 (BR:客户本人,FM:父母,QY:亲友)',
+  `gmt_create` datetime DEFAULT NULL COMMENT '创建时间',
+  `gmt_modify` datetime DEFAULT NULL COMMENT '最后修改时间',
+  `surname` varchar(32) DEFAULT NULL COMMENT '姓',
+  `firstname` varchar(32) DEFAULT NULL COMMENT '名',
+  `birthday` datetime DEFAULT NULL COMMENT '生日',
+  `type` varchar(4) DEFAULT NULL COMMENT '与客户关系 (BR:客户本人,FM:父母,QY:亲友)',
   `visa_code` varchar(16) DEFAULT NULL COMMENT '签证编号',
   `visa_expiration_date` datetime DEFAULT NULL COMMENT '签证到期日期',
   `nut_cloud` varchar(255) DEFAULT NULL COMMENT '坚果云地址',
   `file_url` varchar(255) DEFAULT NULL COMMENT '申请人资料表格',
   `first_controller_contents` varchar(255) DEFAULT NULL COMMENT '初次咨询记录',
-  `user_id` int NOT NULL COMMENT '所属客户编号 (对应tb_user.id)',
-  `adviser_id` int NOT NULL COMMENT '顾问编号 (对应tb_adviser.id)'
+  `user_id` int DEFAULT NULL COMMENT '所属客户编号 (对应tb_user.id)',
+  `adviser_id` int DEFAULT NULL COMMENT '顾问编号 (对应tb_adviser.id)'
 ) ENGINE=InnoDB AUTO_INCREMENT=1000000 DEFAULT CHARSET=utf8;
 ALTER TABLE `b_applicant` ADD INDEX index_name (`user_id`);
 

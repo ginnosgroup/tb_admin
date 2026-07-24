@@ -628,25 +628,26 @@ public class ServiceOrderManageController extends BaseController {
             errors.add("合同Total金额与主订单receivable不一致");
         }
 
-        boolean serviceMatched = false;
-        if (StringUtil.isEmpty(contractPdfInfo.getServiceCode())) {
-            errors.add("未从合同中提取到服务项目编号");
-        } else {
-            for (ServiceOrderJsonRequest childOrder : serviceOrderJson) {
-                Integer serviceId = parsePositiveInteger(childOrder.getServiceId());
-                if (serviceId == null) {
-                    continue;
-                }
-                ServiceDTO service = serviceService.getServiceById(serviceId);
-                if (service != null && containsServiceCode(service.getCode(), contractPdfInfo.getServiceCode())) {
-                    serviceMatched = true;
-                    break;
-                }
-            }
-            if (!serviceMatched) {
-                errors.add("合同服务项目与所有子订单的服务code均不一致");
-            }
-        }
+        // 暂停合同服务项目校验：DeepSeek 返回的 service 暂不用于拦截服务订单创建。
+//        boolean serviceMatched = false;
+//        if (StringUtil.isEmpty(contractPdfInfo.getServiceCode())) {
+//            errors.add("未从合同中提取到服务项目编号");
+//        } else {
+//            for (ServiceOrderJsonRequest childOrder : serviceOrderJson) {
+//                Integer serviceId = parsePositiveInteger(childOrder.getServiceId());
+//                if (serviceId == null) {
+//                    continue;
+//                }
+//                ServiceDTO service = serviceService.getServiceById(serviceId);
+//                if (service != null && containsServiceCode(service.getCode(), contractPdfInfo.getServiceCode())) {
+//                    serviceMatched = true;
+//                    break;
+//                }
+//            }
+//            if (!serviceMatched) {
+//                errors.add("合同服务项目与所有子订单的服务code均不一致");
+//            }
+//        }
 
         return errors.isEmpty() ? null : "合同校验失败：" + String.join("；", errors);
     }
