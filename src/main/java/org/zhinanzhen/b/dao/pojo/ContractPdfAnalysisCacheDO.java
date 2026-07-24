@@ -19,6 +19,7 @@ public class ContractPdfAnalysisCacheDO implements Serializable {
     private String requestSource;
     private Integer requestUserId;
     private Integer adviserId;
+    private String adviserName;
     private String status;
     private Integer responseCode;
     private String responseMessage;

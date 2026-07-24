@@ -305,7 +305,7 @@ public class ServiceOrderController extends BaseController {
             if (uploadResponse.getCode() == 0) {
                 recordLowPriceValidationFailure(
                         fileHash, uploadResponse.getData(), validationResult,
-                        resolveValidationAdviserId(adminUserLoginInfo));
+                        resolveValidationAdviser(adminUserLoginInfo));
                 log.info("低价审核凭证未通过但已上传并记录, path={}, validationResult={}",
                         uploadResponse.getData(), validationResult);
             }
@@ -341,10 +341,12 @@ public class ServiceOrderController extends BaseController {
     }
 
     private void recordLowPriceValidationFailure(String fileHash, String filePath,
-                                                 String validationResult, Integer adviserId) {
+                                                 String validationResult, AdviserDO adviser) {
         try {
             int updated = contractPdfAnalysisCacheDAO.updateValidationResult(
-                    fileHash, filePath, validationResult, null, adviserId);
+                    fileHash, filePath, validationResult, null,
+                    adviser == null ? null : adviser.getId(),
+                    adviser == null ? null : adviser.getName());
             if (updated == 0) {
                 log.error("未找到低价审核凭证AI缓存记录, fileHash={}, path={}",
                         fileHash, filePath);
@@ -355,17 +357,16 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
-    private Integer resolveValidationAdviserId(AdminUserLoginInfo loginInfo) {
+    private AdviserDO resolveValidationAdviser(AdminUserLoginInfo loginInfo) {
         if (loginInfo == null || loginInfo.getApList() == null
                 || !loginInfo.getApList().toUpperCase(Locale.ENGLISH).contains("GW")
                 || loginInfo.getAdviserId() == null || loginInfo.getAdviserId() <= 0) {
             return null;
         }
         try {
-            return adviserDAO.getAdviserById(loginInfo.getAdviserId()) == null
-                    ? null : loginInfo.getAdviserId();
+            return adviserDAO.getAdviserById(loginInfo.getAdviserId());
         } catch (RuntimeException e) {
-            log.warn("获取低价审核记录顾问ID失败, adminUserId={}, adviserId={}",
+            log.warn("获取低价审核记录顾问信息失败, adminUserId={}, adviserId={}",
                     loginInfo.getId(), loginInfo.getAdviserId(), e);
             return null;
         }

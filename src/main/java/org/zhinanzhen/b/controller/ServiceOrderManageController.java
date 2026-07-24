@@ -52,6 +52,7 @@ import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.UserService;
@@ -453,7 +454,7 @@ public class ServiceOrderManageController extends BaseController {
                             analysisResponse.getData(), serviceOrderDto, serviceOrderJson);
                     recordContractValidationFailure(
                             contractPdfFile, contractData, contractValidationError, comparisonData,
-                            resolveValidationAdviserId(adminUserLoginInfo));
+                            resolveValidationAdviser(adminUserLoginInfo));
                     log.warn("合同PDF校验未通过但已放行创建服务订单, contractData={}, validationResult={}",
                             contractData, contractValidationError);
                 }
@@ -594,11 +595,13 @@ public class ServiceOrderManageController extends BaseController {
 
     private void recordContractValidationFailure(File contractPdfFile, String filePath,
                                                  String validationResult, String comparisonData,
-                                                 Integer adviserId) {
+                                                 AdviserDO adviser) {
         try {
             String fileHash = calculateSha256(contractPdfFile);
             int updated = contractPdfAnalysisCacheDAO.updateValidationResult(
-                    fileHash, filePath, validationResult, comparisonData, adviserId);
+                    fileHash, filePath, validationResult, comparisonData,
+                    adviser == null ? null : adviser.getId(),
+                    adviser == null ? null : adviser.getName());
             if (updated == 0) {
                 log.error("未找到合同PDF AI缓存记录, fileHash={}, path={}",
                         fileHash, filePath);
@@ -608,17 +611,16 @@ public class ServiceOrderManageController extends BaseController {
         }
     }
 
-    private Integer resolveValidationAdviserId(AdminUserLoginInfo loginInfo) {
+    private AdviserDO resolveValidationAdviser(AdminUserLoginInfo loginInfo) {
         if (loginInfo == null || loginInfo.getApList() == null
                 || !loginInfo.getApList().toUpperCase(Locale.ENGLISH).contains("GW")
                 || loginInfo.getAdviserId() == null || loginInfo.getAdviserId() <= 0) {
             return null;
         }
         try {
-            return adviserDAO.getAdviserById(loginInfo.getAdviserId()) == null
-                    ? null : loginInfo.getAdviserId();
+            return adviserDAO.getAdviserById(loginInfo.getAdviserId());
         } catch (RuntimeException e) {
-            log.warn("获取合同校验记录顾问ID失败, adminUserId={}, adviserId={}",
+            log.warn("获取合同校验记录顾问信息失败, adminUserId={}, adviserId={}",
                     loginInfo.getId(), loginInfo.getAdviserId(), e);
             return null;
         }

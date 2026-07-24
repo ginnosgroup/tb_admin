@@ -21,7 +21,8 @@ public interface ContractPdfAnalysisCacheDAO {
                                @Param("filePath") String filePath,
                                @Param("validationResult") String validationResult,
                                @Param("comparisonData") String comparisonData,
-                               @Param("adviserId") Integer adviserId);
+                               @Param("adviserId") Integer adviserId,
+                               @Param("adviserName") String adviserName);
 
     int count();
 
