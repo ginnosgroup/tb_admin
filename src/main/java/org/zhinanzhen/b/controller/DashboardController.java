@@ -824,8 +824,8 @@ public class DashboardController extends BaseController {
 				// 减去gst
 				int iSubtractGst = 0, sizeSubtractGst = dataListSubtractGst.size();
 				for (; iSubtractGst < sizeSubtractGst; iSubtractGst++) {
-					if (adviserId == dataListSubtractGst.get(i).getAdviserId()) {
-						totalSubtractGst = roundHalfUp(dataListSubtractGst.get(i).getTotal());
+					if (adviserId == dataListSubtractGst.get(iSubtractGst).getAdviserId()) {
+						totalSubtractGst = roundHalfUp(dataListSubtractGst.get(iSubtractGst).getTotal());
 						break;
 					}
 				}

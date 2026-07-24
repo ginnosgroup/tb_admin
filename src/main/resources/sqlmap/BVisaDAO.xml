@@ -1101,7 +1101,7 @@
         v.exchange_rate AS exchangeRate,
         v.amount,
         SUM(v.bonus) AS commission,
-        IFNULL(sum(IF(v.currency='CNY',v.deduct_gst,v.deduct_gst)),0.00) AS serviceFee
+        IFNULL(sum(IF(v.currency='CNY',v.expect_amount - v.gst,v.expect_amount - v.gst)),0.00) AS serviceFee
         #SUM(CASE IFNULL(IF(v.currency='CNY',ROUND(v.sure_expect_amount,2),ROUND(v.sure_expect_amount,2)), 0) WHEN 0 THEN IFNULL(IF(v.currency='CNY',ROUND(v.expect_amount,2),ROUND(v.expect_amount,2)), 0) END) AS serviceFee
         FROM tb_adviser a, tb_region r, b_visa v LEFT JOIN b_refund rf ON rf.visa_id = v.id AND rf.state = 'PAID'
         WHERE a.region_id = r.id AND v.adviser_id = a.id AND v.state IN ('REVIEW', 'FINISH', 'COMPLETE', 'CLOSE')
