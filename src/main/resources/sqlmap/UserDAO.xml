@@ -568,7 +568,7 @@
             mara_mark AS maraMark
         FROM tb_user
         WHERE adviser_id = #{adviserId}
-          AND name = #{name}
+          AND name LIKE CONCAT('%', #{name}, '%')
         ORDER BY id DESC
     </select>
 
