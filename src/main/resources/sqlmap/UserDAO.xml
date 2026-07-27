@@ -356,6 +356,14 @@
         WHERE id = #{id};
     </update>
 
+    <update id="updateWechatBinding">
+        UPDATE tb_user
+        SET gmt_modify = now(),
+            external_userid = #{externalUserid},
+            unionid = #{unionid}
+        WHERE id = #{id};
+    </update>
+
     <select id="listUserByRecommendOpenId" resultType="org.zhinanzhen.tb.dao.pojo.UserDO">
         SELECT
         id,

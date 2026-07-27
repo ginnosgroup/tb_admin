@@ -189,7 +189,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		String authNickname = json.getString("authNickname");
 		String wxUserId = json.getString("wxUserId");
 		String externalUserid = json.getString("external_userid");
-		String unionid = json.getString("unionid");
+		String unionid = json.getString("wxUnionId");
+		if (StringUtil.isEmpty(unionid)) {
+			unionid = json.getString("unionid");
+		}
 		String qyUserEmail = json.getString("qyUserEmail");
 		String tagName = json.getString("tagName");
 
@@ -416,9 +419,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 
 	@Override
 	@Transactional(rollbackFor = ServiceException.class)
-	public boolean bindWechatUser(int userId, String wxUserId, String qyUserId, String qyEmail) throws ServiceException {
+	public boolean bindWechatUser(int userId, String wxUserId, String wxUnionId, String qyUserId, String qyEmail)
+			throws ServiceException {
 		if (StringUtil.isEmpty(qyUserId) || StringUtil.isEmpty(qyEmail)) {
 			throw new ServiceException("企业微信用户ID或邮箱不能为空");
+		}
+		if (StringUtil.isEmpty(wxUserId) || StringUtil.isEmpty(wxUnionId)) {
+			throw new ServiceException("微信用户ID或UnionID不能为空");
 		}
 		// 优先通过qyUserId（对应oper_userid）查询admin_user
 		AdminUserDO adminUser = adminUserDao.getAdminUserByOpenUserId(qyUserId);
@@ -465,8 +472,10 @@ public class UserServiceImpl extends BaseService implements UserService {
 		if (!belongsToAdviser) {
 			throw new ServiceException("该用户不属于此顾问");
 		}
-		// 更新wxUserId到external_userid
-		userDao.updateExternalUserid(userId, wxUserId);
+		// 更新wxUserId到external_userid，并保存微信UnionID
+		if (!userDao.updateWechatBinding(userId, wxUserId, wxUnionId)) {
+			throw new ServiceException("绑定微信用户失败");
+		}
 		return true;
 	}
 

@@ -85,6 +85,9 @@ public interface UserDAO {
 
     boolean updateExternalUserid(@Param("id") int id, @Param("externalUserid") String externalUserid);
 
+    boolean updateWechatBinding(@Param("id") int id, @Param("externalUserid") String externalUserid,
+                    @Param("unionid") String unionid);
+
     public List<UserDO> listByIds(@Param("ids") List<Integer> ids);
 
     public List<UserAdviserDO> listUserAdviserByUserIds(@Param("userIds") List<Integer> userIds);

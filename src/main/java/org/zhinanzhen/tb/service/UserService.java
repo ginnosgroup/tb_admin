@@ -97,6 +97,7 @@ public interface UserService {
 
 	List<UserDTO> listUserByWechat(String jsonStr) throws ServiceException;
 
-	boolean bindWechatUser(int userId, String wxUserId, String qyUserId, String qyEmail) throws ServiceException;
+	boolean bindWechatUser(int userId, String wxUserId, String wxUnionId, String qyUserId, String qyEmail)
+			throws ServiceException;
 
 }

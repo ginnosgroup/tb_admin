@@ -149,13 +149,14 @@ public class UserController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> wxBind(@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "wxUserId") String wxUserId,
+			@RequestParam(value = "wxUnionId") String wxUnionId,
 			@RequestParam(value = "qyUserId") String qyUserId,
 			@RequestParam(value = "qyEmail") String qyEmail,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			return new Response<Boolean>(0, "绑定成功",
-					userService.bindWechatUser(StringUtil.toInt(userId), wxUserId, qyUserId, qyEmail));
+					userService.bindWechatUser(StringUtil.toInt(userId), wxUserId, wxUnionId, qyUserId, qyEmail));
 		} catch (ServiceException e) {
 			return new Response<Boolean>(1, e.getMessage(), false);
 		}
