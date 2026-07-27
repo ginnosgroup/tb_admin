@@ -188,8 +188,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 		String source = json.getString("source");
 		String authNickname = json.getString("authNickname");
 		String wxUserId = json.getString("wxUserId");
-		String externalUserid = json.getString("external_userid");
-		String unionid = json.getString("wxUnionId");
+		String externalUserid = json.getString("wxUserId");
+		String unionid = json.getString("wxUnionid");
 		if (StringUtil.isEmpty(unionid)) {
 			unionid = json.getString("unionid");
 		}

@@ -149,7 +149,7 @@ public class UserController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> wxBind(@RequestParam(value = "userId") String userId,
 			@RequestParam(value = "wxUserId") String wxUserId,
-			@RequestParam(value = "wxUnionId") String wxUnionId,
+			@RequestParam(value = "wxUnionid") String wxUnionId,
 			@RequestParam(value = "qyUserId") String qyUserId,
 			@RequestParam(value = "qyEmail") String qyEmail,
 			HttpServletResponse response) {
