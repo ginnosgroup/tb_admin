@@ -774,11 +774,13 @@ public class DashboardController extends BaseController {
 		Map<String, String> totalmap = new HashMap<>();
 		if ("SUPERAD".equalsIgnoreCase(loginInfo.getApList())) {
 			for (DataDTO dataDTO : dataList) {
-				total = roundHalfUp(dataDTO.getTotal() + total);
+				total += dataDTO.getTotal();
 			}
 			for (DataDTO dataDTO : dataListSubtractGst) {
-				totalSubtractGst = roundHalfUp(dataDTO.getTotal() + totalSubtractGst);
+				totalSubtractGst += dataDTO.getTotal();
 			}
+			total = roundHalfUp(total);
+			totalSubtractGst = roundHalfUp(totalSubtractGst);
 			totalmap.put("total", String.format("%.2f", total));
 			totalmap.put("totalSubtractGst", String.format("%.2f", totalSubtractGst));
 			return new Response(0, "全澳全年业绩总和", totalmap);

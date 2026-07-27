@@ -521,7 +521,7 @@ public class VisaOfficialCheck {
                     null, null, null, null, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null, null, null, null, null, null, null,
                     null, 0, null, null, null, null, null, null, null, 0, 9999,
-                    null, null, null, null, null, null, false);
+                    null, null, null, null, null, null, null);
             if (serviceOrderDOS == null) {
                 log.warn("[orderStatistics][{}] 订单查询结果为null，按空列表继续执行", taskId);
                 serviceOrderDOS = Collections.emptyList();
