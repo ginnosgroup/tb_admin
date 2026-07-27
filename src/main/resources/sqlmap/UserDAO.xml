@@ -568,6 +568,7 @@
             mara_mark AS maraMark
         FROM tb_user
         WHERE adviser_id = #{adviserId}
+          AND (external_userid IS NULL OR external_userid = '')
           AND name LIKE CONCAT('%', #{name}, '%')
         ORDER BY id DESC
     </select>
@@ -603,6 +604,7 @@
             mara_mark AS maraMark
         FROM tb_user
         WHERE adviser_id = #{adviserId}
+          AND (external_userid IS NULL OR external_userid = '')
           AND (
             name LIKE CONCAT('%', #{surname}, '%')
             OR name LIKE CONCAT('%', #{givenName}, '%')
