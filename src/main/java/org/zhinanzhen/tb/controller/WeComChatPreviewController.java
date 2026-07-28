@@ -51,7 +51,7 @@ public class WeComChatPreviewController extends BaseController {
     private String productionPageUrl;
 
     @Value("${wecom.chat.preview.test.page-url:"
-            + "http://47.236.17.170/webroot_new/wecom-chat-preview.html}")
+            + "http://test.znzapi.cn/webroot_new/wecom-chat-preview.html}")
     private String testPageUrl;
 
     private final Object ticketLock = new Object();
