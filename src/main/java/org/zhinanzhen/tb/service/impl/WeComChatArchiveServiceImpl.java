@@ -69,7 +69,8 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
     @Value("${wecom.chat.archive.notify-id:}")
     private String notifyId;
 
-    @Value("${wecom.chat.archive.rsa-private-key-path:}")
+    @Value("${wecom.chat.archive.rsa-private-key-path:"
+            + "/opt/wecom/keys/wecom_private_key.pem}")
     private String rsaPrivateKeyPath;
 
     @Value("${wecom.chat.archive.page-size:500}")
@@ -383,12 +384,18 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
     }
 
     private void validateSyncConfiguration() {
-        if (isBlank(corpId) || isBlank(applicationSecret)
-                || isBlank(programId) || isBlank(abilityId)
-                || isBlank(rsaPrivateKeyPath)) {
+        StringBuilder missing = new StringBuilder();
+        appendMissing(missing, "spring.social.wecom.app-id(corpId)", corpId);
+        appendMissing(missing, "spring.social.wecom.app-secret(appSecret)",
+                applicationSecret);
+        appendMissing(missing, "wecom.chat.archive.program-id(programId)", programId);
+        appendMissing(missing, "wecom.chat.archive.ability-id(abilityId)", abilityId);
+        appendMissing(missing,
+                "wecom.chat.archive.rsa-private-key-path(RSA私钥路径)",
+                rsaPrivateKeyPath);
+        if (missing.length() > 0) {
             throw new IllegalArgumentException(
-                    "企业微信会话存档同步配置不完整，请检查 corpId、appSecret、"
-                            + "programId、abilityId 和 RSA 私钥路径");
+                    "企业微信会话存档同步配置不完整，缺少：" + missing);
         }
         if (syncPageSize < 1 || syncPageSize > 1000) {
             throw new IllegalArgumentException(
@@ -398,6 +405,17 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
             throw new IllegalArgumentException(
                     "wecom.chat.archive.max-pages-per-sync 必须大于 0");
         }
+    }
+
+    private static void appendMissing(
+            StringBuilder missing, String propertyName, String value) {
+        if (!isBlank(value)) {
+            return;
+        }
+        if (missing.length() > 0) {
+            missing.append("、");
+        }
+        missing.append(propertyName);
     }
 
     private static void checkWeComResponse(String operation, JSONObject response) {

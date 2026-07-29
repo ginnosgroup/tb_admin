@@ -128,14 +128,15 @@ public class WeComChatPreviewController extends BaseController {
     @GetMapping("/employees")
     @ResponseBody
     public Response<JSONArray> listEmployees(
-            @RequestParam("departmentId") long departmentId,
+            @RequestParam(value = "departmentId", required = false) Long departmentId,
             HttpServletRequest request) {
         String accessError = getSuperAdminAccessError(request);
         if (accessError != null) {
             return new Response<>(1, accessError);
         }
-        if (departmentId <= 0) {
-            return new Response<>(1, "请选择企业微信部门");
+        if (departmentId == null || departmentId <= 0) {
+            return new Response<>(1,
+                    "请选择企业微信部门；如果页面未显示部门下拉框，请更新并刷新前端文件");
         }
         try {
             return new Response<>(0, "查询企业人员成功",
