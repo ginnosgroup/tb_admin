@@ -37,6 +37,8 @@ import java.util.UUID;
 public class WeComChatPreviewController extends BaseController {
 
     private static final long TICKET_EXPIRY_SAFETY_SECONDS = 300L;
+    private static final String QUERY_TYPE_CUSTOMER = "CUSTOMER";
+    private static final String QUERY_TYPE_GROUP = "GROUP";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -206,7 +208,10 @@ public class WeComChatPreviewController extends BaseController {
     @ResponseBody
     public Response<JSONObject> queryMessages(
             @RequestParam("employeeUserId") String employeeUserId,
-            @RequestParam("externalUserId") String externalUserId,
+            @RequestParam(value = "externalUserId", required = false)
+                    String externalUserId,
+            @RequestParam(value = "queryType", defaultValue = QUERY_TYPE_CUSTOMER)
+                    String queryType,
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate,
             @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
@@ -216,8 +221,16 @@ public class WeComChatPreviewController extends BaseController {
         if (accessError != null) {
             return new Response<>(1, accessError);
         }
-        if (isBlank(employeeUserId) || isBlank(externalUserId)) {
-            return new Response<>(1, "请选择企业人员和该人员添加的客户");
+        String normalizedQueryType = normalizeQueryType(queryType);
+        if (normalizedQueryType == null) {
+            return new Response<>(1, "queryType 只允许 CUSTOMER 或 GROUP");
+        }
+        if (isBlank(employeeUserId)) {
+            return new Response<>(1, "请选择企业人员");
+        }
+        if (QUERY_TYPE_CUSTOMER.equals(normalizedQueryType)
+                && isBlank(externalUserId)) {
+            return new Response<>(1, "请选择该人员添加的客户");
         }
         if (pageNum < 0 || pageSize < 1 || pageSize > 500) {
             return new Response<>(1, "pageNum 不能小于 0，pageSize 必须在 1 到 500 之间");
@@ -232,16 +245,30 @@ public class WeComChatPreviewController extends BaseController {
             long startTime = start.atStartOfDay(zoneId).toInstant().toEpochMilli();
             long endTime = end.plusDays(1).atStartOfDay(zoneId)
                     .toInstant().toEpochMilli();
-            JSONObject data = weComChatArchiveService.queryMessages(
-                    employeeUserId, externalUserId,
-                    startTime, endTime, pageNum, pageSize);
+            JSONObject data = QUERY_TYPE_GROUP.equals(normalizedQueryType)
+                    ? weComChatArchiveService.queryEmployeeGroupMessages(
+                            employeeUserId, startTime, endTime, pageNum, pageSize)
+                    : weComChatArchiveService.queryMessages(
+                            employeeUserId, externalUserId,
+                            startTime, endTime, pageNum, pageSize);
+            data.put("queryType", normalizedQueryType);
             return new Response<>(0, "查询企业微信会话记录成功", data);
         } catch (Exception ex) {
             log.error("Unable to query WeCom chat archive, employeeUserId={}, "
-                            + "externalUserId={}, startDate={}, endDate={}",
-                    employeeUserId, externalUserId, startDate, endDate, ex);
+                            + "externalUserId={}, queryType={}, startDate={}, endDate={}",
+                    employeeUserId, externalUserId, normalizedQueryType,
+                    startDate, endDate, ex);
             return new Response<>(1, "查询企业微信会话记录失败：" + ex.getMessage());
         }
+    }
+
+    private static String normalizeQueryType(String queryType) {
+        if (queryType == null) {
+            return QUERY_TYPE_CUSTOMER;
+        }
+        String value = queryType.trim().toUpperCase(Locale.ROOT);
+        return QUERY_TYPE_CUSTOMER.equals(value) || QUERY_TYPE_GROUP.equals(value)
+                ? value : null;
     }
 
     private String getSuperAdminAccessError(HttpServletRequest request) {

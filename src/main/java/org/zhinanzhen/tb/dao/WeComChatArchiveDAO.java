@@ -11,9 +11,17 @@ public interface WeComChatArchiveDAO {
 
     int upsertMessage(WeComChatMessageDO message);
 
+    int batchUpsertMessages(@Param("list") List<WeComChatMessageDO> messages);
+
     int insertMessageParticipant(WeComChatParticipantDO participant);
 
+    int batchInsertMessageParticipants(
+            @Param("list") List<WeComChatParticipantDO> participants);
+
     int insertChatParticipant(WeComChatParticipantDO participant);
+
+    int batchInsertChatParticipants(
+            @Param("list") List<WeComChatParticipantDO> participants);
 
     WeComChatSyncStateDO getSyncState(@Param("syncKey") String syncKey);
 
@@ -39,9 +47,21 @@ public interface WeComChatArchiveDAO {
                            @Param("startTime") long startTime,
                            @Param("endTime") long endTime);
 
+    int countEmployeeGroupMessages(
+            @Param("employeeUserId") String employeeUserId,
+            @Param("startTime") long startTime,
+            @Param("endTime") long endTime);
+
     List<WeComChatMessageDO> listMessages(
             @Param("employeeUserId") String employeeUserId,
             @Param("externalUserId") String externalUserId,
+            @Param("startTime") long startTime,
+            @Param("endTime") long endTime,
+            @Param("offset") int offset,
+            @Param("pageSize") int pageSize);
+
+    List<WeComChatMessageDO> listEmployeeGroupMessages(
+            @Param("employeeUserId") String employeeUserId,
             @Param("startTime") long startTime,
             @Param("endTime") long endTime,
             @Param("offset") int offset,

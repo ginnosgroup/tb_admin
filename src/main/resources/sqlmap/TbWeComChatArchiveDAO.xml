@@ -46,6 +46,26 @@
             secret_key = VALUES(secret_key)
     </insert>
 
+    <insert id="batchUpsertMessages">
+        INSERT INTO b_wecom_chat_message
+            (gmt_create, gmt_modify, msg_id, send_time_epoch_millis,
+             sender_json, receiver_json, chat_id, msg_type, secret_key)
+        VALUES
+        <foreach collection="list" item="message" separator=",">
+            (NOW(), NOW(), #{message.msgId}, #{message.sendTimeEpochMillis},
+             #{message.senderJson}, #{message.receiverJson}, #{message.chatId},
+             #{message.msgType}, #{message.secretKey})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            gmt_modify = NOW(),
+            send_time_epoch_millis = VALUES(send_time_epoch_millis),
+            sender_json = VALUES(sender_json),
+            receiver_json = VALUES(receiver_json),
+            chat_id = VALUES(chat_id),
+            msg_type = VALUES(msg_type),
+            secret_key = VALUES(secret_key)
+    </insert>
+
     <insert id="insertMessageParticipant"
             parameterType="org.zhinanzhen.tb.dao.pojo.WeComChatParticipantDO">
         INSERT IGNORE INTO b_wecom_chat_message_participant
@@ -54,12 +74,32 @@
             (NOW(), #{msgId}, #{participantId}, #{participantType}, #{participantRole})
     </insert>
 
+    <insert id="batchInsertMessageParticipants">
+        INSERT IGNORE INTO b_wecom_chat_message_participant
+            (gmt_create, msg_id, participant_id, participant_type, participant_role)
+        VALUES
+        <foreach collection="list" item="participant" separator=",">
+            (NOW(), #{participant.msgId}, #{participant.participantId},
+             #{participant.participantType}, #{participant.participantRole})
+        </foreach>
+    </insert>
+
     <insert id="insertChatParticipant"
             parameterType="org.zhinanzhen.tb.dao.pojo.WeComChatParticipantDO">
         INSERT IGNORE INTO b_wecom_chat_participant
             (gmt_create, chat_id, participant_id, participant_type)
         VALUES
             (NOW(), #{chatId}, #{participantId}, #{participantType})
+    </insert>
+
+    <insert id="batchInsertChatParticipants">
+        INSERT IGNORE INTO b_wecom_chat_participant
+            (gmt_create, chat_id, participant_id, participant_type)
+        VALUES
+        <foreach collection="list" item="participant" separator=",">
+            (NOW(), #{participant.chatId}, #{participant.participantId},
+             #{participant.participantType})
+        </foreach>
     </insert>
 
     <select id="getSyncState" resultMap="SyncStateResultMap">
@@ -132,6 +172,21 @@
           AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
     </select>
 
+    <select id="countEmployeeGroupMessages" resultType="int">
+        SELECT COUNT(*)
+        FROM b_wecom_chat_message m
+        WHERE m.chat_id IS NOT NULL
+          AND m.chat_id != ''
+          AND m.send_time_epoch_millis <![CDATA[ >= ]]> #{startTime}
+          AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
+          AND EXISTS (
+              SELECT 1
+              FROM b_wecom_chat_participant employee_participant
+              WHERE employee_participant.chat_id = m.chat_id
+                AND employee_participant.participant_id = #{employeeUserId}
+          )
+    </select>
+
     <select id="listMessages" resultMap="MessageResultMap">
         SELECT result_rows.*
         FROM (
@@ -175,6 +230,26 @@
               AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
         ) result_rows
         ORDER BY result_rows.send_time_epoch_millis ASC, result_rows.id ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="listEmployeeGroupMessages" resultMap="MessageResultMap">
+        SELECT m.id, m.gmt_create, m.gmt_modify, m.msg_id,
+               m.send_time_epoch_millis, m.sender_json, m.receiver_json,
+               m.chat_id, m.msg_type, m.secret_key,
+               'GROUP' AS conversation_type
+        FROM b_wecom_chat_message m
+        WHERE m.chat_id IS NOT NULL
+          AND m.chat_id != ''
+          AND m.send_time_epoch_millis <![CDATA[ >= ]]> #{startTime}
+          AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
+          AND EXISTS (
+              SELECT 1
+              FROM b_wecom_chat_participant employee_participant
+              WHERE employee_participant.chat_id = m.chat_id
+                AND employee_participant.participant_id = #{employeeUserId}
+          )
+        ORDER BY m.send_time_epoch_millis ASC, m.id ASC
         LIMIT #{offset}, #{pageSize}
     </select>
 

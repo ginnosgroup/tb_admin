@@ -14,4 +14,10 @@ public interface WeComChatArchiveService {
                              long endTime,
                              int pageNum,
                              int pageSize);
+
+    JSONObject queryEmployeeGroupMessages(String employeeUserId,
+                                          long startTime,
+                                          long endTime,
+                                          int pageNum,
+                                          int pageSize);
 }

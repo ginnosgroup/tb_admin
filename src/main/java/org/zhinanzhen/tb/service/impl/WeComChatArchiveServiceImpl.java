@@ -205,6 +205,38 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
         return result;
     }
 
+    @Override
+    public JSONObject queryEmployeeGroupMessages(String employeeUserId,
+                                                 long startTime,
+                                                 long endTime,
+                                                 int pageNum,
+                                                 int pageSize) {
+        int groupTotal = weComChatArchiveDAO.countEmployeeGroupMessages(
+                employeeUserId, startTime, endTime);
+        int offset = pageNum * pageSize;
+        List<WeComChatMessageDO> messages =
+                weComChatArchiveDAO.listEmployeeGroupMessages(
+                        employeeUserId, startTime, endTime, offset, pageSize);
+
+        JSONArray groupMessages = new JSONArray();
+        for (WeComChatMessageDO message : messages) {
+            groupMessages.add(toPreviewMessage(message));
+        }
+
+        JSONObject result = new JSONObject();
+        result.put("queryType", "GROUP");
+        result.put("directMessages", new JSONArray());
+        result.put("groupMessages", groupMessages);
+        result.put("directTotal", 0);
+        result.put("groupTotal", groupTotal);
+        result.put("total", groupTotal);
+        result.put("pageNum", pageNum);
+        result.put("pageSize", pageSize);
+        result.put("hasMore", offset + messages.size() < groupTotal);
+        result.put("returnedCount", messages.size());
+        return result;
+    }
+
     private void persistMessage(JSONObject source, PrivateKey privateKey) throws Exception {
         String msgId = source.getString("msgid");
         if (isBlank(msgId)) {
