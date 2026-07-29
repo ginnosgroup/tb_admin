@@ -139,6 +139,31 @@ public class QywxExternalUserServiceImpl extends BaseService implements QywxExte
 	}
 
 	@Override
+	public List<QywxExternalUserDTO> listByAdviserId(int adviserId) throws ServiceException {
+		List<QywxExternalUserDTO> result = new ArrayList<>();
+		if (adviserId <= 0) {
+			ServiceException se = new ServiceException("adviserId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<QywxExternalUserDO> externalUsers =
+					qywxExternalUserDao.listByAdviserId(adviserId);
+			if (externalUsers == null) {
+				return result;
+			}
+			for (QywxExternalUserDO externalUser : externalUsers) {
+				result.add(mapper.map(externalUser, QywxExternalUserDTO.class));
+			}
+			return result;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public int addDesc(QywxExternalUserDescriptionDTO qywxExternalUserDescriptionDto) throws ServiceException {
 		if (qywxExternalUserDescriptionDto == null) {
 			ServiceException se = new ServiceException("qywxExternalUserDescriptionDto is null !");

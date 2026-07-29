@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +11,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
+import org.zhinanzhen.b.service.QywxExternalUserService;
+import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
+import org.zhinanzhen.tb.service.AdviserService;
+import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -33,6 +42,12 @@ public class WeComChatPreviewController extends BaseController {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Resource
+    private AdviserService adviserService;
+
+    @Resource
+    private QywxExternalUserService qywxExternalUserService;
 
     @Value("${spring.social.wecom.app-id}")
     private String corpId;
@@ -62,12 +77,9 @@ public class WeComChatPreviewController extends BaseController {
     @ResponseBody
     public Response<JSONObject> getAgentConfig(
             @RequestParam("url") String pageUrl, HttpServletRequest request) {
-        AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
-        if (loginInfo == null) {
-            return new Response<>(1, "未登录，请先登录后台系统");
-        }
-        if (!"SUPERAD".equalsIgnoreCase(loginInfo.getApList())) {
-            return new Response<>(1, "只有超级管理员可以查看会话记录");
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
         }
 
         try {
@@ -97,6 +109,86 @@ public class WeComChatPreviewController extends BaseController {
             log.error("Unable to create WeCom chat preview agentConfig signature", ex);
             return new Response<>(1, "获取企业微信签名失败：" + ex.getMessage());
         }
+    }
+
+    @GetMapping("/employees")
+    @ResponseBody
+    public Response<JSONArray> listEmployees(HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        try {
+            JSONArray data = new JSONArray();
+            List<AdviserDTO> advisers = adviserService.listAdviserWithOperUserId();
+            for (AdviserDTO adviser : advisers) {
+                JSONObject employee = new JSONObject();
+                employee.put("adviserId", adviser.getId());
+                employee.put("name", adviser.getName());
+                employee.put("email", adviser.getEmail());
+                employee.put("weComUserId", adviser.getOperUserId());
+                data.add(employee);
+            }
+            return new Response<>(0, "查询企业人员成功", data);
+        } catch (Exception ex) {
+            log.error("Unable to list WeCom chat preview employees", ex);
+            return new Response<>(1, "查询企业人员失败：" + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/customers")
+    @ResponseBody
+    public Response<JSONArray> listCustomers(
+            @RequestParam("adviserId") int adviserId, HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        if (adviserId <= 0) {
+            return new Response<>(1, "请选择企业人员");
+        }
+        try {
+            AdviserDTO adviser = adviserService.getAdviserById(adviserId);
+            if (adviser == null || isBlank(adviser.getOperUserId())) {
+                return new Response<>(1, "所选企业人员不存在或未绑定企业微信账号");
+            }
+
+            JSONArray data = new JSONArray();
+            Set<String> seenExternalUserIds = new HashSet<>();
+            List<QywxExternalUserDTO> customers =
+                    qywxExternalUserService.listByAdviserId(adviserId);
+            for (QywxExternalUserDTO customer : customers) {
+                String externalUserId = customer.getExternalUserid();
+                if (isBlank(externalUserId) || !seenExternalUserIds.add(externalUserId)) {
+                    continue;
+                }
+                JSONObject item = new JSONObject();
+                item.put("id", customer.getId());
+                item.put("name", isBlank(customer.getName())
+                        ? externalUserId : customer.getName());
+                item.put("externalUserId", externalUserId);
+                item.put("avatar", customer.getAvatar());
+                item.put("createdAtEpochMillis", customer.getCreateTime() == null
+                        ? null : customer.getCreateTime().getTime());
+                data.add(item);
+            }
+            return new Response<>(0, "查询客户成功", data);
+        } catch (Exception ex) {
+            log.error("Unable to list WeCom chat preview customers, adviserId={}",
+                    adviserId, ex);
+            return new Response<>(1, "查询客户失败：" + ex.getMessage());
+        }
+    }
+
+    private String getSuperAdminAccessError(HttpServletRequest request) {
+        AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
+        if (loginInfo == null) {
+            return "未登录，请先登录后台系统";
+        }
+        if (!"SUPERAD".equalsIgnoreCase(loginInfo.getApList())) {
+            return "只有超级管理员可以查看会话记录";
+        }
+        return null;
     }
 
     private String getConfiguredPageUrl() {

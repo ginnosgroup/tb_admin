@@ -130,6 +130,25 @@ public class AdviserServiceImpl extends BaseService implements AdviserService {
 	}
 
 	@Override
+	public List<AdviserDTO> listAdviserWithOperUserId() throws ServiceException {
+		List<AdviserDTO> result = new ArrayList<>();
+		try {
+			List<AdviserDO> adviserDoList = adviserDao.listAdviserWithOperUserId();
+			if (adviserDoList == null) {
+				return result;
+			}
+			for (AdviserDO adviserDo : adviserDoList) {
+				result.add(mapper.map(adviserDo, AdviserDTO.class));
+			}
+			return result;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public AdviserDTO getAdviserById(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");

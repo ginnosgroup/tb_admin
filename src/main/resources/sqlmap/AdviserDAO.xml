@@ -96,16 +96,26 @@
 
     <select id="getAdviserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
         SELECT
-            id,
-            gmt_create AS gmtCreate,
-            name,
-            phone,
-            email,
-            state,
-            image_url AS imageUrl,
-            region_id AS regionId,
-            oper_userid AS operUserId
-        FROM tb_adviser WHERE id = #{id, jdbcType=INTEGER};
+            a.id,
+            a.gmt_create AS gmtCreate,
+            a.name,
+            a.phone,
+            a.email,
+            a.state,
+            a.image_url AS imageUrl,
+            a.region_id AS regionId,
+            COALESCE(NULLIF(a.oper_userid, ''), (
+                SELECT au.oper_userid
+                FROM tb_admin_user au
+                WHERE au.adviser_id = a.id
+                  AND (au.status IS NULL OR au.status != 'DISABLED')
+                  AND au.oper_userid IS NOT NULL
+                  AND au.oper_userid != ''
+                ORDER BY au.id DESC
+                LIMIT 1
+            )) AS operUserId
+        FROM tb_adviser a
+        WHERE a.id = #{id, jdbcType=INTEGER};
     </select>
 
     <select id="listAdviserByRegionId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
@@ -136,6 +146,29 @@
         region_id AS regionId ,
         oper_userid AS operUserId
         FROM tb_adviser WHERE oper_userid is not null;
+    </select>
+    <select id="listAdviserWithOperUserId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+        SELECT
+            a.id,
+            a.name,
+            a.email,
+            a.state,
+            a.region_id AS regionId,
+            COALESCE(NULLIF(a.oper_userid, ''), (
+                SELECT au.oper_userid
+                FROM tb_admin_user au
+                WHERE au.adviser_id = a.id
+                  AND (au.status IS NULL OR au.status != 'DISABLED')
+                  AND au.oper_userid IS NOT NULL
+                  AND au.oper_userid != ''
+                ORDER BY au.id DESC
+                LIMIT 1
+            )) AS operUserId
+        FROM tb_adviser a
+        WHERE a.state = 'ENABLED'
+        HAVING operUserId IS NOT NULL
+           AND operUserId != ''
+        ORDER BY a.name, a.id
     </select>
     <select id="getAdviserByEmail" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
         select

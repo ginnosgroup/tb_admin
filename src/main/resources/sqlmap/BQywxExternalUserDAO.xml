@@ -183,6 +183,21 @@
             qq
         FROM b_qywx_external_user WHERE external_userid = #{externalUserid};
     </select>
+
+    <select id="listByAdviserId" resultType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDO">
+        SELECT
+            id,
+            create_time AS createTime,
+            adviser_id AS adviserId,
+            name,
+            avatar,
+            external_userid AS externalUserid
+        FROM b_qywx_external_user
+        WHERE adviser_id = #{adviserId}
+          AND external_userid IS NOT NULL
+          AND external_userid != ''
+        ORDER BY name, id DESC
+    </select>
     
     <insert id="addDesc" parameterType="org.zhinanzhen.b.dao.pojo.QywxExternalUserDescriptionDO" useGeneratedKeys="true" keyProperty="id">
         INSERT

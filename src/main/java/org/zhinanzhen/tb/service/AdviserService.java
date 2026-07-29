@@ -15,6 +15,8 @@ public interface AdviserService {
 	public List<AdviserDTO> listAdviser(String name, List<Integer> regionIdList, int pageNum, int pageSize)
 			throws ServiceException;
 
+	List<AdviserDTO> listAdviserWithOperUserId() throws ServiceException;
+
 	public AdviserDTO getAdviserById(int id) throws ServiceException;
 
 }
