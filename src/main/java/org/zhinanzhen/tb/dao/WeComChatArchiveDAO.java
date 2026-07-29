@@ -47,8 +47,12 @@ public interface WeComChatArchiveDAO {
                            @Param("startTime") long startTime,
                            @Param("endTime") long endTime);
 
+    List<String> listEmployeeGroupChatIds(
+            @Param("employeeUserId") String employeeUserId);
+
     int countEmployeeGroupMessages(
             @Param("employeeUserId") String employeeUserId,
+            @Param("chatId") String chatId,
             @Param("startTime") long startTime,
             @Param("endTime") long endTime);
 
@@ -62,6 +66,7 @@ public interface WeComChatArchiveDAO {
 
     List<WeComChatMessageDO> listEmployeeGroupMessages(
             @Param("employeeUserId") String employeeUserId,
+            @Param("chatId") String chatId,
             @Param("startTime") long startTime,
             @Param("endTime") long endTime,
             @Param("offset") int offset,

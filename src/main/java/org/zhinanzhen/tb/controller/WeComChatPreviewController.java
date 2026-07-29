@@ -172,6 +172,28 @@ public class WeComChatPreviewController extends BaseController {
         }
     }
 
+    @GetMapping("/groups")
+    @ResponseBody
+    public Response<JSONArray> listEmployeeGroups(
+            @RequestParam("employeeUserId") String employeeUserId,
+            HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        if (isBlank(employeeUserId)) {
+            return new Response<>(1, "请选择企业人员");
+        }
+        try {
+            return new Response<>(0, "查询该人员参与的群聊成功",
+                    weComChatArchiveService.listEmployeeGroupChatIds(employeeUserId));
+        } catch (Exception ex) {
+            log.error("Unable to list WeCom group chats, employeeUserId={}",
+                    employeeUserId, ex);
+            return new Response<>(1, "查询群聊失败：" + ex.getMessage());
+        }
+    }
+
     @GetMapping("/archive-status")
     @ResponseBody
     public Response<JSONObject> getArchiveStatus(HttpServletRequest request) {
@@ -210,6 +232,8 @@ public class WeComChatPreviewController extends BaseController {
             @RequestParam("employeeUserId") String employeeUserId,
             @RequestParam(value = "externalUserId", required = false)
                     String externalUserId,
+            @RequestParam(value = "chatId", required = false)
+                    String chatId,
             @RequestParam(value = "queryType", defaultValue = QUERY_TYPE_CUSTOMER)
                     String queryType,
             @RequestParam("startDate") String startDate,
@@ -232,6 +256,9 @@ public class WeComChatPreviewController extends BaseController {
                 && isBlank(externalUserId)) {
             return new Response<>(1, "请选择该人员添加的客户");
         }
+        if (QUERY_TYPE_GROUP.equals(normalizedQueryType) && isBlank(chatId)) {
+            return new Response<>(1, "请选择群聊 ID");
+        }
         if (pageNum < 0 || pageSize < 1 || pageSize > 500) {
             return new Response<>(1, "pageNum 不能小于 0，pageSize 必须在 1 到 500 之间");
         }
@@ -247,7 +274,8 @@ public class WeComChatPreviewController extends BaseController {
                     .toInstant().toEpochMilli();
             JSONObject data = QUERY_TYPE_GROUP.equals(normalizedQueryType)
                     ? weComChatArchiveService.queryEmployeeGroupMessages(
-                            employeeUserId, startTime, endTime, pageNum, pageSize)
+                            employeeUserId, chatId,
+                            startTime, endTime, pageNum, pageSize)
                     : weComChatArchiveService.queryMessages(
                             employeeUserId, externalUserId,
                             startTime, endTime, pageNum, pageSize);
@@ -255,8 +283,9 @@ public class WeComChatPreviewController extends BaseController {
             return new Response<>(0, "查询企业微信会话记录成功", data);
         } catch (Exception ex) {
             log.error("Unable to query WeCom chat archive, employeeUserId={}, "
-                            + "externalUserId={}, queryType={}, startDate={}, endDate={}",
-                    employeeUserId, externalUserId, normalizedQueryType,
+                            + "externalUserId={}, chatId={}, queryType={}, "
+                            + "startDate={}, endDate={}",
+                    employeeUserId, externalUserId, chatId, normalizedQueryType,
                     startDate, endDate, ex);
             return new Response<>(1, "查询企业微信会话记录失败：" + ex.getMessage());
         }

@@ -1,5 +1,6 @@
 package org.zhinanzhen.tb.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 public interface WeComChatArchiveService {
@@ -15,7 +16,10 @@ public interface WeComChatArchiveService {
                              int pageNum,
                              int pageSize);
 
+    JSONArray listEmployeeGroupChatIds(String employeeUserId);
+
     JSONObject queryEmployeeGroupMessages(String employeeUserId,
+                                          String chatId,
                                           long startTime,
                                           long endTime,
                                           int pageNum,

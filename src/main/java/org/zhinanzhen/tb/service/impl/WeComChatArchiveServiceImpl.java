@@ -206,17 +206,26 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
     }
 
     @Override
+    public JSONArray listEmployeeGroupChatIds(String employeeUserId) {
+        JSONArray result = new JSONArray();
+        result.addAll(weComChatArchiveDAO.listEmployeeGroupChatIds(employeeUserId));
+        return result;
+    }
+
+    @Override
     public JSONObject queryEmployeeGroupMessages(String employeeUserId,
+                                                 String chatId,
                                                  long startTime,
                                                  long endTime,
                                                  int pageNum,
                                                  int pageSize) {
         int groupTotal = weComChatArchiveDAO.countEmployeeGroupMessages(
-                employeeUserId, startTime, endTime);
+                employeeUserId, chatId, startTime, endTime);
         int offset = pageNum * pageSize;
         List<WeComChatMessageDO> messages =
                 weComChatArchiveDAO.listEmployeeGroupMessages(
-                        employeeUserId, startTime, endTime, offset, pageSize);
+                        employeeUserId, chatId,
+                        startTime, endTime, offset, pageSize);
 
         JSONArray groupMessages = new JSONArray();
         for (WeComChatMessageDO message : messages) {
@@ -225,6 +234,7 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
 
         JSONObject result = new JSONObject();
         result.put("queryType", "GROUP");
+        result.put("chatId", chatId);
         result.put("directMessages", new JSONArray());
         result.put("groupMessages", groupMessages);
         result.put("directTotal", 0);

@@ -172,11 +172,25 @@
           AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
     </select>
 
+    <select id="listEmployeeGroupChatIds" resultType="java.lang.String">
+        SELECT participant.chat_id
+        FROM b_wecom_chat_participant participant
+        INNER JOIN b_wecom_chat_message message
+            ON message.chat_id = participant.chat_id
+        WHERE participant.participant_id = #{employeeUserId}
+          AND participant.chat_id IS NOT NULL
+          AND participant.chat_id != ''
+        GROUP BY participant.chat_id
+        ORDER BY MAX(message.send_time_epoch_millis) DESC,
+                 participant.chat_id ASC
+    </select>
+
     <select id="countEmployeeGroupMessages" resultType="int">
         SELECT COUNT(*)
         FROM b_wecom_chat_message m
         WHERE m.chat_id IS NOT NULL
           AND m.chat_id != ''
+          AND m.chat_id = #{chatId}
           AND m.send_time_epoch_millis <![CDATA[ >= ]]> #{startTime}
           AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
           AND EXISTS (
@@ -241,6 +255,7 @@
         FROM b_wecom_chat_message m
         WHERE m.chat_id IS NOT NULL
           AND m.chat_id != ''
+          AND m.chat_id = #{chatId}
           AND m.send_time_epoch_millis <![CDATA[ >= ]]> #{startTime}
           AND m.send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
           AND EXISTS (
