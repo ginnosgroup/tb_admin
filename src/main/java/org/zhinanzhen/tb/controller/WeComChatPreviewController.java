@@ -7,14 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
-import org.zhinanzhen.b.service.QywxExternalUserService;
-import org.zhinanzhen.b.service.pojo.QywxExternalUserDTO;
-import org.zhinanzhen.tb.service.AdviserService;
-import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.WeComChatArchiveService;
+import org.zhinanzhen.tb.service.WeComDirectoryService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +22,9 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.HashSet;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -44,10 +42,10 @@ public class WeComChatPreviewController extends BaseController {
     private RestTemplate restTemplate;
 
     @Resource
-    private AdviserService adviserService;
+    private WeComDirectoryService weComDirectoryService;
 
     @Resource
-    private QywxExternalUserService qywxExternalUserService;
+    private WeComChatArchiveService weComChatArchiveService;
 
     @Value("${spring.social.wecom.app-id}")
     private String corpId;
@@ -111,27 +109,40 @@ public class WeComChatPreviewController extends BaseController {
         }
     }
 
-    @GetMapping("/employees")
+    @GetMapping("/departments")
     @ResponseBody
-    public Response<JSONArray> listEmployees(HttpServletRequest request) {
+    public Response<JSONArray> listDepartments(HttpServletRequest request) {
         String accessError = getSuperAdminAccessError(request);
         if (accessError != null) {
             return new Response<>(1, accessError);
         }
         try {
-            JSONArray data = new JSONArray();
-            List<AdviserDTO> advisers = adviserService.listAdviserWithOperUserId();
-            for (AdviserDTO adviser : advisers) {
-                JSONObject employee = new JSONObject();
-                employee.put("adviserId", adviser.getId());
-                employee.put("name", adviser.getName());
-                employee.put("email", adviser.getEmail());
-                employee.put("weComUserId", adviser.getOperUserId());
-                data.add(employee);
-            }
-            return new Response<>(0, "查询企业人员成功", data);
+            return new Response<>(0, "查询企业微信部门成功",
+                    weComDirectoryService.listDepartments());
         } catch (Exception ex) {
-            log.error("Unable to list WeCom chat preview employees", ex);
+            log.error("Unable to list WeCom departments", ex);
+            return new Response<>(1, "查询企业微信部门失败：" + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/employees")
+    @ResponseBody
+    public Response<JSONArray> listEmployees(
+            @RequestParam("departmentId") long departmentId,
+            HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        if (departmentId <= 0) {
+            return new Response<>(1, "请选择企业微信部门");
+        }
+        try {
+            return new Response<>(0, "查询企业人员成功",
+                    weComDirectoryService.listEmployees(departmentId));
+        } catch (Exception ex) {
+            log.error("Unable to list WeCom employees, departmentId={}",
+                    departmentId, ex);
             return new Response<>(1, "查询企业人员失败：" + ex.getMessage());
         }
     }
@@ -139,44 +150,96 @@ public class WeComChatPreviewController extends BaseController {
     @GetMapping("/customers")
     @ResponseBody
     public Response<JSONArray> listCustomers(
-            @RequestParam("adviserId") int adviserId, HttpServletRequest request) {
+            @RequestParam("weComUserId") String weComUserId,
+            HttpServletRequest request) {
         String accessError = getSuperAdminAccessError(request);
         if (accessError != null) {
             return new Response<>(1, accessError);
         }
-        if (adviserId <= 0) {
+        if (isBlank(weComUserId)) {
             return new Response<>(1, "请选择企业人员");
         }
         try {
-            AdviserDTO adviser = adviserService.getAdviserById(adviserId);
-            if (adviser == null || isBlank(adviser.getOperUserId())) {
-                return new Response<>(1, "所选企业人员不存在或未绑定企业微信账号");
-            }
-
-            JSONArray data = new JSONArray();
-            Set<String> seenExternalUserIds = new HashSet<>();
-            List<QywxExternalUserDTO> customers =
-                    qywxExternalUserService.listByAdviserId(adviserId);
-            for (QywxExternalUserDTO customer : customers) {
-                String externalUserId = customer.getExternalUserid();
-                if (isBlank(externalUserId) || !seenExternalUserIds.add(externalUserId)) {
-                    continue;
-                }
-                JSONObject item = new JSONObject();
-                item.put("id", customer.getId());
-                item.put("name", isBlank(customer.getName())
-                        ? externalUserId : customer.getName());
-                item.put("externalUserId", externalUserId);
-                item.put("avatar", customer.getAvatar());
-                item.put("createdAtEpochMillis", customer.getCreateTime() == null
-                        ? null : customer.getCreateTime().getTime());
-                data.add(item);
-            }
-            return new Response<>(0, "查询客户成功", data);
+            return new Response<>(0, "查询该人员添加的客户成功",
+                    weComDirectoryService.listCustomers(weComUserId));
         } catch (Exception ex) {
-            log.error("Unable to list WeCom chat preview customers, adviserId={}",
-                    adviserId, ex);
+            log.error("Unable to list WeCom customers, weComUserId={}",
+                    weComUserId, ex);
             return new Response<>(1, "查询客户失败：" + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/archive-status")
+    @ResponseBody
+    public Response<JSONObject> getArchiveStatus(HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        try {
+            return new Response<>(0, "查询会话存档同步状态成功",
+                    weComChatArchiveService.getArchiveStatus());
+        } catch (Exception ex) {
+            log.error("Unable to get WeCom chat archive status", ex);
+            return new Response<>(1, "查询会话存档同步状态失败：" + ex.getMessage());
+        }
+    }
+
+    @PostMapping("/sync")
+    @ResponseBody
+    public Response<JSONObject> syncArchive(HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        try {
+            return new Response<>(0, "企业微信会话存档同步完成",
+                    weComChatArchiveService.syncNow());
+        } catch (Exception ex) {
+            log.error("Unable to sync WeCom chat archive", ex);
+            return new Response<>(1, "企业微信会话存档同步失败：" + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/messages")
+    @ResponseBody
+    public Response<JSONObject> queryMessages(
+            @RequestParam("employeeUserId") String employeeUserId,
+            @RequestParam("externalUserId") String externalUserId,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate,
+            @RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+            @RequestParam(value = "pageSize", defaultValue = "200") int pageSize,
+            HttpServletRequest request) {
+        String accessError = getSuperAdminAccessError(request);
+        if (accessError != null) {
+            return new Response<>(1, accessError);
+        }
+        if (isBlank(employeeUserId) || isBlank(externalUserId)) {
+            return new Response<>(1, "请选择企业人员和该人员添加的客户");
+        }
+        if (pageNum < 0 || pageSize < 1 || pageSize > 500) {
+            return new Response<>(1, "pageNum 不能小于 0，pageSize 必须在 1 到 500 之间");
+        }
+        try {
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            if (end.isBefore(start)) {
+                return new Response<>(1, "结束日期不能早于开始日期");
+            }
+            ZoneId zoneId = ZoneId.systemDefault();
+            long startTime = start.atStartOfDay(zoneId).toInstant().toEpochMilli();
+            long endTime = end.plusDays(1).atStartOfDay(zoneId)
+                    .toInstant().toEpochMilli();
+            JSONObject data = weComChatArchiveService.queryMessages(
+                    employeeUserId, externalUserId,
+                    startTime, endTime, pageNum, pageSize);
+            return new Response<>(0, "查询企业微信会话记录成功", data);
+        } catch (Exception ex) {
+            log.error("Unable to query WeCom chat archive, employeeUserId={}, "
+                            + "externalUserId={}, startDate={}, endDate={}",
+                    employeeUserId, externalUserId, startDate, endDate, ex);
+            return new Response<>(1, "查询企业微信会话记录失败：" + ex.getMessage());
         }
     }
 
