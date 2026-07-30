@@ -30,6 +30,7 @@ import java.security.PrivateKey;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,11 +74,26 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
             + "/opt/wecom/keys/wecom_private_key.pem}")
     private String rsaPrivateKeyPath;
 
-    @Value("${wecom.chat.archive.page-size:500}")
+    @Value("${wecom.chat.archive.page-size:1000}")
     private int syncPageSize;
 
     @Value("${wecom.chat.archive.max-pages-per-sync:10}")
     private int maxPagesPerSync;
+
+    @Value("${wecom.chat.archive.date-range-max-pages:1000}")
+    private int dateRangeMaxPages;
+
+    @Value("${wecom.chat.archive.database-batch-size:300}")
+    private int databaseBatchSize;
+
+    @Value("${wecom.chat.archive.request-interval-ms:200}")
+    private long requestIntervalMillis;
+
+    @Value("${wecom.chat.archive.rate-limit-retry-delay-ms:65000}")
+    private long rateLimitRetryDelayMillis;
+
+    @Value("${wecom.chat.archive.rate-limit-max-retries:5}")
+    private int rateLimitMaxRetries;
 
     @Value("${wecom.chat.archive.enabled:false}")
     private boolean scheduledSyncEnabled;
@@ -105,19 +121,28 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
             String accessToken = getApplicationAccessToken();
             WeComChatSyncStateDO state = weComChatArchiveDAO.getSyncState(SYNC_KEY);
             String cursor = state == null ? "" : emptyIfNull(state.getNextCursor());
-            int totalProcessed = 0;
+            long fetchedCount = 0L;
+            long messageCount = 0L;
+            long messageParticipantCount = 0L;
+            long chatParticipantCount = 0L;
             int pages = 0;
             int hasMore = 0;
 
             try {
                 while (pages < maxPagesPerSync) {
-                    JSONObject response = callSyncMessage(accessToken, cursor);
+                    throttleRequest(pages);
+                    JSONObject response =
+                            callSyncMessageWithRateLimitRetry(accessToken, cursor);
                     JSONArray messages = response.getJSONArray("msg_list");
                     int pageCount = messages == null ? 0 : messages.size();
+                    fetchedCount += pageCount;
 
-                    for (int i = 0; i < pageCount; i++) {
-                        persistMessage(messages.getJSONObject(i), privateKey);
-                    }
+                    SyncPageBatch batch = buildSyncPageBatch(
+                            messages, privateKey, Long.MIN_VALUE, Long.MAX_VALUE);
+                    saveSyncPageBatch(batch);
+                    messageCount += batch.messages.size();
+                    messageParticipantCount += batch.messageParticipants.size();
+                    chatParticipantCount += batch.chatParticipants.size();
 
                     String nextCursor = response.getString("next_cursor");
                     hasMore = response.getIntValue("has_more");
@@ -126,10 +151,9 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
                     }
                     weComChatArchiveDAO.saveSyncState(
                             SYNC_KEY, cursor, hasMore, pageCount, null);
-                    totalProcessed += pageCount;
                     pages++;
 
-                    if (hasMore != 1 || pageCount == 0 || isBlank(cursor)) {
+                    if (hasMore != 1 || pageCount == 0 || isBlank(nextCursor)) {
                         break;
                     }
                 }
@@ -140,10 +164,108 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
             }
 
             JSONObject result = getArchiveStatus();
-            result.put("processedThisSync", totalProcessed);
+            result.put("processedThisSync", messageCount);
+            result.put("fetchedThisSync", fetchedCount);
+            result.put("messageParticipantsThisSync", messageParticipantCount);
+            result.put("chatParticipantsThisSync", chatParticipantCount);
             result.put("pagesThisSync", pages);
             result.put("hasMore", hasMore);
             result.put("nextCursor", cursor);
+            return result;
+        }
+    }
+
+    @Override
+    public JSONObject syncDateRange(long startTime, long endTime) throws Exception {
+        if (startTime < 0L || endTime <= startTime) {
+            throw new IllegalArgumentException("同步结束时间必须晚于同步开始时间");
+        }
+        synchronized (syncLock) {
+            validateSyncConfiguration();
+            PrivateKey privateKey = readPrivateKey();
+            String accessToken = getApplicationAccessToken();
+            WeComChatSyncStateDO incrementalState =
+                    weComChatArchiveDAO.getSyncState(SYNC_KEY);
+            String incrementalCursor = incrementalState == null
+                    ? "" : emptyIfNull(incrementalState.getNextCursor());
+            int incrementalHasMore = incrementalState == null
+                    || incrementalState.getHasMore() == null
+                    ? 0 : incrementalState.getHasMore();
+
+            String cursor = "";
+            int pages = 0;
+            int hasMore = 0;
+            long fetchedCount = 0L;
+            long matchedMessageCount = 0L;
+            long messageParticipantCount = 0L;
+            long chatParticipantCount = 0L;
+            boolean rangeCompleted = false;
+
+            try {
+                while (pages < dateRangeMaxPages) {
+                    throttleRequest(pages);
+                    JSONObject response =
+                            callSyncMessageWithRateLimitRetry(accessToken, cursor);
+                    JSONArray sourceMessages = response.getJSONArray("msg_list");
+                    int pageCount = sourceMessages == null ? 0 : sourceMessages.size();
+                    fetchedCount += pageCount;
+
+                    SyncPageBatch batch = buildSyncPageBatch(
+                            sourceMessages, privateKey, startTime, endTime);
+                    saveSyncPageBatch(batch);
+                    matchedMessageCount += batch.messages.size();
+                    messageParticipantCount += batch.messageParticipants.size();
+                    chatParticipantCount += batch.chatParticipants.size();
+
+                    String nextCursor = response.getString("next_cursor");
+                    hasMore = response.getIntValue("has_more");
+                    pages++;
+
+                    log.info("WeCom date-range batch sync page={}, fetched={}, "
+                                    + "matched={}, messageParticipants={}, "
+                                    + "chatParticipants={}, hasMore={}",
+                            pages, pageCount, batch.messages.size(),
+                            batch.messageParticipants.size(),
+                            batch.chatParticipants.size(), hasMore);
+
+                    boolean pageIsAfterRange =
+                            batch.minimumMessageTime != Long.MAX_VALUE
+                                    && batch.minimumMessageTime >= endTime;
+                    if (pageIsAfterRange || hasMore != 1 || pageCount == 0
+                            || isBlank(nextCursor)) {
+                        rangeCompleted = true;
+                        break;
+                    }
+                    cursor = nextCursor;
+                }
+
+                if (!rangeCompleted && pages >= dateRangeMaxPages && hasMore == 1) {
+                    throw new IllegalStateException(
+                            "达到时间段同步最大分页数但企业微信仍有数据，"
+                                    + "请增大 wecom.chat.archive.date-range-max-pages");
+                }
+
+                weComChatArchiveDAO.saveSyncState(
+                        SYNC_KEY, incrementalCursor, incrementalHasMore,
+                        (int) Math.min(matchedMessageCount, Integer.MAX_VALUE), null);
+            } catch (Exception ex) {
+                weComChatArchiveDAO.saveSyncState(
+                        SYNC_KEY, incrementalCursor, incrementalHasMore, 0,
+                        abbreviate(ex.getMessage(), 4000));
+                throw ex;
+            }
+
+            JSONObject result = getArchiveStatus();
+            result.put("syncStartTime", startTime);
+            result.put("syncEndTime", endTime);
+            result.put("fetchedThisSync", fetchedCount);
+            result.put("processedThisSync", matchedMessageCount);
+            result.put("messageParticipantsThisSync", messageParticipantCount);
+            result.put("chatParticipantsThisSync", chatParticipantCount);
+            result.put("persistedRangeCount",
+                    weComChatArchiveDAO.countMessagesByTimeRange(startTime, endTime));
+            result.put("pagesThisSync", pages);
+            result.put("rangeCompleted", rangeCompleted);
             return result;
         }
     }
@@ -247,7 +369,62 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
         return result;
     }
 
-    private void persistMessage(JSONObject source, PrivateKey privateKey) throws Exception {
+    private SyncPageBatch buildSyncPageBatch(
+            JSONArray sourceMessages,
+            PrivateKey privateKey,
+            long startTime,
+            long endTime) throws Exception {
+        Map<String, WeComChatMessageDO> messageMap = new LinkedHashMap<>();
+        Map<String, WeComChatParticipantDO> messageParticipantMap =
+                new LinkedHashMap<>();
+        Map<String, WeComChatParticipantDO> chatParticipantMap =
+                new LinkedHashMap<>();
+        long minimumMessageTime = Long.MAX_VALUE;
+
+        for (int i = 0; sourceMessages != null && i < sourceMessages.size(); i++) {
+            JSONObject source = sourceMessages.getJSONObject(i);
+            long sendTime = toEpochMillis(source.getLongValue("send_time"));
+            if (sendTime > 0L) {
+                minimumMessageTime = Math.min(minimumMessageTime, sendTime);
+            }
+            if (sendTime < startTime || sendTime >= endTime) {
+                continue;
+            }
+
+            WeComChatMessageDO message =
+                    toChatMessage(source, sendTime, privateKey);
+            messageMap.put(message.getMsgId(), message);
+            collectBatchParticipant(
+                    messageParticipantMap, chatParticipantMap,
+                    message.getMsgId(), message.getChatId(),
+                    source.get("sender"), "SENDER");
+
+            Object receiverValue = source.get("receiver_list");
+            JSONArray receivers = receiverValue instanceof JSONArray
+                    ? (JSONArray) receiverValue
+                    : JSONArray.parseArray(receiverValue == null
+                    ? "[]" : JSONObject.toJSONString(receiverValue));
+            for (int receiverIndex = 0;
+                 receivers != null && receiverIndex < receivers.size();
+                 receiverIndex++) {
+                collectBatchParticipant(
+                        messageParticipantMap, chatParticipantMap,
+                        message.getMsgId(), message.getChatId(),
+                        receivers.get(receiverIndex), "RECEIVER");
+            }
+        }
+
+        return new SyncPageBatch(
+                new ArrayList<>(messageMap.values()),
+                new ArrayList<>(messageParticipantMap.values()),
+                new ArrayList<>(chatParticipantMap.values()),
+                minimumMessageTime);
+    }
+
+    private WeComChatMessageDO toChatMessage(
+            JSONObject source,
+            long sendTime,
+            PrivateKey privateKey) throws Exception {
         String msgId = source.getString("msgid");
         if (isBlank(msgId)) {
             throw new IllegalStateException("sync_msg returned a message without msgid");
@@ -262,50 +439,37 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
 
         WeComChatMessageDO message = new WeComChatMessageDO();
         message.setMsgId(msgId);
-        message.setSendTimeEpochMillis(toEpochMillis(source.getLongValue("send_time")));
+        message.setSendTimeEpochMillis(sendTime);
         message.setSenderJson(jsonValueToText(source.get("sender")));
         message.setReceiverJson(jsonValueToText(source.get("receiver_list")));
         message.setChatId(emptyToNull(source.getString("chatid")));
         Object msgType = source.get("msgtype");
         message.setMsgType(msgType == null ? null : String.valueOf(msgType));
         message.setSecretKey(secretKey);
-        weComChatArchiveDAO.upsertMessage(message);
-
-        Map<String, WeComChatParticipantDO> participants = new LinkedHashMap<>();
-        collectParticipant(participants, msgId, message.getChatId(),
-                source.get("sender"), "SENDER");
-        Object receiverList = source.get("receiver_list");
-        JSONArray receivers = receiverList instanceof JSONArray
-                ? (JSONArray) receiverList : JSONArray.parseArray(
-                receiverList == null ? "[]" : String.valueOf(receiverList));
-        for (int i = 0; receivers != null && i < receivers.size(); i++) {
-            collectParticipant(participants, msgId, message.getChatId(),
-                    receivers.get(i), "RECEIVER");
-        }
-
-        for (WeComChatParticipantDO participant : participants.values()) {
-            weComChatArchiveDAO.insertMessageParticipant(participant);
-            if (!isBlank(message.getChatId())) {
-                weComChatArchiveDAO.insertChatParticipant(participant);
-            }
-        }
+        return message;
     }
 
-    private void collectParticipant(Map<String, WeComChatParticipantDO> participants,
-                                    String msgId,
-                                    String chatId,
-                                    Object source,
-                                    String role) {
+    private void collectBatchParticipant(
+            Map<String, WeComChatParticipantDO> messageParticipantMap,
+            Map<String, WeComChatParticipantDO> chatParticipantMap,
+            String msgId,
+            String chatId,
+            Object source,
+            String role) {
         if (source == null) {
             return;
         }
         JSONObject json = source instanceof JSONObject
-                ? (JSONObject) source : JSONObject.parseObject(String.valueOf(source));
+                ? (JSONObject) source
+                : JSONObject.parseObject(JSONObject.toJSONString(source));
         String participantId = json.getString("id");
         if (isBlank(participantId)) {
             return;
         }
-        WeComChatParticipantDO participant = participants.get(participantId);
+
+        String messageKey = msgId + "\u0000" + participantId;
+        WeComChatParticipantDO participant =
+                messageParticipantMap.get(messageKey);
         if (participant == null) {
             participant = new WeComChatParticipantDO();
             participant.setMsgId(msgId);
@@ -313,10 +477,98 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
             participant.setParticipantId(participantId);
             participant.setParticipantType(json.getInteger("type"));
             participant.setParticipantRole(role);
-            participants.put(participantId, participant);
+            messageParticipantMap.put(messageKey, participant);
         } else if ("SENDER".equals(role)) {
             participant.setParticipantRole(role);
         }
+
+        if (!isBlank(chatId)) {
+            String chatKey = chatId + "\u0000" + participantId;
+            if (!chatParticipantMap.containsKey(chatKey)) {
+                WeComChatParticipantDO chatParticipant =
+                        new WeComChatParticipantDO();
+                chatParticipant.setChatId(chatId);
+                chatParticipant.setParticipantId(participantId);
+                chatParticipant.setParticipantType(json.getInteger("type"));
+                chatParticipantMap.put(chatKey, chatParticipant);
+            }
+        }
+    }
+
+    private void saveSyncPageBatch(SyncPageBatch batch) {
+        batchSaveMessages(batch.messages);
+        batchSaveMessageParticipants(batch.messageParticipants);
+        batchSaveChatParticipants(batch.chatParticipants);
+    }
+
+    private void batchSaveMessages(List<WeComChatMessageDO> list) {
+        for (int fromIndex = 0; fromIndex < list.size();
+             fromIndex += databaseBatchSize) {
+            int toIndex = Math.min(fromIndex + databaseBatchSize, list.size());
+            weComChatArchiveDAO.batchUpsertMessages(
+                    list.subList(fromIndex, toIndex));
+        }
+    }
+
+    private void batchSaveMessageParticipants(
+            List<WeComChatParticipantDO> list) {
+        for (int fromIndex = 0; fromIndex < list.size();
+             fromIndex += databaseBatchSize) {
+            int toIndex = Math.min(fromIndex + databaseBatchSize, list.size());
+            weComChatArchiveDAO.batchInsertMessageParticipants(
+                    list.subList(fromIndex, toIndex));
+        }
+    }
+
+    private void batchSaveChatParticipants(List<WeComChatParticipantDO> list) {
+        for (int fromIndex = 0; fromIndex < list.size();
+             fromIndex += databaseBatchSize) {
+            int toIndex = Math.min(fromIndex + databaseBatchSize, list.size());
+            weComChatArchiveDAO.batchInsertChatParticipants(
+                    list.subList(fromIndex, toIndex));
+        }
+    }
+
+    private void throttleRequest(int completedPageCount)
+            throws InterruptedException {
+        if (completedPageCount > 0) {
+            Thread.sleep(requestIntervalMillis);
+        }
+    }
+
+    private JSONObject callSyncMessageWithRateLimitRetry(
+            String accessToken, String cursor) throws Exception {
+        int retryCount = 0;
+        while (true) {
+            try {
+                return callSyncMessage(accessToken, cursor);
+            } catch (IllegalStateException ex) {
+                if (!isWeComRateLimitError(ex)
+                        || retryCount >= rateLimitMaxRetries) {
+                    throw ex;
+                }
+                retryCount++;
+                log.warn("企业微信接口触发 45009，等待 {} 毫秒后重试当前 cursor，"
+                                + "第 {}/{} 次重试",
+                        rateLimitRetryDelayMillis,
+                        retryCount, rateLimitMaxRetries);
+                Thread.sleep(rateLimitRetryDelayMillis);
+            }
+        }
+    }
+
+    private static boolean isWeComRateLimitError(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            String message = current.getMessage();
+            if (message != null
+                    && (message.contains("errcode=45009")
+                    || message.contains("\"errcode\":45009"))) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     private JSONObject callSyncMessage(String accessToken, String cursor) throws Exception {
@@ -446,6 +698,45 @@ public class WeComChatArchiveServiceImpl implements WeComChatArchiveService {
         if (maxPagesPerSync < 1) {
             throw new IllegalArgumentException(
                     "wecom.chat.archive.max-pages-per-sync 必须大于 0");
+        }
+        if (dateRangeMaxPages < 1) {
+            throw new IllegalArgumentException(
+                    "wecom.chat.archive.date-range-max-pages 必须大于 0");
+        }
+        if (databaseBatchSize < 1) {
+            throw new IllegalArgumentException(
+                    "wecom.chat.archive.database-batch-size 必须大于 0");
+        }
+        if (requestIntervalMillis < 100L) {
+            throw new IllegalArgumentException(
+                    "wecom.chat.archive.request-interval-ms 不能小于 100");
+        }
+        if (rateLimitRetryDelayMillis < 60000L) {
+            throw new IllegalArgumentException(
+                    "wecom.chat.archive.rate-limit-retry-delay-ms 不能小于 60000");
+        }
+        if (rateLimitMaxRetries < 0) {
+            throw new IllegalArgumentException(
+                    "wecom.chat.archive.rate-limit-max-retries 不能小于 0");
+        }
+    }
+
+    private static final class SyncPageBatch {
+
+        private final List<WeComChatMessageDO> messages;
+        private final List<WeComChatParticipantDO> messageParticipants;
+        private final List<WeComChatParticipantDO> chatParticipants;
+        private final long minimumMessageTime;
+
+        private SyncPageBatch(
+                List<WeComChatMessageDO> messages,
+                List<WeComChatParticipantDO> messageParticipants,
+                List<WeComChatParticipantDO> chatParticipants,
+                long minimumMessageTime) {
+            this.messages = messages;
+            this.messageParticipants = messageParticipants;
+            this.chatParticipants = chatParticipants;
+            this.minimumMessageTime = minimumMessageTime;
         }
     }
 

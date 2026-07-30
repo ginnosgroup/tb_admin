@@ -39,6 +39,8 @@ public class WeComChatPreviewController extends BaseController {
     private static final long TICKET_EXPIRY_SAFETY_SECONDS = 300L;
     private static final String QUERY_TYPE_CUSTOMER = "CUSTOMER";
     private static final String QUERY_TYPE_GROUP = "GROUP";
+    private static final ZoneId CHAT_ARCHIVE_ZONE_ID =
+            ZoneId.of("Asia/Shanghai");
 
     @Autowired
     private RestTemplate restTemplate;
@@ -212,16 +214,30 @@ public class WeComChatPreviewController extends BaseController {
 
     @PostMapping("/sync")
     @ResponseBody
-    public Response<JSONObject> syncArchive(HttpServletRequest request) {
+    public Response<JSONObject> syncArchive(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate,
+            HttpServletRequest request) {
         String accessError = getSuperAdminAccessError(request);
         if (accessError != null) {
             return new Response<>(1, accessError);
         }
         try {
-            return new Response<>(0, "企业微信会话存档同步完成",
-                    weComChatArchiveService.syncNow());
+            LocalDate start = LocalDate.parse(startDate);
+            LocalDate end = LocalDate.parse(endDate);
+            if (end.isBefore(start)) {
+                return new Response<>(1, "同步结束日期不能早于同步开始日期");
+            }
+            long startTime = start.atStartOfDay(CHAT_ARCHIVE_ZONE_ID)
+                    .toInstant().toEpochMilli();
+            long endTime = end.plusDays(1)
+                    .atStartOfDay(CHAT_ARCHIVE_ZONE_ID)
+                    .toInstant().toEpochMilli();
+            return new Response<>(0, "企业微信会话存档时间段同步完成",
+                    weComChatArchiveService.syncDateRange(startTime, endTime));
         } catch (Exception ex) {
-            log.error("Unable to sync WeCom chat archive", ex);
+            log.error("Unable to sync WeCom chat archive, startDate={}, endDate={}",
+                    startDate, endDate, ex);
             return new Response<>(1, "企业微信会话存档同步失败：" + ex.getMessage());
         }
     }
@@ -268,9 +284,9 @@ public class WeComChatPreviewController extends BaseController {
             if (end.isBefore(start)) {
                 return new Response<>(1, "结束日期不能早于开始日期");
             }
-            ZoneId zoneId = ZoneId.systemDefault();
-            long startTime = start.atStartOfDay(zoneId).toInstant().toEpochMilli();
-            long endTime = end.plusDays(1).atStartOfDay(zoneId)
+            long startTime = start.atStartOfDay(CHAT_ARCHIVE_ZONE_ID)
+                    .toInstant().toEpochMilli();
+            long endTime = end.plusDays(1).atStartOfDay(CHAT_ARCHIVE_ZONE_ID)
                     .toInstant().toEpochMilli();
             JSONObject data = QUERY_TYPE_GROUP.equals(normalizedQueryType)
                     ? weComChatArchiveService.queryEmployeeGroupMessages(

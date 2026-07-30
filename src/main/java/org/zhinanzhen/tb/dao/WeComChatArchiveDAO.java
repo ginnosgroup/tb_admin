@@ -37,6 +37,9 @@ public interface WeComChatArchiveDAO {
 
     Long getLatestMessageTime();
 
+    long countMessagesByTimeRange(@Param("startTime") long startTime,
+                                  @Param("endTime") long endTime);
+
     int countDirectMessages(@Param("employeeUserId") String employeeUserId,
                             @Param("externalUserId") String externalUserId,
                             @Param("startTime") long startTime,

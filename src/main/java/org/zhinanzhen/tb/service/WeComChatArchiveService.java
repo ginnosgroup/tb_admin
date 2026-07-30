@@ -7,6 +7,8 @@ public interface WeComChatArchiveService {
 
     JSONObject syncNow() throws Exception;
 
+    JSONObject syncDateRange(long startTime, long endTime) throws Exception;
+
     JSONObject getArchiveStatus();
 
     JSONObject queryMessages(String employeeUserId,

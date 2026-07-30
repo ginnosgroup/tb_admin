@@ -137,6 +137,13 @@
         SELECT MAX(send_time_epoch_millis) FROM b_wecom_chat_message
     </select>
 
+    <select id="countMessagesByTimeRange" resultType="long">
+        SELECT COUNT(*)
+        FROM b_wecom_chat_message
+        WHERE send_time_epoch_millis <![CDATA[ >= ]]> #{startTime}
+          AND send_time_epoch_millis <![CDATA[ < ]]> #{endTime}
+    </select>
+
     <select id="countDirectMessages" resultType="int">
         SELECT COUNT(*)
         FROM b_wecom_chat_message m
