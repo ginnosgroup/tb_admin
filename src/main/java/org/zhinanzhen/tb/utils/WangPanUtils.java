@@ -32,68 +32,68 @@ public class WangPanUtils {
     private String PDS_ENDPOINT;
 
     public JsonNode listFile(String driveId, String parentFileId) throws IOException, ExecutionException, InterruptedException {
-        AsyncClient asyncClient = getAsyncClient();
-        ListFileRequest listFileRequest = ListFileRequest.builder()
-                .driveId(driveId)
-                .parentFileId(parentFileId)
-                .limit(100)
-                .build();
-        CompletableFuture<ListFileResponse> listFileResponseCompletableFuture = asyncClient.listFile(listFileRequest);
-        ListFileResponse listFileResponse = listFileResponseCompletableFuture.get();
-        String json = new Gson().toJson(listFileResponse);
-        asyncClient.close();
-        return new ObjectMapper().readTree(json);
+        try (AsyncClient asyncClient = getAsyncClient()) {
+            ListFileRequest listFileRequest = ListFileRequest.builder()
+                    .driveId(driveId)
+                    .parentFileId(parentFileId)
+                    .limit(100)
+                    .build();
+            CompletableFuture<ListFileResponse> listFileResponseCompletableFuture = asyncClient.listFile(listFileRequest);
+            ListFileResponse listFileResponse = listFileResponseCompletableFuture.get();
+            String json = new Gson().toJson(listFileResponse);
+            return new ObjectMapper().readTree(json);
+        }
     }
 
     public JsonNode getFile(String driveId, String fileId) throws ExecutionException, InterruptedException, IOException {
-        AsyncClient asyncClient = getAsyncClient();
-        // Parameter settings for API request
-        GetFileRequest getFileRequest = GetFileRequest.builder()
-                .fileId(fileId)
-                .driveId(driveId)
-                // Request-level configuration rewrite, can set Http request parameters, etc.
-                // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
-                .build();
+        try (AsyncClient asyncClient = getAsyncClient()) {
+            // Parameter settings for API request
+            GetFileRequest getFileRequest = GetFileRequest.builder()
+                    .fileId(fileId)
+                    .driveId(driveId)
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
 
-        // Asynchronously get the return value of the API request
-        CompletableFuture<GetFileResponse> response = asyncClient.getFile(getFileRequest);
-        // Synchronously get the return value of the API request
-        GetFileResponse resp = response.get();
-        String json = new Gson().toJson(resp);
-        asyncClient.close();
-        return new ObjectMapper().readTree(json);
+            // Asynchronously get the return value of the API request
+            CompletableFuture<GetFileResponse> response = asyncClient.getFile(getFileRequest);
+            // Synchronously get the return value of the API request
+            GetFileResponse resp = response.get();
+            String json = new Gson().toJson(resp);
+            return new ObjectMapper().readTree(json);
+        }
     }
 
     public JsonNode copyFile(String oldDriverId, String newDriverId, String fileId, String newParentFiledId) throws IOException, ExecutionException, InterruptedException {
-        AsyncClient asyncClient = getAsyncClient();
-        // Parameter settings for API request
-        CopyFileRequest copyFileRequest = CopyFileRequest.builder()
-                .driveId(oldDriverId)
-                .fileId(fileId)
-                .toDriveId(newDriverId)
-                .toParentFileId(newParentFiledId)
-                // Request-level configuration rewrite, can set Http request parameters, etc.
-                // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
-                .build();
-        CompletableFuture<CopyFileResponse> resp = asyncClient.copyFile(copyFileRequest);
-        CopyFileResponse copyFileResponse = resp.get();
-        String json = new Gson().toJson(copyFileResponse);
-        asyncClient.close();
-        return new ObjectMapper().readTree(json);
+        try (AsyncClient asyncClient = getAsyncClient()) {
+            // Parameter settings for API request
+            CopyFileRequest copyFileRequest = CopyFileRequest.builder()
+                    .driveId(oldDriverId)
+                    .fileId(fileId)
+                    .toDriveId(newDriverId)
+                    .toParentFileId(newParentFiledId)
+                    // Request-level configuration rewrite, can set Http request parameters, etc.
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+            CompletableFuture<CopyFileResponse> resp = asyncClient.copyFile(copyFileRequest);
+            CopyFileResponse copyFileResponse = resp.get();
+            String json = new Gson().toJson(copyFileResponse);
+            return new ObjectMapper().readTree(json);
+        }
     }
 
     public JsonNode getFileByName(String driveId, String fileName) throws ExecutionException, InterruptedException, IOException {
-        AsyncClient asyncClient = getAsyncClient();
-        String name = "name=\"" + fileName +  "\"";
-        SearchFileRequest build = SearchFileRequest.builder()
-                .driveId(driveId)
-                .query(name)
-                .build();
-        CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
-        SearchFileResponse searchFileResponse = file.get();
-        String json = new Gson().toJson(searchFileResponse);
-        asyncClient.close();
-        return new ObjectMapper().readTree(json);
+        try (AsyncClient asyncClient = getAsyncClient()) {
+            String name = "name=\"" + fileName + "\"";
+            SearchFileRequest build = SearchFileRequest.builder()
+                    .driveId(driveId)
+                    .query(name)
+                    .build();
+            CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
+            SearchFileResponse searchFileResponse = file.get();
+            String json = new Gson().toJson(searchFileResponse);
+            return new ObjectMapper().readTree(json);
+        }
     }
 
     public CloudDiskFile buildCloudDiskFile(JsonNode item) {

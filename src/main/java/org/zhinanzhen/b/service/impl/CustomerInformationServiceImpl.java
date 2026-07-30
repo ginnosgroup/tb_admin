@@ -65,6 +65,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Service("CustomerInformationService")
 public class CustomerInformationServiceImpl extends BaseService implements CustomerInformationService {
+    private static final OkHttpClient UPLOAD_HTTP_CLIENT = new OkHttpClient.Builder().build();
+
     @Resource
     private CustomerInformationDAO customerInformationDAO;
 
@@ -399,7 +401,7 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
 
             // 使用阿里云PDS上传文件，driveId=10810
             String driveId = "10810";
-            AsyncClient client = getAliyunPdsClient();
+            try (AsyncClient client = getAliyunPdsClient()) {
 
             // 1. 创建文件夹
             CreateFileRequest createFolderRequest = CreateFileRequest.builder()
@@ -477,10 +479,10 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                                 .put(body)
                                 .build();
 
-                        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-                        okhttp3.Response uploadResponse = okHttpClient.newCall(uploadRequest).execute();
-                        if (!uploadResponse.isSuccessful()) {
-                            throw new RuntimeException("上传文件分片失败, partNumber:" + number);
+                        try (okhttp3.Response uploadResponse = UPLOAD_HTTP_CLIENT.newCall(uploadRequest).execute()) {
+                            if (!uploadResponse.isSuccessful()) {
+                                throw new RuntimeException("上传文件分片失败, partNumber:" + number);
+                            }
                         }
                     }
 
@@ -508,13 +510,12 @@ public class CustomerInformationServiceImpl extends BaseService implements Custo
                 }
             }
 
-            client.close();
-
             // 构建返回结果：文件夹fileId + 文件信息列表
             Map<String, Object> result = new HashMap<>();
             result.put("folderFileId", folderFileId);
             result.put("cloudDiskFiles", cloudDiskFiles);
             return result;
+            }
         } catch (Exception e) {
             ServiceException se = new ServiceException(e);
             se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
