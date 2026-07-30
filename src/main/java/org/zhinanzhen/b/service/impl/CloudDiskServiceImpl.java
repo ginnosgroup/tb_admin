@@ -60,7 +60,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -72,6 +71,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     private static final ZoneId SERVICE_ORDER_SHARE_ZONE = ZoneId.of("Asia/Shanghai");
     private static final DateTimeFormatter RFC3339_MILLIS_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private static final OkHttpClient UPLOAD_HTTP_CLIENT = new OkHttpClient.Builder().build();
 
     @Value("${aliyun.ACCESSKEYID}")
     private String ACCESS_KEY_ID;
@@ -129,12 +129,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             throw new RuntimeException("上传文件为空");
         }
         if ("folder".equalsIgnoreCase(type)) {
-            try {
+            try (AsyncClient client = getAsyncClient()) {
                 CloudDiskFile cloudDiskFile = new CloudDiskFile();
                 // 创建上传文件的请求并获取上传链接
                 // Configure Credentials authentication information, including ak, secret, token
-                AsyncClient client = getAsyncClient();
-
                 CreateFileRequest createFileRequest = null;
                 if (id == null) {
                     createFileRequest = CreateFileRequest.builder()
@@ -158,7 +156,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 JSONObject jsonObject = JSON.parseObject(json);
                 JSONObject body1 = jsonObject.getJSONObject("body");
                 String fileId = body1.get("fileId").toString();
-                client.close();
 
                 if (id == null) {
                     cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId(parentFileId).
@@ -198,12 +195,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             if (ObjectUtil.isNull(fileType))
                 throw new RuntimeException("文件类型为空");
 
-            try {
+            try (AsyncClient client = getAsyncClient()) {
                 CloudDiskFile cloudDiskFile = new CloudDiskFile();
                 // 创建上传文件的请求并获取上传链接
                 // Configure Credentials authentication information, including ak, secret, token
-                AsyncClient client = getAsyncClient();
-
                 File fileTmp = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
                 file.transferTo(fileTmp);
                 // Parameter settings for API request
@@ -275,13 +270,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             .put(body)
                             .build();
 
-                    OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-                    okhttp3.Response response1 = okHttpClient.newCall(request).execute();
-
-                    // 判断分片是否上传成功
-                    if (!response1.isSuccessful()) {
-                        System.out.println(response1.body().string() + "\n");
-                        Assert.fail("upload part failed, partNumber:" + number);
+                    try (okhttp3.Response response1 = UPLOAD_HTTP_CLIENT.newCall(request).execute()) {
+                        // 判断分片是否上传成功
+                        if (!response1.isSuccessful()) {
+                            System.out.println(response1.body().string() + "\n");
+                            Assert.fail("upload part failed, partNumber:" + number);
+                        }
                     }
                     System.out.println("upload part success, partNumber:" + number);
                 }
@@ -303,9 +297,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 String fileIdTmp = body.get("fileId").toString();
                 String parentFileIdTmp = body.get("parentFileId").toString();
                 String driveId = body.get("driveId").toString();
-                // Finally, close the client
-                client.close();
-
                 if (isOverwrite) {
                     cloudDiskFile.setFileSize(fileSize);
                     cloudDiskFileDAO.update(cloudDiskFile);
@@ -353,15 +344,13 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         String[] split = relativePath.split("/");
         for (int i = 0; i < split.length; i++) {
             if (i < split.length - 1) {
-                try {
+                try (AsyncClient client = getAsyncClient()) {
                     // 使用组合键作为锁对象
                     String lockKey = (parentFileId + ":" + split[i]).intern();
                     synchronized (lockKey) {
                         CloudDiskFile cloudDiskFile = new CloudDiskFile();
                         // 创建上传文件的请求并获取上传链接
                         // Configure Credentials authentication information, including ak, secret, token
-                        AsyncClient client = getAsyncClient();
-
                         CreateFileRequest createFileRequest = null;
                         createFileRequest = CreateFileRequest.builder()
                                 .name(split[i])
@@ -384,7 +373,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         JSONObject jsonObject = JSON.parseObject(json);
                         JSONObject body1 = jsonObject.getJSONObject("body");
                         String fileId = body1.get("fileId").toString();
-                        client.close();
 
                         cloudDiskFile = CloudDiskFile.builder().fileId(fileId).parentFileId(parentFileId).
                                 domainId(PDS_DOMAIN_ID).name(split[i]).type("folder").driveId(DRIVE_ID).userId(userId)
@@ -423,14 +411,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     if (ObjectUtil.isNull(fileType))
                         throw new RuntimeException("文件类型为空");
 
-                    try {
+                    try (AsyncClient client = getAsyncClient()) {
                         CloudDiskFile cloudDiskFile = new CloudDiskFile();
                         cloudDiskFile = cloudDiskFileDAO.getById(null, parentFileId, null, fileName, null);
                         boolean isOverwrite = cloudDiskFile != null && cloudDiskFile.getName().equals(fileName);
 
                         // 创建上传文件的请求并获取上传链接
-                        AsyncClient client = getAsyncClient();
-
                         File fileTmp = new File(System.getProperty("java.io.tmpdir"), file.getOriginalFilename());
                         file.transferTo(fileTmp);
                         CreateFileRequest.ParallelSha1Ctx partInfoList0ParallelSha1Ctx = CreateFileRequest.ParallelSha1Ctx.builder()
@@ -498,13 +484,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                     .put(body)
                                     .build();
 
-                            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
-                            okhttp3.Response response1 = okHttpClient.newCall(request).execute();
-
-                            // 判断分片是否上传成功
-                            if (!response1.isSuccessful()) {
-                                System.out.println(response1.body().string() + "\n");
-                                Assert.fail("upload part failed, partNumber:" + number);
+                            try (okhttp3.Response response1 = UPLOAD_HTTP_CLIENT.newCall(request).execute()) {
+                                // 判断分片是否上传成功
+                                if (!response1.isSuccessful()) {
+                                    System.out.println(response1.body().string() + "\n");
+                                    Assert.fail("upload part failed, partNumber:" + number);
+                                }
                             }
                             System.out.println("upload part success, partNumber:" + number);
                         }
@@ -526,9 +511,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         String fileIdTmp = body.get("fileId").toString();
                         String parentFileIdTmp = body.get("parentFileId").toString();
                         String driveId = body.get("driveId").toString();
-                        // Finally, close the client
-                        client.close();
-
                         if (isOverwrite) {
                             cloudDiskFile.setFileSize(fileSize);
                             cloudDiskFileDAO.update(cloudDiskFile);
@@ -583,8 +565,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             downloadUrl = getDownloadUrl(cloudDiskFile.getFileId());
         }
         if ("folder".equalsIgnoreCase(cloudDiskFile.getType())) {
-            try {
-                AsyncClient client = getAsyncClient();
+            try (AsyncClient client = getAsyncClient()) {
                 // Parameter settings for API request
                 CreateShareLinkRequest createShareLinkRequest = CreateShareLinkRequest.builder()
                         .driveId(DRIVE_ID)
@@ -628,8 +609,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public void synchronizeUserCloud() {
-        try {
-            AsyncClient client = getAsyncClient();
+        try (AsyncClient client = getAsyncClient()) {
             // Parameter settings for API request
             ListUserRequest listUserRequest = ListUserRequest.builder()
                     .limit(999)
@@ -646,10 +626,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             String jsonString = JSONObject.toJSONString(body1.get("items"));
             List<UserInfo> userInfos = JSONArray.parseArray(jsonString, UserInfo.class);
             ThreadPoolExecutor executor = GlobalThreadPool.getInstance();
-            CountDownLatch latch = new CountDownLatch(userInfos.size());
             for (UserInfo userInfo : userInfos) {
                 executor.submit(() -> {
-                    try {
+                    try (AsyncClient searchClient = getAsyncClient()) {
                         UserCloud userCloud = new UserCloud();
                         userCloud.setUserName(userInfo.getUserName());
                         userCloud.setEmail(userInfo.getUserName());
@@ -670,7 +649,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
                                 .build();
                         // Asynchronously get the return value of the API request
-                        CompletableFuture<SearchDriveResponse> responseT = client.searchDrive(searchDriveRequest);
+                        CompletableFuture<SearchDriveResponse> responseT = searchClient.searchDrive(searchDriveRequest);
                         // Synchronously get the return value of the API request
                         SearchDriveResponse respT = responseT.get();
                         String jsonT = new Gson().toJson(respT);
@@ -690,26 +669,27 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         }
                         List<UserCloud> userCloudList = cloudDiskFileDAO.listUserCloudBycondition(userCloud.getDriveId());
                         if (userCloudList.isEmpty()) {
-                            latch.countDown();
                             cloudDiskFileDAO.addUserCloud(userCloud);
                         }
                     } catch (InterruptedException | IOException | ExecutionException e) {
-                        latch.countDown();
+                        if (e instanceof InterruptedException) {
+                            Thread.currentThread().interrupt();
+                        }
                         throw new RuntimeException(e);
                     }
                 });
             }
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RuntimeException(e);
         } finally {
-            AtomicInteger userId = new AtomicInteger();
             List<UserCloud> userClouds = cloudDiskFileDAO.listUserCloud(null, null, 0, 999);
             ThreadPoolExecutor executorT = GlobalThreadPool.getInstance();
             for (UserCloud userCloud : userClouds) {
                 executorT.submit(() -> {
-                    try {
-                        userId.set(userCloud.getId());
-                        AsyncClient asyncClient = getAsyncClient();
+                    try (AsyncClient asyncClient = getAsyncClient()) {
                         GetUserRequest getUserRequest = GetUserRequest.builder().userId(userCloud.getUserId()).build();
                         CompletableFuture<GetUserResponse> user = asyncClient.getUser(getUserRequest);
                         GetUserResponse getUserResponse = user.get();
@@ -719,9 +699,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             cloudDiskFileDAO.deleteUserCloud(userCloud.getId());
                         }
                     } catch (InterruptedException | IOException e) {
+                        if (e instanceof InterruptedException) {
+                            Thread.currentThread().interrupt();
+                        }
                         throw new RuntimeException(e);
                     } catch (ExecutionException e) {
-                        cloudDiskFileDAO.deleteUserCloud(userId.get());
+                        cloudDiskFileDAO.deleteUserCloud(userCloud.getId());
                     }
                 });
             }
@@ -735,8 +718,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public void deleteUserCloud(Integer id) {
-        try {
-            AsyncClient asyncClient = getAsyncClient();
+        try (AsyncClient asyncClient = getAsyncClient()) {
             UserCloud userCloud = cloudDiskFileDAO.getUserCloud(null, null, id, null, null);
             DeleteDriveRequest deleteDriveRequest = DeleteDriveRequest.builder().driveId(userCloud.getDriveId()).build();
             CompletableFuture<DeleteDriveResponse> deleteDriveResponseCompletableFuture = asyncClient.deleteDrive(deleteDriveRequest);
@@ -760,13 +742,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     @Override
     public UserCloud addUserCloud(String userName, String email, String role, String phone) {
-        try {
+        try (AsyncClient asyncClient = getAsyncClient()) {
             UserCloud userCloud1 = cloudDiskFileDAO.getUserCloud(null, null, null, null, phone);
             if (userCloud1 != null) {
                 return null;
             }
             String userId = RandomStringUtils.randomAlphanumeric(32);
-            AsyncClient asyncClient = getAsyncClient();
             UserCloud userCloud = new UserCloud();
             CreateUserRequest createUserRequest = CreateUserRequest.builder()
                     .nickName(userName)
@@ -788,8 +769,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             if (!StringUtils.isEmpty(driveId)) {
                 userCloud.setDriveId(driveId);
             }
-            asyncClient.close();
-            asyncClient = getAsyncClient();
             // 修改空间大小
             UpdateDriveRequest updateDriveRequest = UpdateDriveRequest.builder().driveId(userCloud.getDriveId()).owner(userId).totalSize(10737418240L).build();
             CompletableFuture<UpdateDriveResponse> updateDriveResponseCompletableFuture = asyncClient.updateDrive(updateDriveRequest);
@@ -806,7 +785,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             }
             cloudDiskFileDAO.addUserCloud(userCloud);
             SendEmailUtil.send("1286559059@qq.com", "添加用户成功", "用户" + userName + "添加成功,请及时修改登录方式");
-            asyncClient.close();
             return userCloud;
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
@@ -841,8 +819,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             throw new RuntimeException("文件信息错误或不存在");
         }
         int delete = 0;
-        try {
-            AsyncClient client = getAsyncClient();
+        try (AsyncClient client = getAsyncClient()) {
             // Parameter settings for API request
             DeleteFileRequest deleteFileRequest = DeleteFileRequest.builder()
                     .fileId(fileId)
@@ -857,7 +834,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             DeleteFileResponse resp = response.get();
             String json = new Gson().toJson(resp);
             JSONObject jsonObject = JSON.parseObject(json);
-            client.close();
             cloudDiskFile.setIsDelete(1);
             delete = cloudDiskFileDAO.update(cloudDiskFile);
         } catch (ExecutionException e) {
@@ -899,8 +875,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         if (parentFileId == null) {
             throw new RuntimeException("所选文件夹错误，请核实");
         }
-        try {
-            AsyncClient client = getAsyncClient();
+        try (AsyncClient client = getAsyncClient()) {
             // Parameter settings for API request
             CreateShareLinkRequest createShareLinkRequest = CreateShareLinkRequest.builder()
                     .driveId(DRIVE_ID)
@@ -959,10 +934,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
         String driveId = StringUtils.defaultIfBlank(rootFolder.getDriveId(), DRIVE_ID);
         boolean useBeijingPds = StringUtils.isNotBlank(BJ_DRIVE_ID) && BJ_DRIVE_ID.equals(driveId);
-        AsyncClient client = useBeijingPds ? getAsyncClientBJ() : getAsyncClient();
         String shareUrlPrefix = useBeijingPds ? BJ_PDS_SHARE_URL : PDS_SHARE_URL;
 
-        try {
+        try (AsyncClient client = useBeijingPds ? getAsyncClientBJ() : getAsyncClient()) {
             CreateShareLinkRequest createShareLinkRequest = CreateShareLinkRequest.builder()
                     .driveId(driveId)
                     .shareAllFiles(false)
@@ -1530,13 +1504,12 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     private String getParentFileId(String folderName, String driveId) {
         folderName = "name=\"" + folderName + "\"";
         String parentFileId = null;
-        AsyncClient asyncClient = getAsyncClient();
-        SearchFileRequest build = SearchFileRequest.builder()
-                .driveId(driveId)
-                .query(folderName)
-                .build();
-        CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
-        try {
+        try (AsyncClient asyncClient = getAsyncClient()) {
+            SearchFileRequest build = SearchFileRequest.builder()
+                    .driveId(driveId)
+                    .query(folderName)
+                    .build();
+            CompletableFuture<SearchFileResponse> file = asyncClient.searchFile(build);
             SearchFileResponse searchFileResponse = file.get();
             String json = new Gson().toJson(searchFileResponse);
             JsonNode jsonNode = new ObjectMapper().readTree(json);
@@ -1593,10 +1566,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         int add = -1;
         try {
             if (cloudDiskFileList.isEmpty()) {
+                try (AsyncClient client = getAsyncClient()) {
                 CloudDiskFile cloudDiskFile = new CloudDiskFile();
                 // 创建上传文件的请求并获取上传链接
                 // Configure Credentials authentication information, including ak, secret, token
-                AsyncClient client = getAsyncClient();
                 UserDO userById = userDAO.getUserById(userId);
                 CreateFileRequest createFileRequest = null;
                 createFileRequest = CreateFileRequest.builder()
@@ -1684,7 +1657,6 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 JSONObject jsonObjectW = JSON.parseObject(jsonW);
                 JSONObject bodyW = jsonObjectW.getJSONObject("body");
                 String fileIdW = bodyW.get("fileId").toString();
-                client.close();
 
                 cloudDiskFile = CloudDiskFile.builder().fileId(fileIdW).parentFileId(fileId).
                         domainId(PDS_DOMAIN_ID).name("文案资料").type("folder").driveId(DRIVE_ID).userId(userId)
@@ -1705,6 +1677,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                 }
                 cloudDiskFileList.add(cloudDiskFile);
                 cloudDiskFileDAO.add(cloudDiskFile);
+                }
             } else {
                 String parentFildT = new String();
                 List<CloudDiskFile> collect = cloudDiskFileList.stream().sorted(Comparator.comparing(p -> "root".equalsIgnoreCase(p.getParentFileId()) ? 0 : 1)).collect(Collectors.toList());
@@ -1712,7 +1685,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                     if (!"root".equalsIgnoreCase(cloudDiskFile.getParentFileId()) && !Objects.equals(parentFildT, "")) {
                         cloudDiskFile.setParentFileId(parentFildT);
                     }
-                    AsyncClient client = getAsyncClient();
+                    try (AsyncClient client = getAsyncClient()) {
                     // Parameter settings for API request
                     GetFileRequest getFileRequest = GetFileRequest.builder()
                             .driveId(DRIVE_ID)
@@ -1732,7 +1705,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                             continue;
                         }
                     } catch (Exception e) {
-                        AsyncClient clientT = getAsyncClient();
+                        try (AsyncClient clientT = getAsyncClient()) {
                         CreateFileRequest createFileRequest = CreateFileRequest.builder()
                                 .name(cloudDiskFile.getName())
                                 .type("folder")
@@ -1756,7 +1729,8 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         if ("root".equalsIgnoreCase(cloudDiskFile.getParentFileId())) {
                             parentFildT = cloudDiskFile.getFileId();
                         }
-                        clientT.close();
+                        }
+                    }
                     }
                 }
             }
@@ -1771,10 +1745,9 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     @Override
     public int update(String fileId, String type, Integer userId, Integer applicantId, Integer adviserId, Integer id, String name, Integer officialId, String relativePath) {
         CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(id, null, null, null, null);
-        AsyncClient client = getAsyncClient();
         String oldPart = cloudDiskFile.getName();
         String oldRelativePath = cloudDiskFile.getRelativePath();
-        try {
+        try (AsyncClient client = getAsyncClient()) {
             // Parameter settings for API request
             GetFileRequest getFileRequest = GetFileRequest.builder()
                     .driveId(DRIVE_ID)
@@ -1885,16 +1858,10 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
     }
 
     private String getDownloadUrl(String fileId) {
-        try {
-            CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null, null);
-            String driveId = DRIVE_ID;
-            AsyncClient asyncClient;
-            if (cloudDiskFile != null && "1020".equals(cloudDiskFile.getDriveId())) {
-                asyncClient = getAsyncClientBJ();
-                driveId = BJ_DRIVE_ID;
-            } else {
-                asyncClient = getAsyncClient();
-            }
+        CloudDiskFile cloudDiskFile = cloudDiskFileDAO.getById(null, null, fileId, null, null);
+        boolean useBeijingPds = cloudDiskFile != null && "1020".equals(cloudDiskFile.getDriveId());
+        String driveId = useBeijingPds ? BJ_DRIVE_ID : DRIVE_ID;
+        try (AsyncClient asyncClient = useBeijingPds ? getAsyncClientBJ() : getAsyncClient()) {
             GetFileRequest getFileRequest = GetFileRequest.builder()
                     .driveId(driveId)
                     .fileId(fileId)
@@ -1916,7 +1883,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
 
     public Map<String, String> buildBelongFolder(Integer userId, Integer adviserId, Integer officialId, String folderName, String driverId, String parentFileId, Map<String, String> belongFolderMap) throws ExecutionException, InterruptedException, IOException {
         CloudDiskFile cloudDiskFile = null;
-        AsyncClient client = getAsyncClient();
+        try (AsyncClient client = getAsyncClient()) {
         ListFileRequest build = ListFileRequest.builder()
                 .driveId(driverId)
                 .parentFileId(parentFileId)
@@ -1988,6 +1955,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         cloudDiskFileDAO.add(cloudDiskFile);
 
         return belongFolderMap;
+        }
     }
 
     public String getInsertName(String path) {
