@@ -51,9 +51,38 @@
     <insert id="addIfAbsent" parameterType="org.zhinanzhen.b.dao.pojo.ContractPdfAnalysisCacheDO"
             useGeneratedKeys="true" keyProperty="id">
         INSERT IGNORE INTO b_contract_pdf_analysis_cache
-            (gmt_create, gmt_modify, file_hash, file_name, request_source, request_user_id, status)
+            (gmt_create, gmt_modify, file_hash, file_name, file_path,
+             request_source, request_user_id, adviser_id, adviser_name, status)
         VALUES
-            (NOW(), NOW(), #{fileHash}, #{fileName}, #{requestSource}, #{requestUserId}, #{status})
+            (NOW(), NOW(), #{fileHash}, #{fileName}, #{filePath},
+             #{requestSource}, #{requestUserId}, #{adviserId}, #{adviserName}, #{status})
+    </insert>
+
+    <insert id="saveFailure" parameterType="org.zhinanzhen.b.dao.pojo.ContractPdfAnalysisCacheDO">
+        INSERT INTO b_contract_pdf_analysis_cache
+            (gmt_create, gmt_modify, file_hash, file_name, file_path,
+             request_source, request_user_id, adviser_id, adviser_name, status,
+             response_code, response_message, analysis_result,
+             validation_result, comparison_data)
+        VALUES
+            (NOW(), NOW(), #{fileHash}, #{fileName}, #{filePath},
+             #{requestSource}, #{requestUserId}, #{adviserId}, #{adviserName}, #{status},
+             #{responseCode}, #{responseMessage}, #{analysisResult},
+             #{validationResult}, #{comparisonData})
+        ON DUPLICATE KEY UPDATE
+            gmt_modify = NOW(),
+            file_name = COALESCE(VALUES(file_name), file_name),
+            file_path = COALESCE(VALUES(file_path), file_path),
+            request_source = COALESCE(VALUES(request_source), request_source),
+            request_user_id = COALESCE(VALUES(request_user_id), request_user_id),
+            adviser_id = COALESCE(VALUES(adviser_id), adviser_id),
+            adviser_name = COALESCE(VALUES(adviser_name), adviser_name),
+            status = VALUES(status),
+            response_code = VALUES(response_code),
+            response_message = VALUES(response_message),
+            analysis_result = COALESCE(VALUES(analysis_result), analysis_result),
+            validation_result = VALUES(validation_result),
+            comparison_data = COALESCE(VALUES(comparison_data), comparison_data)
     </insert>
 
     <update id="complete">

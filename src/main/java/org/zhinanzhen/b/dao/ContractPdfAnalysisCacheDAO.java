@@ -11,6 +11,8 @@ public interface ContractPdfAnalysisCacheDAO {
 
     int addIfAbsent(ContractPdfAnalysisCacheDO cache);
 
+    int saveFailure(ContractPdfAnalysisCacheDO cache);
+
     int complete(@Param("fileHash") String fileHash,
                  @Param("status") String status,
                  @Param("responseCode") int responseCode,
