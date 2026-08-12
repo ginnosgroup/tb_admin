@@ -435,6 +435,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         if (officialDo != null) {
             visaOfficialDto.setOfficialName(officialDo.getName());
         }
+        MaraDO maraDo = ctx.maraMap.get(visaListDo.getMaraId());
+        if (maraDo != null) {
+            visaOfficialDto.setMaraName(maraDo.getName());
+            visaOfficialDto.setMaraDTO(mapper.map(maraDo, MaraDTO.class));
+        }
         ReceiveTypeDO receiveTypeDo = ctx.receiveTypeMap.get(visaListDo.getReceiveTypeId());
         if (receiveTypeDo != null) {
             visaOfficialDto.setReceiveTypeName(receiveTypeDo.getName());
