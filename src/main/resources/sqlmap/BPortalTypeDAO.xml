@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.PortalTypeDAO">
+
+    <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
+
+    <insert id="addPortalType" parameterType="org.zhinanzhen.b.dao.pojo.PortalTypeDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT
+            INTO b_portal_type (
+                gmt_create,
+                gmt_modify,
+                name,
+                description,
+                sort,
+                is_delete)
+            VALUES (
+                now(),
+                now(),
+                #{name},
+                #{description},
+                #{sort},
+                #{isDelete});
+    </insert>
+
+    <update id="updatePortalType" parameterType="org.zhinanzhen.b.dao.pojo.PortalTypeDO">
+        UPDATE b_portal_type
+        SET gmt_modify = now()
+        <if test='name != null and name != ""'>
+            , name = #{name}
+        </if>
+        <if test='description != null'>
+            , description = #{description}
+        </if>
+        <if test='sort != null'>
+            , sort = #{sort}
+        </if>
+        <if test='isDelete != null'>
+            , is_delete = #{isDelete}
+        </if>
+        WHERE id = #{id};
+    </update>
+
+    <select id="listPortalType" resultType="org.zhinanzhen.b.dao.pojo.PortalTypeDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            name,
+            description,
+            sort,
+            is_delete AS isDelete
+        FROM b_portal_type
+        WHERE 1 = 1
+        <if test='isDelete != null'>
+            AND is_delete = #{isDelete}
+        </if>
+        <if test='keyword != null and keyword != ""'>
+            AND name LIKE '%${keyword}%'
+        </if>
+        ORDER BY sort ASC, id ASC;
+    </select>
+
+    <select id="getPortalTypeById" resultType="org.zhinanzhen.b.dao.pojo.PortalTypeDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            name,
+            description,
+            sort,
+            is_delete AS isDelete
+        FROM b_portal_type WHERE id = #{id, jdbcType=INTEGER};
+    </select>
+
+    <delete id="deletePortalType" parameterType="java.lang.Integer">
+		DELETE FROM b_portal_type WHERE id = #{id, jdbcType=INTEGER}
+	</delete>
+
+</mapper>
