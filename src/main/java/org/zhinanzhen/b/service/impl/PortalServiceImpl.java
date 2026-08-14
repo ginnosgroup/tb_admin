@@ -6,10 +6,16 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.MaraDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.PortalDAO;
+import org.zhinanzhen.b.dao.pojo.MaraDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.PortalDO;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -20,6 +26,15 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 
 	@Resource
 	private PortalDAO portalDao;
+
+	@Resource
+	private AdviserDAO adviserDao;
+
+	@Resource
+	private OfficialDAO officialDao;
+
+	@Resource
+	private MaraDAO maraDao;
 
 	@Override
 	public int addPortal(PortalDTO portalDto) throws ServiceException {
@@ -76,6 +91,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 		}
 		for (PortalDO portalDo : portalDoList) {
 			PortalDTO portalDto = mapper.map(portalDo, PortalDTO.class);
+			assemblePortalNames(portalDto);
 			portalDtoList.add(portalDto);
 		}
 		return portalDtoList;
@@ -106,13 +122,36 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
 				throw se;
 			}
-			return mapper.map(portalDo, PortalDTO.class);
+			PortalDTO portalDto = mapper.map(portalDo, PortalDTO.class);
+			assemblePortalNames(portalDto);
+			return portalDto;
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
 			throw se;
+		}
+	}
+
+	/**
+	 * 按id查顾问/文案/mara并组装名称到DTO
+	 */
+	private void assemblePortalNames(PortalDTO portalDto) {
+		if (portalDto.getAdviserId() > 0) {
+			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+			if (adviserDo != null)
+				portalDto.setAdviserName(adviserDo.getName());
+		}
+		if (portalDto.getOfficialId() > 0) {
+			OfficialDO officialDo = officialDao.getOfficialById(portalDto.getOfficialId());
+			if (officialDo != null)
+				portalDto.setOfficialName(officialDo.getName());
+		}
+		if (portalDto.getMaraId() > 0) {
+			MaraDO maraDo = maraDao.getMaraById(portalDto.getMaraId());
+			if (maraDo != null)
+				portalDto.setMaraName(maraDo.getName());
 		}
 	}
 

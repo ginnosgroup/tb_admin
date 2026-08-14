@@ -43,6 +43,12 @@ public class PortalDTO {
 
 	private int maraId;
 
+	private String adviserName;
+
+	private String officialName;
+
+	private String maraName;
+
 	private int serviceOrderId;
 
 	private String strState;
