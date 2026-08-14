@@ -378,6 +378,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "officialId", required = false) Integer officialId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
+            @RequestParam(value = "serviceId", required = false) Integer serviceId,
             HttpServletResponse response, HttpServletRequest request) {
         try {
             List<Integer> regionIdList = null;
@@ -419,6 +420,11 @@ public class VisaOfficialController extends BaseCommissionOrderController {
 //                    startDate, endDate, null, null, userName, name, null, null, null, null, null, null);
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaForDown(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state,
                     startDate, endDate, userName, name);
+            if (officialList != null && serviceId != null) {
+                officialList = officialList.stream()
+                        .filter(item -> item != null && item.getServiceId() == serviceId)
+                        .collect(Collectors.toList());
+            }
             if (officialList == null || officialList.isEmpty()) {
                 return;
             }

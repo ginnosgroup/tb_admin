@@ -97,8 +97,8 @@ public class AdminUserController extends BaseController {
 		try {
 			if (StringUtil.isEmpty(email))
 				return new Response<Boolean>(1, "请输入用户名!", false);
-			if (!checkZnzEmail(email))
-				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
+//			if (!checkZnzEmail(email))
+//				return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 			int i = getRandomInt(1000, 9999);
 			String e = encrypt.encrypt(email, KEY).substring(0, 4) + i;
 			HttpSession session = request.getSession();
@@ -220,8 +220,8 @@ public class AdminUserController extends BaseController {
 	@ResponseBody
 	public Response<Boolean> sendNewPassword(@RequestParam(value = "username") String username,
 			HttpServletRequest request, HttpServletResponse response) throws ServiceException {
-		if (!checkZnzEmail(username))
-			return new Response<Boolean>(1, "请使用指南针邮箱!", false);
+//		if (!checkZnzEmail(username))
+//			return new Response<Boolean>(1, "请使用指南针邮箱!", false);
 		String newPassword = RandomStringUtils.randomAlphanumeric(8);
 		if (adminUserService.updatePassword(username, newPassword)) {
 			SendEmailUtil.send(username, "ZNZ Password Renew", StringUtil.merge("Your new password is <b>", newPassword,
