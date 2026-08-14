@@ -49,6 +49,15 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			throw se;
 		}
 		try {
+			// 查重校验：typeId+name 只允许存在一条记录，不允许重复创建
+			PortalDO existPortalDo = portalDao.getPortalByTypeIdAndName(portalDto.getTypeId(),
+					portalDto.getName());
+			if (existPortalDo != null) {
+				ServiceException se = new ServiceException("案件已存在：typeId=" + portalDto.getTypeId() + ", name="
+						+ portalDto.getName() + "，不允许重复创建.");
+				se.setCode(1);
+				throw se;
+			}
 			PortalDO portalDo = mapper.map(portalDto, PortalDO.class);
 			if (portalDao.addPortal(portalDo) > 0) {
 				portalDto.setId(portalDo.getId());
@@ -56,6 +65,8 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			} else {
 				return 0;
 			}
+		} catch (ServiceException e) {
+			throw e;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

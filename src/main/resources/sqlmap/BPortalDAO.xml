@@ -186,6 +186,32 @@
         FROM b_portal_list WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
+    <select id="getPortalByTypeIdAndName" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            type_id AS typeId,
+            name,
+            gender,
+            birthday,
+            passport,
+            english_score AS englishScore,
+            completion_date AS completionDate,
+            visa_expiration_date AS visaExpirationDate,
+            exam_results_date AS examResultsDate,
+            student_visa_expiration_date AS studentVisaExpirationDate,
+            has_completion_letter AS hasCompletionLetter,
+            json_str AS jsonStr,
+            adviser_id AS adviserId,
+            official_id AS officialId,
+            mara_id AS maraId,
+            service_order_id AS serviceOrderId,
+            str_state AS strState
+        FROM b_portal_list WHERE type_id = #{typeId, jdbcType=INTEGER} AND name = #{name}
+        LIMIT 1;
+    </select>
+
     <delete id="deletePortal" parameterType="java.lang.Integer">
 		DELETE FROM b_portal_list WHERE id = #{id, jdbcType=INTEGER}
 	</delete>

@@ -19,6 +19,8 @@ public interface PortalDAO {
 
 	PortalDO getPortalById(@Param("id") int id);
 
+	PortalDO getPortalByTypeIdAndName(@Param("typeId") int typeId, @Param("name") String name);
+
 	int deletePortal(int id);
 
 }
