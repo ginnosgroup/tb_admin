@@ -167,8 +167,8 @@ public class PortalController extends BaseController {
 				portalDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(serviceOrderId))
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
-			if (StringUtil.isNotEmpty(strState))
-				portalDto.setStrState(strState);
+			// 未传strState时默认"01"
+			portalDto.setStrState(StringUtil.isNotEmpty(strState) ? strState : "01");
 			if (portalService.addPortal(portalDto) > 0) {
 				// 同步附件：根据addPortal传过来的路径，把已上传附件的portalId更新为新创建的案件ID
 				syncPortalAttachments(filePath, portalDto.getId());

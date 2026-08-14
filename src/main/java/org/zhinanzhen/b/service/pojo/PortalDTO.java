@@ -15,6 +15,8 @@ public class PortalDTO {
 
 	private int typeId;
 
+	private String portalTypeName;
+
 	private String name;
 
 	private String gender;

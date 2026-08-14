@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.PortalDAO;
+import org.zhinanzhen.b.dao.PortalTypeDAO;
 import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.PortalDO;
+import org.zhinanzhen.b.dao.pojo.PortalTypeDO;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -26,6 +28,9 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 
 	@Resource
 	private PortalDAO portalDao;
+
+	@Resource
+	private PortalTypeDAO portalTypeDao;
 
 	@Resource
 	private AdviserDAO adviserDao;
@@ -135,9 +140,14 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	/**
-	 * 按id查顾问/文案/mara并组装名称到DTO
+	 * 按id查案件类型/顾问/文案/mara并组装名称到DTO
 	 */
 	private void assemblePortalNames(PortalDTO portalDto) {
+		if (portalDto.getTypeId() > 0) {
+			PortalTypeDO portalTypeDo = portalTypeDao.getPortalTypeById(portalDto.getTypeId());
+			if (portalTypeDo != null)
+				portalDto.setPortalTypeName(portalTypeDo.getName());
+		}
 		if (portalDto.getAdviserId() > 0) {
 			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
 			if (adviserDo != null)
