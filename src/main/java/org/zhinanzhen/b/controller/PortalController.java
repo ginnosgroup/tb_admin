@@ -28,6 +28,7 @@ import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalLogDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.tb.controller.BaseController;
+import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
@@ -268,17 +269,21 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<List<PortalDTO>> listPortal(@RequestParam(value = "typeId", required = false) Integer typeId,
+	public ListResponse<List<PortalDTO>> listPortal(@RequestParam(value = "typeId", required = false) Integer typeId,
 			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<PortalDTO>>(0,
-					portalService.listPortal(typeId, strState, keyword, pageNum, pageSize));
+			// strState=ALL 表示查询全部案件，转成null不按状态过滤
+			if ("ALL".equalsIgnoreCase(strState))
+				strState = null;
+			int total = portalService.countPortal(typeId, strState, keyword);
+			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize);
+			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
 		} catch (ServiceException e) {
-			return new Response<List<PortalDTO>>(1, e.getMessage(), null);
+			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
 	}
 

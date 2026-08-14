@@ -82,6 +82,17 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
+	public int countPortal(Integer typeId, String strState, String keyword) throws ServiceException {
+		try {
+			return portalDao.countPortal(typeId, strState, keyword);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public PortalDTO getPortal(Integer id) throws ServiceException {
 		if (id == null || id <= 0) {
 			ServiceException se = new ServiceException("id error !");

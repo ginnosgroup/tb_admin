@@ -14,6 +14,8 @@ public interface PortalService {
 	List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize)
 			throws ServiceException;
 
+	int countPortal(Integer typeId, String strState, String keyword) throws ServiceException;
+
 	PortalDTO getPortal(Integer id) throws ServiceException;
 
 	int deletePortal(int id) throws ServiceException;

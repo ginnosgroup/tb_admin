@@ -14,6 +14,9 @@ public interface PortalDAO {
 	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
 			@Param("keyword") String keyword, @Param("offset") int offset, @Param("rows") int rows);
 
+	int countPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
+			@Param("keyword") String keyword);
+
 	PortalDO getPortalById(@Param("id") int id);
 
 	int deletePortal(int id);
