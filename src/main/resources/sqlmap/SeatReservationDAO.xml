@@ -17,7 +17,8 @@
             ip,
             consultant_name,
             consultant_code,
-            consultant_sequence
+            consultant_sequence,
+            poster_url
         ) VALUES (
             NOW(),
             NOW(),
@@ -30,7 +31,8 @@
             #{ip},
             #{consultantName},
             #{consultantCode},
-            #{consultantSequence}
+            #{consultantSequence},
+            #{posterUrl}
         )
     </insert>
 
@@ -39,7 +41,8 @@
         SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
                seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
                name, email, phone, ip, consultant_name AS consultantName,
-               consultant_code AS consultantCode, consultant_sequence AS consultantSequence
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
+               poster_url AS posterUrl
         FROM b_seat_reservation
         WHERE seat_code = #{seatCode}
         LIMIT 1
@@ -50,7 +53,8 @@
         SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
                seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
                name, email, phone, ip, consultant_name AS consultantName,
-               consultant_code AS consultantCode, consultant_sequence AS consultantSequence
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
+               poster_url AS posterUrl
         FROM b_seat_reservation
         WHERE email = #{email}
         LIMIT 1
@@ -61,7 +65,8 @@
         SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
                seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
                name, email, phone, ip, consultant_name AS consultantName,
-               consultant_code AS consultantCode, consultant_sequence AS consultantSequence
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
+               poster_url AS posterUrl
         FROM b_seat_reservation
         WHERE ip = #{ip}
         LIMIT 1

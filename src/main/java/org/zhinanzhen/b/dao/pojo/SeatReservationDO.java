@@ -28,4 +28,5 @@ public class SeatReservationDO implements Serializable {
     private String consultantName;
     private String consultantCode;
     private Integer consultantSequence;
+    private String posterUrl;
 }

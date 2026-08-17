@@ -38,6 +38,17 @@ public class SeatReservationController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/current", method = RequestMethod.GET)
+    @ResponseBody
+    public Response<SeatReservationResult> current(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            setGetHeader(response);
+            return new Response<>(0, "查询成功", seatReservationService.getByIp(getClientIp(request)));
+        } catch (ServiceException e) {
+            return new Response<>(1, e.getMessage(), null);
+        }
+    }
+
     @RequestMapping(value = "/reserve", method = RequestMethod.POST)
     @ResponseBody
     public Response<SeatReservationResult> reserve(
@@ -59,6 +70,21 @@ public class SeatReservationController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
             return new Response<>(1, "座位选择失败", null);
+        }
+    }
+
+    @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> sendEmail(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            setPostHeader(response);
+            seatReservationService.sendTicketEmail(getClientIp(request));
+            return new Response<>(0, "票根已提交发送到预约邮箱", null);
+        } catch (ServiceException e) {
+            return new Response<>(1, e.getMessage(), null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>(1, "票根邮件发送失败", null);
         }
     }
 

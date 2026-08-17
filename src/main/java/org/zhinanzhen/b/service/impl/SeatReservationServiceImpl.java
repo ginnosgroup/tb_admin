@@ -9,6 +9,7 @@ import org.zhinanzhen.b.dao.pojo.SeatReservationDO;
 import org.zhinanzhen.b.service.SeatReservationService;
 import org.zhinanzhen.b.service.pojo.SeatReservationResult;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import javax.annotation.Resource;
 import java.util.Collections;
@@ -66,7 +67,7 @@ public class SeatReservationServiceImpl implements SeatReservationService {
             throw new ServiceException("每个邮箱只能选择一个座位");
         }
         if (seatReservationDAO.getByIp(normalizedIp) != null) {
-            throw new ServiceException("每个IP只能选择一个座位");
+            throw new ServiceException("每个IP只能选择一个座位（建议使用移动数据）");
         }
 
         // 按顾问姓名分别计数；唯一索引和重试逻辑保证并发请求不会拿到相同序号。
@@ -84,13 +85,12 @@ public class SeatReservationServiceImpl implements SeatReservationService {
             record.setConsultantName(normalizedConsultantName);
             record.setConsultantSequence(sequence);
             record.setConsultantCode(formatSequence(sequence));
+            record.setPosterUrl(randomPosterUrl());
             try {
                 if (seatReservationDAO.add(record) <= 0) {
                     throw new ServiceException("座位预约失败");
                 }
-                return new SeatReservationResult(record.getId(), normalizedName, normalizedConsultantName,
-                        formatSequence(sequence), formatSequence(sequence), normalizedRow, seatNumber, seatCode,
-                        randomPosterUrl());
+                return toResult(record);
             } catch (DuplicateKeyException e) {
                 // 座位/邮箱/IP冲突直接提示；若只是序号并发冲突，则重新取最大值再试。
                 if (seatReservationDAO.getBySeatCode(seatCode) != null) {
@@ -100,7 +100,7 @@ public class SeatReservationServiceImpl implements SeatReservationService {
                     throw new ServiceException("每个邮箱只能选择一个座位");
                 }
                 if (seatReservationDAO.getByIp(normalizedIp) != null) {
-                    throw new ServiceException("每个IP只能选择一个座位");
+                    throw new ServiceException("每个IP只能选择一个座位（建议使用移动数据）");
                 }
                 if (attempt == 2) {
                     throw new ServiceException("顾问code生成失败，请稍后重试", e);
@@ -108,6 +108,48 @@ public class SeatReservationServiceImpl implements SeatReservationService {
             }
         }
         throw new ServiceException("座位预约失败，请稍后重试");
+    }
+
+    @Override
+    public SeatReservationResult getByIp(String ip) throws ServiceException {
+        String normalizedIp = StringUtils.trimToEmpty(ip);
+        if (StringUtils.isBlank(normalizedIp)) {
+            return null;
+        }
+        try {
+            return toResult(seatReservationDAO.getByIp(normalizedIp));
+        } catch (Exception e) {
+            throw new ServiceException("查询票根失败", e);
+        }
+    }
+
+    @Override
+    public void sendTicketEmail(String ip) throws ServiceException {
+        String normalizedIp = StringUtils.trimToEmpty(ip);
+        if (StringUtils.isBlank(normalizedIp)) {
+            throw new ServiceException("无法获取访问IP，请稍后重试");
+        }
+        SeatReservationDO record;
+        try {
+            record = seatReservationDAO.getByIp(normalizedIp);
+        } catch (Exception e) {
+            throw new ServiceException("查询票根失败", e);
+        }
+        if (record == null) {
+            throw new ServiceException("当前IP还没有预约记录");
+        }
+        if (!isValidEmail(record.getEmail())) {
+            throw new ServiceException("预约邮箱无效，无法发送票根");
+        }
+        String posterUrl = resolvePosterUrl(record.getPosterUrl());
+        StringBuilder content = new StringBuilder();
+        content.append("<p>您好，您的电影票根信息如下：</p>")
+                .append("<p>观影人：").append(escapeHtml(record.getName())).append("</p>")
+                .append("<p>顾问：").append(escapeHtml(record.getConsultantName())).append("</p>")
+                .append("<p>观影code：").append(escapeHtml(record.getConsultantCode())).append("</p>")
+                .append("<p>座位：").append(escapeHtml(record.getSeatCode())).append("</p>")
+                .append("<p>海报地址：").append(escapeHtml(posterUrl)).append("</p>");
+        SendEmailUtil.send(record.getEmail(), "您的电影票根", content.toString());
     }
 
     @Override
@@ -153,5 +195,34 @@ public class SeatReservationServiceImpl implements SeatReservationService {
 
     private String randomPosterUrl() {
         return POSTER_URLS[ThreadLocalRandom.current().nextInt(POSTER_URLS.length)];
+    }
+
+    private String resolvePosterUrl(String posterUrl) {
+        return StringUtils.isBlank(posterUrl) ? POSTER_URLS[0] : posterUrl;
+    }
+
+    private SeatReservationResult toResult(SeatReservationDO record) {
+        if (record == null) {
+            return null;
+        }
+        String posterUrl = resolvePosterUrl(record.getPosterUrl());
+        return new SeatReservationResult(record.getId(), record.getName(), record.getConsultantName(),
+                record.getConsultantCode(), formatSequenceValue(record.getConsultantSequence()),
+                record.getSeatRow(), record.getSeatNumber(), record.getSeatCode(), posterUrl);
+    }
+
+    private String formatSequenceValue(Integer sequence) {
+        return sequence == null ? null : formatSequence(sequence);
+    }
+
+    private String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 }
