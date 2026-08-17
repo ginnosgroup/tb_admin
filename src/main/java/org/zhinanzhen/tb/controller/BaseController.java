@@ -161,27 +161,60 @@ public class BaseController {
 
 	public static Response<String> deleteFile(String url) {
 		if (StringUtil.isNotEmpty(url)) {
-			String realPath = StringUtil.merge("/data", url);
-            // 创建File对象
+			String normalized = url.trim().replace('\\', '/');
+			// 已带 /data 前缀（含 \data\ 反斜杠形式）或已是绝对路径（如 C:/...）时，不再重复拼接 /data
+			boolean hasDataPrefix = normalized.startsWith("/data/") || normalized.startsWith("data/");
+			boolean isWindowsAbsolute = normalized.matches("^[A-Za-z]:/.*");
+			String realPath = hasDataPrefix || isWindowsAbsolute ? normalized : StringUtil.merge("/data", normalized);
+			// 1) 默认解析（Windows 下 /data/... 解析到当前盘符根目录，Linux 下为绝对路径 /data/...）
 			File file = new File(realPath);
-
-			// 检查文件是否存在
 			if (file.exists()) {
-				// 尝试删除文件
-				boolean isDeleted = file.delete();
-
-				if (isDeleted) {
-					return new Response<String>(0, "文件删除成功", null);
-				} else {
-					return new Response<String>(1, "文件删除失败", null);
-				}
-			} else {
-				System.out.println("文件不存在");
+				return deleteExisting(file);
 			}
+			// 2) 找不到时，按 Windows/Tomcat 部署的实际位置查找：
+			//    本地 Tomcat 部署时上传文件会落在 {catalina.base}/work/Tomcat/localhost/admin_v2.1{路径} 下，
+			//    传进来的路径可能是 Windows 反斜杠形式（如 \\data\\uploads\\...）。
+			String relative = realPath.replaceFirst("^/+", "");
+			String catalinaBase = System.getProperty("catalina.base");
+			if (StringUtil.isNotEmpty(catalinaBase)) {
+				File tomcatFile = new File(catalinaBase,
+						StringUtil.merge("/work/Tomcat/localhost/admin_v2.1/", relative));
+				if (tomcatFile.exists()) {
+					return deleteExisting(tomcatFile);
+				}
+			}
+			// 3) 再兜底：扫描临时目录下所有 tomcat.* 运行实例的工作目录（历史运行实例的目录名带随机 id，可能不是当前 catalina.base）
+			String tmpdir = System.getProperty("java.io.tmpdir");
+			if (StringUtil.isNotEmpty(tmpdir)) {
+				File[] tmpDirs = new File(tmpdir).listFiles();
+				if (tmpDirs != null) {
+					for (File dir : tmpDirs) {
+						if (!dir.isDirectory() || !dir.getName().startsWith("tomcat.")) {
+							continue;
+						}
+						File candidate = new File(dir,
+								StringUtil.merge("/work/Tomcat/localhost/admin_v2.1/", relative));
+						if (candidate.exists()) {
+							return deleteExisting(candidate);
+						}
+					}
+				}
+			}
+			System.out.println("文件不存在");
 		} else {
 			return new Response<String>(1, "文件路径错误", null);
 		}
 		return new Response<>(0, null, null);
+	}
+
+	private static Response<String> deleteExisting(File file) {
+		// 尝试删除文件
+		boolean isDeleted = file.delete();
+		if (isDeleted) {
+			return new Response<String>(0, "文件删除成功", null);
+		} else {
+			return new Response<String>(1, "文件删除失败", null);
+		}
 	}
 
 	public static Response<String> uploadPdf(MultipartFile file, HttpSession session, String dir)

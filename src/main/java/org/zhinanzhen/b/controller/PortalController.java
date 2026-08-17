@@ -99,13 +99,20 @@ public class PortalController extends BaseController {
 				if (portalAttachmentDto == null) {
 					return new Response<Integer>(1, "附件不存在.", 0);
 				}
-				super.deleteFile(portalAttachmentDto.getFilePath());
+				Response<String> deleteResp = super
+						.deleteFile(normalizeAttachmentFilePath(portalAttachmentDto.getFilePath()));
 				portalAttachmentService.deletePortalAttachmentById(id);
+				if (deleteResp != null && deleteResp.getCode() != 0) {
+					return new Response<Integer>(1, "附件文件删除失败：" + deleteResp.getMessage() + "（已删除数据库记录）", 0);
+				}
 				return new Response<Integer>(0, id);
 			} else if (StringUtil.isNotEmpty(filePath)) {
 				// 已上传但未入库：按服务器上的路径删除文件
-				super.deleteFile(filePath);
+				Response<String> deleteResp = super.deleteFile(normalizeAttachmentFilePath(filePath));
 				portalAttachmentService.deletePortalAttachmentByPath(filePath);
+				if (deleteResp != null && deleteResp.getCode() != 0) {
+					return new Response<Integer>(1, "附件文件删除失败：" + deleteResp.getMessage() + "（已删除数据库记录）", 0);
+				}
 				return new Response<Integer>(0, 0);
 			} else {
 				return new Response<Integer>(1, "参数错误：id和filePath至少传一个.", 0);
@@ -113,6 +120,34 @@ public class PortalController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<Integer>(e.getCode(), e.getMessage(), 0);
 		}
+	}
+
+	/**
+	 * 规范化附件文件路径后再交给 deleteFile 拼接 /data 前缀：
+	 * 去掉 http(s)://域名 前缀、应用 context path（/admin_v2.1）前缀，
+	 * 以及重复的 /data 前缀，避免路径对不上导致文件删不掉。
+	 */
+	private static String normalizeAttachmentFilePath(String filePath) {
+		if (filePath == null) {
+			return null;
+		}
+		// 统一把反斜杠转成正斜杠，便于后续判断前缀（\\data\\uploads\\... -> /data/uploads/...）
+		String path = filePath.trim().replace('\\', '/');
+		// 去掉 http(s)://host 前缀，只保留路径部分
+		int schemeIndex = path.indexOf("://");
+		if (schemeIndex >= 0) {
+			int slashIndex = path.indexOf('/', schemeIndex + 3);
+			if (slashIndex < 0) {
+				return null; // 只有域名没有路径，无法定位文件
+			}
+			path = path.substring(slashIndex);
+		}
+		// 去掉应用 context path 前缀（如 /admin_v2.1/uploads/... -> /uploads/...）
+		if (path.startsWith("/admin_v2.1/")) {
+			path = path.substring("/admin_v2.1".length());
+		}
+		// 保留 /data 前缀：deleteFile 内部会判断是否重复拼接，并兜底按 Tomcat 工作目录查找
+		return path;
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
