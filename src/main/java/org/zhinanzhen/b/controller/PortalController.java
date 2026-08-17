@@ -33,6 +33,7 @@ import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.ServiceException;
 
+import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 
 @Controller
@@ -395,8 +396,11 @@ public class PortalController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			// 此接口不需要验证登录，不做数据权限过滤
-			return new Response<PortalDTO>(0, portalService.getPortal(id, null, null, null, null, null));
+			return new Response<PortalDTO>(0, "", portalService.getPortal(id, null, null, null, null, null));
 		} catch (ServiceException e) {
+			// 没查询到数据时直接返回空message，不返回"No data"
+			if (ErrorCodeEnum.DATA_ERROR.code() == e.getCode())
+				return new Response<PortalDTO>(0, "", null);
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
 	}
