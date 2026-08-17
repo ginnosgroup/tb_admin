@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -136,6 +137,14 @@ public class PortalController extends BaseController {
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
+			// 拦截：必须登录且是顾问（或超管）才能创建案件
+			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+			if (adminUserLoginInfo == null)
+				return new Response<Integer>(1, "请先登录.", 0);
+			String apList = adminUserLoginInfo.getApList() == null ? ""
+					: adminUserLoginInfo.getApList().toUpperCase(Locale.ENGLISH);
+			if (!apList.contains("GW") && !apList.contains("SUPERAD"))
+				return new Response<Integer>(1, "仅限顾问和超级管理员能创建案件.", 0);
 			PortalDTO portalDto = new PortalDTO();
 			portalDto.setTypeId(StringUtil.toInt(typeId));
 			portalDto.setName(name);
@@ -159,8 +168,15 @@ public class PortalController extends BaseController {
 			portalDto.setHasCompletionLetter("true".equalsIgnoreCase(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
-			if (StringUtil.isNotEmpty(adviserId))
+			// 顾问添加时取登录顾问的顾问id；超管添加时用前端传的adviserId
+			if (apList.contains("GW") && adminUserLoginInfo.getAdviserId() != null
+					&& adminUserLoginInfo.getAdviserId() > 0) {
+				portalDto.setAdviserId(adminUserLoginInfo.getAdviserId());
+			} else if (StringUtil.isNotEmpty(adviserId)) {
 				portalDto.setAdviserId(StringUtil.toInt(adviserId));
+			} else {
+				return new Response<Integer>(1, "顾问信息缺失，无法创建案件.", 0);
+			}
 			if (StringUtil.isNotEmpty(officialId))
 				portalDto.setOfficialId(StringUtil.toInt(officialId));
 			if (StringUtil.isNotEmpty(maraId))
@@ -287,17 +303,6 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/get", method = RequestMethod.GET)
-	@ResponseBody
-	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
-		try {
-			super.setGetHeader(response);
-			return new Response<PortalDTO>(0, portalService.getPortal(id));
-		} catch (ServiceException e) {
-			return new Response<PortalDTO>(1, e.getMessage(), null);
-		}
-	}
-
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<Integer> deletePortal(@RequestParam(value = "id") int id, HttpServletRequest request,
@@ -376,6 +381,17 @@ public class PortalController extends BaseController {
 			portalLogService.addPortalLog(portalLogDto);
 		} catch (Exception e) {
 			LOG.error("保存案件操作日志失败, portalId=" + portalId + ", action=" + action, e);
+		}
+	}
+
+	@RequestMapping(value = "/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<PortalDTO>(0, portalService.getPortal(id));
+		} catch (ServiceException e) {
+			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
 	}
 
