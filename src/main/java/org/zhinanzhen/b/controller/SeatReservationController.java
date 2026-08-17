@@ -264,7 +264,7 @@ public class SeatReservationController extends BaseController {
         String[] directories = new String[]{
                 customDirectory,
                 "E:/webroot_new/seat-posters",
-                "/opt/webroot_new/seat-posters"
+                "/data/webroot_new/seat-posters"
         };
         for (String directory : directories) {
             if (StringUtils.isBlank(directory)) {
