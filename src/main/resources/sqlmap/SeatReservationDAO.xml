@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.SeatReservationDAO">
+
+    <insert id="add" parameterType="org.zhinanzhen.b.dao.pojo.SeatReservationDO"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_seat_reservation (
+            gmt_create,
+            gmt_modify,
+            seat_row,
+            seat_number,
+            seat_code,
+            name,
+            email,
+            phone,
+            ip,
+            consultant_name,
+            consultant_code,
+            consultant_sequence
+        ) VALUES (
+            NOW(),
+            NOW(),
+            #{seatRow},
+            #{seatNumber},
+            #{seatCode},
+            #{name},
+            #{email},
+            #{phone},
+            #{ip},
+            #{consultantName},
+            #{consultantCode},
+            #{consultantSequence}
+        )
+    </insert>
+
+    <select id="getBySeatCode" parameterType="java.lang.String"
+            resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+               seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
+               name, email, phone, ip, consultant_name AS consultantName,
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence
+        FROM b_seat_reservation
+        WHERE seat_code = #{seatCode}
+        LIMIT 1
+    </select>
+
+    <select id="getByEmail" parameterType="java.lang.String"
+            resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+               seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
+               name, email, phone, ip, consultant_name AS consultantName,
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence
+        FROM b_seat_reservation
+        WHERE email = #{email}
+        LIMIT 1
+    </select>
+
+    <select id="getByIp" parameterType="java.lang.String"
+            resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+               seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
+               name, email, phone, ip, consultant_name AS consultantName,
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence
+        FROM b_seat_reservation
+        WHERE ip = #{ip}
+        LIMIT 1
+    </select>
+
+    <select id="getMaxConsultantSequence" parameterType="java.lang.String"
+            resultType="java.lang.Integer">
+        SELECT consultant_sequence
+        FROM b_seat_reservation
+        WHERE consultant_name = #{consultantName}
+        ORDER BY consultant_sequence DESC
+        LIMIT 1
+        FOR UPDATE
+    </select>
+
+    <select id="listOccupiedSeatCodes" resultType="java.lang.String">
+        SELECT seat_code
+        FROM b_seat_reservation
+        ORDER BY seat_row, seat_number
+    </select>
+</mapper>
