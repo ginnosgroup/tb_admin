@@ -173,12 +173,8 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         }
         String ticketImage = readImageAsDataUrl(record.getEmailImagePath());
         StringBuilder content = new StringBuilder();
-        content.append("<p>您好，您的电影票根信息如下：</p>")
-                .append("<p>观影人：").append(escapeHtml(record.getName())).append("</p>")
-                .append("<p>顾问：").append(escapeHtml(record.getConsultantName())).append("</p>")
-                .append("<p>观影code：").append(escapeHtml(record.getConsultantCode())).append("</p>")
-                .append("<p>座位：").append(escapeHtml(record.getSeatCode())).append("</p>")
-                .append("<p>请查看下方票根图片：</p>")
+        // 票根信息已合成在下方图片中，正文只保留一句引导语。
+        content.append("<p>请持电子票根入场。</p>")
                 .append("<p><img src=\"").append(ticketImage)
                 .append("\" alt=\"电影票根\" style=\"max-width:100%;height:auto;\" /></p>");
         SendEmailUtil.send(record.getEmail(), "您的电影票根", content.toString());
