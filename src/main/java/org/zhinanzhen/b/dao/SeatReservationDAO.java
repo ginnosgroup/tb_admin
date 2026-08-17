@@ -9,9 +9,17 @@ public interface SeatReservationDAO {
 
     int add(SeatReservationDO record);
 
+    SeatReservationDO getById(@Param("id") Integer id);
+
+    int updateImagePaths(@Param("id") Integer id,
+                         @Param("ticketImagePath") String ticketImagePath,
+                         @Param("emailImagePath") String emailImagePath);
+
     SeatReservationDO getBySeatCode(@Param("seatCode") String seatCode);
 
     SeatReservationDO getByEmail(@Param("email") String email);
+
+    SeatReservationDO getByNameAndEmail(@Param("name") String name, @Param("email") String email);
 
     SeatReservationDO getByIp(@Param("ip") String ip);
 

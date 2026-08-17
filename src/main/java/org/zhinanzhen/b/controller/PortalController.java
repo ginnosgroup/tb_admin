@@ -391,14 +391,11 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletRequest request,
-			HttpServletResponse response) {
+	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
-			PortalAccessFilter filter = buildAccessFilter(request);
-			return new Response<PortalDTO>(0, portalService.getPortal(id, filter.adviserId, filter.adviserRegionId,
-					filter.officialId, filter.officialRegionId, filter.maraId));
+			// 此接口不需要验证登录，不做数据权限过滤
+			return new Response<PortalDTO>(0, portalService.getPortal(id, null, null, null, null, null));
 		} catch (ServiceException e) {
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}

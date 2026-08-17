@@ -29,4 +29,8 @@ public class SeatReservationDO implements Serializable {
     private String consultantCode;
     private Integer consultantSequence;
     private String posterUrl;
+    /** 页面查询时展示的完整票根图片路径。 */
+    private String ticketImagePath;
+    /** 邮件中发送的独立海报图片路径。 */
+    private String emailImagePath;
 }

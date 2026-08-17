@@ -18,7 +18,9 @@
             consultant_name,
             consultant_code,
             consultant_sequence,
-            poster_url
+            poster_url,
+            ticket_image_path,
+            email_image_path
         ) VALUES (
             NOW(),
             NOW(),
@@ -32,9 +34,34 @@
             #{consultantName},
             #{consultantCode},
             #{consultantSequence},
-            #{posterUrl}
+            #{posterUrl},
+            #{ticketImagePath},
+            #{emailImagePath}
         )
     </insert>
+
+    <select id="getById" parameterType="java.lang.Integer"
+            resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+               seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
+               name, email, phone, ip, consultant_name AS consultantName,
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
+               poster_url AS posterUrl,
+               ticket_image_path AS ticketImagePath,
+               email_image_path AS emailImagePath
+        FROM b_seat_reservation
+        WHERE id = #{id}
+        LIMIT 1
+    </select>
+
+    <update id="updateImagePaths">
+        UPDATE b_seat_reservation
+        SET gmt_modify = NOW(),
+            poster_url = #{ticketImagePath},
+            ticket_image_path = #{ticketImagePath},
+            email_image_path = #{emailImagePath}
+        WHERE id = #{id}
+    </update>
 
     <select id="getBySeatCode" parameterType="java.lang.String"
             resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
@@ -42,7 +69,9 @@
                seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
                name, email, phone, ip, consultant_name AS consultantName,
                consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
-               poster_url AS posterUrl
+               poster_url AS posterUrl,
+               ticket_image_path AS ticketImagePath,
+               email_image_path AS emailImagePath
         FROM b_seat_reservation
         WHERE seat_code = #{seatCode}
         LIMIT 1
@@ -54,9 +83,27 @@
                seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
                name, email, phone, ip, consultant_name AS consultantName,
                consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
-               poster_url AS posterUrl
+               poster_url AS posterUrl,
+               ticket_image_path AS ticketImagePath,
+               email_image_path AS emailImagePath
         FROM b_seat_reservation
         WHERE email = #{email}
+        LIMIT 1
+    </select>
+
+    <select id="getByNameAndEmail"
+            resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+               seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
+               name, email, phone, ip, consultant_name AS consultantName,
+               consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
+               poster_url AS posterUrl,
+               ticket_image_path AS ticketImagePath,
+               email_image_path AS emailImagePath
+        FROM b_seat_reservation
+        WHERE name = #{name}
+          AND email = #{email}
+        ORDER BY id DESC
         LIMIT 1
     </select>
 
@@ -66,7 +113,9 @@
                seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
                name, email, phone, ip, consultant_name AS consultantName,
                consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
-               poster_url AS posterUrl
+               poster_url AS posterUrl,
+               ticket_image_path AS ticketImagePath,
+               email_image_path AS emailImagePath
         FROM b_seat_reservation
         WHERE ip = #{ip}
         LIMIT 1

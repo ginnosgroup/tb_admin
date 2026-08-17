@@ -11,9 +11,13 @@ public interface SeatReservationService {
                                   String consultantName, String ip)
             throws ServiceException;
 
-    SeatReservationResult getByIp(String ip) throws ServiceException;
+    SeatReservationResult getByNameAndEmail(String name, String email) throws ServiceException;
 
-    void sendTicketEmail(String ip) throws ServiceException;
+    SeatReservationResult getById(Integer id) throws ServiceException;
+
+    void updateImagePaths(Integer id, String ticketImagePath, String emailImagePath) throws ServiceException;
+
+    void sendTicketEmail(String name, String email) throws ServiceException;
 
     List<String> listOccupiedSeatCodes() throws ServiceException;
 }
