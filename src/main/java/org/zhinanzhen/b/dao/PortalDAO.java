@@ -12,12 +12,19 @@ public interface PortalDAO {
 	int updatePortal(PortalDO portalDo);
 
 	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
-			@Param("keyword") String keyword, @Param("offset") int offset, @Param("rows") int rows);
+			@Param("keyword") String keyword, @Param("offset") int offset, @Param("rows") int rows,
+			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
+			@Param("officialId") Integer officialId, @Param("officialRegionId") Integer officialRegionId,
+			@Param("maraId") Integer maraId);
 
 	int countPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
-			@Param("keyword") String keyword);
+			@Param("keyword") String keyword, @Param("adviserId") Integer adviserId,
+			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
+			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId);
 
-	PortalDO getPortalById(@Param("id") int id);
+	PortalDO getPortalById(@Param("id") int id, @Param("adviserId") Integer adviserId,
+			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
+			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId);
 
 	PortalDO getPortalByTypeIdAndName(@Param("typeId") int typeId, @Param("name") String name);
 

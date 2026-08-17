@@ -11,12 +11,15 @@ public interface PortalService {
 
 	int updatePortal(PortalDTO portalDto) throws ServiceException;
 
-	List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize)
+	List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize,
+			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
 			throws ServiceException;
 
-	int countPortal(Integer typeId, String strState, String keyword) throws ServiceException;
+	int countPortal(Integer typeId, String strState, String keyword, Integer adviserId, Integer adviserRegionId,
+			Integer officialId, Integer officialRegionId, Integer maraId) throws ServiceException;
 
-	PortalDTO getPortal(Integer id) throws ServiceException;
+	PortalDTO getPortal(Integer id, Integer adviserId, Integer adviserRegionId, Integer officialId,
+			Integer officialRegionId, Integer maraId) throws ServiceException;
 
 	int deletePortal(int id) throws ServiceException;
 

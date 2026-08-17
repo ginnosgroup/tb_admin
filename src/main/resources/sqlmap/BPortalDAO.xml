@@ -140,6 +140,34 @@
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>
+        <!-- 权限过滤：顾问查自己名下的记录 -->
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <!-- 权限过滤：顾问管理员查同地区（含子地区）所有顾问的记录 -->
+        <if test='adviserRegionId != null'>
+            AND adviser_id IN (
+                SELECT id FROM tb_adviser WHERE region_id IN (
+                    SELECT id FROM tb_region WHERE id = #{adviserRegionId} OR parent_id = #{adviserRegionId}
+                )
+            )
+        </if>
+        <!-- 权限过滤：文案查自己名下的记录 -->
+        <if test='officialId != null'>
+            AND official_id = #{officialId}
+        </if>
+        <!-- 权限过滤：文案管理员查同地区（含子地区）所有文案的记录 -->
+        <if test='officialRegionId != null'>
+            AND official_id IN (
+                SELECT id FROM b_official WHERE region_id IN (
+                    SELECT id FROM tb_region WHERE id = #{officialRegionId} OR parent_id = #{officialRegionId}
+                )
+            )
+        </if>
+        <!-- 权限过滤：mara查自己名下的记录 -->
+        <if test='maraId != null'>
+            AND mara_id = #{maraId}
+        </if>
         ORDER BY id DESC
         LIMIT #{offset}, #{rows};
     </select>
@@ -157,6 +185,29 @@
         </if>
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
+        </if>
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='adviserRegionId != null'>
+            AND adviser_id IN (
+                SELECT id FROM tb_adviser WHERE region_id IN (
+                    SELECT id FROM tb_region WHERE id = #{adviserRegionId} OR parent_id = #{adviserRegionId}
+                )
+            )
+        </if>
+        <if test='officialId != null'>
+            AND official_id = #{officialId}
+        </if>
+        <if test='officialRegionId != null'>
+            AND official_id IN (
+                SELECT id FROM b_official WHERE region_id IN (
+                    SELECT id FROM tb_region WHERE id = #{officialRegionId} OR parent_id = #{officialRegionId}
+                )
+            )
+        </if>
+        <if test='maraId != null'>
+            AND mara_id = #{maraId}
         </if>
         ;
     </select>
@@ -183,7 +234,31 @@
             mara_id AS maraId,
             service_order_id AS serviceOrderId,
             str_state AS strState
-        FROM b_portal_list WHERE id = #{id, jdbcType=INTEGER};
+        FROM b_portal_list WHERE id = #{id, jdbcType=INTEGER}
+        <if test='adviserId != null'>
+            AND adviser_id = #{adviserId}
+        </if>
+        <if test='adviserRegionId != null'>
+            AND adviser_id IN (
+                SELECT id FROM tb_adviser WHERE region_id IN (
+                    SELECT id FROM tb_region WHERE id = #{adviserRegionId} OR parent_id = #{adviserRegionId}
+                )
+            )
+        </if>
+        <if test='officialId != null'>
+            AND official_id = #{officialId}
+        </if>
+        <if test='officialRegionId != null'>
+            AND official_id IN (
+                SELECT id FROM b_official WHERE region_id IN (
+                    SELECT id FROM tb_region WHERE id = #{officialRegionId} OR parent_id = #{officialRegionId}
+                )
+            )
+        </if>
+        <if test='maraId != null'>
+            AND mara_id = #{maraId}
+        </if>
+        ;
     </select>
 
     <select id="getPortalByTypeIdAndName" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">

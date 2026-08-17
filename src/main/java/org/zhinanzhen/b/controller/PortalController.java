@@ -229,7 +229,7 @@ public class PortalController extends BaseController {
 			// 记录操作前状态（查不到时忽略，不影响主流程）
 			String fromState = null;
 			try {
-				PortalDTO oldPortalDto = portalService.getPortal(id);
+				PortalDTO oldPortalDto = portalService.getPortal(id, null, null, null, null, null);
 				if (oldPortalDto != null)
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
@@ -289,14 +289,19 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
-			HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			// strState=ALL 表示查询全部案件，转成null不按状态过滤
 			if ("ALL".equalsIgnoreCase(strState))
 				strState = null;
-			int total = portalService.countPortal(typeId, strState, keyword);
-			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize);
+			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
+			PortalAccessFilter filter = buildAccessFilter(request);
+			int total = portalService.countPortal(typeId, strState, keyword, filter.adviserId, filter.adviserRegionId,
+					filter.officialId, filter.officialRegionId, filter.maraId);
+			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize,
+					filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
+					filter.maraId);
 			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
@@ -312,7 +317,7 @@ public class PortalController extends BaseController {
 			// 记录操作前状态（查不到时忽略，不影响主流程）
 			String fromState = null;
 			try {
-				PortalDTO oldPortalDto = portalService.getPortal(id);
+				PortalDTO oldPortalDto = portalService.getPortal(id, null, null, null, null, null);
 				if (oldPortalDto != null)
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
@@ -386,13 +391,69 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
+	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<PortalDTO>(0, portalService.getPortal(id));
+			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
+			PortalAccessFilter filter = buildAccessFilter(request);
+			return new Response<PortalDTO>(0, portalService.getPortal(id, filter.adviserId, filter.adviserRegionId,
+					filter.officialId, filter.officialRegionId, filter.maraId));
 		} catch (ServiceException e) {
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	/**
+	 * 案件查询数据权限过滤器：顾问查自己名下；顾问管理员(regionId>0)查同地区所有顾问；
+	 * 文案查自己名下；文案管理员(isOfficialAdmin)查同地区所有文案；mara查自己名下；超管查全部。
+	 * 未登录直接拒绝（抛出ServiceException）。
+	 */
+	private static class PortalAccessFilter {
+		Integer adviserId;
+		Integer adviserRegionId;
+		Integer officialId;
+		Integer officialRegionId;
+		Integer maraId;
+	}
+
+	private PortalAccessFilter buildAccessFilter(HttpServletRequest request) throws ServiceException {
+		PortalAccessFilter filter = new PortalAccessFilter();
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null) {
+			ServiceException se = new ServiceException("请先登录.");
+			se.setCode(1);
+			throw se;
+		}
+		String apList = adminUserLoginInfo.getApList() == null ? ""
+				: adminUserLoginInfo.getApList().toUpperCase(Locale.ENGLISH);
+		if (apList.contains("SUPERAD")) {
+			// 超管查全部，不加过滤
+			return filter;
+		}
+		if (apList.contains("GW")) {
+			if (adminUserLoginInfo.getRegionId() != null && adminUserLoginInfo.getRegionId() > 0) {
+				// 顾问管理员：查同地区（含子地区）所有顾问的记录
+				filter.adviserRegionId = adminUserLoginInfo.getRegionId();
+			} else {
+				// 普通顾问：查自己名下
+				filter.adviserId = adminUserLoginInfo.getAdviserId();
+			}
+		}
+		if (apList.contains("WA")) {
+			if (adminUserLoginInfo.isOfficialAdmin()) {
+				// 文案管理员：查同地区（含子地区）所有文案的记录
+				filter.officialRegionId = adminUserLoginInfo.getRegionId();
+			} else {
+				// 普通文案：查自己名下
+				filter.officialId = adminUserLoginInfo.getOfficialId();
+			}
+		}
+		if (apList.contains("MA")) {
+			// mara：查自己名下
+			filter.maraId = adminUserLoginInfo.getMaraId();
+		}
+		return filter;
 	}
 
 	/**
