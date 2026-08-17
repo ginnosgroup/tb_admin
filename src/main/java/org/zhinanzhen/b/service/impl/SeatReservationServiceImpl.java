@@ -135,7 +135,7 @@ public class SeatReservationServiceImpl implements SeatReservationService {
             return (number >= 1 && number <= 2) || (number >= 5 && number <= 17);
         }
         if ("A".equals(row)) {
-            return (number >= 6 && number <= 9) || (number >= 13 && number <= 17);
+            return number >= 5 && number <= 17;
         }
         return ("B".equals(row) || "C".equals(row) || "D".equals(row)
                 || "E".equals(row) || "F".equals(row)) && number >= 5 && number <= 17;
