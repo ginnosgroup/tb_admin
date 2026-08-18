@@ -53,15 +53,7 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         if (!isValidEmail(normalizedEmail)) {
             throw new ServiceException("请输入有效的邮箱");
         }
-        if (StringUtils.isBlank(normalizedPhone)) {
-            throw new ServiceException("电话号码不能为空");
-        }
-        if (StringUtils.isBlank(normalizedConsultantName)) {
-            throw new ServiceException("顾问姓名不能为空");
-        }
-        if (StringUtils.isBlank(normalizedIp)) {
-            throw new ServiceException("无法获取访问IP，请稍后重试");
-        }
+        // 只验证姓名和邮箱：电话、顾问姓名、IP 均不再必填，IP 也不再做唯一限制。
 
         String seatCode = normalizedRow + seatNumber;
         if (seatReservationDAO.getBySeatCode(seatCode) != null) {
@@ -69,9 +61,6 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         }
         if (seatReservationDAO.getByEmail(normalizedEmail) != null) {
             throw new ServiceException("每个邮箱只能选择一个座位");
-        }
-        if (seatReservationDAO.getByIp(normalizedIp) != null) {
-            throw new ServiceException("每个IP只能选择一个座位（建议使用移动数据）");
         }
 
         // 按顾问姓名分别计数；唯一索引和重试逻辑保证并发请求不会拿到相同序号。
@@ -96,15 +85,12 @@ public class SeatReservationServiceImpl implements SeatReservationService {
                 }
                 return toResult(record);
             } catch (DuplicateKeyException e) {
-                // 座位/邮箱/IP冲突直接提示；若只是序号并发冲突，则重新取最大值再试。
+                // 座位/邮箱冲突直接提示；若只是序号并发冲突，则重新取最大值再试。
                 if (seatReservationDAO.getBySeatCode(seatCode) != null) {
                     throw new ServiceException("该座位已经被选走，请重新选择");
                 }
                 if (seatReservationDAO.getByEmail(normalizedEmail) != null) {
                     throw new ServiceException("每个邮箱只能选择一个座位");
-                }
-                if (seatReservationDAO.getByIp(normalizedIp) != null) {
-                    throw new ServiceException("每个IP只能选择一个座位（建议使用移动数据）");
                 }
                 if (attempt == 2) {
                     throw new ServiceException("顾问code生成失败，请稍后重试", e);
