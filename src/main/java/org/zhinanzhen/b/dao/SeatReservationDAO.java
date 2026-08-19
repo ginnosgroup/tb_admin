@@ -19,6 +19,8 @@ public interface SeatReservationDAO {
 
     SeatReservationDO getByEmail(@Param("email") String email);
 
+    SeatReservationDO getByPhone(@Param("phone") String phone);
+
     SeatReservationDO getByNameAndEmail(@Param("name") String name, @Param("email") String email);
 
     SeatReservationDO getByIp(@Param("ip") String ip);

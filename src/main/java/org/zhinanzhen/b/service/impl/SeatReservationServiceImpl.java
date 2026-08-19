@@ -57,7 +57,10 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         if (!isValidEmail(normalizedEmail)) {
             throw new ServiceException("请输入有效的邮箱");
         }
-        // 只验证姓名和邮箱：电话、顾问姓名、IP 均不再必填，IP 也不再做唯一限制。
+        if (StringUtils.isBlank(normalizedPhone)) {
+            throw new ServiceException("电话号码不能为空");
+        }
+        // 电话必填且不能重复；顾问姓名、IP 不再必填，IP 不再做唯一限制。
 
         String seatCode = normalizedRow + seatNumber;
         if (seatReservationDAO.getBySeatCode(seatCode) != null) {
@@ -65,6 +68,9 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         }
         if (seatReservationDAO.getByEmail(normalizedEmail) != null) {
             throw new ServiceException("每个邮箱只能选择一个座位");
+        }
+        if (seatReservationDAO.getByPhone(normalizedPhone) != null) {
+            throw new ServiceException("该电话号码已经选座");
         }
 
         // 按顾问姓名分别计数；唯一索引和重试逻辑保证并发请求不会拿到相同序号。
@@ -99,6 +105,9 @@ public class SeatReservationServiceImpl implements SeatReservationService {
                 }
                 if (seatReservationDAO.getByEmail(normalizedEmail) != null) {
                     throw new ServiceException("每个邮箱只能选择一个座位");
+                }
+                if (seatReservationDAO.getByPhone(normalizedPhone) != null) {
+                    throw new ServiceException("该电话号码已经选座");
                 }
                 if (attempt == 2) {
                     throw new ServiceException("顾问code生成失败，请稍后重试", e);
