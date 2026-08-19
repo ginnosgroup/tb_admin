@@ -660,6 +660,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 serviceOrderDto.setApplicantId(applicantDto.getId());
                 serviceOrderDto.setApplicant(applicantDto);
             }
+        } else {
+            // 当 applicantId 为 0 时（如父订单/管理订单），返回空对象避免前端空指针
+            serviceOrderDto.setApplicant(new ApplicantDTO());
         }
         // 查询Mara
         MaraDO maraDo = ctx.maraMap.get(serviceOrderDto.getMaraId());

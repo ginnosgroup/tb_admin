@@ -1,8 +1,19 @@
 package org.zhinanzhen.b.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -14,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,6 +47,8 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -42,6 +56,18 @@ import com.ikasoa.core.utils.StringUtil;
 public class PortalController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PortalController.class);
+
+	/**
+	 * 语聚 AI 会话配置。API Key 在 application.properties 的 yuju.ai.api-key 中填写，
+	 * ibotID 使用语聚 AI 助手 ID。
+	 */
+	@Value("${yuju.ai.ibot-id:2133_2622_jjyibotID_c67b59bc9fed4c4e9c6cf3a950b84f8e}")
+	private String yujuAiIbotId;
+
+	@Value("${yuju.ai.api-key:}")
+	private String yujuAiApiKey;
+
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	@Resource
 	PortalService portalService;
@@ -321,6 +347,9 @@ public class PortalController extends BaseController {
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
 				savePortalLog(portalDto.getId(), "update", fromState, toState, "更新案件信息", request);
+				// 案件更新成功后，将更新后的完整客户资料提交给语聚AI进行485方案咨询。
+				// AI调用失败不影响案件主流程，详细原因写入服务日志。
+				requestYujuAiAfterPortalUpdate(portalDto);
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
 				return new Response<PortalDTO>(1, "修改失败.", null);
@@ -328,6 +357,207 @@ public class PortalController extends BaseController {
 		} catch (ServiceException e) {
 			return new Response<PortalDTO>(e.getCode(), e.getMessage(), null);
 		}
+	}
+
+	/**
+	 * 案件更新后调用语聚AI创建会话消息。这里重新查询一次数据库，确保提示词使用的是完整的案件数据，
+	 * 而不是本次请求中可能只包含部分字段的 portalDto。
+	 */
+	private void requestYujuAiAfterPortalUpdate(PortalDTO updatedPortalDto) {
+		if (updatedPortalDto == null || updatedPortalDto.getId() <= 0)
+			return;
+		try {
+			PortalDTO portalDto = updatedPortalDto;
+			try {
+				PortalDTO savedPortalDto = portalService.getPortal(updatedPortalDto.getId(), null, null, null, null, null);
+				if (savedPortalDto != null)
+					portalDto = savedPortalDto;
+			} catch (Exception e) {
+				LOG.warn("查询更新后的案件资料失败，将使用本次更新字段继续请求语聚AI，portalId={}",
+						updatedPortalDto.getId(), e);
+			}
+			if (StringUtil.isEmpty(yujuAiApiKey)) {
+				LOG.warn("未配置 yuju.ai.api-key，跳过语聚AI请求，portalId={}", portalDto.getId());
+				return;
+			}
+			if (StringUtil.isEmpty(yujuAiIbotId)) {
+				LOG.warn("未配置 yuju.ai.ibot-id，跳过语聚AI请求，portalId={}", portalDto.getId());
+				return;
+			}
+
+			String instructions = buildYujuAiInstructions(portalDto);
+			Map<String, Object> requestBody = new LinkedHashMap<String, Object>();
+			requestBody.put("content", instructions);
+			requestBody.put("ibotID", yujuAiIbotId.trim());
+			requestBody.put("stream", false);
+			String apiUrl = "https://chat.jijyun.cn/v1/openapi/chat?apiKey="
+					+ URLEncoder.encode(yujuAiApiKey.trim(), "UTF-8");
+
+			HttpURLConnection connection = null;
+			try {
+				connection = (HttpURLConnection) new URL(apiUrl).openConnection();
+				connection.setRequestMethod("POST");
+				connection.setConnectTimeout(15000);
+				connection.setReadTimeout(30000);
+				connection.setDoOutput(true);
+				connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+				byte[] body = OBJECT_MAPPER.writeValueAsBytes(requestBody);
+				OutputStream outputStream = null;
+				try {
+					outputStream = connection.getOutputStream();
+					outputStream.write(body);
+					outputStream.flush();
+				} finally {
+					if (outputStream != null)
+						outputStream.close();
+				}
+
+				int responseCode = connection.getResponseCode();
+				InputStream inputStream = responseCode >= 400 ? connection.getErrorStream() : connection.getInputStream();
+				String responseBody = readYujuAiResponse(inputStream);
+				if (responseCode >= 200 && responseCode < 300) {
+					LOG.info("语聚AI案件咨询请求成功，portalId={}，response={}", portalDto.getId(), responseBody);
+				} else {
+					LOG.warn("语聚AI案件咨询请求失败，portalId={}，httpCode={}，response={}", portalDto.getId(),
+							responseCode, responseBody);
+				}
+			} finally {
+				if (connection != null)
+					connection.disconnect();
+			}
+		} catch (Exception e) {
+			LOG.error("调用语聚AI案件咨询接口异常，portalId={}", updatedPortalDto.getId(), e);
+		}
+	}
+
+	/**
+	 * 组装发送给AI的自然语言提示词。jsonStr中的任意自定义表单字段也会递归展开，
+	 * 因此前端新增字段不需要再次修改后端代码。
+	 */
+	private String buildYujuAiInstructions(PortalDTO portalDto) {
+		StringBuilder prompt = new StringBuilder();
+		prompt.append("客户填写的资料：\n");
+		appendPromptField(prompt, "姓名", portalDto.getName());
+		appendPromptField(prompt, "性别", portalDto.getGender());
+		appendPromptField(prompt, "出生日期", formatDate(portalDto.getBirthday()));
+		appendPromptField(prompt, "护照号码", portalDto.getPassport());
+		appendPromptField(prompt, "英语成绩", portalDto.getEnglishScore());
+		appendPromptField(prompt, "完成信日期", formatDate(portalDto.getCompletionDate()));
+		appendPromptField(prompt, "签证到期时间", formatDate(portalDto.getVisaExpirationDate()));
+		appendPromptField(prompt, "考试成绩日期", formatDate(portalDto.getExamResultsDate()));
+		appendPromptField(prompt, "学签到期时间", formatDate(portalDto.getStudentVisaExpirationDate()));
+		if (portalDto.getHasCompletionLetter() != null)
+			appendPromptField(prompt, "是否有完成信", portalDto.getHasCompletionLetter() ? "是" : "否");
+		appendPromptField(prompt, "案件类型", portalDto.getPortalTypeName());
+		appendPromptField(prompt, "案件状态", portalDto.getStrState());
+		appendPromptField(prompt, "顾问", portalDto.getAdviserName());
+		appendPromptField(prompt, "文案", portalDto.getOfficialName());
+		appendPromptField(prompt, "MARA", portalDto.getMaraName());
+
+		if (StringUtil.isNotEmpty(portalDto.getJsonStr())) {
+			try {
+				JsonNode jsonNode = OBJECT_MAPPER.readTree(portalDto.getJsonStr());
+				appendJsonPromptFields(prompt, jsonNode, "");
+			} catch (Exception e) {
+				// 兼容旧数据中不是严格JSON的自定义表单内容
+				appendPromptField(prompt, "其他表单资料", portalDto.getJsonStr());
+			}
+		}
+		prompt.append("\n请给我详细的485申请方案及材料清单。");
+		return prompt.toString();
+	}
+
+	private void appendJsonPromptFields(StringBuilder prompt, JsonNode node, String prefix) {
+		if (node == null || node.isNull())
+			return;
+		if (node.isObject()) {
+			Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+			while (fields.hasNext()) {
+				Map.Entry<String, JsonNode> field = fields.next();
+				String fieldName = StringUtil.isEmpty(prefix) ? field.getKey() : prefix + "." + field.getKey();
+				appendJsonPromptFields(prompt, field.getValue(), fieldName);
+			}
+		} else if (node.isArray()) {
+			for (int i = 0; i < node.size(); i++)
+				appendJsonPromptFields(prompt, node.get(i), prefix + "[" + i + "]");
+		} else {
+			appendPromptField(prompt, displayJsonFieldName(prefix), node.asText());
+		}
+	}
+
+	/** 将表单中常见的英文键转换成AI更容易理解的中文名称，未配置的键保留原路径。 */
+	private String displayJsonFieldName(String fieldPath) {
+		if (StringUtil.isEmpty(fieldPath))
+			return fieldPath;
+		String key = fieldPath;
+		int dotIndex = key.lastIndexOf('.');
+		if (dotIndex >= 0)
+			key = key.substring(dotIndex + 1);
+		if (key.endsWith("]")) {
+			int arrayIndex = key.lastIndexOf('[');
+			if (arrayIndex >= 0)
+				key = key.substring(0, arrayIndex);
+		}
+		if ("birthDate".equals(key) || "birthday".equals(key))
+			return "出生日期";
+		if ("birthCountry".equals(key) || "country".equals(key))
+			return "出生国家/地区";
+		if ("maritalStatus".equals(key))
+			return "婚姻状态";
+		if ("issueCountry".equals(key))
+			return "护照签发国家";
+		if ("issueDate".equals(key))
+			return "护照签发日期";
+		if ("expiryDate".equals(key) || "visaExpirationDate".equals(key))
+			return "到期日期";
+		if ("hasCompletionLetter".equals(key))
+			return "是否有完成信";
+		if ("schoolName".equals(key))
+			return "澳大利亚学校名称";
+		if ("cricosName".equals(key))
+			return "CRICOS课程名称";
+		if ("eduCourseType".equals(key))
+			return "学历类型";
+		if ("startDate".equals(key))
+			return "课程开始日期";
+		if ("endDate".equals(key))
+			return "课程完成日期";
+		if ("eduCourseCompletionDate".equals(key))
+			return "课程完成信日期";
+		if ("langType".equals(key))
+			return "英语考试类型";
+		if ("examResultsDate".equals(key))
+			return "考试日期";
+		if ("englishScore".equals(key))
+			return "英语成绩";
+		return fieldPath;
+	}
+
+	private void appendPromptField(StringBuilder prompt, String label, Object value) {
+		if (value == null || StringUtil.isEmpty(String.valueOf(value)))
+			return;
+		prompt.append(label).append("：").append(value).append("\n");
+	}
+
+	private String formatDate(Date date) {
+		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd").format(date);
+	}
+
+	private String readYujuAiResponse(InputStream inputStream) throws IOException {
+		if (inputStream == null)
+			return "";
+		StringBuilder response = new StringBuilder();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+			String line;
+			while ((line = reader.readLine()) != null)
+				response.append(line);
+		} finally {
+			if (reader != null)
+				reader.close();
+		}
+		return response.toString();
 	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
