@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,9 @@ public class SeatReservationServiceImpl implements SeatReservationService {
     private static final String DISPLAY_POSTER_URL = "/webroot_new/seat-posters/seat-poster-2.png";
     /** 邮件中发送的单独海报（对应示例 2.jpg）。 */
     private static final String EMAIL_POSTER_URL = "/webroot_new/seat-posters/seat-poster-1.jpg";
+    /** 允许填写的顾问姓名白名单（统一小写比较，不区分大小写）。 */
+    private static final List<String> ALLOWED_CONSULTANT_NAMES = Arrays.asList(
+            "jay", "winnie", "emily", "michael", "shawn", "echo", "mia");
 
     @Resource
     private SeatReservationDAO seatReservationDAO;
@@ -60,7 +64,11 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         if (StringUtils.isBlank(normalizedPhone)) {
             throw new ServiceException("电话号码不能为空");
         }
-        // 电话必填且不能重复；顾问姓名、IP 不再必填，IP 不再做唯一限制。
+        // 顾问姓名只允许填写白名单内的 7 个姓名（不区分大小写）
+        if (!ALLOWED_CONSULTANT_NAMES.contains(normalizedConsultantName)) {
+            throw new ServiceException("顾问姓名填写错误，请填写正确的顾问姓名");
+        }
+        // 电话必填且不能重复；IP 不再必填，IP 不再做唯一限制。
 
         String seatCode = normalizedRow + seatNumber;
         if (seatReservationDAO.getBySeatCode(seatCode) != null) {
