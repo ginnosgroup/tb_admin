@@ -13,6 +13,8 @@ public interface PortalAttachmentDAO {
 
 	PortalAttachmentDO getPortalAttachmentByPath(@Param("filePath") String filePath);
 
+	List<PortalAttachmentDO> listPortalAttachmentByPortalId(@Param("portalId") Integer portalId);
+
 	int updatePortalIdByPathList(@Param("filePathList") List<String> filePathList, @Param("portalId") int portalId);
 
 	int deletePortalAttachmentById(int id);

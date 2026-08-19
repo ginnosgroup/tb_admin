@@ -13,6 +13,8 @@ public interface PortalAttachmentService {
 
 	PortalAttachmentDTO getPortalAttachmentByPath(String filePath) throws ServiceException;
 
+	List<PortalAttachmentDTO> listPortalAttachmentByPortalId(Integer portalId) throws ServiceException;
+
 	int updatePortalIdByPathList(List<String> filePathList, int portalId) throws ServiceException;
 
 	int deletePortalAttachmentById(int id) throws ServiceException;

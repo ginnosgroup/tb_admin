@@ -431,7 +431,13 @@ public class PortalController extends BaseController {
 		try {
 			super.setGetHeader(response);
 			// 此接口不需要验证登录，不做数据权限过滤
-			return new Response<PortalDTO>(0, "", portalService.getPortal(id, null, null, null, null, null));
+			PortalDTO portalDto = portalService.getPortal(id, null, null, null, null, null);
+			if (portalDto != null) {
+				// 按 portal_id 关联查询附件列表，组装进 PortalDTO 一起返回
+				portalDto.setPortalAttachmentList(
+						portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
+			}
+			return new Response<PortalDTO>(0, "", portalDto);
 		} catch (ServiceException e) {
 			// 没查询到数据时直接返回空message，不返回"No data"
 			if (ErrorCodeEnum.DATA_ERROR.code() == e.getCode())

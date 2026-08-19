@@ -1,6 +1,8 @@
 package org.zhinanzhen.b.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,8 @@ import java.util.Locale;
 
 @Service("SeatReservationService")
 public class SeatReservationServiceImpl implements SeatReservationService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SeatReservationServiceImpl.class);
 
     /** 页面票根使用的海报（对应示例 1.png 左侧海报）。 */
     private static final String DISPLAY_POSTER_URL = "/webroot_new/seat-posters/seat-poster-2.png";
@@ -86,6 +90,10 @@ public class SeatReservationServiceImpl implements SeatReservationService {
                 return toResult(record);
             } catch (DuplicateKeyException e) {
                 // 座位/邮箱冲突直接提示；若只是序号并发冲突，则重新取最大值再试。
+                // 记录冲突现场（哪个唯一键冲突一眼可见，例如残留的 uk_b_seat_reservation_ip 索引），
+                // 避免出现"顾问名字有数字报错"这类误判。
+                LOG.warn("座位预约插入冲突: seatCode={}, email={}, consultantName={}, sequence={}, attempt={}",
+                        seatCode, normalizedEmail, normalizedConsultantName, sequence, attempt, e);
                 if (seatReservationDAO.getBySeatCode(seatCode) != null) {
                     throw new ServiceException("该座位已经被选走，请重新选择");
                 }

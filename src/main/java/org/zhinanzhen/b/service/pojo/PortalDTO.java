@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.service.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -16,6 +17,9 @@ public class PortalDTO {
 	private int typeId;
 
 	private String portalTypeName;
+
+	/** 关联的案件类型对象（按 typeId 查询组装）。 */
+	private PortalTypeDTO portalType;
 
 	private String name;
 
@@ -54,5 +58,8 @@ public class PortalDTO {
 	private int serviceOrderId;
 
 	private String strState;
+
+	/** 案件关联的附件列表（按 portal_id 查询组装）。 */
+	private List<PortalAttachmentDTO> portalAttachmentList;
 
 }

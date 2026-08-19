@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -78,6 +79,31 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			if (portalAttachmentDo == null)
 				return null;
 			return mapper.map(portalAttachmentDo, PortalAttachmentDTO.class);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<PortalAttachmentDTO> listPortalAttachmentByPortalId(Integer portalId) throws ServiceException {
+		if (portalId == null || portalId <= 0) {
+			ServiceException se = new ServiceException("portalId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<PortalAttachmentDO> portalAttachmentDoList = portalAttachmentDao
+					.listPortalAttachmentByPortalId(portalId);
+			if (portalAttachmentDoList == null || portalAttachmentDoList.isEmpty()) {
+				return new ArrayList<PortalAttachmentDTO>();
+			}
+			List<PortalAttachmentDTO> portalAttachmentDtoList = new ArrayList<PortalAttachmentDTO>();
+			for (PortalAttachmentDO portalAttachmentDo : portalAttachmentDoList) {
+				portalAttachmentDtoList.add(mapper.map(portalAttachmentDo, PortalAttachmentDTO.class));
+			}
+			return portalAttachmentDtoList;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());

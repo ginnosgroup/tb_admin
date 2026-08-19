@@ -16,6 +16,7 @@ import org.zhinanzhen.b.dao.pojo.PortalDO;
 import org.zhinanzhen.b.dao.pojo.PortalTypeDO;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
+import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -158,13 +159,15 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	/**
-	 * 按id查案件类型/顾问/文案/mara并组装名称到DTO
+	 * 按id查案件类型/顾问/文案/mara并组装名称到DTO，同时把完整的案件类型对象组装进 portalType
 	 */
 	private void assemblePortalNames(PortalDTO portalDto) {
 		if (portalDto.getTypeId() > 0) {
 			PortalTypeDO portalTypeDo = portalTypeDao.getPortalTypeById(portalDto.getTypeId());
-			if (portalTypeDo != null)
+			if (portalTypeDo != null) {
 				portalDto.setPortalTypeName(portalTypeDo.getName());
+				portalDto.setPortalType(mapper.map(portalTypeDo, PortalTypeDTO.class));
+			}
 		}
 		if (portalDto.getAdviserId() > 0) {
 			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());

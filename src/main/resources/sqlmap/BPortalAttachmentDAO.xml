@@ -59,6 +59,23 @@
         FROM b_portal_attachment WHERE file_path = #{filePath};
     </select>
 
+    <select id="listPortalAttachmentByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+        SELECT
+            id,
+            portal_id AS portalId,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            file_name AS fileName,
+            file_path AS filePath,
+            file_size AS fileSize,
+            file_type AS fileType,
+            file_ext AS fileExt,
+            stage
+        FROM b_portal_attachment
+        WHERE portal_id = #{portalId}
+        ORDER BY gmt_create ASC, id ASC;
+    </select>
+
     <update id="updatePortalIdByPathList">
         UPDATE b_portal_attachment
         SET gmt_modify = now(),
