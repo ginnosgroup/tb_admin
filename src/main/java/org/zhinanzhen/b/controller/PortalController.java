@@ -11,7 +11,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,7 +46,6 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
@@ -347,9 +345,9 @@ public class PortalController extends BaseController {
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
 				savePortalLog(portalDto.getId(), "update", fromState, toState, "更新案件信息", request);
-				// 案件更新成功后，将更新后的完整客户资料提交给语聚AI进行485方案咨询。
-				// AI调用失败不影响案件主流程，详细原因写入服务日志。
-				requestYujuAiAfterPortalUpdate(portalDto);
+				// 案件更新成功后，仅将更新后的 jsonStr 提交给语聚AI进行485方案咨询。
+				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
+				portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
 				return new Response<PortalDTO>(1, "修改失败.", null);
@@ -360,12 +358,16 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 案件更新后调用语聚AI创建会话消息。这里重新查询一次数据库，确保提示词使用的是完整的案件数据，
-	 * 而不是本次请求中可能只包含部分字段的 portalDto。
+	 * 案件更新后调用语聚AI创建会话消息。这里重新查询一次数据库，确保使用的是更新后完整的 jsonStr，
+	 * 而不是本次请求中可能未携带 jsonStr 的 portalDto。
 	 */
-	private void requestYujuAiAfterPortalUpdate(PortalDTO updatedPortalDto) {
-		if (updatedPortalDto == null || updatedPortalDto.getId() <= 0)
-			return;
+	private Map<String, Object> requestYujuAiAfterPortalUpdate(PortalDTO updatedPortalDto) {
+		Map<String, Object> result = new LinkedHashMap<String, Object>();
+		if (updatedPortalDto == null || updatedPortalDto.getId() <= 0) {
+			result.put("success", false);
+			result.put("error", "案件信息无效，未调用语聚AI");
+			return result;
+		}
 		try {
 			PortalDTO portalDto = updatedPortalDto;
 			try {
@@ -378,11 +380,15 @@ public class PortalController extends BaseController {
 			}
 			if (StringUtil.isEmpty(yujuAiApiKey)) {
 				LOG.warn("未配置 yuju.ai.api-key，跳过语聚AI请求，portalId={}", portalDto.getId());
-				return;
+				result.put("success", false);
+				result.put("error", "未配置语聚AI API Key");
+				return result;
 			}
 			if (StringUtil.isEmpty(yujuAiIbotId)) {
 				LOG.warn("未配置 yuju.ai.ibot-id，跳过语聚AI请求，portalId={}", portalDto.getId());
-				return;
+				result.put("success", false);
+				result.put("error", "未配置语聚AI助手ID");
+				return result;
 			}
 
 			String instructions = buildYujuAiInstructions(portalDto);
@@ -415,6 +421,9 @@ public class PortalController extends BaseController {
 				int responseCode = connection.getResponseCode();
 				InputStream inputStream = responseCode >= 400 ? connection.getErrorStream() : connection.getInputStream();
 				String responseBody = readYujuAiResponse(inputStream);
+				result.put("success", responseCode >= 200 && responseCode < 300);
+				result.put("httpCode", responseCode);
+				result.put("response", parseYujuAiResponse(responseBody));
 				if (responseCode >= 200 && responseCode < 300) {
 					LOG.info("语聚AI案件咨询请求成功，portalId={}，response={}", portalDto.getId(), responseBody);
 				} else {
@@ -427,120 +436,31 @@ public class PortalController extends BaseController {
 			}
 		} catch (Exception e) {
 			LOG.error("调用语聚AI案件咨询接口异常，portalId={}", updatedPortalDto.getId(), e);
+			result.put("success", false);
+			result.put("error", "调用语聚AI案件咨询接口异常");
 		}
+		return result;
 	}
 
 	/**
-	 * 组装发送给AI的自然语言提示词。jsonStr中的任意自定义表单字段也会递归展开，
-	 * 因此前端新增字段不需要再次修改后端代码。
+	 * 仅使用 jsonStr 的原始值作为案件资料，并追加485申请方案提问词。
 	 */
 	private String buildYujuAiInstructions(PortalDTO portalDto) {
 		StringBuilder prompt = new StringBuilder();
-		prompt.append("客户填写的资料：\n");
-		appendPromptField(prompt, "姓名", portalDto.getName());
-		appendPromptField(prompt, "性别", portalDto.getGender());
-		appendPromptField(prompt, "出生日期", formatDate(portalDto.getBirthday()));
-		appendPromptField(prompt, "护照号码", portalDto.getPassport());
-		appendPromptField(prompt, "英语成绩", portalDto.getEnglishScore());
-		appendPromptField(prompt, "完成信日期", formatDate(portalDto.getCompletionDate()));
-		appendPromptField(prompt, "签证到期时间", formatDate(portalDto.getVisaExpirationDate()));
-		appendPromptField(prompt, "考试成绩日期", formatDate(portalDto.getExamResultsDate()));
-		appendPromptField(prompt, "学签到期时间", formatDate(portalDto.getStudentVisaExpirationDate()));
-		if (portalDto.getHasCompletionLetter() != null)
-			appendPromptField(prompt, "是否有完成信", portalDto.getHasCompletionLetter() ? "是" : "否");
-		appendPromptField(prompt, "案件类型", portalDto.getPortalTypeName());
-		appendPromptField(prompt, "案件状态", portalDto.getStrState());
-		appendPromptField(prompt, "顾问", portalDto.getAdviserName());
-		appendPromptField(prompt, "文案", portalDto.getOfficialName());
-		appendPromptField(prompt, "MARA", portalDto.getMaraName());
-
-		if (StringUtil.isNotEmpty(portalDto.getJsonStr())) {
-			try {
-				JsonNode jsonNode = OBJECT_MAPPER.readTree(portalDto.getJsonStr());
-				appendJsonPromptFields(prompt, jsonNode, "");
-			} catch (Exception e) {
-				// 兼容旧数据中不是严格JSON的自定义表单内容
-				appendPromptField(prompt, "其他表单资料", portalDto.getJsonStr());
-			}
-		}
-		prompt.append("\n请给我详细的485申请方案及材料清单。");
+		if (portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
+			prompt.append(portalDto.getJsonStr().trim()).append("\n\n");
+		prompt.append("请给我详细的485申请方案及材料清单。");
 		return prompt.toString();
 	}
 
-	private void appendJsonPromptFields(StringBuilder prompt, JsonNode node, String prefix) {
-		if (node == null || node.isNull())
-			return;
-		if (node.isObject()) {
-			Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-			while (fields.hasNext()) {
-				Map.Entry<String, JsonNode> field = fields.next();
-				String fieldName = StringUtil.isEmpty(prefix) ? field.getKey() : prefix + "." + field.getKey();
-				appendJsonPromptFields(prompt, field.getValue(), fieldName);
-			}
-		} else if (node.isArray()) {
-			for (int i = 0; i < node.size(); i++)
-				appendJsonPromptFields(prompt, node.get(i), prefix + "[" + i + "]");
-		} else {
-			appendPromptField(prompt, displayJsonFieldName(prefix), node.asText());
+	private Object parseYujuAiResponse(String responseBody) {
+		if (StringUtil.isEmpty(responseBody))
+			return "";
+		try {
+			return OBJECT_MAPPER.readValue(responseBody, Object.class);
+		} catch (Exception e) {
+			return responseBody;
 		}
-	}
-
-	/** 将表单中常见的英文键转换成AI更容易理解的中文名称，未配置的键保留原路径。 */
-	private String displayJsonFieldName(String fieldPath) {
-		if (StringUtil.isEmpty(fieldPath))
-			return fieldPath;
-		String key = fieldPath;
-		int dotIndex = key.lastIndexOf('.');
-		if (dotIndex >= 0)
-			key = key.substring(dotIndex + 1);
-		if (key.endsWith("]")) {
-			int arrayIndex = key.lastIndexOf('[');
-			if (arrayIndex >= 0)
-				key = key.substring(0, arrayIndex);
-		}
-		if ("birthDate".equals(key) || "birthday".equals(key))
-			return "出生日期";
-		if ("birthCountry".equals(key) || "country".equals(key))
-			return "出生国家/地区";
-		if ("maritalStatus".equals(key))
-			return "婚姻状态";
-		if ("issueCountry".equals(key))
-			return "护照签发国家";
-		if ("issueDate".equals(key))
-			return "护照签发日期";
-		if ("expiryDate".equals(key) || "visaExpirationDate".equals(key))
-			return "到期日期";
-		if ("hasCompletionLetter".equals(key))
-			return "是否有完成信";
-		if ("schoolName".equals(key))
-			return "澳大利亚学校名称";
-		if ("cricosName".equals(key))
-			return "CRICOS课程名称";
-		if ("eduCourseType".equals(key))
-			return "学历类型";
-		if ("startDate".equals(key))
-			return "课程开始日期";
-		if ("endDate".equals(key))
-			return "课程完成日期";
-		if ("eduCourseCompletionDate".equals(key))
-			return "课程完成信日期";
-		if ("langType".equals(key))
-			return "英语考试类型";
-		if ("examResultsDate".equals(key))
-			return "考试日期";
-		if ("englishScore".equals(key))
-			return "英语成绩";
-		return fieldPath;
-	}
-
-	private void appendPromptField(StringBuilder prompt, String label, Object value) {
-		if (value == null || StringUtil.isEmpty(String.valueOf(value)))
-			return;
-		prompt.append(label).append("：").append(value).append("\n");
-	}
-
-	private String formatDate(Date date) {
-		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd").format(date);
 	}
 
 	private String readYujuAiResponse(InputStream inputStream) throws IOException {
