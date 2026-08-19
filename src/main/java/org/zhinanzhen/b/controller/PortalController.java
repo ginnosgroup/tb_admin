@@ -123,6 +123,17 @@ public class PortalController extends BaseController {
 	}
 
 	/**
+	 * 解析前端传的 hasCompletionLetter：兼容 "true"/"false" 和 "0"/"1" 两种写法，
+	 * 空值/其他值一律按 false 处理。
+	 */
+	private static boolean parseHasCompletionLetter(String value) {
+		if (StringUtil.isEmpty(value))
+			return false;
+		String v = value.trim();
+		return "true".equalsIgnoreCase(v) || "1".equals(v);
+	}
+
+	/**
 	 * 规范化附件文件路径后再交给 deleteFile 拼接 /data 前缀：
 	 * 去掉 http(s)://域名 前缀、应用 context path（/admin_v2.1）前缀，
 	 * 以及重复的 /data 前缀，避免路径对不上导致文件删不掉。
@@ -201,7 +212,7 @@ public class PortalController extends BaseController {
 			if (StringUtil.isNotEmpty(studentVisaExpirationDate))
 				portalDto.setStudentVisaExpirationDate(new Date(Long.parseLong(studentVisaExpirationDate.trim())));
 			// 未传默认false（没有完成信），避免insert时写入null违反非空约束
-			portalDto.setHasCompletionLetter("true".equalsIgnoreCase(hasCompletionLetter));
+			portalDto.setHasCompletionLetter(parseHasCompletionLetter(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
 			// 顾问添加时取登录顾问的顾问id；超管添加时用前端传的adviserId
@@ -291,7 +302,7 @@ public class PortalController extends BaseController {
 			if (StringUtil.isNotEmpty(studentVisaExpirationDate))
 				portalDto.setStudentVisaExpirationDate(new Date(Long.parseLong(studentVisaExpirationDate.trim())));
 			if (StringUtil.isNotEmpty(hasCompletionLetter))
-				portalDto.setHasCompletionLetter("true".equalsIgnoreCase(hasCompletionLetter));
+				portalDto.setHasCompletionLetter(parseHasCompletionLetter(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
 			if (StringUtil.isNotEmpty(adviserId))
