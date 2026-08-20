@@ -715,6 +715,13 @@ public class PortalController extends BaseController {
 			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize,
 					filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
 					filter.maraId);
+			// 与 /get 保持一致：按 portal_id 关联查询附件列表，组装进每个案件一起返回
+			if (portalDtoList != null) {
+				for (PortalDTO portalDto : portalDtoList) {
+					portalDto.setPortalAttachmentList(
+							portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
+				}
+			}
 			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
