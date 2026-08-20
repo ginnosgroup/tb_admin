@@ -163,7 +163,12 @@ public class ChartForAI {
         }
     }
 
-    private Response<String> analyzeFile(byte[] fileBytes, String filename, String question) {
+    /**
+     * 调取deepseek进行文字提取（字节流版本，供其他业务流程复用）。
+     * 注意：MultipartFile 被 transferTo 消费后临时文件会被移动，无法再调用 file.getBytes()，
+     * 复用方应在消费 MultipartFile 之前先读取字节再传入本方法。
+     */
+    public Response<String> analyzeFile(byte[] fileBytes, String filename, String question) {
         if (deepSeekApiKey == null || deepSeekApiKey.trim().isEmpty()) {
             return new Response<String>(1, "请先在application.properties中填写deepseek.pdf.api.key", null);
         }

@@ -27,4 +27,6 @@ public class PortalAttachmentDTO {
 
 	private String stage;
 
+	private String aiText;
+
 }

@@ -30,4 +30,6 @@ public class PortalAttachmentDO implements Serializable {
 
 	private String stage;
 
+	private String aiText;
+
 }

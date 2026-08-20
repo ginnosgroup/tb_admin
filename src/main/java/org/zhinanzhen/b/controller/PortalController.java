@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -80,11 +81,17 @@ public class PortalController extends BaseController {
 	@Resource
 	PortalLogService portalLogService;
 
+	@Resource
+	ChartForAI chartForAI;
+
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<String> uploadAttachment(@RequestParam MultipartFile file, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		// 必须先读取文件字节：upload2 内部 transferTo 会移动 MultipartFile 的临时文件，
+		// 之后再调 file.getBytes() 会因临时文件不存在而报错（AI提取要用原始字节）。
+		byte[] fileBytes = file.getBytes();
 		Response<String> uploadResp = super.upload2(file, request.getSession(), "/uploads/portal_attachment/");
 		if (uploadResp.getCode() != 0) {
 			return uploadResp;
@@ -99,6 +106,8 @@ public class PortalController extends BaseController {
 		if (StringUtil.isNotEmpty(originalName) && originalName.contains("."))
 			portalAttachmentDto.setFileExt(originalName.substring(originalName.lastIndexOf(".") + 1));
 		portalAttachmentDto.setStage("apply");
+		// 文件上传成功后调取 DeepSeek 提取附件文字并随附件入库（AI失败不影响上传主流程）
+		portalAttachmentDto.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename()));
 		try {
 			if (portalAttachmentService.addPortalAttachment(portalAttachmentDto) <= 0) {
 				super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
@@ -109,6 +118,23 @@ public class PortalController extends BaseController {
 			return new Response<String>(e.getCode(), e.getMessage(), null);
 		}
 		return new Response<String>(0, "", uploadResp.getData());
+	}
+
+	/**
+	 * 调取 DeepSeek 提取附件（图片/PDF）中的文字。失败返回null，不影响附件上传主流程。
+	 */
+	private String extractAttachmentText(byte[] fileBytes, String filename) {
+		try {
+			Response<String> aiResponse = chartForAI.analyzeFile(fileBytes, filename, null);
+			if (aiResponse != null && aiResponse.getCode() == 0) {
+				return aiResponse.getData();
+			}
+			LOG.warn("附件AI文字提取失败，file={}，原因：{}", filename,
+					aiResponse == null ? "无响应" : aiResponse.getMessage());
+		} catch (Exception e) {
+			LOG.error("附件AI文字提取异常，file={}", filename, e);
+		}
+		return null;
 	}
 
 	@RequestMapping(value = "/attachment/delete", method = RequestMethod.POST)
@@ -393,6 +419,8 @@ public class PortalController extends BaseController {
 			}
 
 			String instructions = buildYujuAiInstructions(portalDto);
+			// 组装好的语聚AI请求content打印到控制台，便于联调核对
+			System.out.println("语聚AI请求content: " + instructions);
 			Map<String, Object> requestBody = new LinkedHashMap<String, Object>();
 			requestBody.put("content", instructions);
 			requestBody.put("ibotID", yujuAiIbotId.trim());
@@ -425,9 +453,23 @@ public class PortalController extends BaseController {
 				int responseCode = connection.getResponseCode();
 				InputStream inputStream = responseCode >= 400 ? connection.getErrorStream() : connection.getInputStream();
 				String responseBody = readYujuAiResponse(inputStream);
+				Object parsedResponse = parseYujuAiResponse(responseBody);
 				result.put("success", responseCode >= 200 && responseCode < 300);
 				result.put("httpCode", responseCode);
-				result.put("response", parseYujuAiResponse(responseBody));
+				result.put("response", parsedResponse);
+				// 提取返回结果中的 content 存入数据库（保存失败不影响主流程）
+				String aiContent = extractYujuAiContent(parsedResponse);
+				if (StringUtil.isNotEmpty(aiContent)) {
+					try {
+						portalService.updateAiConsultContent(portalDto.getId(), aiContent);
+						result.put("contentSaved", true);
+					} catch (Exception e) {
+						LOG.warn("保存语聚AI返回内容失败，portalId={}", portalDto.getId(), e);
+						result.put("contentSaved", false);
+					}
+				} else {
+					result.put("contentSaved", false);
+				}
 				if (responseCode >= 200 && responseCode < 300) {
 					LOG.info("语聚AI案件咨询请求成功，portalId={}，httpCode={}，responseHeaders={}，response={}",
 							portalDto.getId(), responseCode, connection.getHeaderFields(), responseBody);
@@ -448,77 +490,35 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 按前端展示字段的含义，从 PortalDTO 和 jsonStr 中提取案件资料，与提问词一起序列化为 JSON。
+	 * 从案件资料（PortalDTO + 前端提交的 jsonStr）中提取关键字段，
+	 * 拼成"字段：值"形式的文本作为语聚AI的提问内容，例如：
+	 * 姓名：DU MINGHUA，性别：Male，出生日期：23/06/1984，出生国家/地区：China，国籍：China，
+	 * 婚姻状况：Married，签证到期日期：25/12/2027，是否有完成信：是，英语考试类型：IELTS。
+	 * 请给我详细的485申请方案及材料清单。
 	 */
 	private String buildYujuAiInstructions(PortalDTO portalDto) {
-		Map<String, Object> caseData = new LinkedHashMap<String, Object>();
-		Map<String, Object> caseInfo = new LinkedHashMap<String, Object>();
-		Map<String, Object> basicInfo = new LinkedHashMap<String, Object>();
-		Map<String, Object> passportInfo = new LinkedHashMap<String, Object>();
-		Map<String, Object> education = new LinkedHashMap<String, Object>();
-		Map<String, Object> language = new LinkedHashMap<String, Object>();
 		JsonNode formData = parsePortalFormData(portalDto);
+		StringBuilder text = new StringBuilder();
 
-		if (portalDto != null) {
-			if (portalDto.getId() > 0)
-				caseInfo.put("案件编号", portalDto.getId());
-			putAiField(caseInfo, "案件类型", portalDto.getPortalTypeName());
-			putAiField(caseInfo, "所属顾问", portalDto.getAdviserName());
-			putAiField(caseInfo, "所属文案", portalDto.getOfficialName());
-			putAiField(caseInfo, "所属MARA", portalDto.getMaraName());
-			putAiField(caseInfo, "创建时间", formatDateTime(portalDto.getGmtCreate()));
-			putAiField(caseInfo, "更新时间", formatDateTime(portalDto.getGmtModify()));
-			putAiField(caseInfo, "案件状态", portalDto.getStrState());
+		appendAiField(text, "姓名", portalDto == null ? null : portalDto.getName());
+		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
+		appendAiField(text, "出生日期", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
+		appendAiField(text, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
+		appendAiField(text, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "nationality"));
+		appendAiField(text, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
+		appendAiField(text, "签证到期日期", portalDto == null ? null : formatAiDate(portalDto.getVisaExpirationDate()));
+		if (portalDto != null && portalDto.getHasCompletionLetter() != null)
+			appendAiField(text, "是否有完成信", portalDto.getHasCompletionLetter() ? "是" : "否");
+		appendAiField(text, "英语考试类型", getJsonValue(formData, "language", "langType"));
 
-			putAiField(basicInfo, "申请人姓名", portalDto.getName());
-			putAiField(basicInfo, "性别", portalDto.getGender());
-			putAiField(basicInfo, "出生日期", formatDate(portalDto.getBirthday()));
-			putAiField(basicInfo, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
-			putAiField(basicInfo, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "nationality"));
-			putAiField(basicInfo, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
-			putAiField(basicInfo, "签证到期日期", formatDate(portalDto.getVisaExpirationDate()));
-
-			putAiField(passportInfo, "护照号码", portalDto.getPassport());
-			putAiField(passportInfo, "签发国家", getJsonValue(formData, "passportInfo", "issueCountry"));
-			putAiField(passportInfo, "签发日期", getJsonDateValue(formData, "passportInfo", "issueDate"));
-			putAiField(passportInfo, "到期日期", getJsonDateValue(formData, "passportInfo", "expiryDate"));
-
-			if (portalDto.getHasCompletionLetter() != null)
-				putAiField(education, "是否有完成信", portalDto.getHasCompletionLetter() ? "是" : "否");
-			if (Boolean.TRUE.equals(portalDto.getHasCompletionLetter())) {
-				putAiField(education, "澳大利亚学校名称",
-						getJsonValue(formData, "education", "auSchoolName", "schoolName"));
-				putAiField(education, "CRICOS课程名称", getJsonValue(formData, "education", "cricosName"));
-				putAiField(education, "学历类型", getJsonValue(formData, "education", "eduCourseType"));
-				putAiField(education, "开始日期",
-						getJsonDateValue(formData, "education", "eduStartDate", "startDate"));
-				putAiField(education, "完成日期",
-						getJsonDateValue(formData, "education", "eduEndDate", "endDate"));
-				putAiField(education, "课程完成信日期",
-						getJsonDateValue(formData, "education", "eduCourseCompletionDate"));
-			}
-
-			putAiField(language, "英语考试类型", getJsonValue(formData, "language", "langType"));
-			putAiField(language, "考试日期", getJsonDateValue(formData, "language", "examResultsDate"));
-			putAiField(language, "成绩总分", portalDto.getEnglishScore());
-		}
-
-		putAiSection(caseData, "案件信息", caseInfo);
-		putAiSection(caseData, "基本信息", basicInfo);
-		putAiSection(caseData, "护照信息", passportInfo);
-		putAiSection(caseData, "学习经历", education);
-		putAiSection(caseData, "英语能力", language);
+		// jsonStr 解析失败时，兜底把原始 jsonStr 附上，避免信息丢失
 		if (formData == null && portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
-			caseData.put("原始表单数据", portalDto.getJsonStr().trim());
+			appendAiField(text, "原始表单数据", portalDto.getJsonStr().trim());
 
-		try {
-			Map<String, Object> aiQuestion = new LinkedHashMap<String, Object>();
-			aiQuestion.put("案件资料", caseData);
-			aiQuestion.put("问题", "请给我详细的485申请方案及材料清单。");
-			return OBJECT_MAPPER.writeValueAsString(aiQuestion);
-		} catch (Exception e) {
-			throw new IllegalStateException("序列化语聚AI案件资料失败", e);
-		}
+		String content = text.toString().trim();
+		if (content.isEmpty())
+			return "请给我详细的485申请方案及材料清单。";
+		return content + "。请给我详细的485申请方案及材料清单。";
 	}
 
 	private JsonNode parsePortalFormData(PortalDTO portalDto) {
@@ -605,23 +605,68 @@ public class PortalController extends BaseController {
 		return null;
 	}
 
-	private void putAiField(Map<String, Object> section, String fieldName, Object value) {
-		if (value == null || StringUtil.isEmpty(String.valueOf(value)))
-			return;
-		section.put(fieldName, value);
-	}
-
-	private void putAiSection(Map<String, Object> caseData, String sectionName, Map<String, Object> section) {
-		if (!section.isEmpty())
-			caseData.put(sectionName, section);
-	}
-
 	private String formatDate(Date date) {
 		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd").format(date);
 	}
 
-	private String formatDateTime(Date date) {
-		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+	/** 语聚AI提问内容里的日期格式，与示例保持一致。 */
+	private String formatAiDate(Date date) {
+		return date == null ? null : new java.text.SimpleDateFormat("dd/MM/yyyy").format(date);
+	}
+
+	/** 拼接"字段：值"，多个字段用中文逗号分隔。 */
+	private void appendAiField(StringBuilder text, String label, Object value) {
+		if (value == null || StringUtil.isEmpty(String.valueOf(value)))
+			return;
+		if (text.length() > 0)
+			text.append("，");
+		text.append(label).append("：").append(value);
+	}
+
+	/**
+	 * 从语聚AI返回结果中提取 content 字段（兼容 {"content":...}、{"data":{"content":...}}、
+	 * {"choices":[{"message":{"content":...}}]} 等结构，递归查找第一个文本 content）。
+	 */
+	private String extractYujuAiContent(Object response) {
+		if (response == null)
+			return null;
+		try {
+			JsonNode node = OBJECT_MAPPER.valueToTree(response);
+			return findFirstContentText(node);
+		} catch (Exception e) {
+			LOG.warn("解析语聚AI返回的content失败", e);
+			return null;
+		}
+	}
+
+	/** 递归查找第一个文本类型的 content 字段值。 */
+	private String findFirstContentText(JsonNode node) {
+		if (node == null || node.isNull())
+			return null;
+		if (node.isObject()) {
+			Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
+			while (iterator.hasNext()) {
+				Map.Entry<String, JsonNode> entry = iterator.next();
+				if ("content".equals(entry.getKey()) && entry.getValue() != null
+						&& entry.getValue().isTextual()
+						&& StringUtil.isNotEmpty(entry.getValue().asText()))
+					return entry.getValue().asText();
+			}
+			iterator = node.fields();
+			while (iterator.hasNext()) {
+				Map.Entry<String, JsonNode> entry = iterator.next();
+				String found = findFirstContentText(entry.getValue());
+				if (found != null)
+					return found;
+			}
+		} else if (node.isArray()) {
+			for (JsonNode item : node) {
+				String found = findFirstContentText(item);
+				if (found != null)
+					return found;
+			}
+		}
+		return null;
 	}
 
 	private Object parseYujuAiResponse(String responseBody) {

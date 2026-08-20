@@ -45,6 +45,9 @@ public class PortalDTO {
 
 	private String jsonStr;
 
+	/** 语聚AI返回的485方案咨询内容（updatePortal时保存）。 */
+	private String aiConsultContent;
+
 	private int adviserId;
 
 	private int officialId;

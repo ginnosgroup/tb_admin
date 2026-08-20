@@ -23,4 +23,6 @@ public interface PortalService {
 
 	int deletePortal(int id) throws ServiceException;
 
+	int updateAiConsultContent(int id, String aiConsultContent) throws ServiceException;
+
 }

@@ -106,6 +106,13 @@
         WHERE id = #{id};
     </update>
 
+    <update id="updateAiConsultContent">
+        UPDATE b_portal_list
+        SET gmt_modify = now(),
+            ai_consult_content = #{aiConsultContent}
+        WHERE id = #{id};
+    </update>
+
     <select id="listPortal" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">
         SELECT
             id,
@@ -123,6 +130,7 @@
             student_visa_expiration_date AS studentVisaExpirationDate,
             has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
+            ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
             mara_id AS maraId,
@@ -229,6 +237,7 @@
             student_visa_expiration_date AS studentVisaExpirationDate,
             has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
+            ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
             mara_id AS maraId,
@@ -278,6 +287,7 @@
             student_visa_expiration_date AS studentVisaExpirationDate,
             has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
+            ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
             mara_id AS maraId,

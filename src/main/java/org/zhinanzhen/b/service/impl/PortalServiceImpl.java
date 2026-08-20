@@ -187,6 +187,22 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
+	public int updateAiConsultContent(int id, String aiConsultContent) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return portalDao.updateAiConsultContent(id, aiConsultContent);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public int deletePortal(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");

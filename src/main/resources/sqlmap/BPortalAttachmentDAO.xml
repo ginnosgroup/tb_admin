@@ -16,7 +16,8 @@
                 file_size,
                 file_type,
                 file_ext,
-                stage)
+                stage,
+                ai_text)
             VALUES (
                 #{portalId},
                 now(),
@@ -26,7 +27,8 @@
                 #{fileSize},
                 #{fileType},
                 #{fileExt},
-                #{stage});
+                #{stage},
+                #{aiText});
     </insert>
 
     <select id="getPortalAttachmentById" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
@@ -40,7 +42,8 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
-            stage
+            stage,
+            ai_text AS aiText
         FROM b_portal_attachment WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -55,7 +58,8 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
-            stage
+            stage,
+            ai_text AS aiText
         FROM b_portal_attachment WHERE file_path = #{filePath};
     </select>
 
@@ -70,7 +74,8 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
-            stage
+            stage,
+            ai_text AS aiText
         FROM b_portal_attachment
         WHERE portal_id = #{portalId}
         ORDER BY gmt_create ASC, id ASC;

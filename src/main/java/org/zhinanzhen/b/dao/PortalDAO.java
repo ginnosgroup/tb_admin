@@ -30,4 +30,6 @@ public interface PortalDAO {
 
 	int deletePortal(int id);
 
+	int updateAiConsultContent(@Param("id") int id, @Param("aiConsultContent") String aiConsultContent);
+
 }

@@ -40,6 +40,8 @@ public class PortalDO implements Serializable {
 
 	private String jsonStr;
 
+	private String aiConsultContent;
+
 	private int adviserId;
 
 	private int officialId;
