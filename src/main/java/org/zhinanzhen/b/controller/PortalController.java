@@ -46,6 +46,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
@@ -345,7 +346,7 @@ public class PortalController extends BaseController {
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
 				savePortalLog(portalDto.getId(), "update", fromState, toState, "更新案件信息", request);
-				// 案件更新成功后，仅将更新后的 jsonStr 提交给语聚AI进行485方案咨询。
+				// 案件更新成功后，按前端字段语义整理案件资料并提交给语聚AI进行485方案咨询。
 				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
 				portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
 				return new Response<PortalDTO>(0, portalDto);
@@ -358,8 +359,8 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 案件更新后调用语聚AI创建会话消息。这里重新查询一次数据库，确保使用的是更新后完整的 jsonStr，
-	 * 而不是本次请求中可能未携带 jsonStr 的 portalDto。
+	 * 案件更新后调用语聚AI创建会话消息。这里重新查询一次数据库，确保使用的是更新后的完整案件资料，
+	 * 而不是本次请求中可能只携带部分字段的 portalDto。
 	 */
 	private Map<String, Object> requestYujuAiAfterPortalUpdate(PortalDTO updatedPortalDto) {
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
@@ -408,6 +409,9 @@ public class PortalController extends BaseController {
 				connection.setDoOutput(true);
 				connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 				byte[] body = OBJECT_MAPPER.writeValueAsBytes(requestBody);
+				LOG.info("语聚AI案件咨询请求，portalId={}，method=POST，requestHeaders={}，requestBody={}",
+						portalDto.getId(), connection.getRequestProperties(),
+						new String(body, StandardCharsets.UTF_8));
 				OutputStream outputStream = null;
 				try {
 					outputStream = connection.getOutputStream();
@@ -425,10 +429,11 @@ public class PortalController extends BaseController {
 				result.put("httpCode", responseCode);
 				result.put("response", parseYujuAiResponse(responseBody));
 				if (responseCode >= 200 && responseCode < 300) {
-					LOG.info("语聚AI案件咨询请求成功，portalId={}，response={}", portalDto.getId(), responseBody);
+					LOG.info("语聚AI案件咨询请求成功，portalId={}，httpCode={}，responseHeaders={}，response={}",
+							portalDto.getId(), responseCode, connection.getHeaderFields(), responseBody);
 				} else {
-					LOG.warn("语聚AI案件咨询请求失败，portalId={}，httpCode={}，response={}", portalDto.getId(),
-							responseCode, responseBody);
+					LOG.warn("语聚AI案件咨询请求失败，portalId={}，httpCode={}，responseHeaders={}，response={}",
+							portalDto.getId(), responseCode, connection.getHeaderFields(), responseBody);
 				}
 			} finally {
 				if (connection != null)
@@ -443,14 +448,180 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 仅使用 jsonStr 的原始值作为案件资料，并追加485申请方案提问词。
+	 * 按前端展示字段的含义，从 PortalDTO 和 jsonStr 中提取案件资料，与提问词一起序列化为 JSON。
 	 */
 	private String buildYujuAiInstructions(PortalDTO portalDto) {
-		StringBuilder prompt = new StringBuilder();
-		if (portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
-			prompt.append(portalDto.getJsonStr().trim()).append("\n\n");
-		prompt.append("请给我详细的485申请方案及材料清单。");
-		return prompt.toString();
+		Map<String, Object> caseData = new LinkedHashMap<String, Object>();
+		Map<String, Object> caseInfo = new LinkedHashMap<String, Object>();
+		Map<String, Object> basicInfo = new LinkedHashMap<String, Object>();
+		Map<String, Object> passportInfo = new LinkedHashMap<String, Object>();
+		Map<String, Object> education = new LinkedHashMap<String, Object>();
+		Map<String, Object> language = new LinkedHashMap<String, Object>();
+		JsonNode formData = parsePortalFormData(portalDto);
+
+		if (portalDto != null) {
+			if (portalDto.getId() > 0)
+				caseInfo.put("案件编号", portalDto.getId());
+			putAiField(caseInfo, "案件类型", portalDto.getPortalTypeName());
+			putAiField(caseInfo, "所属顾问", portalDto.getAdviserName());
+			putAiField(caseInfo, "所属文案", portalDto.getOfficialName());
+			putAiField(caseInfo, "所属MARA", portalDto.getMaraName());
+			putAiField(caseInfo, "创建时间", formatDateTime(portalDto.getGmtCreate()));
+			putAiField(caseInfo, "更新时间", formatDateTime(portalDto.getGmtModify()));
+			putAiField(caseInfo, "案件状态", portalDto.getStrState());
+
+			putAiField(basicInfo, "申请人姓名", portalDto.getName());
+			putAiField(basicInfo, "性别", portalDto.getGender());
+			putAiField(basicInfo, "出生日期", formatDate(portalDto.getBirthday()));
+			putAiField(basicInfo, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
+			putAiField(basicInfo, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "nationality"));
+			putAiField(basicInfo, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
+			putAiField(basicInfo, "签证到期日期", formatDate(portalDto.getVisaExpirationDate()));
+
+			putAiField(passportInfo, "护照号码", portalDto.getPassport());
+			putAiField(passportInfo, "签发国家", getJsonValue(formData, "passportInfo", "issueCountry"));
+			putAiField(passportInfo, "签发日期", getJsonDateValue(formData, "passportInfo", "issueDate"));
+			putAiField(passportInfo, "到期日期", getJsonDateValue(formData, "passportInfo", "expiryDate"));
+
+			if (portalDto.getHasCompletionLetter() != null)
+				putAiField(education, "是否有完成信", portalDto.getHasCompletionLetter() ? "是" : "否");
+			if (Boolean.TRUE.equals(portalDto.getHasCompletionLetter())) {
+				putAiField(education, "澳大利亚学校名称",
+						getJsonValue(formData, "education", "auSchoolName", "schoolName"));
+				putAiField(education, "CRICOS课程名称", getJsonValue(formData, "education", "cricosName"));
+				putAiField(education, "学历类型", getJsonValue(formData, "education", "eduCourseType"));
+				putAiField(education, "开始日期",
+						getJsonDateValue(formData, "education", "eduStartDate", "startDate"));
+				putAiField(education, "完成日期",
+						getJsonDateValue(formData, "education", "eduEndDate", "endDate"));
+				putAiField(education, "课程完成信日期",
+						getJsonDateValue(formData, "education", "eduCourseCompletionDate"));
+			}
+
+			putAiField(language, "英语考试类型", getJsonValue(formData, "language", "langType"));
+			putAiField(language, "考试日期", getJsonDateValue(formData, "language", "examResultsDate"));
+			putAiField(language, "成绩总分", portalDto.getEnglishScore());
+		}
+
+		putAiSection(caseData, "案件信息", caseInfo);
+		putAiSection(caseData, "基本信息", basicInfo);
+		putAiSection(caseData, "护照信息", passportInfo);
+		putAiSection(caseData, "学习经历", education);
+		putAiSection(caseData, "英语能力", language);
+		if (formData == null && portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
+			caseData.put("原始表单数据", portalDto.getJsonStr().trim());
+
+		try {
+			Map<String, Object> aiQuestion = new LinkedHashMap<String, Object>();
+			aiQuestion.put("案件资料", caseData);
+			aiQuestion.put("问题", "请给我详细的485申请方案及材料清单。");
+			return OBJECT_MAPPER.writeValueAsString(aiQuestion);
+		} catch (Exception e) {
+			throw new IllegalStateException("序列化语聚AI案件资料失败", e);
+		}
+	}
+
+	private JsonNode parsePortalFormData(PortalDTO portalDto) {
+		if (portalDto == null || StringUtil.isEmpty(portalDto.getJsonStr()))
+			return null;
+		String jsonStr = portalDto.getJsonStr().trim();
+		try {
+			return readPortalFormData(jsonStr);
+		} catch (Exception firstException) {
+			// 兼容前端把整个 JSON 再次转义后提交的 {\"field\":\"value\"} 格式。
+			String unescapedJson = jsonStr.replace("\\\"", "\"");
+			if (!jsonStr.equals(unescapedJson)) {
+				try {
+					return readPortalFormData(unescapedJson);
+				} catch (Exception secondException) {
+					LOG.warn("解析案件jsonStr失败，将原始数据提交给语聚AI，portalId={}", portalDto.getId(),
+							secondException);
+					return null;
+				}
+			}
+			LOG.warn("解析案件jsonStr失败，将原始数据提交给语聚AI，portalId={}", portalDto.getId(),
+					firstException);
+			return null;
+		}
+	}
+
+	private JsonNode readPortalFormData(String jsonStr) throws IOException {
+		JsonNode node = OBJECT_MAPPER.readTree(jsonStr);
+		if (node != null && node.isTextual() && StringUtil.isNotEmpty(node.asText()))
+			return OBJECT_MAPPER.readTree(node.asText());
+		return node;
+	}
+
+	private Object getJsonValue(JsonNode root, String section, String field, String... flatAliases) {
+		JsonNode node = getJsonNode(root, section, field, flatAliases);
+		if (node == null || node.isNull())
+			return null;
+		if (node.isTextual())
+			return node.asText();
+		if (node.isNumber())
+			return node.numberValue();
+		if (node.isBoolean())
+			return node.asBoolean();
+		return node.toString();
+	}
+
+	private String getJsonDateValue(JsonNode root, String section, String field, String... flatAliases) {
+		JsonNode node = getJsonNode(root, section, field, flatAliases);
+		if (node == null || node.isNull())
+			return null;
+		String value = node.asText();
+		if (value != null && value.matches("-?\\d{10,13}")) {
+			try {
+				long timestamp = Long.parseLong(value);
+				if (value.replace("-", "").length() <= 10)
+					timestamp *= 1000L;
+				return formatDate(new Date(timestamp));
+			} catch (NumberFormatException e) {
+				// 非时间戳格式时保留前端提交的原值。
+			}
+		}
+		return value;
+	}
+
+	private JsonNode getJsonNode(JsonNode root, String section, String field, String... flatAliases) {
+		if (root == null)
+			return null;
+		JsonNode sectionNode = root.get(section);
+		if (sectionNode != null && !sectionNode.isNull()) {
+			JsonNode nestedNode = sectionNode.get(field);
+			if (nestedNode != null && !nestedNode.isNull())
+				return nestedNode;
+		}
+		JsonNode flatNode = root.get(field);
+		if (flatNode != null && !flatNode.isNull())
+			return flatNode;
+		if (flatAliases != null) {
+			for (String alias : flatAliases) {
+				JsonNode aliasNode = root.get(alias);
+				if (aliasNode != null && !aliasNode.isNull())
+					return aliasNode;
+			}
+		}
+		return null;
+	}
+
+	private void putAiField(Map<String, Object> section, String fieldName, Object value) {
+		if (value == null || StringUtil.isEmpty(String.valueOf(value)))
+			return;
+		section.put(fieldName, value);
+	}
+
+	private void putAiSection(Map<String, Object> caseData, String sectionName, Map<String, Object> section) {
+		if (!section.isEmpty())
+			caseData.put(sectionName, section);
+	}
+
+	private String formatDate(Date date) {
+		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd").format(date);
+	}
+
+	private String formatDateTime(Date date) {
+		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
 	}
 
 	private Object parseYujuAiResponse(String responseBody) {
