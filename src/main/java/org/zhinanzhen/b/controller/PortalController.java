@@ -815,11 +815,12 @@ public class PortalController extends BaseController {
 			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize,
 					filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
 					filter.maraId);
-			// 与 /get 保持一致：按 portal_id 关联查询附件列表，组装进每个案件一起返回
+			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
 			if (portalDtoList != null) {
 				for (PortalDTO portalDto : portalDtoList) {
 					portalDto.setPortalAttachmentList(
 							portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
+					portalDto.setPortalLogList(portalLogService.listPortalLog(portalDto.getId(), 0, 1000));
 				}
 			}
 			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
@@ -917,9 +918,10 @@ public class PortalController extends BaseController {
 			// 此接口不需要验证登录，不做数据权限过滤
 			PortalDTO portalDto = portalService.getPortal(id, null, null, null, null, null);
 			if (portalDto != null) {
-				// 按 portal_id 关联查询附件列表，组装进 PortalDTO 一起返回
+				// 按 portal_id 关联查询附件列表和操作日志，组装进 PortalDTO 一起返回
 				portalDto.setPortalAttachmentList(
 						portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
+				portalDto.setPortalLogList(portalLogService.listPortalLog(portalDto.getId(), 0, 1000));
 			}
 			return new Response<PortalDTO>(0, "", portalDto);
 		} catch (ServiceException e) {

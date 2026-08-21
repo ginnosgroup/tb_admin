@@ -67,6 +67,9 @@ public class PortalDTO {
 	/** 案件关联的附件列表（按 portal_id 查询组装）。 */
 	private List<PortalAttachmentDTO> portalAttachmentList;
 
+	/** 案件操作日志列表（按 portal_id 查询组装）。 */
+	private List<PortalLogDTO> portalLogList;
+
 	/** 仅在更新案件并调用语聚AI时返回，不参与数据库持久化。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, Object> yujuAiResult;
