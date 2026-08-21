@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -504,12 +505,12 @@ public class PortalController extends BaseController {
 //		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
 		appendAiField(text, "出生日期", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
 		appendAiField(text, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
-		appendAiField(text, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "nationality"));
+		appendAiField(text, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "citiCountry", "nationality"));
 		appendAiField(text, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
-		appendAiField(text, "签证到期日期", portalDto == null ? null : formatAiDate(portalDto.getVisaExpirationDate()));
-		if (portalDto != null && portalDto.getHasCompletionLetter() != null)
-			appendAiField(text, "是否有完成信", portalDto.getHasCompletionLetter() ? "是" : "否");
-		appendAiField(text, "英语考试类型", getJsonValue(formData, "language", "langType"));
+		appendAiField(text, "签证到期日期", resolveVisaExpirationDate(formData, portalDto));
+		appendAiField(text, "是否有完成信", hasEducationData(formData) ? "有" : "无");
+		appendAiField(text, "英语考试类型", joinLangTypes(getSectionNode(formData, "language")));
+		appendAiField(text, "英语考试成绩", buildExamDetails(getSectionNode(formData, "language")));
 
 		// jsonStr 解析失败时，兜底把原始 jsonStr 附上，避免信息丢失
 		if (formData == null && portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
@@ -519,6 +520,144 @@ public class PortalController extends BaseController {
 		if (content.isEmpty())
 			return "请给我详细的485申请方案及材料清单。";
 		return content + "。请给我详细的485申请方案及材料清单。";
+	}
+
+	/**
+	 * 签证到期日期：优先取 jsonStr.basicInfo.visaExpirationDate（时间戳/日期字符串），
+	 * 取不到再回退到 PortalDTO 的签证到期日期。
+	 */
+	private String resolveVisaExpirationDate(JsonNode formData, PortalDTO portalDto) {
+		Date date = dateFromNode(getJsonNode(formData, "basicInfo", "visaExpirationDate"));
+		if (date == null && portalDto != null)
+			date = portalDto.getVisaExpirationDate();
+		return formatAiDate(date);
+	}
+
+	/** 是否有完成信：jsonStr.education 有数据（数组非空/对象有字段）即为"有"。 */
+	private boolean hasEducationData(JsonNode formData) {
+		JsonNode node = getSectionNode(formData, "education");
+		if (node == null)
+			return false;
+		if (node.isArray())
+			return node.size() > 0;
+		if (node.isObject())
+			return node.size() > 0;
+		return StringUtil.isNotEmpty(node.asText());
+	}
+
+	/** 取 jsonStr 的顶层分组节点（如 basicInfo / education / language）。 */
+	private JsonNode getSectionNode(JsonNode formData, String section) {
+		if (formData == null || !formData.isObject())
+			return null;
+		JsonNode node = formData.get(section);
+		return (node == null || node.isNull()) ? null : node;
+	}
+
+	/** 英语考试类型：多门用顿号连接，如 "IELTS、OET"。 */
+	private String joinLangTypes(JsonNode languageNode) {
+		if (languageNode == null)
+			return null;
+		List<String> types = new ArrayList<String>();
+		if (languageNode.isArray()) {
+			for (JsonNode item : languageNode) {
+				String type = getText(item, "langType");
+				if (StringUtil.isNotEmpty(type))
+					types.add(type);
+			}
+		} else {
+			String type = getText(languageNode, "langType");
+			if (StringUtil.isNotEmpty(type))
+				types.add(type);
+		}
+		return types.isEmpty() ? null : String.join("、", types);
+	}
+
+	/** 每门语言考试的成绩明细，如 "IELTS（听力gg/阅读ss/写作ww/口语hh/总分ccc，考试日期25/06/2026）"。 */
+	private String buildExamDetails(JsonNode languageNode) {
+		if (languageNode == null)
+			return null;
+		StringBuilder result = new StringBuilder();
+		boolean isArray = languageNode.isArray();
+		int count = isArray ? languageNode.size() : 1;
+		for (int i = 0; i < count; i++) {
+			JsonNode item = isArray ? languageNode.get(i) : languageNode;
+			if (item == null || !item.isObject())
+				continue;
+			String type = getText(item, "langType");
+			if (StringUtil.isEmpty(type))
+				continue;
+			StringBuilder detail = new StringBuilder();
+			appendExamDetail(detail, "听力", getText(item, "listening"));
+			appendExamDetail(detail, "阅读", getText(item, "reading"));
+			appendExamDetail(detail, "写作", getText(item, "writing"));
+			appendExamDetail(detail, "口语", getText(item, "speaking"));
+			appendExamDetail(detail, "总分", getText(item, "overall"));
+			String testDateText = formatAiDate(dateFromNode(item.get("testDate")));
+			if (testDateText != null)
+				appendExamDetail(detail, "考试日期", testDateText);
+			if (result.length() > 0)
+				result.append("；");
+			result.append(type);
+			if (detail.length() > 0)
+				result.append("（").append(detail).append("）");
+		}
+		return result.length() == 0 ? null : result.toString();
+	}
+
+	private void appendExamDetail(StringBuilder detail, String label, String value) {
+		if (StringUtil.isEmpty(value))
+			return;
+		if (detail.length() > 0)
+			detail.append("/");
+		detail.append(label).append(value);
+	}
+
+	/** 取节点文本值（字符串/数字/布尔），null 或空返回 null。 */
+	private String getText(JsonNode node, String field) {
+		JsonNode value = node == null ? null : node.get(field);
+		if (value == null || value.isNull())
+			return null;
+		if (value.isTextual())
+			return value.asText();
+		if (value.isNumber() || value.isBoolean())
+			return value.asText();
+		return null;
+	}
+
+	/** 把 jsonStr 里的日期节点（毫秒/秒时间戳、yyyy-MM-dd、dd/MM/yyyy）转成 Date。 */
+	private Date dateFromNode(JsonNode node) {
+		if (node == null || node.isNull())
+			return null;
+		if (node.isNumber()) {
+			long timestamp = node.asLong();
+			if (timestamp < 100000000000L)
+				timestamp *= 1000L;
+			return new Date(timestamp);
+		}
+		if (node.isTextual()) {
+			String text = node.asText().trim();
+			if (text.matches("-?\\d{10,13}")) {
+				long timestamp = Long.parseLong(text);
+				if (text.replace("-", "").length() <= 10)
+					timestamp *= 1000L;
+				return new Date(timestamp);
+			}
+			return tryParseDateText(text);
+		}
+		return null;
+	}
+
+	/** 简单兼容 yyyy-MM-dd / dd/MM/yyyy 两种文本日期。 */
+	private Date tryParseDateText(String text) {
+		try {
+			if (text.matches("\\d{4}-\\d{2}-\\d{2}"))
+				return new java.text.SimpleDateFormat("yyyy-MM-dd").parse(text);
+			if (text.matches("\\d{2}/\\d{2}/\\d{4}"))
+				return new java.text.SimpleDateFormat("dd/MM/yyyy").parse(text);
+		} catch (Exception e) {
+			// 忽略无法解析的文本日期
+		}
+		return null;
 	}
 
 	private JsonNode parsePortalFormData(PortalDTO portalDto) {
