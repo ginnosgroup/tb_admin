@@ -505,20 +505,10 @@ public class PortalController extends BaseController {
 //		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
 		appendAiField(text, "出生日期", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
 		appendAiField(text, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
-		appendAiField(text, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "citiCountry", "nationality"));
 		appendAiField(text, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
 		appendAiField(text, "签证到期日期", resolveVisaExpirationDate(formData, portalDto));
 		appendAiField(text, "是否有完成信", hasEducationData(formData) ? "是" : "否");
-		// 护照信息
-		appendAiField(text, "护照号码", portalDto == null ? null : portalDto.getPassport());
-		appendAiField(text, "护照签发国家", getJsonValue(formData, "passportInfo", "issueCountry"));
-		appendAiField(text, "护照签发日期", aiDateText(getJsonNode(formData, "passportInfo", "issueDate")));
-		appendAiField(text, "护照到期日期", aiDateText(getJsonNode(formData, "passportInfo", "expiryDate")));
-		// 学习经历（多段，逐条转中文）
-		appendEducationFields(text, getSectionNode(formData, "education"));
-		// 语言考试
-		appendAiField(text, "英语考试类型", joinLangTypes(getSectionNode(formData, "language")));
-		appendAiField(text, "英语考试成绩", buildExamDetails(getSectionNode(formData, "language")));
+		appendAiField(text, "语言考试", joinLangTypes(getSectionNode(formData, "language")));
 
 		// jsonStr 解析失败时，兜底把原始 jsonStr 附上，避免信息丢失
 		if (formData == null && portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
@@ -561,7 +551,7 @@ public class PortalController extends BaseController {
 		return (node == null || node.isNull()) ? null : node;
 	}
 
-	/** 英语考试类型：多门用顿号连接，如 "IELTS、OET"。 */
+	/** 语言考试：取 language[].langType，多门用顿号连接，如 "ESOL、AAA"。 */
 	private String joinLangTypes(JsonNode languageNode) {
 		if (languageNode == null)
 			return null;
@@ -578,81 +568,6 @@ public class PortalController extends BaseController {
 				types.add(type);
 		}
 		return types.isEmpty() ? null : String.join("、", types);
-	}
-
-	/** 每门语言考试的成绩明细，如 "IELTS（听力gg/阅读ss/写作ww/口语hh/总分ccc，考试日期25/06/2026）"。 */
-	private String buildExamDetails(JsonNode languageNode) {
-		if (languageNode == null)
-			return null;
-		StringBuilder result = new StringBuilder();
-		boolean isArray = languageNode.isArray();
-		int count = isArray ? languageNode.size() : 1;
-		for (int i = 0; i < count; i++) {
-			JsonNode item = isArray ? languageNode.get(i) : languageNode;
-			if (item == null || !item.isObject())
-				continue;
-			String type = getText(item, "langType");
-			if (StringUtil.isEmpty(type))
-				continue;
-			StringBuilder detail = new StringBuilder();
-			appendExamDetail(detail, "听力", getText(item, "listening"));
-			appendExamDetail(detail, "阅读", getText(item, "reading"));
-			appendExamDetail(detail, "写作", getText(item, "writing"));
-			appendExamDetail(detail, "口语", getText(item, "speaking"));
-			appendExamDetail(detail, "总分", getText(item, "overall"));
-			String testDateText = formatAiDate(dateFromNode(item.get("testDate")));
-			if (testDateText != null)
-				appendExamDetail(detail, "考试日期", testDateText);
-			String hkPassport = getText(item, "hkPassport");
-			if (StringUtil.isNotEmpty(hkPassport))
-				appendExamDetail(detail, "香港护照", ("1".equals(hkPassport) || "true".equalsIgnoreCase(hkPassport)) ? "是" : "否");
-			if (result.length() > 0)
-				result.append("；");
-			result.append(type);
-			if (detail.length() > 0)
-				result.append("（").append(detail).append("）");
-		}
-		return result.length() == 0 ? null : result.toString();
-	}
-
-	private void appendExamDetail(StringBuilder detail, String label, String value) {
-		if (StringUtil.isEmpty(value))
-			return;
-		if (detail.length() > 0)
-			detail.append("/");
-		detail.append(label).append(value);
-	}
-
-	/** 学习经历：jsonStr.education 数组逐条转成中文文本，如 "学习经历1：学校名称fgff/CRICOS课程fff/学历类型Senior High School/开始日期18/08/2026"。 */
-	private void appendEducationFields(StringBuilder text, JsonNode educationNode) {
-		if (educationNode == null)
-			return;
-		boolean isArray = educationNode.isArray();
-		int count = isArray ? educationNode.size() : 1;
-		for (int i = 0; i < count; i++) {
-			JsonNode item = isArray ? educationNode.get(i) : educationNode;
-			if (item == null || !item.isObject())
-				continue;
-			StringBuilder edu = new StringBuilder();
-			appendExamDetail(edu, "学校名称", getText(item, "auSchoolName"));
-			appendExamDetail(edu, "CRICOS课程", getText(item, "cricosName"));
-			appendExamDetail(edu, "学历类型", getText(item, "eduCourseType"));
-			appendExamDetail(edu, "开始日期", aiDateText(item.get("eduStartDate")));
-			appendExamDetail(edu, "完成日期", aiDateText(item.get("eduEndDate")));
-			appendExamDetail(edu, "课程完成信日期", aiDateText(item.get("eduCourseCompletionDate")));
-			appendExamDetail(edu, "技能评估", getText(item, "skillAssessment"));
-			if (edu.length() == 0)
-				continue;
-			String label = count > 1 ? "学习经历" + (i + 1) : "学习经历";
-			if (text.length() > 0)
-				text.append("，");
-			text.append(label).append("：").append(edu);
-		}
-	}
-
-	/** jsonStr 里的日期节点转成 AI 提问用的 dd/MM/yyyy 文本（无效值返回 null）。 */
-	private String aiDateText(JsonNode node) {
-		return formatAiDate(dateFromNode(node));
 	}
 
 	/** 取节点文本值（字符串/数字/布尔），null 或空返回 null。 */
