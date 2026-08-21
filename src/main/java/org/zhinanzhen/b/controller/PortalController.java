@@ -500,8 +500,8 @@ public class PortalController extends BaseController {
 		JsonNode formData = parsePortalFormData(portalDto);
 		StringBuilder text = new StringBuilder();
 
-		appendAiField(text, "姓名", portalDto == null ? null : portalDto.getName());
-		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
+//		appendAiField(text, "姓名", portalDto == null ? null : portalDto.getName());
+//		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
 		appendAiField(text, "出生日期", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
 		appendAiField(text, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
 		appendAiField(text, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "nationality"));
