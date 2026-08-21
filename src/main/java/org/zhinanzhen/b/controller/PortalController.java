@@ -508,7 +508,15 @@ public class PortalController extends BaseController {
 		appendAiField(text, "国籍", getJsonValue(formData, "basicInfo", "citCountry", "citiCountry", "nationality"));
 		appendAiField(text, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
 		appendAiField(text, "签证到期日期", resolveVisaExpirationDate(formData, portalDto));
-		appendAiField(text, "是否有完成信", hasEducationData(formData) ? "有" : "无");
+		appendAiField(text, "是否有完成信", hasEducationData(formData) ? "是" : "否");
+		// 护照信息
+		appendAiField(text, "护照号码", portalDto == null ? null : portalDto.getPassport());
+		appendAiField(text, "护照签发国家", getJsonValue(formData, "passportInfo", "issueCountry"));
+		appendAiField(text, "护照签发日期", aiDateText(getJsonNode(formData, "passportInfo", "issueDate")));
+		appendAiField(text, "护照到期日期", aiDateText(getJsonNode(formData, "passportInfo", "expiryDate")));
+		// 学习经历（多段，逐条转中文）
+		appendEducationFields(text, getSectionNode(formData, "education"));
+		// 语言考试
 		appendAiField(text, "英语考试类型", joinLangTypes(getSectionNode(formData, "language")));
 		appendAiField(text, "英语考试成绩", buildExamDetails(getSectionNode(formData, "language")));
 
@@ -595,6 +603,9 @@ public class PortalController extends BaseController {
 			String testDateText = formatAiDate(dateFromNode(item.get("testDate")));
 			if (testDateText != null)
 				appendExamDetail(detail, "考试日期", testDateText);
+			String hkPassport = getText(item, "hkPassport");
+			if (StringUtil.isNotEmpty(hkPassport))
+				appendExamDetail(detail, "香港护照", ("1".equals(hkPassport) || "true".equalsIgnoreCase(hkPassport)) ? "是" : "否");
 			if (result.length() > 0)
 				result.append("；");
 			result.append(type);
@@ -610,6 +621,38 @@ public class PortalController extends BaseController {
 		if (detail.length() > 0)
 			detail.append("/");
 		detail.append(label).append(value);
+	}
+
+	/** 学习经历：jsonStr.education 数组逐条转成中文文本，如 "学习经历1：学校名称fgff/CRICOS课程fff/学历类型Senior High School/开始日期18/08/2026"。 */
+	private void appendEducationFields(StringBuilder text, JsonNode educationNode) {
+		if (educationNode == null)
+			return;
+		boolean isArray = educationNode.isArray();
+		int count = isArray ? educationNode.size() : 1;
+		for (int i = 0; i < count; i++) {
+			JsonNode item = isArray ? educationNode.get(i) : educationNode;
+			if (item == null || !item.isObject())
+				continue;
+			StringBuilder edu = new StringBuilder();
+			appendExamDetail(edu, "学校名称", getText(item, "auSchoolName"));
+			appendExamDetail(edu, "CRICOS课程", getText(item, "cricosName"));
+			appendExamDetail(edu, "学历类型", getText(item, "eduCourseType"));
+			appendExamDetail(edu, "开始日期", aiDateText(item.get("eduStartDate")));
+			appendExamDetail(edu, "完成日期", aiDateText(item.get("eduEndDate")));
+			appendExamDetail(edu, "课程完成信日期", aiDateText(item.get("eduCourseCompletionDate")));
+			appendExamDetail(edu, "技能评估", getText(item, "skillAssessment"));
+			if (edu.length() == 0)
+				continue;
+			String label = count > 1 ? "学习经历" + (i + 1) : "学习经历";
+			if (text.length() > 0)
+				text.append("，");
+			text.append(label).append("：").append(edu);
+		}
+	}
+
+	/** jsonStr 里的日期节点转成 AI 提问用的 dd/MM/yyyy 文本（无效值返回 null）。 */
+	private String aiDateText(JsonNode node) {
+		return formatAiDate(dateFromNode(node));
 	}
 
 	/** 取节点文本值（字符串/数字/布尔），null 或空返回 null。 */
@@ -630,6 +673,8 @@ public class PortalController extends BaseController {
 			return null;
 		if (node.isNumber()) {
 			long timestamp = node.asLong();
+			if (timestamp <= 0)
+				return null; // 0/负数视为未填，避免解析成 1970-01-01
 			if (timestamp < 100000000000L)
 				timestamp *= 1000L;
 			return new Date(timestamp);
@@ -638,6 +683,8 @@ public class PortalController extends BaseController {
 			String text = node.asText().trim();
 			if (text.matches("-?\\d{10,13}")) {
 				long timestamp = Long.parseLong(text);
+				if (timestamp <= 0)
+					return null; // 0/负数视为未填
 				if (text.replace("-", "").length() <= 10)
 					timestamp *= 1000L;
 				return new Date(timestamp);
