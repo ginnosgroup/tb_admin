@@ -493,9 +493,8 @@ public class PortalController extends BaseController {
 	/**
 	 * 从案件资料（PortalDTO + 前端提交的 jsonStr）中提取关键字段，
 	 * 拼成"字段：值"形式的文本作为语聚AI的提问内容，例如：
-	 * 姓名：DU MINGHUA，性别：Male，出生日期：23/06/1984，出生国家/地区：China，国籍：China，
-	 * 婚姻状况：Married，签证到期日期：25/12/2027，是否有完成信：是，英语考试类型：IELTS。
-	 * 请给我详细的485申请方案及材料清单。
+	 * 出生：23/06/1984，出生国家：China，婚姻：Married，学签到期：25/12/2027，完成信：是，语言考试：IELTS。
+	 * 请给我485申请方案及材料清单。
 	 */
 	private String buildYujuAiInstructions(PortalDTO portalDto) {
 		JsonNode formData = parsePortalFormData(portalDto);
@@ -503,11 +502,11 @@ public class PortalController extends BaseController {
 
 //		appendAiField(text, "姓名", portalDto == null ? null : portalDto.getName());
 //		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
-		appendAiField(text, "出生日期", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
-		appendAiField(text, "出生国家/地区", getJsonValue(formData, "basicInfo", "birthCountry"));
-		appendAiField(text, "婚姻状况", getJsonValue(formData, "basicInfo", "maritalStatus"));
-		appendAiField(text, "签证到期日期", resolveVisaExpirationDate(formData, portalDto));
-		appendAiField(text, "是否有完成信", hasEducationData(formData) ? "是" : "否");
+		appendAiField(text, "出生", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
+		appendAiField(text, "出生国家", getJsonValue(formData, "basicInfo", "birthCountry"));
+		appendAiField(text, "婚姻", getJsonValue(formData, "basicInfo", "maritalStatus"));
+		appendAiField(text, "学签到期", resolveStudentVisaExpirationDate(formData, portalDto));
+		appendAiField(text, "完成信", hasEducationData(formData) ? "是" : "否");
 		appendAiField(text, "语言考试", joinLangTypes(getSectionNode(formData, "language")));
 
 		// jsonStr 解析失败时，兜底把原始 jsonStr 附上，避免信息丢失
@@ -516,18 +515,18 @@ public class PortalController extends BaseController {
 
 		String content = text.toString().trim();
 		if (content.isEmpty())
-			return "请给我详细的485申请方案及材料清单。";
-		return content + "。请给我详细的485申请方案及材料清单。";
+			return "请给我485申请方案及材料清单。";
+		return content + "。请给我485申请方案及材料清单。";
 	}
 
 	/**
-	 * 签证到期日期：优先取 jsonStr.basicInfo.visaExpirationDate（时间戳/日期字符串），
-	 * 取不到再回退到 PortalDTO 的签证到期日期。
+	 * 学签到期时间：优先取 jsonStr.basicInfo.studentVisaExpirationDate（时间戳/日期字符串），
+	 * 取不到再回退到 PortalDTO 的学签到期时间。
 	 */
-	private String resolveVisaExpirationDate(JsonNode formData, PortalDTO portalDto) {
-		Date date = dateFromNode(getJsonNode(formData, "basicInfo", "visaExpirationDate"));
+	private String resolveStudentVisaExpirationDate(JsonNode formData, PortalDTO portalDto) {
+		Date date = dateFromNode(getJsonNode(formData, "basicInfo", "studentVisaExpirationDate"));
 		if (date == null && portalDto != null)
-			date = portalDto.getVisaExpirationDate();
+			date = portalDto.getStudentVisaExpirationDate();
 		return formatAiDate(date);
 	}
 
