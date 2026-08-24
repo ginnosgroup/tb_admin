@@ -596,6 +596,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				childrenServiceOrderList.add(childrenServiceOrderDto);
 			});
 			serviceOrderDTO.setChildrenServiceOrders(childrenServiceOrderList);
+		} else {
+			// 子订单本身没有下级服务，返回空数组而不是 null，避免前端遍历 childrenServiceOrders 报错
+			serviceOrderDTO.setChildrenServiceOrders(new ArrayList<>());
 		}
 //			ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaListDo.getServiceOrderId());
 //			if (serviceOrderDo != null && StringUtil.isNotEmpty(serviceOrderDo.getRefuseReason()))

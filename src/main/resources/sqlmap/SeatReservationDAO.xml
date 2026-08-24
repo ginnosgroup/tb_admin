@@ -121,20 +121,6 @@
         LIMIT 1
     </select>
 
-    <select id="getByIp" parameterType="java.lang.String"
-            resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
-        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
-               seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
-               name, email, phone, ip, consultant_name AS consultantName,
-               consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
-               poster_url AS posterUrl,
-               ticket_image_path AS ticketImagePath,
-               email_image_path AS emailImagePath
-        FROM b_seat_reservation
-        WHERE ip = #{ip}
-        LIMIT 1
-    </select>
-
     <select id="getMaxConsultantSequence" parameterType="java.lang.String"
             resultType="java.lang.Integer">
         SELECT consultant_sequence

@@ -23,8 +23,6 @@ public interface SeatReservationDAO {
 
     SeatReservationDO getByNameAndEmail(@Param("name") String name, @Param("email") String email);
 
-    SeatReservationDO getByIp(@Param("ip") String ip);
-
     Integer getMaxConsultantSequence(@Param("consultantName") String consultantName);
 
     List<String> listOccupiedSeatCodes();
