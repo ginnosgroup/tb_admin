@@ -36,6 +36,8 @@ public class SeatReservationServiceImpl implements SeatReservationService {
     /** 允许填写的顾问姓名白名单（统一小写比较，不区分大小写）。 */
     private static final List<String> ALLOWED_CONSULTANT_NAMES = Arrays.asList(
             "jay", "winnie", "emily", "michael", "shawn", "echo", "mia");
+    /** 需要在票根图片前展示无障碍座位调整说明的座位。 */
+    private static final List<String> DISABLED_SEAT_NOTICE_CODES = Arrays.asList("H2", "H17", "E17");
 
     @Resource
     private SeatReservationDAO seatReservationDAO;
@@ -184,9 +186,18 @@ public class SeatReservationServiceImpl implements SeatReservationService {
         }
         String ticketImage = readImageAsDataUrl(record.getEmailImagePath());
         StringBuilder content = new StringBuilder();
-        // 票根信息已合成在下方图片中，正文只保留一句引导语。
-        content.append("<p>请持电子票根入场。</p>")
-                .append("<p><img src=\"").append(ticketImage)
+        String seatCode = StringUtils.upperCase(StringUtils.trimToEmpty(record.getSeatCode()));
+        if (DISABLED_SEAT_NOTICE_CODES.contains(seatCode)) {
+            content.append("<p>同学您好，我们注意到您之前选择的座位为 <strong>Seat (Disabled)</strong>（无障碍座位）。")
+                    .append("为了将无障碍座位优先保留给有实际需要的同学，我们已为您重新安排了其他座位，")
+                    .append("<strong>最新的电子票根也已发送给您</strong>。请您明天入场时务必使用")
+                    .append("<strong>最新的电子票根</strong>，并按照新票根上的座位号入座。之前的票根将不再使用。")
+                    .append("如果您本人确实有无障碍座位的需求，请直接联系您的顾问，我们会协助您安排合适的座位。")
+                    .append("感谢您的理解与配合！指南针留学移民</p>");
+        } else {
+            content.append("<p>请持电子票根入场。</p>");
+        }
+        content.append("<p><img src=\"").append(ticketImage)
                 .append("\" alt=\"电影票根\" style=\"max-width:100%;height:auto;\" /></p>");
         SendEmailUtil.send(record.getEmail(), "您的电影票根", content.toString());
     }
