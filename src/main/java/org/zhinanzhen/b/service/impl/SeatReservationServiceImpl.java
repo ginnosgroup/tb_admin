@@ -37,7 +37,8 @@ public class SeatReservationServiceImpl implements SeatReservationService {
     private static final List<String> ALLOWED_CONSULTANT_NAMES = Arrays.asList(
             "jay", "winnie", "emily", "michael", "shawn", "echo", "mia");
     /** 需要在票根图片前展示无障碍座位调整说明的座位。 */
-    private static final List<String> DISABLED_SEAT_NOTICE_CODES = Arrays.asList("H2", "H17", "E17");
+    private static final List<String> DISABLED_SEAT_NOTICE_CODES = Arrays.asList(
+            "H2", "H17", "E17", "B16", "B17", "C17");
 
     @Resource
     private SeatReservationDAO seatReservationDAO;
