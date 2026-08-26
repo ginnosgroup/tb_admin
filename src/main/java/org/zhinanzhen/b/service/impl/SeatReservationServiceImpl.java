@@ -21,8 +21,12 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 @Service("SeatReservationService")
 public class SeatReservationServiceImpl implements SeatReservationService {
@@ -39,6 +43,17 @@ public class SeatReservationServiceImpl implements SeatReservationService {
     /** 需要在票根图片前展示无障碍座位调整说明的座位。 */
     private static final List<String> DISABLED_SEAT_NOTICE_CODES = Arrays.asList(
             "H2", "H17", "E17", "B16", "B17", "C17");
+	private static final String MOVIE_REMINDER_TITLE = "🎬 电影包场温馨提醒";
+	private static final String MOVIE_REMINDER_CONTENT =
+			"<p>🎬 <strong>电影包场温馨提醒</strong></p>"
+			+ "<p>大家晚上好！<br/>"
+			+ "我们的电影包场活动即将开始啦～</p>"
+			+ "<p>📍 地点：HOYTS Broadway<br/>"
+			+ "⏰ 18:30 开始入场<br/>"
+			+ "🎬 19:00 正式开场</p>"
+			+ "<p>还没有入场的小伙伴请尽快前往影院入场，提前找到自己的座位哦！</p>"
+			+ "<p>今晚让我们一起看电影、一起嗨！🍿🎬<br/>"
+			+ "我们影院见！</p>";
 
     @Resource
     private SeatReservationDAO seatReservationDAO;
@@ -212,6 +227,41 @@ public class SeatReservationServiceImpl implements SeatReservationService {
             throw new ServiceException("查询座位状态失败", e);
         }
     }
+
+	@Override
+	public Map<String, Integer> sendMovieReminderToAll() throws ServiceException {
+		List<SeatReservationDO> records;
+		try {
+			records = seatReservationDAO.listAll();
+		} catch (Exception e) {
+			throw new ServiceException("查询全部座位预约记录失败", e);
+		}
+		if (records == null)
+			records = Collections.emptyList();
+
+		Set<String> uniqueEmails = new LinkedHashSet<String>();
+		int invalidEmailCount = 0;
+		for (SeatReservationDO record : records) {
+			String email = record == null ? ""
+					: StringUtils.trimToEmpty(record.getEmail()).toLowerCase(Locale.ROOT);
+			if (!isValidEmail(email)) {
+				invalidEmailCount++;
+				continue;
+			}
+			uniqueEmails.add(email);
+		}
+
+		// 本批量提醒不写入b_mail_log，直接提交到现有异步邮件发送器。
+		for (String email : uniqueEmails)
+			SendEmailUtil.send(email, MOVIE_REMINDER_TITLE, MOVIE_REMINDER_CONTENT);
+
+		Map<String, Integer> result = new LinkedHashMap<String, Integer>();
+		result.put("totalReservations", records.size());
+		result.put("uniqueValidEmails", uniqueEmails.size());
+		result.put("invalidOrEmptyEmails", invalidEmailCount);
+		result.put("submittedEmails", uniqueEmails.size());
+		return result;
+	}
 
     private String normalizeSeatRow(String seatRow) {
         return StringUtils.upperCase(StringUtils.trimToEmpty(seatRow));

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 /** 座位选择和预约接口。 */
 @RestController
@@ -205,6 +206,27 @@ public class SeatReservationController extends BaseController {
             return new Response<>(1, "票根邮件发送失败", null);
         }
     }
+
+	/** 超级管理员批量向所有座位预约邮箱发送电影包场提醒。 */
+	@RequestMapping(value = "/sendMovieReminder", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Map<String, Integer>> sendMovieReminder(HttpServletRequest request,
+			HttpServletResponse response) {
+		setPostHeader(response);
+		AdminUserLoginInfo loginInfo = getAdminUserLoginInfo(request);
+		if (loginInfo == null || !"SUPERAD".equalsIgnoreCase(loginInfo.getApList())) {
+			return new Response<Map<String, Integer>>(1, "仅限超级管理员发送电影包场提醒", null);
+		}
+		try {
+			Map<String, Integer> result = seatReservationService.sendMovieReminderToAll();
+			return new Response<Map<String, Integer>>(0, "电影包场提醒已提交发送", result);
+		} catch (ServiceException e) {
+			return new Response<Map<String, Integer>>(1, e.getMessage(), null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Response<Map<String, Integer>>(1, "电影包场提醒发送失败", null);
+		}
+	}
 
     private String getClientIp(HttpServletRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");

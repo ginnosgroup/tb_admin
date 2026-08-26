@@ -74,4 +74,8 @@ public class PortalDTO {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, Object> yujuAiResult;
 
+	/** 状态转为03时生成的合同和建议信路径，不参与数据库持久化。 */
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private Map<String, String> generatedDocumentPaths;
+
 }

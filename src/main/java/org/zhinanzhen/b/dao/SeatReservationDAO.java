@@ -26,4 +26,7 @@ public interface SeatReservationDAO {
     Integer getMaxConsultantSequence(@Param("consultantName") String consultantName);
 
     List<String> listOccupiedSeatCodes();
+
+	/** 查询全部座位预约记录，用于后台批量通知。 */
+	List<SeatReservationDO> listAll();
 }

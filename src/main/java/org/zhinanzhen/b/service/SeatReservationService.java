@@ -4,6 +4,7 @@ import org.zhinanzhen.b.service.pojo.SeatReservationResult;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SeatReservationService {
 
@@ -20,4 +21,7 @@ public interface SeatReservationService {
     void sendTicketEmail(String name, String email) throws ServiceException;
 
     List<String> listOccupiedSeatCodes() throws ServiceException;
+
+	/** 查询全部预约记录，并按唯一有效邮箱提交电影包场提醒邮件。 */
+	Map<String, Integer> sendMovieReminderToAll() throws ServiceException;
 }

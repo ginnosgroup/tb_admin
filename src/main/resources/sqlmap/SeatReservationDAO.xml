@@ -136,4 +136,16 @@
         FROM b_seat_reservation
         ORDER BY seat_row, seat_number
     </select>
+
+	<select id="listAll" resultType="org.zhinanzhen.b.dao.pojo.SeatReservationDO">
+		SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify,
+		       seat_row AS seatRow, seat_number AS seatNumber, seat_code AS seatCode,
+		       name, email, phone, ip, consultant_name AS consultantName,
+		       consultant_code AS consultantCode, consultant_sequence AS consultantSequence,
+		       poster_url AS posterUrl,
+		       ticket_image_path AS ticketImagePath,
+		       email_image_path AS emailImagePath
+		FROM b_seat_reservation
+		ORDER BY id
+	</select>
 </mapper>
