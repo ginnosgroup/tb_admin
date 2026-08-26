@@ -324,7 +324,7 @@ public class CloudDiskController extends BaseController {
         try {
             UserCloud userCloud = cloudDiskService.addUserCloud(userName, email, role, phone);
             if (userCloud == null) {
-                return new Response<UserCloud>(1, "用户已存在", null);
+                return new Response<UserCloud>(1, "网盘用户已存在", null);
             }
             return new Response<UserCloud>(0, "获取成功", userCloud);
         } catch (Exception e) {
