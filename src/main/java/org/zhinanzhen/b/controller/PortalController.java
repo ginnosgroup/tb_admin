@@ -91,15 +91,16 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<String> uploadAttachment(@RequestParam MultipartFile file, HttpServletRequest request,
+	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
+			@RequestParam(value = "aiText", required = false) String aiText, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
-		// 必须先读取文件字节：upload2 内部 transferTo 会移动 MultipartFile 的临时文件，
-		// 之后再调 file.getBytes() 会因临时文件不存在而报错（AI提取要用原始字节）。
-		byte[] fileBytes = file.getBytes();
+		// 只有传入aiText参数时才读取原始文件并调用AI。必须在upload2之前读取，
+		// 因为upload2内部transferTo会移动MultipartFile的临时文件。
+		byte[] fileBytes = aiText == null ? null : file.getBytes();
 		Response<String> uploadResp = super.upload2(file, request.getSession(), "/uploads/portal_attachment/");
 		if (uploadResp.getCode() != 0) {
-			return uploadResp;
+			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
 		}
 		// 在upload接口里就新增 b_portal_attachment 的数据
 		PortalAttachmentDTO portalAttachmentDto = new PortalAttachmentDTO();
@@ -111,18 +112,25 @@ public class PortalController extends BaseController {
 		if (StringUtil.isNotEmpty(originalName) && originalName.contains("."))
 			portalAttachmentDto.setFileExt(originalName.substring(originalName.lastIndexOf(".") + 1));
 		portalAttachmentDto.setStage("apply");
-		// 文件上传成功后调取 DeepSeek 提取附件文字并随附件入库（AI失败不影响上传主流程）
-		portalAttachmentDto.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename()));
+		// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
+		if (aiText != null) {
+			portalAttachmentDto.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename()));
+		}
 		try {
 			if (portalAttachmentService.addPortalAttachment(portalAttachmentDto) <= 0) {
 				super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
-				return new Response<String>(1, "附件信息保存失败.", null);
+				return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
 			}
 		} catch (ServiceException e) {
 			super.deleteFile(uploadResp.getData());
-			return new Response<String>(e.getCode(), e.getMessage(), null);
+			return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 		}
-		return new Response<String>(0, "", uploadResp.getData());
+		Map<String, Object> result = new LinkedHashMap<String, Object>();
+		result.put("filePath", uploadResp.getData());
+		if (aiText != null) {
+			result.put("aiText", portalAttachmentDto.getAiText());
+		}
+		return new Response<Map<String, Object>>(0, "", result);
 	}
 
 	/**
