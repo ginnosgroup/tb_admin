@@ -169,6 +169,15 @@ public class ChartForAI {
      * 复用方应在消费 MultipartFile 之前先读取字节再传入本方法。
      */
     public Response<String> analyzeFile(byte[] fileBytes, String filename, String question) {
+        return analyzeFile(fileBytes, filename, question, false);
+    }
+
+    /**
+     * 调取deepseek进行文字提取（支持指定JSON响应模式）。
+     *
+     * @param jsonMode true时要求DeepSeek只返回合法JSON对象
+     */
+    public Response<String> analyzeFile(byte[] fileBytes, String filename, String question, boolean jsonMode) {
         if (deepSeekApiKey == null || deepSeekApiKey.trim().isEmpty()) {
             return new Response<String>(1, "请先在application.properties中填写deepseek.pdf.api.key", null);
         }
@@ -181,7 +190,7 @@ public class ChartForAI {
                     return new Response<String>(1, "未从图片中识别到文字", null);
                 }
                 result = requestDeepSeek(resolveQuestion(question)
-                        + "\n\n以下是从图片OCR中提取的文字内容：\n" + truncateOcrText(imageText), false);
+                        + "\n\n以下是从图片OCR中提取的文字内容：\n" + truncateOcrText(imageText), jsonMode);
             } else if (isPdf(fileBytes)) {
                 String pdfText = extractPdfText(fileBytes);
                 if (pdfText.isEmpty()) {
@@ -189,7 +198,7 @@ public class ChartForAI {
                             "未从PDF中提取到文字，文件可能是扫描件；DeepSeek API不能直接读取PDF，请先进行OCR", null);
                 }
                 result = requestDeepSeek(resolveQuestion(question)
-                        + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText, false);
+                        + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText, jsonMode);
             } else {
                 return new Response<String>(1, "仅支持图片或PDF文件", null);
             }

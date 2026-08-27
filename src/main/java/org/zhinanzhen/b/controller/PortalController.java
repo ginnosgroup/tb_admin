@@ -70,6 +70,38 @@ public class PortalController extends BaseController {
 	private String yujuAiApiKey;
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final String ATTACHMENT_TEXT_JSON_PROMPT =
+			"请识别并解析这份澳大利亚海外学生入学确认书（CoE），只返回一个合法的JSON对象。\n"
+					+ "不要返回Markdown代码块、解释、原始全文或JSON之外的任何内容。\n"
+					+ "必须严格使用下面的字段名称和层级：\n"
+					+ "{"
+					+ "\"coeNumber\":null,"
+					+ "\"documentType\":null,"
+					+ "\"courseDetails\":{"
+					+ "\"provider\":null,\"providerCode\":null,\"tradingAs\":[],"
+					+ "\"telephone\":null,\"fax\":null,\"email\":null,"
+					+ "\"courseName\":null,\"courseCode\":null,\"courseLevel\":null,"
+					+ "\"courseStartDate\":null,\"courseEndDate\":null,"
+					+ "\"initialPrePaidTuitionFee\":{\"currency\":null,\"amount\":null,\"fromDate\":null,\"toDate\":null},"
+					+ "\"otherPrePaidNonTuitionFee\":{\"currency\":null,\"amount\":null},"
+					+ "\"totalTuitionFee\":{\"currency\":null,\"amount\":null}},"
+					+ "\"studentDetails\":{"
+					+ "\"providerStudentId\":null,\"courtesyTitle\":null,\"familyName\":null,"
+					+ "\"givenNames\":null,\"fullName\":null,\"gender\":null,\"dateOfBirth\":null,"
+					+ "\"countryOfBirth\":null,\"nationality\":null,\"providerArrangedOSHC\":null,"
+					+ "\"englishTest\":{\"type\":null,\"score\":null,\"testDate\":null},\"comments\":null},"
+					+ "\"importantInformation\":{"
+					+ "\"isVisa\":false,\"visaExtension\":false,\"reminders\":[],"
+					+ "\"links\":{\"vevo\":null,\"studentVisa\":null,\"cricos\":null,\"studyAustralia\":null}},"
+					+ "\"createdAt\":null,\"updatedAt\":null}\n"
+					+ "规则：\n"
+					+ "1. 只能根据文件内容提取，不要猜测；缺失的普通字段返回null，缺失的数组返回空数组。\n"
+					+ "2. 日期统一为yyyy-MM-dd；createdAt和updatedAt使用yyyy-MM-dd HH:mm:ss。\n"
+					+ "3. 金额和考试成绩必须是JSON数字，不要包含币种符号、逗号或单位。\n"
+					+ "4. providerArrangedOSHC、isVisa和visaExtension必须是JSON布尔值。\n"
+					+ "5. currency统一使用三位币种代码，例如AUD。\n"
+					+ "6. links中的网址必须是普通URL字符串，禁止返回Markdown链接、反斜杠或转义后的括号。\n"
+					+ "7. fullName按givenNames在前、familyName在后的顺序生成。";
 
 	@Resource
 	PortalService portalService;
@@ -134,13 +166,15 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 调取 DeepSeek 提取附件（图片/PDF）中的文字。失败返回null，不影响附件上传主流程。
+	 * 调取 DeepSeek 解析附件（图片/PDF），并规范为结构化JSON字符串。
+	 * 失败返回null，不影响附件上传主流程。
 	 */
 	private String extractAttachmentText(byte[] fileBytes, String filename) {
 		try {
-			Response<String> aiResponse = chartForAI.analyzeFile(fileBytes, filename, null);
+			Response<String> aiResponse = chartForAI.analyzeFile(fileBytes, filename,
+					ATTACHMENT_TEXT_JSON_PROMPT, true);
 			if (aiResponse != null && aiResponse.getCode() == 0) {
-				return aiResponse.getData();
+				return normalizeAttachmentTextJson(aiResponse.getData());
 			}
 			LOG.warn("附件AI文字提取失败，file={}，原因：{}", filename,
 					aiResponse == null ? "无响应" : aiResponse.getMessage());
@@ -148,6 +182,15 @@ public class PortalController extends BaseController {
 			LOG.error("附件AI文字提取异常，file={}", filename, e);
 		}
 		return null;
+	}
+
+	/** 校验AI结果是JSON对象，并序列化成格式稳定的JSON字符串。 */
+	private String normalizeAttachmentTextJson(String aiText) throws IOException {
+		JsonNode jsonNode = OBJECT_MAPPER.readTree(aiText);
+		if (jsonNode == null || !jsonNode.isObject()) {
+			throw new IOException("AI返回结果不是合法的JSON对象");
+		}
+		return OBJECT_MAPPER.writeValueAsString(jsonNode);
 	}
 
 	@RequestMapping(value = "/attachment/delete", method = RequestMethod.POST)
