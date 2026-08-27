@@ -51,6 +51,7 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Controller
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -70,7 +71,36 @@ public class PortalController extends BaseController {
 	private String yujuAiApiKey;
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-	private static final String ATTACHMENT_TEXT_JSON_PROMPT =
+	private static final String PASSPORT_JSON_PROMPT =
+			"请识别并解析这份护照，只返回一个合法的JSON对象。\n"
+					+ "不要返回Markdown代码块、解释、原始全文或JSON之外的任何内容。\n"
+					+ "必须严格使用下面的字段名称和层级：\n"
+					+ "{"
+					+ "\"documentType\":\"Passport\","
+					+ "\"passportDetails\":{"
+					+ "\"passportNumber\":null,\"passportType\":null,\"countryCode\":null,"
+					+ "\"issuingCountry\":null,\"familyName\":null,\"givenNames\":null,\"fullName\":null,"
+					+ "\"nationality\":null,\"dateOfBirth\":null,\"sex\":null,\"placeOfBirth\":null,"
+					+ "\"dateOfIssue\":null,\"dateOfExpiry\":null,\"issuingAuthority\":null,\"personalNumber\":null},"
+					+ "\"machineReadableZone\":{\"line1\":null,\"line2\":null}}\n"
+					+ "规则：\n"
+					+ "1. 只能根据护照可见内容和机读区提取，不要猜测；缺失字段返回null。\n"
+					+ "2. 日期统一为yyyy-MM-dd。\n"
+					+ "3. fullName按givenNames在前、familyName在后的顺序生成。\n"
+					+ "4. 护照号码、姓名、出生日期和有效期必须优先核对机读区，避免字母和数字混淆。";
+
+	private static final String COMPLETION_JSON_PROMPT =
+			"请识别并解析这份课程完成信（Completion Letter），只提取完成日期并返回一个合法的JSON对象。\n"
+					+ "不要返回Markdown代码块、解释、原始全文或JSON之外的任何内容。\n"
+					+ "必须严格返回下面的结构，禁止增加其他字段：\n"
+					+ "{\"completionDate\":null}\n"
+					+ "规则：\n"
+					+ "1. completionDate必须始终出现在JSON中。\n"
+					+ "2. completionDate应取学生正式完成课程或满足课程要求的日期；不要用信件签发日期代替。\n"
+					+ "3. 如果文件同时出现课程结束日期和明确的完成日期，优先使用明确的完成日期。\n"
+					+ "4. 日期统一为yyyy-MM-dd；只能根据文件内容提取，不要猜测，确实未找到时返回null。";
+
+	private static final String COE_JSON_PROMPT =
 			"请识别并解析这份澳大利亚海外学生入学确认书（CoE），只返回一个合法的JSON对象。\n"
 					+ "不要返回Markdown代码块、解释、原始全文或JSON之外的任何内容。\n"
 					+ "必须严格使用下面的字段名称和层级：\n"
@@ -124,9 +154,18 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
-			@RequestParam(value = "aiText", required = false) String aiText, HttpServletRequest request,
+			@RequestParam(value = "aiText", required = false) String aiText,
+			@RequestParam(value = "fileType", required = false) String fileType, HttpServletRequest request,
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		String normalizedFileType = null;
+		if (aiText != null) {
+			normalizedFileType = normalizeAttachmentFileType(fileType);
+			if (normalizedFileType == null) {
+				return new Response<Map<String, Object>>(1,
+						"调用AI识别时fileType必须是passport、completion或coe.", null);
+			}
+		}
 		// 只有传入aiText参数时才读取原始文件并调用AI。必须在upload2之前读取，
 		// 因为upload2内部transferTo会移动MultipartFile的临时文件。
 		byte[] fileBytes = aiText == null ? null : file.getBytes();
@@ -146,7 +185,8 @@ public class PortalController extends BaseController {
 		portalAttachmentDto.setStage("apply");
 		// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
 		if (aiText != null) {
-			portalAttachmentDto.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename()));
+			portalAttachmentDto
+					.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
 		}
 		try {
 			if (portalAttachmentService.addPortalAttachment(portalAttachmentDto) <= 0) {
@@ -166,15 +206,15 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 调取 DeepSeek 解析附件（图片/PDF），并规范为结构化JSON字符串。
+	 * 根据附件类型调取 DeepSeek 解析图片/PDF，并规范为结构化JSON字符串。
 	 * 失败返回null，不影响附件上传主流程。
 	 */
-	private String extractAttachmentText(byte[] fileBytes, String filename) {
+	private String extractAttachmentText(byte[] fileBytes, String filename, String fileType) {
 		try {
 			Response<String> aiResponse = chartForAI.analyzeFile(fileBytes, filename,
-					ATTACHMENT_TEXT_JSON_PROMPT, true);
+					resolveAttachmentAiPrompt(fileType), true);
 			if (aiResponse != null && aiResponse.getCode() == 0) {
-				return normalizeAttachmentTextJson(aiResponse.getData());
+				return normalizeAttachmentTextJson(aiResponse.getData(), fileType);
 			}
 			LOG.warn("附件AI文字提取失败，file={}，原因：{}", filename,
 					aiResponse == null ? "无响应" : aiResponse.getMessage());
@@ -184,11 +224,41 @@ public class PortalController extends BaseController {
 		return null;
 	}
 
+	/** 规范化并校验附件类型；普通上传不调用本方法。 */
+	private String normalizeAttachmentFileType(String fileType) {
+		String value = fileType == null ? "" : fileType.trim().toLowerCase(Locale.ENGLISH);
+		if ("passport".equalsIgnoreCase(value) || "completion".equalsIgnoreCase(value) || "coe".equalsIgnoreCase(value)) {
+			return value;
+		}
+		return null;
+	}
+
+	/** 按附件类型选择独立的AI提示词。 */
+	private String resolveAttachmentAiPrompt(String fileType) {
+		if ("passport".equals(fileType)) {
+			return PASSPORT_JSON_PROMPT;
+		}
+		if ("completion".equals(fileType)) {
+			return COMPLETION_JSON_PROMPT;
+		}
+		return COE_JSON_PROMPT;
+	}
+
 	/** 校验AI结果是JSON对象，并序列化成格式稳定的JSON字符串。 */
-	private String normalizeAttachmentTextJson(String aiText) throws IOException {
+	private String normalizeAttachmentTextJson(String aiText, String fileType) throws IOException {
 		JsonNode jsonNode = OBJECT_MAPPER.readTree(aiText);
 		if (jsonNode == null || !jsonNode.isObject()) {
 			throw new IOException("AI返回结果不是合法的JSON对象");
+		}
+		// 完成信只允许返回completionDate；即使AI增加其他字段，也不返回给前端。
+		if ("completion".equals(fileType)) {
+			ObjectNode completionJson = OBJECT_MAPPER.createObjectNode();
+			if (jsonNode.has("completionDate")) {
+				completionJson.set("completionDate", jsonNode.get("completionDate"));
+			} else {
+				completionJson.putNull("completionDate");
+			}
+			return OBJECT_MAPPER.writeValueAsString(completionJson);
 		}
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
 	}
