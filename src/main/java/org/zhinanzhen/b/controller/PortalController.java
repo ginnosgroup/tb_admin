@@ -461,8 +461,7 @@ public class PortalController extends BaseController {
 			}
 			String adviserRemark = remark == null ? null : remark.trim();
 			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
-				return new Response<PortalDTO>(ErrorCodeEnum.PARAMETER_ERROR.code(),
-						"strState为02A时remark不能为空.", null);
+				adviserRemark = "通知mara处理案件";
 			if (StringUtil.isNotEmpty(typeId))
 				portalDto.setTypeId(StringUtil.toInt(typeId));
 			if (StringUtil.isNotEmpty(name))

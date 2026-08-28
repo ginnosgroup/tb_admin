@@ -214,10 +214,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 				throw notificationException("案件信息无效，无法发送MARA通知邮件.",
 						ErrorCodeEnum.PARAMETER_ERROR.code());
 			}
-			if (StringUtil.isEmpty(remark)) {
-				throw notificationException("顾问备注为空，无法发送MARA通知邮件.",
-						ErrorCodeEnum.PARAMETER_ERROR.code());
-			}
+			String notificationRemark = StringUtil.isEmpty(remark) ? "通知mara处理案件" : remark;
 			if (portalDto.getMaraId() <= 0) {
 				throw notificationException("案件尚未分配MARA，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
 			}
@@ -247,7 +244,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
 					.append(mailRow("客户姓名", customerName))
 					.append(mailRow("顾问名称", adviserName))
-					.append(mailRow("顾问备注", remark))
+					.append(mailRow("顾问备注", notificationRemark))
 					.append(mailRow("顾问通知日期", noticeDate))
 					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
