@@ -499,13 +499,12 @@ public class PortalController extends BaseController {
 			if (portalService.updatePortal(portalDto) > 0) {
 				// 同步附件：根据updatePortal传过来的路径，把已上传附件的portalId更新为当前案件ID
 				syncPortalAttachments(filePath, portalDto.getId());
-				// 状态首次转为03时，使用更新后的完整客户资料生成合同和建议信。
-				if ("03".equals(strState) && !"03".equals(fromState)) {
-					try {
-						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						Map<String, String> generatedDocumentPaths = portalDocumentService.generateDocuments(savedPortalDto);
-						portalDocumentService.sendGeneratedDocuments(savedPortalDto, generatedDocumentPaths);
-						portalDto.setGeneratedDocumentPaths(generatedDocumentPaths);
+            // 状态首次转为03时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
+            if ("03".equals(strState) && !"03".equals(fromState)) {
+                try {
+                    PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+                    Map<String, String> generatedDocumentPaths = portalDocumentService.generateDocuments(savedPortalDto);
+                    portalDto.setGeneratedDocumentPaths(generatedDocumentPaths);
 					} catch (ServiceException documentException) {
 						// 文件生成失败时只回退状态，客户本次填写的其他资料仍然保留，便于修复后再次提交03。
 						if (StringUtil.isNotEmpty(fromState)) {
@@ -518,7 +517,7 @@ public class PortalController extends BaseController {
 								LOG.error("合同和建议信生成失败后回退案件状态失败，portalId={}", id, rollbackException);
 							}
 						}
-						LOG.error("案件状态转为03后生成或发送合同和建议信失败，portalId={}", id, documentException);
+                    LOG.error("案件状态转为03后生成合同和建议信失败，portalId={}", id, documentException);
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
