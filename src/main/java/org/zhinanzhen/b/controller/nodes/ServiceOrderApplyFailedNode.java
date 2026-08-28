@@ -98,7 +98,7 @@ public class ServiceOrderApplyFailedNode extends SODecisionNode{
                         List<VisaOfficialListDO> list = serviceOrderApplyFailedNode.visaOfficialDao.list(null, null, null,
                                 null, null, null,
                                 null, null, null, null, null, null, null, 0,
-                                10, null, null, serviceOrderDto.getId(), null);
+                                10, null, null, serviceOrderDto.getId(), null, null);
                         VisaOfficialDO visaOfficialDO = new VisaOfficialDO();
                         VisaOfficialDO visaOfficialDO1 = new VisaOfficialDO();
 

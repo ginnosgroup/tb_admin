@@ -262,6 +262,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "endHandlingDate", required = false) String endHandlingDate,
             @RequestParam(value = "regionId", required = false) Integer regionId,
             @RequestParam(value = "officialId", required = false) Integer officialId,
+            @RequestParam(value = "maraId", required = false) Integer maraId,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "applicantName", required = false) String applicantName,
             @RequestParam(value = "isMerged", required = false) String isMerged,
@@ -318,9 +319,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             if (StringUtil.isNotEmpty(applicantName)) {
                 name = applicantName.replaceAll("\\s", "");
             }
-            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged, currency);
+            int count = visaOfficialService.count(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate, endDate, userName, name, merged, currency, maraId);
             List<VisaOfficialDTO> officialDTOList = visaOfficialService.listVisaOfficialOrder(officialId, regionIdList, id, startHandlingDate, endHandlingDate, state, startDate,
-                    endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null, currency);
+                    endDate, null, null, userName, name, merged, pageNum, pageSize, _sorter, null, currency, maraId);
             if (officialDTOList == null) {
                 officialDTOList = new ArrayList<>();
                 return new ListResponse(true, pageSize, count, officialDTOList, "查询成功");

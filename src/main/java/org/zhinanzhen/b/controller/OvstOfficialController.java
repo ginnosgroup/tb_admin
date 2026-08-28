@@ -113,10 +113,10 @@ public class OvstOfficialController extends BaseController {
                 String lastSettlementMonth = lastDayOfMonthDateTime.format(formatter);
 
                 officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                        startDate, endDate, firstSettlementMonth, lastSettlementMonth, userName, name, null, null, null, null, "OVST", null);
+                        startDate, endDate, firstSettlementMonth, lastSettlementMonth, userName, name, null, null, null, null, "OVST", null, null);
             } else {
                 officialList = visaOfficialService.listVisaOfficialOrder(officialId, regionList, id, startHandlingDate, endHandlingDate, state,
-                        startDate, endDate, null, null, userName, name, null, null, null, null, "OVST", null);
+                        startDate, endDate, null, null, userName, name, null, null, null, null, "OVST", null, null);
             }
             response.reset();// 清空输出流
             String tableName = "official_visa_commission";

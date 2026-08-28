@@ -1651,7 +1651,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate,String firstSettlementMonth,String lastSettlementMonth,  String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter, String serviceOrderType, String currency) throws ServiceException, InterruptedException {
+    public List<VisaOfficialDTO> listVisaOfficialOrder(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate,String firstSettlementMonth,String lastSettlementMonth,  String userName, String applicantName, Boolean isMerged, Integer pageNum, Integer pageSize, Sorter sorter, String serviceOrderType, String currency, Integer maraId) throws ServiceException, InterruptedException {
 
         if (pageNum != null && pageNum < 0) {
             pageNum = DEFAULT_PAGE_NUM;
@@ -1679,7 +1679,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 		List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
 				theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
 				theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), theDateTo00_00_00(firstSettlementMonth), theDateTo23_59_59(lastSettlementMonth), userName, applicantName, isMerged, offset,
-				pageSize, orderBy, serviceOrderType, null, currency);
+				pageSize, orderBy, serviceOrderType, null, currency, maraId);
 		long _t1_main = System.currentTimeMillis();
         List<VisaOfficialDTO> visaOfficialDtoList = new ArrayList<>();
         if (list == null || list.size() == 0) {
@@ -1850,11 +1850,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 	}
 
     @Override
-    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged, String currency) throws ServiceException {
+    public int count(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Boolean isMerged, String currency, Integer maraId) throws ServiceException {
         if ("ALL".equalsIgnoreCase(currency)) {
             currency = null;
         }
-    	return visaOfficialDao.count(officialId, regionIdList, id, theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, currency);
+        return visaOfficialDao.count(officialId, regionIdList, id, theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state, theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), userName, applicantName, isMerged, currency, maraId);
     }
 
     @Override
@@ -2049,7 +2049,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
                 theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
                 theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), null, null, userName, applicantName,
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null);
         if (list == null || list.isEmpty()) {
             return null;
         }
