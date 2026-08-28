@@ -24,6 +24,8 @@ public interface QywxExternalUserDAO {
 
 	QywxExternalUserDO getByExternalUserid(@Param("externalUserid") String externalUserid);
 
+	List<QywxExternalUserDO> listByAdviserId(@Param("adviserId") Integer adviserId);
+
 	int addDesc(QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo);
 
 	int updateDesc(QywxExternalUserDescriptionDO qywxExternalUserDescriptionDo); // 仅更新value

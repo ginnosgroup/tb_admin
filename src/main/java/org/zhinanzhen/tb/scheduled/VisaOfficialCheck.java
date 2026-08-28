@@ -114,6 +114,14 @@ public class VisaOfficialCheck {
 
     @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 4 18 * ?")
     public void visaOfficialExcel() {
+        String excelFilePath = System.getProperty("java.io.tmpdir") + File.separator + "temp_visa_report.xls";
+        visaOfficialExcel(new File(excelFilePath), true);
+    }
+
+    /**
+     * 生成文案佣金订单Excel；sendEmail为true时沿用定时任务的收件人发送邮件。
+     */
+    public void visaOfficialExcel(File excelFile, boolean sendEmail) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar calendar = Calendar.getInstance();
@@ -137,7 +145,7 @@ public class VisaOfficialCheck {
             List<Integer> regionIdList = new ArrayList<>();
             regionIdList.add(1000034);
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaForDown(null, null, null, startStr, endStr, null,
-                    null, null, null, null);
+                    null, null, null, null, null);
             int i = 1;
             //获取模板
             InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");
@@ -256,8 +264,10 @@ public class VisaOfficialCheck {
                 i++;
             }
             // 1. 保存文件（使用 .xls 扩展名）
-            String excelFilePath = System.getProperty("java.io.tmpdir") + File.separator + "temp_visa_report.xls";
-            File excelFile = new File(excelFilePath);
+            File parentDirectory = excelFile.getParentFile();
+            if (parentDirectory != null && !parentDirectory.exists() && !parentDirectory.mkdirs()) {
+                throw new IOException("无法创建Excel导出目录: " + parentDirectory.getAbsolutePath());
+            }
 
             try (FileOutputStream out = new FileOutputStream(excelFile)) {
                 wb.write(out);
@@ -274,19 +284,21 @@ public class VisaOfficialCheck {
                 }
             }
 
-            // 3. 发送邮件
-            SendEmailUtil.sendExcel(
-                    "kalea.zhou@zhinanzhen.org",
-                    "VISA 报告",
-                    "附件为最新生成的 VISA 报告，请查阅。",
-                    new File(excelFilePath)
-            );
-            SendEmailUtil.sendExcel(
-                    "vera.tang@zhinanzhen.org",
-                    "VISA 报告",
-                    "附件为最新生成的 VISA 报告，请查阅。",
-                    new File(excelFilePath)
-            );
+            // 3. 定时任务才发送邮件；手动测试只导出文件。
+            if (sendEmail) {
+                SendEmailUtil.sendExcel(
+                        "jacey.ji@zhinanzhen.org",
+                        "VISA 报告",
+                        "附件为最新生成的 VISA 报告，请查阅。",
+                        excelFile
+                );
+                SendEmailUtil.sendExcel(
+                        "vera.tang@zhinanzhen.org",
+                        "VISA 报告",
+                        "附件为最新生成的 VISA 报告，请查阅。",
+                        excelFile
+                );
+            }
         } catch (Exception e) {
             log.error("visaOfficialExcel 定时任务执行失败: {}", e.getMessage(), e);
         }

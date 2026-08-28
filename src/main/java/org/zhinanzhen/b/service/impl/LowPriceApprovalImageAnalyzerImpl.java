@@ -161,7 +161,7 @@ public class LowPriceApprovalImageAnalyzerImpl implements LowPriceApprovalImageA
 
     private AnalysisResult analyzeImage(byte[] imageBytes) throws IOException {
 
-        String ocrText = requestTencentOcr(imageBytes);
+        String ocrText = extractText(imageBytes);
         if (isBlank(ocrText)) {
             return AnalysisResult.rejected(NO_TEXT_MESSAGE);
         }
@@ -171,6 +171,20 @@ public class LowPriceApprovalImageAnalyzerImpl implements LowPriceApprovalImageA
         log.info("低价审核凭证AI判定完成, approved={}, reviewer={}, reason={}",
                 result.isApproved(), result.getReviewer(), result.getReason());
         return result;
+    }
+
+    @Override
+    public String extractText(byte[] imageBytes) throws IOException {
+        if (imageBytes == null || imageBytes.length == 0) {
+            throw new IOException(EMPTY_IMAGE_MESSAGE);
+        }
+        if (imageBytes.length > MAX_IMAGE_BYTES) {
+            throw new IOException(IMAGE_TOO_LARGE_MESSAGE);
+        }
+        if (!isSupportedImage(imageBytes)) {
+            throw new IOException(UNSUPPORTED_IMAGE_MESSAGE);
+        }
+        return requestTencentOcr(imageBytes);
     }
 
     private AnalysisResult buildCachedAnalysisResult(ContractPdfAnalysisCacheDO cached) throws IOException {

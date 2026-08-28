@@ -19,4 +19,7 @@ public class SeatReservationResult {
     private Integer seatNumber;
     private String seatCode;
     private String posterUrl;
+    private String emailPosterUrl;
+    private String ticketImagePath;
+    private String emailImagePath;
 }

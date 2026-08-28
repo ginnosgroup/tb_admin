@@ -8,6 +8,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -19,13 +20,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.zhinanzhen.b.service.LowPriceApprovalImageAnalyzer;
 import org.zhinanzhen.tb.controller.Response;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -34,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ChartForAI {
 
-    private static final String OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
     private static final String DEEPSEEK_CHAT_COMPLETIONS_URL = "https://api.deepseek.com/chat/completions";
+
     private static final String PDF_ANALYSIS_PROMPT =
             "请从PDF文字中提取信息，并且只返回一个合法的JSON对象。\n"
                     + "必须严格使用以下三个字段，不要返回Markdown代码块、解释或其他字段：\n"
@@ -46,21 +48,18 @@ public class ChartForAI {
                     + "不能把签证类别或Subclass编号当作金额，未找到时返回null。\n"
                     + "3. service：服务项目，可以包含服务类别和Subclass编号，未找到时返回null。\n"
                     + "4. 只能根据PDF文字提取，不要猜测。";
+
+    /** 问题为空时使用的默认文字提取指令（问题暂时留空，由调用方填充）。 */
+    private static final String DEFAULT_TEXT_EXTRACT_PROMPT =
+            "请提取这份文件中的全部文字内容并原样返回；如果文件中没有文字，请直接说明。";
+    private static final int MAX_OCR_TEXT_LENGTH = 30000;
+
     private static final MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8");
     private static final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(180, TimeUnit.SECONDS)
             .readTimeout(180, TimeUnit.SECONDS)
             .build();
-
-    /**
-     * 请在 application.properties 的 openai.api.key 配置项中填写 API Key。
-     */
-    @Value("${openai.api.key:}")
-    private String openAiApiKey;
-
-    @Value("${openai.model:gpt-4.1}")
-    private String openAiModel;
 
     /**
      * 请在 application.properties 的 deepseek.pdf.api.key 配置项中填写 API Key。
@@ -70,6 +69,9 @@ public class ChartForAI {
 
     @Value("${deepseek.pdf.model:deepseek-v4-flash}")
     private String deepSeekModel;
+
+    @Resource
+    private LowPriceApprovalImageAnalyzer imageOcrService;
 
     /**
      * 接收 PDF 并交给 AI 分析。
@@ -108,11 +110,6 @@ public class ChartForAI {
     }
 
     private Response<JSONObject> analyzePdf(byte[] pdfBytes, String filename) {
-        // 原OpenAI方式保留，需要切回时取消下面代码以及requestOpenAi调用的注释。
-//        if (openAiApiKey == null || openAiApiKey.trim().isEmpty()) {
-//            return new Response<JSONObject>(1, "请先在application.properties中填写openai.api.key", null);
-//        }
-
         if (deepSeekApiKey == null || deepSeekApiKey.trim().isEmpty()) {
             return new Response<JSONObject>(1, "请先在application.properties中填写deepseek.pdf.api.key", null);
         }
@@ -122,16 +119,14 @@ public class ChartForAI {
                 return new Response<JSONObject>(1, "上传的文件不是有效的PDF", null);
             }
 
-            // 原OpenAI调用方式保留，需要时可直接切回。
-//            String result = requestOpenAi(pdfBytes, filename);
-
             String pdfText = extractPdfText(pdfBytes);
             if (pdfText.isEmpty()) {
                 return new Response<JSONObject>(1,
                         "未从PDF中提取到文字，文件可能是扫描件；DeepSeek API不能直接读取PDF，请先进行OCR", null);
             }
 
-            String result = requestDeepSeek(pdfText);
+            String result = requestDeepSeek(PDF_ANALYSIS_PROMPT
+                    + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText, true);
             JSONObject resultJson = parsePdfAnalysisResult(result);
             log.info("PDF DeepSeek分析结果: {}", resultJson.toJSONString());
             System.out.println("PDF DeepSeek分析结果: " + resultJson.toJSONString());
@@ -140,6 +135,93 @@ public class ChartForAI {
             log.error("PDF DeepSeek分析失败", e);
             return new Response<JSONObject>(1, "PDF DeepSeek分析失败: " + e.getMessage(), null);
         }
+    }
+
+    /**
+     * 调取deepseek进行文字提取。
+     *
+     * 接收前端上传的图片或PDF文件，将文件内容连同问题一起发送给DeepSeek进行文字提取。
+     * 图片先通过腾讯云OCR提取文字，PDF先在本地提取文字，再把纯文本传给DeepSeek。
+     *
+     * 请求方式：POST /ChartForAI/analyzeFile，表单字段名：file，可选字段：question。
+     * 问题暂未由前端传入（当前留空），默认使用文字提取指令，后续在 resolveQuestion 中填充即可。
+     */
+    @RequestMapping(value = "/analyzeFile", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<String> analyzeFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "question", required = false) String question) {
+        if (file == null || file.isEmpty()) {
+            return new Response<String>(1, "请上传文件", null);
+        }
+
+        try {
+            return analyzeFile(file.getBytes(), file.getOriginalFilename(), question);
+        } catch (IOException e) {
+            log.error("读取上传文件失败", e);
+            return new Response<String>(1, "读取上传文件失败: " + e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 调取deepseek进行文字提取（字节流版本，供其他业务流程复用）。
+     * 注意：MultipartFile 被 transferTo 消费后临时文件会被移动，无法再调用 file.getBytes()，
+     * 复用方应在消费 MultipartFile 之前先读取字节再传入本方法。
+     */
+    public Response<String> analyzeFile(byte[] fileBytes, String filename, String question) {
+        return analyzeFile(fileBytes, filename, question, false);
+    }
+
+    /**
+     * 调取deepseek进行文字提取（支持指定JSON响应模式）。
+     *
+     * @param jsonMode true时要求DeepSeek只返回合法JSON对象
+     */
+    public Response<String> analyzeFile(byte[] fileBytes, String filename, String question, boolean jsonMode) {
+        if (deepSeekApiKey == null || deepSeekApiKey.trim().isEmpty()) {
+            return new Response<String>(1, "请先在application.properties中填写deepseek.pdf.api.key", null);
+        }
+
+        try {
+            String result;
+            if (isImage(fileBytes)) {
+                String imageText = imageOcrService.extractText(fileBytes);
+                if (StringUtils.isBlank(imageText)) {
+                    return new Response<String>(1, "未从图片中识别到文字", null);
+                }
+                result = requestDeepSeek(resolveQuestion(question)
+                        + "\n\n以下是从图片OCR中提取的文字内容：\n" + truncateOcrText(imageText), jsonMode);
+            } else if (isPdf(fileBytes)) {
+                String pdfText = extractPdfText(fileBytes);
+                if (pdfText.isEmpty()) {
+                    return new Response<String>(1,
+                            "未从PDF中提取到文字，文件可能是扫描件；DeepSeek API不能直接读取PDF，请先进行OCR", null);
+                }
+                result = requestDeepSeek(resolveQuestion(question)
+                        + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText, jsonMode);
+            } else {
+                return new Response<String>(1, "仅支持图片或PDF文件", null);
+            }
+
+            log.info("DeepSeek文字提取结果: {}", result);
+            return new Response<String>(0, "提取成功", result);
+        } catch (Exception e) {
+            log.error("文件文字提取失败", e);
+            return new Response<String>(1, "文件文字提取失败: " + e.getMessage(), null);
+        }
+    }
+
+    /**
+     * 解析要发送给 DeepSeek 的问题。
+     * 目前问题留空，先使用默认的文字提取指令；由调用方在此填充实际的问题内容。
+     */
+    private String resolveQuestion(String question) {
+        String userQuestion = StringUtils.trimToEmpty(question);
+        if (userQuestion.isEmpty()) {
+            // TODO 问题内容当前留空，待调用方填充。
+            userQuestion = DEFAULT_TEXT_EXTRACT_PROMPT;
+        }
+        return userQuestion;
     }
 
     private String extractPdfText(byte[] pdfBytes) throws IOException {
@@ -158,11 +240,16 @@ public class ChartForAI {
         }
     }
 
-    private String requestDeepSeek(String pdfText) throws IOException {
+    /**
+     * 调取 DeepSeek 接口。
+     *
+     * @param content user消息的纯文本内容
+     * @param jsonMode 是否要求返回 JSON（response_format = json_object）
+     */
+    private String requestDeepSeek(String content, boolean jsonMode) throws IOException {
         JSONObject userMessage = new JSONObject();
         userMessage.put("role", "user");
-        userMessage.put("content", PDF_ANALYSIS_PROMPT
-                + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText);
+        userMessage.put("content", content);
 
         JSONArray messages = new JSONArray();
         messages.add(userMessage);
@@ -170,15 +257,17 @@ public class ChartForAI {
         JSONObject thinking = new JSONObject();
         thinking.put("type", "disabled");
 
-        JSONObject responseFormat = new JSONObject();
-        responseFormat.put("type", "json_object");
-
         JSONObject requestJson = new JSONObject();
         requestJson.put("model", deepSeekModel);
         requestJson.put("messages", messages);
         requestJson.put("thinking", thinking);
-        requestJson.put("response_format", responseFormat);
         requestJson.put("stream", false);
+
+        if (jsonMode) {
+            JSONObject responseFormat = new JSONObject();
+            responseFormat.put("type", "json_object");
+            requestJson.put("response_format", responseFormat);
+        }
 
         RequestBody requestBody = RequestBody.create(JSON_MEDIA_TYPE, requestJson.toJSONString());
         Request request = new Request.Builder()
@@ -229,94 +318,6 @@ public class ChartForAI {
         }
     }
 
-    private String requestOpenAi(byte[] pdfBytes, String filename) throws IOException {
-        JSONObject fileContent = new JSONObject();
-        fileContent.put("type", "input_file");
-        fileContent.put("filename", filename);
-        fileContent.put("file_data", "data:application/pdf;base64,"
-                + Base64.getEncoder().encodeToString(pdfBytes));
-        fileContent.put("detail", "high");
-
-        JSONObject promptContent = new JSONObject();
-        promptContent.put("type", "input_text");
-        promptContent.put("text", PDF_ANALYSIS_PROMPT);
-
-        JSONArray content = new JSONArray();
-        content.add(fileContent);
-        content.add(promptContent);
-
-        JSONObject message = new JSONObject();
-        message.put("role", "user");
-        message.put("content", content);
-
-        JSONArray input = new JSONArray();
-        input.add(message);
-
-        JSONObject requestJson = new JSONObject();
-        requestJson.put("model", openAiModel);
-        requestJson.put("input", input);
-        // PDF中包含学生及收款信息，不在OpenAI侧保存本次响应供后续检索。
-        requestJson.put("store", false);
-
-        RequestBody requestBody = RequestBody.create(JSON_MEDIA_TYPE, requestJson.toJSONString());
-        Request request = new Request.Builder()
-                .url(OPENAI_RESPONSES_URL)
-                .header("Authorization", "Bearer " + openAiApiKey.trim())
-                .header("Content-Type", "application/json")
-                .post(requestBody)
-                .build();
-
-        try (okhttp3.Response response = HTTP_CLIENT.newCall(request).execute()) {
-            String responseBody = response.body() == null ? "" : response.body().string();
-            if (!response.isSuccessful()) {
-                throw new IOException("OpenAI请求失败(" + response.code() + "): "
-                        + extractErrorMessage(responseBody));
-            }
-            return extractOutputText(responseBody);
-        }
-    }
-
-    private String extractOutputText(String responseBody) throws IOException {
-        JSONObject responseJson;
-        try {
-            responseJson = JSON.parseObject(responseBody);
-        } catch (Exception e) {
-            throw new IOException("OpenAI返回了无法解析的数据", e);
-        }
-
-        StringBuilder result = new StringBuilder();
-        JSONArray output = responseJson.getJSONArray("output");
-        if (output != null) {
-            for (int i = 0; i < output.size(); i++) {
-                JSONObject outputItem = output.getJSONObject(i);
-                if (outputItem == null) {
-                    continue;
-                }
-                JSONArray outputContent = outputItem.getJSONArray("content");
-                if (outputContent == null) {
-                    continue;
-                }
-                for (int j = 0; j < outputContent.size(); j++) {
-                    JSONObject contentItem = outputContent.getJSONObject(j);
-                    if (contentItem != null && "output_text".equals(contentItem.getString("type"))) {
-                        String text = contentItem.getString("text");
-                        if (text != null && !text.trim().isEmpty()) {
-                            if (result.length() > 0) {
-                                result.append(System.lineSeparator());
-                            }
-                            result.append(text);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (result.length() == 0) {
-            throw new IOException("OpenAI返回成功，但没有文本分析结果");
-        }
-        return result.toString();
-    }
-
     private String extractErrorMessage(String responseBody) {
         try {
             JSONObject responseJson = JSON.parseObject(responseBody);
@@ -335,6 +336,41 @@ public class ChartForAI {
             return false;
         }
         return "%PDF-".equals(new String(bytes, 0, 5, StandardCharsets.US_ASCII));
+    }
+
+    /** 通过文件头魔数识别腾讯云OCR支持的图片：PNG / JPEG / BMP。 */
+    private boolean isImage(byte[] bytes) {
+        if (bytes == null || bytes.length < 2) {
+            return false;
+        }
+        if (bytes.length >= 8
+                && (bytes[0] & 0xFF) == 0x89
+                && bytes[1] == 'P'
+                && bytes[2] == 'N'
+                && bytes[3] == 'G'
+                && (bytes[4] & 0xFF) == 0x0D
+                && (bytes[5] & 0xFF) == 0x0A
+                && (bytes[6] & 0xFF) == 0x1A
+                && (bytes[7] & 0xFF) == 0x0A) {
+            return true;
+        }
+        if (bytes.length >= 3
+                && (bytes[0] & 0xFF) == 0xFF
+                && (bytes[1] & 0xFF) == 0xD8
+                && (bytes[2] & 0xFF) == 0xFF) {
+            return true;
+        }
+        return bytes[0] == 'B' && bytes[1] == 'M';
+    }
+
+    private String truncateOcrText(String text) {
+        if (text.length() <= MAX_OCR_TEXT_LENGTH) {
+            return text;
+        }
+        int half = MAX_OCR_TEXT_LENGTH / 2;
+        return text.substring(0, half)
+                + "\n...[OCR内容过长，中间部分已省略]...\n"
+                + text.substring(text.length() - half);
     }
 
     private String getPdfFilename(MultipartFile file) {

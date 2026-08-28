@@ -660,6 +660,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 serviceOrderDto.setApplicantId(applicantDto.getId());
                 serviceOrderDto.setApplicant(applicantDto);
             }
+        } else {
+            // 当 applicantId 为 0 时（如父订单/管理订单），返回空对象避免前端空指针
+            serviceOrderDto.setApplicant(new ApplicantDTO());
         }
         // 查询Mara
         MaraDO maraDo = ctx.maraMap.get(serviceOrderDto.getMaraId());
@@ -701,6 +704,9 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 childrenServiceOrderList.add(childrenServiceOrderDto);
             });
             serviceOrderDto.setChildrenServiceOrders(childrenServiceOrderList);
+        } else {
+            // 子订单没有下级服务，返回空数组而不是 null，避免后续 SIV 分支 add 时空指针
+            serviceOrderDto.setChildrenServiceOrders(new ArrayList<>());
         }
 
         List<Integer> cIds = new ArrayList<>();
@@ -858,6 +864,8 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             list.forEach(e->{
                 if ("EOI".equals(e.getType())) {
                     List<ChildrenServiceOrderDTO> childrenServiceOrders = serviceOrderDto.getChildrenServiceOrders();
+                    if (childrenServiceOrders == null)
+                        childrenServiceOrders = new ArrayList<>();
                     ChildrenServiceOrderDTO childrenServiceOrderDTO = new ChildrenServiceOrderDTO();
                     childrenServiceOrderDTO.setServicePackageId(e.getId());
                     childrenServiceOrderDTO.setServicePackageType(e.getType());

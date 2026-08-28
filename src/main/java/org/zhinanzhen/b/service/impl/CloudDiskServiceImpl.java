@@ -747,6 +747,22 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
             if (userCloud1 != null) {
                 return null;
             }
+            // 校验：本地库中邮箱是否已存在
+            if (StringUtils.isNotEmpty(email)) {
+                UserCloud userCloudByEmail = cloudDiskFileDAO.getUserCloud(null, null, null, email, null);
+                if (userCloudByEmail != null) {
+                    return null;
+                }
+            }
+            // 校验：调用 PDS searchUser 查询网盘账号是否已存在（邮箱 / 手机号）
+            if (StringUtils.isNotEmpty(email) && pdsUserExists(asyncClient,
+                    SearchUserRequest.builder().email(email).build())) {
+                return null;
+            }
+            if (StringUtils.isNotEmpty(phone) && pdsUserExists(asyncClient,
+                    SearchUserRequest.builder().phone(phone).build())) {
+                return null;
+            }
             String userId = RandomStringUtils.randomAlphanumeric(32);
             UserCloud userCloud = new UserCloud();
             CreateUserRequest createUserRequest = CreateUserRequest.builder()
@@ -797,6 +813,17 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 调用 PDS searchUser 接口校验网盘账号是否已存在
+     */
+    private boolean pdsUserExists(AsyncClient asyncClient, SearchUserRequest searchUserRequest)
+            throws ExecutionException, InterruptedException, TimeoutException {
+        SearchUserResponse searchUserResponse = asyncClient.searchUser(searchUserRequest).get(10, TimeUnit.SECONDS);
+        return searchUserResponse.getBody() != null
+                && searchUserResponse.getBody().getItems() != null
+                && !searchUserResponse.getBody().getItems().isEmpty();
     }
 
     @Override

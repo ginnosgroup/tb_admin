@@ -3,15 +3,16 @@ package org.zhinanzhen.tb.utils;
 import com.ikasoa.web.utils.SimpleSendEmailTool;
 
 import org.zhinanzhen.b.config.GlobalThreadPool;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Slf4j
 public class SendEmailUtil {
+	private static final Logger log = LoggerFactory.getLogger(SendEmailUtil.class);
 
 //	private static SimpleSendEmailTool simpleSendEmailTool = new SimpleSendEmailTool("notice@zhinanzhen.org",
 //			"EpibqJ2R6CFwvqiU", SimpleSendEmailTool.SmtpServerEnum.EXMAIL_QQ);
@@ -101,6 +102,10 @@ public class SendEmailUtil {
 	}
 
 	public static void sendExcel(String mail, String title, String content, File file) {
+		sendAttachments(mail, title, content, file);
+	}
+
+	public static void sendAttachments(String mail, String title, String content, File... attachments) {
 		log.info("发送邮件: " + mail + " | " + title + "|" + content);
 		GlobalThreadPool.getInstance().execute(() -> {
 			try {
@@ -111,8 +116,8 @@ public class SendEmailUtil {
 					return;
 				}
 				Random random = new Random();
-				int i = random.nextInt(2);
-				simpleSendEmailToolsTmp.get(i).send(mail, title, content, file);
+				int i = random.nextInt(simpleSendEmailToolsTmp.size());
+				simpleSendEmailToolsTmp.get(i).send(mail, title, content, attachments);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				e.printStackTrace();

@@ -18,11 +18,9 @@ import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
-import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
-import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
@@ -41,6 +39,8 @@ import java.util.Map;
 @Service
 public class WXWorkServiceImpl implements WXWorkService {
 
+    private static final boolean SEND_MSG_TEST_MODE = false;
+
     private DozerBeanMapper dozerBeanMapper = new DozerBeanMapper();
 
     @Resource
@@ -51,9 +51,6 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private  AdviserDAO adviserDAO;
-
-    @Resource
-    private RegionDAO regionDAO;
 
     @Resource
     private ServiceDAO serviceDAO;
@@ -153,13 +150,7 @@ public class WXWorkServiceImpl implements WXWorkService {
         String msg = "";
         ServiceOrderDO serviceOrderDO = serviceOrderDAO.getServiceOrderById(id);
         if (serviceOrderDO != null){
-            msg = "\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\uD83D\uDCB0\n";
-            AdviserDO adviserDO = adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
-            if (adviserDO != null){
-                RegionDO regionDO = regionDAO.getRegionById(adviserDO.getRegionId());
-                if (regionDO != null)
-                    msg = msg + "恭喜 : " + regionDO.getName() + "   " + adviserDO.getName() + "  , 成功签约 ";
-            }
+            msg = "成功签约 ";
             if (serviceOrderDO.getType().equalsIgnoreCase("VISA")) {
                 ServiceDO serviceDO = serviceDAO.getServiceById(serviceOrderDO.getServiceId());
                 if (serviceDO != null)
@@ -226,6 +217,11 @@ public class WXWorkServiceImpl implements WXWorkService {
                 msg = msg + " ] . \n";
             }
             msg = msg + "各地区加油\n\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F\uD83D\uDC4F";
+        }
+
+        if (SEND_MSG_TEST_MODE) {
+            System.out.println("企业微信签约消息（测试模式，不发送）：\n" + msg);
+            return true;
         }
 
         content.put("content",msg);

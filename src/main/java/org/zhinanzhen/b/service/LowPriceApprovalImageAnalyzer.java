@@ -14,6 +14,11 @@ public interface LowPriceApprovalImageAnalyzer {
     String IMAGE_TOO_LARGE_MESSAGE = "图片超过7MB";
     String UNSUPPORTED_IMAGE_MESSAGE = "文件不是支持的PNG、JPG或BMP图片";
 
+    /**
+     * 使用腾讯云通用 OCR 提取图片文字，供其他文件分析流程复用。
+     */
+    String extractText(byte[] imageBytes) throws IOException;
+
     AnalysisResult analyze(MultipartFile file, String requestSource,
                            Integer requestUserId) throws IOException;
 

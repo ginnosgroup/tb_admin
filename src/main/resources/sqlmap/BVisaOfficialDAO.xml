@@ -235,6 +235,9 @@
         <if test='officialId !=null and  officialId !=""'>
             and bv.official_id = #{officialId}
         </if>
+        <if test='maraId != null'>
+            and bv.mara_id = #{maraId}
+        </if>
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND bv.gmt_create > #{startDate} AND bv.gmt_create < #{endDate} ]]>
         </if>
@@ -298,6 +301,9 @@
         WHERE 1=1
         <if test='officialId !=null and  officialId !=""'>
             and co.official_id = #{officialId}
+        </if>
+        <if test='maraId != null'>
+            and co.mara_id = #{maraId}
         </if>
 
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>

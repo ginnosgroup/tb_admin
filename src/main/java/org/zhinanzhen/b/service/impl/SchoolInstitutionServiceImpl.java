@@ -22,7 +22,9 @@ import org.zhinanzhen.tb.utils.WXWorkAPI;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -416,6 +418,15 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 //            return -3;
 
         List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
+        if (list != null && list.size() > 1) {
+            Set<Integer> serviceOrderIds = new HashSet<>();
+            List<CommissionOrderListDO> distinctList = new ArrayList<>(list.size());
+            for (CommissionOrderListDO item : list) {
+                if (item != null && serviceOrderIds.add(item.getServiceOrderId()))
+                    distinctList.add(item);
+            }
+            list = distinctList;
+        }
         CommissionOrderListDO co = mapper.map(commissionOrderListDto,CommissionOrderListDO.class);
         if (type == 1){
             //schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate, parameters);
@@ -747,6 +758,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     private void schoolSetting2(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size) {
         if (schoolSettingNewDO == null)
             return;
+        int installment = co.getInstallment() > 0 ? co.getInstallment() : 1;
         String parameters = schoolSettingNewDO.getParameters();
         if (StringUtil.isEmpty(parameters))
             return;
@@ -764,20 +776,22 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                 int min = Integer.parseInt(_parameter[1].trim());
                 int max = Integer.parseInt(_parameter[2].trim());
                 if (size >= min && size <= max) {
-                    double _fee = Double.parseDouble(_parameter[0]);
+                    double settingAmount = Double.parseDouble(_parameter[0]);
+                    double installmentSettingAmount = settingAmount / installment;
                     //list.forEach(co -> {
                     //   SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
                             double fee = co.getAmount();
-                            co.setCommission(fee * (proportion * 0.01) + _fee);
+                            co.setCommission(fee * (proportion * 0.01));
                             // System.out.print(bs.getId() + " : " + fee + " * ( 1 -
                             // " + proportion + " * 0.01 ) + " + _fee + " = " +
                             // bs.getCommission());
-                            System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
-                                    + "]=" + co.getCommission());
+                            System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)=" + co.getCommission());
+                            System.out.println(co.getId() + "分期设置金额=设置金额[" + settingAmount + "]/installment[" + installment + "]=" + installmentSettingAmount);
                             updateGST(co,
-            						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
-            								: 0.00,
-            						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
+                                    schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
+                                            : 0.00,
+                                    schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00,
+                                    installmentSettingAmount);
                             commissionOrderDao.updateCommissionOrder(co);
 
                     //});
@@ -910,24 +924,29 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     private void updateGST(CommissionOrderListDO co , double registerFee, double bookFee) {
+        updateGST(co, registerFee, bookFee, 0.00);
+    }
+
+    private void updateGST(CommissionOrderListDO co, double registerFee, double bookFee, double settingAmount) {
         SubagencyDO subagencyDo = subagencyDao.getSubagencyById(co.getSubagencyId());
+        String settingAmountLog = settingAmount != 0 ? "+分期设置金额[" + settingAmount + "]" : "";
         // setExpectAmount 预收业绩
         if (subagencyDo != null) {
             if ("AU".equals(subagencyDo.getCountry())) {
                 if (co.getInstallmentNum() != 1) {
                     registerFee = 0;
                 }
-                co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1 + registerFee + bookFee);//预收业绩
+                co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() * 1.1 + settingAmount + registerFee + bookFee);//预收业绩
                 System.out.println(co.getId() + "(澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
-                        + subagencyDo.getCommissionRate() + "]*1.1=" + co.getExpectAmount());
+                        + subagencyDo.getCommissionRate() + "]*1.1" + settingAmountLog + "=" + co.getExpectAmount());
             } else {
-                co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate());
+                co.setExpectAmount(co.getCommission() * subagencyDo.getCommissionRate() + settingAmount);
                 System.out.println(co.getId() + "(非澳洲)预收业绩=学校设置计算金额[" + co.getCommission() + "]*subagencyRate["
-                        + subagencyDo.getCommissionRate() + "]=" + co.getExpectAmount());
+                        + subagencyDo.getCommissionRate() + "]" + settingAmountLog + "=" + co.getExpectAmount());
             }
         } else {
-            co.setExpectAmount(co.getCommission() * 1.1);
-            System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1=" + co.getExpectAmount());
+            co.setExpectAmount(co.getCommission() * 1.1 + settingAmount);
+            System.out.println(co.getId() + "预收业绩=学校设置计算金额[" + co.getCommission() + "]*1.1" + settingAmountLog + "=" + co.getExpectAmount());
         }
         double expectAmount = co.getSureExpectAmount() > 0 ? co.getSureExpectAmount() : co.getExpectAmount();
         System.out.println(co.getId() + "确认预收业绩=" + co.getSureExpectAmount());
