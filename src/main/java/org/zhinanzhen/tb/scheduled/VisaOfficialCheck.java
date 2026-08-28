@@ -145,7 +145,7 @@ public class VisaOfficialCheck {
             List<Integer> regionIdList = new ArrayList<>();
             regionIdList.add(1000034);
             List<VisaOfficialDTO> officialList = visaOfficialService.listVisaForDown(null, null, null, startStr, endStr, null,
-                    null, null, null, null);
+                    null, null, null, null, null);
             int i = 1;
             //获取模板
             InputStream is = this.getClass().getResourceAsStream("/officialVisa.xls");

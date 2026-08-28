@@ -2044,12 +2044,12 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
     }
 
     @Override
-    public List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName) throws InterruptedException {
+    public List<VisaOfficialDTO> listVisaForDown(Integer officialId, List<Integer> regionIdList, Integer id, String startHandlingDate, String endHandlingDate, String state, String startDate, String endDate, String userName, String applicantName, Integer maraId) throws InterruptedException {
         // 使用 listVisaOfficialOrder 相同的批量预载方式，避免 N+1 查询
         List<VisaOfficialListDO> list = visaOfficialDao.list(officialId, regionIdList, id,
                 theDateTo00_00_00(startHandlingDate), theDateTo23_59_59(endHandlingDate), state,
                 theDateTo00_00_00(startDate), theDateTo23_59_59(endDate), null, null, userName, applicantName,
-                null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, maraId);
         if (list == null || list.isEmpty()) {
             return null;
         }
