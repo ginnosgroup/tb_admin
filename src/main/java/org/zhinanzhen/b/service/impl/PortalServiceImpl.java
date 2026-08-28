@@ -233,7 +233,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			}
 
 			String customerName = valueOrEmpty(portalDto.getName());
-			String title = "案件顾问通知 - " + customerName + "（案件编号：" + portalDto.getId() + "）";
+			String title = "复杂或紧急案件通知 - " + customerName + "（案件编号：" + portalDto.getId() + "）";
 			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 			String escapedUrl = escapeHtml(caseUrl);
 			StringBuilder content = new StringBuilder();
