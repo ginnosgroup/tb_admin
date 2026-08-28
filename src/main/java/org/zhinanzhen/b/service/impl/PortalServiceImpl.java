@@ -1,11 +1,14 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
 import org.zhinanzhen.b.dao.PortalDAO;
@@ -23,6 +26,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("PortalService")
 public class PortalServiceImpl extends BaseService implements PortalService {
@@ -200,6 +204,87 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	public void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl)
+			throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送MARA通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (StringUtil.isEmpty(remark)) {
+				throw notificationException("顾问备注为空，无法发送MARA通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getMaraId() <= 0) {
+				throw notificationException("案件尚未分配MARA，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			MaraDO maraDo = maraDao.getMaraById(portalDto.getMaraId());
+			if (maraDo == null || StringUtil.isEmpty(maraDo.getEmail())) {
+				throw notificationException("对应MARA不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String adviserName = portalDto.getAdviserName();
+			if (StringUtil.isEmpty(adviserName) && portalDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+				if (adviserDo != null)
+					adviserName = adviserDo.getName();
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String title = "案件顾问通知 - " + customerName + "（案件编号：" + portalDto.getId() + "）";
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			String escapedUrl = escapeHtml(caseUrl);
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(maraDo.getName())).append("，您好：</p>")
+					.append("<p>以下案件已由顾问提交备注，请及时登录佣金系统查看并处理。</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("顾问名称", adviserName))
+					.append(mailRow("顾问备注", remark))
+					.append(mailRow("顾问通知日期", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
+							+ "<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapedUrl).append("\">")
+					.append(escapedUrl).append("</a></td></tr></table>")
+					.append("<p>谢谢。</p>");
+			sendMail(maraDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException("发送MARA通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
+	private String mailRow(String label, String value) {
+		return "<tr><td width=\"120\" nowrap=\"nowrap\" "
+				+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>"
+				+ escapeHtml(label)
+				+ "</strong></td><td style=\"padding:6px 0;white-space:pre-wrap;\">" + escapeHtml(value)
+				+ "</td></tr>";
+	}
+
+	private String escapeHtml(String value) {
+		return HtmlUtils.htmlEscape(valueOrEmpty(value));
+	}
+
+	private String valueOrEmpty(String value) {
+		return value == null ? "" : value;
+	}
+
+	private ServiceException notificationException(String message, int code) {
+		ServiceException exception = new ServiceException(message);
+		exception.setCode(code);
+		return exception;
 	}
 
 	@Override

@@ -444,6 +444,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
 			@RequestParam(value = "strState", required = false) String strState,
+			@RequestParam(value = "remark", required = false) String remark,
 			@RequestParam(value = "filePath", required = false) String filePath, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -458,6 +459,10 @@ public class PortalController extends BaseController {
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
 			}
+			String adviserRemark = remark == null ? null : remark.trim();
+			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
+				return new Response<PortalDTO>(ErrorCodeEnum.PARAMETER_ERROR.code(),
+						"strState为02A时remark不能为空.", null);
 			if (StringUtil.isNotEmpty(typeId))
 				portalDto.setTypeId(StringUtil.toInt(typeId));
 			if (StringUtil.isNotEmpty(name))
@@ -520,10 +525,24 @@ public class PortalController extends BaseController {
 				}
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
-				savePortalLog(portalDto.getId(), "update", fromState, toState, "更新案件信息", request);
-				// 案件更新成功后，按前端字段语义整理案件资料并提交给语聚AI进行485方案咨询。
+				String logContent = "02A".equals(strState) ? adviserRemark : "更新案件信息";
+				savePortalLog(portalDto.getId(), "update", fromState, toState, logContent, request);
+				if ("02A".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendMaraPortalNotification(savedPortalDto, adviserRemark,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新，但MARA通知邮件发送失败，portalId={}", id, notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新并记录备注，但MARA通知邮件发送失败：" + notificationException.getMessage(),
+								portalDto);
+					}
+				}
+				// 只有本次请求明确将状态更新为03时，才调用语聚AI进行485方案咨询。
 				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
-				portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
+				if ("03".equals(strState))
+					portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
 				return new Response<PortalDTO>(1, "修改失败.", null);
@@ -1056,6 +1075,18 @@ public class PortalController extends BaseController {
 		} catch (Exception e) {
 			LOG.error("保存案件操作日志失败, portalId=" + portalId + ", action=" + action, e);
 		}
+	}
+
+	private String buildPortalCaseUrl(HttpServletRequest request, int portalId) {
+		String scheme = request.getScheme();
+		int port = request.getServerPort();
+		boolean defaultPort = ("http".equalsIgnoreCase(scheme) && port == 80)
+				|| ("https".equalsIgnoreCase(scheme) && port == 443);
+		StringBuilder url = new StringBuilder();
+		url.append(scheme).append("://").append(request.getServerName());
+		if (!defaultPort)
+			url.append(':').append(port);
+		return url.append("/webroot_new/portal/list/ALL?id=").append(portalId).toString();
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)

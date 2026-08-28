@@ -25,4 +25,6 @@ public interface PortalService {
 
 	int updateAiConsultContent(int id, String aiConsultContent) throws ServiceException;
 
+	void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl) throws ServiceException;
+
 }
