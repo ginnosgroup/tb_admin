@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -22,6 +25,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
@@ -32,6 +37,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
@@ -41,6 +48,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private static final String CONTRACT_TEMPLATE = "Contract-CEM-SYD-Comp Final Version.pdf";
 	private static final String ADVICE_TEMPLATE = "MARA_Basic_Letter_of_Advice_Template.docx";
+	private static final String SIGNATURE_RESOURCE_PATTERN = "classpath*:signature/*";
 	private static final String PRACTICE_NAME = "Compass Education and Migration Pty Ltd";
 	private static final String AGENT_NAME = "Tonglu Ge";
 	private static final String AGENT_MARN = "1687805";
@@ -200,6 +208,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					setPdfField(form, "visa_subclass", data.matter);
 					// 模板默认选中了 Diners Club；没有客户付款信息时清空该默认值。
 					form.setField("Radio Button26", "Off");
+					addMaraSignatures(stamper, form, data.maraName);
 					stamper.setFormFlattening(false);
 				} finally {
 					stamper.close();
@@ -207,6 +216,77 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			} finally {
 				reader.close();
 			}
+		}
+	}
+
+	/**
+	 * 将案件对应 Mara 的签名写入合同每页底部的 Agent 签名位置。
+	 * 签名字段本身是文本 AcroField，不能直接写入图片，因此先移除字段，再将签名图片覆盖到同一坐标。
+	 */
+	private void addMaraSignatures(PdfStamper stamper, AcroFields form, String maraName) throws Exception {
+		Resource signatureResource = findMaraSignature(maraName);
+		byte[] signatureBytes = readResourceBytes(signatureResource);
+		for (int page = 1; page <= 4; page++) {
+			addMaraSignature(stamper, form, "agent_signature_p" + page, signatureBytes);
+		}
+	}
+
+	private void addMaraSignature(PdfStamper stamper, AcroFields form, String fieldName, byte[] signatureBytes)
+			throws Exception {
+		List<AcroFields.FieldPosition> positions = form.getFieldPositions(fieldName);
+		if (positions == null || positions.isEmpty())
+			throw new IOException("合同模板缺少签名字段: " + fieldName);
+
+		AcroFields.FieldPosition fieldPosition = positions.get(0);
+		Rectangle rectangle = fieldPosition.position;
+		if (!form.removeField(fieldName))
+			throw new IOException("无法移除合同签名字段: " + fieldName);
+
+		Image signature = Image.getInstance(signatureBytes);
+		signature.scaleToFit(rectangle.getWidth() * 0.95f, rectangle.getHeight() * 0.95f);
+		signature.setAbsolutePosition(
+				rectangle.getLeft() + (rectangle.getWidth() - signature.getScaledWidth()) / 2f,
+				rectangle.getBottom() + (rectangle.getHeight() - signature.getScaledHeight()) / 2f);
+		stamper.getOverContent(fieldPosition.page).addImage(signature);
+	}
+
+	private Resource findMaraSignature(String maraName) throws IOException {
+		if (StringUtil.isEmpty(maraName))
+			throw new IOException("案件未分配 Mara，无法获取签名");
+
+		String expectedName = normalizeSignatureName(maraName);
+		Resource[] resources = new PathMatchingResourcePatternResolver().getResources(SIGNATURE_RESOURCE_PATTERN);
+		for (Resource resource : resources) {
+			String fileName = resource.getFilename();
+			if (StringUtil.isEmpty(fileName) || !isSupportedSignature(fileName))
+				continue;
+			int extensionIndex = fileName.lastIndexOf('.');
+			String baseName = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
+			if (expectedName.equals(normalizeSignatureName(baseName)))
+				return resource;
+		}
+		throw new IOException("未找到 Mara " + maraName + " 的签名文件，请将签名放入 src/main/resources/signature/" + maraName
+				+ ".png");
+	}
+
+	private boolean isSupportedSignature(String fileName) {
+		String lowerCaseName = fileName.toLowerCase(Locale.ENGLISH);
+		return lowerCaseName.endsWith(".png") || lowerCaseName.endsWith(".jpg") || lowerCaseName.endsWith(".jpeg");
+	}
+
+	private String normalizeSignatureName(String value) {
+		return value == null ? "" : value.trim().replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
+	}
+
+	private byte[] readResourceBytes(Resource resource) throws IOException {
+		try (InputStream input = resource.getInputStream(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[4096];
+			int length;
+			while ((length = input.read(buffer)) >= 0) {
+				if (length > 0)
+					output.write(buffer, 0, length);
+			}
+			return output.toByteArray();
 		}
 	}
 
@@ -411,6 +491,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				portalDto.getStudentVisaExpirationDate() == null ? null : formatDate(portalDto.getStudentVisaExpirationDate()),
 				portalDto.getVisaExpirationDate() == null ? null : formatDate(portalDto.getVisaExpirationDate()),
 				findDate(formData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"));
+		data.maraName = portalDto.getMaraName();
 		data.matter = firstNonEmpty(portalDto.getPortalTypeName(),
 				portalDto.getPortalType() == null ? null : portalDto.getPortalType().getName(),
 				findText(formData, "visaSubclass", "visaType", "applicationType", "matter"),
@@ -705,6 +786,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		private String location;
 		private String visaStatus;
 		private String visaExpiry;
+		private String maraName;
 		private String matter;
 		private String reference;
 		private String generatedDate;
