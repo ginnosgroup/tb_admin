@@ -1,6 +1,6 @@
 package org.zhinanzhen.b.service.impl;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHeaderFooter;
@@ -25,10 +26,10 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.PortalDocumentService;
+import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
@@ -48,7 +49,6 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private static final String CONTRACT_TEMPLATE = "Contract-CEM-SYD-Comp Final Version.pdf";
 	private static final String ADVICE_TEMPLATE = "MARA_Basic_Letter_of_Advice_Template.docx";
-	private static final String SIGNATURE_RESOURCE_PATTERN = "classpath*:signature/*";
 	private static final String PRACTICE_NAME = "Compass Education and Migration Pty Ltd";
 	private static final String AGENT_NAME = "Tonglu Ge";
 	private static final String AGENT_MARN = "1687805";
@@ -56,10 +56,18 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	private static final String PRACTICE_EMAIL = "admin@globalznz.com";
 	private static final String PRACTICE_PHONE = "(02) 9283 1227";
 	private static final String PENDING_AGENT_REVIEW = "To be completed by the registered migration agent after review.";
+	private static final String UPLOAD_DATA_PREFIX = "/data/";
+	private static final String DOCUMENT_UPLOAD_DIRECTORY = "uploads/portal_document";
+	private static final String DOCUMENT_UPLOAD_PATH_PREFIX = "/uploads/portal_document/";
+	private static final String TOMCAT_CONTEXT_DIRECTORY = "admin_v2.1";
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-	@Value("${portal.document.output-dir:C:/Users/Admin/Desktop/dataT/xian/user}")
+	/** 合同、建议信与普通上传文件共用 /data 下的 uploads 目录。 */
+	@Value("${portal.document.output-dir:/data/uploads/portal_document}")
 	private String outputDirectory;
+
+	@Resource
+	private MaraService maraService;
 
 	@Override
 	public Map<String, String> generateDocuments(PortalDTO portalDto) throws ServiceException {
@@ -73,7 +81,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		Path advicePath = null;
 		try {
 			CustomerDocumentData data = buildCustomerData(portalDto);
-			Path outputDir = Paths.get(outputDirectory).toAbsolutePath().normalize();
+			Path outputDir = resolveOutputDirectory();
 			Files.createDirectories(outputDir);
 
 			String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date());
@@ -88,8 +96,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			generateAdviceDocument(data, advicePath);
 
 			Map<String, String> paths = new LinkedHashMap<String, String>();
-			paths.put("contractPdf", contractPath.toString());
-			paths.put("letterOfAdviceDocx", advicePath.toString());
+			// 与uploadAttachment保持一致，数据库保存访问路径而不是当前机器的物理绝对路径。
+			paths.put("contractPdf", toStoredFilePath(contractPath));
+			paths.put("letterOfAdviceDocx", toStoredFilePath(advicePath));
 			return paths;
 		} catch (Exception e) {
 			deleteGeneratedFile(contractPath);
@@ -98,6 +107,46 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw exception;
 		}
+	}
+
+	/**
+	 * 将配置的 /data/uploads/portal_document 映射到上传接口实际使用的物理目录。
+	 * Linux 使用 /data；本地 Windows Tomcat 使用应用临时目录下的 data。
+	 */
+	private Path resolveOutputDirectory() {
+		String configuredDirectory = StringUtil.isEmpty(outputDirectory)
+				? UPLOAD_DATA_PREFIX + DOCUMENT_UPLOAD_DIRECTORY : outputDirectory.trim();
+		String normalizedDirectory = configuredDirectory.replace('\\', '/');
+		if (normalizedDirectory.equals("/data") || normalizedDirectory.startsWith(UPLOAD_DATA_PREFIX)) {
+			String relativeDirectory = normalizedDirectory.equals("/data")
+					? "" : normalizedDirectory.substring(UPLOAD_DATA_PREFIX.length());
+			return resolveUploadDataRoot().resolve(relativeDirectory).toAbsolutePath().normalize();
+		}
+		// 允许通过配置继续指定自定义绝对目录。
+		return Paths.get(configuredDirectory).toAbsolutePath().normalize();
+	}
+
+	/** 将生成文件转换为与upload2相同格式的/uploads相对路径。 */
+	private String toStoredFilePath(Path path) {
+		if (path == null || path.getFileName() == null)
+			return null;
+		Path uploadDirectory = resolveUploadDataRoot().resolve(DOCUMENT_UPLOAD_DIRECTORY).toAbsolutePath().normalize();
+		Path normalizedPath = path.toAbsolutePath().normalize();
+		if (normalizedPath.startsWith(uploadDirectory))
+			return DOCUMENT_UPLOAD_PATH_PREFIX + path.getFileName().toString();
+		// 兼容通过portal.document.output-dir配置自定义目录的情况。
+		return normalizedPath.toString();
+	}
+
+	private Path resolveUploadDataRoot() {
+		boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
+		if (windows) {
+			String catalinaBase = System.getProperty("catalina.base");
+			if (StringUtil.isNotEmpty(catalinaBase)) {
+				return Paths.get(catalinaBase, "work", "Tomcat", "localhost", TOMCAT_CONTEXT_DIRECTORY, "data");
+			}
+		}
+		return Paths.get("/data");
 	}
 
 	@Override
@@ -112,8 +161,15 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			throw serviceException("客户邮箱为空，合同和建议信未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
 
-		Path contractPath = requireGeneratedFile(generatedDocumentPaths, "contractPdf", "合同PDF");
-		Path advicePath = requireGeneratedFile(generatedDocumentPaths, "letterOfAdviceDocx", "建议信Word文件");
+		String contractFilePath = generatedDocumentPaths == null ? null : generatedDocumentPaths.get("contractPdf");
+		if (StringUtil.isEmpty(contractFilePath))
+			contractFilePath = portalDto.getContractFilePath();
+		String letterFilePath = generatedDocumentPaths == null ? null
+				: generatedDocumentPaths.get("letterOfAdviceDocx");
+		if (StringUtil.isEmpty(letterFilePath))
+			letterFilePath = portalDto.getLetterFilePath();
+		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
+		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
 		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
 		String title = "【指南针留学移民】485签证合同、建议信及材料准备清单";
 		String content = build485PreparationEmail(data.fullName, adviserName);
@@ -126,17 +182,35 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		}
 	}
 
-	private Path requireGeneratedFile(Map<String, String> generatedDocumentPaths, String key, String description)
-			throws ServiceException {
-		String pathValue = generatedDocumentPaths == null ? null : generatedDocumentPaths.get(key);
+	private Path requireGeneratedFile(String pathValue, String description) throws ServiceException {
 		if (StringUtil.isEmpty(pathValue)) {
 			throw serviceException(description + "路径为空，邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
-		Path path = Paths.get(pathValue).toAbsolutePath().normalize();
+		Path path = resolveStoredFilePath(pathValue);
 		if (!Files.isRegularFile(path)) {
 			throw serviceException(description + "不存在: " + path, ErrorCodeEnum.DATA_ERROR.code(), null);
 		}
 		return path;
+	}
+
+	/** 将数据库中的/uploads相对路径解析为当前环境的实际文件路径。 */
+	private Path resolveStoredFilePath(String pathValue) {
+		String normalizedPath = pathValue.trim().replace('\\', '/');
+		if (normalizedPath.matches("^[A-Za-z]:/.*"))
+			return Paths.get(normalizedPath).toAbsolutePath().normalize();
+		if (normalizedPath.startsWith("/") && !normalizedPath.startsWith("/data/")
+				&& !normalizedPath.startsWith("/uploads/"))
+			return Paths.get(normalizedPath).toAbsolutePath().normalize();
+
+		String relativePath = normalizedPath;
+		if (relativePath.startsWith("/data/"))
+			relativePath = relativePath.substring("/data/".length());
+		else if (relativePath.startsWith("data/"))
+			relativePath = relativePath.substring("data/".length());
+		else if (relativePath.startsWith("/"))
+			relativePath = relativePath.substring(1);
+
+		return resolveUploadDataRoot().resolve(relativePath).toAbsolutePath().normalize();
 	}
 
 	private String build485PreparationEmail(String customerName, String adviserName) {
@@ -208,7 +282,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					setPdfField(form, "visa_subclass", data.matter);
 					// 模板默认选中了 Diners Club；没有客户付款信息时清空该默认值。
 					form.setField("Radio Button26", "Off");
-					addMaraSignatures(stamper, form, data.maraName);
+					addMaraSignatures(stamper, form, data.maraId);
 					stamper.setFormFlattening(false);
 				} finally {
 					stamper.close();
@@ -223,9 +297,15 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	 * 将案件对应 Mara 的签名写入合同每页底部的 Agent 签名位置。
 	 * 签名字段本身是文本 AcroField，不能直接写入图片，因此先移除字段，再将签名图片覆盖到同一坐标。
 	 */
-	private void addMaraSignatures(PdfStamper stamper, AcroFields form, String maraName) throws Exception {
-		Resource signatureResource = findMaraSignature(maraName);
-		byte[] signatureBytes = readResourceBytes(signatureResource);
+	private void addMaraSignatures(PdfStamper stamper, AcroFields form, int maraId) throws Exception {
+		if (maraId <= 0)
+			throw new IOException("案件未分配 Mara，无法获取签名");
+		MaraDTO maraDto = maraService.getMaraById(maraId);
+		if (maraDto == null)
+			throw new IOException("未找到 Mara，maraId=" + maraId);
+		if (StringUtil.isEmpty(maraDto.getSignatureData()))
+			throw new IOException("Mara " + maraId + " 未配置签名文件路径(signature_data)");
+		byte[] signatureBytes = readSignatureFile(maraDto.getSignatureData(), maraId);
 		for (int page = 1; page <= 4; page++) {
 			addMaraSignature(stamper, form, "agent_signature_p" + page, signatureBytes);
 		}
@@ -250,44 +330,58 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		stamper.getOverContent(fieldPosition.page).addImage(signature);
 	}
 
-	private Resource findMaraSignature(String maraName) throws IOException {
-		if (StringUtil.isEmpty(maraName))
-			throw new IOException("案件未分配 Mara，无法获取签名");
+	/**
+	 * signature_data 保存的是上传接口返回的路径，例如 /uploads/portal_attachment/xxx.png，
+	 * 实际文件位于 /data/uploads/portal_attachment/xxx.png。
+	 */
+	private byte[] readSignatureFile(String signatureData, int maraId) throws IOException {
+		String normalizedPath = signatureData.trim().replace('\\', '/');
+		List<Path> candidatePaths = new ArrayList<Path>();
+		if (normalizedPath.matches("^[A-Za-z]:/.*"))
+			candidatePaths.add(Paths.get(normalizedPath));
 
-		String expectedName = normalizeSignatureName(maraName);
-		Resource[] resources = new PathMatchingResourcePatternResolver().getResources(SIGNATURE_RESOURCE_PATTERN);
-		for (Resource resource : resources) {
-			String fileName = resource.getFilename();
-			if (StringUtil.isEmpty(fileName) || !isSupportedSignature(fileName))
-				continue;
-			int extensionIndex = fileName.lastIndexOf('.');
-			String baseName = extensionIndex > 0 ? fileName.substring(0, extensionIndex) : fileName;
-			if (expectedName.equals(normalizeSignatureName(baseName)))
-				return resource;
+		String relativePath = normalizedPath;
+		if (relativePath.startsWith("/data/"))
+			relativePath = relativePath.substring("/data/".length());
+		else if (relativePath.startsWith("data/"))
+			relativePath = relativePath.substring("data/".length());
+		else if (relativePath.startsWith("/"))
+			relativePath = relativePath.substring(1);
+
+		// Linux/默认目录：上传接口将 /uploads/... 保存到 /data/uploads/...。
+		candidatePaths.add(Paths.get("/data", relativePath));
+
+		// 本地 Tomcat 部署时，/data 会落到 catalina.base/work/.../admin_v2.1/data 下。
+		String catalinaBase = System.getProperty("catalina.base");
+		if (StringUtil.isNotEmpty(catalinaBase)) {
+			candidatePaths.add(Paths.get(catalinaBase, "work", "Tomcat", "localhost", "admin_v2.1", "data",
+					relativePath));
 		}
-		throw new IOException("未找到 Mara " + maraName + " 的签名文件，请将签名放入 src/main/resources/signature/" + maraName
-				+ ".png");
-	}
 
-	private boolean isSupportedSignature(String fileName) {
-		String lowerCaseName = fileName.toLowerCase(Locale.ENGLISH);
-		return lowerCaseName.endsWith(".png") || lowerCaseName.endsWith(".jpg") || lowerCaseName.endsWith(".jpeg");
-	}
-
-	private String normalizeSignatureName(String value) {
-		return value == null ? "" : value.trim().replaceAll("\\s+", "").toLowerCase(Locale.ENGLISH);
-	}
-
-	private byte[] readResourceBytes(Resource resource) throws IOException {
-		try (InputStream input = resource.getInputStream(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-			byte[] buffer = new byte[4096];
-			int length;
-			while ((length = input.read(buffer)) >= 0) {
-				if (length > 0)
-					output.write(buffer, 0, length);
+		// 兼容本地临时 Tomcat 实例，即使 catalina.base 没有正确设置。
+		String tempDirectory = System.getProperty("java.io.tmpdir");
+		if (StringUtil.isNotEmpty(tempDirectory)) {
+			File[] tempDirectories = new File(tempDirectory).listFiles();
+			if (tempDirectories != null) {
+				for (File tempDir : tempDirectories) {
+					if (tempDir.isDirectory() && tempDir.getName().startsWith("tomcat."))
+						candidatePaths.add(Paths.get(tempDir.getAbsolutePath(), "work", "Tomcat", "localhost",
+								"admin_v2.1", "data", relativePath));
+				}
 			}
-			return output.toByteArray();
 		}
+
+		// 某些嵌入式运行方式会将当前工作目录作为 /data 的相对根目录。
+		String userDirectory = System.getProperty("user.dir");
+		if (StringUtil.isNotEmpty(userDirectory))
+			candidatePaths.add(Paths.get(userDirectory, "data", relativePath));
+
+		for (Path candidatePath : candidatePaths) {
+			Path normalizedCandidate = candidatePath.toAbsolutePath().normalize();
+			if (Files.isRegularFile(normalizedCandidate))
+				return Files.readAllBytes(normalizedCandidate);
+		}
+		throw new IOException("Mara " + maraId + " 的签名文件不存在: " + normalizedPath);
 	}
 
 	private void setPdfField(AcroFields form, String fieldName, String value) throws Exception {
@@ -491,7 +585,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				portalDto.getStudentVisaExpirationDate() == null ? null : formatDate(portalDto.getStudentVisaExpirationDate()),
 				portalDto.getVisaExpirationDate() == null ? null : formatDate(portalDto.getVisaExpirationDate()),
 				findDate(formData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"));
-		data.maraName = portalDto.getMaraName();
+		data.maraId = portalDto.getMaraId();
 		data.matter = firstNonEmpty(portalDto.getPortalTypeName(),
 				portalDto.getPortalType() == null ? null : portalDto.getPortalType().getName(),
 				findText(formData, "visaSubclass", "visaType", "applicationType", "matter"),
@@ -786,7 +880,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		private String location;
 		private String visaStatus;
 		private String visaExpiry;
-		private String maraName;
+		private int maraId;
 		private String matter;
 		private String reference;
 		private String generatedDate;

@@ -40,47 +40,6 @@ public class MaraController extends BaseController {
 		return super.upload(file, request.getSession(), "/uploads/mara_img/");
 	}
 
-	@RequestMapping(value = "/uploadSignature", method = RequestMethod.POST)
-	@ResponseBody
-	public Response<String> uploadSignature(@RequestParam(value = "id") int id,
-			@RequestParam MultipartFile file, HttpServletRequest request, HttpServletResponse response)
-			throws IllegalStateException, IOException {
-		super.setPostHeader(response);
-		String uploadedPath = null;
-		try {
-			MaraDTO maraDto = maraService.getMaraById(id);
-			if (maraDto == null) {
-				return new Response<String>(1, "MARA不存在，无法上传签名文件.", null);
-			}
-
-			String oldSignatureData = maraDto.getSignatureData();
-			Response<String> uploadResponse = super.upload2(file, request.getSession(), "/uploads/mara_signature/");
-			if (uploadResponse == null || uploadResponse.getCode() != 0) {
-				if (uploadResponse == null) {
-					return new Response<String>(1, "签名文件上传失败.", null);
-				}
-				return new Response<String>(uploadResponse.getCode(), uploadResponse.getMessage(), null);
-			}
-
-			uploadedPath = uploadResponse.getData();
-			maraDto.setSignatureData(uploadedPath);
-			if (maraService.updateMara(maraDto) <= 0) {
-				super.deleteFile(uploadedPath);
-				return new Response<String>(1, "签名文件路径保存失败.", null);
-			}
-
-			if (StringUtil.isNotEmpty(oldSignatureData) && !oldSignatureData.equals(uploadedPath)) {
-				super.deleteFile(oldSignatureData);
-			}
-			return new Response<String>(0, "", uploadedPath);
-		} catch (ServiceException e) {
-			if (uploadedPath != null) {
-				super.deleteFile(uploadedPath);
-			}
-			return new Response<String>(e.getCode(), e.getMessage(), null);
-		}
-	}
-
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addMara(@RequestParam(value = "name") String name,

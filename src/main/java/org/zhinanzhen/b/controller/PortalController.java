@@ -38,10 +38,12 @@ import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.PortalLogService;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.PortalTypeService;
+import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.pojo.PortalAttachmentDTO;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalLogDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
+import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -151,13 +153,36 @@ public class PortalController extends BaseController {
 	@Resource
 	ChartForAI chartForAI;
 
+	@Resource
+	MaraService maraService;
+
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
 			@RequestParam(value = "aiText", required = false) String aiText,
-			@RequestParam(value = "fileType", required = false) String fileType, HttpServletRequest request,
-			HttpServletResponse response) throws IllegalStateException, IOException {
+			@RequestParam(value = "fileType", required = false) String fileType,
+			HttpServletRequest request, HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		boolean signatureUpload = aiText == null && fileType != null
+				&& "signature".equalsIgnoreCase(fileType.trim());
+		MaraDTO maraDto = null;
+		String oldSignatureData = null;
+		if (signatureUpload) {
+			if (getAdminUserLoginInfo(request) == null)
+				return new Response<Map<String, Object>>(1, "用户未登录，无法上传MARA签名文件.", null);
+			Integer targetMaraId = getMaraId(request);
+			if (targetMaraId == null || targetMaraId <= 0)
+				return new Response<Map<String, Object>>(1, "登录用户不是MARA，无法上传签名文件.", null);
+			try {
+				maraDto = maraService.getMaraById(targetMaraId);
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+			if (maraDto == null) {
+				return new Response<Map<String, Object>>(1, "MARA不存在，无法保存签名文件.", null);
+			}
+			oldSignatureData = maraDto.getSignatureData();
+		}
 		String normalizedFileType = null;
 		if (aiText != null) {
 			normalizedFileType = normalizeAttachmentFileType(fileType);
@@ -170,6 +195,9 @@ public class PortalController extends BaseController {
 		// 因为upload2内部transferTo会移动MultipartFile的临时文件。
 		byte[] fileBytes = aiText == null ? null : file.getBytes();
 		Response<String> uploadResp = super.upload2(file, request.getSession(), "/uploads/portal_attachment/");
+		if (uploadResp == null) {
+			return new Response<Map<String, Object>>(1, "附件上传失败.", null);
+		}
 		if (uploadResp.getCode() != 0) {
 			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
 		}
@@ -188,13 +216,26 @@ public class PortalController extends BaseController {
 			portalAttachmentDto
 					.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
 		}
+		int attachmentId = 0;
 		try {
-			if (portalAttachmentService.addPortalAttachment(portalAttachmentDto) <= 0) {
+			attachmentId = portalAttachmentService.addPortalAttachment(portalAttachmentDto);
+			if (attachmentId <= 0) {
 				super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
 				return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
 			}
+			if (signatureUpload) {
+				maraDto.setSignatureData(uploadResp.getData());
+				if (maraService.updateMara(maraDto) <= 0) {
+					cleanupUploadedAttachment(uploadResp.getData(), attachmentId);
+					return new Response<Map<String, Object>>(1, "MARA签名文件路径保存失败.", null);
+				}
+				if (StringUtil.isNotEmpty(oldSignatureData)
+						&& !oldSignatureData.equals(uploadResp.getData())) {
+					super.deleteFile(oldSignatureData);
+				}
+			}
 		} catch (ServiceException e) {
-			super.deleteFile(uploadResp.getData());
+			cleanupUploadedAttachment(uploadResp.getData(), attachmentId);
 			return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 		}
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
@@ -203,6 +244,20 @@ public class PortalController extends BaseController {
 			result.put("aiText", portalAttachmentDto.getAiText());
 		}
 		return new Response<Map<String, Object>>(0, "", result);
+	}
+
+	/** 上传后的附件入库或 Mara 更新失败时，清理文件和附件记录。 */
+	private void cleanupUploadedAttachment(String filePath, int attachmentId) {
+		if (attachmentId > 0) {
+			try {
+				portalAttachmentService.deletePortalAttachmentById(attachmentId);
+			} catch (ServiceException e) {
+				LOG.error("清理上传附件数据库记录失败，attachmentId={}", attachmentId, e);
+			}
+		}
+		if (StringUtil.isNotEmpty(filePath)) {
+			super.deleteFile(filePath);
+		}
 	}
 
 	/**
@@ -308,6 +363,34 @@ public class PortalController extends BaseController {
 			return false;
 		String v = value.trim();
 		return "true".equalsIgnoreCase(v) || "1".equals(v);
+	}
+
+	/**
+	 * 从合同表单JSON的 basicInfo.officialId 读取文案ID。
+	 * 同时兼容数字和数字字符串，避免状态02B时只更新合同表单而没有更新案件文案。
+	 */
+	private Integer extractContractOfficialId(String contractStr) {
+		if (StringUtil.isEmpty(contractStr))
+			return null;
+		try {
+			JsonNode root = readPortalFormData(contractStr);
+			if (root == null || !root.isObject())
+				return null;
+			JsonNode basicInfo = root.get("basicInfo");
+			if (basicInfo == null || !basicInfo.isObject())
+				return null;
+			JsonNode officialIdNode = basicInfo.get("officialId");
+			if (officialIdNode == null || officialIdNode.isNull())
+				return null;
+			String officialIdValue = officialIdNode.asText();
+			if (StringUtil.isEmpty(officialIdValue))
+				return null;
+			int parsedOfficialId = Integer.parseInt(officialIdValue.trim());
+			return parsedOfficialId > 0 ? parsedOfficialId : null;
+		} catch (Exception e) {
+			LOG.warn("解析合同表单中的officialId失败", e);
+			return null;
+		}
 	}
 
 	/**
@@ -498,6 +581,16 @@ public class PortalController extends BaseController {
 				portalDto.setAdviserId(StringUtil.toInt(adviserId));
 			if (StringUtil.isNotEmpty(officialId))
 				portalDto.setOfficialId(StringUtil.toInt(officialId));
+			// 状态转为02B时，合同表单中的文案才是最终归属文案；以 contractStr.basicInfo.officialId 为准。
+			// 这样后续重新查询案件发送邮件时，会从 b_portal_list.official_id 获取正确的文案。
+			if ("02B".equals(strState)) {
+				Integer contractOfficialId = extractContractOfficialId(contractStr);
+				if (contractOfficialId == null) {
+					return new Response<PortalDTO>(1,
+							"案件状态为02B时，contractStr.basicInfo.officialId不能为空且必须是有效数字.", null);
+				}
+				portalDto.setOfficialId(contractOfficialId);
+			}
 			if (StringUtil.isNotEmpty(maraId))
 				portalDto.setMaraId(StringUtil.toInt(maraId));
 			if (StringUtil.isNotEmpty(serviceOrderId))
@@ -507,14 +600,21 @@ public class PortalController extends BaseController {
 			if (portalService.updatePortal(portalDto) > 0) {
 				// 同步附件：根据updatePortal传过来的路径，把已上传附件的portalId更新为当前案件ID
 				syncPortalAttachments(filePath, portalDto.getId());
-            // 状态首次转为03时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
-            if ("03".equals(strState) && !"03".equals(fromState)) {
+            // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
+            if ("02B".equals(strState) && !"02B".equals(fromState)) {
                 try {
                     PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
                     Map<String, String> generatedDocumentPaths = portalDocumentService.generateDocuments(savedPortalDto);
+                    PortalDTO documentPathDto = new PortalDTO();
+                    documentPathDto.setId(id);
+                    documentPathDto.setContractFilePath(generatedDocumentPaths.get("contractPdf"));
+                    documentPathDto.setLetterFilePath(generatedDocumentPaths.get("letterOfAdviceDocx"));
+                    portalService.updatePortal(documentPathDto);
+                    portalDto.setContractFilePath(documentPathDto.getContractFilePath());
+                    portalDto.setLetterFilePath(documentPathDto.getLetterFilePath());
                     portalDto.setGeneratedDocumentPaths(generatedDocumentPaths);
 					} catch (ServiceException documentException) {
-						// 文件生成失败时只回退状态，客户本次填写的其他资料仍然保留，便于修复后再次提交03。
+						// 文件生成失败时只回退状态，客户本次填写的其他资料仍然保留，便于修复后再次提交02B。
 						if (StringUtil.isNotEmpty(fromState)) {
 							try {
 								PortalDTO rollbackPortalDto = new PortalDTO();
@@ -525,7 +625,7 @@ public class PortalController extends BaseController {
 								LOG.error("合同和建议信生成失败后回退案件状态失败，portalId={}", id, rollbackException);
 							}
 						}
-                    LOG.error("案件状态转为03后生成合同和建议信失败，portalId={}", id, documentException);
+                    LOG.error("案件状态转为02B后生成合同和建议信失败，portalId={}", id, documentException);
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
@@ -545,9 +645,9 @@ public class PortalController extends BaseController {
 								portalDto);
 					}
 				}
-				// 只有本次请求明确将状态更新为03时，才调用语聚AI进行485方案咨询。
+				// 只有本次请求明确将状态更新为02时，才调用语聚AI进行485方案咨询。
 				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
-				if ("03".equals(strState))
+				if ("02".equals(strState))
 					portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
 				return new Response<PortalDTO>(0, portalDto);
 			} else {

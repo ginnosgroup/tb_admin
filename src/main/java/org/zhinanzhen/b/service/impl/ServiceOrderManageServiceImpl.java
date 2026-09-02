@@ -334,6 +334,8 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderDOS);
             if (serviceOrderDOS != null) {
                 for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+                    // 与列表查询保持一致，单个订单查询时也组装子订单可分配金额。
+                    setSubOrderDistributableAmount(serviceOrderDO, batchContext);
                     subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO, batchContext));
                 }
             }

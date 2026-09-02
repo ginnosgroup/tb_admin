@@ -62,6 +62,7 @@ public class DashboardController extends BaseController {
 	@Resource
 	private ExchangeRateService exchangeRateService;
 
+	// 本月业绩组成
 	@RequestMapping(value = "/getMonthExpectAmount", method = RequestMethod.GET)
 	@ResponseBody
 	public Response getMonthExpectAmount(HttpServletRequest request, HttpServletResponse response) {

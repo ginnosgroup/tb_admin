@@ -48,6 +48,12 @@ public class PortalDTO {
 	/** 顾问、MARA填写的合同表单JSON数据。 */
 	private String contractStr;
 
+	/** 生成后的合同文件访问路径，例如 /uploads/portal_document/xxx.pdf。 */
+	private String contractFilePath;
+
+	/** 生成后的Letter文件访问路径，例如 /uploads/portal_document/xxx.docx。 */
+	private String letterFilePath;
+
 	/** 语聚AI返回的485方案咨询内容（updatePortal时保存）。 */
 	private String aiConsultContent;
 
@@ -77,7 +83,7 @@ public class PortalDTO {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, Object> yujuAiResult;
 
-	/** 状态转为03时生成的合同和建议信路径，不参与数据库持久化。 */
+	/** 状态转为02B时本次生成的合同和建议信路径。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, String> generatedDocumentPaths;
 
