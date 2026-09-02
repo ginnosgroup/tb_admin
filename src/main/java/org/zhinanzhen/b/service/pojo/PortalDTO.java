@@ -45,6 +45,9 @@ public class PortalDTO {
 
 	private String jsonStr;
 
+	/** 顾问、MARA填写的合同表单JSON数据。 */
+	private String contractStr;
+
 	/** 语聚AI返回的485方案咨询内容（updatePortal时保存）。 */
 	private String aiConsultContent;
 

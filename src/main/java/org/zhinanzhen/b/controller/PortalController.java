@@ -352,6 +352,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "studentVisaExpirationDate", required = false) String studentVisaExpirationDate,
 			@RequestParam(value = "hasCompletionLetter", required = false) String hasCompletionLetter,
 			@RequestParam(value = "jsonStr", required = false) String jsonStr,
+			@RequestParam(value = "contractStr", required = false) String contractStr,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "maraId", required = false) String maraId,
@@ -392,6 +393,9 @@ public class PortalController extends BaseController {
 			portalDto.setHasCompletionLetter(parseHasCompletionLetter(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
+			// 合同表单由顾问或MARA填写，保留前端传入的JSON字符串。
+			if (contractStr != null)
+				portalDto.setContractStr(contractStr);
 			// 顾问添加时取登录顾问的顾问id；超管添加时用前端传的adviserId
 			if (apList.contains("GW") && adminUserLoginInfo.getAdviserId() != null
 					&& adminUserLoginInfo.getAdviserId() > 0) {
@@ -439,6 +443,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "studentVisaExpirationDate", required = false) String studentVisaExpirationDate,
 			@RequestParam(value = "hasCompletionLetter", required = false) String hasCompletionLetter,
 			@RequestParam(value = "jsonStr", required = false) String jsonStr,
+			@RequestParam(value = "contractStr", required = false) String contractStr,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "maraId", required = false) String maraId,
@@ -486,6 +491,9 @@ public class PortalController extends BaseController {
 				portalDto.setHasCompletionLetter(parseHasCompletionLetter(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
+			// contractStr != null 才更新，允许前端传空字符串清空合同表单数据。
+			if (contractStr != null)
+				portalDto.setContractStr(contractStr);
 			if (StringUtil.isNotEmpty(adviserId))
 				portalDto.setAdviserId(StringUtil.toInt(adviserId));
 			if (StringUtil.isNotEmpty(officialId))

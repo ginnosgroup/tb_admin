@@ -22,6 +22,7 @@
                 student_visa_expiration_date,
                 has_completion_letter,
                 json_str,
+                contract_str,
                 adviser_id,
                 official_id,
                 mara_id,
@@ -42,6 +43,7 @@
                 #{studentVisaExpirationDate},
                 #{hasCompletionLetter},
                 #{jsonStr},
+                #{contractStr},
                 #{adviserId},
                 #{officialId},
                 #{maraId},
@@ -88,6 +90,9 @@
         <if test='jsonStr != null'>
             , json_str = #{jsonStr}
         </if>
+        <if test='contractStr != null'>
+            , contract_str = #{contractStr}
+        </if>
         <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}
         </if>
@@ -130,6 +135,7 @@
             student_visa_expiration_date AS studentVisaExpirationDate,
             has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
+            contract_str AS contractStr,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -237,6 +243,7 @@
             student_visa_expiration_date AS studentVisaExpirationDate,
             has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
+            contract_str AS contractStr,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -287,6 +294,7 @@
             student_visa_expiration_date AS studentVisaExpirationDate,
             has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
+            contract_str AS contractStr,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,

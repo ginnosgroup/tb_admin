@@ -40,6 +40,9 @@ public class PortalDO implements Serializable {
 
 	private String jsonStr;
 
+	/** 顾问、MARA填写的合同表单JSON数据。 */
+	private String contractStr;
+
 	private String aiConsultContent;
 
 	private int adviserId;

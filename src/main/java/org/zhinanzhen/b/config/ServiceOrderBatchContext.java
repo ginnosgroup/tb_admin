@@ -39,6 +39,7 @@ public class ServiceOrderBatchContext {
     public Map<Integer, List<ServiceOrderApplicantDO>> serviceOrderApplicantMap = new HashMap<>();
     public Map<Integer, Integer> oldOfficialMap = new HashMap<>();
     public Map<Integer, ServicePackagePriceDO> servicePackagePriceMap = new HashMap<>();
+    public Map<Integer, Double> bindingOrderReceivableMap = new HashMap<>();
     public Map<Integer, ServiceOrderAndManage> serviceOrderManageMap = new HashMap<>();
     public Map<Integer, SchoolCourseDO> schoolCourseMap = new HashMap<>();
     public Map<Integer, SchoolInstitutionDO> schoolInstitutionMap = new HashMap<>();

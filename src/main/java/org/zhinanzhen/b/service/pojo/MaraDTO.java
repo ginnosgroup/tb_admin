@@ -24,6 +24,8 @@ public class MaraDTO {
 
 	private String imageUrl;
 
+	private String signatureData;
+
 	private int regionId;
 
 	private String regionName;

@@ -1835,4 +1835,14 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
 
+    <select id="listBindingOrderReceivable" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT
+            binding_order AS bindingOrder,
+            COALESCE(SUM(receivable), 0) AS receivable
+        FROM b_service_order
+        WHERE binding_order IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+        GROUP BY binding_order
+    </select>
+
 </mapper>

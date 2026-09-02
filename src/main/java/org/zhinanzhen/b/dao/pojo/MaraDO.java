@@ -24,6 +24,8 @@ public class MaraDO implements Serializable {
 
 	private String imageUrl;
 
+	private String signatureData;
+
 	private int regionId;
 
 }
