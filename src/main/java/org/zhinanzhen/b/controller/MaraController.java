@@ -45,7 +45,9 @@ public class MaraController extends BaseController {
 	public Response<Integer> addMara(@RequestParam(value = "name") String name,
 			@RequestParam(value = "phone") String phone, @RequestParam(value = "email") String email,
 			@RequestParam(value = "password", required = false) String password,
-			@RequestParam(value = "imageUrl") String imageUrl, @RequestParam(value = "regionId") Integer regionId,
+			@RequestParam(value = "imageUrl") String imageUrl,
+			@RequestParam(value = "signatureData", required = false) String signatureData,
+			@RequestParam(value = "regionId") Integer regionId,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -65,6 +67,8 @@ public class MaraController extends BaseController {
 			maraDto.setPhone(phone);
 			maraDto.setEmail(email);
 			maraDto.setImageUrl(imageUrl);
+			if (signatureData != null)
+				maraDto.setSignatureData(signatureData);
 			maraDto.setRegionId(regionId);
 			if (maraService.addMara(maraDto) > 0) {
 				if (password == null)
@@ -87,6 +91,7 @@ public class MaraController extends BaseController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
+			@RequestParam(value = "signatureData", required = false) String signatureData,
 			@RequestParam(value = "regionId", required = false) Integer regionId, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
@@ -107,6 +112,9 @@ public class MaraController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(imageUrl)) {
 				maraDto.setImageUrl(imageUrl);
+			}
+			if (signatureData != null) {
+				maraDto.setSignatureData(signatureData);
 			}
 			if (regionId != null && regionId > 0) {
 				maraDto.setRegionId(regionId);

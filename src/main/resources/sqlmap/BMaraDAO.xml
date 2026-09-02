@@ -13,6 +13,7 @@
                 email,
                 state,
                 image_url,
+                signature_data,
                 region_id)
             VALUES (
                 now(),
@@ -22,6 +23,7 @@
                 #{email},
                 'ENABLED',
                 #{imageUrl},
+                #{signatureData},
                 #{regionId});
     </insert>
 
@@ -42,6 +44,9 @@
         </if>
         <if test='imageUrl != null and imageUrl != ""'>
             , image_url = #{imageUrl}
+        </if>
+        <if test='signatureData != null'>
+            , signature_data = #{signatureData}
         </if>
         <if test='regionId != null and regionId != ""'>
             , region_id = #{regionId}
@@ -70,6 +75,7 @@
             email,
             state,
             image_url AS imageUrl,
+            signature_data AS signatureData,
             region_id AS regionId
         FROM b_mara
         WHERE 1 = 1
@@ -92,12 +98,13 @@
             email,
             state,
             image_url AS imageUrl,
+            signature_data AS signatureData,
             region_id AS regionId
         FROM b_mara WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
     <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.MaraDO">
-        SELECT id, gmt_create AS gmtCreate, name, phone, email, state, image_url AS imageUrl, region_id AS regionId FROM b_mara WHERE id IN
+        SELECT id, gmt_create AS gmtCreate, name, phone, email, state, image_url AS imageUrl, signature_data AS signatureData, region_id AS regionId FROM b_mara WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
 

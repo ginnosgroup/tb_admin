@@ -3419,7 +3419,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                 null, null, null, null, null, userId,
                 null, null, null, null, null, null
                 , null, null, null, null, null
-                , null, null, null, null, 0, 9999, null, null, null, null, null, null, false);
+                , null, null, null, null, 0, 9999, null, null, null, null, null, null, null);
         for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
             if ("CNY".equalsIgnoreCase(serviceOrderDO.getCurrency())) {
                 serviceOrderDO.setPerAmount(serviceOrderDO.getPerAmount() / serviceOrderDO.getExchangeRate());

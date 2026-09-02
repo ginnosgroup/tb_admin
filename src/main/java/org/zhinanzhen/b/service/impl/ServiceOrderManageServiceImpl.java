@@ -275,6 +275,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                             // 批量预加载关联数据
                             ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderSubs);
                             for (ServiceOrderDO serviceOrderSub : serviceOrderSubs) {
+                                setSubOrderDistributableAmount(serviceOrderSub, batchContext);
                                 ServiceOrderDTO serviceOrderDTO1 = putServiceOrderDTO(serviceOrderSub, batchContext);
                                 VisaDO visaByServiceOrderId = visaDAO.getFirstVisaByServiceOrderId(serviceOrderSub.getId());
                                 if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderSub.getState())) {
@@ -333,6 +334,8 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
             ServiceOrderBatchContext batchContext = batchLoadRelatedData(serviceOrderDOS);
             if (serviceOrderDOS != null) {
                 for (ServiceOrderDO serviceOrderDO : serviceOrderDOS) {
+                    // 与列表查询保持一致，单个订单查询时也组装子订单可分配金额。
+                    setSubOrderDistributableAmount(serviceOrderDO, batchContext);
                     subServiceOrderDtos.add(putServiceOrderDTO(serviceOrderDO, batchContext));
                 }
             }
@@ -355,6 +358,19 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         }
         return serviceOrderDto;
 
+    }
+
+    /**
+     * 计算子订单可分配金额：子订单 receivable * 0.6 - 服务成本价 - 绑定订单 receivable。
+     * 服务成本价和绑定订单金额均由批量上下文预加载，避免在子订单循环中产生 N+1 查询。
+     */
+    private void setSubOrderDistributableAmount(ServiceOrderDO serviceOrderSub, ServiceOrderBatchContext batchContext) {
+        ServicePackagePriceDO servicePackagePrice = batchContext.servicePackagePriceMap.get(serviceOrderSub.getServiceId());
+        double costPrice = servicePackagePrice == null ? 0D : servicePackagePrice.getCostPrince();
+        double bindingOrderReceivable = batchContext.bindingOrderReceivableMap
+                .getOrDefault(serviceOrderSub.getId(), 0D);
+        double distributableAmount = serviceOrderSub.getReceivable() * 0.6D - costPrice - bindingOrderReceivable;
+        serviceOrderSub.setDistributableAmount(roundHalfUp2(distributableAmount));
     }
 
     @Override

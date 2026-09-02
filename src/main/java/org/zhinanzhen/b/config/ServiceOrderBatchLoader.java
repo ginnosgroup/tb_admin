@@ -242,12 +242,24 @@ public class ServiceOrderBatchLoader {
             List<ServicePackagePriceDO> priceList = servicePackagePriceDAO.listByServiceIds(new ArrayList<>(serviceIds));
             priceList.forEach(p -> ctx.servicePackagePriceMap.put(p.getServiceId(), p));
         }
-        // 20. service order manage
+        // 20. 绑定订单收款金额
+        if (!serviceOrderIds.isEmpty()) {
+            List<ServiceOrderDO> bindingOrderList = serviceOrderDao
+                    .listBindingOrderReceivable(new ArrayList<>(serviceOrderIds));
+            if (bindingOrderList != null) {
+                bindingOrderList.forEach(order -> {
+                    if (order.getBindingOrder() != null) {
+                        ctx.bindingOrderReceivableMap.put(order.getBindingOrder(), order.getReceivable());
+                    }
+                });
+            }
+        }
+        // 21. service order manage
         if (!serviceOrderIds.isEmpty()) {
             List<ServiceOrderAndManage> manageList = serviceOrderManageDAO.listByServiceOrderIds(new ArrayList<>(serviceOrderIds));
             manageList.forEach(m -> ctx.serviceOrderManageMap.put(m.getServiceOrderId(), m));
         }
-        // 21. school courses
+        // 22. school courses
         if (!schoolCourseIds.isEmpty()) {
             List<SchoolCourseDO> scList = schoolCourseDAO.listByIds(new ArrayList<>(schoolCourseIds));
             scList.forEach(sc -> ctx.schoolCourseMap.put(sc.getId(), sc));
