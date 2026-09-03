@@ -11,10 +11,14 @@ import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -48,6 +52,18 @@ import com.itextpdf.text.pdf.PdfStamper;
 public class PortalDocumentServiceImpl extends BaseService implements PortalDocumentService {
 
 	private static final String CONTRACT_TEMPLATE = "Contract-CEM-SYD-Comp Final Version.pdf";
+	private static final Set<String> CONTRACT_TEMPLATE_NAMES = Collections.unmodifiableSet(
+			new HashSet<String>(Arrays.asList(
+					"Contract-CEM-ACT-13-Sep-2022.pdf",
+					"Contract-CEM-ADE-15-June-2026.pdf",
+					"Contract-CEM-BNE-13-Sep-2022.pdf",
+					"Contract-CEM-Mel-13-Sep-2022.pdf",
+					CONTRACT_TEMPLATE,
+					"Contract-CEM-TAS-13-Sep-2022.pdf")));
+	private static final String[] MODERN_SIGNATURE_FIELDS = { "agent_signature_p1", "agent_signature_p2",
+			"agent_signature_p3", "agent_signature_p4" };
+	private static final String[] LEGACY_SIGNATURE_FIELDS = { "Signature21", "Signature22", "Signature23",
+			"Signature25", "Signature38" };
 	private static final String ADVICE_TEMPLATE = "MARA_Basic_Letter_of_Advice_Template.docx";
 	private static final String PRACTICE_NAME = "Compass Education and Migration Pty Ltd";
 	private static final String AGENT_NAME = "Tonglu Ge";
@@ -152,6 +168,12 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	@Override
 	public void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths)
 			throws ServiceException {
+		sendGeneratedDocuments(portalDto, generatedDocumentPaths, null, null);
+	}
+
+	@Override
+	public void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths,
+			String confirmUrl, String returnUrl) throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0) {
 			throw serviceException("案件信息无效，无法发送合同和建议信邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
@@ -171,8 +193,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
 		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
 		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
-		String title = "【指南针留学移民】485签证合同、建议信及材料准备清单";
-		String content = build485PreparationEmail(data.fullName, adviserName);
+		String title = "【指南针留学移民】485签证合同和建议信";
+		String content = build485ContractEmail(data.fullName, adviserName, confirmUrl, returnUrl);
 		try {
 			sendMailWithAttachments(data.email, title, content, contractPath.toFile(), advicePath.toFile());
 		} catch (ServiceException e) {
@@ -213,30 +235,28 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return resolveUploadDataRoot().resolve(relativePath).toAbsolutePath().normalize();
 	}
 
-	private String build485PreparationEmail(String customerName, String adviserName) {
+	private String build485ContractEmail(String customerName, String adviserName, String confirmUrl,
+			String returnUrl) {
 		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
 		String safeAdviserName = htmlEscape(firstNonEmpty(adviserName, "您的顾问"));
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
 		content.append("<p>感谢您对指南针留学移民的信任。我们已根据目前系统中登记的客户信息，为您生成了485签证服务合同和建议信，并随本邮件一并发送。</p>");
-		content.append("<p>请您下载并仔细核对两份附件中的姓名、联系方式、护照及学习经历等信息。确认无误后，请按文件要求填写、签署并回复给我们；如发现任何信息有误或需要补充，请先不要签署，并及时联系您的顾问 <strong>")
+		content.append("<p>请您下载并仔细核对两份附件中的姓名、联系方式、护照及学习经历等信息。如发现任何信息有误或需要补充，请先退回修改，并及时联系您的顾问 <strong>")
 				.append(safeAdviserName).append("</strong>。</p>");
-		content.append("<p>为了便于后续评估和递交，请您同步开始准备以下材料。每位申请人的情况和所适用的485分支可能不同，最终材料以顾问审核及澳洲内政部递交时的最新要求为准。</p>");
-		content.append("<hr/>");
-		content.append("<h3>485签证材料准备清单</h3>");
-		content.append("<ol>");
-		content.append("<li><strong>身份材料：</strong>当前护照个人信息页，以及包含签发日期、有效期的页面；如有身份证、曾用名或改名情况，请一并提供身份证及改名证明。</li>");
-		content.append("<li><strong>澳洲学习材料：</strong>学校完成信（Completion Letter）、最终成绩单、毕业证或学位证，以及课程和入学确认相关材料（如CoE）。</li>");
-		content.append("<li><strong>英语能力材料：</strong>符合当前485要求的有效英语考试成绩单或可核验的考试信息。</li>");
-		content.append("<li><strong>品行材料：</strong>澳大利亚联邦警察（AFP）无犯罪记录证明或申请凭证；如顾问要求，请补充其他国家或地区的无犯罪证明及相关品行表格。</li>");
-		content.append("<li><strong>健康保险材料：</strong>覆盖申请人及随行家庭成员的有效澳洲健康保险证明；如适用，也可提供Medicare相关证明供顾问审核。</li>");
-		content.append("<li><strong>职业评估材料（如适用）：</strong>如果申请Post-Vocational Education Work stream，请准备提名职业及相关职业评估申请或结果材料。</li>");
-		content.append("<li><strong>签证与出入境材料：</strong>当前及以往澳洲签证批准信、签证申请记录，以及曾发生拒签、取消签证或其他移民事项的说明和文件（如有）。</li>");
-		content.append("<li><strong>家庭成员材料（如适用）：</strong>配偶或子女的护照、出生证明、结婚证、同居关系证明及其他身份、健康、品行材料。</li>");
-		content.append("<li><strong>文件整理要求：</strong>请提供清晰的彩色扫描件；非英文文件同时提供原件和英文翻译件；多页文件尽量合并为一个完整文件。</li>");
-		content.append("<li><strong>其他补充材料：</strong>体检、Form 80、Form 1221或其他证明材料请在顾问确认适用或移民局要求后准备。</li>");
-		content.append("</ol>");
-		content.append("<p>请先按上述清单整理现有材料，并将缺失或仍在办理中的项目告知您的顾问，方便我们为您安排下一步工作。感谢您的配合！</p>");
+		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
+			content.append("<p>确认无误后，请点击下面的“确认签署”按钮；如需修改，请点击“退回修改”按钮：</p>")
+					.append("<p style=\"margin:24px 0;\">")
+					.append("<a href=\"").append(htmlEscape(confirmUrl))
+					.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
+							+ "background:#198754;color:#fff;text-decoration:none;border-radius:4px;\">确认签署</a>")
+					.append("<a href=\"").append(htmlEscape(returnUrl))
+					.append("\" style=\"display:inline-block;padding:12px 24px;"
+							+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回修改</a>")
+					.append("</p>");
+		} else {
+			content.append("<p>确认无误后，请按文件要求填写、签署并回复给我们。</p>");
+		}
 		content.append("<p>指南针留学移民</p>");
 		return content.toString();
 	}
@@ -255,7 +275,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private void generateContractPdf(CustomerDocumentData data, Path outputPath) throws Exception {
-		ClassPathResource resource = new ClassPathResource(CONTRACT_TEMPLATE);
+		String contractTemplate = resolveContractTemplate(data.contractTemplate);
+		ClassPathResource resource = new ClassPathResource(contractTemplate);
 		try (InputStream input = resource.getInputStream();
 				OutputStream output = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW)) {
 			PdfReader reader = new PdfReader(input);
@@ -293,9 +314,23 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		}
 	}
 
+	private String resolveContractTemplate(String requestedTemplate) throws IOException {
+		String templateName = requestedTemplate == null ? null : requestedTemplate.trim();
+		if (StringUtil.isEmpty(templateName))
+			templateName = CONTRACT_TEMPLATE;
+		if (!CONTRACT_TEMPLATE_NAMES.contains(templateName))
+			throw new IOException("不支持的合同模板: " + templateName);
+
+		ClassPathResource resource = new ClassPathResource(templateName);
+		if (!resource.exists())
+			throw new IOException("合同模板文件不存在: " + templateName);
+		return templateName;
+	}
+
 	/**
-	 * 将案件对应 Mara 的签名写入合同每页底部的 Agent 签名位置。
-	 * 签名字段本身是文本 AcroField，不能直接写入图片，因此先移除字段，再将签名图片覆盖到同一坐标。
+	 * 将案件对应 Mara 的签名写入合同模板中的签名位置。
+	 * 悉尼模板使用 agent_signature_p1~p4，其余旧模板使用 Signature21/22/23/25/38。
+	 * 签名字段本身不能直接写入图片，因此先移除字段，再将签名图片覆盖到同一坐标。
 	 */
 	private void addMaraSignatures(PdfStamper stamper, AcroFields form, int maraId) throws Exception {
 		if (maraId <= 0)
@@ -306,9 +341,22 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isEmpty(maraDto.getSignatureData()))
 			throw new IOException("Mara " + maraId + " 未配置签名文件路径(signature_data)");
 		byte[] signatureBytes = readSignatureFile(maraDto.getSignatureData(), maraId);
-		for (int page = 1; page <= 4; page++) {
-			addMaraSignature(stamper, form, "agent_signature_p" + page, signatureBytes);
-		}
+		String[] signatureFields = resolveSignatureFields(form);
+		for (String signatureField : signatureFields)
+			addMaraSignature(stamper, form, signatureField, signatureBytes);
+	}
+
+	private String[] resolveSignatureFields(AcroFields form) throws IOException {
+		if (hasFieldPosition(form, MODERN_SIGNATURE_FIELDS[0]))
+			return MODERN_SIGNATURE_FIELDS;
+		if (hasFieldPosition(form, LEGACY_SIGNATURE_FIELDS[0]))
+			return LEGACY_SIGNATURE_FIELDS;
+		throw new IOException("合同模板缺少 Mara 签名字段");
+	}
+
+	private boolean hasFieldPosition(AcroFields form, String fieldName) {
+		List<AcroFields.FieldPosition> positions = form.getFieldPositions(fieldName);
+		return positions != null && !positions.isEmpty();
 	}
 
 	private void addMaraSignature(PdfStamper stamper, AcroFields form, String fieldName, byte[] signatureBytes)
@@ -560,7 +608,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private CustomerDocumentData buildCustomerData(PortalDTO portalDto) {
 		JsonNode formData = parseFormData(portalDto.getJsonStr());
+		JsonNode contractData = parseFormData(portalDto.getContractStr());
 		CustomerDocumentData data = new CustomerDocumentData();
+		data.contractTemplate = findContractTemplateName(contractData);
 
 		data.firstName = findText(formData, "firstName", "firstname", "givenName", "givenNames");
 		data.lastName = findText(formData, "lastName", "lastname", "surname", "familyName");
@@ -607,6 +657,16 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isEmpty(data.studyAndLanguageSummary))
 			data.studyAndLanguageSummary = "Not recorded in the current customer information.";
 		return data;
+	}
+
+	private String findContractTemplateName(JsonNode contractData) {
+		if (contractData == null || !contractData.isObject())
+			return null;
+		JsonNode contract = contractData.get("contract");
+		if (contract == null || !contract.isObject())
+			return null;
+		return firstNonEmpty(nodeToText(contract.get("contractfileName")),
+				nodeToText(contract.get("contractFileName")));
 	}
 
 	/**
@@ -866,6 +926,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private static class CustomerDocumentData {
+		private String contractTemplate;
 		private String fullName;
 		private String firstName;
 		private String lastName;

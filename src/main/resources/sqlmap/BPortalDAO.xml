@@ -121,6 +121,22 @@
         WHERE id = #{id};
     </update>
 
+    <update id="clearGeneratedDocumentPaths">
+        UPDATE b_portal_list
+        SET gmt_modify = now(),
+            contract_file_path = NULL,
+            letter_file_path = NULL
+        WHERE id = #{id};
+    </update>
+
+    <update id="updatePortalStateIfCurrent">
+        UPDATE b_portal_list
+        SET gmt_modify = now(),
+            str_state = #{toState}
+        WHERE id = #{id}
+          AND str_state = #{fromState};
+    </update>
+
     <update id="updateAiConsultContent">
         UPDATE b_portal_list
         SET gmt_modify = now(),

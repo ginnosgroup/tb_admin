@@ -11,6 +11,11 @@ public interface PortalDAO {
 
 	int updatePortal(PortalDO portalDo);
 
+	int clearGeneratedDocumentPaths(@Param("id") int id);
+
+	int updatePortalStateIfCurrent(@Param("id") int id, @Param("fromState") String fromState,
+			@Param("toState") String toState);
+
 	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
 			@Param("keyword") String keyword, @Param("offset") int offset, @Param("rows") int rows,
 			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,

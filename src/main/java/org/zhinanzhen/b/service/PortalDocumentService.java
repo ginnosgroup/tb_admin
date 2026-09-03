@@ -13,4 +13,8 @@ public interface PortalDocumentService {
 	/** 将本次生成的合同和建议信作为附件发送给客户。 */
 	void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths)
 			throws ServiceException;
+
+	/** 将合同和建议信作为附件发送给客户，并附加确认签署/退回修改按钮。 */
+	void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths,
+			String confirmUrl, String returnUrl) throws ServiceException;
 }

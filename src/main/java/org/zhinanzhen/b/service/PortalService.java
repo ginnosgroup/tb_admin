@@ -11,6 +11,10 @@ public interface PortalService {
 
 	int updatePortal(PortalDTO portalDto) throws ServiceException;
 
+	int clearGeneratedDocumentPaths(int id) throws ServiceException;
+
+	int updatePortalStateIfCurrent(int id, String fromState, String toState) throws ServiceException;
+
 	List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize,
 			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
 			throws ServiceException;
@@ -26,5 +30,7 @@ public interface PortalService {
 	int updateAiConsultContent(int id, String aiConsultContent) throws ServiceException;
 
 	void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl) throws ServiceException;
+
+	void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
 
 }

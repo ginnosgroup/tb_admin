@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -20,6 +21,8 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -71,6 +74,14 @@ public class PortalController extends BaseController {
 
 	@Value("${yuju.ai.api-key:}")
 	private String yujuAiApiKey;
+
+	/** 客户合同确认链接签名密钥；生产环境建议通过 portal.customer-action-secret 单独配置。 */
+	@Value("${portal.customer-action-secret:}")
+	private String portalCustomerActionSecret;
+
+	/** 客户合同按钮调用的基础地址；本地测试使用 http://localhost:8081/admin_v2.1。 */
+	@Value("${portal.customer-action-base-url:}")
+	private String portalCustomerActionBaseUrl;
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static final String PASSPORT_JSON_PROMPT =
@@ -393,6 +404,22 @@ public class PortalController extends BaseController {
 		}
 	}
 
+	/** 删除案件已生成的合同和Letter文件；文件不存在时视为已清理。 */
+	private void deleteGeneratedPortalDocuments(PortalDTO portalDto) {
+		if (portalDto == null)
+			return;
+		deleteGeneratedPortalDocument("合同", portalDto.getContractFilePath());
+		deleteGeneratedPortalDocument("Letter", portalDto.getLetterFilePath());
+	}
+
+	private void deleteGeneratedPortalDocument(String documentName, String filePath) {
+		if (StringUtil.isEmpty(filePath))
+			return;
+		Response<String> deleteResp = super.deleteFile(normalizeAttachmentFilePath(filePath));
+		if (deleteResp != null && deleteResp.getCode() != 0)
+			LOG.warn("删除案件{}文件失败，filePath={}，原因：{}", documentName, filePath, deleteResp.getMessage());
+	}
+
 	/**
 	 * 规范化附件文件路径后再交给 deleteFile 拼接 /data 前缀：
 	 * 去掉 http(s)://域名 前缀、应用 context path（/admin_v2.1）前缀，
@@ -511,7 +538,7 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
 	public Response<PortalDTO> updatePortal(@RequestParam(value = "id") int id,
 			@RequestParam(value = "typeId", required = false) String typeId,
@@ -532,6 +559,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
 			@RequestParam(value = "strState", required = false) String strState,
+			@RequestParam(value = "result", required = false) String result,
 			@RequestParam(value = "remark", required = false) String remark,
 			@RequestParam(value = "filePath", required = false) String filePath, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -541,12 +569,21 @@ public class PortalController extends BaseController {
 			portalDto.setId(id);
 			// 记录操作前状态（查不到时忽略，不影响主流程）
 			String fromState = null;
+			PortalDTO oldPortalDto = null;
 			try {
-				PortalDTO oldPortalDto = portalService.getPortal(id, null, null, null, null, null);
+				oldPortalDto = portalService.getPortal(id, null, null, null, null, null);
 				if (oldPortalDto != null)
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
 			}
+			String normalizedResult = result == null ? null : result.trim().toLowerCase(Locale.ENGLISH);
+			if (StringUtil.isNotEmpty(normalizedResult)
+					&& !("confirmed".equals(normalizedResult) || "returned".equals(normalizedResult)))
+				return new Response<PortalDTO>(1, "result参数只能是confirmed或returned.", null);
+			if ("confirmed".equals(normalizedResult) && !"04".equals(strState))
+				return new Response<PortalDTO>(1, "result=confirmed时strState必须是04.", null);
+			if ("returned".equals(normalizedResult) && !"02C".equals(strState))
+				return new Response<PortalDTO>(1, "result=returned时strState必须是02C.", null);
 			String adviserRemark = remark == null ? null : remark.trim();
 			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
 				adviserRemark = "通知mara处理案件";
@@ -597,6 +634,17 @@ public class PortalController extends BaseController {
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
+			String customerConfirmUrl = null;
+			String customerReturnUrl = null;
+			if ("03A".equals(strState)) {
+				try {
+					customerConfirmUrl = buildPortalCustomerActionUrl(request, id, "confirm");
+					customerReturnUrl = buildPortalCustomerActionUrl(request, id, "return");
+				} catch (IllegalStateException actionUrlException) {
+					LOG.error("客户合同确认链接生成失败，portalId={}", id, actionUrlException);
+					return new Response<PortalDTO>(1, actionUrlException.getMessage(), null);
+				}
+			}
 			if (portalService.updatePortal(portalDto) > 0) {
 				// 同步附件：根据updatePortal传过来的路径，把已上传附件的portalId更新为当前案件ID
 				syncPortalAttachments(filePath, portalDto.getId());
@@ -629,11 +677,63 @@ public class PortalController extends BaseController {
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
+				// MARA退回顾问修改时，删除已经生成的合同和Letter文件，并清空数据库中的路径。
+				// 02A的重复提交也执行检查，避免旧文件和旧路径残留。
+				if ("02A".equals(strState)) {
+					try {
+						PortalDTO documentPortalDto = oldPortalDto;
+						if (documentPortalDto == null)
+							documentPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						deleteGeneratedPortalDocuments(documentPortalDto);
+						if (portalService.clearGeneratedDocumentPaths(id) <= 0)
+							LOG.warn("合同和Letter文件路径清空失败，portalId={}", id);
+					} catch (ServiceException documentCleanupException) {
+						// 状态更新和日志仍保留，清理失败写日志便于后续补偿处理。
+						LOG.error("案件状态转为02A后清理合同和Letter文件失败，portalId={}", id,
+								documentCleanupException);
+					}
+				}
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
+				String logAction = "update";
 				String logContent = "02A".equals(strState) ? adviserRemark : "更新案件信息";
-				savePortalLog(portalDto.getId(), "update", fromState, toState, logContent, request);
-				if ("02A".equals(strState)) {
+				if ("confirmed".equals(normalizedResult)) {
+					logAction = "customer_confirm_sign";
+					logContent = "客户点击确认签署按钮";
+				} else if ("returned".equals(normalizedResult)) {
+					logAction = "customer_return_modify";
+					logContent = "客户点击退回修改按钮";
+				} else if ("02B".equals(fromState) && "02A".equals(strState)) {
+					logAction = "mara_return_modify";
+					logContent = "mara返回修改";
+				}
+				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, request);
+				if ("03A".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, customerConfirmUrl,
+								customerReturnUrl);
+					} catch (ServiceException confirmationMailException) {
+						LOG.error("案件已更新为03A，但客户合同确认邮件发送失败，portalId={}", id,
+								confirmationMailException);
+						return new Response<PortalDTO>(confirmationMailException.getCode(),
+								"案件已更新为03A，但客户确认邮件发送失败：" + confirmationMailException.getMessage(), portalDto);
+					}
+				}
+				if ("confirmed".equals(normalizedResult) && "04".equals(strState) && "03A".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialPortalNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("客户已确认签署，但文案通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为04，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 普通进入02A时通知MARA；02B->02A是MARA退回顾问修改，不再重复通知MARA。
+				if ("02A".equals(strState) && !"02B".equals(fromState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendMaraPortalNotification(savedPortalDto, adviserRemark,
@@ -1155,6 +1255,171 @@ public class PortalController extends BaseController {
 	}
 
 	/**
+	 * 客户邮件中的合同操作链接。链接本身不依赖登录态，使用HMAC令牌校验，且只允许案件当前处于03A时变更状态。
+	 */
+	@RequestMapping(value = "/customer-action", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String handleCustomerAction(@RequestParam(value = "portalId") Integer portalId,
+			@RequestParam(value = "action") String action, @RequestParam(value = "token") String token,
+			HttpServletRequest request, HttpServletResponse response) {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+		response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+		try {
+			super.setGetHeader(response);
+			String normalizedAction = action == null ? "" : action.trim().toLowerCase(Locale.ENGLISH);
+			if (portalId == null || portalId <= 0
+					|| !("confirm".equals(normalizedAction) || "return".equals(normalizedAction))
+					|| !isValidPortalActionToken(portalId, normalizedAction, token)) {
+				return customerActionPage(false, "链接无效", "该合同操作链接无效或已失效，请联系您的顾问。");
+			}
+
+			PortalDTO portalDto = portalService.getPortal(portalId, null, null, null, null, null);
+			if (portalDto == null)
+				return customerActionPage(false, "案件不存在", "未找到对应案件，请联系您的顾问。");
+
+			boolean confirm = "confirm".equals(normalizedAction);
+			String targetState = confirm ? "04" : "02C";
+			String logAction = confirm ? "customer_confirm_sign" : "customer_return_modify";
+			String logContent = confirm ? "客户点击确认签署按钮" : "客户点击退回修改按钮";
+			String currentState = portalDto.getStrState();
+			if (!"03A".equals(currentState)) {
+				savePortalLog(portalId, logAction + "_ignored", currentState, currentState,
+						logContent + "，当前状态不允许重复处理", request);
+				if (targetState.equals(currentState))
+					return customerActionPage(true, "操作已完成", "该案件已经处理过，无需重复操作。");
+				return customerActionPage(false, "操作未执行", "该案件当前状态已发生变化，请联系您的顾问。");
+			}
+
+			int updated = portalService.updatePortalStateIfCurrent(portalId, "03A", targetState);
+			if (updated <= 0) {
+				PortalDTO latestPortalDto = portalService.getPortal(portalId, null, null, null, null, null);
+				String latestState = latestPortalDto == null ? null : latestPortalDto.getStrState();
+				savePortalLog(portalId, logAction + "_ignored", latestState, latestState,
+						logContent + "，案件状态已被其他请求处理", request);
+				return customerActionPage(false, "操作未执行", "该案件已经被处理或状态已发生变化，请联系您的顾问。");
+			}
+
+			savePortalLog(portalId, logAction, "03A", targetState, logContent, request);
+			if (confirm) {
+				try {
+					PortalDTO confirmedPortalDto = portalService.getPortal(portalId, null, null, null, null, null);
+					portalService.sendOfficialPortalNotification(confirmedPortalDto,
+							buildPortalCaseUrl(request, portalId));
+				} catch (ServiceException notificationException) {
+					LOG.error("客户已确认签署，但文案通知邮件发送失败，portalId={}", portalId,
+							notificationException);
+					return customerActionPage(true, "确认签署成功",
+							"案件状态已更新为04（客户确认签署），但文案通知邮件发送失败，请联系工作人员。");
+				}
+				return customerActionPage(true, "确认签署成功", "案件状态已更新为04（客户确认签署），文案已收到开始准备申请的通知。");
+			}
+			return customerActionPage(true, "已退回修改", "案件状态已退回02C，您的顾问会根据反馈修改合同和Letter文件。");
+		} catch (ServiceException e) {
+			LOG.error("处理客户合同操作链接失败，portalId={}", portalId, e);
+			return customerActionPage(false, "处理失败", "系统暂时无法处理该操作，请稍后重试或联系您的顾问。");
+		} catch (Exception e) {
+			LOG.error("处理客户合同操作链接发生异常，portalId={}", portalId, e);
+			return customerActionPage(false, "处理失败", "系统暂时无法处理该操作，请稍后重试或联系您的顾问。");
+		}
+	}
+
+	private String customerActionPage(boolean success, String title, String message) {
+		String color = success ? "#198754" : "#dc3545";
+		return "<!doctype html><html lang=\"zh-CN\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" "
+				+ "content=\"width=device-width,initial-scale=1\"><title>" + escapeHtml(title)
+				+ "</title></head><body style=\"margin:0;background:#f5f7fa;font-family:Arial,'Microsoft YaHei',sans-serif;\">"
+				+ "<div style=\"max-width:560px;margin:12vh auto;padding:36px 28px;background:#fff;border-radius:8px;"
+				+ "box-shadow:0 2px 12px rgba(0,0,0,.08);text-align:center;\"><h2 style=\"color:" + color
+				+ ";margin:0 0 20px;\">" + escapeHtml(title) + "</h2><p style=\"color:#555;line-height:1.8;\">"
+				+ escapeHtml(message) + "</p></div></body></html>";
+	}
+
+	private String buildPortalCustomerActionUrl(HttpServletRequest request, int portalId, String action) {
+		String normalizedAction = action == null ? "" : action.trim().toLowerCase(Locale.ENGLISH);
+		boolean confirmed = "confirm".equals(normalizedAction);
+		String targetState = confirmed ? "04" : "02C";
+		String result = confirmed ? "confirmed" : "returned";
+		String baseUrl = StringUtil.isNotEmpty(portalCustomerActionBaseUrl)
+				? portalCustomerActionBaseUrl.trim().replaceAll("/+$", "")
+				: buildPortalPublicBaseUrl(request);
+		// 本地测试时固定调用 http://localhost:8081/admin_v2.1/portal/update。
+		return baseUrl + "/portal/update?id=" + portalId + "&strState=" + targetState + "&result=" + result;
+	}
+
+	private boolean isValidPortalActionToken(int portalId, String action, String token) {
+		if (StringUtil.isEmpty(token))
+			return false;
+		try {
+			byte[] expected = signPortalAction(portalId, action).getBytes(StandardCharsets.US_ASCII);
+			byte[] actual = token.trim().getBytes(StandardCharsets.US_ASCII);
+			return MessageDigest.isEqual(expected, actual);
+		} catch (Exception e) {
+			LOG.warn("校验客户合同操作链接失败，portalId={}", portalId, e);
+			return false;
+		}
+	}
+
+	private String signPortalAction(int portalId, String action) {
+		String secret = portalActionSecret();
+		try {
+			Mac mac = Mac.getInstance("HmacSHA256");
+			mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+			byte[] digest = mac.doFinal((portalId + ":" + action).getBytes(StandardCharsets.UTF_8));
+			StringBuilder token = new StringBuilder(digest.length * 2);
+			for (byte item : digest) {
+				int value = item & 0xff;
+				if (value < 16)
+					token.append('0');
+				token.append(Integer.toHexString(value));
+			}
+			return token.toString();
+		} catch (Exception e) {
+			throw new IllegalStateException("客户确认链接签名生成失败.", e);
+		}
+	}
+
+	private String portalActionSecret() {
+		if (StringUtil.isNotEmpty(portalCustomerActionSecret))
+			return portalCustomerActionSecret.trim();
+		// 兼容现有部署：未单独配置时暂使用已有的语聚AI密钥作为签名密钥；生产环境建议单独配置。
+		if (StringUtil.isNotEmpty(yujuAiApiKey))
+			return yujuAiApiKey.trim();
+		throw new IllegalStateException("未配置客户确认链接密钥，请设置 portal.customer-action-secret.");
+	}
+
+	private String buildPortalPublicBaseUrl(HttpServletRequest request) {
+		String scheme = firstHeaderValue(request.getHeader("X-Forwarded-Proto"));
+		if (StringUtil.isEmpty(scheme))
+			scheme = request.getScheme();
+		String forwardedHost = firstHeaderValue(request.getHeader("X-Forwarded-Host"));
+		String host = StringUtil.isNotEmpty(forwardedHost) ? forwardedHost : request.getServerName();
+		if (StringUtil.isEmpty(forwardedHost)) {
+			int port = request.getServerPort();
+			boolean defaultPort = ("http".equalsIgnoreCase(scheme) && port == 80)
+					|| ("https".equalsIgnoreCase(scheme) && port == 443);
+			if (!defaultPort)
+				host += ":" + port;
+		}
+		String contextPath = request.getContextPath();
+		return scheme + "://" + host + (StringUtil.isEmpty(contextPath) ? "" : contextPath);
+	}
+
+	private String firstHeaderValue(String value) {
+		if (StringUtil.isEmpty(value))
+			return null;
+		int commaIndex = value.indexOf(',');
+		return (commaIndex >= 0 ? value.substring(0, commaIndex) : value).trim();
+	}
+
+	private String escapeHtml(String value) {
+		if (value == null)
+			return "";
+		return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+				.replace("\"", "&quot;").replace("'", "&#39;");
+	}
+
+	/**
 	 * 保存案件操作日志（日志记录失败不影响主流程）
 	 */
 	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
@@ -1167,7 +1432,7 @@ public class PortalController extends BaseController {
 			portalLogDto.setFromState(fromState);
 			portalLogDto.setToState(toState);
 			portalLogDto.setContent(content);
-			portalLogDto.setIp(request.getRemoteAddr());
+			portalLogDto.setIp(getClientIp(request));
 			portalLogDto.setUserAgent(request.getHeader("User-Agent"));
 			if (adminUserLoginInfo != null) {
 				portalLogDto.setOperatorId(adminUserLoginInfo.getId());
@@ -1184,15 +1449,16 @@ public class PortalController extends BaseController {
 	}
 
 	private String buildPortalCaseUrl(HttpServletRequest request, int portalId) {
-		String scheme = request.getScheme();
-		int port = request.getServerPort();
-		boolean defaultPort = ("http".equalsIgnoreCase(scheme) && port == 80)
-				|| ("https".equalsIgnoreCase(scheme) && port == 443);
-		StringBuilder url = new StringBuilder();
-		url.append(scheme).append("://").append(request.getServerName());
-		if (!defaultPort)
-			url.append(':').append(port);
-		return url.append("/webroot_new/portal/list/ALL?id=").append(portalId).toString();
+		return buildPortalPublicBaseUrl(request) + "/webroot_new/portal/list/ALL?id=" + portalId;
+	}
+
+	private String getClientIp(HttpServletRequest request) {
+		String forwarded = firstHeaderValue(request.getHeader("X-Forwarded-For"));
+		if (StringUtil.isNotEmpty(forwarded) && !"unknown".equalsIgnoreCase(forwarded))
+			return forwarded;
+		String realIp = firstHeaderValue(request.getHeader("X-Real-IP"));
+		return StringUtil.isNotEmpty(realIp) && !"unknown".equalsIgnoreCase(realIp) ? realIp
+				: request.getRemoteAddr();
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
