@@ -177,6 +177,7 @@ public class PortalController extends BaseController {
 	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
 			@RequestParam(value = "aiText", required = false) String aiText,
 			@RequestParam(value = "fileType", required = false) String fileType,
+			@RequestParam(value = "maraId", required = false) String maraId,
 			HttpServletRequest request, HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		boolean signatureUpload = aiText == null && fileType != null
@@ -184,11 +185,9 @@ public class PortalController extends BaseController {
 		MaraDTO maraDto = null;
 		String oldSignatureData = null;
 		if (signatureUpload) {
-			if (getAdminUserLoginInfo(request) == null)
-				return new Response<Map<String, Object>>(1, "用户未登录，无法上传MARA签名文件.", null);
-			Integer targetMaraId = getMaraId(request);
+			Integer targetMaraId = StringUtil.isNotEmpty(maraId) ? StringUtil.toInt(maraId.trim()) : null;
 			if (targetMaraId == null || targetMaraId <= 0)
-				return new Response<Map<String, Object>>(1, "登录用户不是MARA，无法上传签名文件.", null);
+				return new Response<Map<String, Object>>(1, "maraId不能为空且必须是有效数字，无法上传签名文件.", null);
 			try {
 				maraDto = maraService.getMaraById(targetMaraId);
 			} catch (ServiceException e) {
