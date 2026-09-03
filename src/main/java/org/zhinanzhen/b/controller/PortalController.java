@@ -85,6 +85,10 @@ public class PortalController extends BaseController {
 	@Value("${portal.customer-action-base-url:}")
 	private String portalCustomerActionBaseUrl;
 
+	/** 案件通知邮件（发给MARA/文案/顾问）中案件URL的基础地址；生产环境配置为 http://47.236.17.170。 */
+	@Value("${portal.public-base-url:}")
+	private String portalPublicBaseUrl;
+
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static final String PASSPORT_JSON_PROMPT =
 			"请识别并解析这份护照，只返回一个合法的JSON对象。\n"
@@ -1551,6 +1555,10 @@ public class PortalController extends BaseController {
 	}
 
 	private String buildPortalPublicBaseUrl(HttpServletRequest request) {
+		// 明确配置了案件通知邮件的基础地址时，统一用它，避免邮件里出现 127.0.0.1/localhost 等本机地址。
+		if (StringUtil.isNotEmpty(portalPublicBaseUrl)) {
+			return portalPublicBaseUrl.trim().replaceAll("/+$", "");
+		}
 		String scheme = firstHeaderValue(request.getHeader("X-Forwarded-Proto"));
 		if (StringUtil.isEmpty(scheme))
 			scheme = request.getScheme();
