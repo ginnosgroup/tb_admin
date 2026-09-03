@@ -17,6 +17,7 @@ import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.PortalDO;
 import org.zhinanzhen.b.dao.pojo.PortalTypeDO;
+import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
@@ -45,6 +46,9 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 
 	@Resource
 	private MaraDAO maraDao;
+
+	@Resource
+	private PortalDocumentService portalDocumentService;
 
 	@Override
 	public int addPortal(PortalDTO portalDto) throws ServiceException {
@@ -243,18 +247,19 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			throws ServiceException {
 		sendMaraPortalNotification(portalDto, remark, caseUrl, "复杂或紧急案件通知 - ",
 				"以下案件已由顾问提交备注，请及时登录佣金系统查看并处理。", "顾问备注", "通知mara处理案件",
-				"顾问通知日期");
+				"顾问通知日期", false);
 	}
 
 	@Override
 	public void sendMaraPortalReviewNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
 		sendMaraPortalNotification(portalDto, null, caseUrl, "案件审核通知 - ",
-				"以下案件已提交给MARA进行案件审核，请及时登录佣金系统查看并审核。", "审核通知", "需要进行案件审核",
-				"审核通知日期");
+				"以下案件已由顾问提交案件审核，合同和Letter文件已随邮件附上，请及时登录佣金系统查看案件资料并完成审核。",
+				"审核事项", "请审核案件资料、合同和Letter文件", "审核通知日期", true);
 	}
 
 	private void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl, String titlePrefix,
-			String introduction, String remarkLabel, String defaultRemark, String dateLabel) throws ServiceException {
+			String introduction, String remarkLabel, String defaultRemark, String dateLabel,
+			boolean includeGeneratedDocuments) throws ServiceException {
 		try {
 			if (portalDto == null || portalDto.getId() <= 0) {
 				throw notificationException("案件信息无效，无法发送MARA通知邮件.",
@@ -298,7 +303,12 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapedUrl).append("\">")
 					.append(escapedUrl).append("</a></td></tr></table>")
 					.append("<p>谢谢。</p>");
-			sendMail(maraDo.getEmail(), title, content.toString());
+			if (includeGeneratedDocuments) {
+				portalDocumentService.sendDocumentsToEmail(maraDo.getEmail(), title, content.toString(),
+						portalDto.getContractFilePath(), portalDto.getLetterFilePath());
+			} else {
+				sendMail(maraDo.getEmail(), title, content.toString());
+			}
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {
