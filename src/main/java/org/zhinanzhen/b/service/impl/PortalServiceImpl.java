@@ -394,7 +394,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 			StringBuilder content = new StringBuilder();
 			content.append("<p>").append(escapeHtml(adviserDo.getName())).append("，您好：</p>")
-					.append("<p>您负责的以下案件已被驳回退回，案件状态更新为02D，请及时登录系统查看案件资料并跟进处理。</p>")
+					.append("<p>您负责的以下案件已被驳回退回，请及时登录系统查看案件资料并跟进处理。</p>")
 					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
 							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
