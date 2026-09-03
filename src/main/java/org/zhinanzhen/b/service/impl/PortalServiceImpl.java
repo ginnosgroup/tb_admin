@@ -404,8 +404,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
 							+ "<strong>案件URL地址</strong></td>")
 					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
-					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
-					.append("<p>请及时登录系统查看案件资料并处理。</p>");
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>");
 			sendMail(adviserDo.getEmail(), title, content.toString());
 		} catch (ServiceException e) {
 			throw e;
