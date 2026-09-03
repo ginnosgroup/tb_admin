@@ -18,6 +18,9 @@ public class PortalDO implements Serializable {
 
 	private int typeId;
 
+	/** 案件类型标识。 */
+	private String caseType;
+
 	private String name;
 
 	private String gender;

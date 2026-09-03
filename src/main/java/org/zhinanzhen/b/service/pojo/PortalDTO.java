@@ -18,6 +18,9 @@ public class PortalDTO {
 
 	private int typeId;
 
+	/** 案件类型标识。 */
+	private String caseType;
+
 	private String portalTypeName;
 
 	/** 关联的案件类型对象（按 typeId 查询组装）。 */

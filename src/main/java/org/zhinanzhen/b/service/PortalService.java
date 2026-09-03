@@ -15,12 +15,13 @@ public interface PortalService {
 
 	int updatePortalStateIfCurrent(int id, String fromState, String toState) throws ServiceException;
 
-	List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize,
+	List<PortalDTO> listPortal(Integer typeId, String caseType, String strState, String keyword, int pageNum, int pageSize,
 			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
 			throws ServiceException;
 
-	int countPortal(Integer typeId, String strState, String keyword, Integer adviserId, Integer adviserRegionId,
-			Integer officialId, Integer officialRegionId, Integer maraId) throws ServiceException;
+	int countPortal(Integer typeId, String caseType, String strState, String keyword, Integer adviserId,
+			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
+			throws ServiceException;
 
 	PortalDTO getPortal(Integer id, Integer adviserId, Integer adviserRegionId, Integer officialId,
 			Integer officialRegionId, Integer maraId) throws ServiceException;

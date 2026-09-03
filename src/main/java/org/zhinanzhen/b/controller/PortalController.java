@@ -491,6 +491,7 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addPortal(@RequestParam(value = "typeId") String typeId,
+			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "name") String name,
 			@RequestParam(value = "gender", required = false) String gender,
 			@RequestParam(value = "birthday", required = false) String birthday,
@@ -522,6 +523,7 @@ public class PortalController extends BaseController {
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建案件.", 0);
 			PortalDTO portalDto = new PortalDTO();
 			portalDto.setTypeId(StringUtil.toInt(typeId));
+			portalDto.setCaseType(caseType);
 			portalDto.setName(name);
 			if (StringUtil.isNotEmpty(gender))
 				portalDto.setGender(gender);
@@ -582,6 +584,7 @@ public class PortalController extends BaseController {
 	@ResponseBody
 	public Response<PortalDTO> updatePortal(@RequestParam(value = "id") int id,
 			@RequestParam(value = "typeId", required = false) String typeId,
+			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "gender", required = false) String gender,
 			@RequestParam(value = "birthday", required = false) String birthday,
@@ -629,6 +632,9 @@ public class PortalController extends BaseController {
 				adviserRemark = "通知mara处理案件";
 			if (StringUtil.isNotEmpty(typeId))
 				portalDto.setTypeId(StringUtil.toInt(typeId));
+			// 未传caseType时保持原值；传空字符串时允许清空案件类型标识。
+			if (caseType != null)
+				portalDto.setCaseType(caseType);
 			if (StringUtil.isNotEmpty(name))
 				portalDto.setName(name);
 			if (StringUtil.isNotEmpty(gender))
@@ -1235,6 +1241,7 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<PortalDTO>> listPortal(@RequestParam(value = "typeId", required = false) Integer typeId,
+			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
@@ -1246,10 +1253,10 @@ public class PortalController extends BaseController {
 				strState = null;
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
 			PortalAccessFilter filter = buildAccessFilter(request);
-			int total = portalService.countPortal(typeId, strState, keyword, filter.adviserId, filter.adviserRegionId,
-					filter.officialId, filter.officialRegionId, filter.maraId);
-			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize,
-					filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
+			int total = portalService.countPortal(typeId, caseType, strState, keyword, filter.adviserId,
+					filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId);
+			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, caseType, strState, keyword, pageNum,
+					pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
 					filter.maraId);
 			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
 			if (portalDtoList != null) {

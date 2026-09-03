@@ -129,14 +129,14 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
-	public List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize,
-			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
-			throws ServiceException {
+	public List<PortalDTO> listPortal(Integer typeId, String caseType, String strState, String keyword, int pageNum,
+			int pageSize, Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId,
+			Integer maraId) throws ServiceException {
 		List<PortalDTO> portalDtoList = new ArrayList<PortalDTO>();
 		List<PortalDO> portalDoList = new ArrayList<PortalDO>();
 		try {
-			portalDoList = portalDao.listPortal(typeId, strState, keyword, pageNum * pageSize, pageSize, adviserId,
-					adviserRegionId, officialId, officialRegionId, maraId);
+			portalDoList = portalDao.listPortal(typeId, caseType, strState, keyword, pageNum * pageSize, pageSize,
+					adviserId, adviserRegionId, officialId, officialRegionId, maraId);
 			if (portalDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -153,11 +153,11 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
-	public int countPortal(Integer typeId, String strState, String keyword, Integer adviserId,
+	public int countPortal(Integer typeId, String caseType, String strState, String keyword, Integer adviserId,
 			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
 			throws ServiceException {
 		try {
-			return portalDao.countPortal(typeId, strState, keyword, adviserId, adviserRegionId, officialId,
+			return portalDao.countPortal(typeId, caseType, strState, keyword, adviserId, adviserRegionId, officialId,
 					officialRegionId, maraId);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
