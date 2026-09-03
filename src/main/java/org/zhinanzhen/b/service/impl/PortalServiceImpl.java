@@ -389,17 +389,17 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			}
 
 			String customerName = valueOrEmpty(portalDto.getName());
-			String title = "案件驳回退回通知 - " + customerName
+			String title = "案件驳回通知 - " + customerName
 					+ "（案件编号：" + portalDto.getId() + "）";
 			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 			StringBuilder content = new StringBuilder();
 			content.append("<p>").append(escapeHtml(adviserDo.getName())).append("，您好：</p>")
-					.append("<p>您负责的以下案件已被驳回退回，请及时登录系统查看案件资料并跟进处理。</p>")
+					.append("<p>您负责的以下案件已被mara驳回，请及时登录系统查看案件资料并跟进处理。</p>")
 					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
 							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
 					.append(mailRow("客户姓名", customerName))
-					.append(mailRow("驳回退回时间", noticeDate))
+					.append(mailRow("驳回时间", noticeDate))
 					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
 							+ "<strong>案件URL地址</strong></td>")
