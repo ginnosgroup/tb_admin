@@ -31,6 +31,8 @@ public interface PortalService {
 
 	void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl) throws ServiceException;
 
+	void sendMaraPortalReviewNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
+
 	void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
 
 }

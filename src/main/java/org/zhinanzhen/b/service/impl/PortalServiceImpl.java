@@ -241,12 +241,26 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	@Override
 	public void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl)
 			throws ServiceException {
+		sendMaraPortalNotification(portalDto, remark, caseUrl, "复杂或紧急案件通知 - ",
+				"以下案件已由顾问提交备注，请及时登录佣金系统查看并处理。", "顾问备注", "通知mara处理案件",
+				"顾问通知日期");
+	}
+
+	@Override
+	public void sendMaraPortalReviewNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
+		sendMaraPortalNotification(portalDto, null, caseUrl, "案件审核通知 - ",
+				"以下案件已提交给MARA进行案件审核，请及时登录佣金系统查看并审核。", "审核通知", "需要进行案件审核",
+				"审核通知日期");
+	}
+
+	private void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl, String titlePrefix,
+			String introduction, String remarkLabel, String defaultRemark, String dateLabel) throws ServiceException {
 		try {
 			if (portalDto == null || portalDto.getId() <= 0) {
 				throw notificationException("案件信息无效，无法发送MARA通知邮件.",
 						ErrorCodeEnum.PARAMETER_ERROR.code());
 			}
-			String notificationRemark = StringUtil.isEmpty(remark) ? "通知mara处理案件" : remark;
+			String notificationRemark = StringUtil.isEmpty(remark) ? defaultRemark : remark;
 			if (portalDto.getMaraId() <= 0) {
 				throw notificationException("案件尚未分配MARA，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
 			}
@@ -265,19 +279,19 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			}
 
 			String customerName = valueOrEmpty(portalDto.getName());
-			String title = "复杂或紧急案件通知 - " + customerName + "（案件编号：" + portalDto.getId() + "）";
+			String title = titlePrefix + customerName + "（案件编号：" + portalDto.getId() + "）";
 			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 			String escapedUrl = escapeHtml(caseUrl);
 			StringBuilder content = new StringBuilder();
 			content.append("<p>").append(escapeHtml(maraDo.getName())).append("，您好：</p>")
-					.append("<p>以下案件已由顾问提交备注，请及时登录佣金系统查看并处理。</p>")
+					.append("<p>").append(escapeHtml(introduction)).append("</p>")
 					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
 							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
 					.append(mailRow("客户姓名", customerName))
 					.append(mailRow("顾问名称", adviserName))
-					.append(mailRow("顾问备注", notificationRemark))
-					.append(mailRow("顾问通知日期", noticeDate))
+					.append(mailRow(remarkLabel, notificationRemark))
+					.append(mailRow(dateLabel, noticeDate))
 					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
 							+ "<strong>案件URL地址</strong></td>")

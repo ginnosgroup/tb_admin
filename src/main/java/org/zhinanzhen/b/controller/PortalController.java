@@ -384,7 +384,7 @@ public class PortalController extends BaseController {
 		if (StringUtil.isEmpty(contractStr))
 			return null;
 		try {
-			JsonNode root = readPortalFormData(contractStr);
+			JsonNode root = readContractFormData(contractStr);
 			if (root == null || !root.isObject())
 				return null;
 			JsonNode basicInfo = root.get("basicInfo");
@@ -401,6 +401,46 @@ public class PortalController extends BaseController {
 		} catch (Exception e) {
 			LOG.warn("解析合同表单中的officialId失败", e);
 			return null;
+		}
+	}
+
+	/**
+	 * 从合同表单JSON的 basicInfo.maraId 读取MARA ID。
+	 * 仅用于案件从02直接进入02B时确定本次合同对应的MARA。
+	 */
+	private Integer extractContractMaraId(String contractStr) {
+		if (StringUtil.isEmpty(contractStr))
+			return null;
+		try {
+			JsonNode root = readContractFormData(contractStr);
+			if (root == null || !root.isObject())
+				return null;
+			JsonNode basicInfo = root.get("basicInfo");
+			if (basicInfo == null || !basicInfo.isObject())
+				return null;
+			JsonNode maraIdNode = basicInfo.get("maraId");
+			if (maraIdNode == null || maraIdNode.isNull())
+				return null;
+			String maraIdValue = maraIdNode.asText();
+			if (StringUtil.isEmpty(maraIdValue))
+				return null;
+			int parsedMaraId = Integer.parseInt(maraIdValue.trim());
+			return parsedMaraId > 0 ? parsedMaraId : null;
+		} catch (Exception e) {
+			LOG.warn("解析合同表单中的maraId失败", e);
+			return null;
+		}
+	}
+
+	/** 解析合同表单JSON，并兼容前端提交的转义JSON字符串。 */
+	private JsonNode readContractFormData(String contractStr) throws IOException {
+		try {
+			return readPortalFormData(contractStr);
+		} catch (IOException firstException) {
+			String unescapedJson = contractStr.replace("\\\"", "\"");
+			if (!contractStr.equals(unescapedJson))
+				return readPortalFormData(unescapedJson);
+			throw firstException;
 		}
 	}
 
@@ -630,6 +670,15 @@ public class PortalController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(maraId))
 				portalDto.setMaraId(StringUtil.toInt(maraId));
+			// 案件从02直接进入02B时，以合同表单中的MARA为准，更新案件的mara_id。
+			if ("02".equals(fromState) && "02B".equals(strState)) {
+				Integer contractMaraId = extractContractMaraId(contractStr);
+				if (contractMaraId == null) {
+					return new Response<PortalDTO>(1,
+							"案件从02转为02B时，contractStr.basicInfo.maraId不能为空且必须是有效数字.", null);
+				}
+				portalDto.setMaraId(contractMaraId);
+			}
 			if (StringUtil.isNotEmpty(serviceOrderId))
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
@@ -742,6 +791,20 @@ public class PortalController extends BaseController {
 						LOG.error("案件已更新，但MARA通知邮件发送失败，portalId={}", id, notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新并记录备注，但MARA通知邮件发送失败：" + notificationException.getMessage(),
+								portalDto);
+					}
+				}
+				// 案件进入03时通知对应MARA进行案件审核；重复提交03不重复发送通知。
+				if ("03".equals(strState) && !"03".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendMaraPortalReviewNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为03，但MARA审核通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为03，但MARA审核通知邮件发送失败：" + notificationException.getMessage(),
 								portalDto);
 					}
 				}
