@@ -50,6 +50,8 @@ import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.ErrorCodeEnum;
@@ -166,6 +168,9 @@ public class PortalController extends BaseController {
 
 	@Resource
 	MaraService maraService;
+
+	@Resource
+	AdviserDAO adviserDao;
 
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
@@ -582,7 +587,7 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
-	public Response<PortalDTO> updatePortal(@RequestParam(value = "id") int id,
+	public Object updatePortal(@RequestParam(value = "id") int id,
 			@RequestParam(value = "typeId", required = false) String typeId,
 			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "name", required = false) String name,
@@ -606,8 +611,12 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "remark", required = false) String remark,
 			@RequestParam(value = "filePath", required = false) String filePath, HttpServletRequest request,
 			HttpServletResponse response) {
+		String normalizedResult = result == null ? null : result.trim().toLowerCase(Locale.ENGLISH);
+		boolean customerResultRequest = "confirmed".equals(normalizedResult) || "returned".equals(normalizedResult);
 		try {
 			super.setPostHeader(response);
+			if (customerResultRequest)
+				prepareCustomerActionResponse(response);
 			PortalDTO portalDto = new PortalDTO();
 			portalDto.setId(id);
 			// 记录操作前状态（查不到时忽略，不影响主流程）
@@ -619,14 +628,15 @@ public class PortalController extends BaseController {
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
 			}
-			String normalizedResult = result == null ? null : result.trim().toLowerCase(Locale.ENGLISH);
 			if (StringUtil.isNotEmpty(normalizedResult)
 					&& !("confirmed".equals(normalizedResult) || "returned".equals(normalizedResult)))
 				return new Response<PortalDTO>(1, "result参数只能是confirmed或returned.", null);
 			if ("confirmed".equals(normalizedResult) && !"04".equals(strState))
-				return new Response<PortalDTO>(1, "result=confirmed时strState必须是04.", null);
+				return customerResultPage(null, normalizedResult, false,
+						"确认签署链接参数不完整，请联系您的顾问。", response);
 			if ("returned".equals(normalizedResult) && !"02C".equals(strState))
-				return new Response<PortalDTO>(1, "result=returned时strState必须是02C.", null);
+				return customerResultPage(null, normalizedResult, false,
+						"退回修改链接参数不完整，请联系您的顾问。", response);
 			String adviserRemark = remark == null ? null : remark.trim();
 			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
 				adviserRemark = "通知mara处理案件";
@@ -729,6 +739,9 @@ public class PortalController extends BaseController {
 							}
 						}
                     LOG.error("案件状态转为02B后生成合同和建议信失败，portalId={}", id, documentException);
+						if (customerResultRequest)
+							return customerResultPage(null, normalizedResult, false,
+									"合同和建议信生成失败，请联系您的顾问。", response);
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
@@ -783,6 +796,10 @@ public class PortalController extends BaseController {
 					} catch (ServiceException notificationException) {
 						LOG.error("客户已确认签署，但文案通知邮件发送失败，portalId={}", id,
 								notificationException);
+						if (customerResultRequest)
+							return customerResultPage(portalDto, normalizedResult, false,
+									"您已完成确认，案件状态已更新为04，但系统暂时未能发送文案通知，请联系工作人员。",
+									response);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为04，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
@@ -818,12 +835,35 @@ public class PortalController extends BaseController {
 				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
 				if ("02".equals(strState))
 					portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
+				if (customerResultRequest) {
+					PortalDTO resultPortalDto = portalService.getPortal(id, null, null, null, null, null);
+					String message = "confirmed".equals(normalizedResult)
+							? "您已确认签署合同，感谢您选择指南针。请将签署完成的合同文件电邮给您的顾问，"
+									+ "顾问邮箱地址是：" + adviserEmail(resultPortalDto)
+									+ "。系统已自动通知文案开始准备申请，感谢您的配合。"
+							: "我们已收到您的退回修改请求，感谢您的反馈。案件已退回给顾问进一步检查和修改，"
+									+ "顾问邮箱地址是：" + adviserEmail(resultPortalDto)
+									+ "。顾问会尽快与您联系，感谢您的理解与耐心。";
+					return customerResultPage(resultPortalDto, normalizedResult, true, message, response);
+				}
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
+				if (customerResultRequest)
+					return customerResultPage(portalDto, normalizedResult, false,
+							"案件状态暂未更新成功，请稍后重试或联系您的顾问。", response);
 				return new Response<PortalDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
+			if (customerResultRequest)
+				return customerResultPage(null, normalizedResult, false,
+						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
 			return new Response<PortalDTO>(e.getCode(), e.getMessage(), null);
+		} catch (Exception e) {
+			LOG.error("更新案件发生异常，portalId={}", id, e);
+			if (customerResultRequest)
+				return customerResultPage(null, normalizedResult, false,
+						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
+			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
 	}
 
@@ -1392,6 +1432,42 @@ public class PortalController extends BaseController {
 			LOG.error("处理客户合同操作链接发生异常，portalId={}", portalId, e);
 			return customerActionPage(false, "处理失败", "系统暂时无法处理该操作，请稍后重试或联系您的顾问。");
 		}
+	}
+
+	private void prepareCustomerActionResponse(HttpServletResponse response) {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+		response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+	}
+
+	/**
+	 * 从案件关联的顾问中读取邮箱，供客户操作完成页面显示。
+	 */
+	private String adviserEmail(PortalDTO portalDto) {
+		if (portalDto == null || portalDto.getAdviserId() <= 0)
+			return "暂未配置，请联系工作人员获取";
+		try {
+			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+			if (adviserDo != null && StringUtil.isNotEmpty(adviserDo.getEmail()))
+				return adviserDo.getEmail().trim();
+		} catch (Exception e) {
+			LOG.warn("查询案件顾问邮箱失败，adviserId={}", portalDto.getAdviserId(), e);
+		}
+		return "暂未配置，请联系工作人员获取";
+	}
+
+	private String customerResultPage(PortalDTO portalDto, String result, boolean success, String message,
+			HttpServletResponse response) {
+		prepareCustomerActionResponse(response);
+		String title;
+		if (!success) {
+			title = "操作未完成";
+		} else if ("confirmed".equals(result)) {
+			title = "确认签署成功";
+		} else {
+			title = "已退回修改";
+		}
+		return customerActionPage(success, title, message);
 	}
 
 	private String customerActionPage(boolean success, String title, String message) {
