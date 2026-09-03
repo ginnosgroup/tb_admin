@@ -36,4 +36,6 @@ public interface PortalService {
 
 	void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
 
+	void sendAdviserPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
+
 }

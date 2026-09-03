@@ -371,6 +371,51 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 		}
 	}
 
+	@Override
+	public void sendAdviserPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送顾问通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getAdviserId() <= 0) {
+				throw notificationException("案件尚未分配顾问，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+			if (adviserDo == null || StringUtil.isEmpty(adviserDo.getEmail())) {
+				throw notificationException("对应顾问不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String title = "案件驳回退回通知 - " + customerName
+					+ "（案件编号：" + portalDto.getId() + "）";
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(adviserDo.getName())).append("，您好：</p>")
+					.append("<p>您负责的以下案件已被驳回退回，案件状态更新为02D，请及时登录系统查看案件资料并跟进处理。</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("驳回退回时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
+							+ "<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
+					.append("<p>请及时登录系统查看案件资料并处理。</p>");
+			sendMail(adviserDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException("发送顾问通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
 	private String mailRow(String label, String value) {
 		return "<tr><td width=\"120\" nowrap=\"nowrap\" "
 				+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>"

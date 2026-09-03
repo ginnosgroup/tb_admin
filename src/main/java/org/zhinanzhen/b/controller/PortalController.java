@@ -773,6 +773,9 @@ public class PortalController extends BaseController {
 				} else if ("02B".equals(fromState) && "02A".equals(strState)) {
 					logAction = "mara_return_modify";
 					logContent = "mara返回修改";
+				} else if (("03".equals(fromState) || "03A".equals(fromState)) && "02D".equals(strState)) {
+					logAction = "reject_back";
+					logContent = "案件从" + fromState + "被驳回退回02D";
 				}
 				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, request);
 				if ("03A".equals(strState)) {
@@ -827,6 +830,20 @@ public class PortalController extends BaseController {
 								notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为03，但MARA审核通知邮件发送失败：" + notificationException.getMessage(),
+								portalDto);
+					}
+				}
+				// 案件从03或03A状态被驳回退回为02D时，均发邮件通知顾问处理。
+				if ("02D".equals(strState) && !"02D".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendAdviserPortalNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为02D，但顾问通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为02D，但顾问通知邮件发送失败：" + notificationException.getMessage(),
 								portalDto);
 					}
 				}
