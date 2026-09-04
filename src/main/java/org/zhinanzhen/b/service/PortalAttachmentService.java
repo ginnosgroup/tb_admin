@@ -17,6 +17,9 @@ public interface PortalAttachmentService {
 
 	int updatePortalIdByPathList(List<String> filePathList, int portalId) throws ServiceException;
 
+	int updatePortalIdAndStageByPathList(List<String> filePathList, int portalId, String stage)
+			throws ServiceException;
+
 	int deletePortalAttachmentById(int id) throws ServiceException;
 
 	int deletePortalAttachmentByPath(String filePath) throws ServiceException;

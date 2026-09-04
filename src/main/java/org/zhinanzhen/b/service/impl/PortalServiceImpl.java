@@ -257,6 +257,14 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 				"审核事项", "请审核案件资料、合同和Letter文件", "审核通知日期", true);
 	}
 
+	@Override
+	public void sendMaraPortalMaterialsReviewNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		sendMaraPortalNotification(portalDto, null, caseUrl, "申请材料审核通知 - ",
+				"以下案件的申请材料已提交，请及时登录佣金系统查看并完成审核。",
+				"审核事项", "请审核申请材料", "审核通知日期", false);
+	}
+
 	private void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl, String titlePrefix,
 			String introduction, String remarkLabel, String defaultRemark, String dateLabel,
 			boolean includeGeneratedDocuments) throws ServiceException {
@@ -366,6 +374,79 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			throw e;
 		} catch (Exception e) {
 			ServiceException exception = new ServiceException("发送文案通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
+	@Override
+	public void sendOfficialPortalMaterialsRejectedNotification(PortalDTO portalDto, String remark, String caseUrl)
+			throws ServiceException {
+		sendOfficialPortalMaterialsNotification(portalDto, remark, caseUrl, false);
+	}
+
+	@Override
+	public void sendOfficialPortalMaterialsApprovedNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		sendOfficialPortalMaterialsNotification(portalDto, null, caseUrl, true);
+	}
+
+	private void sendOfficialPortalMaterialsNotification(PortalDTO portalDto, String remark, String caseUrl,
+			boolean approved) throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送文案通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getOfficialId() <= 0) {
+				throw notificationException("案件尚未分配文案，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			OfficialDO officialDo = officialDao.getOfficialById(portalDto.getOfficialId());
+			if (officialDo == null || StringUtil.isEmpty(officialDo.getEmail())) {
+				throw notificationException("对应文案不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String adviserName = portalDto.getAdviserName();
+			if (StringUtil.isEmpty(adviserName) && portalDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+				if (adviserDo != null)
+					adviserName = adviserDo.getName();
+			}
+
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			String title = (approved ? "申请材料审核通过通知 - " : "申请材料审核驳回通知 - ")
+					+ customerName + "（案件编号：" + portalDto.getId() + "）";
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(officialDo.getName())).append("，您好：</p>")
+					.append("<p>")
+					.append(approved ? "该案件的申请材料已审核通过，请继续推进后续申请工作。"
+							: "该案件的申请材料本次审核未通过，请根据驳回说明及时修改并重新提交。")
+					.append("</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("顾问名称", adviserName));
+			if (!approved)
+				content.append(mailRow("驳回说明", StringUtil.isEmpty(remark) ? "申请材料审核驳回" : remark));
+			content.append(mailRow(approved ? "审核通过时间" : "驳回时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">")
+					.append("<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
+					.append(approved ? "<p>请及时登录系统查看案件资料并继续处理。</p>"
+							: "<p>请及时登录系统查看驳回说明并处理，感谢您的配合。</p>");
+			sendMail(officialDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException(
+					(approved ? "发送申请材料审核通过通知邮件失败: " : "发送申请材料审核驳回通知邮件失败: ")
+							+ e.getMessage(), e);
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw exception;
 		}

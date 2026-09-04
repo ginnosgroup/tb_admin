@@ -215,6 +215,89 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	@Override
+	public void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String confirmUrl,
+			String returnUrl) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，无法发送申请材料确认邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(confirmUrl) || StringUtil.isEmpty(returnUrl))
+			throw serviceException("申请材料确认/退回链接为空，邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(filePath))
+			throw serviceException("申请材料附件为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		String title = "【指南针留学移民】申请材料确认通知";
+		String content = buildApplicationMaterialsEmail(data.fullName, confirmUrl, returnUrl);
+		List<File> attachments = new ArrayList<File>();
+		for (String item : filePath.split("[,，]")) {
+			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
+				attachments.add(requireGeneratedFile(item.trim(), "申请材料").toFile());
+		}
+		if (attachments.isEmpty())
+			throw serviceException("申请材料附件为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		try {
+			// 沿用BaseService的邮件日志和重复附件邮件去重逻辑。
+			sendMailWithAttachments(data.email, title, content,
+					attachments.toArray(new File[attachments.size()]));
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("发送申请材料确认邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
+	public void sendApplicationSubmittedNotification(PortalDTO portalDto, String filePath, String caseUrl)
+			throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(filePath))
+			throw serviceException("申请材料附件为空，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		String title = "【指南针留学移民】申请已正式提交通知";
+		String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "同学"))).append("同学，您好：</p>")
+				.append("<p>您的申请已经由文案正式提交。感谢您的配合，后续如有新的进展，我们会及时与您联系，请您留意相关通知。</p>")
+				.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+						+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件编号</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(portalDto.getId()).append("</td></tr>")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>正式提交时间</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(htmlEscape(noticeDate)).append("</td></tr>");
+		if (StringUtil.isNotEmpty(caseUrl))
+			content.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+					+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件链接</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(htmlEscape(caseUrl)).append("\">")
+					.append(htmlEscape(caseUrl)).append("</a></td></tr>");
+		content.append("</table><p>如您有任何疑问，欢迎联系您的顾问。谢谢。</p><p>指南针留学移民</p>");
+
+		List<File> attachments = new ArrayList<File>();
+		for (String item : filePath.split("[,，]")) {
+			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
+				attachments.add(requireGeneratedFile(item.trim(), "申请材料").toFile());
+		}
+		if (attachments.isEmpty())
+			throw serviceException("申请材料附件为空，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		try {
+			sendMailWithAttachments(data.email, title, content.toString(),
+					attachments.toArray(new File[attachments.size()]));
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("发送申请提交通知邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
 	public void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException {
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
@@ -275,6 +358,24 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		} else {
 			content.append("<p>确认无误后，请按文件要求填写、签署并回复给我们。</p>");
 		}
+		content.append("<p>指南针留学移民</p>");
+		return content.toString();
+	}
+
+	private String buildApplicationMaterialsEmail(String customerName, String confirmUrl, String returnUrl) {
+		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
+		content.append("<p>您的申请材料已准备完成。确认无误后，请点击“确认申请材料”；如需补充或修改，请点击“退回申请材料”。</p>");
+		content.append("<p style=\"margin:24px 0;\">")
+				.append("<a href=\"").append(htmlEscape(confirmUrl))
+				.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
+						+ "background:#198754;color:#fff;text-decoration:none;border-radius:4px;\">确认申请材料</a>")
+				.append("<a href=\"").append(htmlEscape(returnUrl))
+				.append("\" style=\"display:inline-block;padding:12px 24px;"
+						+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回申请材料</a>")
+				.append("</p>");
+		content.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
 		content.append("<p>指南针留学移民</p>");
 		return content.toString();
 	}

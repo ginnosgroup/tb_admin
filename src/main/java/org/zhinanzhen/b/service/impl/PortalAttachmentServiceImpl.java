@@ -14,6 +14,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
 import com.ikasoa.core.ErrorCodeEnum;
+import com.ikasoa.core.utils.StringUtil;
 
 @Service("PortalAttachmentService")
 public class PortalAttachmentServiceImpl extends BaseService implements PortalAttachmentService {
@@ -120,6 +121,23 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 		}
 		try {
 			return portalAttachmentDao.updatePortalIdByPathList(filePathList, portalId);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public int updatePortalIdAndStageByPathList(List<String> filePathList, int portalId, String stage)
+			throws ServiceException {
+		if (filePathList == null || filePathList.isEmpty() || portalId <= 0 || StringUtil.isEmpty(stage)) {
+			ServiceException se = new ServiceException("filePathList, portalId or stage error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			return portalAttachmentDao.updatePortalIdAndStageByPathList(filePathList, portalId, stage);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
