@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.OfficialDAO;
@@ -17,6 +18,8 @@ import org.zhinanzhen.b.dao.pojo.MaraDO;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.dao.pojo.PortalDO;
 import org.zhinanzhen.b.dao.pojo.PortalTypeDO;
+import org.zhinanzhen.b.service.PortalDocumentService;
+import org.zhinanzhen.b.service.PortalAttachmentService;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
@@ -45,6 +48,25 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 
 	@Resource
 	private MaraDAO maraDao;
+
+	@Resource
+	private PortalDocumentService portalDocumentService;
+
+	@Resource
+	private PortalWriteGuard portalWriteGuard;
+
+	@Resource
+	private PortalAttachmentService portalAttachmentService;
+
+	@Override
+	public void requireEditablePortal(int id) throws ServiceException {
+		portalWriteGuard.requireEditable(id);
+	}
+
+	@Override
+	public void requireEditableDocument(String filePath) throws ServiceException {
+		portalWriteGuard.requireFileEditable(filePath);
+	}
 
 	@Override
 	public int addPortal(PortalDTO portalDto) throws ServiceException {
@@ -80,12 +102,14 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int updatePortal(PortalDTO portalDto) throws ServiceException {
 		if (portalDto == null) {
 			ServiceException se = new ServiceException("portalDto is null !");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
+		portalWriteGuard.requireEditable(portalDto.getId());
 		try {
 			PortalDO portalDo = mapper.map(portalDto, PortalDO.class);
 			return portalDao.updatePortal(portalDo);
@@ -97,14 +121,70 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
-	public List<PortalDTO> listPortal(Integer typeId, String strState, String keyword, int pageNum, int pageSize,
-			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
+	@Transactional(rollbackFor = Exception.class)
+	public int updatePortalWithAttachments(PortalDTO portalDto, List<String> filePaths, String stage)
 			throws ServiceException {
+		if (portalDto == null)
+			throw notificationException("案件信息为空。", ErrorCodeEnum.PARAMETER_ERROR.code());
+		portalWriteGuard.requireEditable(portalDto.getId());
+		// 013 只更新归档状态和日志，不处理 filePath；即使前端携带旧参数，也不能改变附件。
+		if (!"013".equals(portalDto.getStrState()) && filePaths != null && !filePaths.isEmpty()) {
+			if (StringUtil.isEmpty(stage))
+				portalAttachmentService.updatePortalIdByPathList(filePaths, portalDto.getId());
+			else
+				portalAttachmentService.updatePortalIdAndStageByPathList(filePaths, portalDto.getId(), stage);
+		}
+		int updated = updatePortal(portalDto);
+		if (updated <= 0)
+			throw notificationException("案件更新失败。", ErrorCodeEnum.EXECUTE_ERROR.code());
+		return updated;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int clearGeneratedDocumentPaths(int id) throws ServiceException {
+		if (id <= 0) {
+			ServiceException se = new ServiceException("案件ID无效，无法清空合同和Letter文件路径.");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			portalWriteGuard.requireEditable(id);
+			return portalDao.clearGeneratedDocumentPaths(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int updatePortalStateIfCurrent(int id, String fromState, String toState) throws ServiceException {
+		if (id <= 0 || StringUtil.isEmpty(fromState) || StringUtil.isEmpty(toState)) {
+			ServiceException se = new ServiceException("案件状态更新参数错误.");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			portalWriteGuard.requireEditable(id);
+			return portalDao.updatePortalStateIfCurrent(id, fromState, toState);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<PortalDTO> listPortal(Integer typeId, String caseType, String strState, String keyword, int pageNum,
+			int pageSize, Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId,
+			Integer maraId) throws ServiceException {
 		List<PortalDTO> portalDtoList = new ArrayList<PortalDTO>();
 		List<PortalDO> portalDoList = new ArrayList<PortalDO>();
 		try {
-			portalDoList = portalDao.listPortal(typeId, strState, keyword, pageNum * pageSize, pageSize, adviserId,
-					adviserRegionId, officialId, officialRegionId, maraId);
+			portalDoList = portalDao.listPortal(typeId, caseType, strState, keyword, pageNum * pageSize, pageSize,
+					adviserId, adviserRegionId, officialId, officialRegionId, maraId);
 			if (portalDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -121,11 +201,11 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
-	public int countPortal(Integer typeId, String strState, String keyword, Integer adviserId,
+	public int countPortal(Integer typeId, String caseType, String strState, String keyword, Integer adviserId,
 			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
 			throws ServiceException {
 		try {
-			return portalDao.countPortal(typeId, strState, keyword, adviserId, adviserRegionId, officialId,
+			return portalDao.countPortal(typeId, caseType, strState, keyword, adviserId, adviserRegionId, officialId,
 					officialRegionId, maraId);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -191,6 +271,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int updateAiConsultContent(int id, String aiConsultContent) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
@@ -198,6 +279,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			throw se;
 		}
 		try {
+			portalWriteGuard.requireEditable(id);
 			return portalDao.updateAiConsultContent(id, aiConsultContent);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -209,12 +291,42 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	@Override
 	public void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl)
 			throws ServiceException {
+		sendMaraPortalNotification(portalDto, remark, caseUrl, "复杂或紧急案件通知 - ",
+				"以下案件已由顾问提交备注，请及时登录佣金系统查看并处理。", "顾问备注", "通知mara处理案件",
+				"顾问通知日期", false);
+	}
+
+	@Override
+	public void sendMaraPortalReviewNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
+		sendMaraPortalNotification(portalDto, null, caseUrl, "案件审核通知 - ",
+				"以下案件已由顾问提交案件审核，合同和Letter文件已随邮件附上，请及时登录佣金系统查看案件资料并完成审核。",
+				"审核事项", "请审核案件资料、合同和Letter文件", "审核通知日期", true);
+	}
+
+	@Override
+	public void sendMaraPortalMaterialsReviewNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		sendMaraPortalNotification(portalDto, null, caseUrl, "申请材料审核通知 - ",
+				"以下案件的申请材料已提交，请及时登录佣金系统查看并完成审核。",
+				"审核事项", "请审核申请材料", "审核通知日期", false);
+	}
+
+	@Override
+	public void sendMaraSupplementReviewNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
+		sendMaraPortalNotification(portalDto, null, caseUrl, "补料审核通知 - ",
+				"文案已收集并上传以下案件的补充材料，请及时登录佣金系统查看并完成审核。",
+				"审核事项", "请审核补充材料", "审核通知日期", false);
+	}
+
+	private void sendMaraPortalNotification(PortalDTO portalDto, String remark, String caseUrl, String titlePrefix,
+			String introduction, String remarkLabel, String defaultRemark, String dateLabel,
+			boolean includeGeneratedDocuments) throws ServiceException {
 		try {
 			if (portalDto == null || portalDto.getId() <= 0) {
 				throw notificationException("案件信息无效，无法发送MARA通知邮件.",
 						ErrorCodeEnum.PARAMETER_ERROR.code());
 			}
-			String notificationRemark = StringUtil.isEmpty(remark) ? "通知mara处理案件" : remark;
+			String notificationRemark = StringUtil.isEmpty(remark) ? defaultRemark : remark;
 			if (portalDto.getMaraId() <= 0) {
 				throw notificationException("案件尚未分配MARA，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
 			}
@@ -233,30 +345,273 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			}
 
 			String customerName = valueOrEmpty(portalDto.getName());
-			String title = "复杂或紧急案件通知 - " + customerName + "（案件编号：" + portalDto.getId() + "）";
+			String title = titlePrefix + customerName + "（案件编号：" + portalDto.getId() + "）";
 			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 			String escapedUrl = escapeHtml(caseUrl);
 			StringBuilder content = new StringBuilder();
 			content.append("<p>").append(escapeHtml(maraDo.getName())).append("，您好：</p>")
-					.append("<p>以下案件已由顾问提交备注，请及时登录佣金系统查看并处理。</p>")
+					.append("<p>").append(escapeHtml(introduction)).append("</p>")
 					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
 							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
 					.append(mailRow("客户姓名", customerName))
 					.append(mailRow("顾问名称", adviserName))
-					.append(mailRow("顾问备注", notificationRemark))
-					.append(mailRow("顾问通知日期", noticeDate))
+					.append(mailRow(remarkLabel, notificationRemark))
+					.append(mailRow(dateLabel, noticeDate))
 					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
 							+ "<strong>案件URL地址</strong></td>")
 					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapedUrl).append("\">")
 					.append(escapedUrl).append("</a></td></tr></table>")
 					.append("<p>谢谢。</p>");
-			sendMail(maraDo.getEmail(), title, content.toString());
+			if (includeGeneratedDocuments) {
+				portalDocumentService.sendDocumentsToEmail(maraDo.getEmail(), title, content.toString(),
+						portalDto.getContractFilePath(), portalDto.getLetterFilePath());
+			} else {
+				sendMail(maraDo.getEmail(), title, content.toString());
+			}
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {
 			ServiceException exception = new ServiceException("发送MARA通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
+	@Override
+	public void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送文案通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getOfficialId() <= 0) {
+				throw notificationException("案件尚未分配文案，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			OfficialDO officialDo = officialDao.getOfficialById(portalDto.getOfficialId());
+			if (officialDo == null || StringUtil.isEmpty(officialDo.getEmail())) {
+				throw notificationException("对应文案不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String adviserName = portalDto.getAdviserName();
+			if (StringUtil.isEmpty(adviserName) && portalDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+				if (adviserDo != null)
+					adviserName = adviserDo.getName();
+			}
+
+			String title = "新案件通知 - 客户已确认签署合同 - " + customerName
+					+ "（案件编号：" + portalDto.getId() + "）";
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(officialDo.getName())).append("，您好：</p>")
+					.append("<p>客户已确认签署本案件的合同，请开始准备并推进后续申请工作。</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("顾问名称", adviserName))
+					.append(mailRow("客户确认时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
+							+ "<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
+					.append("<p>请及时登录系统查看案件资料并开始准备申请。</p>");
+			sendMail(officialDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException("发送文案通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
+	@Override
+	public void sendOfficialServiceOrderCreatedNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送文案通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getOfficialId() <= 0) {
+				throw notificationException("案件尚未分配文案，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			OfficialDO officialDo = officialDao.getOfficialById(portalDto.getOfficialId());
+			if (officialDo == null || StringUtil.isEmpty(officialDo.getEmail())) {
+				throw notificationException("对应文案不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String adviserName = portalDto.getAdviserName();
+			if (StringUtil.isEmpty(adviserName) && portalDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+				if (adviserDo != null)
+					adviserName = adviserDo.getName();
+			}
+
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			String title = "服务订单下单通知 - " + customerName
+					+ "（案件编号：" + portalDto.getId() + "）";
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(officialDo.getName())).append("，您好：</p>")
+					.append("<p>顾问已为以下案件下达服务订单，请及时登录系统查看案件资料并开始处理。</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("顾问名称", adviserName))
+					.append(mailRow("服务订单号", portalDto.getServiceOrderId() > 0
+							? String.valueOf(portalDto.getServiceOrderId()) : "未提供"))
+					.append(mailRow("下单时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 0;vertical-align:top;white-space:nowrap;\">")
+					.append("<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
+					.append("<p>请及时处理，谢谢。</p>");
+			sendMail(officialDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException("发送服务订单下单通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
+	@Override
+	public void sendOfficialPortalMaterialsRejectedNotification(PortalDTO portalDto, String remark, String caseUrl)
+			throws ServiceException {
+		sendOfficialPortalMaterialsNotification(portalDto, remark, caseUrl, false);
+	}
+
+	@Override
+	public void sendOfficialPortalMaterialsApprovedNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		sendOfficialPortalMaterialsNotification(portalDto, null, caseUrl, true);
+	}
+
+	private void sendOfficialPortalMaterialsNotification(PortalDTO portalDto, String remark, String caseUrl,
+			boolean approved) throws ServiceException {
+		sendOfficialMaterialsReviewNotification(portalDto, remark, caseUrl, approved, "申请材料");
+	}
+
+	@Override
+	public void sendOfficialSupplementReviewNotification(PortalDTO portalDto, String remark, String caseUrl,
+			boolean approved) throws ServiceException {
+		sendOfficialMaterialsReviewNotification(portalDto, remark, caseUrl, approved, "补充材料");
+	}
+
+	private void sendOfficialMaterialsReviewNotification(PortalDTO portalDto, String remark, String caseUrl,
+			boolean approved, String materialName) throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送文案通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getOfficialId() <= 0) {
+				throw notificationException("案件尚未分配文案，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			OfficialDO officialDo = officialDao.getOfficialById(portalDto.getOfficialId());
+			if (officialDo == null || StringUtil.isEmpty(officialDo.getEmail())) {
+				throw notificationException("对应文案不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String adviserName = portalDto.getAdviserName();
+			if (StringUtil.isEmpty(adviserName) && portalDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+				if (adviserDo != null)
+					adviserName = adviserDo.getName();
+			}
+
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			String title = materialName + (approved ? "审核通过通知 - " : "审核驳回通知 - ")
+					+ customerName + "（案件编号：" + portalDto.getId() + "）";
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(officialDo.getName())).append("，您好：</p>")
+					.append("<p>")
+					.append("该案件的").append(materialName)
+					.append(approved ? "已通过MARA审核，请及时安排正式提交并跟进后续处理。"
+							: "本次MARA审核未通过，请根据驳回说明及时修改并重新提交审核。")
+					.append("</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("顾问名称", adviserName));
+			if (!approved)
+				content.append(mailRow("驳回说明", StringUtil.isEmpty(remark) ? materialName + "审核驳回" : remark));
+			content.append(mailRow(approved ? "审核通过时间" : "驳回时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">")
+					.append("<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
+					.append(approved ? "<p>请及时登录系统查看案件资料并继续处理。</p>"
+							: "<p>请及时登录系统查看驳回说明并处理，感谢您的配合。</p>");
+			sendMail(officialDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException(
+					"发送" + materialName + (approved ? "审核通过通知邮件失败: " : "审核驳回通知邮件失败: ")
+							+ e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
+	@Override
+	public void sendAdviserPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0) {
+				throw notificationException("案件信息无效，无法发送顾问通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			}
+			if (portalDto.getAdviserId() <= 0) {
+				throw notificationException("案件尚未分配顾问，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+			if (adviserDo == null || StringUtil.isEmpty(adviserDo.getEmail())) {
+				throw notificationException("对应顾问不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+			}
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String title = "案件驳回通知 - " + customerName
+					+ "（案件编号：" + portalDto.getId() + "）";
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(adviserDo.getName())).append("，您好：</p>")
+					.append("<p>您负责的以下案件已被mara驳回，请及时登录系统查看案件资料并跟进处理。</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("驳回时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
+							+ "<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>");
+			sendMail(adviserDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException("发送顾问通知邮件失败: " + e.getMessage(), e);
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw exception;
 		}
@@ -285,6 +640,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int deletePortal(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
@@ -292,6 +648,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			throw se;
 		}
 		try {
+			portalWriteGuard.requireEditable(id);
 			return portalDao.deletePortal(id);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

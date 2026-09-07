@@ -9,8 +9,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -20,6 +23,10 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,6 +42,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.PortalAttachmentService;
 import org.zhinanzhen.b.service.PortalDocumentService;
+import org.zhinanzhen.b.service.PortalFollowUpState;
+import org.zhinanzhen.b.service.impl.PortalWriteGuard;
 import org.zhinanzhen.b.service.PortalLogService;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.PortalTypeService;
@@ -47,6 +56,8 @@ import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 import com.ikasoa.core.ErrorCodeEnum;
@@ -61,6 +72,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class PortalController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PortalController.class);
+	private static final int PORTAL_ACTION_CODE_IV_BYTES = 12;
+	private static final int PORTAL_ACTION_CODE_TAG_BITS = 128;
 
 	/**
 	 * 语聚 AI 会话配置。API Key 在 application.properties 的 yuju.ai.api-key 中填写，
@@ -71,6 +84,18 @@ public class PortalController extends BaseController {
 
 	@Value("${yuju.ai.api-key:}")
 	private String yujuAiApiKey;
+
+	/** 客户合同操作链接加密密钥；生产环境建议通过 portal.customer-action-secret 单独配置。 */
+	@Value("${portal.customer-action-secret:}")
+	private String portalCustomerActionSecret;
+
+	/** 客户合同和申请材料按钮调用的本机本地测试地址。 */
+	@Value("${portal.customer-action-base-url:http://127.0.0.1:8081/admin_v2.1}")
+	private String portalCustomerActionBaseUrl;
+
+	/** 案件通知邮件（发给MARA/文案/顾问）中的本机本地案件地址。 */
+	@Value("${portal.public-base-url:http://127.0.0.1:8081}")
+	private String portalPublicBaseUrl;
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static final String PASSPORT_JSON_PROMPT =
@@ -156,23 +181,33 @@ public class PortalController extends BaseController {
 	@Resource
 	MaraService maraService;
 
+	@Resource
+	AdviserDAO adviserDao;
+
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
 			@RequestParam(value = "aiText", required = false) String aiText,
 			@RequestParam(value = "fileType", required = false) String fileType,
+			@RequestParam(value = "maraId", required = false) String maraId,
+			@RequestParam(value = "portalId", required = false) Integer portalId,
 			HttpServletRequest request, HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		if (portalId != null) {
+			try {
+				portalService.requireEditablePortal(portalId);
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+		}
 		boolean signatureUpload = aiText == null && fileType != null
 				&& "signature".equalsIgnoreCase(fileType.trim());
 		MaraDTO maraDto = null;
 		String oldSignatureData = null;
 		if (signatureUpload) {
-			if (getAdminUserLoginInfo(request) == null)
-				return new Response<Map<String, Object>>(1, "用户未登录，无法上传MARA签名文件.", null);
-			Integer targetMaraId = getMaraId(request);
+			Integer targetMaraId = StringUtil.isNotEmpty(maraId) ? StringUtil.toInt(maraId.trim()) : null;
 			if (targetMaraId == null || targetMaraId <= 0)
-				return new Response<Map<String, Object>>(1, "登录用户不是MARA，无法上传签名文件.", null);
+				return new Response<Map<String, Object>>(1, "maraId不能为空且必须是有效数字，无法上传签名文件.", null);
 			try {
 				maraDto = maraService.getMaraById(targetMaraId);
 			} catch (ServiceException e) {
@@ -203,6 +238,7 @@ public class PortalController extends BaseController {
 		}
 		// 在upload接口里就新增 b_portal_attachment 的数据
 		PortalAttachmentDTO portalAttachmentDto = new PortalAttachmentDTO();
+		portalAttachmentDto.setPortalId(portalId);
 		portalAttachmentDto.setFileName(file.getOriginalFilename());
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
@@ -331,17 +367,28 @@ public class PortalController extends BaseController {
 				if (portalAttachmentDto == null) {
 					return new Response<Integer>(1, "附件不存在.", 0);
 				}
-				Response<String> deleteResp = super
-						.deleteFile(normalizeAttachmentFilePath(portalAttachmentDto.getFilePath()));
-				portalAttachmentService.deletePortalAttachmentById(id);
+				String normalizedPath = normalizeAttachmentFilePath(portalAttachmentDto.getFilePath());
+				if (StringUtil.isEmpty(normalizedPath))
+					return new Response<Integer>(1, "附件路径无效。", 0);
+				// 先由服务层校验归档状态并删除记录，通过后才允许删除物理文件。
+				portalService.requireEditableDocument(normalizedPath);
+				if (portalAttachmentService.deletePortalAttachmentById(id) <= 0)
+					return new Response<Integer>(1, "附件未删除，可能已被其他操作处理。", 0);
+				Response<String> deleteResp = super.deleteFile(normalizedPath);
 				if (deleteResp != null && deleteResp.getCode() != 0) {
 					return new Response<Integer>(1, "附件文件删除失败：" + deleteResp.getMessage() + "（已删除数据库记录）", 0);
 				}
 				return new Response<Integer>(0, id);
 			} else if (StringUtil.isNotEmpty(filePath)) {
-				// 已上传但未入库：按服务器上的路径删除文件
-				Response<String> deleteResp = super.deleteFile(normalizeAttachmentFilePath(filePath));
-				portalAttachmentService.deletePortalAttachmentByPath(filePath);
+				String normalizedPath = normalizeAttachmentFilePath(filePath);
+				if (StringUtil.isEmpty(normalizedPath))
+					return new Response<Integer>(1, "附件路径无效。", 0);
+				// 用同一存储路径做归档检查与删除，避免 /data、URL 等别名绕过检查。
+				portalService.requireEditableDocument(normalizedPath);
+				portalAttachmentService.deletePortalAttachmentByPath(normalizedPath);
+				if (!normalizedPath.equals(filePath))
+					portalAttachmentService.deletePortalAttachmentByPath(filePath);
+				Response<String> deleteResp = super.deleteFile(normalizedPath);
 				if (deleteResp != null && deleteResp.getCode() != 0) {
 					return new Response<Integer>(1, "附件文件删除失败：" + deleteResp.getMessage() + "（已删除数据库记录）", 0);
 				}
@@ -373,7 +420,7 @@ public class PortalController extends BaseController {
 		if (StringUtil.isEmpty(contractStr))
 			return null;
 		try {
-			JsonNode root = readPortalFormData(contractStr);
+			JsonNode root = readContractFormData(contractStr);
 			if (root == null || !root.isObject())
 				return null;
 			JsonNode basicInfo = root.get("basicInfo");
@@ -394,9 +441,65 @@ public class PortalController extends BaseController {
 	}
 
 	/**
+	 * 从合同表单JSON的 basicInfo.maraId 读取MARA ID。
+	 * 仅用于案件从02直接进入02B时确定本次合同对应的MARA。
+	 */
+	private Integer extractContractMaraId(String contractStr) {
+		if (StringUtil.isEmpty(contractStr))
+			return null;
+		try {
+			JsonNode root = readContractFormData(contractStr);
+			if (root == null || !root.isObject())
+				return null;
+			JsonNode basicInfo = root.get("basicInfo");
+			if (basicInfo == null || !basicInfo.isObject())
+				return null;
+			JsonNode maraIdNode = basicInfo.get("maraId");
+			if (maraIdNode == null || maraIdNode.isNull())
+				return null;
+			String maraIdValue = maraIdNode.asText();
+			if (StringUtil.isEmpty(maraIdValue))
+				return null;
+			int parsedMaraId = Integer.parseInt(maraIdValue.trim());
+			return parsedMaraId > 0 ? parsedMaraId : null;
+		} catch (Exception e) {
+			LOG.warn("解析合同表单中的maraId失败", e);
+			return null;
+		}
+	}
+
+	/** 解析合同表单JSON，并兼容前端提交的转义JSON字符串。 */
+	private JsonNode readContractFormData(String contractStr) throws IOException {
+		try {
+			return readPortalFormData(contractStr);
+		} catch (IOException firstException) {
+			String unescapedJson = contractStr.replace("\\\"", "\"");
+			if (!contractStr.equals(unescapedJson))
+				return readPortalFormData(unescapedJson);
+			throw firstException;
+		}
+	}
+
+	/** 删除案件已生成的合同和Letter文件；文件不存在时视为已清理。 */
+	private void deleteGeneratedPortalDocuments(PortalDTO portalDto) {
+		if (portalDto == null)
+			return;
+		deleteGeneratedPortalDocument("合同", portalDto.getContractFilePath());
+		deleteGeneratedPortalDocument("Letter", portalDto.getLetterFilePath());
+	}
+
+	private void deleteGeneratedPortalDocument(String documentName, String filePath) {
+		if (StringUtil.isEmpty(filePath))
+			return;
+		Response<String> deleteResp = super.deleteFile(normalizeAttachmentFilePath(filePath));
+		if (deleteResp != null && deleteResp.getCode() != 0)
+			LOG.warn("删除案件{}文件失败，filePath={}，原因：{}", documentName, filePath, deleteResp.getMessage());
+	}
+
+	/**
 	 * 规范化附件文件路径后再交给 deleteFile 拼接 /data 前缀：
 	 * 去掉 http(s)://域名 前缀、应用 context path（/admin_v2.1）前缀，
-	 * 以及重复的 /data 前缀，避免路径对不上导致文件删不掉。
+	 * 以及 /data、Windows/Tomcat 目录前缀，统一为入库的 /uploads/... 路径。
 	 */
 	private static String normalizeAttachmentFilePath(String filePath) {
 		if (filePath == null) {
@@ -417,13 +520,26 @@ public class PortalController extends BaseController {
 		if (path.startsWith("/admin_v2.1/")) {
 			path = path.substring("/admin_v2.1".length());
 		}
-		// 保留 /data 前缀：deleteFile 内部会判断是否重复拼接，并兜底按 Tomcat 工作目录查找
+		// 文件均存于 uploads 下；实际文件位置交由 deleteFile 解析。
+		path = path.replaceAll("/+", "/");
+		int uploadsIndex = path.indexOf("/uploads/");
+		if (uploadsIndex >= 0)
+			path = path.substring(uploadsIndex);
+		else if (path.startsWith("uploads/"))
+			path = "/" + path;
+		if (!path.startsWith("/uploads/"))
+			return null;
+		for (String segment : path.split("/")) {
+			if ("..".equals(segment) || ".".equals(segment))
+				return null;
+		}
 		return path;
 	}
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addPortal(@RequestParam(value = "typeId") String typeId,
+			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "name") String name,
 			@RequestParam(value = "gender", required = false) String gender,
 			@RequestParam(value = "birthday", required = false) String birthday,
@@ -455,6 +571,7 @@ public class PortalController extends BaseController {
 				return new Response<Integer>(1, "仅限顾问和超级管理员能创建案件.", 0);
 			PortalDTO portalDto = new PortalDTO();
 			portalDto.setTypeId(StringUtil.toInt(typeId));
+			portalDto.setCaseType(caseType);
 			portalDto.setName(name);
 			if (StringUtil.isNotEmpty(gender))
 				portalDto.setGender(gender);
@@ -511,10 +628,11 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
-	public Response<PortalDTO> updatePortal(@RequestParam(value = "id") int id,
+	public Object updatePortal(@RequestParam(value = "id") int id,
 			@RequestParam(value = "typeId", required = false) String typeId,
+			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "gender", required = false) String gender,
 			@RequestParam(value = "birthday", required = false) String birthday,
@@ -532,26 +650,93 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "serviceOrderId", required = false) String serviceOrderId,
 			@RequestParam(value = "strState", required = false) String strState,
+			@RequestParam(value = "result", required = false) String result,
+			@RequestParam(value = "code", required = false) String code,
 			@RequestParam(value = "remark", required = false) String remark,
 			@RequestParam(value = "filePath", required = false) String filePath, HttpServletRequest request,
 			HttpServletResponse response) {
+		String normalizedResult = result == null ? null : result.trim().toLowerCase(Locale.ENGLISH);
+		boolean customerResultRequest = "confirmed".equals(normalizedResult) || "returned".equals(normalizedResult);
+		boolean customerMaterialsAction = "07".equals(strState) || "06A".equals(strState);
+		boolean customerActionRequest = "04".equals(strState) || "02C".equals(strState)
+				|| customerMaterialsAction
+				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code);
+		PortalFollowUpState followUpState = PortalFollowUpState.fromCode(strState);
 		try {
 			super.setPostHeader(response);
+			if (customerActionRequest)
+				prepareCustomerActionResponse(response);
 			PortalDTO portalDto = new PortalDTO();
 			portalDto.setId(id);
 			// 记录操作前状态（查不到时忽略，不影响主流程）
 			String fromState = null;
+			PortalDTO oldPortalDto = null;
 			try {
-				PortalDTO oldPortalDto = portalService.getPortal(id, null, null, null, null, null);
+				oldPortalDto = portalService.getPortal(id, null, null, null, null, null);
 				if (oldPortalDto != null)
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
+			}
+			if (oldPortalDto != null && "013".equals(fromState)) {
+				if (customerActionRequest)
+					return customerResultPage(oldPortalDto, normalizedResult, false,
+							PortalWriteGuard.ARCHIVED_MESSAGE, response);
+				return new Response<PortalDTO>(1, PortalWriteGuard.ARCHIVED_MESSAGE, null);
+			}
+			// 新增补料/结果流程按说明由文案或MARA操作，并沿用现有案件归属权限。
+			if (followUpState != null && followUpState.isFollowUp())
+				validateFollowUpRequest(followUpState, id, remark, filePath, request);
+			if (customerActionRequest && !customerResultRequest)
+				return customerResultPage(oldPortalDto, normalizedResult, false,
+						customerMaterialsAction ? "申请材料操作链接参数不完整，请联系您的顾问。"
+								: "合同操作链接参数不完整，请联系您的顾问。", response);
+			if ("confirmed".equals(normalizedResult) && !("04".equals(strState) || "07".equals(strState)))
+				return customerResultPage(null, normalizedResult, false,
+						"confirmed".equals(normalizedResult) && customerMaterialsAction
+								? "确认申请材料链接参数不完整，请联系您的顾问。"
+								: "确认签署链接参数不完整，请联系您的顾问。", response);
+			if ("returned".equals(normalizedResult) && !("02C".equals(strState) || "06A".equals(strState)))
+				return customerResultPage(null, normalizedResult, false,
+						"returned".equals(normalizedResult) && customerMaterialsAction
+								? "退回申请材料链接参数不完整，请联系您的顾问。"
+								: "退回修改链接参数不完整，请联系您的顾问。", response);
+			if (customerActionRequest) {
+				if (!isValidPortalActionCode(oldPortalDto, normalizedResult, code)) {
+					savePortalLog(id, "customer_action_code_invalid", fromState, fromState,
+							"客户合同操作链接code校验失败", request);
+					return customerResultPage(oldPortalDto, normalizedResult, false,
+						customerMaterialsAction ? "该申请材料操作链接无效或案件人员信息已经变更，请联系您的顾问。"
+								: "该合同操作链接无效或案件人员信息已经变更，请联系您的顾问。", response);
+				}
+				String targetState = strState;
+				String expectedFromState = customerMaterialsAction ? "06B" : "03A";
+				if (!expectedFromState.equals(fromState)) {
+					savePortalLog(id, "customer_action_ignored", fromState, fromState,
+							customerMaterialsAction ? "客户重复点击申请材料操作链接，当前状态不允许处理"
+									: "客户重复点击合同操作链接，当前状态不允许处理", request);
+					if (targetState.equals(fromState)) {
+						String completedMessage = "confirmed".equals(normalizedResult)
+								? (customerMaterialsAction ? "该案件已经确认申请材料，无需重复操作。"
+										: "该案件已经确认签署，无需重复操作。")
+								: (customerMaterialsAction ? "该案件已经退回申请材料，无需重复操作。"
+										: "该案件已经提交退回修改，无需重复操作。");
+						return customerActionResultPage(oldPortalDto, normalizedResult, true, completedMessage, response,
+								customerMaterialsAction);
+					}
+					return customerActionResultPage(oldPortalDto, normalizedResult, false,
+							customerMaterialsAction ? "申请材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
+									: "案件状态已经发生变化，本次操作未执行，请联系您的顾问。", response,
+							customerMaterialsAction);
+				}
 			}
 			String adviserRemark = remark == null ? null : remark.trim();
 			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
 				adviserRemark = "通知mara处理案件";
 			if (StringUtil.isNotEmpty(typeId))
 				portalDto.setTypeId(StringUtil.toInt(typeId));
+			// 未传caseType时保持原值；传空字符串时允许清空案件类型标识。
+			if (caseType != null)
+				portalDto.setCaseType(caseType);
 			if (StringUtil.isNotEmpty(name))
 				portalDto.setName(name);
 			if (StringUtil.isNotEmpty(gender))
@@ -593,13 +778,24 @@ public class PortalController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(maraId))
 				portalDto.setMaraId(StringUtil.toInt(maraId));
+			// 案件从02直接进入02B时，以合同表单中的MARA为准，更新案件的mara_id。
+			if ("02".equals(fromState) && "02B".equals(strState)) {
+				Integer contractMaraId = extractContractMaraId(contractStr);
+				if (contractMaraId == null) {
+					return new Response<PortalDTO>(1,
+							"案件从02转为02B时，contractStr.basicInfo.maraId不能为空且必须是有效数字.", null);
+				}
+				portalDto.setMaraId(contractMaraId);
+			}
 			if (StringUtil.isNotEmpty(serviceOrderId))
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
-			if (portalService.updatePortal(portalDto) > 0) {
-				// 同步附件：根据updatePortal传过来的路径，把已上传附件的portalId更新为当前案件ID
-				syncPortalAttachments(filePath, portalDto.getId());
+			String attachmentStage = "06B".equals(strState) || "09".equals(strState)
+					|| "010A".equals(strState) || "012".equals(strState) ? strState : null;
+			List<String> updateFilePaths = "05".equals(strState) || "06".equals(strState)
+					|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
+			if (portalService.updatePortalWithAttachments(portalDto, updateFilePaths, attachmentStage) > 0) {
             // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
             if ("02B".equals(strState) && !"02B".equals(fromState)) {
                 try {
@@ -626,14 +822,236 @@ public class PortalController extends BaseController {
 							}
 						}
                     LOG.error("案件状态转为02B后生成合同和建议信失败，portalId={}", id, documentException);
+						if (customerResultRequest)
+							return customerResultPage(null, normalizedResult, false,
+									"合同和建议信生成失败，请联系您的顾问。", response);
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
+					}
+				}
+				// MARA退回顾问修改时，删除已经生成的合同和Letter文件，并清空数据库中的路径。
+				// 02A的重复提交也执行检查，避免旧文件和旧路径残留。
+				if ("02A".equals(strState)) {
+					try {
+						PortalDTO documentPortalDto = oldPortalDto;
+						if (documentPortalDto == null)
+							documentPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						deleteGeneratedPortalDocuments(documentPortalDto);
+						if (portalService.clearGeneratedDocumentPaths(id) <= 0)
+							LOG.warn("合同和Letter文件路径清空失败，portalId={}", id);
+					} catch (ServiceException documentCleanupException) {
+						// 状态更新和日志仍保留，清理失败写日志便于后续补偿处理。
+						LOG.error("案件状态转为02A后清理合同和Letter文件失败，portalId={}", id,
+								documentCleanupException);
 					}
 				}
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
-				String logContent = "02A".equals(strState) ? adviserRemark : "更新案件信息";
-				savePortalLog(portalDto.getId(), "update", fromState, toState, logContent, request);
-				if ("02A".equals(strState)) {
+				String logAction = followUpState == null ? "update" : followUpState.getAction();
+				String logContent = followUpState == null ? "更新案件信息" : followUpState.getLabel();
+				if ("06B".equals(strState))
+					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark : "申请材料待客户确认";
+				if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
+					logAction = "customer_confirm_application_materials";
+					logContent = "客户点击确认申请材料按钮";
+				} else if ("returned".equals(normalizedResult) && "06A".equals(strState)) {
+					logAction = "customer_return_application_materials";
+					logContent = "客户点击退回申请材料按钮";
+				} else if ("confirmed".equals(normalizedResult)) {
+					logAction = "customer_confirm_sign";
+					logContent = "客户点击确认签署按钮";
+				} else if ("returned".equals(normalizedResult)) {
+					logAction = "customer_return_modify";
+					logContent = "客户点击退回修改按钮";
+				} else if ("02B".equals(fromState) && "02A".equals(strState)) {
+					logAction = "mara_return_modify";
+					logContent = "mara返回修改";
+				} else if (("03".equals(fromState) || "03A".equals(fromState)) && "02D".equals(strState)) {
+					logAction = "reject_back";
+					logContent = "案件从" + fromState + "被驳回退回02D";
+				} else if ("02A".equals(strState)) {
+					logAction = followUpState == null ? "mara_processing_upgrade" : followUpState.getAction();
+					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark
+							: (followUpState == null ? "升级案件MARA处理中" : followUpState.getLabel());
+				} else if ("05".equals(strState)) {
+					logAction = "adviser_service_order_created";
+					logContent = "顾问已下服务订单";
+				} else if ("06".equals(strState)) {
+					logAction = "official_preparing_application_materials";
+					logContent = "文案准备申请材料中";
+				} else if ("07A".equals(strState)) {
+					logAction = "mara_reviewing_application_materials";
+					logContent = "申请材料MARA正在审核";
+				} else if ("07B".equals(strState)) {
+					logAction = "mara_reject_application_materials";
+					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark : "申请材料MARA审核驳回";
+				} else if ("08".equals(strState)) {
+					logAction = "mara_approve_application_materials";
+					logContent = "申请材料MARA审核通过";
+				} else if ("09".equals(strState)) {
+					logAction = "official_submit_application";
+					logContent = "文案已正式提交申请";
+				} else if (followUpState != null && followUpState.isFollowUp()) {
+					logAction = followUpState.getAction();
+					logContent = followUpState.getLabel();
+					if (StringUtil.isNotEmpty(adviserRemark))
+						logContent += "：" + adviserRemark;
+				}
+				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, request);
+				if (followUpState != null && followUpState.isFollowUp()
+						&& followUpState != PortalFollowUpState.ARCHIVE
+						&& !strState.equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						sendFollowUpNotification(savedPortalDto, followUpState, adviserRemark, filePath, request);
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为{}，但流程通知邮件发送失败，portalId={}", strState, id, notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为" + strState + "，但通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 顾问下达服务订单后，通知对应文案开始处理；重复提交05不重复发送邮件。
+				if ("05".equals(strState) && !"05".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialServiceOrderCreatedNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为05，但服务订单下单通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为05，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 文案开始准备申请材料时，通知客户案件已进入准备阶段；不上传、不关联附件。
+				if ("06".equals(strState) && !"06".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalDocumentService.sendApplicationMaterialsPreparationNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为06，但客户申请材料准备通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为06，但客户通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				if ("03A".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						String customerConfirmUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "confirm");
+						String customerReturnUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "return");
+						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, customerConfirmUrl,
+								customerReturnUrl);
+					} catch (ServiceException confirmationMailException) {
+						LOG.error("案件已更新为03A，但客户合同确认邮件发送失败，portalId={}", id,
+								confirmationMailException);
+						return new Response<PortalDTO>(confirmationMailException.getCode(),
+								"案件已更新为03A，但客户确认邮件发送失败：" + confirmationMailException.getMessage(), portalDto);
+					} catch (IllegalStateException actionCodeException) {
+						LOG.error("案件已更新为03A，但客户合同操作链接code生成失败，portalId={}", id,
+								actionCodeException);
+						return new Response<PortalDTO>(1,
+								"案件已更新为03A，但客户操作链接生成失败：" + actionCodeException.getMessage(), portalDto);
+					}
+				}
+				// 申请材料准备完成后通知客户确认；邮件按钮分别进入07/06A。
+				if ("06B".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						String customerConfirmMaterialsUrl = buildPortalCustomerActionUrl(request, savedPortalDto,
+								"materials-confirm");
+						String customerReturnMaterialsUrl = buildPortalCustomerActionUrl(request, savedPortalDto,
+								"materials-return");
+						portalDocumentService.sendApplicationMaterialsConfirmation(savedPortalDto, filePath,
+								customerConfirmMaterialsUrl, customerReturnMaterialsUrl);
+					} catch (ServiceException materialsMailException) {
+						LOG.error("案件已更新为06B，但申请材料确认邮件发送失败，portalId={}", id,
+								materialsMailException);
+						return new Response<PortalDTO>(materialsMailException.getCode(),
+								"案件已更新为06B，但申请材料确认邮件发送失败："
+										+ materialsMailException.getMessage(), portalDto);
+					} catch (IllegalStateException actionCodeException) {
+						LOG.error("案件已更新为06B，但申请材料操作链接code生成失败，portalId={}", id,
+								actionCodeException);
+						return new Response<PortalDTO>(1,
+								"案件已更新为06B，但申请材料操作链接生成失败："
+										+ actionCodeException.getMessage(), portalDto);
+					}
+				}
+				// 申请材料进入MARA审核状态时，通知对应MARA审核申请材料。
+				if ("07A".equals(strState) && !"07A".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendMaraPortalMaterialsReviewNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为07A，但MARA申请材料审核通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为07A，但MARA申请材料审核通知邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				// 申请材料被MARA驳回时，通知对应文案，并在邮件中附上备注和驳回时间。
+				if ("07B".equals(strState) && !"07B".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialPortalMaterialsRejectedNotification(savedPortalDto, adviserRemark,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为07B，但文案申请材料驳回通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为07B，但文案申请材料驳回通知邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				// 申请材料通过MARA审核时，通知对应文案继续推进申请。
+				if ("08".equals(strState) && !"08".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialPortalMaterialsApprovedNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为08，但文案申请材料审核通过通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为08，但文案申请材料审核通过通知邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				// 文案正式提交申请后，关联本次传入的附件并通知客户。
+				if ("09".equals(strState) && !"09".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalDocumentService.sendApplicationSubmittedNotification(savedPortalDto, filePath,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为09，但客户申请提交通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为09，但客户申请提交通知邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				if ("confirmed".equals(normalizedResult) && "04".equals(strState) && "03A".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialPortalNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("客户已确认签署，但文案通知邮件发送失败，portalId={}", id,
+								notificationException);
+						if (customerResultRequest)
+							return customerResultPage(portalDto, normalizedResult, false,
+									"您已完成确认，案件状态已更新为04，但系统暂时未能发送文案通知，请联系工作人员。",
+									response);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为04，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 普通进入02A时通知MARA；02B->02A是MARA退回顾问修改，不再重复通知MARA。
+				if ("02A".equals(strState) && !"02B".equals(fromState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendMaraPortalNotification(savedPortalDto, adviserRemark,
@@ -645,16 +1063,138 @@ public class PortalController extends BaseController {
 								portalDto);
 					}
 				}
+				// 案件进入03时通知对应MARA进行案件审核；重复提交03不重复发送通知。
+				if ("03".equals(strState) && !"03".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendMaraPortalReviewNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为03，但MARA审核通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为03，但MARA审核通知邮件发送失败：" + notificationException.getMessage(),
+								portalDto);
+					}
+				}
+				// 案件从03或03A状态被驳回退回为02D时，均发邮件通知顾问处理。
+				if ("02D".equals(strState) && !"02D".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendAdviserPortalNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为02D，但顾问通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为02D，但顾问通知邮件发送失败：" + notificationException.getMessage(),
+								portalDto);
+					}
+				}
 				// 只有本次请求明确将状态更新为02时，才调用语聚AI进行485方案咨询。
 				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
 				if ("02".equals(strState))
 					portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
+				if (customerResultRequest) {
+					PortalDTO resultPortalDto = portalService.getPortal(id, null, null, null, null, null);
+					boolean materialsResult = "07".equals(strState) || "06A".equals(strState);
+					String message;
+					if (materialsResult) {
+						message = "confirmed".equals(normalizedResult)
+								? "您已确认申请材料，感谢您的配合。我们会根据确认结果继续为您准备后续申请。"
+								: "我们已收到您的退回申请材料请求，感谢您的反馈。您的顾问会尽快检查并联系您。";
+					} else {
+						message = "confirmed".equals(normalizedResult)
+								? "您已确认签署合同，感谢您选择指南针。请将签署完成的合同文件电邮给您的顾问，"
+										+ "顾问邮箱地址是：" + adviserEmail(resultPortalDto)
+										+ "。系统已自动通知文案开始准备申请，感谢您的配合。"
+								: "我们已收到您的退回修改请求，感谢您的反馈。案件已退回给顾问进一步检查和修改，"
+										+ "顾问邮箱地址是：" + adviserEmail(resultPortalDto)
+										+ "。顾问会尽快与您联系，感谢您的理解与耐心。";
+					}
+					return customerActionResultPage(resultPortalDto, normalizedResult, true, message, response,
+							materialsResult);
+				}
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
+				if (customerResultRequest)
+					return customerResultPage(portalDto, normalizedResult, false,
+							"案件状态暂未更新成功，请稍后重试或联系您的顾问。", response);
 				return new Response<PortalDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
+			if (customerResultRequest)
+				return customerResultPage(null, normalizedResult, false,
+						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
 			return new Response<PortalDTO>(e.getCode(), e.getMessage(), null);
+		} catch (Exception e) {
+			LOG.error("更新案件发生异常，portalId={}", id, e);
+			if (customerResultRequest)
+				return customerResultPage(null, normalizedResult, false,
+						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
+			return new Response<PortalDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	private void validateFollowUpRequest(PortalFollowUpState state, int portalId, String remark, String filePath,
+			HttpServletRequest request) throws ServiceException {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null)
+			throw portalParameterError("请先登录。");
+		String roles = login.getApList() == null ? "" : login.getApList().toUpperCase(Locale.ENGLISH);
+		if (!roles.contains("SUPERAD")) {
+			if (!roles.contains(state.getRole()))
+				throw portalParameterError("该操作需要" + ("MA".equals(state.getRole()) ? "MARA" : "文案") + "角色。");
+			Integer officialId = null;
+			Integer officialRegionId = null;
+			Integer maraId = null;
+			if ("MA".equals(state.getRole())) {
+				maraId = login.getMaraId();
+				if (maraId == null || maraId <= 0)
+					throw portalParameterError("登录用户未关联MARA信息。");
+			} else if (login.isOfficialAdmin()) {
+				officialRegionId = login.getRegionId();
+				if (officialRegionId == null || officialRegionId <= 0)
+					throw portalParameterError("文案管理员未配置所属地区。");
+			} else {
+				officialId = login.getOfficialId();
+				if (officialId == null || officialId <= 0)
+					throw portalParameterError("登录用户未关联文案信息。");
+			}
+			if (portalService.getPortal(portalId, null, null, officialId, officialRegionId, maraId) == null)
+				throw portalParameterError("案件不存在或您无权操作该案件。");
+		}
+		if (state.isRemarkRequired() && (remark == null || remark.trim().isEmpty()))
+			throw portalParameterError(state == PortalFollowUpState.REQUEST_SUPPLEMENT
+					? "请填写补料说明remark。" : "请填写补料审核驳回原因remark。");
+		if (state.isAttachmentsRequired())
+			portalDocumentService.validateApplicationFiles(filePath);
+	}
+
+	private ServiceException portalParameterError(String message) {
+		ServiceException exception = new ServiceException(message);
+		exception.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+		return exception;
+	}
+
+	private void sendFollowUpNotification(PortalDTO portal, PortalFollowUpState state, String remark,
+			String filePath, HttpServletRequest request) throws ServiceException {
+		 switch (state) {
+		 case REQUEST_SUPPLEMENT:
+		 case SUBMIT_SUPPLEMENT:
+		 case NOTIFY_RESULT:
+			portalDocumentService.sendCustomerFollowUpNotification(portal, state, remark, filePath);
+			break;
+		case REVIEW_SUPPLEMENT:
+			portalService.sendMaraSupplementReviewNotification(portal, buildPortalCaseUrl(request, portal.getId()));
+			break;
+		case REJECT_SUPPLEMENT:
+		case APPROVE_SUPPLEMENT:
+			portalService.sendOfficialSupplementReviewNotification(portal, remark,
+					buildPortalCaseUrl(request, portal.getId()), state == PortalFollowUpState.APPROVE_SUPPLEMENT);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -1072,6 +1612,7 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<PortalDTO>> listPortal(@RequestParam(value = "typeId", required = false) Integer typeId,
+			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
@@ -1083,17 +1624,17 @@ public class PortalController extends BaseController {
 				strState = null;
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
 			PortalAccessFilter filter = buildAccessFilter(request);
-			int total = portalService.countPortal(typeId, strState, keyword, filter.adviserId, filter.adviserRegionId,
-					filter.officialId, filter.officialRegionId, filter.maraId);
-			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, strState, keyword, pageNum, pageSize,
-					filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
+			int total = portalService.countPortal(typeId, caseType, strState, keyword, filter.adviserId,
+					filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId);
+			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, caseType, strState, keyword, pageNum,
+					pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
 					filter.maraId);
 			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
 			if (portalDtoList != null) {
 				for (PortalDTO portalDto : portalDtoList) {
 					portalDto.setPortalAttachmentList(
 							portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
-					portalDto.setPortalLogList(portalLogService.listPortalLog(portalDto.getId(), 0, 1000));
+					portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
 				}
 			}
 			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
@@ -1155,6 +1696,300 @@ public class PortalController extends BaseController {
 	}
 
 	/**
+	 * 客户邮件中的合同操作链接。链接本身不依赖登录态，使用HMAC令牌校验，且只允许案件当前处于03A时变更状态。
+	 */
+	@RequestMapping(value = "/customer-action", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+	@ResponseBody
+	public String handleCustomerAction(@RequestParam(value = "portalId") Integer portalId,
+			@RequestParam(value = "action") String action, @RequestParam(value = "token") String token,
+			HttpServletRequest request, HttpServletResponse response) {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+		response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+		try {
+			super.setGetHeader(response);
+			String normalizedAction = action == null ? "" : action.trim().toLowerCase(Locale.ENGLISH);
+			if (portalId == null || portalId <= 0
+					|| !("confirm".equals(normalizedAction) || "return".equals(normalizedAction))
+					|| !isValidPortalActionToken(portalId, normalizedAction, token)) {
+				return customerActionPage(false, "链接无效", "该合同操作链接无效或已失效，请联系您的顾问。");
+			}
+
+			PortalDTO portalDto = portalService.getPortal(portalId, null, null, null, null, null);
+			if (portalDto == null)
+				return customerActionPage(false, "案件不存在", "未找到对应案件，请联系您的顾问。");
+			if ("013".equals(portalDto.getStrState()))
+				return customerActionPage(false, "案件已归档", PortalWriteGuard.ARCHIVED_MESSAGE);
+
+			boolean confirm = "confirm".equals(normalizedAction);
+			String targetState = confirm ? "04" : "02C";
+			String logAction = confirm ? "customer_confirm_sign" : "customer_return_modify";
+			String logContent = confirm ? "客户点击确认签署按钮" : "客户点击退回修改按钮";
+			String currentState = portalDto.getStrState();
+			if (!"03A".equals(currentState)) {
+				savePortalLog(portalId, logAction + "_ignored", currentState, currentState,
+						logContent + "，当前状态不允许重复处理", request);
+				if (targetState.equals(currentState))
+					return customerActionPage(true, "操作已完成", "该案件已经处理过，无需重复操作。");
+				return customerActionPage(false, "操作未执行", "该案件当前状态已发生变化，请联系您的顾问。");
+			}
+
+			int updated = portalService.updatePortalStateIfCurrent(portalId, "03A", targetState);
+			if (updated <= 0) {
+				PortalDTO latestPortalDto = portalService.getPortal(portalId, null, null, null, null, null);
+				String latestState = latestPortalDto == null ? null : latestPortalDto.getStrState();
+				savePortalLog(portalId, logAction + "_ignored", latestState, latestState,
+						logContent + "，案件状态已被其他请求处理", request);
+				return customerActionPage(false, "操作未执行", "该案件已经被处理或状态已发生变化，请联系您的顾问。");
+			}
+
+			savePortalLog(portalId, logAction, "03A", targetState, logContent, request);
+			if (confirm) {
+				try {
+					PortalDTO confirmedPortalDto = portalService.getPortal(portalId, null, null, null, null, null);
+					portalService.sendOfficialPortalNotification(confirmedPortalDto,
+							buildPortalCaseUrl(request, portalId));
+				} catch (ServiceException notificationException) {
+					LOG.error("客户已确认签署，但文案通知邮件发送失败，portalId={}", portalId,
+							notificationException);
+					return customerActionPage(true, "确认签署成功",
+							"案件状态已更新为04（客户确认签署），但文案通知邮件发送失败，请联系工作人员。");
+				}
+				return customerActionPage(true, "确认签署成功", "案件状态已更新为04（客户确认签署），文案已收到开始准备申请的通知。");
+			}
+			return customerActionPage(true, "已退回修改", "案件状态已退回02C，您的顾问会根据反馈修改合同和Letter文件。");
+		} catch (ServiceException e) {
+			LOG.error("处理客户合同操作链接失败，portalId={}", portalId, e);
+			return customerActionPage(false, "处理失败", "系统暂时无法处理该操作，请稍后重试或联系您的顾问。");
+		} catch (Exception e) {
+			LOG.error("处理客户合同操作链接发生异常，portalId={}", portalId, e);
+			return customerActionPage(false, "处理失败", "系统暂时无法处理该操作，请稍后重试或联系您的顾问。");
+		}
+	}
+
+	private void prepareCustomerActionResponse(HttpServletResponse response) {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html;charset=UTF-8");
+		response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+	}
+
+	/**
+	 * 从案件关联的顾问中读取邮箱，供客户操作完成页面显示。
+	 */
+	private String adviserEmail(PortalDTO portalDto) {
+		if (portalDto == null || portalDto.getAdviserId() <= 0)
+			return "暂未配置，请联系工作人员获取";
+		try {
+			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+			if (adviserDo != null && StringUtil.isNotEmpty(adviserDo.getEmail()))
+				return adviserDo.getEmail().trim();
+		} catch (Exception e) {
+			LOG.warn("查询案件顾问邮箱失败，adviserId={}", portalDto.getAdviserId(), e);
+		}
+		return "暂未配置，请联系工作人员获取";
+	}
+
+	private String customerResultPage(PortalDTO portalDto, String result, boolean success, String message,
+			HttpServletResponse response) {
+		prepareCustomerActionResponse(response);
+		String title;
+		if (!success) {
+			title = "操作未完成";
+		} else if ("confirmed".equals(result)) {
+			title = "确认签署成功";
+		} else {
+			title = "已退回修改";
+		}
+		return customerActionPage(success, title, message);
+	}
+
+	private String customerActionResultPage(PortalDTO portalDto, String result, boolean success, String message,
+			HttpServletResponse response, boolean materialsAction) {
+		if (!materialsAction)
+			return customerResultPage(portalDto, result, success, message, response);
+		prepareCustomerActionResponse(response);
+		String title;
+		if (!success)
+			title = "操作未完成";
+		else if ("confirmed".equals(result))
+			title = "申请材料确认成功";
+		else
+			title = "申请材料已退回";
+		return customerActionPage(success, title, message);
+	}
+
+	private String customerActionPage(boolean success, String title, String message) {
+		String color = success ? "#198754" : "#dc3545";
+		return "<!doctype html><html lang=\"zh-CN\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" "
+				+ "content=\"width=device-width,initial-scale=1\"><title>" + escapeHtml(title)
+				+ "</title></head><body style=\"margin:0;background:#f5f7fa;font-family:Arial,'Microsoft YaHei',sans-serif;\">"
+				+ "<div style=\"max-width:560px;margin:12vh auto;padding:36px 28px;background:#fff;border-radius:8px;"
+				+ "box-shadow:0 2px 12px rgba(0,0,0,.08);text-align:center;\"><h2 style=\"color:" + color
+				+ ";margin:0 0 20px;\">" + escapeHtml(title) + "</h2><p style=\"color:#555;line-height:1.8;\">"
+				+ escapeHtml(message) + "</p></div></body></html>";
+	}
+
+	/** 生成合同或申请材料客户操作链接；URL中的result沿用confirmed/returned，按钮文案由邮件模板区分。 */
+	private String buildPortalCustomerActionUrl(HttpServletRequest request, PortalDTO portalDto, String action) {
+		String normalizedAction = action == null ? "" : action.trim().toLowerCase(Locale.ENGLISH);
+		if (!("confirm".equals(normalizedAction) || "return".equals(normalizedAction)
+				|| "materials-confirm".equals(normalizedAction) || "materials-return".equals(normalizedAction)))
+			throw new IllegalStateException("客户操作类型无效.");
+		boolean materialsAction = normalizedAction.startsWith("materials-");
+		boolean confirmed = "confirm".equals(normalizedAction) || "materials-confirm".equals(normalizedAction);
+		String targetState = materialsAction ? (confirmed ? "07" : "06A") : (confirmed ? "04" : "02C");
+		String result = confirmed ? "confirmed" : "returned";
+		String code = encryptPortalActionCode(portalDto, result);
+		String baseUrl = StringUtil.isNotEmpty(portalCustomerActionBaseUrl)
+				? portalCustomerActionBaseUrl.trim().replaceAll("/+$", "")
+				: buildPortalPublicBaseUrl(request);
+		return baseUrl + "/portal/update?id=" + portalDto.getId() + "&strState=" + targetState
+				+ "&result=" + result + "&code=" + code;
+	}
+
+	/**
+	 * 将案件ID、顾问ID、MARA ID和文案ID组成字符串，并使用AES-GCM生成URL安全的加密code。
+	 * result作为附加认证数据，防止确认和退回两个按钮之间相互篡改。
+	 */
+	private String encryptPortalActionCode(PortalDTO portalDto, String result) {
+		String payload = portalActionPayload(portalDto);
+		try {
+			byte[] iv = portalActionCodeIv(payload, result);
+			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+			cipher.init(Cipher.ENCRYPT_MODE, portalActionEncryptionKey(),
+					new GCMParameterSpec(PORTAL_ACTION_CODE_TAG_BITS, iv));
+			cipher.updateAAD(result.getBytes(StandardCharsets.UTF_8));
+			byte[] encrypted = cipher.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+			byte[] codeBytes = new byte[iv.length + encrypted.length];
+			System.arraycopy(iv, 0, codeBytes, 0, iv.length);
+			System.arraycopy(encrypted, 0, codeBytes, iv.length, encrypted.length);
+			return Base64.getUrlEncoder().withoutPadding().encodeToString(codeBytes);
+		} catch (Exception e) {
+			throw new IllegalStateException("客户合同操作链接code生成失败.", e);
+		}
+	}
+
+	private boolean isValidPortalActionCode(PortalDTO portalDto, String result, String code) {
+		if (portalDto == null || StringUtil.isEmpty(result) || StringUtil.isEmpty(code))
+			return false;
+		try {
+			byte[] codeBytes = Base64.getUrlDecoder().decode(code.trim());
+			if (codeBytes.length <= PORTAL_ACTION_CODE_IV_BYTES)
+				return false;
+			byte[] iv = Arrays.copyOfRange(codeBytes, 0, PORTAL_ACTION_CODE_IV_BYTES);
+			byte[] encrypted = Arrays.copyOfRange(codeBytes, PORTAL_ACTION_CODE_IV_BYTES, codeBytes.length);
+			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+			cipher.init(Cipher.DECRYPT_MODE, portalActionEncryptionKey(),
+					new GCMParameterSpec(PORTAL_ACTION_CODE_TAG_BITS, iv));
+			cipher.updateAAD(result.getBytes(StandardCharsets.UTF_8));
+			byte[] decrypted = cipher.doFinal(encrypted);
+			byte[] expected = portalActionPayload(portalDto).getBytes(StandardCharsets.UTF_8);
+			return MessageDigest.isEqual(expected, decrypted);
+		} catch (Exception e) {
+			LOG.warn("客户合同操作链接code解密校验失败，portalId={}", portalDto.getId());
+			return false;
+		}
+	}
+
+	private String portalActionPayload(PortalDTO portalDto) {
+		if (portalDto == null || portalDto.getId() <= 0 || portalDto.getAdviserId() <= 0
+				|| portalDto.getMaraId() <= 0 || portalDto.getOfficialId() <= 0)
+			throw new IllegalStateException("案件ID、顾问、MARA或文案信息不完整，无法生成客户操作链接.");
+		return portalDto.getId() + "|" + portalDto.getAdviserId() + "|" + portalDto.getMaraId() + "|"
+				+ portalDto.getOfficialId();
+	}
+
+	private SecretKeySpec portalActionEncryptionKey() throws Exception {
+		byte[] digest = MessageDigest.getInstance("SHA-256")
+				.digest(portalActionSecret().getBytes(StandardCharsets.UTF_8));
+		return new SecretKeySpec(Arrays.copyOf(digest, 16), "AES");
+	}
+
+	private byte[] portalActionCodeIv(String payload, String result) throws Exception {
+		Mac mac = Mac.getInstance("HmacSHA256");
+		mac.init(new SecretKeySpec(portalActionSecret().getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+		byte[] digest = mac.doFinal(("portal-action-code|" + result + "|" + payload)
+				.getBytes(StandardCharsets.UTF_8));
+		return Arrays.copyOf(digest, PORTAL_ACTION_CODE_IV_BYTES);
+	}
+
+	private boolean isValidPortalActionToken(int portalId, String action, String token) {
+		if (StringUtil.isEmpty(token))
+			return false;
+		try {
+			byte[] expected = signPortalAction(portalId, action).getBytes(StandardCharsets.US_ASCII);
+			byte[] actual = token.trim().getBytes(StandardCharsets.US_ASCII);
+			return MessageDigest.isEqual(expected, actual);
+		} catch (Exception e) {
+			LOG.warn("校验客户合同操作链接失败，portalId={}", portalId, e);
+			return false;
+		}
+	}
+
+	private String signPortalAction(int portalId, String action) {
+		String secret = portalActionSecret();
+		try {
+			Mac mac = Mac.getInstance("HmacSHA256");
+			mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+			byte[] digest = mac.doFinal((portalId + ":" + action).getBytes(StandardCharsets.UTF_8));
+			StringBuilder token = new StringBuilder(digest.length * 2);
+			for (byte item : digest) {
+				int value = item & 0xff;
+				if (value < 16)
+					token.append('0');
+				token.append(Integer.toHexString(value));
+			}
+			return token.toString();
+		} catch (Exception e) {
+			throw new IllegalStateException("客户确认链接签名生成失败.", e);
+		}
+	}
+
+	private String portalActionSecret() {
+		if (StringUtil.isNotEmpty(portalCustomerActionSecret))
+			return portalCustomerActionSecret.trim();
+		// 兼容现有部署：未单独配置时暂使用已有的语聚AI密钥作为签名密钥；生产环境建议单独配置。
+		if (StringUtil.isNotEmpty(yujuAiApiKey))
+			return yujuAiApiKey.trim();
+		throw new IllegalStateException("未配置客户确认链接密钥，请设置 portal.customer-action-secret.");
+	}
+
+	private String buildPortalPublicBaseUrl(HttpServletRequest request) {
+		// 明确配置了案件通知邮件的基础地址时，统一用它，避免邮件里出现 127.0.0.1/localhost 等本机地址。
+		if (StringUtil.isNotEmpty(portalPublicBaseUrl)) {
+			return portalPublicBaseUrl.trim().replaceAll("/+$", "");
+		}
+		String scheme = firstHeaderValue(request.getHeader("X-Forwarded-Proto"));
+		if (StringUtil.isEmpty(scheme))
+			scheme = request.getScheme();
+		String forwardedHost = firstHeaderValue(request.getHeader("X-Forwarded-Host"));
+		String host = StringUtil.isNotEmpty(forwardedHost) ? forwardedHost : request.getServerName();
+		if (StringUtil.isEmpty(forwardedHost)) {
+			int port = request.getServerPort();
+			boolean defaultPort = ("http".equalsIgnoreCase(scheme) && port == 80)
+					|| ("https".equalsIgnoreCase(scheme) && port == 443);
+			if (!defaultPort)
+				host += ":" + port;
+		}
+		String contextPath = request.getContextPath();
+		return scheme + "://" + host + (StringUtil.isEmpty(contextPath) ? "" : contextPath);
+	}
+
+	private String firstHeaderValue(String value) {
+		if (StringUtil.isEmpty(value))
+			return null;
+		int commaIndex = value.indexOf(',');
+		return (commaIndex >= 0 ? value.substring(0, commaIndex) : value).trim();
+	}
+
+	private String escapeHtml(String value) {
+		if (value == null)
+			return "";
+		return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+				.replace("\"", "&quot;").replace("'", "&#39;");
+	}
+
+	/**
 	 * 保存案件操作日志（日志记录失败不影响主流程）
 	 */
 	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
@@ -1167,7 +2002,7 @@ public class PortalController extends BaseController {
 			portalLogDto.setFromState(fromState);
 			portalLogDto.setToState(toState);
 			portalLogDto.setContent(content);
-			portalLogDto.setIp(request.getRemoteAddr());
+			portalLogDto.setIp(getClientIp(request));
 			portalLogDto.setUserAgent(request.getHeader("User-Agent"));
 			if (adminUserLoginInfo != null) {
 				portalLogDto.setOperatorId(adminUserLoginInfo.getId());
@@ -1184,15 +2019,16 @@ public class PortalController extends BaseController {
 	}
 
 	private String buildPortalCaseUrl(HttpServletRequest request, int portalId) {
-		String scheme = request.getScheme();
-		int port = request.getServerPort();
-		boolean defaultPort = ("http".equalsIgnoreCase(scheme) && port == 80)
-				|| ("https".equalsIgnoreCase(scheme) && port == 443);
-		StringBuilder url = new StringBuilder();
-		url.append(scheme).append("://").append(request.getServerName());
-		if (!defaultPort)
-			url.append(':').append(port);
-		return url.append("/webroot_new/portal/list/ALL?id=").append(portalId).toString();
+		return buildPortalPublicBaseUrl(request) + "/webroot_new/portal/list/ALL?id=" + portalId;
+	}
+
+	private String getClientIp(HttpServletRequest request) {
+		String forwarded = firstHeaderValue(request.getHeader("X-Forwarded-For"));
+		if (StringUtil.isNotEmpty(forwarded) && !"unknown".equalsIgnoreCase(forwarded))
+			return forwarded;
+		String realIp = firstHeaderValue(request.getHeader("X-Real-IP"));
+		return StringUtil.isNotEmpty(realIp) && !"unknown".equalsIgnoreCase(realIp) ? realIp
+				: request.getRemoteAddr();
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
@@ -1206,7 +2042,7 @@ public class PortalController extends BaseController {
 				// 按 portal_id 关联查询附件列表和操作日志，组装进 PortalDTO 一起返回
 				portalDto.setPortalAttachmentList(
 						portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
-				portalDto.setPortalLogList(portalLogService.listPortalLog(portalDto.getId(), 0, 1000));
+				portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
 			}
 			return new Response<PortalDTO>(0, "", portalDto);
 		} catch (ServiceException e) {
@@ -1293,18 +2129,30 @@ public class PortalController extends BaseController {
 	 * 内部做去空格、去空串、去重。
 	 */
 	private void syncPortalAttachments(String filePath, int portalId) throws ServiceException {
-		if (StringUtil.isEmpty(filePath))
-			return;
-		List<String> filePathList = Arrays.stream(filePath.split("[,，]")).map(String::trim)
-				.filter(StringUtil::isNotEmpty).distinct().collect(Collectors.toList());
+		List<String> filePathList = splitPortalFilePaths(filePath);
 		if (!filePathList.isEmpty())
 			portalAttachmentService.updatePortalIdByPathList(filePathList, portalId);
+	}
+
+	private List<String> splitPortalFilePaths(String filePath) {
+		if (filePath == null)
+			return new ArrayList<String>();
+		return Arrays.stream(filePath.split("[,，]")).map(String::trim)
+				.filter(StringUtil::isNotEmpty).distinct().collect(Collectors.toList());
+	}
+
+	/** 归档详情保留完整操作记录，避免超过1000条时截断归档历史。 */
+	private List<PortalLogDTO> listPortalDetailLogs(PortalDTO portal) throws ServiceException {
+		int size = "013".equals(portal.getStrState())
+				? Math.max(1, portalLogService.countPortalLog(portal.getId())) : 1000;
+		return portalLogService.listPortalLog(portal.getId(), 0, size);
 	}
 
 	@RequestMapping(value = "/type/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addPortalType(@RequestParam(value = "name") String name,
 			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "filePath", required = false) String filePath,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -1314,6 +2162,8 @@ public class PortalController extends BaseController {
 			portalTypeDto.setName(name);
 			if (StringUtil.isNotEmpty(description))
 				portalTypeDto.setDescription(description);
+			if (StringUtil.isNotEmpty(filePath))
+				portalTypeDto.setFilePath(filePath.trim());
 			if (StringUtil.isNotEmpty(sort))
 				portalTypeDto.setSort(StringUtil.toInt(sort));
 			// 未传默认0（未删除），避免insert时写入null违反非空约束
@@ -1333,6 +2183,7 @@ public class PortalController extends BaseController {
 	public Response<PortalTypeDTO> updatePortalType(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "filePath", required = false) String filePath,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletResponse response) {
 		try {
@@ -1343,6 +2194,8 @@ public class PortalController extends BaseController {
 				portalTypeDto.setName(name);
 			if (StringUtil.isNotEmpty(description))
 				portalTypeDto.setDescription(description);
+			if (filePath != null)
+				portalTypeDto.setFilePath(filePath.trim());
 			if (StringUtil.isNotEmpty(sort))
 				portalTypeDto.setSort(StringUtil.toInt(sort));
 			if (StringUtil.isNotEmpty(isDelete))

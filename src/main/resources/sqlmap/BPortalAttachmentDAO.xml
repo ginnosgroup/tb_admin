@@ -31,7 +31,7 @@
                 #{aiText});
     </insert>
 
-    <select id="getPortalAttachmentById" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+    <select id="getPortalAttachmentById" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
         SELECT
             id,
             portal_id AS portalId,
@@ -47,7 +47,7 @@
         FROM b_portal_attachment WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
-    <select id="getPortalAttachmentByPath" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+    <select id="getPortalAttachmentByPath" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
         SELECT
             id,
             portal_id AS portalId,
@@ -85,6 +85,17 @@
         UPDATE b_portal_attachment
         SET gmt_modify = now(),
             portal_id = #{portalId}
+        WHERE file_path IN
+        <foreach collection="filePathList" item="filePath" open="(" separator="," close=")">
+            #{filePath}
+        </foreach>;
+    </update>
+
+    <update id="updatePortalIdAndStageByPathList">
+        UPDATE b_portal_attachment
+        SET gmt_modify = now(),
+            portal_id = #{portalId},
+            stage = #{stage}
         WHERE file_path IN
         <foreach collection="filePathList" item="filePath" open="(" separator="," close=")">
             #{filePath}

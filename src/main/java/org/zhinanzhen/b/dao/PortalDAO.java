@@ -11,14 +11,25 @@ public interface PortalDAO {
 
 	int updatePortal(PortalDO portalDo);
 
-	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
-			@Param("keyword") String keyword, @Param("offset") int offset, @Param("rows") int rows,
+	PortalDO getPortalForUpdate(@Param("id") int id);
+
+	int countArchivedDocumentReferences(@Param("filePath") String filePath);
+
+	int clearGeneratedDocumentPaths(@Param("id") int id);
+
+	int updatePortalStateIfCurrent(@Param("id") int id, @Param("fromState") String fromState,
+			@Param("toState") String toState);
+
+	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("caseType") String caseType,
+			@Param("strState") String strState, @Param("keyword") String keyword, @Param("offset") int offset,
+			@Param("rows") int rows,
 			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
 			@Param("officialId") Integer officialId, @Param("officialRegionId") Integer officialRegionId,
 			@Param("maraId") Integer maraId);
 
-	int countPortal(@Param("typeId") Integer typeId, @Param("strState") String strState,
-			@Param("keyword") String keyword, @Param("adviserId") Integer adviserId,
+	int countPortal(@Param("typeId") Integer typeId, @Param("caseType") String caseType,
+			@Param("strState") String strState, @Param("keyword") String keyword,
+			@Param("adviserId") Integer adviserId,
 			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
 			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId);
 

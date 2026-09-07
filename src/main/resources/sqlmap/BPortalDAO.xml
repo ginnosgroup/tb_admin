@@ -5,12 +5,23 @@
 
     <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
 
+    <!-- 写入保护读取不能使用二级缓存；与归档状态更新共用同一行锁。 -->
+    <select id="getPortalForUpdate" resultType="org.zhinanzhen.b.dao.pojo.PortalDO" useCache="false" flushCache="true">
+        SELECT id, str_state AS strState FROM b_portal_list WHERE id = #{id} FOR UPDATE
+    </select>
+
+    <select id="countArchivedDocumentReferences" resultType="java.lang.Integer" useCache="false" flushCache="true">
+        SELECT count(*) FROM b_portal_list
+        WHERE str_state = '013' AND (contract_file_path = #{filePath} OR letter_file_path = #{filePath})
+    </select>
+
     <insert id="addPortal" parameterType="org.zhinanzhen.b.dao.pojo.PortalDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
             INTO b_portal_list (
                 gmt_create,
                 gmt_modify,
                 type_id,
+                case_type,
                 name,
                 gender,
                 birthday,
@@ -34,6 +45,7 @@
                 now(),
                 now(),
                 #{typeId},
+                #{caseType},
                 #{name},
                 #{gender},
                 #{birthday},
@@ -60,6 +72,9 @@
         SET gmt_modify = now()
         <if test='typeId != null and typeId > 0'>
             , type_id = #{typeId}
+        </if>
+        <if test='caseType != null'>
+            , case_type = #{caseType}
         </if>
         <if test='name != null and name != ""'>
             , name = #{name}
@@ -118,14 +133,30 @@
         <if test='strState != null and strState != ""'>
             , str_state = #{strState}
         </if>
-        WHERE id = #{id};
+        WHERE id = #{id} AND (str_state IS NULL OR str_state != '013');
+    </update>
+
+    <update id="clearGeneratedDocumentPaths">
+        UPDATE b_portal_list
+        SET gmt_modify = now(),
+            contract_file_path = NULL,
+            letter_file_path = NULL
+        WHERE id = #{id} AND (str_state IS NULL OR str_state != '013');
+    </update>
+
+    <update id="updatePortalStateIfCurrent">
+        UPDATE b_portal_list
+        SET gmt_modify = now(),
+            str_state = #{toState}
+        WHERE id = #{id}
+          AND str_state = #{fromState} AND str_state != '013';
     </update>
 
     <update id="updateAiConsultContent">
         UPDATE b_portal_list
         SET gmt_modify = now(),
             ai_consult_content = #{aiConsultContent}
-        WHERE id = #{id};
+        WHERE id = #{id} AND (str_state IS NULL OR str_state != '013');
     </update>
 
     <select id="listPortal" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">
@@ -134,6 +165,7 @@
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             type_id AS typeId,
+            case_type AS caseType,
             name,
             gender,
             birthday,
@@ -158,6 +190,9 @@
         WHERE 1 = 1
         <if test='typeId != null'>
             AND type_id = #{typeId}
+        </if>
+        <if test='caseType != null and caseType != ""'>
+            AND case_type = #{caseType}
         </if>
         <!-- strState=ALL 表示全部案件，不加状态过滤 -->
         <if test='strState != null and strState != "" and strState != "ALL"'>
@@ -205,6 +240,9 @@
         <if test='typeId != null'>
             AND type_id = #{typeId}
         </if>
+        <if test='caseType != null and caseType != ""'>
+            AND case_type = #{caseType}
+        </if>
         <!-- strState=ALL 表示全部案件，不加状态过滤 -->
         <if test='strState != null and strState != "" and strState != "ALL"'>
             AND str_state = #{strState}
@@ -244,6 +282,7 @@
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             type_id AS typeId,
+            case_type AS caseType,
             name,
             gender,
             birthday,
@@ -297,6 +336,7 @@
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             type_id AS typeId,
+            case_type AS caseType,
             name,
             gender,
             birthday,
@@ -323,6 +363,7 @@
 
     <delete id="deletePortal" parameterType="java.lang.Integer">
 		DELETE FROM b_portal_list WHERE id = #{id, jdbcType=INTEGER}
+        AND (str_state IS NULL OR str_state != '013')
 	</delete>
 
 </mapper>

@@ -11,10 +11,16 @@ import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -29,8 +35,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.PortalDocumentService;
+import org.zhinanzhen.b.service.PortalFollowUpState;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
+import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -41,6 +49,10 @@ import com.ikasoa.core.utils.StringUtil;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfAppearance;
+import com.itextpdf.text.pdf.PdfArray;
+import com.itextpdf.text.pdf.PdfDictionary;
+import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 
@@ -48,6 +60,23 @@ import com.itextpdf.text.pdf.PdfStamper;
 public class PortalDocumentServiceImpl extends BaseService implements PortalDocumentService {
 
 	private static final String CONTRACT_TEMPLATE = "Contract-CEM-SYD-Comp Final Version.pdf";
+	private static final Set<String> CONTRACT_TEMPLATE_NAMES = Collections.unmodifiableSet(
+			new HashSet<String>(Arrays.asList(
+					"Contract-CEM-ACT-13-Sep-2022.pdf",
+					"Contract-CEM-ADE-15-June-2026.pdf",
+					"Contract-CEM-BNE-13-Sep-2022.pdf",
+					"Contract-CEM-Mel-13-Sep-2022.pdf",
+					CONTRACT_TEMPLATE,
+					"Contract-CEM-TAS-13-Sep-2022.pdf")));
+	private static final String[] MODERN_SIGNATURE_FIELDS = { "agent_signature_p1", "agent_signature_p2",
+			"agent_signature_p3", "agent_signature_p4" };
+	private static final String[] MODERN_SIGNATURE_DATE_FIELDS = { "agent_date_p1", "agent_date_p2",
+			"agent_date_p3", "agent_date_p4" };
+	/** 旧模板中的Text29在前四页各有一个控件，位置均为Signed by the Director。 */
+	private static final String LEGACY_DIRECTOR_SIGNATURE_FIELD = "Text29";
+	private static final String LEGACY_DIRECTOR_DATE_DAY_FIELD = "Text26";
+	private static final String LEGACY_DIRECTOR_DATE_MONTH_FIELD = "Text27";
+	private static final String LEGACY_DIRECTOR_DATE_YEAR_SUFFIX_FIELD = "Text28";
 	private static final String ADVICE_TEMPLATE = "MARA_Basic_Letter_of_Advice_Template.docx";
 	private static final String PRACTICE_NAME = "Compass Education and Migration Pty Ltd";
 	private static final String AGENT_NAME = "Tonglu Ge";
@@ -152,6 +181,12 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	@Override
 	public void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths)
 			throws ServiceException {
+		sendGeneratedDocuments(portalDto, generatedDocumentPaths, null, null);
+	}
+
+	@Override
+	public void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths,
+			String confirmUrl, String returnUrl) throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0) {
 			throw serviceException("案件信息无效，无法发送合同和建议信邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
@@ -171,8 +206,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
 		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
 		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
-		String title = "【指南针留学移民】485签证合同、建议信及材料准备清单";
-		String content = build485PreparationEmail(data.fullName, adviserName);
+		String title = "【指南针留学移民】485签证合同和建议信";
+		String content = build485ContractEmail(data.fullName, adviserName, confirmUrl, returnUrl);
 		try {
 			sendMailWithAttachments(data.email, title, content, contractPath.toFile(), advicePath.toFile());
 		} catch (ServiceException e) {
@@ -180,6 +215,211 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		} catch (Exception e) {
 			throw serviceException("发送合同和建议信邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
 		}
+	}
+
+	@Override
+	public void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String confirmUrl,
+			String returnUrl) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，无法发送申请材料确认邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(confirmUrl) || StringUtil.isEmpty(returnUrl))
+			throw serviceException("申请材料确认/退回链接为空，邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(filePath))
+			throw serviceException("申请材料附件为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		String title = "【指南针留学移民】申请材料确认通知";
+		String content = buildApplicationMaterialsEmail(data.fullName, confirmUrl, returnUrl);
+		List<File> attachments = new ArrayList<File>();
+		for (String item : filePath.split("[,，]")) {
+			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
+				attachments.add(requireGeneratedFile(item.trim(), "申请材料").toFile());
+		}
+		if (attachments.isEmpty())
+			throw serviceException("申请材料附件为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		try {
+			// 沿用BaseService的邮件日志和重复附件邮件去重逻辑。
+			sendMailWithAttachments(data.email, title, content,
+					attachments.toArray(new File[attachments.size()]));
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("发送申请材料确认邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
+	public void sendApplicationSubmittedNotification(PortalDTO portalDto, String filePath, String caseUrl)
+			throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(filePath))
+			throw serviceException("申请材料附件为空，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		String title = "【指南针留学移民】申请已正式提交通知";
+		String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "同学"))).append("同学，您好：</p>")
+				.append("<p>您的申请已经由文案正式提交。感谢您的配合，后续如有新的进展，我们会及时与您联系，请您留意相关通知。</p>")
+				.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+						+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件编号</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(portalDto.getId()).append("</td></tr>")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>正式提交时间</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(htmlEscape(noticeDate)).append("</td></tr>");
+		if (StringUtil.isNotEmpty(caseUrl))
+			content.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+					+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件链接</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(htmlEscape(caseUrl)).append("\">")
+					.append(htmlEscape(caseUrl)).append("</a></td></tr>");
+		content.append("</table><p>如您有任何疑问，欢迎联系您的顾问。谢谢。</p><p>指南针留学移民</p>");
+
+		List<File> attachments = new ArrayList<File>();
+		for (String item : filePath.split("[,，]")) {
+			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
+				attachments.add(requireGeneratedFile(item.trim(), "申请材料").toFile());
+		}
+		if (attachments.isEmpty())
+			throw serviceException("申请材料附件为空，申请提交通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		try {
+			sendMailWithAttachments(data.email, title, content.toString(),
+					attachments.toArray(new File[attachments.size()]));
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("发送申请提交通知邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
+	public void sendApplicationMaterialsPreparationNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，申请材料准备通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，申请材料准备通知未发送.", ErrorCodeEnum.DATA_ERROR.code(), null);
+		PortalTypeDTO portalType = portalDto.getPortalType();
+		String materialListPath = portalType == null ? null : portalType.getFilePath();
+		Path materialList = requireGeneratedFile(materialListPath, "材料清单");
+
+		String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
+		String title = "【指南针留学移民】申请材料准备通知";
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "同学")))
+				.append("同学，您好：</p>")
+				.append("<p>您的案件现已进入申请材料准备阶段，").append(htmlEscape(adviserName))
+				.append("正在为您准备后续申请材料。邮件中附有材料清单，请您按照清单准备相关资料；如需您补充或确认其他资料，我们会及时与您联系，请保持联系方式畅通。</p>")
+				.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+						+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件编号</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(portalDto.getId()).append("</td></tr>")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>通知时间</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(htmlEscape(noticeDate)).append("</td></tr>");
+		if (StringUtil.isNotEmpty(caseUrl))
+			content.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+					+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件链接</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(htmlEscape(caseUrl)).append("\">")
+					.append(htmlEscape(caseUrl)).append("</a></td></tr>");
+		content.append("</table><p>感谢您的配合。谢谢。</p><p>指南针留学移民</p>");
+		try {
+			sendMailWithAttachments(data.email, title, content.toString(), materialList.toFile());
+		} catch (Exception e) {
+			throw serviceException("发送申请材料准备通知失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
+	public void validateApplicationFiles(String filePath) throws ServiceException {
+		resolveApplicationAttachments(filePath);
+	}
+
+	private File[] resolveApplicationAttachments(String filePath) throws ServiceException {
+		Set<String> paths = new LinkedHashSet<String>();
+		if (filePath != null) {
+			for (String path : filePath.split("[,，]")) {
+				if (!path.trim().isEmpty())
+					paths.add(path.trim());
+			}
+		}
+		if (paths.isEmpty())
+			throw serviceException("请先上传文件并传入filePath。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		List<File> files = new ArrayList<File>();
+		for (String path : paths)
+			files.add(requireGeneratedFile(path, "案件附件").toFile());
+		return files.toArray(new File[files.size()]);
+	}
+
+	@Override
+	public void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
+			String filePath) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0 || state == null)
+			throw serviceException("案件通知参数无效。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，通知邮件未发送。", ErrorCodeEnum.DATA_ERROR.code(), null);
+
+		String subject;
+		String message;
+		switch (state) {
+		case REQUEST_SUPPLEMENT:
+			subject = "补充材料通知";
+			message = "为继续推进您的申请，请您根据以下说明准备并提供补充材料。如对材料要求有任何疑问，"
+					+ "请及时与您的顾问联系，我们将协助您完成准备。";
+			break;
+		case SUBMIT_SUPPLEMENT:
+			subject = "补充材料已正式提交";
+			message = "您提供的补充材料已完成审核并正式提交至相关审理机构。您的申请现正等待最终审理决定。"
+					+ "审理时间以相关机构的实际安排为准；如有进一步的材料要求或审理结果，我们将及时通知您。"
+					+ "感谢您的信任与配合，请保持联系方式畅通并留意后续通知。";
+			break;
+		case NOTIFY_RESULT:
+			subject = "申请结果通知";
+			message = "您的申请已有审理结果，相关决定文件及资料已随本邮件附上，请您下载并仔细阅读。"
+					+ "有关结果及后续安排，请参阅以下说明。如需进一步了解或协助，请联系您的顾问。";
+			break;
+		default:
+			throw serviceException("该状态不支持客户通知。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		}
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "客户")))
+				.append("同学，您好：</p><p>").append(message).append("</p>")
+				.append("<p><strong>案件编号：</strong>").append(portalDto.getId()).append("<br>")
+				.append("<strong>").append(state == PortalFollowUpState.SUBMIT_SUPPLEMENT ? "补料提交时间" : "通知时间")
+				.append("：</strong>").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+				.append("</p>");
+		if (StringUtil.isNotEmpty(remark))
+			content.append("<p><strong>")
+					.append(state == PortalFollowUpState.REQUEST_SUPPLEMENT ? "补料说明" : "备注说明")
+					.append("：</strong></p><div style=\"white-space:pre-wrap;line-height:1.8;\">")
+					.append(htmlEscape(remark)).append("</div>");
+		content.append("<p>指南针留学移民</p>");
+		String title = "【指南针留学移民】" + subject + "（案件编号：" + portalDto.getId() + "）";
+		if (state == PortalFollowUpState.NOTIFY_RESULT)
+			sendMailWithAttachments(data.email, title, content.toString(), resolveApplicationAttachments(filePath));
+		else
+			sendMail(data.email, title, content.toString());
+	}
+
+	@Override
+	public void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
+			String letterFilePath) throws ServiceException {
+		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
+		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
+		sendMailWithAttachments(recipientEmail, subject, content, contractPath.toFile(), advicePath.toFile());
 	}
 
 	private Path requireGeneratedFile(String pathValue, String description) throws ServiceException {
@@ -213,30 +453,46 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return resolveUploadDataRoot().resolve(relativePath).toAbsolutePath().normalize();
 	}
 
-	private String build485PreparationEmail(String customerName, String adviserName) {
+	private String build485ContractEmail(String customerName, String adviserName, String confirmUrl,
+			String returnUrl) {
 		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
 		String safeAdviserName = htmlEscape(firstNonEmpty(adviserName, "您的顾问"));
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
 		content.append("<p>感谢您对指南针留学移民的信任。我们已根据目前系统中登记的客户信息，为您生成了485签证服务合同和建议信，并随本邮件一并发送。</p>");
-		content.append("<p>请您下载并仔细核对两份附件中的姓名、联系方式、护照及学习经历等信息。确认无误后，请按文件要求填写、签署并回复给我们；如发现任何信息有误或需要补充，请先不要签署，并及时联系您的顾问 <strong>")
+		content.append("<p>请您下载并仔细核对两份附件中的姓名、联系方式、护照及学习经历等信息。如发现任何信息有误或需要补充，请先退回修改，并及时联系您的顾问 <strong>")
 				.append(safeAdviserName).append("</strong>。</p>");
-		content.append("<p>为了便于后续评估和递交，请您同步开始准备以下材料。每位申请人的情况和所适用的485分支可能不同，最终材料以顾问审核及澳洲内政部递交时的最新要求为准。</p>");
-		content.append("<hr/>");
-		content.append("<h3>485签证材料准备清单</h3>");
-		content.append("<ol>");
-		content.append("<li><strong>身份材料：</strong>当前护照个人信息页，以及包含签发日期、有效期的页面；如有身份证、曾用名或改名情况，请一并提供身份证及改名证明。</li>");
-		content.append("<li><strong>澳洲学习材料：</strong>学校完成信（Completion Letter）、最终成绩单、毕业证或学位证，以及课程和入学确认相关材料（如CoE）。</li>");
-		content.append("<li><strong>英语能力材料：</strong>符合当前485要求的有效英语考试成绩单或可核验的考试信息。</li>");
-		content.append("<li><strong>品行材料：</strong>澳大利亚联邦警察（AFP）无犯罪记录证明或申请凭证；如顾问要求，请补充其他国家或地区的无犯罪证明及相关品行表格。</li>");
-		content.append("<li><strong>健康保险材料：</strong>覆盖申请人及随行家庭成员的有效澳洲健康保险证明；如适用，也可提供Medicare相关证明供顾问审核。</li>");
-		content.append("<li><strong>职业评估材料（如适用）：</strong>如果申请Post-Vocational Education Work stream，请准备提名职业及相关职业评估申请或结果材料。</li>");
-		content.append("<li><strong>签证与出入境材料：</strong>当前及以往澳洲签证批准信、签证申请记录，以及曾发生拒签、取消签证或其他移民事项的说明和文件（如有）。</li>");
-		content.append("<li><strong>家庭成员材料（如适用）：</strong>配偶或子女的护照、出生证明、结婚证、同居关系证明及其他身份、健康、品行材料。</li>");
-		content.append("<li><strong>文件整理要求：</strong>请提供清晰的彩色扫描件；非英文文件同时提供原件和英文翻译件；多页文件尽量合并为一个完整文件。</li>");
-		content.append("<li><strong>其他补充材料：</strong>体检、Form 80、Form 1221或其他证明材料请在顾问确认适用或移民局要求后准备。</li>");
-		content.append("</ol>");
-		content.append("<p>请先按上述清单整理现有材料，并将缺失或仍在办理中的项目告知您的顾问，方便我们为您安排下一步工作。感谢您的配合！</p>");
+		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
+			content.append("<p>确认无误后，请点击下面的“确认签署”按钮；如需修改，请点击“退回修改”按钮：</p>")
+					.append("<p style=\"margin:24px 0;\">")
+					.append("<a href=\"").append(htmlEscape(confirmUrl))
+					.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
+							+ "background:#198754;color:#fff;text-decoration:none;border-radius:4px;\">确认签署</a>")
+					.append("<a href=\"").append(htmlEscape(returnUrl))
+					.append("\" style=\"display:inline-block;padding:12px 24px;"
+							+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回修改</a>")
+					.append("</p>");
+		} else {
+			content.append("<p>确认无误后，请按文件要求填写、签署并回复给我们。</p>");
+		}
+		content.append("<p>指南针留学移民</p>");
+		return content.toString();
+	}
+
+	private String buildApplicationMaterialsEmail(String customerName, String confirmUrl, String returnUrl) {
+		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
+		content.append("<p>您的申请材料已准备完成。确认无误后，请点击“确认申请材料”；如需补充或修改，请点击“退回申请材料”。</p>");
+		content.append("<p style=\"margin:24px 0;\">")
+				.append("<a href=\"").append(htmlEscape(confirmUrl))
+				.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
+						+ "background:#198754;color:#fff;text-decoration:none;border-radius:4px;\">确认申请材料</a>")
+				.append("<a href=\"").append(htmlEscape(returnUrl))
+				.append("\" style=\"display:inline-block;padding:12px 24px;"
+						+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回申请材料</a>")
+				.append("</p>");
+		content.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
 		content.append("<p>指南针留学移民</p>");
 		return content.toString();
 	}
@@ -255,7 +511,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private void generateContractPdf(CustomerDocumentData data, Path outputPath) throws Exception {
-		ClassPathResource resource = new ClassPathResource(CONTRACT_TEMPLATE);
+		String contractTemplate = resolveContractTemplate(data.contractTemplate);
+		ClassPathResource resource = new ClassPathResource(contractTemplate);
 		try (InputStream input = resource.getInputStream();
 				OutputStream output = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW)) {
 			PdfReader reader = new PdfReader(input);
@@ -264,7 +521,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				try {
 					AcroFields form = stamper.getAcroFields();
 					form.setGenerateAppearances(true);
-					setPdfField(form, "Text1", data.fullName);
+					setPdfField(form, "Text1", data.agreementClientName);
 					setPdfField(form, "Text2", data.address);
 					setPdfField(form, "Text3", data.fullName);
 					setPdfField(form, "Text4", data.dateOfBirth);
@@ -273,15 +530,11 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					setPdfField(form, "Text7", data.email);
 					setPdfField(form, "Text8", data.mobile);
 
-					setPdfField(form, "Text10", data.firstName);
-					setPdfField(form, "Text11", data.lastName);
-					setPdfField(form, "Text12", data.dateOfBirth);
-					setPdfField(form, "Text13", data.mobile);
-					setPdfField(form, "Text14", data.email);
-					setPdfField(form, "Text15", data.address);
-					setPdfField(form, "visa_subclass", data.matter);
-					// 模板默认选中了 Diners Club；没有客户付款信息时清空该默认值。
-					form.setField("Radio Button26", "Off");
+					if (hasPdfField(form, "fee_service_1"))
+						fillModernContractFields(stamper, form, data);
+					else
+						fillLegacyContractFields(stamper, form, data);
+					fillMaraSignatureDates(form, data.generatedDate);
 					addMaraSignatures(stamper, form, data.maraId);
 					stamper.setFormFlattening(false);
 				} finally {
@@ -293,9 +546,171 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		}
 	}
 
+	/** 填写悉尼新版合同中的服务类别、费用明细、代付费用及付款页资料。 */
+	private void fillModernContractFields(PdfStamper stamper, AcroFields form, CustomerDocumentData data)
+			throws Exception {
+		setPdfField(form, "Text10", data.firstName);
+		setPdfField(form, "Text11", data.lastName);
+		setPdfField(form, "Text12", data.dateOfBirth);
+		setPdfField(form, "Text13", data.mobile);
+		setPdfField(form, "Text14", data.email);
+		setPdfField(form, "Text15", data.address);
+
+		String serviceType = normalizeForMatch(data.serviceType);
+		boolean preliminaryAdvice = containsAny(serviceType, "preliminary");
+		boolean visaApplication = containsAny(serviceType, "visa application", "visa applications")
+				|| (StringUtil.isEmpty(serviceType) && StringUtil.isNotEmpty(data.visaSubclass));
+		boolean cancellationReview = containsAny(serviceType, "visa cancellation", "cancellation review");
+		boolean foi = containsAny(serviceType, "freedom of information", "foi");
+		boolean advice = containsAny(serviceType, "advice") && !preliminaryAdvice;
+		boolean courtOrArt = containsAny(serviceType, "court", "art proceeding", "art review");
+		boolean nomination = containsAny(serviceType, "nomination", "sponsorship");
+		boolean ministerial = containsAny(serviceType, "ministerial");
+		boolean other = containsAny(serviceType, "other") || StringUtil.isNotEmpty(data.otherImmigrationAssistance);
+
+		setPdfCheckBox(stamper, form, "svc_visa_application", visaApplication);
+		setPdfCheckBox(stamper, form, "svc_visa_cancellation_review", cancellationReview);
+		setPdfCheckBox(stamper, form, "svc_preliminary_advice", preliminaryAdvice);
+		setPdfCheckBox(stamper, form, "svc_foi", foi);
+		setPdfCheckBox(stamper, form, "svc_advice", advice);
+		setPdfCheckBox(stamper, form, "svc_court_art", courtOrArt);
+		setPdfCheckBox(stamper, form, "svc_nomination", nomination);
+		setPdfCheckBox(stamper, form, "svc_ministerial", ministerial);
+		setPdfCheckBox(stamper, form, "svc_other", other);
+		setPdfField(form, "visa_subclass", data.visaSubclass);
+		setPdfField(form, "service_other_detail", data.otherImmigrationAssistance);
+
+		String feeType = normalizeForMatch(data.feeType);
+		setPdfCheckBox(stamper, form, "fee_type_fixed", containsAny(feeType, "fixed", "lump sum"));
+		setPdfCheckBox(stamper, form, "fee_type_hourly", containsAny(feeType, "hour"));
+		for (ServiceFeeData serviceFee : data.serviceFees) {
+			setPdfField(form, "fee_service_" + serviceFee.slot, serviceFee.service);
+			setPdfField(form, "fee_total_" + serviceFee.slot, serviceFee.total);
+		}
+		setPdfField(form, "fee_grand_total", data.agreedTotalFee);
+		setPdfField(form, "gst_10_percent", data.gst);
+		setPdfField(form, "priority_processing_fee", data.priorityProcessingFee);
+		setPdfField(form, "agreed_total_including_gst", data.agreedTotalFixedFeeGst);
+		setPdfField(form, "first_instalment_fee", data.firstInstalmentFee);
+		setPdfField(form, "second_instalment_fee", data.secondInstalmentFee);
+
+		for (DisbursementData disbursement : data.disbursements) {
+			setPdfField(form, "disbursement_description_" + disbursement.slot, disbursement.description);
+			setPdfField(form, "disbursement_amount_" + disbursement.slot, disbursement.amount);
+			setPdfField(form, "disbursement_tax_" + disbursement.slot, disbursement.gst);
+			setPdfField(form, "disbursement_total_" + disbursement.slot, disbursement.total);
+			setPdfField(form, "disbursement_payment_" + disbursement.slot, disbursement.direct);
+		}
+
+		// 模板默认选中了 Diners Club；没有客户付款信息时清空该默认值。
+		if (hasPdfField(form, "Radio Button26"))
+			form.setField("Radio Button26", "Off");
+	}
+
 	/**
-	 * 将案件对应 Mara 的签名写入合同每页底部的 Agent 签名位置。
-	 * 签名字段本身是文本 AcroField，不能直接写入图片，因此先移除字段，再将签名图片覆盖到同一坐标。
+	 * ACT/ADE/BNE/Mel/TAS 旧模板没有服务费和代付费用明细行，只填写模板现有的汇总字段。
+	 */
+	private void fillLegacyContractFields(PdfStamper stamper, AcroFields form, CustomerDocumentData data)
+			throws Exception {
+		String serviceType = normalizeForMatch(data.serviceType);
+		boolean preliminaryAdvice = containsAny(serviceType, "preliminary");
+		boolean visaApplication = containsAny(serviceType, "visa application", "visa applications")
+				|| (StringUtil.isEmpty(serviceType) && StringUtil.isNotEmpty(data.visaSubclass));
+		boolean cancellationReview = containsAny(serviceType, "visa cancellation", "cancellation review");
+		boolean foi = containsAny(serviceType, "freedom of information", "foi");
+		boolean advice = containsAny(serviceType, "advice") && !preliminaryAdvice;
+		boolean courtOrArt = containsAny(serviceType, "court", "aat", "art proceeding", "art review");
+		boolean mrt = containsAny(serviceType, "mrt");
+		boolean ministerial = containsAny(serviceType, "ministerial");
+		boolean other = containsAny(serviceType, "other") || StringUtil.isNotEmpty(data.otherImmigrationAssistance);
+
+		setPdfCheckBox(stamper, form, "Check Box9", advice);
+		setPdfCheckBox(stamper, form, "Check Box10", preliminaryAdvice);
+		setPdfCheckBox(stamper, form, "Check Box11", foi);
+		setPdfCheckBox(stamper, form, "Check Box12", visaApplication);
+		setPdfCheckBox(stamper, form, "Check Box13", cancellationReview);
+		setPdfCheckBox(stamper, form, "Check Box14", courtOrArt);
+		setPdfCheckBox(stamper, form, "Check Box15", mrt);
+		setPdfCheckBox(stamper, form, "Check Box16", ministerial);
+		setPdfCheckBox(stamper, form, "Check Box17", other);
+		setPdfField(form, "Text19", data.visaSubclass);
+		setPdfField(form, "Text18", data.otherImmigrationAssistance);
+
+		String feeType = normalizeForMatch(data.feeType);
+		setPdfCheckBox(stamper, form, "Lump Sum Agreement", containsAny(feeType, "fixed", "lump sum"));
+		setPdfCheckBox(stamper, form, "Hourly Rate", containsAny(feeType, "hour"));
+		setPdfField(form, "Text30", data.agreedTotalFee);
+		setPdfField(form, "Text31", data.gst);
+		setPdfField(form, "Text32", data.priorityProcessingFee);
+		setPdfField(form, "Text11", data.agreedTotalFixedFeeGst);
+		setPdfField(form, "Text12", data.firstInstalmentFee);
+		setPdfField(form, "Text13", data.secondInstalmentFee);
+
+		setPdfField(form, "Text14", data.firstName);
+		setPdfField(form, "Text15", data.lastName);
+		setPdfField(form, "Text16", data.dateOfBirth);
+		setPdfField(form, "Text17", data.mobile);
+		setPdfField(form, "Text21", data.email);
+		setPdfField(form, "Text22", data.address);
+	}
+
+	private boolean containsAny(String value, String... fragments) {
+		if (StringUtil.isEmpty(value) || fragments == null)
+			return false;
+		for (String fragment : fragments) {
+			if (StringUtil.isNotEmpty(fragment) && value.contains(fragment))
+				return true;
+		}
+		return false;
+	}
+
+	private String normalizeForMatch(String value) {
+		String normalized = normalizeInputValue(value);
+		return normalized == null ? null : normalized.toLowerCase(Locale.ENGLISH);
+	}
+
+	private String resolveContractTemplate(String requestedTemplate) throws IOException {
+		String templateName = requestedTemplate == null ? null : requestedTemplate.trim();
+		if (StringUtil.isEmpty(templateName))
+			templateName = CONTRACT_TEMPLATE;
+		if (!CONTRACT_TEMPLATE_NAMES.contains(templateName))
+			throw new IOException("不支持的合同模板: " + templateName);
+
+		ClassPathResource resource = new ClassPathResource(templateName);
+		if (!resource.exists())
+			throw new IOException("合同模板文件不存在: " + templateName);
+		return templateName;
+	}
+
+	/** 填写Mara/Agent签名右侧日期；客户签名和客户日期始终留空。 */
+	private void fillMaraSignatureDates(AcroFields form, String generatedDate) throws Exception {
+		if (StringUtil.isEmpty(generatedDate))
+			return;
+		if (hasFieldPosition(form, MODERN_SIGNATURE_FIELDS[0])) {
+			for (String dateField : MODERN_SIGNATURE_DATE_FIELDS)
+				setPdfField(form, dateField, generatedDate);
+			return;
+		}
+		if (!hasFieldPosition(form, LEGACY_DIRECTOR_SIGNATURE_FIELD))
+			return;
+
+		String[] dateParts = generatedDate.split("/");
+		if (dateParts.length == 3) {
+			setPdfField(form, LEGACY_DIRECTOR_DATE_DAY_FIELD, dateParts[0]);
+			setPdfField(form, LEGACY_DIRECTOR_DATE_MONTH_FIELD, dateParts[1]);
+			// 旧模板已经固定印有"202_"，年份字段只允许填写最后一位；2026应填6而不是2026。
+			String year = dateParts[2];
+			if (StringUtil.isNotEmpty(year))
+				setPdfField(form, LEGACY_DIRECTOR_DATE_YEAR_SUFFIX_FIELD,
+						year.substring(year.length() - 1));
+		}
+	}
+
+	/**
+	 * 将案件对应 Mara 的签名写入合同模板中的签名位置。
+	 * 悉尼模板使用agent_signature_p1~p4；其余旧模板使用前四页Director行共用的Text29字段。
+	 * 客户签名行及第五页Cardholder签名行保持为空。字段本身不能直接写入图片，因此先移除字段，
+	 * 再将签名图片覆盖到每个控件的坐标。
 	 */
 	private void addMaraSignatures(PdfStamper stamper, AcroFields form, int maraId) throws Exception {
 		if (maraId <= 0)
@@ -306,9 +721,22 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isEmpty(maraDto.getSignatureData()))
 			throw new IOException("Mara " + maraId + " 未配置签名文件路径(signature_data)");
 		byte[] signatureBytes = readSignatureFile(maraDto.getSignatureData(), maraId);
-		for (int page = 1; page <= 4; page++) {
-			addMaraSignature(stamper, form, "agent_signature_p" + page, signatureBytes);
-		}
+		String[] signatureFields = resolveSignatureFields(form);
+		for (String signatureField : signatureFields)
+			addMaraSignature(stamper, form, signatureField, signatureBytes);
+	}
+
+	private String[] resolveSignatureFields(AcroFields form) throws IOException {
+		if (hasFieldPosition(form, MODERN_SIGNATURE_FIELDS[0]))
+			return MODERN_SIGNATURE_FIELDS;
+		if (hasFieldPosition(form, LEGACY_DIRECTOR_SIGNATURE_FIELD))
+			return new String[] { LEGACY_DIRECTOR_SIGNATURE_FIELD };
+		throw new IOException("合同模板缺少 Mara 签名字段");
+	}
+
+	private boolean hasFieldPosition(AcroFields form, String fieldName) {
+		List<AcroFields.FieldPosition> positions = form.getFieldPositions(fieldName);
+		return positions != null && !positions.isEmpty();
 	}
 
 	private void addMaraSignature(PdfStamper stamper, AcroFields form, String fieldName, byte[] signatureBytes)
@@ -317,17 +745,20 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (positions == null || positions.isEmpty())
 			throw new IOException("合同模板缺少签名字段: " + fieldName);
 
-		AcroFields.FieldPosition fieldPosition = positions.get(0);
-		Rectangle rectangle = fieldPosition.position;
+		// Text29等字段在多页拥有多个控件，移除字段前先保留全部位置。
+		List<AcroFields.FieldPosition> fieldPositions = new ArrayList<AcroFields.FieldPosition>(positions);
 		if (!form.removeField(fieldName))
 			throw new IOException("无法移除合同签名字段: " + fieldName);
 
-		Image signature = Image.getInstance(signatureBytes);
-		signature.scaleToFit(rectangle.getWidth() * 0.95f, rectangle.getHeight() * 0.95f);
-		signature.setAbsolutePosition(
-				rectangle.getLeft() + (rectangle.getWidth() - signature.getScaledWidth()) / 2f,
-				rectangle.getBottom() + (rectangle.getHeight() - signature.getScaledHeight()) / 2f);
-		stamper.getOverContent(fieldPosition.page).addImage(signature);
+		for (AcroFields.FieldPosition fieldPosition : fieldPositions) {
+			Rectangle rectangle = fieldPosition.position;
+			Image signature = Image.getInstance(signatureBytes);
+			signature.scaleToFit(rectangle.getWidth() * 0.95f, rectangle.getHeight() * 0.95f);
+			signature.setAbsolutePosition(
+					rectangle.getLeft() + (rectangle.getWidth() - signature.getScaledWidth()) / 2f,
+					rectangle.getBottom() + (rectangle.getHeight() - signature.getScaledHeight()) / 2f);
+			stamper.getOverContent(fieldPosition.page).addImage(signature);
+		}
 	}
 
 	/**
@@ -385,8 +816,104 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private void setPdfField(AcroFields form, String fieldName, String value) throws Exception {
-		if (StringUtil.isNotEmpty(fieldName) && StringUtil.isNotEmpty(value))
-			form.setField(fieldName, value);
+		String normalizedValue = normalizeInputValue(value);
+		if (StringUtil.isNotEmpty(fieldName) && normalizedValue != null && hasPdfField(form, fieldName))
+			form.setField(fieldName, normalizedValue);
+	}
+
+	private void setPdfCheckBox(PdfStamper stamper, AcroFields form, String fieldName, boolean checked)
+			throws Exception {
+		if (!hasPdfField(form, fieldName))
+			return;
+		if (!checked) {
+			form.setField(fieldName, "Off");
+			return;
+		}
+		String appearanceState = findCheckBoxOnState(form, fieldName);
+		if (appearanceState == null)
+			return;
+		form.setField(fieldName, appearanceState);
+		setCheckMarkAppearance(stamper, form, fieldName, appearanceState);
+	}
+
+	private String findCheckBoxOnState(AcroFields form, String fieldName) {
+		AcroFields.Item item = form.getFieldItem(fieldName);
+		if (item == null)
+			return null;
+		for (int index = 0; index < item.size(); index++) {
+			PdfDictionary appearanceDictionary = item.getWidget(index).getAsDict(PdfName.AP);
+			PdfDictionary normalAppearance = appearanceDictionary == null ? null
+					: appearanceDictionary.getAsDict(PdfName.N);
+			if (normalAppearance == null)
+				continue;
+			for (PdfName state : normalAppearance.getKeys()) {
+				String stateName = PdfName.decodeName(state.toString());
+				if (StringUtil.isNotEmpty(stateName) && !"Off".equalsIgnoreCase(stateName))
+					return stateName;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 原始 SYD 模板的选中状态使用 ZapfDingbats 的叉号。这里用矢量线条重建选中外观，
+	 * 不依赖客户端字体，确保 Adobe Acrobat、Chrome 与服务器生成结果都显示为勾号。
+	 */
+	private void setCheckMarkAppearance(PdfStamper stamper, AcroFields form, String fieldName,
+			String appearanceState) {
+		AcroFields.Item item = form.getFieldItem(fieldName);
+		if (stamper == null || item == null)
+			return;
+		PdfName selectedState = new PdfName(appearanceState);
+		for (int index = 0; index < item.size(); index++) {
+			PdfDictionary widget = item.getWidget(index);
+			PdfArray rectangleArray = widget.getAsArray(PdfName.RECT);
+			if (rectangleArray == null)
+				continue;
+			Rectangle rectangle = PdfReader.getNormalizedRectangle(rectangleArray);
+			float width = rectangle.getWidth();
+			float height = rectangle.getHeight();
+			if (width <= 0 || height <= 0)
+				continue;
+
+			PdfAppearance appearance = PdfAppearance.createAppearance(stamper.getWriter(), width, height);
+			float size = Math.min(width, height);
+			float borderWidth = Math.max(0.6f, size * 0.07f);
+			appearance.saveState();
+			appearance.setGrayFill(1f);
+			appearance.rectangle(0, 0, width, height);
+			appearance.fill();
+			appearance.setGrayStroke(0f);
+			appearance.setLineWidth(borderWidth);
+			appearance.rectangle(borderWidth / 2f, borderWidth / 2f, width - borderWidth,
+					height - borderWidth);
+			appearance.stroke();
+			appearance.setLineWidth(Math.max(1.2f, size * 0.14f));
+			appearance.setLineCap(1);
+			appearance.setLineJoin(1);
+			appearance.moveTo(width * 0.18f, height * 0.52f);
+			appearance.lineTo(width * 0.42f, height * 0.24f);
+			appearance.lineTo(width * 0.84f, height * 0.80f);
+			appearance.stroke();
+			appearance.restoreState();
+
+			PdfDictionary appearanceDictionary = widget.getAsDict(PdfName.AP);
+			if (appearanceDictionary == null) {
+				appearanceDictionary = new PdfDictionary();
+				widget.put(PdfName.AP, appearanceDictionary);
+			}
+			PdfDictionary normalAppearance = appearanceDictionary.getAsDict(PdfName.N);
+			if (normalAppearance == null) {
+				normalAppearance = new PdfDictionary();
+				appearanceDictionary.put(PdfName.N, normalAppearance);
+			}
+			normalAppearance.put(selectedState, appearance.getIndirectReference());
+			widget.put(PdfName.AS, selectedState);
+		}
+	}
+
+	private boolean hasPdfField(AcroFields form, String fieldName) {
+		return form != null && StringUtil.isNotEmpty(fieldName) && form.getFields().containsKey(fieldName);
 	}
 
 	private void generateAdviceDocument(CustomerDocumentData data, Path outputPath) throws Exception {
@@ -461,6 +988,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private Map<String, String> buildExactParagraphReplacements(CustomerDocumentData data) {
 		Map<String, String> replacements = new LinkedHashMap<String, String>();
+		replacements.put("Australian immigration matter", data.matter);
 		replacements.put("[Summarise the client's current visa status, location and relevant dates.]",
 				data.currentVisaSummary);
 		replacements.put("[Summarise the client's objective and proposed visa pathway.]", data.objectiveSummary);
@@ -560,46 +1088,116 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private CustomerDocumentData buildCustomerData(PortalDTO portalDto) {
 		JsonNode formData = parseFormData(portalDto.getJsonStr());
+		JsonNode contractData = parseFormData(portalDto.getContractStr());
+		JsonNode basicInfo = getObjectChild(contractData, "basicInfo");
+		JsonNode formBasicInfo = getObjectChild(formData, "basicInfo");
+		JsonNode serviceCategory = getObjectChild(contractData, "serviceCategory");
+		JsonNode formServiceCategory = getObjectChild(formData, "serviceCategory");
+		JsonNode fees = getObjectChild(contractData, "fees");
+		JsonNode disbursements = getObjectChild(contractData, "disbursements");
 		CustomerDocumentData data = new CustomerDocumentData();
+		data.contractTemplate = findContractTemplateName(contractData);
 
-		data.firstName = findText(formData, "firstName", "firstname", "givenName", "givenNames");
-		data.lastName = findText(formData, "lastName", "lastname", "surname", "familyName");
-		data.fullName = firstNonEmpty(portalDto.getName(),
+		String nameOfClient = getDirectText(basicInfo, "nameOfClient");
+		String contractName = getDirectText(basicInfo, "name", "fullName", "clientName");
+		data.firstName = firstNonEmpty(getDirectText(basicInfo, "firstName", "firstname", "givenName"),
+				getDirectText(formBasicInfo, "firstName", "firstname", "givenName"),
+				findText(contractData, "firstName", "firstname", "givenName", "givenNames"),
+				findText(formData, "firstName", "firstname", "givenName", "givenNames"));
+		data.lastName = firstNonEmpty(getDirectText(basicInfo, "lastName", "lastname", "surname", "familyName"),
+				getDirectText(formBasicInfo, "lastName", "lastname", "surname", "familyName"),
+				findText(contractData, "lastName", "lastname", "surname", "familyName"),
+				findText(formData, "lastName", "lastname", "surname", "familyName"));
+		data.fullName = firstNonEmpty(contractName, nameOfClient, portalDto.getName(),
+				getDirectText(formBasicInfo, "name", "fullName", "clientName", "applicantName"),
+				findText(contractData, "fullName", "fullLegalName", "clientName", "applicantName"),
 				findText(formData, "fullName", "fullLegalName", "clientName", "applicantName"),
 				joinName(data.firstName, data.lastName));
+		data.agreementClientName = firstNonEmpty(nameOfClient, data.fullName);
 		fillNamePartsFromFullName(data);
-		data.email = findText(formData, "email", "emailAddress", "userEmail");
-		data.mobile = findText(formData, "mobile", "mobilePhone", "phone", "phoneNumber", "telephone");
-		data.address = findText(formData, "residentialAddress", "currentAddress", "homeAddress", "address");
-		data.passport = firstNonEmpty(portalDto.getPassport(),
+		data.email = firstNonEmpty(getDirectText(basicInfo, "email"),
+				getDirectText(formBasicInfo, "email", "emailAddress"), findText(contractData, "email", "emailAddress"),
+				findText(formData, "email", "emailAddress", "userEmail"));
+		data.mobile = firstNonEmpty(getDirectText(basicInfo, "mobileNumber", "mobile", "phone"),
+				getDirectText(formBasicInfo, "mobileNumber", "mobile", "phone"),
+				findText(contractData, "mobileNumber", "mobile", "mobilePhone", "phone", "phoneNumber", "telephone"),
+				findText(formData, "mobile", "mobilePhone", "phone", "phoneNumber", "telephone"));
+		data.address = firstNonEmpty(getDirectText(basicInfo, "addressOfClient", "address"),
+				getDirectText(formBasicInfo, "addressOfClient", "address", "residentialAddress"),
+				findText(contractData, "addressOfClient", "residentialAddress", "currentAddress", "homeAddress", "address"),
+				findText(formData, "residentialAddress", "currentAddress", "homeAddress", "address"));
+		data.passport = firstNonEmpty(getDirectText(basicInfo, "passport", "passportNumber"), portalDto.getPassport(),
+				getDirectText(formBasicInfo, "passport", "passportNumber"),
+				findText(contractData, "passport", "passportNumber", "passportNo"),
 				findText(formData, "passport", "passportNumber", "passportNo"));
-		data.dateOfBirth = portalDto.getBirthday() == null
-				? findDate(formData, "birthday", "dateOfBirth", "dob")
-				: formatDate(portalDto.getBirthday());
-		data.birthCountry = findText(formData, "birthCountry", "countryOfBirth");
-		data.nationality = findText(formData, "nationality", "citizenship");
-		data.maritalStatus = findText(formData, "maritalStatus", "relationshipStatus");
-		data.location = findText(formData, "currentLocation", "location", "countryOfResidence");
-		data.visaStatus = findText(formData, "currentVisaStatus", "visaStatus", "currentVisa");
-		data.visaExpiry = firstNonEmpty(
-				portalDto.getStudentVisaExpirationDate() == null ? null : formatDate(portalDto.getStudentVisaExpirationDate()),
-				portalDto.getVisaExpirationDate() == null ? null : formatDate(portalDto.getVisaExpirationDate()),
-				findDate(formData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"));
-		data.maraId = portalDto.getMaraId();
-		data.matter = firstNonEmpty(portalDto.getPortalTypeName(),
-				portalDto.getPortalType() == null ? null : portalDto.getPortalType().getName(),
-				findText(formData, "visaSubclass", "visaType", "applicationType", "matter"),
-				"Australian immigration matter");
-		data.reference = "Portal-" + portalDto.getId();
+		data.dateOfBirth = firstNonEmpty(getDirectDate(basicInfo, "birthday", "dateOfBirth", "dob"),
+				getDirectDate(formBasicInfo, "birthday", "dateOfBirth", "dob"), formatStoredDate(portalDto.getBirthday()),
+				findDate(contractData, "birthday", "dateOfBirth", "dob"),
+				findDate(formData, "birthday", "dateOfBirth", "dob"));
+		data.birthCountry = firstNonEmpty(getDirectText(basicInfo, "birthCountry", "countryOfBirth"),
+				getDirectText(formBasicInfo, "birthCountry", "countryOfBirth"),
+				findText(contractData, "birthCountry", "countryOfBirth"),
+				findText(formData, "birthCountry", "countryOfBirth"));
+		data.nationality = firstNonEmpty(getDirectText(basicInfo, "nationality", "citizenship", "citiCountry"),
+				getDirectText(formBasicInfo, "nationality", "citizenship", "citiCountry"),
+				findText(contractData, "nationality", "citizenship", "citiCountry"),
+				findText(formData, "nationality", "citizenship", "citiCountry"));
+		data.maritalStatus = firstNonEmpty(getDirectText(basicInfo, "maritalStatus", "relationshipStatus"),
+				getDirectText(formBasicInfo, "maritalStatus", "relationshipStatus"),
+				findText(contractData, "maritalStatus", "relationshipStatus"),
+				findText(formData, "maritalStatus", "relationshipStatus"));
+		data.location = firstNonEmpty(getDirectText(basicInfo, "currentLocation", "location", "countryOfResidence"),
+				getDirectText(formBasicInfo, "currentLocation", "location", "countryOfResidence"),
+				findText(contractData, "currentLocation", "location", "countryOfResidence"),
+				findText(formData, "currentLocation", "location", "countryOfResidence"));
+		data.visaStatus = firstNonEmpty(getDirectText(basicInfo, "currentVisaStatus", "visaStatus", "currentVisa", "visaType"),
+				getDirectText(formBasicInfo, "currentVisaStatus", "visaStatus", "currentVisa", "visaType"),
+				findText(contractData, "currentVisaStatus", "visaStatus", "currentVisa", "visaType"),
+				findText(formData, "currentVisaStatus", "visaStatus", "currentVisa", "visaType"));
+		data.visaExpiry = firstMeaningfulDate(
+				getDirectDate(basicInfo, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
+				getDirectDate(formBasicInfo, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
+				findDate(contractData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
+				findDate(formData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
+				formatStoredDate(portalDto.getStudentVisaExpirationDate()),
+				formatStoredDate(portalDto.getVisaExpirationDate()));
+		data.maraId = portalDto.getMaraId() > 0 ? portalDto.getMaraId()
+				: firstPositiveInt(getDirectInt(basicInfo, "maraId"), getDirectInt(formBasicInfo, "maraId"));
+		data.serviceType = firstNonEmpty(getDirectText(serviceCategory, "serviceType"),
+				getDirectText(formServiceCategory, "serviceType"), findText(contractData, "serviceType"),
+				findText(formData, "serviceType"));
+		data.visaSubclass = firstNonEmpty(getDirectText(serviceCategory, "visaSubclass"),
+				getDirectText(formServiceCategory, "visaSubclass"), findText(contractData, "visaSubclass"),
+				findText(formData, "visaSubclass"));
+		data.otherImmigrationAssistance = firstNonEmpty(getDirectText(serviceCategory, "otherImmigrationAssistance"),
+				getDirectText(formServiceCategory, "otherImmigrationAssistance"),
+				findText(contractData, "otherImmigrationAssistance"),
+				findText(formData, "otherImmigrationAssistance"));
+		data.feeType = getDirectText(fees, "feeType");
+		data.serviceFees = readServiceFees(fees);
+		data.agreedTotalFee = getDirectText(fees, "agreedTotalFee");
+		data.gst = getDirectText(fees, "gst");
+		data.priorityProcessingFee = getDirectText(fees, "priorityProcessingFee");
+		data.agreedTotalFixedFeeGst = getDirectText(fees, "agreedTotalFixedFeeGst");
+		data.firstInstalmentFee = getDirectText(fees, "firstInstalmentFee", "firstInstallmentFee");
+		data.secondInstalmentFee = getDirectText(fees, "secondInstalmentFee", "secondInstallmentFee");
+		data.disbursements = readDisbursements(disbursements);
+		// Letter 的 Matter 明确对应合同表单中的 serviceType，不再使用中文案件类型或 visaSubclass。
+		data.matter = firstNonEmpty(data.serviceType, "Australian immigration matter");
+		data.reference = firstNonEmpty(findText(contractData, "fileReference", "ourReference"),
+				findText(formData, "fileReference", "ourReference"), "Portal-" + portalDto.getId());
 		data.generatedDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 
-		String education = buildEducationSummary(formData);
-		String language = buildLanguageSummary(formData);
+		String education = firstNonEmpty(buildEducationSummary(contractData), buildEducationSummary(formData));
+		String language = firstNonEmpty(buildLanguageSummary(contractData), buildLanguageSummary(formData));
 		data.currentVisaSummary = buildCurrentVisaSummary(data);
 		data.objectiveSummary = "The matter currently recorded for the customer is " + data.matter + ".";
 		data.circumstancesSummary = buildCircumstancesSummary(data, education, language);
-		String previousHistory = findText(formData, "previousVisaHistory", "visaHistory", "refusalHistory",
-				"cancellationHistory", "complianceHistory");
+		String previousHistory = firstNonEmpty(
+				findText(contractData, "previousVisaHistory", "visaHistory", "refusalHistory", "cancellationHistory",
+						"complianceHistory"),
+				findText(formData, "previousVisaHistory", "visaHistory", "refusalHistory", "cancellationHistory",
+						"complianceHistory"));
 		data.previousHistorySummary = StringUtil.isNotEmpty(previousHistory) ? previousHistory
 				: "No previous application, refusal, cancellation or compliance history is recorded in the current customer information.";
 		data.identitySummary = buildIdentitySummary(data);
@@ -607,6 +1205,98 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isEmpty(data.studyAndLanguageSummary))
 			data.studyAndLanguageSummary = "Not recorded in the current customer information.";
 		return data;
+	}
+
+	private String findContractTemplateName(JsonNode contractData) {
+		return getDirectText(getObjectChild(contractData, "contract"), "contractfileName", "contractFileName");
+	}
+
+	private JsonNode getObjectChild(JsonNode parent, String fieldName) {
+		if (parent == null || !parent.isObject() || StringUtil.isEmpty(fieldName))
+			return null;
+		JsonNode child = parent.get(fieldName);
+		return child != null && child.isObject() ? child : null;
+	}
+
+	private String getDirectText(JsonNode parent, String... fieldNames) {
+		if (parent == null || !parent.isObject() || fieldNames == null)
+			return null;
+		for (String fieldName : fieldNames) {
+			JsonNode child = parent.get(fieldName);
+			if (child != null && child.isValueNode()) {
+				String value = normalizeInputValue(child.asText());
+				if (value != null)
+					return value;
+			}
+		}
+		return null;
+	}
+
+	private String getDirectDate(JsonNode parent, String... fieldNames) {
+		if (parent == null || !parent.isObject() || fieldNames == null)
+			return null;
+		for (String fieldName : fieldNames) {
+			JsonNode child = parent.get(fieldName);
+			String date = formatJsonDate(child);
+			if (StringUtil.isNotEmpty(date))
+				return date;
+		}
+		return null;
+	}
+
+	private int getDirectInt(JsonNode parent, String fieldName) {
+		if (parent == null || !parent.isObject())
+			return 0;
+		JsonNode child = parent.get(fieldName);
+		if (child == null || child.isNull())
+			return 0;
+		if (child.isInt() || child.isLong())
+			return child.asInt();
+		String value = normalizeInputValue(child.asText());
+		if (value == null || !value.matches("\\d+"))
+			return 0;
+		try {
+			return Integer.parseInt(value);
+		} catch (NumberFormatException ignored) {
+			return 0;
+		}
+	}
+
+	private List<ServiceFeeData> readServiceFees(JsonNode fees) {
+		List<ServiceFeeData> result = new ArrayList<ServiceFeeData>();
+		if (fees == null)
+			return result;
+		JsonNode serviceList = fees.get("serviceList");
+		if (serviceList == null || !serviceList.isArray())
+			return result;
+		for (int index = 0; index < serviceList.size() && index < 3; index++) {
+			JsonNode item = serviceList.get(index);
+			String service = getDirectText(item, "service");
+			String total = getDirectText(item, "total");
+			if (service != null || total != null)
+				result.add(new ServiceFeeData(index + 1, service, total));
+		}
+		return result;
+	}
+
+	private List<DisbursementData> readDisbursements(JsonNode disbursements) {
+		List<DisbursementData> result = new ArrayList<DisbursementData>();
+		if (disbursements == null)
+			return result;
+		JsonNode feeList = disbursements.get("feeList");
+		if (feeList == null || !feeList.isArray())
+			return result;
+		for (int index = 0; index < feeList.size() && index < 4; index++) {
+			JsonNode item = feeList.get(index);
+			String description = getDirectText(item, "description");
+			String amount = getDirectText(item, "amount");
+			String gst = getDirectText(item, "gst");
+			String total = getDirectText(item, "total");
+			String direct = getDirectText(item, "direct");
+			if (description != null || amount != null || gst != null || total != null || direct != null)
+				result.add(new DisbursementData(index + 1, description, amount, gst, total, direct));
+		}
+		return result;
 	}
 
 	/**
@@ -672,11 +1362,13 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private String buildEducationItem(JsonNode item) {
 		List<String> values = new ArrayList<String>();
-		addLabelValue(values, "Institution", findText(item, "schoolName", "cricosName", "institutionName"));
-		addLabelValue(values, "Course", findText(item, "courseName", "eduCourseType", "courseType"));
-		addLabelValue(values, "Start", findDate(item, "startDate"));
-		addLabelValue(values, "End", findDate(item, "endDate"));
+		addLabelValue(values, "Institution", findText(item, "auSchoolName", "schoolName", "institutionName"));
+		addLabelValue(values, "Course", findText(item, "cricosName", "courseName"));
+		addLabelValue(values, "Course type", findText(item, "eduCourseType", "courseType"));
+		addLabelValue(values, "Start", findDate(item, "eduStartDate", "startDate"));
+		addLabelValue(values, "End", findDate(item, "eduEndDate", "endDate"));
 		addLabelValue(values, "Completion", findDate(item, "eduCourseCompletionDate", "completionDate"));
+		addLabelValue(values, "Skills assessment", findText(item, "skillAssessment"));
 		return joinNonEmpty(", ", values.toArray(new String[values.size()]));
 	}
 
@@ -687,28 +1379,45 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		List<String> values = new ArrayList<String>();
 		if (language.isArray()) {
 			for (JsonNode item : language)
-				addIfNotEmpty(values, findText(item, "langType", "languageTestType", "testType"));
+				addIfNotEmpty(values, buildLanguageItem(item));
 		} else {
-			addIfNotEmpty(values, findText(language, "langType", "languageTestType", "testType"));
+			addIfNotEmpty(values, buildLanguageItem(language));
 		}
 		return joinNonEmpty(", ", values.toArray(new String[values.size()]));
 	}
 
+	private String buildLanguageItem(JsonNode item) {
+		List<String> values = new ArrayList<String>();
+		addLabelValue(values, "Test", findText(item, "langType", "languageTestType", "testType"));
+		addLabelValue(values, "Overall", findText(item, "overall", "overallScore"));
+		addLabelValue(values, "Test date", findDate(item, "testDate"));
+		return joinNonEmpty(", ", values.toArray(new String[values.size()]));
+	}
+
 	private JsonNode parseFormData(String jsonStr) {
-		if (StringUtil.isEmpty(jsonStr))
+		String candidate = normalizeInputValue(jsonStr);
+		if (candidate == null)
 			return null;
-		try {
-			JsonNode node = OBJECT_MAPPER.readTree(jsonStr.trim());
-			if (node != null && node.isTextual() && StringUtil.isNotEmpty(node.asText()))
-				node = OBJECT_MAPPER.readTree(node.asText());
-			return node;
-		} catch (Exception firstException) {
+		// 兼容正常 JSON、被整体转成字符串的 JSON，以及前端重复转义后的 {\"...\"}。
+		for (int attempt = 0; attempt < 8; attempt++) {
 			try {
-				return OBJECT_MAPPER.readTree(jsonStr.replace("\\\"", "\"").trim());
+				JsonNode node = OBJECT_MAPPER.readTree(candidate);
+				if (node != null && node.isTextual()) {
+					String decoded = normalizeInputValue(node.asText());
+					if (decoded == null || decoded.equals(candidate))
+						return node;
+					candidate = decoded;
+					continue;
+				}
+				return node;
 			} catch (Exception ignored) {
-				return null;
 			}
+			String unescaped = candidate.replace("\\\"", "\"").replace("\\@", "@");
+			if (candidate.equals(unescaped))
+				return null;
+			candidate = unescaped.trim();
 		}
+		return null;
 	}
 
 	private String findText(JsonNode root, String... fieldNames) {
@@ -717,13 +1426,16 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private String findDate(JsonNode root, String... fieldNames) {
-		JsonNode node = findNode(root, fieldNames);
+		return formatJsonDate(findNode(root, fieldNames));
+	}
+
+	private String formatJsonDate(JsonNode node) {
 		if (node == null || node.isNull())
 			return null;
 		if (node.isNumber())
 			return formatTimestamp(node.asLong());
-		String value = node.asText();
-		if (StringUtil.isEmpty(value))
+		String value = normalizeInputValue(node.asText());
+		if (value == null)
 			return null;
 		if (value.matches("-?\\d{10,13}"))
 			return formatTimestamp(Long.parseLong(value));
@@ -769,7 +1481,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (node == null || node.isNull())
 			return null;
 		if (node.isValueNode())
-			return node.asText().trim();
+			return normalizeInputValue(node.asText());
 		List<String> values = new ArrayList<String>();
 		collectScalarValues(node, values, 0);
 		return joinNonEmpty(", ", values.toArray(new String[values.size()]));
@@ -804,7 +1516,41 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			return null;
 		if (timestamp < 100000000000L)
 			timestamp *= 1000L;
+		if (Math.abs(timestamp) < 24L * 60L * 60L * 1000L)
+			return null;
 		return formatDate(new Date(timestamp));
+	}
+
+	/** 过滤前端用 0 保存后映射成 1970-01-01 的占位日期。 */
+	private String formatStoredDate(Date date) {
+		if (date == null || Math.abs(date.getTime()) < 24L * 60L * 60L * 1000L)
+			return null;
+		return formatDate(date);
+	}
+
+	private String firstMeaningfulDate(String... values) {
+		if (values == null)
+			return null;
+		for (String value : values) {
+			String normalized = normalizeInputValue(value);
+			if (normalized == null)
+				continue;
+			Date parsed = parseDate(normalized);
+			if (parsed != null && Math.abs(parsed.getTime()) < 24L * 60L * 60L * 1000L)
+				continue;
+			return normalized;
+		}
+		return null;
+	}
+
+	private int firstPositiveInt(int... values) {
+		if (values != null) {
+			for (int value : values) {
+				if (value > 0)
+					return value;
+			}
+		}
+		return 0;
 	}
 
 	private String formatDate(Date date) {
@@ -818,11 +1564,23 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	private String firstNonEmpty(String... values) {
 		if (values != null) {
 			for (String value : values) {
-				if (StringUtil.isNotEmpty(value))
-					return value.trim();
+				String normalized = normalizeInputValue(value);
+				if (normalized != null)
+					return normalized;
 			}
 		}
 		return null;
+	}
+
+	private String normalizeInputValue(String value) {
+		if (value == null)
+			return null;
+		String normalized = value.trim();
+		if (StringUtil.isEmpty(normalized) || "null".equalsIgnoreCase(normalized)
+				|| "undefined".equalsIgnoreCase(normalized) || "[object Object]".equalsIgnoreCase(normalized)
+				|| "{}".equals(normalized) || "[]".equals(normalized))
+			return null;
+		return normalized;
 	}
 
 	private String joinNonEmpty(String separator, String... values) {
@@ -840,8 +1598,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private void addIfNotEmpty(List<String> values, String value) {
-		if (StringUtil.isNotEmpty(value))
-			values.add(value.trim());
+		String normalized = normalizeInputValue(value);
+		if (normalized != null)
+			values.add(normalized);
 	}
 
 	private String valueOrNotRecorded(String value) {
@@ -866,6 +1625,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	private static class CustomerDocumentData {
+		private String contractTemplate;
+		private String agreementClientName;
 		private String fullName;
 		private String firstName;
 		private String lastName;
@@ -881,6 +1642,18 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		private String visaStatus;
 		private String visaExpiry;
 		private int maraId;
+		private String serviceType;
+		private String visaSubclass;
+		private String otherImmigrationAssistance;
+		private String feeType;
+		private List<ServiceFeeData> serviceFees = new ArrayList<ServiceFeeData>();
+		private String agreedTotalFee;
+		private String gst;
+		private String priorityProcessingFee;
+		private String agreedTotalFixedFeeGst;
+		private String firstInstalmentFee;
+		private String secondInstalmentFee;
+		private List<DisbursementData> disbursements = new ArrayList<DisbursementData>();
 		private String matter;
 		private String reference;
 		private String generatedDate;
@@ -890,5 +1663,36 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		private String previousHistorySummary;
 		private String identitySummary;
 		private String studyAndLanguageSummary;
+	}
+
+	private static class ServiceFeeData {
+		private final int slot;
+		private final String service;
+		private final String total;
+
+		private ServiceFeeData(int slot, String service, String total) {
+			this.slot = slot;
+			this.service = service;
+			this.total = total;
+		}
+	}
+
+	private static class DisbursementData {
+		private final int slot;
+		private final String description;
+		private final String amount;
+		private final String gst;
+		private final String total;
+		private final String direct;
+
+		private DisbursementData(int slot, String description, String amount, String gst, String total,
+				String direct) {
+			this.slot = slot;
+			this.description = description;
+			this.amount = amount;
+			this.gst = gst;
+			this.total = total;
+			this.direct = direct;
+		}
 	}
 }

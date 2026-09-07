@@ -17,6 +17,9 @@ public interface PortalAttachmentDAO {
 
 	int updatePortalIdByPathList(@Param("filePathList") List<String> filePathList, @Param("portalId") int portalId);
 
+	int updatePortalIdAndStageByPathList(@Param("filePathList") List<String> filePathList,
+			@Param("portalId") int portalId, @Param("stage") String stage);
+
 	int deletePortalAttachmentById(int id);
 
 	int deletePortalAttachmentByPath(@Param("filePath") String filePath);
