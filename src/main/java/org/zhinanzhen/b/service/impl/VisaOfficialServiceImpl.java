@@ -1300,7 +1300,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             double countB = 1;
             if (isSIV || isNSV) {
                 getBindingOrderId = serviceOrderByParentId.getId();
-                if (serviceOrderById.getServiceId() != 1000104 && ("TM".equalsIgnoreCase(servicePackageDOT.getType()) || "DB".equalsIgnoreCase(servicePackageDOT.getType()))) {
+                if ((serviceOrderById.getServiceId() != 1000144 && serviceOrderById.getServiceId() != 1000104) && ("TM".equalsIgnoreCase(servicePackageDOT.getType()) || "DB".equalsIgnoreCase(servicePackageDOT.getType()))) {
                     amount = amount * 0.25;
                 } else {
                     amount = amount * 0.5;
@@ -1562,7 +1562,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 if (isNSV) {
                     LocalDateTime localDateTime = LocalDateTime.of(2025, 9, 1, 0, 0, 0);
                     Date from = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                    if (serviceOrderById.getServiceId() == 1000105 && serviceOrderById.getGmtCreate().getTime() > from.getTime()) {
+                    if ((serviceOrderById.getServiceId() == 1000138 || serviceOrderById.getServiceId() == 1000105) && serviceOrderById.getGmtCreate().getTime() > from.getTime()) {
                         ServicePackageDO servicePackageDO = servicePackageDAO.getById(serviceOrderById.getServicePackageId());
                         if ("VA".equalsIgnoreCase(servicePackageDO.getType())) {
                             predictCommissionAmount = predictCommissionAmount * 0.5;
