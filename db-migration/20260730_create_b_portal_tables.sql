@@ -41,6 +41,7 @@ CREATE TABLE `b_portal_type` (
   `gmt_modify` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `name` varchar(64) NOT NULL COMMENT '案件类型名称',
   `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  `file_path` varchar(255) DEFAULT NULL COMMENT '客户材料清单文件路径',
   `sort` int(11) NOT NULL DEFAULT 0 COMMENT '排序',
   `is_delete` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除 0否 1是',
   PRIMARY KEY (`id`),

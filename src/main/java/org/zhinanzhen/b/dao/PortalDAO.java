@@ -11,6 +11,10 @@ public interface PortalDAO {
 
 	int updatePortal(PortalDO portalDo);
 
+	PortalDO getPortalForUpdate(@Param("id") int id);
+
+	int countArchivedDocumentReferences(@Param("filePath") String filePath);
+
 	int clearGeneratedDocumentPaths(@Param("id") int id);
 
 	int updatePortalStateIfCurrent(@Param("id") int id, @Param("fromState") String fromState,

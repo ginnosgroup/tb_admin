@@ -13,6 +13,7 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -41,6 +42,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.PortalAttachmentService;
 import org.zhinanzhen.b.service.PortalDocumentService;
+import org.zhinanzhen.b.service.PortalFollowUpState;
+import org.zhinanzhen.b.service.impl.PortalWriteGuard;
 import org.zhinanzhen.b.service.PortalLogService;
 import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.PortalTypeService;
@@ -187,8 +190,16 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "aiText", required = false) String aiText,
 			@RequestParam(value = "fileType", required = false) String fileType,
 			@RequestParam(value = "maraId", required = false) String maraId,
+			@RequestParam(value = "portalId", required = false) Integer portalId,
 			HttpServletRequest request, HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		if (portalId != null) {
+			try {
+				portalService.requireEditablePortal(portalId);
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+		}
 		boolean signatureUpload = aiText == null && fileType != null
 				&& "signature".equalsIgnoreCase(fileType.trim());
 		MaraDTO maraDto = null;
@@ -227,6 +238,7 @@ public class PortalController extends BaseController {
 		}
 		// 在upload接口里就新增 b_portal_attachment 的数据
 		PortalAttachmentDTO portalAttachmentDto = new PortalAttachmentDTO();
+		portalAttachmentDto.setPortalId(portalId);
 		portalAttachmentDto.setFileName(file.getOriginalFilename());
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
@@ -355,17 +367,28 @@ public class PortalController extends BaseController {
 				if (portalAttachmentDto == null) {
 					return new Response<Integer>(1, "附件不存在.", 0);
 				}
-				Response<String> deleteResp = super
-						.deleteFile(normalizeAttachmentFilePath(portalAttachmentDto.getFilePath()));
-				portalAttachmentService.deletePortalAttachmentById(id);
+				String normalizedPath = normalizeAttachmentFilePath(portalAttachmentDto.getFilePath());
+				if (StringUtil.isEmpty(normalizedPath))
+					return new Response<Integer>(1, "附件路径无效。", 0);
+				// 先由服务层校验归档状态并删除记录，通过后才允许删除物理文件。
+				portalService.requireEditableDocument(normalizedPath);
+				if (portalAttachmentService.deletePortalAttachmentById(id) <= 0)
+					return new Response<Integer>(1, "附件未删除，可能已被其他操作处理。", 0);
+				Response<String> deleteResp = super.deleteFile(normalizedPath);
 				if (deleteResp != null && deleteResp.getCode() != 0) {
 					return new Response<Integer>(1, "附件文件删除失败：" + deleteResp.getMessage() + "（已删除数据库记录）", 0);
 				}
 				return new Response<Integer>(0, id);
 			} else if (StringUtil.isNotEmpty(filePath)) {
-				// 已上传但未入库：按服务器上的路径删除文件
-				Response<String> deleteResp = super.deleteFile(normalizeAttachmentFilePath(filePath));
-				portalAttachmentService.deletePortalAttachmentByPath(filePath);
+				String normalizedPath = normalizeAttachmentFilePath(filePath);
+				if (StringUtil.isEmpty(normalizedPath))
+					return new Response<Integer>(1, "附件路径无效。", 0);
+				// 用同一存储路径做归档检查与删除，避免 /data、URL 等别名绕过检查。
+				portalService.requireEditableDocument(normalizedPath);
+				portalAttachmentService.deletePortalAttachmentByPath(normalizedPath);
+				if (!normalizedPath.equals(filePath))
+					portalAttachmentService.deletePortalAttachmentByPath(filePath);
+				Response<String> deleteResp = super.deleteFile(normalizedPath);
 				if (deleteResp != null && deleteResp.getCode() != 0) {
 					return new Response<Integer>(1, "附件文件删除失败：" + deleteResp.getMessage() + "（已删除数据库记录）", 0);
 				}
@@ -476,7 +499,7 @@ public class PortalController extends BaseController {
 	/**
 	 * 规范化附件文件路径后再交给 deleteFile 拼接 /data 前缀：
 	 * 去掉 http(s)://域名 前缀、应用 context path（/admin_v2.1）前缀，
-	 * 以及重复的 /data 前缀，避免路径对不上导致文件删不掉。
+	 * 以及 /data、Windows/Tomcat 目录前缀，统一为入库的 /uploads/... 路径。
 	 */
 	private static String normalizeAttachmentFilePath(String filePath) {
 		if (filePath == null) {
@@ -497,7 +520,19 @@ public class PortalController extends BaseController {
 		if (path.startsWith("/admin_v2.1/")) {
 			path = path.substring("/admin_v2.1".length());
 		}
-		// 保留 /data 前缀：deleteFile 内部会判断是否重复拼接，并兜底按 Tomcat 工作目录查找
+		// 文件均存于 uploads 下；实际文件位置交由 deleteFile 解析。
+		path = path.replaceAll("/+", "/");
+		int uploadsIndex = path.indexOf("/uploads/");
+		if (uploadsIndex >= 0)
+			path = path.substring(uploadsIndex);
+		else if (path.startsWith("uploads/"))
+			path = "/" + path;
+		if (!path.startsWith("/uploads/"))
+			return null;
+		for (String segment : path.split("/")) {
+			if ("..".equals(segment) || ".".equals(segment))
+				return null;
+		}
 		return path;
 	}
 
@@ -626,6 +661,7 @@ public class PortalController extends BaseController {
 		boolean customerActionRequest = "04".equals(strState) || "02C".equals(strState)
 				|| customerMaterialsAction
 				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code);
+		PortalFollowUpState followUpState = PortalFollowUpState.fromCode(strState);
 		try {
 			super.setPostHeader(response);
 			if (customerActionRequest)
@@ -641,6 +677,15 @@ public class PortalController extends BaseController {
 					fromState = oldPortalDto.getStrState();
 			} catch (ServiceException ignored) {
 			}
+			if (oldPortalDto != null && "013".equals(fromState)) {
+				if (customerActionRequest)
+					return customerResultPage(oldPortalDto, normalizedResult, false,
+							PortalWriteGuard.ARCHIVED_MESSAGE, response);
+				return new Response<PortalDTO>(1, PortalWriteGuard.ARCHIVED_MESSAGE, null);
+			}
+			// 新增补料/结果流程按说明由文案或MARA操作，并沿用现有案件归属权限。
+			if (followUpState != null && followUpState.isFollowUp())
+				validateFollowUpRequest(followUpState, id, remark, filePath, request);
 			if (customerActionRequest && !customerResultRequest)
 				return customerResultPage(oldPortalDto, normalizedResult, false,
 						customerMaterialsAction ? "申请材料操作链接参数不完整，请联系您的顾问。"
@@ -746,14 +791,11 @@ public class PortalController extends BaseController {
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
-			if (portalService.updatePortal(portalDto) > 0) {
-				// 同步附件：根据updatePortal传过来的路径，把已上传附件的portalId更新为当前案件ID
-				if ("06B".equals(strState))
-					syncPortalAttachments(filePath, portalDto.getId(), "06B");
-				else if ("09".equals(strState))
-					syncPortalAttachments(filePath, portalDto.getId(), "09");
-				else
-					syncPortalAttachments(filePath, portalDto.getId());
+			String attachmentStage = "06B".equals(strState) || "09".equals(strState)
+					|| "010A".equals(strState) || "012".equals(strState) ? strState : null;
+			List<String> updateFilePaths = "05".equals(strState) || "06".equals(strState)
+					|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
+			if (portalService.updatePortalWithAttachments(portalDto, updateFilePaths, attachmentStage) > 0) {
             // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
             if ("02B".equals(strState) && !"02B".equals(fromState)) {
                 try {
@@ -804,8 +846,8 @@ public class PortalController extends BaseController {
 				}
 				// 操作日志：更新案件
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
-				String logAction = "update";
-				String logContent = "02A".equals(strState) ? adviserRemark : "更新案件信息";
+				String logAction = followUpState == null ? "update" : followUpState.getAction();
+				String logContent = followUpState == null ? "更新案件信息" : followUpState.getLabel();
 				if ("06B".equals(strState))
 					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark : "申请材料待客户确认";
 				if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
@@ -826,6 +868,10 @@ public class PortalController extends BaseController {
 				} else if (("03".equals(fromState) || "03A".equals(fromState)) && "02D".equals(strState)) {
 					logAction = "reject_back";
 					logContent = "案件从" + fromState + "被驳回退回02D";
+				} else if ("02A".equals(strState)) {
+					logAction = followUpState == null ? "mara_processing_upgrade" : followUpState.getAction();
+					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark
+							: (followUpState == null ? "升级案件MARA处理中" : followUpState.getLabel());
 				} else if ("05".equals(strState)) {
 					logAction = "adviser_service_order_created";
 					logContent = "顾问已下服务订单";
@@ -844,8 +890,51 @@ public class PortalController extends BaseController {
 				} else if ("09".equals(strState)) {
 					logAction = "official_submit_application";
 					logContent = "文案已正式提交申请";
+				} else if (followUpState != null && followUpState.isFollowUp()) {
+					logAction = followUpState.getAction();
+					logContent = followUpState.getLabel();
+					if (StringUtil.isNotEmpty(adviserRemark))
+						logContent += "：" + adviserRemark;
 				}
 				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, request);
+				if (followUpState != null && followUpState.isFollowUp()
+						&& followUpState != PortalFollowUpState.ARCHIVE
+						&& !strState.equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						sendFollowUpNotification(savedPortalDto, followUpState, adviserRemark, filePath, request);
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为{}，但流程通知邮件发送失败，portalId={}", strState, id, notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为" + strState + "，但通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 顾问下达服务订单后，通知对应文案开始处理；重复提交05不重复发送邮件。
+				if ("05".equals(strState) && !"05".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialServiceOrderCreatedNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为05，但服务订单下单通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为05，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 文案开始准备申请材料时，通知客户案件已进入准备阶段；不上传、不关联附件。
+				if ("06".equals(strState) && !"06".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalDocumentService.sendApplicationMaterialsPreparationNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为06，但客户申请材料准备通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为06，但客户通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
 				if ("03A".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
@@ -1044,6 +1133,68 @@ public class PortalController extends BaseController {
 				return customerResultPage(null, normalizedResult, false,
 						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
 			return new Response<PortalDTO>(1, e.getMessage(), null);
+		}
+	}
+
+	private void validateFollowUpRequest(PortalFollowUpState state, int portalId, String remark, String filePath,
+			HttpServletRequest request) throws ServiceException {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null)
+			throw portalParameterError("请先登录。");
+		String roles = login.getApList() == null ? "" : login.getApList().toUpperCase(Locale.ENGLISH);
+		if (!roles.contains("SUPERAD")) {
+			if (!roles.contains(state.getRole()))
+				throw portalParameterError("该操作需要" + ("MA".equals(state.getRole()) ? "MARA" : "文案") + "角色。");
+			Integer officialId = null;
+			Integer officialRegionId = null;
+			Integer maraId = null;
+			if ("MA".equals(state.getRole())) {
+				maraId = login.getMaraId();
+				if (maraId == null || maraId <= 0)
+					throw portalParameterError("登录用户未关联MARA信息。");
+			} else if (login.isOfficialAdmin()) {
+				officialRegionId = login.getRegionId();
+				if (officialRegionId == null || officialRegionId <= 0)
+					throw portalParameterError("文案管理员未配置所属地区。");
+			} else {
+				officialId = login.getOfficialId();
+				if (officialId == null || officialId <= 0)
+					throw portalParameterError("登录用户未关联文案信息。");
+			}
+			if (portalService.getPortal(portalId, null, null, officialId, officialRegionId, maraId) == null)
+				throw portalParameterError("案件不存在或您无权操作该案件。");
+		}
+		if (state.isRemarkRequired() && (remark == null || remark.trim().isEmpty()))
+			throw portalParameterError(state == PortalFollowUpState.REQUEST_SUPPLEMENT
+					? "请填写补料说明remark。" : "请填写补料审核驳回原因remark。");
+		if (state.isAttachmentsRequired())
+			portalDocumentService.validateApplicationFiles(filePath);
+	}
+
+	private ServiceException portalParameterError(String message) {
+		ServiceException exception = new ServiceException(message);
+		exception.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+		return exception;
+	}
+
+	private void sendFollowUpNotification(PortalDTO portal, PortalFollowUpState state, String remark,
+			String filePath, HttpServletRequest request) throws ServiceException {
+		 switch (state) {
+		 case REQUEST_SUPPLEMENT:
+		 case SUBMIT_SUPPLEMENT:
+		 case NOTIFY_RESULT:
+			portalDocumentService.sendCustomerFollowUpNotification(portal, state, remark, filePath);
+			break;
+		case REVIEW_SUPPLEMENT:
+			portalService.sendMaraSupplementReviewNotification(portal, buildPortalCaseUrl(request, portal.getId()));
+			break;
+		case REJECT_SUPPLEMENT:
+		case APPROVE_SUPPLEMENT:
+			portalService.sendOfficialSupplementReviewNotification(portal, remark,
+					buildPortalCaseUrl(request, portal.getId()), state == PortalFollowUpState.APPROVE_SUPPLEMENT);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -1483,7 +1634,7 @@ public class PortalController extends BaseController {
 				for (PortalDTO portalDto : portalDtoList) {
 					portalDto.setPortalAttachmentList(
 							portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
-					portalDto.setPortalLogList(portalLogService.listPortalLog(portalDto.getId(), 0, 1000));
+					portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
 				}
 			}
 			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
@@ -1567,6 +1718,8 @@ public class PortalController extends BaseController {
 			PortalDTO portalDto = portalService.getPortal(portalId, null, null, null, null, null);
 			if (portalDto == null)
 				return customerActionPage(false, "案件不存在", "未找到对应案件，请联系您的顾问。");
+			if ("013".equals(portalDto.getStrState()))
+				return customerActionPage(false, "案件已归档", PortalWriteGuard.ARCHIVED_MESSAGE);
 
 			boolean confirm = "confirm".equals(normalizedAction);
 			String targetState = confirm ? "04" : "02C";
@@ -1889,7 +2042,7 @@ public class PortalController extends BaseController {
 				// 按 portal_id 关联查询附件列表和操作日志，组装进 PortalDTO 一起返回
 				portalDto.setPortalAttachmentList(
 						portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
-				portalDto.setPortalLogList(portalLogService.listPortalLog(portalDto.getId(), 0, 1000));
+				portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
 			}
 			return new Response<PortalDTO>(0, "", portalDto);
 		} catch (ServiceException e) {
@@ -1976,28 +2129,30 @@ public class PortalController extends BaseController {
 	 * 内部做去空格、去空串、去重。
 	 */
 	private void syncPortalAttachments(String filePath, int portalId) throws ServiceException {
-		if (StringUtil.isEmpty(filePath))
-			return;
-		List<String> filePathList = Arrays.stream(filePath.split("[,，]")).map(String::trim)
-				.filter(StringUtil::isNotEmpty).distinct().collect(Collectors.toList());
+		List<String> filePathList = splitPortalFilePaths(filePath);
 		if (!filePathList.isEmpty())
 			portalAttachmentService.updatePortalIdByPathList(filePathList, portalId);
 	}
 
-	/** 按路径批量关联申请材料，并同步更新附件阶段。 */
-	private void syncPortalAttachments(String filePath, int portalId, String stage) throws ServiceException {
-		if (StringUtil.isEmpty(filePath))
-			return;
-		List<String> filePathList = Arrays.stream(filePath.split("[,，]")).map(String::trim)
+	private List<String> splitPortalFilePaths(String filePath) {
+		if (filePath == null)
+			return new ArrayList<String>();
+		return Arrays.stream(filePath.split("[,，]")).map(String::trim)
 				.filter(StringUtil::isNotEmpty).distinct().collect(Collectors.toList());
-		if (!filePathList.isEmpty())
-			portalAttachmentService.updatePortalIdAndStageByPathList(filePathList, portalId, stage);
+	}
+
+	/** 归档详情保留完整操作记录，避免超过1000条时截断归档历史。 */
+	private List<PortalLogDTO> listPortalDetailLogs(PortalDTO portal) throws ServiceException {
+		int size = "013".equals(portal.getStrState())
+				? Math.max(1, portalLogService.countPortalLog(portal.getId())) : 1000;
+		return portalLogService.listPortalLog(portal.getId(), 0, size);
 	}
 
 	@RequestMapping(value = "/type/add", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<Integer> addPortalType(@RequestParam(value = "name") String name,
 			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "filePath", required = false) String filePath,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -2007,6 +2162,8 @@ public class PortalController extends BaseController {
 			portalTypeDto.setName(name);
 			if (StringUtil.isNotEmpty(description))
 				portalTypeDto.setDescription(description);
+			if (StringUtil.isNotEmpty(filePath))
+				portalTypeDto.setFilePath(filePath.trim());
 			if (StringUtil.isNotEmpty(sort))
 				portalTypeDto.setSort(StringUtil.toInt(sort));
 			// 未传默认0（未删除），避免insert时写入null违反非空约束
@@ -2026,6 +2183,7 @@ public class PortalController extends BaseController {
 	public Response<PortalTypeDTO> updatePortalType(@RequestParam(value = "id") int id,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "filePath", required = false) String filePath,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletResponse response) {
 		try {
@@ -2036,6 +2194,8 @@ public class PortalController extends BaseController {
 				portalTypeDto.setName(name);
 			if (StringUtil.isNotEmpty(description))
 				portalTypeDto.setDescription(description);
+			if (filePath != null)
+				portalTypeDto.setFilePath(filePath.trim());
 			if (StringUtil.isNotEmpty(sort))
 				portalTypeDto.setSort(StringUtil.toInt(sort));
 			if (StringUtil.isNotEmpty(isDelete))

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,8 +35,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.PortalDocumentService;
+import org.zhinanzhen.b.service.PortalFollowUpState;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
+import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -295,6 +298,120 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		} catch (Exception e) {
 			throw serviceException("发送申请提交通知邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
 		}
+	}
+
+	@Override
+	public void sendApplicationMaterialsPreparationNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，申请材料准备通知未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，申请材料准备通知未发送.", ErrorCodeEnum.DATA_ERROR.code(), null);
+		PortalTypeDTO portalType = portalDto.getPortalType();
+		String materialListPath = portalType == null ? null : portalType.getFilePath();
+		Path materialList = requireGeneratedFile(materialListPath, "材料清单");
+
+		String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
+		String title = "【指南针留学移民】申请材料准备通知";
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "同学")))
+				.append("同学，您好：</p>")
+				.append("<p>您的案件现已进入申请材料准备阶段，").append(htmlEscape(adviserName))
+				.append("正在为您准备后续申请材料。邮件中附有材料清单，请您按照清单准备相关资料；如需您补充或确认其他资料，我们会及时与您联系，请保持联系方式畅通。</p>")
+				.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+						+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件编号</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(portalDto.getId()).append("</td></tr>")
+				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+						+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>通知时间</strong></td>")
+				.append("<td style=\"padding:6px 0;\">").append(htmlEscape(noticeDate)).append("</td></tr>");
+		if (StringUtil.isNotEmpty(caseUrl))
+			content.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+					+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>案件链接</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(htmlEscape(caseUrl)).append("\">")
+					.append(htmlEscape(caseUrl)).append("</a></td></tr>");
+		content.append("</table><p>感谢您的配合。谢谢。</p><p>指南针留学移民</p>");
+		try {
+			sendMailWithAttachments(data.email, title, content.toString(), materialList.toFile());
+		} catch (Exception e) {
+			throw serviceException("发送申请材料准备通知失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
+	public void validateApplicationFiles(String filePath) throws ServiceException {
+		resolveApplicationAttachments(filePath);
+	}
+
+	private File[] resolveApplicationAttachments(String filePath) throws ServiceException {
+		Set<String> paths = new LinkedHashSet<String>();
+		if (filePath != null) {
+			for (String path : filePath.split("[,，]")) {
+				if (!path.trim().isEmpty())
+					paths.add(path.trim());
+			}
+		}
+		if (paths.isEmpty())
+			throw serviceException("请先上传文件并传入filePath。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		List<File> files = new ArrayList<File>();
+		for (String path : paths)
+			files.add(requireGeneratedFile(path, "案件附件").toFile());
+		return files.toArray(new File[files.size()]);
+	}
+
+	@Override
+	public void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
+			String filePath) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0 || state == null)
+			throw serviceException("案件通知参数无效。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，通知邮件未发送。", ErrorCodeEnum.DATA_ERROR.code(), null);
+
+		String subject;
+		String message;
+		switch (state) {
+		case REQUEST_SUPPLEMENT:
+			subject = "补充材料通知";
+			message = "为继续推进您的申请，请您根据以下说明准备并提供补充材料。如对材料要求有任何疑问，"
+					+ "请及时与您的顾问联系，我们将协助您完成准备。";
+			break;
+		case SUBMIT_SUPPLEMENT:
+			subject = "补充材料已正式提交";
+			message = "您提供的补充材料已完成审核并正式提交至相关审理机构。您的申请现正等待最终审理决定。"
+					+ "审理时间以相关机构的实际安排为准；如有进一步的材料要求或审理结果，我们将及时通知您。"
+					+ "感谢您的信任与配合，请保持联系方式畅通并留意后续通知。";
+			break;
+		case NOTIFY_RESULT:
+			subject = "申请结果通知";
+			message = "您的申请已有审理结果，相关决定文件及资料已随本邮件附上，请您下载并仔细阅读。"
+					+ "有关结果及后续安排，请参阅以下说明。如需进一步了解或协助，请联系您的顾问。";
+			break;
+		default:
+			throw serviceException("该状态不支持客户通知。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		}
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "客户")))
+				.append("同学，您好：</p><p>").append(message).append("</p>")
+				.append("<p><strong>案件编号：</strong>").append(portalDto.getId()).append("<br>")
+				.append("<strong>").append(state == PortalFollowUpState.SUBMIT_SUPPLEMENT ? "补料提交时间" : "通知时间")
+				.append("：</strong>").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+				.append("</p>");
+		if (StringUtil.isNotEmpty(remark))
+			content.append("<p><strong>")
+					.append(state == PortalFollowUpState.REQUEST_SUPPLEMENT ? "补料说明" : "备注说明")
+					.append("：</strong></p><div style=\"white-space:pre-wrap;line-height:1.8;\">")
+					.append(htmlEscape(remark)).append("</div>");
+		content.append("<p>指南针留学移民</p>");
+		String title = "【指南针留学移民】" + subject + "（案件编号：" + portalDto.getId() + "）";
+		if (state == PortalFollowUpState.NOTIFY_RESULT)
+			sendMailWithAttachments(data.email, title, content.toString(), resolveApplicationAttachments(filePath));
+		else
+			sendMail(data.email, title, content.toString());
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.dao.PortalAttachmentDAO;
 import org.zhinanzhen.b.dao.pojo.PortalAttachmentDO;
 import org.zhinanzhen.b.service.PortalAttachmentService;
@@ -22,7 +23,35 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	@Resource
 	private PortalAttachmentDAO portalAttachmentDao;
 
+	@Resource
+	private PortalWriteGuard portalWriteGuard;
+
+	private void requireAttachmentEditable(PortalAttachmentDO attachment) throws ServiceException {
+		if (attachment != null && attachment.getPortalId() != null && attachment.getPortalId() > 0)
+			portalWriteGuard.requireEditable(attachment.getPortalId());
+	}
+
+	private void validateAttachmentPaths(List<String> paths, int portalId) throws ServiceException {
+		portalWriteGuard.requireEditable(portalId);
+		for (String path : paths) {
+			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentByPath(path);
+			if (attachment == null) {
+				ServiceException error = new ServiceException("未找到已上传的附件：" + path);
+				error.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw error;
+			}
+			requireAttachmentEditable(attachment);
+			if (attachment.getPortalId() != null && attachment.getPortalId() > 0
+					&& attachment.getPortalId() != portalId) {
+				ServiceException error = new ServiceException("附件已属于其他案件，不能关联到当前案件：" + path);
+				error.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw error;
+			}
+		}
+	}
+
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int addPortalAttachment(PortalAttachmentDTO portalAttachmentDto) throws ServiceException {
 		if (portalAttachmentDto == null) {
 			ServiceException se = new ServiceException("portalAttachmentDto is null !");
@@ -30,6 +59,8 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			throw se;
 		}
 		try {
+			if (portalAttachmentDto.getPortalId() != null && portalAttachmentDto.getPortalId() > 0)
+				portalWriteGuard.requireEditable(portalAttachmentDto.getPortalId());
 			PortalAttachmentDO portalAttachmentDo = mapper.map(portalAttachmentDto, PortalAttachmentDO.class);
 			if (portalAttachmentDao.addPortalAttachment(portalAttachmentDo) > 0) {
 				portalAttachmentDto.setId(portalAttachmentDo.getId());
@@ -113,6 +144,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int updatePortalIdByPathList(List<String> filePathList, int portalId) throws ServiceException {
 		if (filePathList == null || filePathList.isEmpty() || portalId <= 0) {
 			ServiceException se = new ServiceException("filePathList or portalId error !");
@@ -120,6 +152,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			throw se;
 		}
 		try {
+			validateAttachmentPaths(filePathList, portalId);
 			return portalAttachmentDao.updatePortalIdByPathList(filePathList, portalId);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -129,6 +162,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int updatePortalIdAndStageByPathList(List<String> filePathList, int portalId, String stage)
 			throws ServiceException {
 		if (filePathList == null || filePathList.isEmpty() || portalId <= 0 || StringUtil.isEmpty(stage)) {
@@ -137,6 +171,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			throw se;
 		}
 		try {
+			validateAttachmentPaths(filePathList, portalId);
 			return portalAttachmentDao.updatePortalIdAndStageByPathList(filePathList, portalId, stage);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -146,6 +181,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int deletePortalAttachmentById(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");
@@ -153,6 +189,10 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			throw se;
 		}
 		try {
+			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentById(id);
+			requireAttachmentEditable(attachment);
+			if (attachment != null)
+				portalWriteGuard.requireFileEditable(attachment.getFilePath());
 			return portalAttachmentDao.deletePortalAttachmentById(id);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
@@ -162,6 +202,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int deletePortalAttachmentByPath(String filePath) throws ServiceException {
 		if (filePath == null || filePath.isEmpty()) {
 			ServiceException se = new ServiceException("filePath error !");
@@ -169,6 +210,8 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			throw se;
 		}
 		try {
+			portalWriteGuard.requireFileEditable(filePath);
+			requireAttachmentEditable(portalAttachmentDao.getPortalAttachmentByPath(filePath));
 			return portalAttachmentDao.deletePortalAttachmentByPath(filePath);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);

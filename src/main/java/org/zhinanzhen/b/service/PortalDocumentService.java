@@ -26,6 +26,17 @@ public interface PortalDocumentService {
 	void sendApplicationSubmittedNotification(PortalDTO portalDto, String filePath, String caseUrl)
 			throws ServiceException;
 
+	/** 通知客户案件已进入申请材料准备阶段，并附加案件类型配置的材料清单文件。 */
+	void sendApplicationMaterialsPreparationNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException;
+
+	/** 预先检查本次上传的补料或决定文件，防止文件缺失时仍推进状态。 */
+	void validateApplicationFiles(String filePath) throws ServiceException;
+
+	/** 010补料通知、011A补料提交通知、012申请结果通知（含备注和附件）。 */
+	void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
+			String filePath) throws ServiceException;
+
 	/** 将案件已经生成的合同和建议信作为附件发送给指定收件人。 */
 	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException;

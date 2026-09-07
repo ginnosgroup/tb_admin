@@ -31,7 +31,7 @@
                 #{aiText});
     </insert>
 
-    <select id="getPortalAttachmentById" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+    <select id="getPortalAttachmentById" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
         SELECT
             id,
             portal_id AS portalId,
@@ -47,7 +47,7 @@
         FROM b_portal_attachment WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
-    <select id="getPortalAttachmentByPath" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+    <select id="getPortalAttachmentByPath" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
         SELECT
             id,
             portal_id AS portalId,
