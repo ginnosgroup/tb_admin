@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.controller.nodes.SONodeFactory;
@@ -290,6 +291,7 @@ public class ServiceOrderManageController extends BaseController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
+    @Transactional(rollbackFor = Exception.class)
     public Response<Integer> addServiceOrder(
                                              @RequestParam(value = "isPay", required = false) String isPay,
                                              @RequestParam(value = "receiveTypeId", required = false) String receiveTypeId,
@@ -495,7 +497,27 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderJsonRequest.setVerifyCode(null);
                         serviceOrderJsonRequest.setRefNo(null);
                     }
-                    addServiceOrderForManage(serviceOrderJsonRequest, adminUserLoginInfo, false);
+                    Response<Integer> childOrderResponse;
+                    try {
+                        childOrderResponse = addServiceOrderForManage(
+                                serviceOrderJsonRequest, adminUserLoginInfo, false);
+                    } catch (Exception e) {
+                        LOG.error("创建服务订单子订单异常，管理订单ID={}", serviceOrderDto.getId(), e);
+                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                        return new Response<Integer>(1,
+                                "子订单创建异常，管理订单已撤回，请联系管理员。", 0);
+                    }
+                    if (childOrderResponse == null || childOrderResponse.getCode() != 0) {
+                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                        String errorMessage = childOrderResponse == null
+                                ? "子订单创建失败"
+                                : childOrderResponse.getMessage();
+                        if (StringUtil.isEmpty(errorMessage)) {
+                            errorMessage = "子订单创建失败";
+                        }
+                        return new Response<Integer>(1,
+                                errorMessage + "，管理订单已撤回，请检查参数后重试。", 0);
+                    }
                 }
             }
             List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageService.listChildrenServiceOrder(serviceOrderDto.getId());

@@ -47,7 +47,6 @@ import org.zhinanzhen.tb.service.pojo.AdviserDTO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.service.pojo.TagDTO;
 import org.zhinanzhen.tb.service.pojo.UserAdviserDTO;
-import org.zhinanzhen.tb.utils.Base64Util;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.ListUtil;
@@ -141,8 +140,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		}
 		UserDO userDo = new UserDO();
 		userDo.setName(name);
-		String authNicknameUTF8 = new String(authNickname.getBytes(), StandardCharsets.UTF_8);
-		userDo.setAuthNickname(authNicknameUTF8);
+		userDo.setAuthNickname(authNickname);
 		userDo.setAuthType("BROKERAGE");
 		userDo.setAuthOpenid("");
 		userDo.setBirthday(birthday);
@@ -549,11 +547,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 		List<UserDTO> userDtoList = new ArrayList<UserDTO>();
 		List<UserDO> userDoList = new ArrayList<UserDO>();
 		try {
-			authNickname = new String(Base64Util.encodeBase64(authNickname.getBytes()));
-		} catch (Exception e) {
-//			System.out.println(("昵称转码失败"));
-		}
-		try {
 			if (authType == null) {
 				userDoList = userDao.listUser(null, name, null, authNickname, phone, areaCode, email, wechatUsername,
 						adviserId <= 0 ? null : adviserId, applicantName, regionIdList, tagId, orderByField, isDesc,
@@ -757,13 +750,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userDto.setRecommendUserDto(recommendUserMap.get(userDto.getRecommendOpenid()));
 			}
 
-			// authNickname 解码
-			try {
-				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
-			} catch (Exception e) {
-//				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
-			}
-
 			// tag
 			userDto.setTagList(tagMap.getOrDefault(userDto.getId(), Collections.emptyList()));
 
@@ -814,11 +800,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 				userDto.setRecommendUserDto(recommendUserDto);
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
-			try {
-				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
-			} catch (Exception e) {
-//				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
-			}
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -1008,11 +989,6 @@ public class UserServiceImpl extends BaseService implements UserService {
 				UserDTO recommendUserDto = getUserByOpenId(UserAuthTypeEnum.WECHAT.toString(),
 						userDto.getRecommendOpenid());
 				userDto.setRecommendUserDto(recommendUserDto);
-			}
-			try {
-				userDto.setAuthNickname(new String(Base64Util.decodeBase64(userDto.getAuthNickname()), "utf-8"));
-			} catch (Exception e) {
-//				System.out.println(("昵称转码失败 userId = " + userDto.getId()));
 			}
 			userDto.setTagList(listTagByUserId(userDto.getId()));
 			userDtoList.add(userDto);
