@@ -195,6 +195,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "fileType", required = false) String fileType,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "portalId", required = false) Integer portalId,
+			@RequestParam(value = "attachmentState", required = false) String attachmentState,
 			HttpServletRequest request, HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
 		if (portalId != null) {
@@ -251,6 +252,8 @@ public class PortalController extends BaseController {
 		if (StringUtil.isNotEmpty(originalName) && originalName.contains("."))
 			portalAttachmentDto.setFileExt(originalName.substring(originalName.lastIndexOf(".") + 1));
 		portalAttachmentDto.setStage("apply");
+		if (StringUtil.isNotEmpty(attachmentState))
+			portalAttachmentDto.setAttachmentState(attachmentState.trim());
 		// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
 		if (aiText != null) {
 			portalAttachmentDto
@@ -279,7 +282,9 @@ public class PortalController extends BaseController {
 			return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 		}
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
+		result.put("attachmentId", attachmentId);
 		result.put("filePath", uploadResp.getData());
+		result.put("attachmentState", portalAttachmentDto.getAttachmentState());
 		if (aiText != null) {
 			result.put("aiText", portalAttachmentDto.getAiText());
 		}
@@ -356,6 +361,67 @@ public class PortalController extends BaseController {
 			return OBJECT_MAPPER.writeValueAsString(completionJson);
 		}
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
+	}
+
+	@RequestMapping(value = "/attachment/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<PortalAttachmentDTO>> listAttachment(
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "portalId", required = false) Integer portalId,
+			@RequestParam(value = "attachmentState", required = false) String attachmentState,
+			@RequestParam(value = "stage", required = false) String stage,
+			@RequestParam(value = "filePath", required = false) String filePath,
+			@RequestParam(value = "fileName", required = false) String fileName,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			return new Response<List<PortalAttachmentDTO>>(0,
+					portalAttachmentService.listPortalAttachment(id, portalId, attachmentState, stage, filePath, fileName,
+							pageNum, pageSize));
+		} catch (ServiceException e) {
+			return new Response<List<PortalAttachmentDTO>>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/attachment/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<PortalAttachmentDTO> updateAttachment(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "portalId", required = false) Integer portalId,
+			@RequestParam(value = "fileName", required = false) String fileName,
+			@RequestParam(value = "fileSize", required = false) Long fileSize,
+			@RequestParam(value = "fileType", required = false) String fileType,
+			@RequestParam(value = "fileExt", required = false) String fileExt,
+			@RequestParam(value = "stage", required = false) String stage,
+			@RequestParam(value = "attachmentState", required = false) String attachmentState,
+			@RequestParam(value = "aiText", required = false) String aiText, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			PortalAttachmentDTO portalAttachmentDto = new PortalAttachmentDTO();
+			portalAttachmentDto.setId(id == null ? 0 : id);
+			if (portalId != null)
+				portalAttachmentDto.setPortalId(portalId);
+			if (fileName != null)
+				portalAttachmentDto.setFileName(fileName.trim());
+			if (fileSize != null)
+				portalAttachmentDto.setFileSize(fileSize);
+			if (fileType != null)
+				portalAttachmentDto.setFileType(fileType.trim());
+			if (fileExt != null)
+				portalAttachmentDto.setFileExt(fileExt.trim());
+			if (stage != null)
+				portalAttachmentDto.setStage(stage.trim());
+			if (attachmentState != null)
+				portalAttachmentDto.setAttachmentState(attachmentState.trim());
+			if (aiText != null)
+				portalAttachmentDto.setAiText(aiText);
+			if (portalAttachmentService.updatePortalAttachment(portalAttachmentDto) <= 0)
+				return new Response<PortalAttachmentDTO>(1, "修改失败.", null);
+			return new Response<PortalAttachmentDTO>(0,
+					portalAttachmentService.getPortalAttachment(portalAttachmentDto.getId()));
+		} catch (ServiceException e) {
+			return new Response<PortalAttachmentDTO>(e.getCode(), e.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/attachment/delete", method = RequestMethod.POST)
@@ -2163,6 +2229,7 @@ public class PortalController extends BaseController {
 	public Response<Integer> addPortalType(@RequestParam(value = "name") String name,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "filePath", required = false) String filePath,
+			@RequestParam(value = "documentList", required = false) String documentList,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -2174,6 +2241,8 @@ public class PortalController extends BaseController {
 				portalTypeDto.setDescription(description);
 			if (StringUtil.isNotEmpty(filePath))
 				portalTypeDto.setFilePath(filePath.trim());
+			if (StringUtil.isNotEmpty(documentList))
+				portalTypeDto.setDocumentList(documentList.trim());
 			if (StringUtil.isNotEmpty(sort))
 				portalTypeDto.setSort(StringUtil.toInt(sort));
 			// 未传默认0（未删除），避免insert时写入null违反非空约束
@@ -2194,6 +2263,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "filePath", required = false) String filePath,
+			@RequestParam(value = "documentList", required = false) String documentList,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletResponse response) {
 		try {
@@ -2206,6 +2276,8 @@ public class PortalController extends BaseController {
 				portalTypeDto.setDescription(description);
 			if (filePath != null)
 				portalTypeDto.setFilePath(filePath.trim());
+			if (documentList != null)
+				portalTypeDto.setDocumentList(documentList.trim());
 			if (StringUtil.isNotEmpty(sort))
 				portalTypeDto.setSort(StringUtil.toInt(sort));
 			if (StringUtil.isNotEmpty(isDelete))
@@ -2224,10 +2296,13 @@ public class PortalController extends BaseController {
 	@ResponseBody
 	public Response<List<PortalTypeDTO>> listPortalType(
 			@RequestParam(value = "isDelete", required = false) Integer isDelete,
-			@RequestParam(value = "keyword", required = false) String keyword, HttpServletResponse response) {
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			return new Response<List<PortalTypeDTO>>(0, portalTypeService.listPortalType(isDelete, keyword));
+			return new Response<List<PortalTypeDTO>>(0,
+					portalTypeService.listPortalType(isDelete, keyword, pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<PortalTypeDTO>>(1, e.getMessage(), null);
 		}

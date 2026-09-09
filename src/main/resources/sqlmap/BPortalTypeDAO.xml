@@ -13,6 +13,7 @@
                 name,
                 description,
                 file_path,
+                document_List,
                 sort,
                 is_delete)
             VALUES (
@@ -21,6 +22,7 @@
                 #{name},
                 #{description},
                 #{filePath},
+                #{documentList},
                 #{sort},
                 #{isDelete});
     </insert>
@@ -36,6 +38,9 @@
         </if>
         <if test='filePath != null'>
             , file_path = #{filePath}
+        </if>
+        <if test='documentList != null'>
+            , document_List = #{documentList}
         </if>
         <if test='sort != null'>
             , sort = #{sort}
@@ -54,6 +59,7 @@
             name,
             description,
             file_path AS filePath,
+            document_List AS documentList,
             sort,
             is_delete AS isDelete
         FROM b_portal_type
@@ -64,7 +70,8 @@
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
         </if>
-        ORDER BY sort ASC, id ASC;
+        ORDER BY sort ASC, id ASC
+        LIMIT #{offset}, #{rows};
     </select>
 
     <select id="getPortalTypeById" resultType="org.zhinanzhen.b.dao.pojo.PortalTypeDO">
@@ -75,6 +82,7 @@
             name,
             description,
             file_path AS filePath,
+            document_List AS documentList,
             sort,
             is_delete AS isDelete
         FROM b_portal_type WHERE id = #{id, jdbcType=INTEGER};

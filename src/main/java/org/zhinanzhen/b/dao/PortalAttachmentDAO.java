@@ -15,6 +15,13 @@ public interface PortalAttachmentDAO {
 
 	List<PortalAttachmentDO> listPortalAttachmentByPortalId(@Param("portalId") Integer portalId);
 
+	List<PortalAttachmentDO> listPortalAttachment(@Param("id") Integer id,
+			@Param("portalId") Integer portalId, @Param("attachmentState") String attachmentState,
+			@Param("stage") String stage, @Param("filePath") String filePath,
+			@Param("fileName") String fileName, @Param("offset") int offset, @Param("rows") int rows);
+
+	int updatePortalAttachment(PortalAttachmentDO portalAttachmentDo);
+
 	int updatePortalIdByPathList(@Param("filePathList") List<String> filePathList, @Param("portalId") int portalId);
 
 	int updatePortalIdAndStageByPathList(@Param("filePathList") List<String> filePathList,

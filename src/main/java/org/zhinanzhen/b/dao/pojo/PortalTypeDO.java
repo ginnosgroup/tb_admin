@@ -23,6 +23,9 @@ public class PortalTypeDO implements Serializable {
 	/** 该案件类型对应的客户材料清单文件路径。 */
 	private String filePath;
 
+	/** 该案件类型对应的材料清单JSON字符串。 */
+	private String documentList;
+
 	private int sort;
 
 	private Integer isDelete;

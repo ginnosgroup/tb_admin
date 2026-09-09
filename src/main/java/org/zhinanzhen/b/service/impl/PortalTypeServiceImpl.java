@@ -61,11 +61,17 @@ public class PortalTypeServiceImpl extends BaseService implements PortalTypeServ
 	}
 
 	@Override
-	public List<PortalTypeDTO> listPortalType(Integer isDelete, String keyword) throws ServiceException {
+	public List<PortalTypeDTO> listPortalType(Integer isDelete, String keyword, int pageNum, int pageSize)
+			throws ServiceException {
+		if (pageNum < 0 || pageSize <= 0) {
+			ServiceException se = new ServiceException("pageNum或pageSize参数错误！");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
 		List<PortalTypeDTO> portalTypeDtoList = new ArrayList<PortalTypeDTO>();
 		List<PortalTypeDO> portalTypeDoList = new ArrayList<PortalTypeDO>();
 		try {
-			portalTypeDoList = portalTypeDao.listPortalType(isDelete, keyword);
+			portalTypeDoList = portalTypeDao.listPortalType(isDelete, keyword, pageNum * pageSize, pageSize);
 			if (portalTypeDoList == null)
 				return null;
 		} catch (Exception e) {

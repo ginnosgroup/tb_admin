@@ -11,7 +11,8 @@ public interface PortalTypeDAO {
 
 	int updatePortalType(PortalTypeDO portalTypeDo);
 
-	List<PortalTypeDO> listPortalType(@Param("isDelete") Integer isDelete, @Param("keyword") String keyword);
+	List<PortalTypeDO> listPortalType(@Param("isDelete") Integer isDelete, @Param("keyword") String keyword,
+			@Param("offset") int offset, @Param("rows") int rows);
 
 	PortalTypeDO getPortalTypeById(@Param("id") int id);
 

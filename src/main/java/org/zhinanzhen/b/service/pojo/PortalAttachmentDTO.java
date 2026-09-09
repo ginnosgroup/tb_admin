@@ -27,6 +27,9 @@ public class PortalAttachmentDTO {
 
 	private String stage;
 
+	/** 附件状态。 */
+	private String attachmentState;
+
 	private String aiText;
 
 }

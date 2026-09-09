@@ -144,6 +144,87 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	public List<PortalAttachmentDTO> listPortalAttachment(Integer id, Integer portalId, String attachmentState,
+			String stage, String filePath, String fileName, int pageNum, int pageSize) throws ServiceException {
+		if (id != null && id <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (portalId != null && portalId <= 0) {
+			ServiceException se = new ServiceException("portalId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		if (pageNum < 0 || pageSize <= 0) {
+			ServiceException se = new ServiceException("pageNum或pageSize参数错误！");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<PortalAttachmentDO> portalAttachmentDoList = portalAttachmentDao.listPortalAttachment(id, portalId,
+					normalizeOptionalText(attachmentState), normalizeOptionalText(stage), normalizeOptionalText(filePath),
+					normalizeOptionalText(fileName), pageNum * pageSize, pageSize);
+			List<PortalAttachmentDTO> portalAttachmentDtoList = new ArrayList<PortalAttachmentDTO>();
+			if (portalAttachmentDoList != null) {
+				for (PortalAttachmentDO portalAttachmentDo : portalAttachmentDoList) {
+					portalAttachmentDtoList.add(mapper.map(portalAttachmentDo, PortalAttachmentDTO.class));
+				}
+			}
+			return portalAttachmentDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int updatePortalAttachment(PortalAttachmentDTO portalAttachmentDto) throws ServiceException {
+		if (portalAttachmentDto == null || portalAttachmentDto.getId() <= 0) {
+			ServiceException se = new ServiceException("id error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			PortalAttachmentDO currentAttachment = portalAttachmentDao
+					.getPortalAttachmentById(portalAttachmentDto.getId());
+			if (currentAttachment == null) {
+				ServiceException se = new ServiceException("附件不存在.");
+				se.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw se;
+			}
+			requireAttachmentEditable(currentAttachment);
+			if (StringUtil.isNotEmpty(currentAttachment.getFilePath()))
+				portalWriteGuard.requireFileEditable(currentAttachment.getFilePath());
+			if (portalAttachmentDto.getPortalId() != null) {
+				if (portalAttachmentDto.getPortalId() <= 0) {
+					ServiceException se = new ServiceException("portalId error !");
+					se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+					throw se;
+				}
+				portalWriteGuard.requireEditable(portalAttachmentDto.getPortalId());
+			}
+			PortalAttachmentDO portalAttachmentDo = mapper.map(portalAttachmentDto, PortalAttachmentDO.class);
+			return portalAttachmentDao.updatePortalAttachment(portalAttachmentDo);
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	private String normalizeOptionalText(String value) {
+		if (value == null)
+			return null;
+		String normalizedValue = value.trim();
+		return normalizedValue.isEmpty() ? null : normalizedValue;
+	}
+
+	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int updatePortalIdByPathList(List<String> filePathList, int portalId) throws ServiceException {
 		if (filePathList == null || filePathList.isEmpty() || portalId <= 0) {

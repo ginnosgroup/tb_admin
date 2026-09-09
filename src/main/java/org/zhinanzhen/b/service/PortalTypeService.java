@@ -11,7 +11,8 @@ public interface PortalTypeService {
 
 	int updatePortalType(PortalTypeDTO portalTypeDto) throws ServiceException;
 
-	List<PortalTypeDTO> listPortalType(Integer isDelete, String keyword) throws ServiceException;
+	List<PortalTypeDTO> listPortalType(Integer isDelete, String keyword, int pageNum, int pageSize)
+			throws ServiceException;
 
 	PortalTypeDTO getPortalType(Integer id) throws ServiceException;
 
