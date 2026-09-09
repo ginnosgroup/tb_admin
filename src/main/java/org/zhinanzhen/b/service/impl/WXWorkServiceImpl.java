@@ -18,9 +18,11 @@ import org.zhinanzhen.b.service.pojo.SchoolInstitutionListDTO;
 import org.zhinanzhen.b.service.pojo.ServicePackageDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.UserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 import org.zhinanzhen.tb.service.pojo.UserDTO;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
@@ -51,6 +53,9 @@ public class WXWorkServiceImpl implements WXWorkService {
 
     @Resource
     private  AdviserDAO adviserDAO;
+
+    @Resource
+    private RegionDAO regionDAO;
 
     @Resource
     private ServiceDAO serviceDAO;
@@ -185,6 +190,15 @@ public class WXWorkServiceImpl implements WXWorkService {
                 System.out.println(msg);
             }
             if (serviceOrderDO.getType().equalsIgnoreCase("OVST")){
+                // 留学订单：消息前面带上顾问名字（区域 + 顾问名），如：恭喜 : Sydney   测试顾问  , 成功签约 ...
+                AdviserDO ovstAdviserDO = adviserDAO.getAdviserById(serviceOrderDO.getAdviserId());
+                if (ovstAdviserDO != null && StringUtil.isNotEmpty(ovstAdviserDO.getName())) {
+                    String adviserName = ovstAdviserDO.getName();
+                    RegionDO regionDO = regionDAO.getRegionById(ovstAdviserDO.getRegionId());
+                    if (regionDO != null && StringUtil.isNotEmpty(regionDO.getName()))
+                        adviserName = regionDO.getName() + "   " + adviserName;
+                    msg = StringUtil.merge("恭喜 : ", adviserName, "  , ", msg);
+                }
                 SchoolDO schoolDO =  schoolDAO.getSchoolById(serviceOrderDO.getSchoolId());
                 if (schoolDO != null ){
                     msg = msg
