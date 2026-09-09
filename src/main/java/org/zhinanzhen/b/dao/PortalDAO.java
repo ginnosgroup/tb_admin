@@ -25,13 +25,14 @@ public interface PortalDAO {
 			@Param("rows") int rows,
 			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
 			@Param("officialId") Integer officialId, @Param("officialRegionId") Integer officialRegionId,
-			@Param("maraId") Integer maraId);
+			@Param("maraId") Integer maraId, @Param("officialStateRange") boolean officialStateRange);
 
 	int countPortal(@Param("typeId") Integer typeId, @Param("caseType") String caseType,
 			@Param("strState") String strState, @Param("keyword") String keyword,
 			@Param("adviserId") Integer adviserId,
 			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
-			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId);
+			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId,
+			@Param("officialStateRange") boolean officialStateRange);
 
 	PortalDO getPortalById(@Param("id") int id, @Param("adviserId") Integer adviserId,
 			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,

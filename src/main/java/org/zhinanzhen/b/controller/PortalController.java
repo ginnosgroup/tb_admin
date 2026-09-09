@@ -93,6 +93,10 @@ public class PortalController extends BaseController {
 	@Value("${portal.customer-action-base-url:http://127.0.0.1:8081/admin_v2.1}")
 	private String portalCustomerActionBaseUrl;
 
+	/** 客户邮件中的案件页面地址。 */
+	@Value("${portal.customer-frontend-url:http://127.0.0.1:8001/webroot_new/portalfront/customer}")
+	private String portalCustomerFrontendUrl;
+
 	/** 案件通知邮件（发给MARA/文案/顾问）中的本机本地案件地址。 */
 	@Value("${portal.public-base-url:http://127.0.0.1:8081}")
 	private String portalPublicBaseUrl;
@@ -927,7 +931,7 @@ public class PortalController extends BaseController {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalDocumentService.sendApplicationMaterialsPreparationNotification(savedPortalDto,
-								buildPortalCaseUrl(request, id));
+								buildPortalCustomerUrl(id));
 					} catch (ServiceException notificationException) {
 						LOG.error("案件已更新为06，但客户申请材料准备通知邮件发送失败，portalId={}", id,
 								notificationException);
@@ -938,10 +942,8 @@ public class PortalController extends BaseController {
 				if ("03A".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						String customerConfirmUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "confirm");
-						String customerReturnUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "return");
-						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, customerConfirmUrl,
-								customerReturnUrl);
+						String customerUrl = buildPortalCustomerUrl(savedPortalDto.getId());
+						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, customerUrl, customerUrl);
 					} catch (ServiceException confirmationMailException) {
 						LOG.error("案件已更新为03A，但客户合同确认邮件发送失败，portalId={}", id,
 								confirmationMailException);
@@ -958,12 +960,9 @@ public class PortalController extends BaseController {
 				if ("06B".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						String customerConfirmMaterialsUrl = buildPortalCustomerActionUrl(request, savedPortalDto,
-								"materials-confirm");
-						String customerReturnMaterialsUrl = buildPortalCustomerActionUrl(request, savedPortalDto,
-								"materials-return");
+						String customerUrl = buildPortalCustomerUrl(savedPortalDto.getId());
 						portalDocumentService.sendApplicationMaterialsConfirmation(savedPortalDto, filePath,
-								customerConfirmMaterialsUrl, customerReturnMaterialsUrl);
+								customerUrl, customerUrl);
 					} catch (ServiceException materialsMailException) {
 						LOG.error("案件已更新为06B，但申请材料确认邮件发送失败，portalId={}", id,
 								materialsMailException);
@@ -1025,7 +1024,7 @@ public class PortalController extends BaseController {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalDocumentService.sendApplicationSubmittedNotification(savedPortalDto, filePath,
-								buildPortalCaseUrl(request, id));
+								buildPortalCustomerUrl(id));
 					} catch (ServiceException notificationException) {
 						LOG.error("案件已更新为09，但客户申请提交通知邮件发送失败，portalId={}", id,
 								notificationException);
@@ -1625,10 +1624,11 @@ public class PortalController extends BaseController {
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
 			PortalAccessFilter filter = buildAccessFilter(request);
 			int total = portalService.countPortal(typeId, caseType, strState, keyword, filter.adviserId,
-					filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId);
+					filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId,
+					filter.officialStateRange);
 			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, caseType, strState, keyword, pageNum,
 					pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
-					filter.maraId);
+					filter.maraId, filter.officialStateRange);
 			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
 			if (portalDtoList != null) {
 				for (PortalDTO portalDto : portalDtoList) {
@@ -2022,6 +2022,13 @@ public class PortalController extends BaseController {
 		return buildPortalPublicBaseUrl(request) + "/webroot_new/portal/list/ALL?id=" + portalId;
 	}
 
+	private String buildPortalCustomerUrl(int portalId) {
+		String baseUrl = StringUtil.isNotEmpty(portalCustomerFrontendUrl)
+				? portalCustomerFrontendUrl.trim().replaceAll("/+$", "")
+				: "http://127.0.0.1:8001/webroot_new/portalfront/customer";
+		return baseUrl + "?id=" + portalId;
+	}
+
 	private String getClientIp(HttpServletRequest request) {
 		String forwarded = firstHeaderValue(request.getHeader("X-Forwarded-For"));
 		if (StringUtil.isNotEmpty(forwarded) && !"unknown".equalsIgnoreCase(forwarded))
@@ -2064,6 +2071,7 @@ public class PortalController extends BaseController {
 		Integer officialId;
 		Integer officialRegionId;
 		Integer maraId;
+		boolean officialStateRange;
 	}
 
 	private PortalAccessFilter buildAccessFilter(HttpServletRequest request) throws ServiceException {
@@ -2090,6 +2098,8 @@ public class PortalController extends BaseController {
 			}
 		}
 		if (apList.contains("WA")) {
+			// 文案只能查询04-13阶段案件，避免看到01-03阶段的前置案件。
+			filter.officialStateRange = true;
 			if (adminUserLoginInfo.isOfficialAdmin()) {
 				// 文案管理员：查同地区（含子地区）所有文案的记录
 				filter.officialRegionId = adminUserLoginInfo.getRegionId();

@@ -179,12 +179,12 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	@Override
 	public List<PortalDTO> listPortal(Integer typeId, String caseType, String strState, String keyword, int pageNum,
 			int pageSize, Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId,
-			Integer maraId) throws ServiceException {
+			Integer maraId, boolean officialStateRange) throws ServiceException {
 		List<PortalDTO> portalDtoList = new ArrayList<PortalDTO>();
 		List<PortalDO> portalDoList = new ArrayList<PortalDO>();
 		try {
 			portalDoList = portalDao.listPortal(typeId, caseType, strState, keyword, pageNum * pageSize, pageSize,
-					adviserId, adviserRegionId, officialId, officialRegionId, maraId);
+					adviserId, adviserRegionId, officialId, officialRegionId, maraId, officialStateRange);
 			if (portalDoList == null)
 				return null;
 		} catch (Exception e) {
@@ -202,11 +202,12 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 
 	@Override
 	public int countPortal(Integer typeId, String caseType, String strState, String keyword, Integer adviserId,
-			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId)
+			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId,
+			boolean officialStateRange)
 			throws ServiceException {
 		try {
 			return portalDao.countPortal(typeId, caseType, strState, keyword, adviserId, adviserRegionId, officialId,
-					officialRegionId, maraId);
+					officialRegionId, maraId, officialStateRange);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
