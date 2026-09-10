@@ -29,6 +29,9 @@ hs_err_pid*
 /src/test/
 /src/main/java/org/zhinanzhen/tb/utils/SimpleSendEmailTool.java
 
+# Tomcat 固定 base 目录（运行时生成）
+/.tomcat-base/
+
 # 本地密钥配置（不提交）
 src/main/resources/application.properties
 src/main/resources/application.properties

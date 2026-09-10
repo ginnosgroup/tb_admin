@@ -2169,12 +2169,16 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletResponse response) {
+	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			// 此接口不需要验证登录，不做数据权限过滤
 			PortalDTO portalDto = portalService.getPortal(id, null, null, null, null, null);
 			if (portalDto != null) {
+				// 文案角色不能查看01、02阶段案件；未登录访问仍保持原有公开详情接口行为。
+				if (isOfficialRoleRequest(request) && isOfficialHiddenState(portalDto.getStrState()))
+					return new Response<PortalDTO>(0, "", null);
 				// 按 portal_id 关联查询附件列表和操作日志，组装进 PortalDTO 一起返回
 				portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
 				portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
@@ -2186,6 +2190,25 @@ public class PortalController extends BaseController {
 				return new Response<PortalDTO>(0, "", null);
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	/** 判断当前请求是否来自文案角色（超管不按文案角色限制）。 */
+	private boolean isOfficialRoleRequest(HttpServletRequest request) {
+		if (request == null)
+			return false;
+		AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+		if (adminUserLoginInfo == null || StringUtil.isEmpty(adminUserLoginInfo.getApList()))
+			return false;
+		String apList = adminUserLoginInfo.getApList().toUpperCase(Locale.ENGLISH);
+		return !apList.contains("SUPERAD") && apList.contains("WA");
+	}
+
+	/** 文案角色不可查看的案件状态。 */
+	private boolean isOfficialHiddenState(String strState) {
+		if (strState == null)
+			return false;
+		String state = strState.trim();
+		return "01".equals(state) || "02".equals(state);
 	}
 
 	/**
