@@ -1704,8 +1704,7 @@ public class PortalController extends BaseController {
 			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
 			if (portalDtoList != null) {
 				for (PortalDTO portalDto : portalDtoList) {
-					portalDto.setPortalAttachmentList(
-							portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
+					portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
 					portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
 				}
 			}
@@ -2119,8 +2118,7 @@ public class PortalController extends BaseController {
 			PortalDTO portalDto = portalService.getPortal(id, null, null, null, null, null);
 			if (portalDto != null) {
 				// 按 portal_id 关联查询附件列表和操作日志，组装进 PortalDTO 一起返回
-				portalDto.setPortalAttachmentList(
-						portalAttachmentService.listPortalAttachmentByPortalId(portalDto.getId()));
+				portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
 				portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
 			}
 			return new Response<PortalDTO>(0, "", portalDto);
@@ -2130,6 +2128,26 @@ public class PortalController extends BaseController {
 				return new Response<PortalDTO>(0, "", null);
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	/**
+	 * 按案件状态组装附件。案件处于01、02阶段时，不向前端返回申请类附件；后续阶段返回全部附件。
+	 */
+	private List<PortalAttachmentDTO> listPortalAttachmentsForDisplay(PortalDTO portalDto)
+			throws ServiceException {
+		List<PortalAttachmentDTO> attachmentList = portalAttachmentService
+				.listPortalAttachmentByPortalId(portalDto.getId());
+		if (attachmentList == null || attachmentList.isEmpty()
+				|| (!"01".equals(portalDto.getStrState()) && !"02".equals(portalDto.getStrState())))
+			return attachmentList;
+
+		List<PortalAttachmentDTO> visibleAttachmentList = new ArrayList<PortalAttachmentDTO>();
+		for (PortalAttachmentDTO attachment : attachmentList) {
+			String stage = attachment == null || attachment.getStage() == null ? null : attachment.getStage().trim();
+			if (!"application".equalsIgnoreCase(stage) && !"applicationWA".equalsIgnoreCase(stage))
+				visibleAttachmentList.add(attachment);
+		}
+		return visibleAttachmentList;
 	}
 
 	/**
