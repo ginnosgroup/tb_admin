@@ -5,7 +5,7 @@ import java.util.Map;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
-/** 根据案件客户资料生成合同和建议信。 */
+/** 根据案件客户资料生成合同、建议信和 Form 956。 */
 public interface PortalDocumentService {
 
 	Map<String, String> generateDocuments(PortalDTO portalDto) throws ServiceException;

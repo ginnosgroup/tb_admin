@@ -39,6 +39,7 @@ import org.zhinanzhen.b.service.PortalFollowUpState;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
+import org.zhinanzhen.b.utils.Form956PdfGenerator;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -108,6 +109,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 		Path contractPath = null;
 		Path advicePath = null;
+		Path form956Path = null;
 		try {
 			CustomerDocumentData data = buildCustomerData(portalDto);
 			Path outputDir = resolveOutputDirectory();
@@ -120,19 +122,34 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			contractPath = outputDir.resolve(prefix + "_Contract_" + customerSuffix + "_" + adviserSuffix + ".pdf");
 			advicePath = outputDir.resolve(
 					prefix + "_Letter_of_Advice_" + customerSuffix + "_" + adviserSuffix + ".docx");
+			String maraName = portalDto.getMaraName();
+			if (StringUtil.isEmpty(maraName) && data.maraId > 0) {
+				MaraDTO maraDto = maraService.getMaraById(data.maraId);
+				if (maraDto != null)
+					maraName = maraDto.getName();
+			}
+			if (data.maraId <= 0 || StringUtil.isEmpty(maraName))
+				throw new IOException("案件未配置有效的 Mara，无法选择 Form 956 模板");
+			String form956Template = data.maraId + "_956_" + maraName.trim() + ".pdf";
+			form956Path = outputDir.resolve(prefix + "_956_" + safeFileName(maraName) + ".pdf");
 
 			generateContractPdf(data, contractPath);
 			generateAdviceDocument(data, advicePath);
+			// Form 956 使用案件对应 Mara 的 classpath 模板，模板名格式为 maraId_956_maraName.pdf。
+			Form956PdfGenerator.generateFromResource(form956Template, form956Path,
+					portalDto.getJsonStr(), portalDto.getContractStr(), data.maraId);
 
 			Map<String, String> paths = new LinkedHashMap<String, String>();
 			// 与uploadAttachment保持一致，数据库保存访问路径而不是当前机器的物理绝对路径。
 			paths.put("contractPdf", toStoredFilePath(contractPath));
 			paths.put("letterOfAdviceDocx", toStoredFilePath(advicePath));
+			paths.put("form956Pdf", toStoredFilePath(form956Path));
 			return paths;
 		} catch (Exception e) {
 			deleteGeneratedFile(contractPath);
 			deleteGeneratedFile(advicePath);
-			ServiceException exception = new ServiceException("生成客户合同和建议信失败: " + e.getMessage(), e);
+			deleteGeneratedFile(form956Path);
+			ServiceException exception = new ServiceException("生成客户合同、建议信和Form 956失败: " + e.getMessage(), e);
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw exception;
 		}

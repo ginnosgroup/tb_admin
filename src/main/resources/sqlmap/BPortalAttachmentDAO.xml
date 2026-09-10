@@ -120,6 +120,7 @@
         <if test='fileName != null and fileName != ""'>
             AND file_name LIKE CONCAT('%', #{fileName}, '%')
         </if>
+        AND (stage IS NULL OR LOWER(stage) NOT IN ('application', 'applicationwa'))
         ORDER BY gmt_create ASC, id ASC
         LIMIT #{offset}, #{rows};
     </select>

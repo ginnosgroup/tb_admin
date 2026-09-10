@@ -79,6 +79,12 @@ public class PortalDTO {
 	/** 案件关联的附件列表（按 portal_id 查询组装）。 */
 	private List<PortalAttachmentDTO> portalAttachmentList;
 
+	/** stage=application 的申请文件路径，多个路径使用逗号分隔。 */
+	private String applicationFilePath;
+
+	/** stage=applicationWA 的申请文件路径，多个路径使用逗号分隔。 */
+	private String applicationWAFilePath;
+
 	/** 案件操作日志列表（按 portal_id 查询组装）。 */
 	private List<PortalLogDTO> portalLogList;
 
@@ -86,7 +92,7 @@ public class PortalDTO {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, Object> yujuAiResult;
 
-	/** 状态转为02B时本次生成的合同和建议信路径。 */
+	/** 状态转为02B时本次生成的合同、建议信和 Form 956 路径。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Map<String, String> generatedDocumentPaths;
 

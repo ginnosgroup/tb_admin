@@ -205,6 +205,19 @@ public class PortalController extends BaseController {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
 		}
+		boolean archiveUpload = isArchiveFile(file == null ? null : file.getOriginalFilename());
+		List<PortalAttachmentDTO> previousPortalAttachments = Collections.emptyList();
+		if (archiveUpload && portalId != null) {
+			try {
+				// 压缩包按案件只保留最新一份；先查出旧记录，待新文件上传成功后再替换。
+				List<PortalAttachmentDTO> attachments = portalAttachmentService
+						.listPortalAttachmentByPortalId(portalId);
+				if (attachments != null)
+					previousPortalAttachments = attachments;
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+		}
 		boolean signatureUpload = aiText == null && fileType != null
 				&& "signature".equalsIgnoreCase(fileType.trim());
 		MaraDTO maraDto = null;
@@ -240,6 +253,15 @@ public class PortalController extends BaseController {
 		}
 		if (uploadResp.getCode() != 0) {
 			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
+		}
+		if (archiveUpload && portalId != null && !previousPortalAttachments.isEmpty()) {
+			try {
+				deletePreviousPortalAttachments(previousPortalAttachments);
+			} catch (ServiceException e) {
+				// 新文件尚未入库，替换失败时只清理本次上传文件，避免留下孤儿文件。
+				super.deleteFile(uploadResp.getData());
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
 		}
 		// 在upload接口里就新增 b_portal_attachment 的数据
 		PortalAttachmentDTO portalAttachmentDto = new PortalAttachmentDTO();
@@ -387,6 +409,42 @@ public class PortalController extends BaseController {
 							pageNum, pageSize));
 		} catch (ServiceException e) {
 			return new Response<List<PortalAttachmentDTO>>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	/** 判断上传文件是否为需要按案件替换的压缩包。 */
+	private boolean isArchiveFile(String originalFilename) {
+		if (StringUtil.isEmpty(originalFilename))
+			return false;
+		String fileName = originalFilename.trim().replace('\\', '/');
+		int dotIndex = fileName.lastIndexOf('.');
+		if (dotIndex < 0 || dotIndex == fileName.length() - 1)
+			return false;
+		String extension = fileName.substring(dotIndex + 1);
+		return "rar".equalsIgnoreCase(extension) || "zip".equalsIgnoreCase(extension);
+	}
+
+	/** 删除同一案件的旧附件记录和物理文件。 */
+	private void deletePreviousPortalAttachments(List<PortalAttachmentDTO> attachments) throws ServiceException {
+		for (PortalAttachmentDTO attachment : attachments) {
+			if (attachment == null || attachment.getId() <= 0)
+				continue;
+			if (portalAttachmentService.deletePortalAttachmentById(attachment.getId()) <= 0) {
+				ServiceException exception = new ServiceException(
+						"旧压缩包附件记录删除失败，attachmentId=" + attachment.getId());
+				exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+				throw exception;
+			}
+			String filePath = normalizeAttachmentFilePath(attachment.getFilePath());
+			if (StringUtil.isEmpty(filePath))
+				continue;
+			Response<String> deleteResponse = super.deleteFile(filePath);
+			if (deleteResponse != null && deleteResponse.getCode() != 0) {
+				ServiceException exception = new ServiceException(
+						"旧压缩包文件删除失败：" + deleteResponse.getMessage());
+				exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+				throw exception;
+			}
 		}
 	}
 
@@ -900,7 +958,7 @@ public class PortalController extends BaseController {
                     LOG.error("案件状态转为02B后生成合同和建议信失败，portalId={}", id, documentException);
 						if (customerResultRequest)
 							return customerResultPage(null, normalizedResult, false,
-									"合同和建议信生成失败，请联系您的顾问。", response);
+									"合同、建议信和Form 956生成失败，请联系您的顾问。", response);
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
@@ -2131,23 +2189,38 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 按案件状态组装附件。案件处于01、02阶段时，不向前端返回申请类附件；后续阶段返回全部附件。
+	 * 组装案件附件：全部附件放入 portalAttachmentList，同时单独组装申请类附件路径。
 	 */
 	private List<PortalAttachmentDTO> listPortalAttachmentsForDisplay(PortalDTO portalDto)
 			throws ServiceException {
 		List<PortalAttachmentDTO> attachmentList = portalAttachmentService
 				.listPortalAttachmentByPortalId(portalDto.getId());
-		if (attachmentList == null || attachmentList.isEmpty()
-				|| (!"01".equals(portalDto.getStrState()) && !"02".equals(portalDto.getStrState())))
+		List<String> applicationFilePaths = new ArrayList<String>();
+		List<String> applicationWAFilePaths = new ArrayList<String>();
+		if (attachmentList == null || attachmentList.isEmpty()) {
+			portalDto.setApplicationFilePath(null);
+			portalDto.setApplicationWAFilePath(null);
 			return attachmentList;
-
-		List<PortalAttachmentDTO> visibleAttachmentList = new ArrayList<PortalAttachmentDTO>();
+		}
 		for (PortalAttachmentDTO attachment : attachmentList) {
 			String stage = attachment == null || attachment.getStage() == null ? null : attachment.getStage().trim();
-			if (!"application".equalsIgnoreCase(stage) && !"applicationWA".equalsIgnoreCase(stage))
-				visibleAttachmentList.add(attachment);
+			if ("application".equalsIgnoreCase(stage)) {
+				if (attachment != null && StringUtil.isNotEmpty(attachment.getFilePath()))
+					applicationFilePaths.add(attachment.getFilePath());
+			} else if ("applicationWA".equalsIgnoreCase(stage)) {
+				if (attachment != null && StringUtil.isNotEmpty(attachment.getFilePath()))
+					applicationWAFilePaths.add(attachment.getFilePath());
+			}
 		}
-		return visibleAttachmentList;
+		portalDto.setApplicationFilePath(joinAttachmentPaths(applicationFilePaths));
+		portalDto.setApplicationWAFilePath(joinAttachmentPaths(applicationWAFilePaths));
+		return attachmentList;
+	}
+
+	private String joinAttachmentPaths(List<String> filePaths) {
+		if (filePaths == null || filePaths.isEmpty())
+			return null;
+		return filePaths.stream().filter(StringUtil::isNotEmpty).collect(Collectors.joining(","));
 	}
 
 	/**
