@@ -247,11 +247,17 @@ public class PortalController extends BaseController {
 		portalAttachmentDto.setFileName(file.getOriginalFilename());
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
-		portalAttachmentDto.setFileType(file.getContentType());
+		// 请求传入业务文件类型时优先保存业务类型；未传时保留文件的MIME类型。
+		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
+		portalAttachmentDto.setFileType(fileType == null ? file.getContentType() : normalizedUploadFileType);
 		String originalName = file.getOriginalFilename();
 		if (StringUtil.isNotEmpty(originalName) && originalName.contains("."))
 			portalAttachmentDto.setFileExt(originalName.substring(originalName.lastIndexOf(".") + 1));
 		portalAttachmentDto.setStage("apply");
+		if (StringUtil.isNotEmpty(normalizedUploadFileType)
+				&& ("application".equals(normalizedUploadFileType)
+						|| "applicationWA".equals(normalizedUploadFileType)))
+			portalAttachmentDto.setStage(normalizedUploadFileType);
 		if (StringUtil.isNotEmpty(attachmentState))
 			portalAttachmentDto.setAttachmentState(attachmentState.trim());
 		// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
