@@ -2,6 +2,7 @@ package org.zhinanzhen.b.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Resource;
 
@@ -154,6 +155,30 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 		try {
 			List<PortalAttachmentDO> portalAttachmentDoList = portalAttachmentDao
 					.listPortalAttachmentByPortalIdAndFileNameAndStage(portalId, fileName.trim(), stage.trim());
+			if (portalAttachmentDoList == null || portalAttachmentDoList.isEmpty())
+				return new ArrayList<PortalAttachmentDTO>();
+			List<PortalAttachmentDTO> portalAttachmentDtoList = new ArrayList<PortalAttachmentDTO>();
+			for (PortalAttachmentDO portalAttachmentDo : portalAttachmentDoList)
+				portalAttachmentDtoList.add(mapper.map(portalAttachmentDo, PortalAttachmentDTO.class));
+			return portalAttachmentDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<PortalAttachmentDTO> listPortalArchiveAttachmentByPortalIdAndStage(Integer portalId, String stage)
+			throws ServiceException {
+		if (portalId == null || portalId <= 0 || StringUtil.isEmpty(stage)) {
+			ServiceException se = new ServiceException("portalId或stage error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<PortalAttachmentDO> portalAttachmentDoList = portalAttachmentDao
+					.listPortalArchiveAttachmentByPortalIdAndStage(portalId, stage.trim());
 			if (portalAttachmentDoList == null || portalAttachmentDoList.isEmpty())
 				return new ArrayList<PortalAttachmentDTO>();
 			List<PortalAttachmentDTO> portalAttachmentDtoList = new ArrayList<PortalAttachmentDTO>();
@@ -334,6 +359,51 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int deletePortalArchiveAttachmentByIdAndPortalIdAndStage(int id, int portalId, String stage)
+			throws ServiceException {
+		if (id <= 0 || portalId <= 0 || StringUtil.isEmpty(stage)) {
+			ServiceException se = new ServiceException("id、portalId或stage error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			portalWriteGuard.requireEditable(portalId);
+			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentById(id);
+			if (attachment == null || attachment.getPortalId() == null || attachment.getPortalId() != portalId
+					|| !stage.trim().equalsIgnoreCase(attachment.getStage() == null ? "" : attachment.getStage().trim())
+					|| !isArchiveAttachment(attachment))
+				return 0;
+			requireAttachmentEditable(attachment);
+			if (StringUtil.isNotEmpty(attachment.getFilePath()))
+				portalWriteGuard.requireFileEditable(attachment.getFilePath());
+			return portalAttachmentDao.deletePortalArchiveAttachmentByIdAndPortalIdAndStage(id, portalId,
+					stage.trim());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	private boolean isArchiveAttachment(PortalAttachmentDO attachment) {
+		String fileExt = attachment.getFileExt() == null ? ""
+				: attachment.getFileExt().trim().toLowerCase(Locale.ENGLISH);
+		if ("zip".equals(fileExt) || "rar".equals(fileExt))
+			return true;
+		String fileType = attachment.getFileType() == null ? ""
+				: attachment.getFileType().trim().toLowerCase(Locale.ENGLISH);
+		if ("application/zip".equals(fileType) || "application/vnd.rar".equals(fileType)
+				|| "application/x-rar-compressed".equals(fileType))
+			return true;
+		String fileName = attachment.getFileName() == null ? ""
+				: attachment.getFileName().trim().toLowerCase(Locale.ENGLISH);
+		return fileName.endsWith(".zip") || fileName.endsWith(".rar");
 	}
 
 	@Override

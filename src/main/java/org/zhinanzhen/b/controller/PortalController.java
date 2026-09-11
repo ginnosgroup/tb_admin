@@ -464,6 +464,89 @@ public class PortalController extends BaseController {
 		}
 	}
 
+	/**
+	 * 06A重新提交申请材料时，只替换当前案件、当前附件阶段下的ZIP/RAR。
+	 * 本次传入的附件会跳过，避免先上传并已关联案件的文件被自己删除；其他案件和其他阶段不参与处理。
+	 */
+	private void replace06AArchiveAttachments(int portalId, List<String> filePaths) throws ServiceException {
+		if (portalId <= 0 || filePaths == null || filePaths.isEmpty())
+			return;
+		List<Integer> incomingAttachmentIds = new ArrayList<Integer>();
+		List<String> incomingFilePaths = new ArrayList<String>();
+		List<String> stages = new ArrayList<String>();
+		for (String filePath : filePaths) {
+			PortalAttachmentDTO attachment = portalAttachmentService.getPortalAttachmentByPath(filePath);
+			if (attachment == null) {
+				ServiceException exception = new ServiceException("未找到已上传的附件：" + filePath);
+				exception.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw exception;
+			}
+			if (attachment.getPortalId() != null && attachment.getPortalId() > 0
+					&& attachment.getPortalId() != portalId) {
+				ServiceException exception = new ServiceException("附件已属于其他案件，不能关联到当前案件：" + filePath);
+				exception.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw exception;
+			}
+			if (!isApplicationAttachmentStage(attachment.getStage()) || !isArchiveAttachment(attachment))
+				continue;
+			incomingAttachmentIds.add(attachment.getId());
+			String incomingFilePath = normalizeAttachmentFilePath(attachment.getFilePath());
+			if (StringUtil.isNotEmpty(incomingFilePath))
+				incomingFilePaths.add(incomingFilePath);
+			if (!stages.contains(attachment.getStage().trim()))
+				stages.add(attachment.getStage().trim());
+		}
+		for (String stage : stages) {
+			List<PortalAttachmentDTO> oldAttachments = portalAttachmentService
+					.listPortalArchiveAttachmentByPortalIdAndStage(portalId, stage);
+			if (oldAttachments == null || oldAttachments.isEmpty())
+				continue;
+			for (PortalAttachmentDTO oldAttachment : oldAttachments) {
+				String oldFilePath = normalizeAttachmentFilePath(oldAttachment == null ? null : oldAttachment.getFilePath());
+				if (oldAttachment == null || oldAttachment.getId() <= 0
+						|| incomingAttachmentIds.contains(oldAttachment.getId())
+						|| (StringUtil.isNotEmpty(oldFilePath) && incomingFilePaths.contains(oldFilePath)))
+					continue;
+				int deleted = portalAttachmentService.deletePortalArchiveAttachmentByIdAndPortalIdAndStage(
+						oldAttachment.getId(), portalId, stage);
+				if (deleted <= 0)
+					continue;
+				if (StringUtil.isEmpty(oldFilePath))
+					continue;
+				Response<String> deleteResponse = super.deleteFile(oldFilePath);
+				if (deleteResponse != null && deleteResponse.getCode() != 0) {
+					ServiceException exception = new ServiceException(
+							"06A旧申请材料压缩包文件删除失败：" + deleteResponse.getMessage());
+					exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+					throw exception;
+				}
+			}
+		}
+	}
+
+	private boolean isApplicationAttachmentStage(String stage) {
+		return StringUtil.isNotEmpty(stage)
+				&& ("application".equalsIgnoreCase(stage.trim())
+						|| "applicationWA".equalsIgnoreCase(stage.trim()));
+	}
+
+	private boolean isArchiveAttachment(PortalAttachmentDTO attachment) {
+		if (attachment == null)
+			return false;
+		String fileExt = attachment.getFileExt() == null ? ""
+				: attachment.getFileExt().trim().toLowerCase(Locale.ENGLISH);
+		if ("zip".equals(fileExt) || "rar".equals(fileExt))
+			return true;
+		String fileType = attachment.getFileType() == null ? ""
+				: attachment.getFileType().trim().toLowerCase(Locale.ENGLISH);
+		if ("application/zip".equals(fileType) || "application/vnd.rar".equals(fileType)
+				|| "application/x-rar-compressed".equals(fileType))
+			return true;
+		String fileName = attachment.getFileName() == null ? ""
+				: attachment.getFileName().trim().toLowerCase(Locale.ENGLISH);
+		return fileName.endsWith(".zip") || fileName.endsWith(".rar");
+	}
+
 	@RequestMapping(value = "/attachment/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<PortalAttachmentDTO> updateAttachment(@RequestParam(value = "id") Integer id,
@@ -899,6 +982,8 @@ public class PortalController extends BaseController {
 				|| "010A".equals(strState) || "012".equals(strState) ? strState : null;
 			List<String> updateFilePaths = "05".equals(strState) || "06".equals(strState)
 					|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
+			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
+				replace06AArchiveAttachments(id, updateFilePaths);
 			if (portalService.updatePortalWithAttachments(portalDto, updateFilePaths, attachmentStage) > 0) {
             // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
             if ("02B".equals(strState) && !"02B".equals(fromState)) {
@@ -1002,7 +1087,7 @@ public class PortalController extends BaseController {
 					if (StringUtil.isNotEmpty(adviserRemark))
 						logContent += "：" + adviserRemark;
 				}
-				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, request);
+				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, adviserRemark, request);
 				if (followUpState != null && followUpState.isFollowUp()
 						&& followUpState != PortalFollowUpState.ARCHIVE
 						&& !strState.equals(fromState)) {
@@ -1066,7 +1151,7 @@ public class PortalController extends BaseController {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						String confirmUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "materials-confirm");
 						String returnUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "materials-return");
-						portalDocumentService.sendApplicationMaterialsConfirmation(savedPortalDto, filePath,
+						portalDocumentService.sendApplicationMaterialsConfirmation(savedPortalDto, filePath, adviserRemark,
 								confirmUrl, returnUrl);
 					} catch (ServiceException materialsMailException) {
 						LOG.error("案件已更新为06B，但申请材料确认邮件发送失败，portalId={}", id,
@@ -2095,6 +2180,12 @@ public class PortalController extends BaseController {
 	 */
 	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
 			HttpServletRequest request) {
+		savePortalLog(portalId, action, fromState, toState, content, null, request);
+	}
+
+	/** 保存案件操作日志，并记录本次 updatePortal 请求中的备注。 */
+	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
+			String remark, HttpServletRequest request) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			PortalLogDTO portalLogDto = new PortalLogDTO();
@@ -2103,6 +2194,8 @@ public class PortalController extends BaseController {
 			portalLogDto.setFromState(fromState);
 			portalLogDto.setToState(toState);
 			portalLogDto.setContent(content);
+			String normalizedRemark = remark == null ? null : remark.trim();
+			portalLogDto.setRemark(StringUtil.isEmpty(normalizedRemark) ? null : normalizedRemark);
 			portalLogDto.setIp(getClientIp(request));
 			portalLogDto.setUserAgent(request.getHeader("User-Agent"));
 			if (adminUserLoginInfo != null) {

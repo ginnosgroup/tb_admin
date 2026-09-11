@@ -30,6 +30,8 @@ public class PortalLogDO implements Serializable {
 
 	private String content;
 
+	private String remark;
+
 	private String ip;
 
 	private String userAgent;

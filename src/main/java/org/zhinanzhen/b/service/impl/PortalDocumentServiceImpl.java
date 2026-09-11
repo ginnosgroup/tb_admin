@@ -245,8 +245,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	@Override
-	public void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String confirmUrl,
-			String returnUrl) throws ServiceException {
+	public void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String remark,
+			String confirmUrl, String returnUrl) throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0)
 			throw serviceException("案件信息无效，无法发送申请材料确认邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 
@@ -259,7 +259,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			throw serviceException("申请材料附件为空，申请材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 
 		String title = "【指南针留学移民】申请材料确认通知";
-		String content = buildApplicationMaterialsEmail(data.fullName, confirmUrl, returnUrl);
+		String content = buildApplicationMaterialsEmail(data.fullName, remark, confirmUrl, returnUrl);
 		List<File> attachments = new ArrayList<File>();
 		for (String item : filePath.split("[,，]")) {
 			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
@@ -506,11 +506,17 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return content.toString();
 	}
 
-	private String buildApplicationMaterialsEmail(String customerName, String confirmUrl, String returnUrl) {
+	private String buildApplicationMaterialsEmail(String customerName, String remark, String confirmUrl,
+			String returnUrl) {
 		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
-		content.append("<p>您的申请材料已准备完成。请下载邮件中的附件文件。确认无误后，请点击“确认申请材料”；如需补充或修改，请点击“退回申请材料”。</p>");
+		content.append("<p>您的申请材料已准备完成，请下载邮件中的附件文件。确认无误后，请点击“确认申请材料”；如需补充或修改，请点击“退回申请材料”。</p>");
+		if (StringUtil.isNotEmpty(remark)) {
+			String safeRemark = htmlEscape(remark).replace("\r\n", "<br>").replace("\n", "<br>")
+					.replace("\r", "<br>");
+			content.append("<p>文案的备注说明：").append(safeRemark).append("</p>");
+		}
 		content.append("<p style=\"margin:24px 0;\">")
 				.append("<a href=\"").append(htmlEscape(confirmUrl))
 				.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"

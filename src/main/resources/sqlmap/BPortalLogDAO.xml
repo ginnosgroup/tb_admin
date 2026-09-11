@@ -17,6 +17,7 @@
                 from_state,
                 to_state,
                 content,
+                remark,
                 ip,
                 user_agent)
             VALUES (
@@ -29,6 +30,7 @@
                 #{fromState},
                 #{toState},
                 #{content},
+                #{remark},
                 #{ip},
                 #{userAgent});
     </insert>
@@ -45,6 +47,7 @@
             from_state AS fromState,
             to_state AS toState,
             content,
+            remark,
             ip,
             user_agent AS userAgent
         FROM b_portal_log

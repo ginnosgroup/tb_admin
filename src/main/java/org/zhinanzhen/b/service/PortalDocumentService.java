@@ -18,9 +18,9 @@ public interface PortalDocumentService {
 	void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths,
 			String confirmUrl, String returnUrl) throws ServiceException;
 
-	/** 通知客户确认申请材料，并附加本次提交的申请材料及确认/退回按钮。 */
-	void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String confirmUrl,
-			String returnUrl) throws ServiceException;
+	/** 通知客户确认申请材料，并附加本次提交的申请材料、文案备注及确认/退回按钮。 */
+	void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String remark,
+			String confirmUrl, String returnUrl) throws ServiceException;
 
 	/** 通知客户案件已经正式提交申请，并附加本次提交的申请材料。 */
 	void sendApplicationSubmittedNotification(PortalDTO portalDto, String filePath, String caseUrl)

@@ -18,6 +18,9 @@ public interface PortalAttachmentService {
 	List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndFileNameAndStage(Integer portalId, String fileName,
 			String stage) throws ServiceException;
 
+	List<PortalAttachmentDTO> listPortalArchiveAttachmentByPortalIdAndStage(Integer portalId, String stage)
+			throws ServiceException;
+
 	List<PortalAttachmentDTO> listPortalAttachment(Integer id, Integer portalId, String attachmentState,
 			String stage, String filePath, String fileName, int pageNum, int pageSize) throws ServiceException;
 
@@ -31,6 +34,9 @@ public interface PortalAttachmentService {
 	int deletePortalAttachmentById(int id) throws ServiceException;
 
 	int deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(int id, int portalId, String fileName, String stage)
+			throws ServiceException;
+
+	int deletePortalArchiveAttachmentByIdAndPortalIdAndStage(int id, int portalId, String stage)
 			throws ServiceException;
 
 	int deletePortalAttachmentByPath(String filePath) throws ServiceException;

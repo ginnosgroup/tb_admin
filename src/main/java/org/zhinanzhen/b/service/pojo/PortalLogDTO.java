@@ -27,6 +27,8 @@ public class PortalLogDTO {
 
 	private String content;
 
+	private String remark;
+
 	private String ip;
 
 	private String userAgent;

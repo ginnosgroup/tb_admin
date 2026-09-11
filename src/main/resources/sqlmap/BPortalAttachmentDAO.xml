@@ -108,6 +108,33 @@
         ORDER BY gmt_create ASC, id ASC;
     </select>
 
+    <!-- 06A替换专用查询：只查当前案件、当前阶段的ZIP/RAR，关闭二级缓存。 -->
+    <select id="listPortalArchiveAttachmentByPortalIdAndStage" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
+        SELECT
+            id,
+            portal_id AS portalId,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            file_name AS fileName,
+            file_path AS filePath,
+            file_size AS fileSize,
+            file_type AS fileType,
+            file_ext AS fileExt,
+            stage,
+            attachment_state AS attachmentState,
+            ai_text AS aiText
+        FROM b_portal_attachment
+        WHERE portal_id = #{portalId}
+          AND LOWER(stage) = LOWER(#{stage})
+          AND (
+              LOWER(file_ext) IN ('zip', 'rar')
+              OR LOWER(file_type) IN ('application/zip', 'application/vnd.rar', 'application/x-rar-compressed')
+              OR LOWER(file_name) LIKE '%.zip'
+              OR LOWER(file_name) LIKE '%.rar'
+          )
+        ORDER BY gmt_create ASC, id ASC;
+    </select>
+
     <select id="listPortalAttachment" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
         SELECT
             id,
@@ -209,6 +236,20 @@
           AND portal_id = #{portalId, jdbcType=INTEGER}
           AND LOWER(file_name) = LOWER(#{fileName})
           AND LOWER(stage) = LOWER(#{stage})
+    </delete>
+
+    <!-- 仅允许删除指定案件、指定阶段的ZIP/RAR，防止按错误附件ID跨案件删除。 -->
+    <delete id="deletePortalArchiveAttachmentByIdAndPortalIdAndStage">
+        DELETE FROM b_portal_attachment
+        WHERE id = #{id, jdbcType=INTEGER}
+          AND portal_id = #{portalId, jdbcType=INTEGER}
+          AND LOWER(stage) = LOWER(#{stage})
+          AND (
+              LOWER(file_ext) IN ('zip', 'rar')
+              OR LOWER(file_type) IN ('application/zip', 'application/vnd.rar', 'application/x-rar-compressed')
+              OR LOWER(file_name) LIKE '%.zip'
+              OR LOWER(file_name) LIKE '%.rar'
+          )
     </delete>
 
     <delete id="deletePortalAttachmentByPath">
