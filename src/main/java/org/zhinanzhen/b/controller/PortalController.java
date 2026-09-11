@@ -895,8 +895,8 @@ public class PortalController extends BaseController {
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
-			String attachmentStage = "06B".equals(strState) || "09".equals(strState)
-					|| "010A".equals(strState) || "012".equals(strState) ? strState : null;
+			String attachmentStage = "09".equals(strState)
+				|| "010A".equals(strState) || "012".equals(strState) ? strState : null;
 			List<String> updateFilePaths = "05".equals(strState) || "06".equals(strState)
 					|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
 			if (portalService.updatePortalWithAttachments(portalDto, updateFilePaths, attachmentStage) > 0) {
@@ -1044,8 +1044,9 @@ public class PortalController extends BaseController {
 				if ("03A".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						String customerUrl = buildPortalCustomerUrl(savedPortalDto.getId());
-						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, customerUrl, customerUrl);
+						String confirmUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "confirm");
+						String returnUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "return");
+						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, confirmUrl, returnUrl);
 					} catch (ServiceException confirmationMailException) {
 						LOG.error("案件已更新为03A，但客户合同、建议信和Form 956确认邮件发送失败，portalId={}", id,
 								confirmationMailException);
@@ -1063,9 +1064,10 @@ public class PortalController extends BaseController {
 				if ("06B".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						String customerUrl = buildPortalCustomerUrl(savedPortalDto.getId());
+						String confirmUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "materials-confirm");
+						String returnUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "materials-return");
 						portalDocumentService.sendApplicationMaterialsConfirmation(savedPortalDto, filePath,
-								customerUrl, customerUrl);
+								confirmUrl, returnUrl);
 					} catch (ServiceException materialsMailException) {
 						LOG.error("案件已更新为06B，但申请材料确认邮件发送失败，portalId={}", id,
 								materialsMailException);

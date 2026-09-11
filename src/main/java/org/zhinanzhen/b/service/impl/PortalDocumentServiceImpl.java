@@ -510,7 +510,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
-		content.append("<p>您的申请材料已准备完成。确认无误后，请点击“确认申请材料”；如需补充或修改，请点击“退回申请材料”。</p>");
+		content.append("<p>您的申请材料已准备完成。请下载邮件中的附件文件。确认无误后，请点击“确认申请材料”；如需补充或修改，请点击“退回申请材料”。</p>");
 		content.append("<p style=\"margin:24px 0;\">")
 				.append("<a href=\"").append(htmlEscape(confirmUrl))
 				.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
