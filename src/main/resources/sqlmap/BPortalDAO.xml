@@ -12,7 +12,8 @@
 
     <select id="countArchivedDocumentReferences" resultType="java.lang.Integer" useCache="false" flushCache="true">
         SELECT count(*) FROM b_portal_list
-        WHERE str_state = '013' AND (contract_file_path = #{filePath} OR letter_file_path = #{filePath})
+        WHERE str_state = '013' AND (contract_file_path = #{filePath} OR letter_file_path = #{filePath}
+            OR `956path` = #{filePath})
     </select>
 
     <insert id="addPortal" parameterType="org.zhinanzhen.b.dao.pojo.PortalDO" useGeneratedKeys="true" keyProperty="id">
@@ -26,16 +27,11 @@
                 gender,
                 birthday,
                 passport,
-                english_score,
-                completion_date,
-                visa_expiration_date,
-                exam_results_date,
-                student_visa_expiration_date,
-                has_completion_letter,
                 json_str,
                 contract_str,
                 contract_file_path,
                 letter_file_path,
+                `956path`,
                 adviser_id,
                 official_id,
                 mara_id,
@@ -50,16 +46,11 @@
                 #{gender},
                 #{birthday},
                 #{passport},
-                #{englishScore},
-                #{completionDate},
-                #{visaExpirationDate},
-                #{examResultsDate},
-                #{studentVisaExpirationDate},
-                #{hasCompletionLetter},
                 #{jsonStr},
                 #{contractStr},
                 #{contractFilePath},
                 #{letterFilePath},
+                #{form956Path},
                 #{adviserId},
                 #{officialId},
                 #{maraId},
@@ -88,24 +79,6 @@
         <if test='passport != null and passport != ""'>
             , passport = #{passport}
         </if>
-        <if test='englishScore != null and englishScore != ""'>
-            , english_score = #{englishScore}
-        </if>
-        <if test='completionDate != null'>
-            , completion_date = #{completionDate}
-        </if>
-        <if test='visaExpirationDate != null'>
-            , visa_expiration_date = #{visaExpirationDate}
-        </if>
-        <if test='examResultsDate != null'>
-            , exam_results_date = #{examResultsDate}
-        </if>
-        <if test='studentVisaExpirationDate != null'>
-            , student_visa_expiration_date = #{studentVisaExpirationDate}
-        </if>
-        <if test='hasCompletionLetter != null'>
-            , has_completion_letter = #{hasCompletionLetter}
-        </if>
         <if test='jsonStr != null'>
             , json_str = #{jsonStr}
         </if>
@@ -117,6 +90,9 @@
         </if>
         <if test='letterFilePath != null'>
             , letter_file_path = #{letterFilePath}
+        </if>
+        <if test='form956Path != null'>
+            , `956path` = #{form956Path}
         </if>
         <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}
@@ -140,7 +116,8 @@
         UPDATE b_portal_list
         SET gmt_modify = now(),
             contract_file_path = NULL,
-            letter_file_path = NULL
+            letter_file_path = NULL,
+            `956path` = NULL
         WHERE id = #{id} AND (str_state IS NULL OR str_state != '013');
     </update>
 
@@ -170,16 +147,11 @@
             gender,
             birthday,
             passport,
-            english_score AS englishScore,
-            completion_date AS completionDate,
-            visa_expiration_date AS visaExpirationDate,
-            exam_results_date AS examResultsDate,
-            student_visa_expiration_date AS studentVisaExpirationDate,
-            has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
             contract_str AS contractStr,
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
+            `956path` AS form956Path,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -295,16 +267,11 @@
             gender,
             birthday,
             passport,
-            english_score AS englishScore,
-            completion_date AS completionDate,
-            visa_expiration_date AS visaExpirationDate,
-            exam_results_date AS examResultsDate,
-            student_visa_expiration_date AS studentVisaExpirationDate,
-            has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
             contract_str AS contractStr,
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
+            `956path` AS form956Path,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -349,16 +316,11 @@
             gender,
             birthday,
             passport,
-            english_score AS englishScore,
-            completion_date AS completionDate,
-            visa_expiration_date AS visaExpirationDate,
-            exam_results_date AS examResultsDate,
-            student_visa_expiration_date AS studentVisaExpirationDate,
-            has_completion_letter AS hasCompletionLetter,
             json_str AS jsonStr,
             contract_str AS contractStr,
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
+            `956path` AS form956Path,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,

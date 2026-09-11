@@ -29,18 +29,6 @@ public class PortalDO implements Serializable {
 
 	private String passport;
 
-	private String englishScore;
-
-	private Date completionDate;
-
-	private Date visaExpirationDate;
-
-	private Date examResultsDate;
-
-	private Date studentVisaExpirationDate;
-
-	private Boolean hasCompletionLetter;
-
 	private String jsonStr;
 
 	/** 顾问、MARA填写的合同表单JSON数据。 */
@@ -51,6 +39,9 @@ public class PortalDO implements Serializable {
 
 	/** 生成后的Letter文件访问路径，例如 /uploads/portal_document/xxx.docx。 */
 	private String letterFilePath;
+
+	/** 生成后的 Form 956 文件访问路径，对应 b_portal_list.956path。 */
+	private String form956Path;
 
 	private String aiConsultContent;
 

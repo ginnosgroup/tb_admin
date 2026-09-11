@@ -122,21 +122,24 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			contractPath = outputDir.resolve(prefix + "_Contract_" + customerSuffix + "_" + adviserSuffix + ".pdf");
 			advicePath = outputDir.resolve(
 					prefix + "_Letter_of_Advice_" + customerSuffix + "_" + adviserSuffix + ".docx");
-			String maraName = portalDto.getMaraName();
-			if (StringUtil.isEmpty(maraName) && data.maraId > 0) {
-				MaraDTO maraDto = maraService.getMaraById(data.maraId);
-				if (maraDto != null)
-					maraName = maraDto.getName();
-			}
-			if (data.maraId <= 0 || StringUtil.isEmpty(maraName))
-				throw new IOException("案件未配置有效的 Mara，无法选择 Form 956 模板");
-			String form956Template = data.maraId + "_956_" + maraName.trim() + ".pdf";
+			if (data.maraId <= 0)
+				throw new IOException("案件未配置有效的 Mara，无法获取 Form 956 模板");
+			MaraDTO maraDto = maraService.getMaraById(data.maraId);
+			if (maraDto == null)
+				throw new IOException("未找到 Mara，maraId=" + data.maraId);
+			String maraName = firstNonEmpty(portalDto.getMaraName(), maraDto.getName(), "Mara_" + data.maraId);
+			if (StringUtil.isEmpty(maraDto.getForm956Path()))
+				throw new IOException("Mara " + data.maraId + " 未配置 Form 956 模板路径(956path)");
+			Path form956TemplatePath = resolveStoredFilePath(maraDto.getForm956Path());
+			if (!Files.isRegularFile(form956TemplatePath))
+				throw new IOException("Mara " + data.maraId + " 的 Form 956 模板文件不存在: "
+						+ form956TemplatePath);
 			form956Path = outputDir.resolve(prefix + "_956_" + safeFileName(maraName) + ".pdf");
 
 			generateContractPdf(data, contractPath);
 			generateAdviceDocument(data, advicePath);
-			// Form 956 使用案件对应 Mara 的 classpath 模板，模板名格式为 maraId_956_maraName.pdf。
-			Form956PdfGenerator.generateFromResource(form956Template, form956Path,
+			// Form 956 使用 b_mara.956path 指定的模板文件生成。
+			Form956PdfGenerator.generateFromPath(form956TemplatePath, form956Path,
 					portalDto.getJsonStr(), portalDto.getContractStr(), data.maraId);
 
 			Map<String, String> paths = new LinkedHashMap<String, String>();
@@ -205,12 +208,13 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	public void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths,
 			String confirmUrl, String returnUrl) throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0) {
-			throw serviceException("案件信息无效，无法发送合同和建议信邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+			throw serviceException("案件信息无效，无法发送合同、建议信和Form 956邮件.",
+					ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
 
 		CustomerDocumentData data = buildCustomerData(portalDto);
 		if (StringUtil.isEmpty(data.email)) {
-			throw serviceException("客户邮箱为空，合同和建议信未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+			throw serviceException("客户邮箱为空，合同、建议信和Form 956未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
 
 		String contractFilePath = generatedDocumentPaths == null ? null : generatedDocumentPaths.get("contractPdf");
@@ -220,17 +224,23 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				: generatedDocumentPaths.get("letterOfAdviceDocx");
 		if (StringUtil.isEmpty(letterFilePath))
 			letterFilePath = portalDto.getLetterFilePath();
+		String form956FilePath = generatedDocumentPaths == null ? null : generatedDocumentPaths.get("form956Pdf");
+		if (StringUtil.isEmpty(form956FilePath))
+			form956FilePath = portalDto.getForm956Path();
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
 		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
+		Path form956Path = requireGeneratedFile(form956FilePath, "Form 956 PDF");
 		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
-		String title = "【指南针留学移民】485签证合同和建议信";
+		String title = "【指南针留学移民】485签证合同、建议信和Form 956";
 		String content = build485ContractEmail(data.fullName, adviserName, confirmUrl, returnUrl);
 		try {
-			sendMailWithAttachments(data.email, title, content, contractPath.toFile(), advicePath.toFile());
+			sendMailWithAttachments(data.email, title, content, contractPath.toFile(), advicePath.toFile(),
+				form956Path.toFile());
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {
-			throw serviceException("发送合同和建议信邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+			throw serviceException("发送合同、建议信和Form 956邮件失败: " + e.getMessage(),
+					ErrorCodeEnum.OTHER_ERROR.code(), e);
 		}
 	}
 
@@ -476,8 +486,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		String safeAdviserName = htmlEscape(firstNonEmpty(adviserName, "您的顾问"));
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
-		content.append("<p>感谢您对指南针留学移民的信任。我们已根据目前系统中登记的客户信息，为您生成了485签证服务合同和建议信，并随本邮件一并发送。</p>");
-		content.append("<p>请您下载并仔细核对两份附件中的姓名、联系方式、护照及学习经历等信息。如发现任何信息有误或需要补充，请先退回修改，并及时联系您的顾问 <strong>")
+		content.append("<p>感谢您对指南针留学移民的信任。我们已根据目前系统中登记的客户信息，为您生成了485签证服务合同、建议信和Form 956，并随本邮件一并发送。</p>");
+		content.append("<p>请您下载并仔细核对三份附件中的姓名、联系方式、护照及学习经历等信息。如发现任何信息有误或需要补充，请先退回修改，并及时联系您的顾问 <strong>")
 				.append(safeAdviserName).append("</strong>。</p>");
 		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
 			content.append("<p>确认无误后，请点击下面的“确认签署”按钮；如需修改，请点击“退回修改”按钮：</p>")
@@ -1175,9 +1185,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				getDirectDate(basicInfo, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
 				getDirectDate(formBasicInfo, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
 				findDate(contractData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
-				findDate(formData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"),
-				formatStoredDate(portalDto.getStudentVisaExpirationDate()),
-				formatStoredDate(portalDto.getVisaExpirationDate()));
+				findDate(formData, "studentVisaExpirationDate", "visaExpirationDate", "visaExpiryDate"));
 		data.maraId = portalDto.getMaraId() > 0 ? portalDto.getMaraId()
 				: firstPositiveInt(getDirectInt(basicInfo, "maraId"), getDirectInt(formBasicInfo, "maraId"));
 		data.serviceType = firstNonEmpty(getDirectText(serviceCategory, "serviceType"),

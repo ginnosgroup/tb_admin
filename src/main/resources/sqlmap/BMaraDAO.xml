@@ -99,6 +99,7 @@
             state,
             image_url AS imageUrl,
             signature_data AS signatureData,
+            `956path` AS form956Path,
             region_id AS regionId
         FROM b_mara WHERE id = #{id, jdbcType=INTEGER};
     </select>

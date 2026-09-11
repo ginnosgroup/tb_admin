@@ -26,6 +26,9 @@ public class MaraDO implements Serializable {
 
 	private String signatureData;
 
+	/** Form 956模板文件路径，对应 b_mara.956path。 */
+	private String form956Path;
+
 	private int regionId;
 
 }

@@ -1,19 +1,33 @@
 package org.zhinanzhen.b.utils;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.pdfbox.cos.COSArray;
+import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationWidget;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 import org.springframework.core.io.ClassPathResource;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,8 +37,9 @@ import com.ikasoa.core.utils.StringUtil;
 /**
  * 根据案件表单数据填写 Form 956。
  *
- * Form 956 模板是扁平化 PDF，不能通过 AcroForm 字段直接赋值，因此使用 PDFBox
- * 在模板固定输入框内覆盖写入。模板只读，输出文件单独保存。
+ * 按 AcroForm 字段名称填写，并生成字段外观，兼容不同页数及缺失字段目录的模板。
+ * 同时校验字段值和页面 Widget，避免页面上有文字而浏览器中的表单仍为空。
+ * 模板只读，代理人预填信息及第15题不会因客户信息缺失而被清空。
  */
 public final class Form956PdfGenerator {
 
@@ -40,7 +55,7 @@ public final class Form956PdfGenerator {
 	 * @param outputPath 输出文件，不能与模板文件相同
 	 * @param jsonStr 客户表单 JSON
 	 * @param contractStr 合同表单 JSON
-	 * @param fallbackMaraId 当表单 JSON 中没有 maraId 时用于填写 MARN
+	 * @param fallbackMaraId 保留旧接口兼容；数据库MARA主键不能作为注册号MARN填写
 	 */
 	public static void generateFromResource(String templateResourceName, Path outputPath, String jsonStr,
 			String contractStr, int fallbackMaraId) throws IOException {
@@ -50,6 +65,24 @@ public final class Form956PdfGenerator {
 		if (!resource.exists())
 			throw new IOException("Form 956模板文件不存在: " + templateResourceName);
 		try (InputStream inputStream = resource.getInputStream()) {
+			generate(inputStream, outputPath, jsonStr, contractStr, fallbackMaraId);
+		}
+	}
+
+	/**
+	 * 从文件系统模板生成 Form 956。模板路径可以是绝对路径，也可以是已解析到当前运行环境的存储路径。
+	 */
+	public static void generateFromPath(Path templatePath, Path outputPath, String jsonStr,
+			String contractStr, int fallbackMaraId) throws IOException {
+		if (templatePath == null)
+			throw new IOException("Form 956模板路径为空");
+		Path normalizedTemplate = templatePath.toAbsolutePath().normalize();
+		if (!Files.isRegularFile(normalizedTemplate))
+			throw new IOException("Form 956模板文件不存在: " + normalizedTemplate);
+		if (outputPath != null && (normalizedTemplate.equals(outputPath.toAbsolutePath().normalize())
+				|| (Files.exists(outputPath) && Files.isSameFile(normalizedTemplate, outputPath))))
+			throw new IOException("Form 956输出文件不能覆盖模板");
+		try (InputStream inputStream = Files.newInputStream(normalizedTemplate)) {
 			generate(inputStream, outputPath, jsonStr, contractStr, fallbackMaraId);
 		}
 	}
@@ -68,12 +101,36 @@ public final class Form956PdfGenerator {
 		JsonNode jsonData = parseJson(jsonStr, "json_str");
 		JsonNode contractData = parseJson(contractStr, "contract_str");
 		Form956Data data = buildData(jsonData, contractData, fallbackMaraId);
+		if (isBlank(data.clientFamilyName) && isBlank(data.clientGivenNames))
+			throw new IOException("Form 956客户姓名为空，请检查案件json_str和contract_str中的basicInfo");
+		Map<String, String> values = fieldValues(data);
 		try (PDDocument document = PDDocument.load(templateInputStream)) {
-			if (document.getNumberOfPages() < 4)
-				throw new IOException("Form 956模板页数不足，无法填写第13至16题");
-			PDFont font = loadFont(document);
-			fillFields(document, font, data);
-			document.save(normalizedOutput.toFile());
+			PDAcroForm form = prepareForm(document, values);
+			PDFont font = loadFont(document, values);
+			PDResources resources = form.getDefaultResources();
+			if (resources == null) {
+				resources = new PDResources();
+				form.setDefaultResources(resources);
+			}
+			COSName fontName = resources.add(font);
+			form.setNeedAppearances(false);
+			Map<String, PDField> fields = collectFields(form);
+			for (Map.Entry<String, String> entry : values.entrySet()) {
+				PDTextField field = requireTextField(fields, entry.getKey());
+				field.setDefaultAppearance("/" + fontName.getName() + " 0 Tf 0 g");
+				field.setValue(entry.getValue());
+			}
+			// 先保存到临时文件并重新打开验证，只有值和外观都完整时才交给邮件/数据库流程。
+			Path temporary = Files.createTempFile(parent, "form956-", ".pdf");
+			try {
+				document.save(temporary.toFile());
+				try (PDDocument written = PDDocument.load(temporary.toFile())) {
+					verifyFields(written, values);
+				}
+				Files.move(temporary, normalizedOutput, StandardCopyOption.REPLACE_EXISTING);
+			} finally {
+				Files.deleteIfExists(temporary);
+			}
 		}
 	}
 
@@ -131,10 +188,7 @@ public final class Form956PdfGenerator {
 				"basicInfo.agentEmail", "basicInfo.migrationAgentEmail",
 				"agent.email", "migrationAgent.email");
 		data.marn = first(roots,
-				"basicInfo.maraId", "basicInfo.marn", "maraId", "marn",
-				"agent.maraId", "agent.marn", "migrationAgent.marn");
-		if (isBlank(data.marn) && fallbackMaraId > 0)
-			data.marn = String.valueOf(fallbackMaraId);
+				"basicInfo.marn", "marn", "agent.marn", "migrationAgent.marn");
 
 		data.clientFullName = first(roots,
 				"basicInfo.nameOfClient", "basicInfo.name", "basicInfo.fullName",
@@ -171,80 +225,172 @@ public final class Form956PdfGenerator {
 		return data;
 	}
 
-	private static void fillFields(PDDocument document, PDFont font, Form956Data data) throws IOException {
-		// PDF 坐标原点在左下角，坐标与测试方法使用的 Form 956 模板一致。
-		try (PDPageContentStream page = new PDPageContentStream(document, document.getPage(2),
-				PDPageContentStream.AppendMode.APPEND, true, true)) {
-			field(page, font, 96, 416, 188, 16, data.agentFamilyName, 8);
-			field(page, font, 96, 396, 188, 16, data.agentGivenNames, 8);
-			field(page, font, 44, 308, 240, 32, data.agentOrganisation, 7);
-			field(page, font, 44, 232, 240, 48, data.agentAddress, 7);
-			field(page, font, 44, 144, 240, 48, data.agentCorrespondenceAddress, 7);
-			field(page, font, 96, 88, 188, 16, data.agentOfficePhone, 8);
-			field(page, font, 96, 68, 188, 16, data.agentMobile, 8);
-			field(page, font, 380, 636, 188, 16, data.agentEmail, 8);
-			field(page, font, 456, 516, 112, 16, data.marn, 8);
+	private static Map<String, String> fieldValues(Form956Data data) {
+		Map<String, String> values = new LinkedHashMap<String, String>();
+		put(values, "cc.name fam", data.clientFamilyName);
+		put(values, "cc.name giv", data.clientGivenNames);
+		put(values, "cc.dob", data.clientBirthday);
+		put(values, "cc.org name", data.clientOrganisation);
+		put(values, "cc.resadd str", data.clientAddress);
+		put(values, "cc.off ph", data.clientPhone);
+		put(values, "cc.mob", data.clientMobile);
+		put(values, "cc.diac id", data.clientId);
+		// 第16题的RID/TRN与第15题共用ta前缀，只更新这两个字段。
+		put(values, "ta.diac request id", data.rid);
+		put(values, "ta.diac trans id", data.trn);
+		put(values, "mg.name fam", data.agentFamilyName);
+		put(values, "mg.name giv", data.agentGivenNames);
+		put(values, "mg.org name", data.agentOrganisation);
+		put(values, "mg.resadd str", data.agentAddress);
+		put(values, "mg.postal str", data.agentCorrespondenceAddress);
+		put(values, "mg.off ph", data.agentOfficePhone);
+		put(values, "mg.mob", data.agentMobile);
+		put(values, "mg.email", data.agentEmail);
+		put(values, "mg.marn", data.marn);
+		return values;
+	}
+
+	private static void put(Map<String, String> values, String field, String value) {
+		if (!isBlank(value))
+			values.put(field, value.replaceAll("[\\r\\n\\t]+", " ").trim());
+	}
+
+	/**
+	 * 直接使用原有Widget，恢复需要填写的孤立字段，不能新建同名控件覆盖在旧控件下面。
+	 * 不重建无关的复选框/签名字段，保留模板已经填写的内容及外观。
+	 */
+	private static PDAcroForm prepareForm(PDDocument document, Map<String, String> values) throws IOException {
+		PDAcroForm form = document.getDocumentCatalog().getAcroForm(null);
+		if (form == null) {
+			form = new PDAcroForm(document);
+			document.getDocumentCatalog().setAcroForm(form);
 		}
+		Map<String, PDField> fields = collectFields(form);
+		COSArray roots = form.getCOSObject().getCOSArray(COSName.FIELDS);
+		if (roots == null) {
+			roots = new COSArray();
+			form.getCOSObject().setItem(COSName.FIELDS, roots);
+		}
+		for (PDPage page : document.getPages()) {
+			for (PDAnnotation annotation : page.getAnnotations()) {
+				if (!(annotation instanceof PDAnnotationWidget))
+					continue;
+				COSDictionary widget = annotation.getCOSObject();
+				String name = fieldName(widget);
+				if (!values.containsKey(name))
+					continue;
+				PDField field = fields.get(name);
+				if (field == null) {
+					COSDictionary root = widget;
+					while (root.getCOSDictionary(COSName.PARENT) != null)
+						root = root.getCOSDictionary(COSName.PARENT);
+					if (!contains(roots, root)) {
+						roots.add(root);
+						fields = collectFields(form);
+					}
+					field = fields.get(name);
+				}
+				if (field == null || !ownsWidget(field, widget))
+					throw new IOException("Form 956字段目录与页面控件冲突: " + name);
+				annotation.setPage(page);
+			}
+		}
+		validateWidgets(document, fields, values, false);
+		return form;
+	}
 
-		try (PDPageContentStream page = new PDPageContentStream(document, document.getPage(3),
-				PDPageContentStream.AppendMode.APPEND, true, true)) {
-			field(page, font, 96, 600, 188, 16, data.clientFamilyName, 8);
-			field(page, font, 96, 580, 188, 16, data.clientGivenNames, 8);
-			field(page, font, 96, 552, 88, 16, data.clientBirthday, 8);
-			field(page, font, 44, 500, 240, 32, data.clientOrganisation, 7);
-			field(page, font, 44, 432, 240, 48, data.clientAddress, 7);
-			field(page, font, 96, 388, 188, 16, data.clientPhone, 8);
-			field(page, font, 96, 368, 188, 16, data.clientMobile, 8);
-			field(page, font, 160, 344, 124, 16, data.clientId, 8);
-			field(page, font, 436, 288, 132, 16, data.rid, 8);
-			field(page, font, 436, 264, 132, 16, data.trn, 8);
+	private static boolean contains(COSArray array, COSDictionary dictionary) {
+		for (int i = 0; i < array.size(); i++)
+			if (array.getObject(i) == dictionary)
+				return true;
+		return false;
+	}
+
+	private static String fieldName(COSDictionary widget) throws IOException {
+		String name = "";
+		Set<COSDictionary> visited = Collections.newSetFromMap(new IdentityHashMap<COSDictionary, Boolean>());
+		for (COSDictionary current = widget; current != null; current = current.getCOSDictionary(COSName.PARENT)) {
+			if (!visited.add(current))
+				throw new IOException("Form 956模板字段存在循环引用");
+			String part = current.getString(COSName.T);
+			if (!isBlank(part))
+				name = part + (name.length() == 0 ? "" : "." + name);
+		}
+		return name;
+	}
+
+	private static Map<String, PDField> collectFields(PDAcroForm form) throws IOException {
+		Map<String, PDField> fields = new LinkedHashMap<String, PDField>();
+		for (PDField field : form.getFieldTree()) {
+			PDField previous = fields.put(field.getFullyQualifiedName(), field);
+			if (previous != null && previous.getCOSObject() != field.getCOSObject())
+				throw new IOException("Form 956模板存在重复字段: " + field.getFullyQualifiedName());
+		}
+		return fields;
+	}
+
+	private static PDTextField requireTextField(Map<String, PDField> fields, String name) throws IOException {
+		PDField field = fields.get(name);
+		if (!(field instanceof PDTextField))
+			throw new IOException("Form 956模板缺少可填写的文本字段: " + name);
+		return (PDTextField) field;
+	}
+
+	private static boolean ownsWidget(PDField field, COSDictionary dictionary) {
+		for (PDAnnotationWidget widget : field.getWidgets())
+			if (widget.getCOSObject() == dictionary)
+				return true;
+		return false;
+	}
+
+	private static void verifyFields(PDDocument document, Map<String, String> values) throws IOException {
+		PDAcroForm form = document.getDocumentCatalog().getAcroForm(null);
+		if (form == null)
+			throw new IOException("Form 956生成后丢失表单字段");
+		Map<String, PDField> fields = collectFields(form);
+		for (Map.Entry<String, String> entry : values.entrySet()) {
+			PDTextField field = requireTextField(fields, entry.getKey());
+			if (!entry.getValue().equals(field.getValue()))
+				throw new IOException("Form 956字段值保存失败: " + entry.getKey());
+		}
+		validateWidgets(document, fields, values, true);
+	}
+
+	private static void validateWidgets(PDDocument document, Map<String, PDField> fields,
+			Map<String, String> values, boolean verifyAppearance) throws IOException {
+		Map<String, Integer> found = new LinkedHashMap<String, Integer>();
+		for (PDPage page : document.getPages()) {
+			for (PDAnnotation annotation : page.getAnnotations()) {
+				if (!(annotation instanceof PDAnnotationWidget))
+					continue;
+				String name = fieldName(annotation.getCOSObject());
+				if (!values.containsKey(name))
+					continue;
+				PDTextField field = requireTextField(fields, name);
+				if (!ownsWidget(field, annotation.getCOSObject()) || annotation.getRectangle() == null
+						|| annotation.getRectangle().getWidth() <= 0 || annotation.getRectangle().getHeight() <= 0)
+					throw new IOException("Form 956字段没有有效页面控件: " + name);
+				if (verifyAppearance && (annotation.getNormalAppearanceStream() == null
+						|| annotation.getNormalAppearanceStream().getCOSObject().getLength() == 0))
+					throw new IOException("Form 956字段显示内容为空: " + name);
+				found.put(name, found.containsKey(name) ? found.get(name) + 1 : 1);
+			}
+		}
+		for (String name : values.keySet()) {
+			PDTextField field = requireTextField(fields, name);
+			if (!found.containsKey(name) || found.get(name) != field.getWidgets().size())
+				throw new IOException("Form 956字段未关联到页面: " + name);
 		}
 	}
 
-	private static void field(PDPageContentStream page, PDFont font, float x, float y, float width,
-			float height, String value, float fontSize) throws IOException {
-		page.setNonStrokingColor(Color.WHITE);
-		page.addRect(x + 1, y + 1, width - 2, height - 2);
-		page.fill();
-		if (isBlank(value))
-			return;
-
-		String safeValue = safeText(font, value);
-		float actualSize = fontSize;
-		while (actualSize > 5 && font.getStringWidth(safeValue) / 1000f * actualSize > width - 6)
-			actualSize -= 0.5f;
-		if (font.getStringWidth(safeValue) / 1000f * actualSize > width - 6)
-			safeValue = trimToWidth(font, safeValue, actualSize, width - 6);
-
-		page.setNonStrokingColor(Color.BLACK);
-		page.beginText();
-		page.setFont(font, actualSize);
-		page.newLineAtOffset(x + 3, y + Math.max(3, (height - actualSize) / 2));
-		page.showText(safeValue);
-		page.endText();
-	}
-
-	private static String trimToWidth(PDFont font, String value, float fontSize, float maxWidth)
-			throws IOException {
-		String result = value;
-		while (result.length() > 1 && font.getStringWidth(result) / 1000f * fontSize > maxWidth)
-			result = result.substring(0, result.length() - 1);
-		return result;
-	}
-
-	private static String safeText(PDFont font, String value) {
-		String normalized = value == null ? "" : value.replace('\r', ' ').replace('\n', ' ').trim();
-		if (font instanceof PDType0Font)
-			return normalized;
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < normalized.length(); i++) {
-			char character = normalized.charAt(i);
-			result.append(character >= 32 && character <= 126 ? character : '?');
+	private static PDFont loadFont(PDDocument document, Map<String, String> values) throws IOException {
+		try {
+			for (String value : values.values())
+				PDType1Font.HELVETICA.getStringWidth(value);
+			return PDType1Font.HELVETICA;
+		} catch (IllegalArgumentException ignored) {
+			// 需要中文等字符时嵌入完整字体，便于浏览器重新编辑表单。
 		}
-		return result.toString();
-	}
-
-	private static PDFont loadFont(PDDocument document) throws IOException {
 		String[] fontPaths = {
 				"C:\\Windows\\Fonts\\simhei.ttf",
 				"C:\\Windows\\Fonts\\arial.ttf",
@@ -253,14 +399,17 @@ public final class Form956PdfGenerator {
 		for (String fontPath : fontPaths) {
 			Path path = Paths.get(fontPath);
 			if (Files.isRegularFile(path)) {
-				try {
-					return PDType0Font.load(document, path.toFile());
-				} catch (IOException ignored) {
-					// 当前机器字体不可嵌入时使用 PDF 内置字体继续生成。
+				try (InputStream input = Files.newInputStream(path)) {
+					PDFont font = PDType0Font.load(document, input, false);
+					for (String value : values.values())
+						font.getStringWidth(value);
+					return font;
+				} catch (IllegalArgumentException ignored) {
+					// 当前字体缺少所需字符时尝试下一个字体。
 				}
 			}
 		}
-		return PDType1Font.HELVETICA;
+		throw new IOException("Form 956缺少可显示客户信息的字体，请配置支持相应字符的字体");
 	}
 
 	private static String first(JsonNode[] roots, String... paths) {

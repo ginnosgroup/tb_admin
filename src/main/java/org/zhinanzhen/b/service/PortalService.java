@@ -18,6 +18,7 @@ public interface PortalService {
 
 	void requireEditableDocument(String filePath) throws ServiceException;
 
+	/** 清空案件生成的合同、Letter和Form 956文件路径。 */
 	int clearGeneratedDocumentPaths(int id) throws ServiceException;
 
 	int updatePortalStateIfCurrent(int id, String fromState, String toState) throws ServiceException;

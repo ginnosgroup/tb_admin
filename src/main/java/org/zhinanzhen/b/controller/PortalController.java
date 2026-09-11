@@ -269,12 +269,14 @@ public class PortalController extends BaseController {
 		portalAttachmentDto.setFileName(file.getOriginalFilename());
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
-		// 请求传入业务文件类型时优先保存业务类型；未传时保留文件的MIME类型。
-		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
-		portalAttachmentDto.setFileType(fileType == null ? file.getContentType() : normalizedUploadFileType);
 		String originalName = file.getOriginalFilename();
-		if (StringUtil.isNotEmpty(originalName) && originalName.contains("."))
-			portalAttachmentDto.setFileExt(originalName.substring(originalName.lastIndexOf(".") + 1));
+		String fileExt = extractFileExtension(originalName);
+		// 压缩包的file_type保存真实MIME类型；fileType仍作为业务类型用于设置stage。
+		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
+		portalAttachmentDto.setFileType(normalizeStoredFileType(normalizedUploadFileType, fileExt,
+				file.getContentType()));
+		if (StringUtil.isNotEmpty(fileExt))
+			portalAttachmentDto.setFileExt(fileExt);
 		portalAttachmentDto.setStage("apply");
 		if (StringUtil.isNotEmpty(normalizedUploadFileType)
 				&& ("application".equals(normalizedUploadFileType)
@@ -359,6 +361,25 @@ public class PortalController extends BaseController {
 			return value;
 		}
 		return null;
+	}
+
+	/** 保存附件时规范化压缩包的MIME类型；其他文件保留原有保存规则。 */
+	private String normalizeStoredFileType(String fileType, String fileExt, String contentType) {
+		String normalizedExt = fileExt == null ? "" : fileExt.trim().toLowerCase(Locale.ENGLISH);
+		String normalizedType = fileType == null ? "" : fileType.trim().toLowerCase(Locale.ENGLISH);
+		if ("zip".equals(normalizedExt) || "application/zip".equals(normalizedType))
+			return "application/zip";
+		if ("rar".equals(normalizedExt) || "application/vnd.rar".equals(normalizedType)
+				|| "application/x-rar-compressed".equals(normalizedType))
+			return "application/vnd.rar";
+		return fileType == null ? contentType : fileType.trim();
+	}
+
+	/** 从原始文件名中提取扩展名。 */
+	private String extractFileExtension(String originalName) {
+		if (StringUtil.isEmpty(originalName) || !originalName.contains("."))
+			return null;
+		return originalName.substring(originalName.lastIndexOf('.') + 1);
 	}
 
 	/** 按附件类型选择独立的AI提示词。 */
@@ -536,17 +557,6 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 解析前端传的 hasCompletionLetter：兼容 "true"/"false" 和 "0"/"1" 两种写法，
-	 * 空值/其他值一律按 false 处理。
-	 */
-	private static boolean parseHasCompletionLetter(String value) {
-		if (StringUtil.isEmpty(value))
-			return false;
-		String v = value.trim();
-		return "true".equalsIgnoreCase(v) || "1".equals(v);
-	}
-
-	/**
 	 * 从合同表单JSON的 basicInfo.officialId 读取文案ID。
 	 * 同时兼容数字和数字字符串，避免状态02B时只更新合同表单而没有更新案件文案。
 	 */
@@ -614,12 +624,13 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 删除案件已生成的合同和Letter文件；文件不存在时视为已清理。 */
+	/** 删除案件已生成的合同、Letter和Form 956文件；文件不存在时视为已清理。 */
 	private void deleteGeneratedPortalDocuments(PortalDTO portalDto) {
 		if (portalDto == null)
 			return;
 		deleteGeneratedPortalDocument("合同", portalDto.getContractFilePath());
 		deleteGeneratedPortalDocument("Letter", portalDto.getLetterFilePath());
+		deleteGeneratedPortalDocument("Form 956", portalDto.getForm956Path());
 	}
 
 	private void deleteGeneratedPortalDocument(String documentName, String filePath) {
@@ -678,12 +689,6 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "gender", required = false) String gender,
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "passport", required = false) String passport,
-			@RequestParam(value = "englishScore", required = false) String englishScore,
-			@RequestParam(value = "completionDate", required = false) String completionDate,
-			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
-			@RequestParam(value = "examResultsDate", required = false) String examResultsDate,
-			@RequestParam(value = "studentVisaExpirationDate", required = false) String studentVisaExpirationDate,
-			@RequestParam(value = "hasCompletionLetter", required = false) String hasCompletionLetter,
 			@RequestParam(value = "jsonStr", required = false) String jsonStr,
 			@RequestParam(value = "contractStr", required = false) String contractStr,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -713,18 +718,6 @@ public class PortalController extends BaseController {
 				portalDto.setBirthday(new Date(Long.parseLong(birthday.trim())));
 			if (StringUtil.isNotEmpty(passport))
 				portalDto.setPassport(passport);
-			if (StringUtil.isNotEmpty(englishScore))
-				portalDto.setEnglishScore(englishScore);
-			if (StringUtil.isNotEmpty(completionDate))
-				portalDto.setCompletionDate(new Date(Long.parseLong(completionDate.trim())));
-			if (StringUtil.isNotEmpty(visaExpirationDate))
-				portalDto.setVisaExpirationDate(new Date(Long.parseLong(visaExpirationDate.trim())));
-			if (StringUtil.isNotEmpty(examResultsDate))
-				portalDto.setExamResultsDate(new Date(Long.parseLong(examResultsDate.trim())));
-			if (StringUtil.isNotEmpty(studentVisaExpirationDate))
-				portalDto.setStudentVisaExpirationDate(new Date(Long.parseLong(studentVisaExpirationDate.trim())));
-			// 未传默认false（没有完成信），避免insert时写入null违反非空约束
-			portalDto.setHasCompletionLetter(parseHasCompletionLetter(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
 			// 合同表单由顾问或MARA填写，保留前端传入的JSON字符串。
@@ -771,12 +764,6 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "gender", required = false) String gender,
 			@RequestParam(value = "birthday", required = false) String birthday,
 			@RequestParam(value = "passport", required = false) String passport,
-			@RequestParam(value = "englishScore", required = false) String englishScore,
-			@RequestParam(value = "completionDate", required = false) String completionDate,
-			@RequestParam(value = "visaExpirationDate", required = false) String visaExpirationDate,
-			@RequestParam(value = "examResultsDate", required = false) String examResultsDate,
-			@RequestParam(value = "studentVisaExpirationDate", required = false) String studentVisaExpirationDate,
-			@RequestParam(value = "hasCompletionLetter", required = false) String hasCompletionLetter,
 			@RequestParam(value = "jsonStr", required = false) String jsonStr,
 			@RequestParam(value = "contractStr", required = false) String contractStr,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
@@ -879,18 +866,6 @@ public class PortalController extends BaseController {
 				portalDto.setBirthday(new Date(Long.parseLong(birthday.trim())));
 			if (StringUtil.isNotEmpty(passport))
 				portalDto.setPassport(passport);
-			if (StringUtil.isNotEmpty(englishScore))
-				portalDto.setEnglishScore(englishScore);
-			if (StringUtil.isNotEmpty(completionDate))
-				portalDto.setCompletionDate(new Date(Long.parseLong(completionDate.trim())));
-			if (StringUtil.isNotEmpty(visaExpirationDate))
-				portalDto.setVisaExpirationDate(new Date(Long.parseLong(visaExpirationDate.trim())));
-			if (StringUtil.isNotEmpty(examResultsDate))
-				portalDto.setExamResultsDate(new Date(Long.parseLong(examResultsDate.trim())));
-			if (StringUtil.isNotEmpty(studentVisaExpirationDate))
-				portalDto.setStudentVisaExpirationDate(new Date(Long.parseLong(studentVisaExpirationDate.trim())));
-			if (StringUtil.isNotEmpty(hasCompletionLetter))
-				portalDto.setHasCompletionLetter(parseHasCompletionLetter(hasCompletionLetter));
 			if (StringUtil.isNotEmpty(jsonStr))
 				portalDto.setJsonStr(jsonStr);
 			// contractStr != null 才更新，允许前端传空字符串清空合同表单数据。
@@ -939,9 +914,11 @@ public class PortalController extends BaseController {
                     documentPathDto.setId(id);
                     documentPathDto.setContractFilePath(generatedDocumentPaths.get("contractPdf"));
                     documentPathDto.setLetterFilePath(generatedDocumentPaths.get("letterOfAdviceDocx"));
+                    documentPathDto.setForm956Path(generatedDocumentPaths.get("form956Pdf"));
                     portalService.updatePortal(documentPathDto);
                     portalDto.setContractFilePath(documentPathDto.getContractFilePath());
                     portalDto.setLetterFilePath(documentPathDto.getLetterFilePath());
+                    portalDto.setForm956Path(documentPathDto.getForm956Path());
                     portalDto.setGeneratedDocumentPaths(generatedDocumentPaths);
 					} catch (ServiceException documentException) {
 						// 文件生成失败时只回退状态，客户本次填写的其他资料仍然保留，便于修复后再次提交02B。
@@ -962,7 +939,7 @@ public class PortalController extends BaseController {
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
-				// MARA退回顾问修改时，删除已经生成的合同和Letter文件，并清空数据库中的路径。
+				// MARA退回顾问修改时，删除已经生成的合同、Letter和Form 956文件，并清空数据库中的路径。
 				// 02A的重复提交也执行检查，避免旧文件和旧路径残留。
 				if ("02A".equals(strState)) {
 					try {
@@ -971,10 +948,10 @@ public class PortalController extends BaseController {
 							documentPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						deleteGeneratedPortalDocuments(documentPortalDto);
 						if (portalService.clearGeneratedDocumentPaths(id) <= 0)
-							LOG.warn("合同和Letter文件路径清空失败，portalId={}", id);
+							LOG.warn("合同、Letter和Form 956文件路径清空失败，portalId={}", id);
 					} catch (ServiceException documentCleanupException) {
 						// 状态更新和日志仍保留，清理失败写日志便于后续补偿处理。
-						LOG.error("案件状态转为02A后清理合同和Letter文件失败，portalId={}", id,
+						LOG.error("案件状态转为02A后清理合同、Letter和Form 956文件失败，portalId={}", id,
 								documentCleanupException);
 					}
 				}
@@ -1075,10 +1052,11 @@ public class PortalController extends BaseController {
 						String customerUrl = buildPortalCustomerUrl(savedPortalDto.getId());
 						portalDocumentService.sendGeneratedDocuments(savedPortalDto, null, customerUrl, customerUrl);
 					} catch (ServiceException confirmationMailException) {
-						LOG.error("案件已更新为03A，但客户合同确认邮件发送失败，portalId={}", id,
+						LOG.error("案件已更新为03A，但客户合同、建议信和Form 956确认邮件发送失败，portalId={}", id,
 								confirmationMailException);
 						return new Response<PortalDTO>(confirmationMailException.getCode(),
-								"案件已更新为03A，但客户确认邮件发送失败：" + confirmationMailException.getMessage(), portalDto);
+								"案件已更新为03A，但客户合同、建议信和Form 956确认邮件发送失败："
+										+ confirmationMailException.getMessage(), portalDto);
 					} catch (IllegalStateException actionCodeException) {
 						LOG.error("案件已更新为03A，但客户合同操作链接code生成失败，portalId={}", id,
 								actionCodeException);
@@ -1447,7 +1425,7 @@ public class PortalController extends BaseController {
 		appendAiField(text, "出生", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
 		appendAiField(text, "出生国家", getJsonValue(formData, "basicInfo", "birthCountry"));
 		appendAiField(text, "婚姻", getJsonValue(formData, "basicInfo", "maritalStatus"));
-		appendAiField(text, "学签到期", resolveStudentVisaExpirationDate(formData, portalDto));
+		appendAiField(text, "学签到期", resolveStudentVisaExpirationDate(formData));
 		appendAiField(text, "完成信", hasEducationData(formData) ? "是" : "否");
 		appendAiField(text, "语言考试", joinLangTypes(getSectionNode(formData, "language")));
 
@@ -1462,13 +1440,10 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 学签到期时间：优先取 jsonStr.basicInfo.studentVisaExpirationDate（时间戳/日期字符串），
-	 * 取不到再回退到 PortalDTO 的学签到期时间。
+	 * 学签到期时间：从 jsonStr.basicInfo.studentVisaExpirationDate（时间戳/日期字符串）读取。
 	 */
-	private String resolveStudentVisaExpirationDate(JsonNode formData, PortalDTO portalDto) {
+	private String resolveStudentVisaExpirationDate(JsonNode formData) {
 		Date date = dateFromNode(getJsonNode(formData, "basicInfo", "studentVisaExpirationDate"));
-		if (date == null && portalDto != null)
-			date = portalDto.getStudentVisaExpirationDate();
 		return formatAiDate(date);
 	}
 

@@ -144,7 +144,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	@Transactional(rollbackFor = Exception.class)
 	public int clearGeneratedDocumentPaths(int id) throws ServiceException {
 		if (id <= 0) {
-			ServiceException se = new ServiceException("案件ID无效，无法清空合同和Letter文件路径.");
+			ServiceException se = new ServiceException("案件ID无效，无法清空合同、Letter和Form 956文件路径.");
 			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
 			throw se;
 		}
