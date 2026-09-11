@@ -144,6 +144,30 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	public List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndFileNameAndStage(Integer portalId,
+			String fileName, String stage) throws ServiceException {
+		if (portalId == null || portalId <= 0 || StringUtil.isEmpty(fileName) || StringUtil.isEmpty(stage)) {
+			ServiceException se = new ServiceException("portalId、fileName或stage error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<PortalAttachmentDO> portalAttachmentDoList = portalAttachmentDao
+					.listPortalAttachmentByPortalIdAndFileNameAndStage(portalId, fileName.trim(), stage.trim());
+			if (portalAttachmentDoList == null || portalAttachmentDoList.isEmpty())
+				return new ArrayList<PortalAttachmentDTO>();
+			List<PortalAttachmentDTO> portalAttachmentDtoList = new ArrayList<PortalAttachmentDTO>();
+			for (PortalAttachmentDO portalAttachmentDo : portalAttachmentDoList)
+				portalAttachmentDtoList.add(mapper.map(portalAttachmentDo, PortalAttachmentDTO.class));
+			return portalAttachmentDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public List<PortalAttachmentDTO> listPortalAttachment(Integer id, Integer portalId, String attachmentState,
 			String stage, String filePath, String fileName, int pageNum, int pageSize) throws ServiceException {
 		if (id != null && id <= 0) {
@@ -275,6 +299,36 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			if (attachment != null)
 				portalWriteGuard.requireFileEditable(attachment.getFilePath());
 			return portalAttachmentDao.deletePortalAttachmentById(id);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(int id, int portalId, String fileName,
+			String stage) throws ServiceException {
+		if (id <= 0 || portalId <= 0 || StringUtil.isEmpty(fileName) || StringUtil.isEmpty(stage)) {
+			ServiceException se = new ServiceException("id、portalId、fileName或stage error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			portalWriteGuard.requireEditable(portalId);
+			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentById(id);
+			if (attachment == null || attachment.getPortalId() == null || attachment.getPortalId() != portalId
+					|| !fileName.trim().equalsIgnoreCase(attachment.getFileName() == null ? "" : attachment.getFileName().trim())
+					|| !stage.trim().equalsIgnoreCase(attachment.getStage() == null ? "" : attachment.getStage().trim()))
+				return 0;
+			requireAttachmentEditable(attachment);
+			if (StringUtil.isNotEmpty(attachment.getFilePath()))
+				portalWriteGuard.requireFileEditable(attachment.getFilePath());
+			return portalAttachmentDao.deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(id, portalId,
+					fileName.trim(), stage.trim());
+		} catch (ServiceException e) {
+			throw e;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());

@@ -205,15 +205,17 @@ public class PortalController extends BaseController {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
 		}
-		boolean archiveUpload = isArchiveFile(file == null ? null : file.getOriginalFilename());
-		List<PortalAttachmentDTO> previousPortalAttachments = Collections.emptyList();
-		if (archiveUpload && portalId != null) {
+		String originalName = file == null ? null : file.getOriginalFilename();
+		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
+		String uploadStage = resolveApplicationStage(normalizedUploadFileType);
+		List<PortalAttachmentDTO> previousSameNameAttachments = Collections.emptyList();
+		if (portalId != null && uploadStage != null && StringUtil.isNotEmpty(originalName)) {
 			try {
-				// 压缩包按案件只保留最新一份；先查出旧记录，待新文件上传成功后再替换。
+				// application/applicationWA 仅替换同一案件、同一阶段、同名的旧附件。
 				List<PortalAttachmentDTO> attachments = portalAttachmentService
-						.listPortalAttachmentByPortalId(portalId);
+						.listPortalAttachmentByPortalIdAndFileNameAndStage(portalId, originalName, uploadStage);
 				if (attachments != null)
-					previousPortalAttachments = attachments;
+					previousSameNameAttachments = attachments;
 			} catch (ServiceException e) {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
@@ -254,9 +256,9 @@ public class PortalController extends BaseController {
 		if (uploadResp.getCode() != 0) {
 			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
 		}
-		if (archiveUpload && portalId != null && !previousPortalAttachments.isEmpty()) {
+		if (portalId != null && uploadStage != null && !previousSameNameAttachments.isEmpty()) {
 			try {
-				deletePreviousPortalAttachments(previousPortalAttachments);
+				deletePreviousSameNameAttachments(previousSameNameAttachments, portalId, originalName, uploadStage);
 			} catch (ServiceException e) {
 				// 新文件尚未入库，替换失败时只清理本次上传文件，避免留下孤儿文件。
 				super.deleteFile(uploadResp.getData());
@@ -269,19 +271,15 @@ public class PortalController extends BaseController {
 		portalAttachmentDto.setFileName(file.getOriginalFilename());
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
-		String originalName = file.getOriginalFilename();
 		String fileExt = extractFileExtension(originalName);
 		// 压缩包的file_type保存真实MIME类型；fileType仍作为业务类型用于设置stage。
-		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
 		portalAttachmentDto.setFileType(normalizeStoredFileType(normalizedUploadFileType, fileExt,
 				file.getContentType()));
 		if (StringUtil.isNotEmpty(fileExt))
 			portalAttachmentDto.setFileExt(fileExt);
 		portalAttachmentDto.setStage("apply");
-		if (StringUtil.isNotEmpty(normalizedUploadFileType)
-				&& ("application".equals(normalizedUploadFileType)
-						|| "applicationWA".equals(normalizedUploadFileType)))
-			portalAttachmentDto.setStage(normalizedUploadFileType);
+		if (uploadStage != null)
+			portalAttachmentDto.setStage(uploadStage);
 		if (StringUtil.isNotEmpty(attachmentState))
 			portalAttachmentDto.setAttachmentState(attachmentState.trim());
 		// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
@@ -433,29 +431,26 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 判断上传文件是否为需要按案件替换的压缩包。 */
-	private boolean isArchiveFile(String originalFilename) {
-		if (StringUtil.isEmpty(originalFilename))
-			return false;
-		String fileName = originalFilename.trim().replace('\\', '/');
-		int dotIndex = fileName.lastIndexOf('.');
-		if (dotIndex < 0 || dotIndex == fileName.length() - 1)
-			return false;
-		String extension = fileName.substring(dotIndex + 1);
-		return "rar".equalsIgnoreCase(extension) || "zip".equalsIgnoreCase(extension);
+	/** 只对 application/applicationWA 阶段解析上传替换规则。 */
+	private String resolveApplicationStage(String fileType) {
+		if ("application".equalsIgnoreCase(fileType))
+			return "application";
+		if ("applicationWA".equalsIgnoreCase(fileType))
+			return "applicationWA";
+		return null;
 	}
 
-	/** 删除同一案件的旧附件记录和物理文件。 */
-	private void deletePreviousPortalAttachments(List<PortalAttachmentDTO> attachments) throws ServiceException {
+	/** 删除同一案件、同一阶段、同名的旧附件记录和物理文件。 */
+	private void deletePreviousSameNameAttachments(List<PortalAttachmentDTO> attachments, Integer portalId,
+			String fileName, String stage) throws ServiceException {
 		for (PortalAttachmentDTO attachment : attachments) {
 			if (attachment == null || attachment.getId() <= 0)
 				continue;
-			if (portalAttachmentService.deletePortalAttachmentById(attachment.getId()) <= 0) {
-				ServiceException exception = new ServiceException(
-						"旧压缩包附件记录删除失败，attachmentId=" + attachment.getId());
-				exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-				throw exception;
-			}
+			// 删除时再次按完整条件校验，防止旧缓存或并发变更误删其他附件。
+			int deleted = portalAttachmentService.deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(
+					attachment.getId(), portalId, fileName, stage);
+			if (deleted <= 0)
+				continue;
 			String filePath = normalizeAttachmentFilePath(attachment.getFilePath());
 			if (StringUtil.isEmpty(filePath))
 				continue;
@@ -2218,7 +2213,8 @@ public class PortalController extends BaseController {
 	private String joinAttachmentPaths(List<String> filePaths) {
 		if (filePaths == null || filePaths.isEmpty())
 			return null;
-		return filePaths.stream().filter(StringUtil::isNotEmpty).collect(Collectors.joining(","));
+		String joinedPaths = filePaths.stream().filter(StringUtil::isNotEmpty).collect(Collectors.joining(","));
+		return StringUtil.isEmpty(joinedPaths) ? null : joinedPaths;
 	}
 
 	/**
