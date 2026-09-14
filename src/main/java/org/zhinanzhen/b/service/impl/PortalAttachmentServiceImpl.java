@@ -145,6 +145,30 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	public List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndStage(Integer portalId, String stage)
+			throws ServiceException {
+		if (portalId == null || portalId <= 0 || StringUtil.isEmpty(stage)) {
+			ServiceException se = new ServiceException("portalId或stage error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<PortalAttachmentDO> portalAttachmentDoList = portalAttachmentDao
+					.listPortalAttachmentByPortalIdAndStage(portalId, stage.trim());
+			if (portalAttachmentDoList == null || portalAttachmentDoList.isEmpty())
+				return new ArrayList<PortalAttachmentDTO>();
+			List<PortalAttachmentDTO> portalAttachmentDtoList = new ArrayList<PortalAttachmentDTO>();
+			for (PortalAttachmentDO portalAttachmentDo : portalAttachmentDoList)
+				portalAttachmentDtoList.add(mapper.map(portalAttachmentDo, PortalAttachmentDTO.class));
+			return portalAttachmentDtoList;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndFileNameAndStage(Integer portalId,
 			String fileName, String stage) throws ServiceException {
 		if (portalId == null || portalId <= 0 || StringUtil.isEmpty(fileName) || StringUtil.isEmpty(stage)) {

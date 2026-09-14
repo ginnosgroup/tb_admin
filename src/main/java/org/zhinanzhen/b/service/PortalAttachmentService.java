@@ -15,6 +15,9 @@ public interface PortalAttachmentService {
 
 	List<PortalAttachmentDTO> listPortalAttachmentByPortalId(Integer portalId) throws ServiceException;
 
+	List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndStage(Integer portalId, String stage)
+			throws ServiceException;
+
 	List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndFileNameAndStage(Integer portalId, String fileName,
 			String stage) throws ServiceException;
 

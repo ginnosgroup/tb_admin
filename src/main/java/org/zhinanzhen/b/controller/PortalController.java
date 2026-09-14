@@ -272,9 +272,8 @@ public class PortalController extends BaseController {
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
 		String fileExt = extractFileExtension(originalName);
-		// 压缩包的file_type保存真实MIME类型；fileType仍作为业务类型用于设置stage。
-		portalAttachmentDto.setFileType(normalizeStoredFileType(normalizedUploadFileType, fileExt,
-				file.getContentType()));
+		// fileType是业务阶段，保存到stage；file_type只保存文件实际的MIME类型。
+		portalAttachmentDto.setFileType(normalizeStoredFileType(fileExt, file.getContentType()));
 		if (StringUtil.isNotEmpty(fileExt))
 			portalAttachmentDto.setFileExt(fileExt);
 		portalAttachmentDto.setStage("apply");
@@ -361,16 +360,16 @@ public class PortalController extends BaseController {
 		return null;
 	}
 
-	/** 保存附件时规范化压缩包的MIME类型；其他文件保留原有保存规则。 */
-	private String normalizeStoredFileType(String fileType, String fileExt, String contentType) {
+	/** 保存附件时规范化压缩包的真实MIME类型。 */
+	private String normalizeStoredFileType(String fileExt, String contentType) {
 		String normalizedExt = fileExt == null ? "" : fileExt.trim().toLowerCase(Locale.ENGLISH);
-		String normalizedType = fileType == null ? "" : fileType.trim().toLowerCase(Locale.ENGLISH);
+		String normalizedType = contentType == null ? "" : contentType.trim().toLowerCase(Locale.ENGLISH);
 		if ("zip".equals(normalizedExt) || "application/zip".equals(normalizedType))
 			return "application/zip";
 		if ("rar".equals(normalizedExt) || "application/vnd.rar".equals(normalizedType)
 				|| "application/x-rar-compressed".equals(normalizedType))
 			return "application/vnd.rar";
-		return fileType == null ? contentType : fileType.trim();
+		return contentType == null ? null : contentType.trim();
 	}
 
 	/** 从原始文件名中提取扩展名。 */
@@ -431,12 +430,14 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 只对 application/applicationWA 阶段解析上传替换规则。 */
+	/** 对 application/applicationWA/openAFile 阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
 		if ("applicationWA".equalsIgnoreCase(fileType))
 			return "applicationWA";
+		if ("openAFile".equalsIgnoreCase(fileType))
+			return "openAFile";
 		return null;
 	}
 
@@ -978,9 +979,9 @@ public class PortalController extends BaseController {
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
-			String attachmentStage = "09".equals(strState)
-				|| "010A".equals(strState) || "012".equals(strState) ? strState : null;
+			String attachmentStage = "010A".equals(strState) || "012".equals(strState) ? strState : null;
 			List<String> updateFilePaths = "05".equals(strState) || "06".equals(strState)
+					|| "09".equals(strState)
 					|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
 			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
 				replace06AArchiveAttachments(id, updateFilePaths);
@@ -1208,11 +1209,12 @@ public class PortalController extends BaseController {
 										+ notificationException.getMessage(), portalDto);
 					}
 				}
-				// 文案正式提交申请后，关联本次传入的附件并通知客户。
+				// 文案正式提交申请后，读取当前案件的openAFile附件并通知客户。
 				if ("09".equals(strState) && !"09".equals(fromState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						portalDocumentService.sendApplicationSubmittedNotification(savedPortalDto, filePath,
+						String openAFilePaths = listOpenAFilePaths(id);
+						portalDocumentService.sendApplicationSubmittedNotification(savedPortalDto, openAFilePaths,
 								buildPortalCustomerUrl(id));
 					} catch (ServiceException notificationException) {
 						LOG.error("案件已更新为09，但客户申请提交通知邮件发送失败，portalId={}", id,
@@ -2309,6 +2311,20 @@ public class PortalController extends BaseController {
 			return null;
 		String joinedPaths = filePaths.stream().filter(StringUtil::isNotEmpty).collect(Collectors.joining(","));
 		return StringUtil.isEmpty(joinedPaths) ? null : joinedPaths;
+	}
+
+	/** 正式提交申请时，按案件ID读取 stage=openAFile 的附件路径。 */
+	private String listOpenAFilePaths(int portalId) throws ServiceException {
+		List<PortalAttachmentDTO> attachments = portalAttachmentService
+				.listPortalAttachmentByPortalIdAndStage(portalId, "openAFile");
+		List<String> filePaths = new ArrayList<String>();
+		if (attachments != null) {
+			for (PortalAttachmentDTO attachment : attachments) {
+				if (attachment != null && StringUtil.isNotEmpty(attachment.getFilePath()))
+					filePaths.add(attachment.getFilePath());
+			}
+		}
+		return joinAttachmentPaths(filePaths);
 	}
 
 	/**

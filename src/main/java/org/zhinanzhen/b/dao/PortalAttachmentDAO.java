@@ -15,6 +15,9 @@ public interface PortalAttachmentDAO {
 
 	List<PortalAttachmentDO> listPortalAttachmentByPortalId(@Param("portalId") Integer portalId);
 
+	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndStage(@Param("portalId") Integer portalId,
+			@Param("stage") String stage);
+
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndFileNameAndStage(@Param("portalId") Integer portalId,
 			@Param("fileName") String fileName, @Param("stage") String stage);
 
