@@ -51,6 +51,10 @@ public interface PortalService {
 	void sendOfficialSupplementReviewNotification(PortalDTO portalDto, String remark, String caseUrl,
 			boolean approved) throws ServiceException;
 
+	/** 客户上传补充材料后，通知文案并附上补充材料。 */
+	void sendOfficialSupplementaryMaterialsUploadedNotification(PortalDTO portalDto, List<String> attachmentPaths,
+			String caseUrl) throws ServiceException;
+
 	void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
 
 	/** 服务订单下单后，通知案件对应的文案开始处理。 */

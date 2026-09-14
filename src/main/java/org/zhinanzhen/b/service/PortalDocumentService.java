@@ -1,5 +1,6 @@
 package org.zhinanzhen.b.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.zhinanzhen.b.service.pojo.PortalDTO;
@@ -40,4 +41,8 @@ public interface PortalDocumentService {
 	/** 将案件已经生成的合同和建议信作为附件发送给指定收件人。 */
 	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException;
+
+	/** 使用数据库中保存的附件路径发送多附件邮件。 */
+	void sendEmailWithAttachments(String recipientEmail, String subject, String content, List<String> attachmentPaths)
+			throws ServiceException;
 }

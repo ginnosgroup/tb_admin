@@ -40,6 +40,8 @@ public enum PortalFollowUpState {
 
 	// 以下状态属于补料/申请结果通知流程，需要角色、备注或附件校验。
 	REQUEST_SUPPLEMENT("010", "已通知客户补料", "official_request_supplement", "WA", true, false, true),
+	CUSTOMER_SUBMITTED_SUPPLEMENT("010D", "客户已上传补充材料", "customer_submit_supplement", null, false, false,
+			false),
 	REVIEW_SUPPLEMENT("010A", "补料MARA正在审核", "mara_reviewing_supplement", "WA", false, true, true),
 	REJECT_SUPPLEMENT("010B", "补料MARA审核驳回", "mara_reject_supplement", "MA", true, false, true),
 	APPROVE_SUPPLEMENT("011", "补料MARA审核通过", "mara_approve_supplement", "MA", false, false, true),

@@ -430,7 +430,7 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 对 application/applicationWA/openAFile 阶段解析上传替换规则。 */
+	/** 对 application/applicationWA/openAFile/supplementary 阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
@@ -438,6 +438,10 @@ public class PortalController extends BaseController {
 			return "applicationWA";
 		if ("openAFile".equalsIgnoreCase(fileType))
 			return "openAFile";
+		if ("supplementary".equalsIgnoreCase(fileType))
+			return "supplementary";
+		if ("supplementaryWA".equalsIgnoreCase(fileType))
+			return "supplementaryWA";
 		return null;
 	}
 
@@ -1098,6 +1102,21 @@ public class PortalController extends BaseController {
 						LOG.error("案件已更新为{}，但流程通知邮件发送失败，portalId={}", strState, id, notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为" + strState + "，但通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 客户上传补充材料后，通知对应文案及时处理，并附上补充材料。
+				if ("010D".equals(strState) && !"010D".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
+						portalService.sendOfficialSupplementaryMaterialsUploadedNotification(savedPortalDto,
+								supplementaryFilePaths, buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为010D，但客户补充材料通知文案邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为010D，但客户补充材料通知文案邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
 					}
 				}
 				// 顾问下达服务订单后，通知对应文案开始处理；重复提交05不重复发送邮件。
@@ -2326,6 +2345,23 @@ public class PortalController extends BaseController {
 			}
 		}
 		return joinAttachmentPaths(filePaths);
+	}
+
+	/** 读取当前案件客户和文案补料阶段的附件路径。 */
+	private List<String> listSupplementaryAttachmentPaths(int portalId) throws ServiceException {
+		List<String> filePaths = new ArrayList<String>();
+		String[] stages = { "supplementary", "supplementaryWA" };
+		for (String stage : stages) {
+			List<PortalAttachmentDTO> attachments = portalAttachmentService
+					.listPortalAttachmentByPortalIdAndStage(portalId, stage);
+			if (attachments == null)
+				continue;
+			for (PortalAttachmentDTO attachment : attachments) {
+				if (attachment != null && StringUtil.isNotEmpty(attachment.getFilePath()))
+					filePaths.add(attachment.getFilePath());
+			}
+		}
+		return filePaths;
 	}
 
 	/**

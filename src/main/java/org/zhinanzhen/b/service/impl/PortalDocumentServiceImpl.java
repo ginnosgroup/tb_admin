@@ -453,6 +453,22 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		sendMailWithAttachments(recipientEmail, subject, content, contractPath.toFile(), advicePath.toFile());
 	}
 
+	@Override
+	public void sendEmailWithAttachments(String recipientEmail, String subject, String content,
+			List<String> attachmentPaths) throws ServiceException {
+		if (attachmentPaths == null || attachmentPaths.isEmpty())
+			throw serviceException("邮件附件为空。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		List<File> attachments = new ArrayList<File>();
+		for (String attachmentPath : attachmentPaths) {
+			if (StringUtil.isNotEmpty(attachmentPath))
+				attachments.add(requireGeneratedFile(attachmentPath, "补充材料附件").toFile());
+		}
+		if (attachments.isEmpty())
+			throw serviceException("邮件附件为空。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		sendMailWithAttachments(recipientEmail, subject, content,
+				attachments.toArray(new File[attachments.size()]));
+	}
+
 	private Path requireGeneratedFile(String pathValue, String description) throws ServiceException {
 		if (StringUtil.isEmpty(pathValue)) {
 			throw serviceException(description + "路径为空，邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
