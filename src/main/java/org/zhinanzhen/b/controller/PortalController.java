@@ -1040,7 +1040,7 @@ public class PortalController extends BaseController {
 				String logAction = followUpState == null ? "update" : followUpState.getAction();
 				String logContent = followUpState == null ? "更新案件信息" : followUpState.getLabel();
 				if ("06B".equals(strState))
-					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark : "申请材料待客户确认";
+					logContent = "申请材料待客户确认";
 				if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
 					logAction = "customer_confirm_application_materials";
 					logContent = "客户点击确认申请材料按钮";
@@ -1061,8 +1061,7 @@ public class PortalController extends BaseController {
 					logContent = "案件从" + fromState + "被驳回退回02D";
 				} else if ("02A".equals(strState)) {
 					logAction = followUpState == null ? "mara_processing_upgrade" : followUpState.getAction();
-					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark
-							: (followUpState == null ? "升级案件MARA处理中" : followUpState.getLabel());
+					logContent = "升级案件MARA处理中";
 				} else if ("05".equals(strState)) {
 					logAction = "adviser_service_order_created";
 					logContent = "顾问已下服务订单";
@@ -1074,7 +1073,7 @@ public class PortalController extends BaseController {
 					logContent = "申请材料MARA正在审核";
 				} else if ("07B".equals(strState)) {
 					logAction = "mara_reject_application_materials";
-					logContent = StringUtil.isNotEmpty(adviserRemark) ? adviserRemark : "申请材料MARA审核驳回";
+					logContent = "申请材料MARA审核驳回";
 				} else if ("08".equals(strState)) {
 					logAction = "mara_approve_application_materials";
 					logContent = "申请材料MARA审核通过";
