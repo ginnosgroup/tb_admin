@@ -35,7 +35,7 @@
                 #{userAgent});
     </insert>
 
-    <select id="listPortalLog" resultType="org.zhinanzhen.b.dao.pojo.PortalLogDO">
+    <select id="listPortalLog" resultType="org.zhinanzhen.b.dao.pojo.PortalLogDO" useCache="false">
         SELECT
             id,
             portal_id AS portalId,
@@ -59,7 +59,7 @@
         LIMIT #{offset}, #{rows};
     </select>
 
-    <select id="countPortalLog" resultType="java.lang.Integer">
+    <select id="countPortalLog" resultType="java.lang.Integer" useCache="false">
         SELECT count(*)
         FROM b_portal_log
         WHERE 1 = 1

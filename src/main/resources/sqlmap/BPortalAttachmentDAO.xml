@@ -67,7 +67,7 @@
         FROM b_portal_attachment WHERE file_path = #{filePath};
     </select>
 
-    <select id="listPortalAttachmentByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+    <select id="listPortalAttachmentByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false">
         SELECT
             id,
             portal_id AS portalId,

@@ -136,7 +136,7 @@
         WHERE id = #{id} AND (str_state IS NULL OR str_state != '013');
     </update>
 
-    <select id="listPortal" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">
+    <select id="listPortal" resultType="org.zhinanzhen.b.dao.pojo.PortalDO" useCache="false">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -209,7 +209,7 @@
         LIMIT #{offset}, #{rows};
     </select>
 
-    <select id="countPortal" resultType="java.lang.Integer">
+    <select id="countPortal" resultType="java.lang.Integer" useCache="false">
         SELECT count(*)
         FROM b_portal_list
         WHERE 1 = 1
