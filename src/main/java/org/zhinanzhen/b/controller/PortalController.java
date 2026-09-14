@@ -1118,8 +1118,7 @@ public class PortalController extends BaseController {
 				}
 				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, adviserRemark, request);
 				if (followUpState != null && followUpState.isFollowUp()
-						&& followUpState != PortalFollowUpState.ARCHIVE
-						&& !strState.equals(fromState)) {
+						&& followUpState != PortalFollowUpState.ARCHIVE) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						sendFollowUpNotification(savedPortalDto, followUpState, adviserRemark, filePath, request);
@@ -1130,7 +1129,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 客户上传补充材料后，通知对应文案及时处理，并附上补充材料。
-				if ("010D".equals(strState) && !"010D".equals(fromState)) {
+				if ("010D".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
@@ -1145,7 +1144,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 客户退回补充材料后，通知对应文案及时处理，并附上补充材料。
-				if ("010E".equals(strState) && !"010E".equals(fromState)) {
+				if ("010E".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
@@ -1160,7 +1159,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 客户未确认补充材料后，通知对应文案及时处理，并附上补充材料。
-				if ("010G".equals(strState) && !"010G".equals(fromState)) {
+				if ("010G".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
@@ -1198,8 +1197,8 @@ public class PortalController extends BaseController {
 										+ actionCodeException.getMessage(), portalDto);
 					}
 				}
-				// 顾问下达服务订单后，通知对应文案开始处理；重复提交05不重复发送邮件。
-				if ("05".equals(strState) && !"05".equals(fromState)) {
+				// 顾问下达服务订单后，通知对应文案开始处理。
+				if ("05".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendOfficialServiceOrderCreatedNotification(savedPortalDto,
@@ -1212,7 +1211,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 文案开始准备申请材料时，通知客户案件已进入准备阶段；不上传、不关联附件。
-				if ("06".equals(strState) && !"06".equals(fromState)) {
+				if ("06".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalDocumentService.sendApplicationMaterialsPreparationNotification(savedPortalDto,
@@ -1266,7 +1265,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 申请材料进入MARA审核状态时，通知对应MARA审核申请材料。
-				if ("07A".equals(strState) && !"07A".equals(fromState)) {
+				if ("07A".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendMaraPortalMaterialsReviewNotification(savedPortalDto,
@@ -1280,7 +1279,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 申请材料被MARA驳回时，通知对应文案，并在邮件中附上备注和驳回时间。
-				if ("07B".equals(strState) && !"07B".equals(fromState)) {
+				if ("07B".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendOfficialPortalMaterialsRejectedNotification(savedPortalDto, adviserRemark,
@@ -1294,7 +1293,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 申请材料通过MARA审核时，通知对应文案继续推进申请。
-				if ("08".equals(strState) && !"08".equals(fromState)) {
+				if ("08".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendOfficialPortalMaterialsApprovedNotification(savedPortalDto,
@@ -1308,7 +1307,7 @@ public class PortalController extends BaseController {
 					}
 				}
 				// 文案正式提交申请后，读取当前案件的openAFile附件并通知客户。
-				if ("09".equals(strState) && !"09".equals(fromState)) {
+				if ("09".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						String openAFilePaths = listOpenAFilePaths(id);
@@ -1338,8 +1337,8 @@ public class PortalController extends BaseController {
 								"案件已更新为04，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
 				}
-				// 普通进入02A时通知MARA；02B->02A是MARA退回顾问修改，不再重复通知MARA。
-				if ("02A".equals(strState) && !"02B".equals(fromState)) {
+				// 进入02A时通知MARA。
+				if ("02A".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendMaraPortalNotification(savedPortalDto, adviserRemark,
@@ -1351,8 +1350,8 @@ public class PortalController extends BaseController {
 								portalDto);
 					}
 				}
-				// 案件进入03时通知对应MARA进行案件审核；重复提交03不重复发送通知。
-				if ("03".equals(strState) && !"03".equals(fromState)) {
+				// 案件进入03时通知对应MARA进行案件审核。
+				if ("03".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendMaraPortalReviewNotification(savedPortalDto,
@@ -1365,8 +1364,8 @@ public class PortalController extends BaseController {
 								portalDto);
 					}
 				}
-				// 案件从03或03A状态被驳回退回为02D时，均发邮件通知顾问处理。
-				if ("02D".equals(strState) && !"02D".equals(fromState)) {
+				// 案件进入02D时，发邮件通知顾问处理。
+				if ("02D".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalService.sendAdviserPortalNotification(savedPortalDto,
