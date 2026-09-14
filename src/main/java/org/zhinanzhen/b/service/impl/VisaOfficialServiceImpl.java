@@ -328,12 +328,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             if (!serviceOrderIds.isEmpty()) {
                 List<ApplicantListDO> allApplicantLists = serviceOrderDao.ApplicantListByServiceOrderIds(new ArrayList<>(serviceOrderIds));
                 if (allApplicantLists != null) {
-                    // 用于去重：每个 serviceOrderId 下的 applicant_id 只留一条（对应原 SQL 的 GROUP BY applicant_id）
+                    // 按每条服务订单自身的 serviceOrderId 保存，并对同一订单下的 applicant_id 去重
                     Map<Integer, Set<Integer>> seenApplicants = new HashMap<>();
                     for (ApplicantListDO al : allApplicantLists) {
-                        Integer key = al.getApplicantParentId() != null && al.getApplicantParentId() > 0
-                            && serviceOrderIds.contains(al.getApplicantParentId())
-                            ? al.getApplicantParentId() : al.getId();
+                        Integer key = al.getId();
                         if (key != null && key > 0) {
                             seenApplicants.computeIfAbsent(key, k -> new HashSet<>());
                             if (seenApplicants.get(key).add(al.getApplicantId())) {

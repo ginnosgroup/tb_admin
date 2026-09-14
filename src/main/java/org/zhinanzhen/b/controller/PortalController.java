@@ -997,9 +997,15 @@ public class PortalController extends BaseController {
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
 			String attachmentStage = "010A".equals(strState) || "012".equals(strState) ? strState : null;
-			List<String> updateFilePaths = "05".equals(strState) || "06".equals(strState)
-					|| "09".equals(strState)
-					|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
+			List<String> updateFilePaths;
+			if ("010A".equals(strState)) {
+				// 010A不再使用请求中的filePath，改为将当前案件已有的applicationWA附件带入010A阶段。
+				updateFilePaths = listAttachmentPathsByStages(id, "applicationWA");
+			} else {
+				updateFilePaths = "05".equals(strState) || "06".equals(strState)
+						|| "09".equals(strState)
+						|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
+			}
 			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
 				replace06AArchiveAttachments(id, updateFilePaths);
 			if (portalService.updatePortalWithAttachments(portalDto, updateFilePaths, attachmentStage) > 0) {
@@ -2434,11 +2440,16 @@ public class PortalController extends BaseController {
 
 	/** 读取当前案件客户和文案补料阶段的附件路径。 */
 	private List<String> listSupplementaryAttachmentPaths(int portalId) throws ServiceException {
-		return listSupplementaryAttachmentPaths(portalId, "supplementary", "supplementaryWA");
+		return listAttachmentPathsByStages(portalId, "supplementary", "supplementaryWA");
 	}
 
 	/** 按补料阶段读取当前案件附件路径。 */
 	private List<String> listSupplementaryAttachmentPaths(int portalId, String... stages) throws ServiceException {
+		return listAttachmentPathsByStages(portalId, stages);
+	}
+
+	/** 按指定stage读取当前案件附件路径；上传参数fileType会保存到附件stage字段。 */
+	private List<String> listAttachmentPathsByStages(int portalId, String... stages) throws ServiceException {
 		List<String> filePaths = new ArrayList<String>();
 		for (String stage : stages) {
 			List<PortalAttachmentDTO> attachments = portalAttachmentService
