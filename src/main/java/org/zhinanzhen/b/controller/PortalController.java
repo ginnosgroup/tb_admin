@@ -862,8 +862,10 @@ public class PortalController extends BaseController {
 		String normalizedResult = result == null ? null : result.trim().toLowerCase(Locale.ENGLISH);
 		boolean customerResultRequest = "confirmed".equals(normalizedResult) || "returned".equals(normalizedResult);
 		boolean customerMaterialsAction = "07".equals(strState) || "06A".equals(strState);
+		boolean customerSupplementAction = "010G".equals(strState) || "010E".equals(strState);
+		boolean customerMaterialsFlow = customerMaterialsAction || customerSupplementAction;
 		boolean customerActionRequest = "04".equals(strState) || "02C".equals(strState)
-				|| customerMaterialsAction
+				|| customerMaterialsFlow
 				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code);
 		PortalFollowUpState followUpState = PortalFollowUpState.fromCode(strState);
 		try {
@@ -892,16 +894,21 @@ public class PortalController extends BaseController {
 				validateFollowUpRequest(followUpState, id, remark, filePath, request);
 			if (customerActionRequest && !customerResultRequest)
 				return customerResultPage(oldPortalDto, normalizedResult, false,
-						customerMaterialsAction ? "申请材料操作链接参数不完整，请联系您的顾问。"
+						customerSupplementAction ? "补充材料操作链接参数不完整，请联系您的顾问。"
+								: customerMaterialsAction ? "申请材料操作链接参数不完整，请联系您的顾问。"
 								: "合同操作链接参数不完整，请联系您的顾问。", response);
-			if ("confirmed".equals(normalizedResult) && !("04".equals(strState) || "07".equals(strState)))
+			if ("confirmed".equals(normalizedResult)
+					&& !("04".equals(strState) || "07".equals(strState) || "010G".equals(strState)))
 				return customerResultPage(null, normalizedResult, false,
-						"confirmed".equals(normalizedResult) && customerMaterialsAction
+						customerSupplementAction ? "确认补充材料链接参数不完整，请联系您的顾问。"
+								: "confirmed".equals(normalizedResult) && customerMaterialsAction
 								? "确认申请材料链接参数不完整，请联系您的顾问。"
 								: "确认签署链接参数不完整，请联系您的顾问。", response);
-			if ("returned".equals(normalizedResult) && !("02C".equals(strState) || "06A".equals(strState)))
+			if ("returned".equals(normalizedResult)
+					&& !("02C".equals(strState) || "06A".equals(strState) || "010E".equals(strState)))
 				return customerResultPage(null, normalizedResult, false,
-						"returned".equals(normalizedResult) && customerMaterialsAction
+						customerSupplementAction ? "退回补充材料链接参数不完整，请联系您的顾问。"
+								: "returned".equals(normalizedResult) && customerMaterialsAction
 								? "退回申请材料链接参数不完整，请联系您的顾问。"
 								: "退回修改链接参数不完整，请联系您的顾问。", response);
 			if (customerActionRequest) {
@@ -909,28 +916,34 @@ public class PortalController extends BaseController {
 					savePortalLog(id, "customer_action_code_invalid", fromState, fromState,
 							"客户合同操作链接code校验失败", request);
 					return customerResultPage(oldPortalDto, normalizedResult, false,
-						customerMaterialsAction ? "该申请材料操作链接无效或案件人员信息已经变更，请联系您的顾问。"
+						customerSupplementAction ? "该补充材料操作链接无效或案件人员信息已经变更，请联系您的顾问。"
+								: customerMaterialsAction ? "该申请材料操作链接无效或案件人员信息已经变更，请联系您的顾问。"
 								: "该合同操作链接无效或案件人员信息已经变更，请联系您的顾问。", response);
 				}
 				String targetState = strState;
-				String expectedFromState = customerMaterialsAction ? "06B" : "03A";
+				String expectedFromState = customerSupplementAction ? "010F"
+						: customerMaterialsAction ? "06B" : "03A";
 				if (!expectedFromState.equals(fromState)) {
 					savePortalLog(id, "customer_action_ignored", fromState, fromState,
-							customerMaterialsAction ? "客户重复点击申请材料操作链接，当前状态不允许处理"
+							customerSupplementAction ? "客户重复点击补充材料操作链接，当前状态不允许处理"
+									: customerMaterialsAction ? "客户重复点击申请材料操作链接，当前状态不允许处理"
 									: "客户重复点击合同操作链接，当前状态不允许处理", request);
 					if (targetState.equals(fromState)) {
 						String completedMessage = "confirmed".equals(normalizedResult)
-								? (customerMaterialsAction ? "该案件已经确认申请材料，无需重复操作。"
+								? (customerSupplementAction ? "该案件已经确认补充材料，无需重复操作。"
+										: customerMaterialsAction ? "该案件已经确认申请材料，无需重复操作。"
 										: "该案件已经确认签署，无需重复操作。")
-								: (customerMaterialsAction ? "该案件已经退回申请材料，无需重复操作。"
+								: (customerSupplementAction ? "该案件已经退回补充材料，无需重复操作。"
+										: customerMaterialsAction ? "该案件已经退回申请材料，无需重复操作。"
 										: "该案件已经提交退回修改，无需重复操作。");
 						return customerActionResultPage(oldPortalDto, normalizedResult, true, completedMessage, response,
-								customerMaterialsAction);
+								customerMaterialsFlow, customerSupplementAction);
 					}
 					return customerActionResultPage(oldPortalDto, normalizedResult, false,
-							customerMaterialsAction ? "申请材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
+							customerSupplementAction ? "补充材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
+									: customerMaterialsAction ? "申请材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
 									: "案件状态已经发生变化，本次操作未执行，请联系您的顾问。", response,
-							customerMaterialsAction);
+							customerMaterialsFlow, customerSupplementAction);
 				}
 			}
 			String adviserRemark = remark == null ? null : remark.trim();
@@ -1046,7 +1059,13 @@ public class PortalController extends BaseController {
 				String logContent = followUpState == null ? "更新案件信息" : followUpState.getLabel();
 				if ("06B".equals(strState))
 					logContent = "申请材料待客户确认";
-				if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
+				if ("confirmed".equals(normalizedResult) && "010G".equals(strState)) {
+					logAction = "customer_confirm_supplement";
+					logContent = "客户点击确认补充材料按钮";
+				} else if ("returned".equals(normalizedResult) && "010E".equals(strState)) {
+					logAction = "customer_return_supplement";
+					logContent = "客户点击退回补充材料按钮";
+				} else if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
 					logAction = "customer_confirm_application_materials";
 					logContent = "客户点击确认申请材料按钮";
 				} else if ("returned".equals(normalizedResult) && "06A".equals(strState)) {
@@ -1117,6 +1136,60 @@ public class PortalController extends BaseController {
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为010D，但客户补充材料通知文案邮件发送失败："
 										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				// 客户退回补充材料后，通知对应文案及时处理，并附上补充材料。
+				if ("010E".equals(strState) && !"010E".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
+						portalService.sendOfficialSupplementaryMaterialsReturnedNotification(savedPortalDto,
+								supplementaryFilePaths, buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为010E，但客户退回补充材料通知文案邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为010E，但客户退回补充材料通知文案邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				// 客户未确认补充材料后，通知对应文案及时处理，并附上补充材料。
+				if ("010G".equals(strState) && !"010G".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
+						portalService.sendOfficialSupplementaryMaterialsNotConfirmedNotification(savedPortalDto,
+								supplementaryFilePaths, buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为010G，但客户未确认补充材料通知文案邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为010G，但客户未确认补充材料通知文案邮件发送失败："
+										+ notificationException.getMessage(), portalDto);
+					}
+				}
+				// 补充材料准备完成后通知客户确认；每次更新010F都执行发送流程，确认进入010G，退回进入010E。
+				if ("010F".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						String supplementaryFilePath = joinAttachmentPaths(
+								listSupplementaryAttachmentPaths(id, "supplementaryWA"));
+						String confirmUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "supplement-confirm");
+						String returnUrl = buildPortalCustomerActionUrl(request, savedPortalDto, "supplement-return");
+						portalDocumentService.sendSupplementaryMaterialsConfirmation(savedPortalDto,
+								supplementaryFilePath, adviserRemark, confirmUrl, returnUrl);
+					} catch (ServiceException materialsMailException) {
+						LOG.error("案件已更新为010F，但补充材料确认邮件发送失败，portalId={}", id,
+								materialsMailException);
+						return new Response<PortalDTO>(materialsMailException.getCode(),
+								"案件已更新为010F，但补充材料确认邮件发送失败："
+										+ materialsMailException.getMessage(), portalDto);
+					} catch (IllegalStateException actionCodeException) {
+						LOG.error("案件已更新为010F，但补充材料操作链接code生成失败，portalId={}", id,
+								actionCodeException);
+						return new Response<PortalDTO>(1,
+								"案件已更新为010F，但补充材料操作链接生成失败："
+										+ actionCodeException.getMessage(), portalDto);
 					}
 				}
 				// 顾问下达服务订单后，通知对应文案开始处理；重复提交05不重复发送邮件。
@@ -1306,12 +1379,20 @@ public class PortalController extends BaseController {
 					portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
 				if (customerResultRequest) {
 					PortalDTO resultPortalDto = portalService.getPortal(id, null, null, null, null, null);
-					boolean materialsResult = "07".equals(strState) || "06A".equals(strState);
+					boolean supplementaryResult = "010G".equals(strState) || "010E".equals(strState);
+					boolean materialsResult = "07".equals(strState) || "06A".equals(strState)
+							|| supplementaryResult;
 					String message;
 					if (materialsResult) {
-						message = "confirmed".equals(normalizedResult)
-								? "您已确认申请材料，感谢您的配合。我们会根据确认结果继续为您准备后续申请。"
-								: "我们已收到您的退回申请材料请求，感谢您的反馈。您的顾问会尽快检查并联系您。";
+						if (supplementaryResult) {
+							message = "confirmed".equals(normalizedResult)
+									? "您已确认补充材料，感谢您的配合。我们会根据确认结果继续为您处理。"
+									: "我们已收到您退回的补充材料请求，感谢您的反馈。您的顾问会尽快检查并联系您。";
+						} else {
+							message = "confirmed".equals(normalizedResult)
+									? "您已确认申请材料，感谢您的配合。我们会根据确认结果继续为您准备后续申请。"
+									: "我们已收到您的退回申请材料请求，感谢您的反馈。您的顾问会尽快检查并联系您。";
+						}
 					} else {
 						message = "confirmed".equals(normalizedResult)
 								? "您已确认签署合同，感谢您选择指南针。请将签署完成的合同文件电邮给您的顾问，"
@@ -1322,7 +1403,7 @@ public class PortalController extends BaseController {
 										+ "。顾问会尽快与您联系，感谢您的理解与耐心。";
 					}
 					return customerActionResultPage(resultPortalDto, normalizedResult, true, message, response,
-							materialsResult);
+							materialsResult, supplementaryResult);
 				}
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
@@ -2011,7 +2092,7 @@ public class PortalController extends BaseController {
 	}
 
 	private String customerActionResultPage(PortalDTO portalDto, String result, boolean success, String message,
-			HttpServletResponse response, boolean materialsAction) {
+				HttpServletResponse response, boolean materialsAction, boolean supplementaryAction) {
 		if (!materialsAction)
 			return customerResultPage(portalDto, result, success, message, response);
 		prepareCustomerActionResponse(response);
@@ -2019,9 +2100,9 @@ public class PortalController extends BaseController {
 		if (!success)
 			title = "操作未完成";
 		else if ("confirmed".equals(result))
-			title = "申请材料确认成功";
+			title = supplementaryAction ? "补充材料确认成功" : "申请材料确认成功";
 		else
-			title = "申请材料已退回";
+			title = supplementaryAction ? "补充材料已退回" : "申请材料已退回";
 		return customerActionPage(success, title, message);
 	}
 
@@ -2036,15 +2117,19 @@ public class PortalController extends BaseController {
 				+ escapeHtml(message) + "</p></div></body></html>";
 	}
 
-	/** 生成合同或申请材料客户操作链接；URL中的result沿用confirmed/returned，按钮文案由邮件模板区分。 */
+	/** 生成合同、申请材料或补充材料客户操作链接；URL中的result沿用confirmed/returned。 */
 	private String buildPortalCustomerActionUrl(HttpServletRequest request, PortalDTO portalDto, String action) {
 		String normalizedAction = action == null ? "" : action.trim().toLowerCase(Locale.ENGLISH);
 		if (!("confirm".equals(normalizedAction) || "return".equals(normalizedAction)
-				|| "materials-confirm".equals(normalizedAction) || "materials-return".equals(normalizedAction)))
+				|| "materials-confirm".equals(normalizedAction) || "materials-return".equals(normalizedAction)
+				|| "supplement-confirm".equals(normalizedAction) || "supplement-return".equals(normalizedAction)))
 			throw new IllegalStateException("客户操作类型无效.");
 		boolean materialsAction = normalizedAction.startsWith("materials-");
-		boolean confirmed = "confirm".equals(normalizedAction) || "materials-confirm".equals(normalizedAction);
-		String targetState = materialsAction ? (confirmed ? "07" : "06A") : (confirmed ? "04" : "02C");
+		boolean supplementAction = normalizedAction.startsWith("supplement-");
+		boolean confirmed = "confirm".equals(normalizedAction) || "materials-confirm".equals(normalizedAction)
+				|| "supplement-confirm".equals(normalizedAction);
+		String targetState = supplementAction ? (confirmed ? "010G" : "010E")
+				: materialsAction ? (confirmed ? "07" : "06A") : (confirmed ? "04" : "02C");
 		String result = confirmed ? "confirmed" : "returned";
 		String code = encryptPortalActionCode(portalDto, result);
 		String baseUrl = StringUtil.isNotEmpty(portalCustomerActionBaseUrl)
@@ -2349,8 +2434,12 @@ public class PortalController extends BaseController {
 
 	/** 读取当前案件客户和文案补料阶段的附件路径。 */
 	private List<String> listSupplementaryAttachmentPaths(int portalId) throws ServiceException {
+		return listSupplementaryAttachmentPaths(portalId, "supplementary", "supplementaryWA");
+	}
+
+	/** 按补料阶段读取当前案件附件路径。 */
+	private List<String> listSupplementaryAttachmentPaths(int portalId, String... stages) throws ServiceException {
 		List<String> filePaths = new ArrayList<String>();
-		String[] stages = { "supplementary", "supplementaryWA" };
 		for (String stage : stages) {
 			List<PortalAttachmentDTO> attachments = portalAttachmentService
 					.listPortalAttachmentByPortalIdAndStage(portalId, stage);

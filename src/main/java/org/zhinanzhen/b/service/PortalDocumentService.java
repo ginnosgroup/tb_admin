@@ -23,6 +23,10 @@ public interface PortalDocumentService {
 	void sendApplicationMaterialsConfirmation(PortalDTO portalDto, String filePath, String remark,
 			String confirmUrl, String returnUrl) throws ServiceException;
 
+	/** 通知客户确认补充材料，并附加确认/退回按钮。 */
+	void sendSupplementaryMaterialsConfirmation(PortalDTO portalDto, String filePath, String remark,
+			String confirmUrl, String returnUrl) throws ServiceException;
+
 	/** 通知客户案件已经正式提交申请，并附加本次提交的申请材料。 */
 	void sendApplicationSubmittedNotification(PortalDTO portalDto, String filePath, String caseUrl)
 			throws ServiceException;

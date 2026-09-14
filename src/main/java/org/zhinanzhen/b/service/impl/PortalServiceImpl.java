@@ -515,6 +515,26 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	@Override
 	public void sendOfficialSupplementaryMaterialsUploadedNotification(PortalDTO portalDto,
 			List<String> attachmentPaths, String caseUrl) throws ServiceException {
+		sendOfficialSupplementaryMaterialsNotification(portalDto, attachmentPaths, caseUrl,
+				"客户补充材料上传通知 - ", "客户已经上传了补充材料，请及时处理。", "发送客户补充材料上传通知邮件失败");
+	}
+
+	@Override
+	public void sendOfficialSupplementaryMaterialsReturnedNotification(PortalDTO portalDto,
+			List<String> attachmentPaths, String caseUrl) throws ServiceException {
+		sendOfficialSupplementaryMaterialsNotification(portalDto, attachmentPaths, caseUrl,
+				"客户退回补充材料通知 - ", "客户已退回补充材料，请及时处理。", "发送客户退回补充材料通知邮件失败");
+	}
+
+	@Override
+	public void sendOfficialSupplementaryMaterialsNotConfirmedNotification(PortalDTO portalDto,
+			List<String> attachmentPaths, String caseUrl) throws ServiceException {
+		sendOfficialSupplementaryMaterialsNotification(portalDto, attachmentPaths, caseUrl,
+				"客户未确认补充材料通知 - ", "客户已不确认补充材料，请及时处理。", "发送客户未确认补充材料通知邮件失败");
+	}
+
+	private void sendOfficialSupplementaryMaterialsNotification(PortalDTO portalDto, List<String> attachmentPaths,
+			String caseUrl, String titlePrefix, String message, String failureMessage) throws ServiceException {
 		try {
 			if (portalDto == null || portalDto.getId() <= 0) {
 				throw notificationException("案件信息无效，无法发送文案通知邮件.",
@@ -539,11 +559,11 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 			}
 
 			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-			String title = "客户补充材料上传通知 - " + customerName
+			String title = titlePrefix + customerName
 					+ "（案件编号：" + portalDto.getId() + "）";
 			StringBuilder content = new StringBuilder();
 			content.append("<p>").append(escapeHtml(officialDo.getName())).append("，您好：</p>")
-					.append("<p>客户已经上传了补充材料，请及时处理。</p>")
+					.append("<p>").append(escapeHtml(message)).append("</p>")
 					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
 							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
@@ -561,7 +581,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {
-			ServiceException exception = new ServiceException("发送客户补充材料上传通知邮件失败: " + e.getMessage(), e);
+			ServiceException exception = new ServiceException(failureMessage + ": " + e.getMessage(), e);
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw exception;
 		}

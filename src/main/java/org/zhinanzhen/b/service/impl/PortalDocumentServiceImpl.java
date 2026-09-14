@@ -279,6 +279,39 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	@Override
+	public void sendSupplementaryMaterialsConfirmation(PortalDTO portalDto, String filePath, String remark,
+			String confirmUrl, String returnUrl) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，无法发送补充材料确认邮件.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，补充材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(confirmUrl) || StringUtil.isEmpty(returnUrl))
+			throw serviceException("补充材料确认/退回链接为空，邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(filePath))
+			throw serviceException("补充材料附件为空，补充材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+
+		String title = "【指南针留学移民】补充材料确认通知";
+		String content = buildSupplementaryMaterialsEmail(data.fullName, remark, confirmUrl, returnUrl);
+		List<File> attachments = new ArrayList<File>();
+		for (String item : filePath.split("[,，]")) {
+			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
+				attachments.add(requireGeneratedFile(item.trim(), "补充材料").toFile());
+		}
+		if (attachments.isEmpty())
+			throw serviceException("补充材料附件为空，补充材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		try {
+			sendMailWithAttachmentsAlways(data.email, title, content,
+					attachments.toArray(new File[attachments.size()]));
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("发送补充材料确认邮件失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+		}
+	}
+
+	@Override
 	public void sendApplicationSubmittedNotification(PortalDTO portalDto, String filePath, String caseUrl)
 			throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0)
@@ -544,6 +577,30 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				.append("<a href=\"").append(htmlEscape(returnUrl))
 				.append("\" style=\"display:inline-block;padding:12px 24px;"
 						+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回申请材料</a>")
+				.append("</p>");
+		content.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
+		content.append("<p>指南针留学移民</p>");
+		return content.toString();
+	}
+
+	private String buildSupplementaryMaterialsEmail(String customerName, String remark, String confirmUrl,
+			String returnUrl) {
+		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
+		StringBuilder content = new StringBuilder();
+		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
+		content.append("<p>您的补充材料已准备完成，请下载邮件中的附件文件。确认无误后，请点击“确认补充材料”；如需补充或修改，请点击“退回补充材料”。</p>");
+		if (StringUtil.isNotEmpty(remark)) {
+			String safeRemark = htmlEscape(remark).replace("\r\n", "<br>").replace("\n", "<br>")
+					.replace("\r", "<br>");
+			content.append("<p>文案的备注说明：").append(safeRemark).append("</p>");
+		}
+		content.append("<p style=\"margin:24px 0;\">")
+				.append("<a href=\"").append(htmlEscape(confirmUrl))
+				.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
+						+ "background:#198754;color:#fff;text-decoration:none;border-radius:4px;\">确认补充材料</a>")
+				.append("<a href=\"").append(htmlEscape(returnUrl))
+				.append("\" style=\"display:inline-block;padding:12px 24px;"
+						+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回补充材料</a>")
 				.append("</p>");
 		content.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
 		content.append("<p>指南针留学移民</p>");

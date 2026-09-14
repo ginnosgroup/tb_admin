@@ -96,6 +96,17 @@ public abstract class BaseService {
 	 */
 	protected void sendMailWithAttachments(String mail, String title, String content, File... attachments)
 			throws ServiceException {
+		sendMailWithAttachmentsInternal(mail, title, content, true, attachments);
+	}
+
+	/** 发送允许重复的多附件邮件，仍保留每次发送的邮件日志。 */
+	protected void sendMailWithAttachmentsAlways(String mail, String title, String content, File... attachments)
+			throws ServiceException {
+		sendMailWithAttachmentsInternal(mail, title, content, false, attachments);
+	}
+
+	private void sendMailWithAttachmentsInternal(String mail, String title, String content, boolean deduplicate,
+			File... attachments) throws ServiceException {
 		if (StringUtil.isEmpty(mail) || StringUtil.isEmpty(title)) {
 			throw mailServiceException("邮件收件人或标题为空.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
@@ -113,12 +124,17 @@ public abstract class BaseService {
 		}
 
 		try {
-			String code = MD5Util.getMD5(StringUtil.merge(mail, title, content, attachmentSignature.toString()));
-			MailLogDO mailLogDo = mailLogDao.getMailLogByCode(code);
-			if (mailLogDo != null) {
-				mailLogDao.refresh(mailLogDo.getId());
-				LOG.warn(StringUtil.merge("该附件邮件已发送过了,code=", code, ",date=", mailLogDo.getGmtCreate()));
-				return;
+			String codeSource = StringUtil.merge(mail, title, content, attachmentSignature.toString());
+			if (!deduplicate)
+				codeSource = codeSource + System.currentTimeMillis() + System.nanoTime();
+			String code = MD5Util.getMD5(codeSource);
+			if (deduplicate) {
+				MailLogDO mailLogDo = mailLogDao.getMailLogByCode(code);
+				if (mailLogDo != null) {
+					mailLogDao.refresh(mailLogDo.getId());
+					LOG.warn(StringUtil.merge("该附件邮件已发送过了,code=", code, ",date=", mailLogDo.getGmtCreate()));
+					return;
+				}
 			}
 			if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) <= 0) {
 				throw mailServiceException("保存邮件发送日志失败.", ErrorCodeEnum.EXECUTE_ERROR.code(), null);
