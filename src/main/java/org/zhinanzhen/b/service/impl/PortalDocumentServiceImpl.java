@@ -392,7 +392,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	@Override
 	public void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
-			String filePath) throws ServiceException {
+			String filePath, String customerUrl) throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0 || state == null)
 			throw serviceException("案件通知参数无效。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		CustomerDocumentData data = buildCustomerData(portalDto);
@@ -433,6 +433,10 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					.append(state == PortalFollowUpState.REQUEST_SUPPLEMENT ? "补料说明" : "备注说明")
 					.append("：</strong></p><div style=\"white-space:pre-wrap;line-height:1.8;\">")
 					.append(htmlEscape(remark)).append("</div>");
+		if (state == PortalFollowUpState.REQUEST_SUPPLEMENT && StringUtil.isNotEmpty(customerUrl))
+			content.append("<p><strong>补料链接：</strong><a href=\"")
+					.append(htmlEscape(customerUrl)).append("\">")
+					.append(htmlEscape(customerUrl)).append("</a></p>");
 		content.append("<p>指南针留学移民</p>");
 		String title = "【指南针留学移民】" + subject + "（案件编号：" + portalDto.getId() + "）";
 		if (state == PortalFollowUpState.NOTIFY_RESULT)

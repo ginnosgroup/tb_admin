@@ -35,7 +35,7 @@ public interface PortalDocumentService {
 
 	/** 010补料通知、011A补料提交通知、012申请结果通知（含备注和附件）。 */
 	void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
-			String filePath) throws ServiceException;
+			String filePath, String customerUrl) throws ServiceException;
 
 	/** 将案件已经生成的合同和建议信作为附件发送给指定收件人。 */
 	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,

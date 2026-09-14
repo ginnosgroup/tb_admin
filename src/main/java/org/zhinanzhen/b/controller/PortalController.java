@@ -1373,7 +1373,8 @@ public class PortalController extends BaseController {
 		 case REQUEST_SUPPLEMENT:
 		 case SUBMIT_SUPPLEMENT:
 		 case NOTIFY_RESULT:
-			portalDocumentService.sendCustomerFollowUpNotification(portal, state, remark, filePath);
+			portalDocumentService.sendCustomerFollowUpNotification(portal, state, remark, filePath,
+					buildPortalCustomerUrl(portal.getId()));
 			break;
 		case REVIEW_SUPPLEMENT:
 			portalService.sendMaraSupplementReviewNotification(portal, buildPortalCaseUrl(request, portal.getId()));

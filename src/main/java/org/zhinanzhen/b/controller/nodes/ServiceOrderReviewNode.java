@@ -148,13 +148,13 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 									serviceOrderDtoT));
 					return null;
 				}
-				if (serviceOrderDtoT.getReceivable() <= 2000.00 && officialDto.getId() == 1000003) {
-					context.putParameter("response",
-							new Response<ServiceOrderDTO>(1,
-									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
-									serviceOrderDtoT));
-					return null;
-				}
+//				if (serviceOrderDtoT.getReceivable() <= 2000.00 && officialDto.getId() == 1000003) {
+//					context.putParameter("response",
+//							new Response<ServiceOrderDTO>(1,
+//									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
+//									serviceOrderDtoT));
+//					return null;
+//				}
 //				List<String> whiteList = wOfficialReviewPermissions.get(officialDto.getId());
 //				if (ObjectUtil.isNotNull(whiteList) && !whiteList.contains(String.valueOf(serviceId))) {
 //					context.putParameter("response",
