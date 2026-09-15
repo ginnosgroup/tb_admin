@@ -223,21 +223,27 @@ public class PortalController extends BaseController {
 		}
 		boolean signatureUpload = aiText == null && fileType != null
 				&& "signature".equalsIgnoreCase(fileType.trim());
+		boolean form956Upload = aiText == null && fileType != null
+				&& "956MA".equalsIgnoreCase(fileType.trim());
+		boolean maraFileUpload = signatureUpload || form956Upload;
 		MaraDTO maraDto = null;
-		String oldSignatureData = null;
-		if (signatureUpload) {
+		String oldMaraFilePath = null;
+		if (maraFileUpload) {
 			Integer targetMaraId = StringUtil.isNotEmpty(maraId) ? StringUtil.toInt(maraId.trim()) : null;
 			if (targetMaraId == null || targetMaraId <= 0)
-				return new Response<Map<String, Object>>(1, "maraId不能为空且必须是有效数字，无法上传签名文件.", null);
+				return new Response<Map<String, Object>>(1,
+						form956Upload ? "maraId不能为空且必须是有效数字，无法上传Form 956文件."
+								: "maraId不能为空且必须是有效数字，无法上传签名文件.", null);
 			try {
 				maraDto = maraService.getMaraById(targetMaraId);
 			} catch (ServiceException e) {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
 			if (maraDto == null) {
-				return new Response<Map<String, Object>>(1, "MARA不存在，无法保存签名文件.", null);
+				return new Response<Map<String, Object>>(1,
+						form956Upload ? "MARA不存在，无法保存Form 956文件." : "MARA不存在，无法保存签名文件.", null);
 			}
-			oldSignatureData = maraDto.getSignatureData();
+			oldMaraFilePath = form956Upload ? maraDto.getForm956Path() : maraDto.getSignatureData();
 		}
 		String normalizedFileType = null;
 		if (aiText != null) {
@@ -296,15 +302,19 @@ public class PortalController extends BaseController {
 				super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
 				return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
 			}
-			if (signatureUpload) {
-				maraDto.setSignatureData(uploadResp.getData());
+			if (maraFileUpload) {
+				if (form956Upload)
+					maraDto.setForm956Path(uploadResp.getData());
+				else
+					maraDto.setSignatureData(uploadResp.getData());
 				if (maraService.updateMara(maraDto) <= 0) {
 					cleanupUploadedAttachment(uploadResp.getData(), attachmentId);
-					return new Response<Map<String, Object>>(1, "MARA签名文件路径保存失败.", null);
+					return new Response<Map<String, Object>>(1,
+							form956Upload ? "MARA Form 956文件路径保存失败." : "MARA签名文件路径保存失败.", null);
 				}
-				if (StringUtil.isNotEmpty(oldSignatureData)
-						&& !oldSignatureData.equals(uploadResp.getData())) {
-					super.deleteFile(oldSignatureData);
+				if (StringUtil.isNotEmpty(oldMaraFilePath)
+						&& !oldMaraFilePath.equals(uploadResp.getData())) {
+					super.deleteFile(oldMaraFilePath);
 				}
 			}
 		} catch (ServiceException e) {
@@ -833,9 +843,9 @@ public class PortalController extends BaseController {
 			if (portalService.addPortal(portalDto) > 0) {
 				// 同步附件：根据addPortal传过来的路径，把已上传附件的portalId更新为新创建的案件ID
 				syncPortalAttachments(filePath, portalDto.getId());
-				// 操作日志：客户第一步入库
+				// 操作日志：顾问创建案件
 				savePortalLog(portalDto.getId(), "customer_first_submit", null, portalDto.getStrState(),
-						"客户第一步提交案件", request);
+						"顾问创建案件", request);
 				return new Response<Integer>(0, portalDto.getId());
 			} else {
 				return new Response<Integer>(1, "创建失败.", 0);
@@ -2386,6 +2396,9 @@ public class PortalController extends BaseController {
 				// 未登录的操作视为客户
 				portalLogDto.setRole("客户");
 			}
+			if ("02".equals(toState))
+				// 状态02代表客户已提交资料，日志角色固定记录为客户。
+				portalLogDto.setRole("客户");
 			portalLogService.addPortalLog(portalLogDto);
 		} catch (Exception e) {
 			LOG.error("保存案件操作日志失败, portalId=" + portalId + ", action=" + action, e);

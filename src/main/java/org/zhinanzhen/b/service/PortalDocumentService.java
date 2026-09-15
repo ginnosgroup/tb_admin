@@ -46,6 +46,10 @@ public interface PortalDocumentService {
 	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException;
 
+	/** 将案件已经生成的合同、建议信和 Form 956 作为附件发送给指定收件人。 */
+	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
+			String letterFilePath, String form956FilePath) throws ServiceException;
+
 	/** 使用数据库中保存的附件路径发送多附件邮件。 */
 	void sendEmailWithAttachments(String recipientEmail, String subject, String content, List<String> attachmentPaths)
 			throws ServiceException;

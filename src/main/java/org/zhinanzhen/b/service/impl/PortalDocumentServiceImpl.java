@@ -492,6 +492,16 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	@Override
+	public void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
+			String letterFilePath, String form956FilePath) throws ServiceException {
+		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
+		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
+		Path form956Path = requireGeneratedFile(form956FilePath, "Form 956 PDF");
+		sendMailWithAttachments(recipientEmail, subject, content, contractPath.toFile(), advicePath.toFile(),
+				form956Path.toFile());
+	}
+
+	@Override
 	public void sendEmailWithAttachments(String recipientEmail, String subject, String content,
 			List<String> attachmentPaths) throws ServiceException {
 		if (attachmentPaths == null || attachmentPaths.isEmpty())

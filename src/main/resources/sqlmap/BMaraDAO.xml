@@ -48,6 +48,9 @@
         <if test='signatureData != null'>
             , signature_data = #{signatureData}
         </if>
+        <if test='form956Path != null'>
+            , `956path` = #{form956Path}
+        </if>
         <if test='regionId != null and regionId != ""'>
             , region_id = #{regionId}
         </if>

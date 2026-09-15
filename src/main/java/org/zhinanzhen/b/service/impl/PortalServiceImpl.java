@@ -300,8 +300,8 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	@Override
 	public void sendMaraPortalReviewNotification(PortalDTO portalDto, String caseUrl) throws ServiceException {
 		sendMaraPortalNotification(portalDto, null, caseUrl, "案件审核通知 - ",
-				"以下案件已由顾问提交案件审核，合同和Letter文件已随邮件附上，请及时登录佣金系统查看案件资料并完成审核。",
-				"审核事项", "请审核案件资料、合同和Letter文件", "审核通知日期", true);
+				"以下案件已由顾问提交案件审核，合同、Letter和Form 956文件已随邮件附上，请及时登录佣金系统查看案件资料并完成审核。",
+				"审核事项", "请审核案件资料、合同、Letter和Form 956文件", "审核通知日期", true);
 	}
 
 	@Override
@@ -367,7 +367,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 					.append("<p>谢谢。</p>");
 			if (includeGeneratedDocuments) {
 				portalDocumentService.sendDocumentsToEmail(maraDo.getEmail(), title, content.toString(),
-						portalDto.getContractFilePath(), portalDto.getLetterFilePath());
+						portalDto.getContractFilePath(), portalDto.getLetterFilePath(), portalDto.getForm956Path());
 			} else {
 				sendMail(maraDo.getEmail(), title, content.toString());
 			}
