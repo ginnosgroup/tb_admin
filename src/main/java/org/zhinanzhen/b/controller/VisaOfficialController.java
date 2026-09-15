@@ -95,6 +95,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
     private org.zhinanzhen.b.dao.ServiceOrderDAO serviceOrderDAO;
     @Autowired
     private InsuranceCompanyDAO insuranceCompanyDAO;
+    @Autowired
+    private org.zhinanzhen.b.dao.VisaOfficialDao visaOfficialDao;
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -121,6 +123,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             @RequestParam(value = "invoiceNumber", required = false) String invoiceNumber,
             @RequestParam(value = "adviserId") String adviserId, @RequestParam(value = "maraId") String maraId,
             @RequestParam(value = "officialId") String officialId,
+            @RequestParam(value = "completionPhase", required = false) String completionPhase,
             @RequestParam(value = "remarks", required = false) String remarks,
             @RequestParam(value = "verifyCode", required = false) String verifyCode, HttpServletRequest request,
             HttpServletResponse response) {
@@ -135,6 +138,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
             if (serviceOrderDto == null)
                 return new Response<>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
+            boolean phaseSettlement = StringUtil.isNotEmpty(completionPhase)
+                    || StringUtil.isNotEmpty(serviceOrderDto.getCompletionPhase());
             List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
             VisaOfficialDTO visaDto = new VisaOfficialDTO();
             double _receivable = 0.00;
@@ -183,16 +188,16 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 visaDto.setVisaVoucherImageUrl(visaVoucherImageUrl);
             else
                 visaDto.setVisaVoucherImageUrl(serviceOrderDto.getVisaVoucherImageUrl());
-            if (StringUtil.isNotEmpty(perAmount))
+            if (!phaseSettlement && StringUtil.isNotEmpty(perAmount))
                 visaDto.setPerAmount(Double.parseDouble(perAmount));
-            if (StringUtil.isNotEmpty(amount))
+            if (!phaseSettlement && StringUtil.isNotEmpty(amount))
                 visaDto.setAmount(Double.parseDouble(amount));
             if (visaDto.getPerAmount() < visaDto.getAmount())
                 return new Response<List<VisaOfficialDTO>>(1,
                         "本次应收款(" + visaDto.getPerAmount() + ")不能小于本次已收款(" + visaDto.getAmount() + ")!", null);
             if (StringUtil.isNotEmpty(currency))
                 visaDto.setCurrency(currency);
-            if (StringUtil.isNotEmpty(exchangeRate))
+            if (!phaseSettlement && StringUtil.isNotEmpty(exchangeRate))
                 visaDto.setExchangeRate(Double.parseDouble(exchangeRate));
             visaDto.setDiscount(visaDto.getPerAmount() - visaDto.getAmount());
             if (StringUtil.isNotEmpty(invoiceNumber))
@@ -208,7 +213,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             if (StringUtil.isNotEmpty(remarks))
                 visaDto.setRemarks(remarks);
             double commission = visaDto.getAmount();
-            if ("CNY".equals(currency)) {
+            if (!phaseSettlement && "CNY".equals(currency)) {
                 BigDecimal bigDecimal = BigDecimal.valueOf(commission);
                 BigDecimal bigDecimalExc = new BigDecimal(exchangeRate);
                 BigDecimal divide = bigDecimal.divide(bigDecimalExc, 4, RoundingMode.HALF_UP);
@@ -233,9 +238,10 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
             visaDto.setKjApprovalDate(new Date());
 
-            if (visaOfficialService.addVisa(visaDto) > 0) {
+            int addResult = visaOfficialService.addVisa(visaDto, completionPhase);
+            if (addResult > 0) {
                 visaOfficialDTOList.add(visaDto);
-            } else if (visaOfficialService.addVisa(visaDto) == -2) {
+            } else if (addResult == -2) {
 //                throw new ServiceException("当前打包签证中同时包含EOI和ROI，在EOI进行结算");
                 return new Response<>(-1, "当前打包签证中同时包含EOI和ROI，在EOI进行结算");
             } else {
@@ -456,6 +462,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 headerRow.createCell(targetColumn).setCellValue(templateHeaderRow.getCell(c).getStringCellValue());
             }
             headerRow.createCell(29).setCellValue("保险公司名称");
+            headerRow.createCell(36).setCellValue("结算阶段");
 
             String servicePackageType = "";
             List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
@@ -482,6 +489,9 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
             Map<Integer, ServiceDO> serviceMap = serviceIds.isEmpty() ? Collections.emptyMap() :
                     serviceDAO.listByIds(new ArrayList<>(serviceIds)).stream().collect(Collectors.toMap(ServiceDO::getId, Function.identity()));
+            Map<Integer, VisaOfficialExportServiceDO> assessmentServiceMap = serviceOrderIds.isEmpty()
+                    ? Collections.emptyMap() : visaOfficialDao.listAssessmentExportServices(new ArrayList<>(serviceOrderIds))
+                    .stream().collect(Collectors.toMap(VisaOfficialExportServiceDO::getServiceOrderId, Function.identity()));
             Map<Integer, ServiceOrderDO> parentOrderMap = parentOrderIds.isEmpty() ? Collections.emptyMap() :
                     serviceOrderDAO.listByIds(new ArrayList<>(parentOrderIds)).stream().collect(Collectors.toMap(ServiceOrderDO::getId, Function.identity()));
             Map<Integer, ServicePackageDO> servicePackageMap = servicePackageIds.isEmpty() ? Collections.emptyMap() :
@@ -589,7 +599,15 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     }
                 }
 
-                row.createCell(11).setCellValue(StringUtil.merge(so.getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType));
+                String serviceItem = StringUtil.merge(so.getService().getName(), "-", visaDTO.getServiceCode(), servicePackageType);
+                VisaOfficialExportServiceDO assessmentService = assessmentServiceMap.get(visaDTO.getServiceOrderId());
+                String settlementPhase = StringUtil.isNotEmpty(visaDTO.getStage())
+                        ? visaDTO.getStage()
+                        : assessmentService == null ? null : assessmentService.getCompletionPhase();
+                if (assessmentService != null && (assessmentService.hasAssessment()
+                        || StringUtil.isNotEmpty(settlementPhase)))
+                    serviceItem = assessmentService.serviceItem(settlementPhase);
+                row.createCell(11).setCellValue(serviceItem);
                 servicePackageType = "";
                 ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
                 if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
@@ -648,7 +666,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 if (states.equalsIgnoreCase("REVIEW"))
                     states = "待确认";
                 row.createCell(35).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
-                row.createCell(36).setCellValue(visaDTO.getStage() == null ? "" : visaDTO.getStage());
+                row.createCell(36).setCellValue(settlementPhase == null ? "" : settlementPhase);
                 i++;
             }
             wb.write(os);

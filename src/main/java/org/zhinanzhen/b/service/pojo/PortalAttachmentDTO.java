@@ -32,4 +32,8 @@ public class PortalAttachmentDTO {
 
 	private String aiText;
 
+	private String ip;
+
+	private String userAgent;
+
 }

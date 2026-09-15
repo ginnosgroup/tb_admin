@@ -23,6 +23,8 @@ public class ServiceOrderDTO {
 
 	private String type;
 
+	private String completionPhase;
+
 	private int peopleNumber;
 
 	private String peopleType;

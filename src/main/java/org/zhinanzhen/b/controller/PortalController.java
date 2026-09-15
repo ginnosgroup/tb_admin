@@ -272,6 +272,8 @@ public class PortalController extends BaseController {
 		portalAttachmentDto.setFileName(file.getOriginalFilename());
 		portalAttachmentDto.setFilePath(uploadResp.getData());
 		portalAttachmentDto.setFileSize(file.getSize());
+		portalAttachmentDto.setIp(getClientIp(request));
+		portalAttachmentDto.setUserAgent(request.getHeader("User-Agent"));
 		String fileExt = extractFileExtension(originalName);
 		// fileType是业务阶段，保存到stage；file_type只保存文件实际的MIME类型。
 		portalAttachmentDto.setFileType(normalizeStoredFileType(fileExt, file.getContentType()));
@@ -1078,59 +1080,24 @@ public class PortalController extends BaseController {
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
 				String logAction = followUpState == null ? "update" : followUpState.getAction();
 				String logContent = followUpState == null ? "更新案件信息" : followUpState.getLabel();
-				if ("06B".equals(strState))
-					logContent = "申请材料待客户确认";
 				if ("confirmed".equals(normalizedResult) && "010G".equals(strState)) {
 					logAction = "customer_confirm_supplement";
-					logContent = "客户点击确认补充材料按钮";
 				} else if ("returned".equals(normalizedResult) && "010E".equals(strState)) {
 					logAction = "customer_return_supplement";
-					logContent = "客户点击退回补充材料按钮";
 				} else if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
 					logAction = "customer_confirm_application_materials";
-					logContent = "客户点击确认申请材料按钮";
 				} else if ("returned".equals(normalizedResult) && "06A".equals(strState)) {
 					logAction = "customer_return_application_materials";
-					logContent = "客户点击退回申请材料按钮";
 				} else if ("confirmed".equals(normalizedResult)) {
 					logAction = "customer_confirm_sign";
-					logContent = "客户点击确认签署按钮";
 				} else if ("returned".equals(normalizedResult)) {
 					logAction = "customer_return_modify";
-					logContent = "客户点击退回修改按钮";
 				} else if ("02B".equals(fromState) && "02A".equals(strState)) {
 					logAction = "mara_return_modify";
-					logContent = "mara返回修改";
 				} else if (("03".equals(fromState) || "03A".equals(fromState)) && "02D".equals(strState)) {
 					logAction = "reject_back";
-					logContent = "案件从" + fromState + "被驳回退回02D";
-				} else if ("02A".equals(strState)) {
-					logAction = followUpState == null ? "mara_processing_upgrade" : followUpState.getAction();
-					logContent = "升级案件MARA处理中";
-				} else if ("05".equals(strState)) {
-					logAction = "adviser_service_order_created";
-					logContent = "顾问已下服务订单";
-				} else if ("06".equals(strState)) {
-					logAction = "official_preparing_application_materials";
-					logContent = "文案准备申请材料中";
-				} else if ("07A".equals(strState)) {
-					logAction = "mara_reviewing_application_materials";
-					logContent = "申请材料MARA正在审核";
-				} else if ("07B".equals(strState)) {
-					logAction = "mara_reject_application_materials";
-					logContent = "申请材料MARA审核驳回";
-				} else if ("08".equals(strState)) {
-					logAction = "mara_approve_application_materials";
-					logContent = "申请材料MARA审核通过";
-				} else if ("09".equals(strState)) {
-					logAction = "official_submit_application";
-					logContent = "文案已正式提交申请";
-				} else if (followUpState != null && followUpState.isFollowUp()) {
-					logAction = followUpState.getAction();
-					logContent = followUpState.getLabel();
-					if (StringUtil.isNotEmpty(adviserRemark))
-						logContent += "：" + adviserRemark;
 				}
+				// content只保存状态名称，备注单独保存到remark。
 				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, adviserRemark, request);
 				if (followUpState != null && followUpState.isFollowUp()
 						&& followUpState != PortalFollowUpState.ARCHIVE) {

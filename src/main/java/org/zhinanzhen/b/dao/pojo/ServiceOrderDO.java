@@ -27,6 +27,9 @@ public class ServiceOrderDO implements Serializable {
 
 	private String type;
 
+	/** 文案佣金结算阶段：PSA、JRE、JRWA、JRFA。 */
+	private String completionPhase;
+
 	private int peopleNumber;
 
 	private String peopleType;

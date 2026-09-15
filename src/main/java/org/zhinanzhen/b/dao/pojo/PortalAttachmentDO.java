@@ -35,4 +35,8 @@ public class PortalAttachmentDO implements Serializable {
 
 	private String aiText;
 
+	private String ip;
+
+	private String userAgent;
+
 }

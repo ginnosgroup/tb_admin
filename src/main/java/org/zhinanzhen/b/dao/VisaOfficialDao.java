@@ -19,6 +19,15 @@ public interface VisaOfficialDao {
 
     int addVisa(VisaOfficialDO visaOfficialDO);
 
+    Integer lockCompletionPhaseOrder(@Param("serviceOrderId") int serviceOrderId);
+
+    int countVisaForOrderAndStageExcludingId(@Param("serviceOrderId") int serviceOrderId,
+                                             @Param("stage") String stage,
+                                             @Param("excludeId") int excludeId);
+
+    List<org.zhinanzhen.b.dao.pojo.VisaOfficialExportServiceDO> listAssessmentExportServices(
+            @Param("serviceOrderIds") List<Integer> serviceOrderIds);
+
     List<VisaOfficialListDO> list(@Param("officialId")Integer officialId,
                                  @Param("regionIdList")List<Integer> regionIdList,
                                  @Param("id")Integer id,

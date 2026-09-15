@@ -18,7 +18,9 @@
                 file_ext,
                 stage,
                 attachment_state,
-                ai_text)
+                ai_text,
+                ip,
+                user_agent)
             VALUES (
                 #{portalId},
                 now(),
@@ -30,7 +32,9 @@
                 #{fileExt},
                 #{stage},
                 #{attachmentState},
-                #{aiText});
+                #{aiText},
+                #{ip},
+                #{userAgent});
     </insert>
 
     <select id="getPortalAttachmentById" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
@@ -46,7 +50,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment WHERE id = #{id, jdbcType=INTEGER};
     </select>
 
@@ -63,7 +69,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment WHERE file_path = #{filePath};
     </select>
 
@@ -80,7 +88,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment
         WHERE portal_id = #{portalId}
         ORDER BY gmt_create ASC, id ASC;
@@ -100,7 +110,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment
         WHERE portal_id = #{portalId}
           AND LOWER(stage) = LOWER(#{stage})
@@ -121,7 +133,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment
         WHERE portal_id = #{portalId}
           AND LOWER(file_name) = LOWER(#{fileName})
@@ -143,7 +157,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment
         WHERE portal_id = #{portalId}
           AND LOWER(stage) = LOWER(#{stage})
@@ -169,7 +185,9 @@
             file_ext AS fileExt,
             stage,
             attachment_state AS attachmentState,
-            ai_text AS aiText
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
         FROM b_portal_attachment
         WHERE 1 = 1
         <if test='id != null'>
