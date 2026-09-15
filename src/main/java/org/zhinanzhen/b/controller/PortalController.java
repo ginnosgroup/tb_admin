@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -840,7 +841,8 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/update", method = { RequestMethod.GET, RequestMethod.POST })
 	@ResponseBody
-	public Object updatePortal(@RequestParam(value = "id") int id,
+	public Object updatePortal(@RequestParam(value = "id", required = false, defaultValue = "0") int id,
+			@RequestParam(value = "idList", required = false) String idList,
 			@RequestParam(value = "typeId", required = false) String typeId,
 			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "name", required = false) String name,
@@ -867,6 +869,12 @@ public class PortalController extends BaseController {
 		boolean customerActionRequest = "04".equals(strState) || "02C".equals(strState)
 				|| customerMaterialsFlow
 				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code);
+		if (StringUtil.isNotEmpty(idList))
+			return updatePortalBatch(idList, typeId, caseType, name, gender, birthday, passport, jsonStr,
+					contractStr, adviserId, officialId, maraId, serviceOrderId, strState, result, code, remark, filePath,
+					customerActionRequest, request, response);
+		if (id <= 0)
+			return new Response<PortalDTO>(1, "案件id必须是有效数字。", null);
 		PortalFollowUpState followUpState = PortalFollowUpState.fromCode(strState);
 		try {
 			super.setPostHeader(response);
@@ -1429,6 +1437,80 @@ public class PortalController extends BaseController {
 						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
+	}
+
+	/**
+	 * 批量更新案件。批量请求沿用单个案件的完整校验、状态流转、日志和通知逻辑，
+	 * 每个案件独立处理，某个案件失败不会阻止其他案件继续执行。
+	 */
+	private Object updatePortalBatch(String idList, String typeId, String caseType, String name, String gender,
+			String birthday, String passport, String jsonStr, String contractStr, String adviserId, String officialId,
+			String maraId, String serviceOrderId, String strState, String result, String code, String remark,
+			String filePath, boolean customerActionRequest, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (customerActionRequest)
+				return new Response<List<Map<String, Object>>>(1,
+						"idList仅支持后台批量更新，不支持客户操作链接。", null);
+
+			List<Integer> portalIds = parsePortalIdList(idList);
+			List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+			boolean hasFailure = false;
+			for (Integer portalId : portalIds) {
+				Map<String, Object> item = new LinkedHashMap<String, Object>();
+				item.put("id", portalId);
+				try {
+					Object singleResult = updatePortal(portalId.intValue(), null, typeId, caseType, name, gender,
+							birthday, passport, jsonStr, contractStr, adviserId, officialId, maraId, serviceOrderId,
+							strState, result, code, remark, filePath, request, response);
+					if (singleResult instanceof Response) {
+						Response<?> singleResponse = (Response<?>) singleResult;
+						int resultCode = singleResponse.getCode();
+						item.put("code", resultCode);
+						item.put("message", singleResponse.getMessage());
+						item.put("data", singleResponse.getData());
+						item.put("success", resultCode == 0);
+						hasFailure = hasFailure || resultCode != 0;
+					} else {
+						item.put("code", 0);
+						item.put("message", "操作完成");
+						item.put("data", singleResult);
+						item.put("success", true);
+					}
+				} catch (Exception e) {
+					hasFailure = true;
+					item.put("code", 1);
+					item.put("message", e.getMessage());
+					item.put("data", null);
+					item.put("success", false);
+				}
+				resultList.add(item);
+			}
+			return new Response<List<Map<String, Object>>>(hasFailure ? 1 : 0,
+					hasFailure ? "批量操作完成，但部分案件处理失败。" : "批量操作完成。", resultList);
+		} catch (ServiceException e) {
+			return new Response<List<Map<String, Object>>>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	private List<Integer> parsePortalIdList(String idList) throws ServiceException {
+		LinkedHashSet<Integer> portalIdSet = new LinkedHashSet<Integer>();
+		for (String value : idList.split("[,，]")) {
+			String normalizedValue = value == null ? "" : value.trim();
+			if (normalizedValue.isEmpty())
+				continue;
+			try {
+				int portalId = Integer.parseInt(normalizedValue);
+				if (portalId <= 0)
+					throw new NumberFormatException();
+				portalIdSet.add(portalId);
+			} catch (NumberFormatException e) {
+				throw portalParameterError("idList包含无效的案件id：" + normalizedValue);
+			}
+		}
+		if (portalIdSet.isEmpty())
+			throw portalParameterError("idList至少需要包含一个有效的案件id。");
+		return new ArrayList<Integer>(portalIdSet);
 	}
 
 	private void validateFollowUpRequest(PortalFollowUpState state, int portalId, String remark, String filePath,
