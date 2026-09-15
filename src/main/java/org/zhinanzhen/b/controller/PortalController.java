@@ -1476,6 +1476,7 @@ public class PortalController extends BaseController {
 			String filePath, HttpServletRequest request) throws ServiceException {
 		 switch (state) {
 		 case REQUEST_SUPPLEMENT:
+		 case WAIT_FINAL_DECISION:
 		 case SUBMIT_SUPPLEMENT:
 		 case NOTIFY_RESULT:
 			portalDocumentService.sendCustomerFollowUpNotification(portal, state, remark, filePath,
@@ -1485,9 +1486,8 @@ public class PortalController extends BaseController {
 			portalService.sendMaraSupplementReviewNotification(portal, buildPortalCaseUrl(request, portal.getId()));
 			break;
 		case REJECT_SUPPLEMENT:
-		case APPROVE_SUPPLEMENT:
 			portalService.sendOfficialSupplementReviewNotification(portal, remark,
-					buildPortalCaseUrl(request, portal.getId()), state == PortalFollowUpState.APPROVE_SUPPLEMENT);
+					buildPortalCaseUrl(request, portal.getId()), false);
 			break;
 		default:
 			break;

@@ -50,7 +50,7 @@ public enum PortalFollowUpState {
 			false, false, false),
 	REVIEW_SUPPLEMENT("010A", "补料MARA正在审核", "mara_reviewing_supplement", "WA", false, false, true),
 	REJECT_SUPPLEMENT("010B", "补料MARA审核驳回", "mara_reject_supplement", "MA", true, false, true),
-	APPROVE_SUPPLEMENT("011", "补料MARA审核通过", "mara_approve_supplement", "MA", false, false, true),
+	WAIT_FINAL_DECISION("011", "等待最终决定", "wait_final_decision", "WA", false, false, true),
 	SUBMIT_SUPPLEMENT("011A", "补料已提交等待最终决定", "official_submit_supplement", "WA", false, false, true),
 	NOTIFY_RESULT("012", "申请结果已通知客户", "official_notify_application_result", "WA", false, true, true),
 	ARCHIVE("013", "案件已归档结案", "official_archive_portal", "WA", false, false, true);

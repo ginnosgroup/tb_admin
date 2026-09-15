@@ -440,6 +440,11 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			message = "为继续推进您的申请，请您根据以下说明准备并提供补充材料。如对材料要求有任何疑问，"
 					+ "请及时与您的顾问联系，我们将协助您完成准备。";
 			break;
+		case WAIT_FINAL_DECISION:
+			subject = "等待最终决定";
+			message = "您的申请目前已进入最终决定等待阶段。相关审理机构正在进行最后的审核与评估，"
+					+ "最终决定确认后，我们将第一时间通知您。感谢您的耐心等待与理解；如有任何疑问，请及时与您的顾问联系。";
+			break;
 		case SUBMIT_SUPPLEMENT:
 			subject = "补充材料已正式提交";
 			message = "您提供的补充材料已完成审核并正式提交至相关审理机构。您的申请现正等待最终审理决定。"

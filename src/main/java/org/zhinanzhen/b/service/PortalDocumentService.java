@@ -38,7 +38,7 @@ public interface PortalDocumentService {
 	/** 预先检查本次上传的补料或决定文件，防止文件缺失时仍推进状态。 */
 	void validateApplicationFiles(String filePath) throws ServiceException;
 
-	/** 010补料通知、011A补料提交通知、012申请结果通知（含备注和附件）。 */
+	/** 010补料通知、011等待最终决定通知、011A补料提交通知、012申请结果通知（含备注和附件）。 */
 	void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
 			String filePath, String customerUrl) throws ServiceException;
 
