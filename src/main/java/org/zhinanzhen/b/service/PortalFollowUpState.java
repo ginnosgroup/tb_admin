@@ -46,7 +46,7 @@ public enum PortalFollowUpState {
 			false),
 	SUPPLEMENT_PENDING_CUSTOMER_CONFIRM("010F", "补充材料待客户确认", "supplement_pending_customer_confirm", null,
 			false, false, false),
-	CUSTOMER_NOT_CONFIRMED_SUPPLEMENT("010G", "客户已不确认补充材料", "customer_not_confirm_supplement", null,
+	CUSTOMER_CONFIRMED_SUPPLEMENT("010G", "客户已确认补充材料", "customer_confirm_supplement", null,
 			false, false, false),
 	REVIEW_SUPPLEMENT("010A", "补料MARA正在审核", "mara_reviewing_supplement", "WA", false, false, true),
 	REJECT_SUPPLEMENT("010B", "补料MARA审核驳回", "mara_reject_supplement", "MA", true, false, true),

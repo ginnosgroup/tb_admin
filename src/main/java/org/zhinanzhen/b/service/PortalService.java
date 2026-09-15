@@ -59,8 +59,8 @@ public interface PortalService {
 	void sendOfficialSupplementaryMaterialsReturnedNotification(PortalDTO portalDto, List<String> attachmentPaths,
 			String caseUrl) throws ServiceException;
 
-	/** 客户未确认补充材料后，通知文案并附上补充材料。 */
-	void sendOfficialSupplementaryMaterialsNotConfirmedNotification(PortalDTO portalDto,
+	/** 客户已确认补充材料后，通知文案并附上补充材料。 */
+	void sendOfficialSupplementaryMaterialsConfirmedNotification(PortalDTO portalDto,
 			List<String> attachmentPaths, String caseUrl) throws ServiceException;
 
 	void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;

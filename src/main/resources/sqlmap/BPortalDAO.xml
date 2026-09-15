@@ -166,10 +166,20 @@
         <if test='caseType != null and caseType != ""'>
             AND case_type = #{caseType}
         </if>
-        <!-- strState=ALL 表示全部案件，不加状态过滤 -->
-        <if test='strState != null and strState != "" and strState != "ALL"'>
-            AND str_state = #{strState}
-        </if>
+        <!-- 状态筛选：ALL不加过滤；PROCESSING查询01-012；COMPLETED只查询013。 -->
+        <choose>
+            <when test='strState == "PROCESSING"'>
+                AND str_state IN ('01', '02', '02A', '02B', '02C', '02D', '03', '03A', '04', '05',
+                    '06', '06A', '06B', '07', '07A', '07B', '08', '09', '010', '010A', '010B',
+                    '010D', '010E', '010F', '010G', '011', '011A', '012')
+            </when>
+            <when test='strState == "COMPLETED"'>
+                AND str_state = '013'
+            </when>
+            <when test='strState != null and strState != "" and strState != "ALL"'>
+                AND str_state = #{strState}
+            </when>
+        </choose>
         <!-- 文案角色不返回01、02阶段案件，其余状态均可查看 -->
         <if test='officialStateRange'>
             AND (str_state IS NULL OR str_state NOT IN ('01', '02'))
@@ -219,10 +229,20 @@
         <if test='caseType != null and caseType != ""'>
             AND case_type = #{caseType}
         </if>
-        <!-- strState=ALL 表示全部案件，不加状态过滤 -->
-        <if test='strState != null and strState != "" and strState != "ALL"'>
-            AND str_state = #{strState}
-        </if>
+        <!-- 状态筛选：ALL不加过滤；PROCESSING查询01-012；COMPLETED只查询013。 -->
+        <choose>
+            <when test='strState == "PROCESSING"'>
+                AND str_state IN ('01', '02', '02A', '02B', '02C', '02D', '03', '03A', '04', '05',
+                    '06', '06A', '06B', '07', '07A', '07B', '08', '09', '010', '010A', '010B',
+                    '010D', '010E', '010F', '010G', '011', '011A', '012')
+            </when>
+            <when test='strState == "COMPLETED"'>
+                AND str_state = '013'
+            </when>
+            <when test='strState != null and strState != "" and strState != "ALL"'>
+                AND str_state = #{strState}
+            </when>
+        </choose>
         <!-- 文案角色不返回01、02阶段案件，其余状态均可查看 -->
         <if test='officialStateRange'>
             AND (str_state IS NULL OR str_state NOT IN ('01', '02'))

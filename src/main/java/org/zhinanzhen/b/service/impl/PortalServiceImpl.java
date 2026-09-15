@@ -527,10 +527,10 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	@Override
-	public void sendOfficialSupplementaryMaterialsNotConfirmedNotification(PortalDTO portalDto,
+	public void sendOfficialSupplementaryMaterialsConfirmedNotification(PortalDTO portalDto,
 			List<String> attachmentPaths, String caseUrl) throws ServiceException {
 		sendOfficialSupplementaryMaterialsNotification(portalDto, attachmentPaths, caseUrl,
-				"客户未确认补充材料通知 - ", "客户已不确认补充材料，请及时处理。", "发送客户未确认补充材料通知邮件失败");
+				"客户已确认补充材料通知 - ", "客户已确认补充材料，请及时处理。", "发送客户已确认补充材料通知邮件失败");
 	}
 
 	private void sendOfficialSupplementaryMaterialsNotification(PortalDTO portalDto, List<String> attachmentPaths,

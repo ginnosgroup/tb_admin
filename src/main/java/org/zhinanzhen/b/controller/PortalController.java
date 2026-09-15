@@ -431,7 +431,7 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 对 application/applicationWA/openAFile/supplementary 阶段解析上传替换规则。 */
+	/** 对 application/applicationWA/openAFile/supplementary/notice 阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
@@ -443,6 +443,10 @@ public class PortalController extends BaseController {
 			return "supplementary";
 		if ("supplementaryWA".equalsIgnoreCase(fileType))
 			return "supplementaryWA";
+		if ("notice".equalsIgnoreCase(fileType))
+			return "notice";
+		if ("noticeWA".equalsIgnoreCase(fileType))
+			return "noticeWA";
 		return null;
 	}
 
@@ -1009,6 +1013,9 @@ public class PortalController extends BaseController {
 			if ("010A".equals(strState)) {
 				// 010A不再使用请求中的filePath，改为将当前案件已有的applicationWA附件带入010A阶段。
 				updateFilePaths = listAttachmentPathsByStages(id, "applicationWA");
+			} else if ("012".equals(strState)) {
+				// 012不再使用请求中的filePath，改为将当前案件已有的noticeWA附件带入012阶段。
+				updateFilePaths = listAttachmentPathsByStages(id, "noticeWA");
 			} else {
 				updateFilePaths = "05".equals(strState) || "06".equals(strState)
 						|| "09".equals(strState)
@@ -1129,7 +1136,10 @@ public class PortalController extends BaseController {
 						&& followUpState != PortalFollowUpState.ARCHIVE) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						sendFollowUpNotification(savedPortalDto, followUpState, adviserRemark, filePath, request);
+						String notificationFilePath = followUpState == PortalFollowUpState.NOTIFY_RESULT
+								? joinAttachmentPaths(updateFilePaths) : filePath;
+						sendFollowUpNotification(savedPortalDto, followUpState, adviserRemark, notificationFilePath,
+								request);
 					} catch (ServiceException notificationException) {
 						LOG.error("案件已更新为{}，但流程通知邮件发送失败，portalId={}", strState, id, notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
@@ -1166,18 +1176,18 @@ public class PortalController extends BaseController {
 										+ notificationException.getMessage(), portalDto);
 					}
 				}
-				// 客户未确认补充材料后，通知对应文案及时处理，并附上补充材料。
+				// 客户已确认补充材料后，通知对应文案及时处理，并附上补充材料。
 				if ("010G".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						List<String> supplementaryFilePaths = listSupplementaryAttachmentPaths(id);
-						portalService.sendOfficialSupplementaryMaterialsNotConfirmedNotification(savedPortalDto,
+						portalService.sendOfficialSupplementaryMaterialsConfirmedNotification(savedPortalDto,
 								supplementaryFilePaths, buildPortalCaseUrl(request, id));
 					} catch (ServiceException notificationException) {
-						LOG.error("案件已更新为010G，但客户未确认补充材料通知文案邮件发送失败，portalId={}", id,
+						LOG.error("案件已更新为010G，但客户已确认补充材料通知文案邮件发送失败，portalId={}", id,
 								notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
-								"案件已更新为010G，但客户未确认补充材料通知文案邮件发送失败："
+								"案件已更新为010G，但客户已确认补充材料通知文案邮件发送失败："
 										+ notificationException.getMessage(), portalDto);
 					}
 				}
@@ -1544,8 +1554,11 @@ public class PortalController extends BaseController {
 		if (state.isRemarkRequired() && (remark == null || remark.trim().isEmpty()))
 			throw portalParameterError(state == PortalFollowUpState.REQUEST_SUPPLEMENT
 					? "请填写补料说明remark。" : "请填写补料审核驳回原因remark。");
-		if (state.isAttachmentsRequired())
-			portalDocumentService.validateApplicationFiles(filePath);
+		if (state.isAttachmentsRequired()) {
+			String attachmentFilePath = state == PortalFollowUpState.NOTIFY_RESULT
+					? joinAttachmentPaths(listAttachmentPathsByStages(portalId, "noticeWA")) : filePath;
+			portalDocumentService.validateApplicationFiles(attachmentFilePath);
+		}
 	}
 
 	private ServiceException portalParameterError(String message) {
@@ -1994,9 +2007,16 @@ public class PortalController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			// strState=ALL 表示查询全部案件，转成null不按状态过滤
-			if ("ALL".equalsIgnoreCase(strState))
-				strState = null;
+			// 状态筛选支持：ALL查询全部，PROCESSING查询01-012，COMPLETED只查询013。
+			if (strState != null) {
+				strState = strState.trim();
+				if ("ALL".equalsIgnoreCase(strState))
+					strState = null;
+				else if ("PROCESSING".equalsIgnoreCase(strState))
+					strState = "PROCESSING";
+				else if ("COMPLETED".equalsIgnoreCase(strState))
+					strState = "COMPLETED";
+			}
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
 			PortalAccessFilter filter = buildAccessFilter(request);
 			int total = portalService.countPortal(typeId, caseType, strState, keyword, filter.adviserId,
