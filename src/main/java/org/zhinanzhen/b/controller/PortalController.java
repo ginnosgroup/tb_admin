@@ -2398,13 +2398,25 @@ public class PortalController extends BaseController {
 				// 未登录的操作视为客户
 				portalLogDto.setRole("客户");
 			}
-			if ("02".equals(toState))
-				// 状态02代表客户已提交资料，日志角色固定记录为客户。
+			if ("02".equals(toState) || isCustomerButtonTransition(fromState, toState)) {
+				// 状态02及客户邮件按钮触发的状态流转，日志角色固定记录为客户。
 				portalLogDto.setRole("客户");
+			}
 			portalLogService.addPortalLog(portalLogDto);
 		} catch (Exception e) {
 			LOG.error("保存案件操作日志失败, portalId=" + portalId + ", action=" + action, e);
 		}
+	}
+
+	/**
+	 * 客户邮件中的确认/退回按钮对应的状态流转。
+	 * 03A -> 04/02C，06B -> 07/06A，010F -> 010G/010E；客户上传申请材料为06 -> 06C。
+	 */
+	private boolean isCustomerButtonTransition(String fromState, String toState) {
+		return ("03A".equals(fromState) && ("04".equals(toState) || "02C".equals(toState)))
+				|| ("06B".equals(fromState) && ("07".equals(toState) || "06A".equals(toState)))
+				|| ("010F".equals(fromState) && ("010G".equals(toState) || "010E".equals(toState)))
+				|| ("06".equals(fromState) && "06C".equals(toState));
 	}
 
 	private String buildPortalCaseUrl(HttpServletRequest request, int portalId) {

@@ -374,13 +374,14 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		Path materialList = requireGeneratedFile(materialListPath, "材料清单");
 
 		String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
+		String officialName = firstNonEmpty(portalDto.getOfficialName(), "您的文案");
 		String title = "【指南针留学移民】申请材料准备通知";
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "同学")))
 				.append("同学，您好：</p>")
-				.append("<p>您的案件现已进入申请材料准备阶段，").append(htmlEscape(adviserName))
+				.append("<p>您的案件现已进入申请材料准备阶段，").append(htmlEscape(officialName))
 				.append("正在为您准备后续申请材料。邮件中附有材料清单，请您按照清单准备相关资料；如需您补充或确认其他资料，我们会及时与您联系，请保持联系方式畅通。</p>")
+				.append("<p>请访问下方的案件链接，自助上传申请材料。</p>")
 				.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
 						+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
 				.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
