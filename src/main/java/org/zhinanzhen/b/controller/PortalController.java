@@ -1090,7 +1090,9 @@ public class PortalController extends BaseController {
 				String toState = StringUtil.isNotEmpty(strState) ? strState : fromState;
 				String logAction = followUpState == null ? "update" : followUpState.getAction();
 				String logContent = followUpState == null ? "更新案件信息" : followUpState.getLabel();
-				if ("confirmed".equals(normalizedResult) && "010G".equals(strState)) {
+				if ("02D".equals(fromState) && "02".equals(strState)) {
+					logContent = "顾问回退合同";
+				} else if ("confirmed".equals(normalizedResult) && "010G".equals(strState)) {
 					logAction = "customer_confirm_supplement";
 				} else if ("returned".equals(normalizedResult) && "010E".equals(strState)) {
 					logAction = "customer_return_supplement";
