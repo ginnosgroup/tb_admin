@@ -23,17 +23,20 @@ public interface PortalService {
 
 	int updatePortalStateIfCurrent(int id, String fromState, String toState) throws ServiceException;
 
-	List<PortalDTO> listPortal(Integer typeId, String caseType, String strState, String keyword, int pageNum, int pageSize,
+	List<PortalDTO> listPortal(Integer typeId, Integer id, String caseType, String strState, String keyword, String name, int pageNum, int pageSize,
 			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId,
 			boolean officialStateRange)
 			throws ServiceException;
 
-	int countPortal(Integer typeId, String caseType, String strState, String keyword, Integer adviserId,
+	int countPortal(Integer typeId, Integer id, String caseType, String strState, String keyword, String name, Integer adviserId,
 			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId,
 			boolean officialStateRange)
 			throws ServiceException;
 
 	PortalDTO getPortal(Integer id, Integer adviserId, Integer adviserRegionId, Integer officialId,
+			Integer officialRegionId, Integer maraId) throws ServiceException;
+
+	PortalDTO getPortalByName(Integer id, String name, Integer adviserId, Integer adviserRegionId, Integer officialId,
 			Integer officialRegionId, Integer maraId) throws ServiceException;
 
 	int deletePortal(int id) throws ServiceException;

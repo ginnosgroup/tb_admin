@@ -20,23 +20,28 @@ public interface PortalDAO {
 	int updatePortalStateIfCurrent(@Param("id") int id, @Param("fromState") String fromState,
 			@Param("toState") String toState);
 
-	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("caseType") String caseType,
-			@Param("strState") String strState, @Param("keyword") String keyword, @Param("offset") int offset,
+	List<PortalDO> listPortal(@Param("typeId") Integer typeId, @Param("id") Integer id,
+			@Param("caseType") String caseType,
+			@Param("strState") String strState, @Param("keyword") String keyword, @Param("name") String name,
+			@Param("offset") int offset,
 			@Param("rows") int rows,
 			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
 			@Param("officialId") Integer officialId, @Param("officialRegionId") Integer officialRegionId,
 			@Param("maraId") Integer maraId, @Param("officialStateRange") boolean officialStateRange);
 
-	int countPortal(@Param("typeId") Integer typeId, @Param("caseType") String caseType,
+	int countPortal(@Param("typeId") Integer typeId, @Param("id") Integer id,
+			@Param("caseType") String caseType,
 			@Param("strState") String strState, @Param("keyword") String keyword,
+			@Param("name") String name,
 			@Param("adviserId") Integer adviserId,
 			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
 			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId,
 			@Param("officialStateRange") boolean officialStateRange);
 
-	PortalDO getPortalById(@Param("id") int id, @Param("adviserId") Integer adviserId,
-			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
-			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId);
+	PortalDO getPortalById(@Param("id") int id, @Param("name") String name,
+			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
+			@Param("officialId") Integer officialId, @Param("officialRegionId") Integer officialRegionId,
+			@Param("maraId") Integer maraId);
 
 	PortalDO getPortalByTypeIdAndName(@Param("typeId") int typeId, @Param("name") String name);
 

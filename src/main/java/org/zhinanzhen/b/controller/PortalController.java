@@ -1987,9 +1987,11 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<PortalDTO>> listPortal(@RequestParam(value = "typeId", required = false) Integer typeId,
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "caseType", required = false) String caseType,
 			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -2006,10 +2008,10 @@ public class PortalController extends BaseController {
 			}
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
 			PortalAccessFilter filter = buildAccessFilter(request);
-			int total = portalService.countPortal(typeId, caseType, strState, keyword, filter.adviserId,
+			int total = portalService.countPortal(typeId, id, caseType, strState, keyword, name, filter.adviserId,
 					filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId,
 					filter.officialStateRange);
-			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, caseType, strState, keyword, pageNum,
+			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, id, caseType, strState, keyword, name, pageNum,
 					pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
 					filter.maraId, filter.officialStateRange);
 			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
@@ -2454,12 +2456,13 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)
 	@ResponseBody
-	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id, HttpServletRequest request,
+	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id,
+			@RequestParam(value = "name", required = false) String name, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			// 此接口不需要验证登录，不做数据权限过滤
-			PortalDTO portalDto = portalService.getPortal(id, null, null, null, null, null);
+			PortalDTO portalDto = portalService.getPortalByName(id, name, null, null, null, null, null);
 			if (portalDto != null) {
 				// 文案角色不能查看01、02阶段案件；未登录访问仍保持原有公开详情接口行为。
 				if (isOfficialRoleRequest(request) && isOfficialHiddenState(portalDto.getStrState()))

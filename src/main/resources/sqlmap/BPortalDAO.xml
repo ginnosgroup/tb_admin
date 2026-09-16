@@ -160,6 +160,9 @@
             str_state AS strState
         FROM b_portal_list
         WHERE 1 = 1
+        <if test='id != null'>
+            AND id = #{id}
+        </if>
         <if test='typeId != null'>
             AND type_id = #{typeId}
         </if>
@@ -186,6 +189,9 @@
         </if>
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
+        </if>
+        <if test='name != null and name != ""'>
+            AND name LIKE CONCAT('%', #{name}, '%')
         </if>
         <!-- 权限过滤：顾问查自己名下的记录 -->
         <if test='adviserId != null'>
@@ -223,6 +229,9 @@
         SELECT count(*)
         FROM b_portal_list
         WHERE 1 = 1
+        <if test='id != null'>
+            AND id = #{id}
+        </if>
         <if test='typeId != null'>
             AND type_id = #{typeId}
         </if>
@@ -249,6 +258,9 @@
         </if>
         <if test='keyword != null and keyword != ""'>
             AND name LIKE '%${keyword}%'
+        </if>
+        <if test='name != null and name != ""'>
+            AND name LIKE CONCAT('%', #{name}, '%')
         </if>
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
@@ -299,6 +311,9 @@
             service_order_id AS serviceOrderId,
             str_state AS strState
         FROM b_portal_list WHERE id = #{id, jdbcType=INTEGER}
+        <if test='name != null and name != ""'>
+            AND name LIKE CONCAT('%', #{name}, '%')
+        </if>
         <if test='adviserId != null'>
             AND adviser_id = #{adviserId}
         </if>
