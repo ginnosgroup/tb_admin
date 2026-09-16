@@ -1020,22 +1020,27 @@ public class PortalController extends BaseController {
 				portalDto.setServiceOrderId(StringUtil.toInt(serviceOrderId));
 			if (StringUtil.isNotEmpty(strState))
 				portalDto.setStrState(strState);
-			String attachmentStage = "010A".equals(strState) || "012".equals(strState) ? strState : null;
+			// updateFilePaths供后续通知邮件使用；portalAttachmentUpdateFilePaths仅用于更新附件关联。
+			// 010A、012读取已有附件即可，不再修改b_portal_attachment中的任何字段。
 			List<String> updateFilePaths;
+			List<String> portalAttachmentUpdateFilePaths;
 			if ("010A".equals(strState)) {
-				// 010A不再使用请求中的filePath，改为将当前案件已有的applicationWA附件带入010A阶段。
+				// 010A不再使用请求中的filePath，改为读取当前案件已有的applicationWA附件。
 				updateFilePaths = listAttachmentPathsByStages(id, "applicationWA");
+				portalAttachmentUpdateFilePaths = Collections.<String>emptyList();
 			} else if ("012".equals(strState)) {
-				// 012不再使用请求中的filePath，改为将当前案件已有的noticeWA附件带入012阶段。
+				// 012不再使用请求中的filePath，改为读取当前案件已有的noticeWA附件。
 				updateFilePaths = listAttachmentPathsByStages(id, "noticeWA");
+				portalAttachmentUpdateFilePaths = Collections.<String>emptyList();
 			} else {
 				updateFilePaths = "05".equals(strState) || "06".equals(strState)
 						|| "09".equals(strState)
 						|| "013".equals(strState) ? Collections.<String>emptyList() : splitPortalFilePaths(filePath);
+				portalAttachmentUpdateFilePaths = updateFilePaths;
 			}
 			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
 				replace06AArchiveAttachments(id, updateFilePaths);
-			if (portalService.updatePortalWithAttachments(portalDto, updateFilePaths, attachmentStage) > 0) {
+			if (portalService.updatePortalWithAttachments(portalDto, portalAttachmentUpdateFilePaths, null) > 0) {
             // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
             if ("02B".equals(strState) && !"02B".equals(fromState)) {
                 try {
@@ -2401,6 +2406,11 @@ public class PortalController extends BaseController {
 			if ("02".equals(toState) || isCustomerButtonTransition(fromState, toState)) {
 				// 状态02及客户邮件按钮触发的状态流转，日志角色固定记录为客户。
 				portalLogDto.setRole("客户");
+			}
+			if ("客户".equals(portalLogDto.getRole())) {
+				// 客户操作不关联后台操作人，避免把登录用户信息写入客户日志。
+				portalLogDto.setOperatorId(null);
+				portalLogDto.setOperatorName(null);
 			}
 			portalLogService.addPortalLog(portalLogDto);
 		} catch (Exception e) {
