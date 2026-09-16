@@ -470,8 +470,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isNotEmpty(remark))
 			content.append("<p><strong>")
 					.append(state == PortalFollowUpState.REQUEST_SUPPLEMENT ? "补料说明" : "备注说明")
-					.append("：</strong></p><div style=\"white-space:pre-wrap;line-height:1.8;\">")
-					.append(htmlEscape(remark)).append("</div>");
+					.append("：</strong></p><div style=\"white-space:pre-wrap;line-height:1.8;\"><strong>")
+					.append(htmlEscape(remark)).append("</strong></div>");
 		if (state == PortalFollowUpState.REQUEST_SUPPLEMENT && StringUtil.isNotEmpty(customerUrl))
 			content.append("<p><strong>补料链接：</strong><a href=\"")
 					.append(htmlEscape(customerUrl)).append("\">")
@@ -584,7 +584,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isNotEmpty(remark)) {
 			String safeRemark = htmlEscape(remark).replace("\r\n", "<br>").replace("\n", "<br>")
 					.replace("\r", "<br>");
-			content.append("<p>文案的备注说明：").append(safeRemark).append("</p>");
+			content.append("<p><strong>文案的备注说明：</strong><br><strong>")
+					.append(safeRemark).append("</strong></p>");
 		}
 		content.append("<p style=\"margin:24px 0;\">")
 				.append("<a href=\"").append(htmlEscape(confirmUrl))
@@ -608,7 +609,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isNotEmpty(remark)) {
 			String safeRemark = htmlEscape(remark).replace("\r\n", "<br>").replace("\n", "<br>")
 					.replace("\r", "<br>");
-			content.append("<p>文案的备注说明：").append(safeRemark).append("</p>");
+			content.append("<p><strong>文案的备注说明：</strong><br><strong>")
+					.append(safeRemark).append("</strong></p>");
 		}
 		content.append("<p style=\"margin:24px 0;\">")
 				.append("<a href=\"").append(htmlEscape(confirmUrl))

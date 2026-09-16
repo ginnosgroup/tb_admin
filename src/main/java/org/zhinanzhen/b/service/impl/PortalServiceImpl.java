@@ -357,7 +357,7 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
 					.append(mailRow("客户姓名", customerName))
 					.append(mailRow("顾问名称", adviserName))
-					.append(mailRow(remarkLabel, notificationRemark))
+					.append(mailRow(remarkLabel, notificationRemark, StringUtil.isNotEmpty(remark)))
 					.append(mailRow(dateLabel, noticeDate))
 					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">"
@@ -628,7 +628,8 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 					.append(mailRow("客户姓名", customerName))
 					.append(mailRow("顾问名称", adviserName));
 			if (!approved)
-				content.append(mailRow("驳回说明", StringUtil.isEmpty(remark) ? materialName + "审核驳回" : remark));
+				content.append(mailRow("驳回说明", StringUtil.isEmpty(remark) ? materialName + "审核驳回" : remark,
+						StringUtil.isNotEmpty(remark)));
 			content.append(mailRow(approved ? "审核通过时间" : "驳回时间", noticeDate))
 					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
 							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">")
@@ -694,10 +695,16 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 	}
 
 	private String mailRow(String label, String value) {
+		return mailRow(label, value, false);
+	}
+
+	private String mailRow(String label, String value, boolean boldValue) {
+		String escapedValue = escapeHtml(value);
 		return "<tr><td width=\"120\" nowrap=\"nowrap\" "
 				+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\"><strong>"
 				+ escapeHtml(label)
-				+ "</strong></td><td style=\"padding:6px 0;white-space:pre-wrap;\">" + escapeHtml(value)
+				+ "</strong></td><td style=\"padding:6px 0;white-space:pre-wrap;\">"
+				+ (boldValue ? "<strong>" + escapedValue + "</strong>" : escapedValue)
 				+ "</td></tr>";
 	}
 
