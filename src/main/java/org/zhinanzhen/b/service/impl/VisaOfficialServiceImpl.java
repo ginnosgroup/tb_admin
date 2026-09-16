@@ -875,8 +875,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 netAud.max(BigDecimal.ZERO).doubleValue(), seasonalRate, 1, grade, commission,
                 Collections.<ServiceOrderDTO>emptyList(), null, false, false, official,
                 1, false, false, 0, new ServiceOrderDO());
-        commission.setPredictCommissionAmount(phase.allocate(commission.getPredictCommissionAmount()));
-        commission.setCommissionAmount(phase.allocate(commission.getCommissionAmount()));
+        // 计入佣金提点金额(预估/确认)记录整笔visa收款对应的完整计算基数，不能按结算阶段拆分。
         commission.setPredictCommission(phase.allocate(commission.getPredictCommission()));
         commission.setPredictCommissionCNY(phase.allocate(commission.getPredictCommissionCNY()));
         commission.setExtraAmount(phase.allocate(commission.getExtraAmount()));
@@ -886,8 +885,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 throw completionPhaseError("佣金订单汇率必须大于0。");
             receiptCurrencyRate = BigDecimal.valueOf(commission.getExchangeRate());
         }
-        commission.setAmount(phase.allocate(receivedAud.multiply(receiptCurrencyRate)).doubleValue());
-        commission.setPerAmount(phase.allocate(dueAud.multiply(receiptCurrencyRate)).doubleValue());
+        // 收款信息按对应 b_visa 的总收款保存；阶段比例只作用于佣金/预估业绩字段。
+        BigDecimal totalAmount = receivedAud.multiply(receiptCurrencyRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalPerAmount = dueAud.multiply(receiptCurrencyRate).setScale(2, RoundingMode.HALF_UP);
+        commission.setAmount(totalAmount.doubleValue());
+        commission.setPerAmount(totalPerAmount.doubleValue());
         commission.setReceived(commission.getAmount());
         commission.setReceivable(commission.getPerAmount());
         commission.setDiscount(commission.getPerAmount() - commission.getAmount());

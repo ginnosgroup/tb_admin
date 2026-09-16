@@ -272,35 +272,38 @@ public class PortalController extends BaseController {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
 		}
-		// 在upload接口里就新增 b_portal_attachment 的数据
-		PortalAttachmentDTO portalAttachmentDto = new PortalAttachmentDTO();
-		portalAttachmentDto.setPortalId(portalId);
-		portalAttachmentDto.setFileName(file.getOriginalFilename());
-		portalAttachmentDto.setFilePath(uploadResp.getData());
-		portalAttachmentDto.setFileSize(file.getSize());
-		portalAttachmentDto.setIp(getClientIp(request));
-		portalAttachmentDto.setUserAgent(request.getHeader("User-Agent"));
-		String fileExt = extractFileExtension(originalName);
-		// fileType是业务阶段，保存到stage；file_type只保存文件实际的MIME类型。
-		portalAttachmentDto.setFileType(normalizeStoredFileType(fileExt, file.getContentType()));
-		if (StringUtil.isNotEmpty(fileExt))
-			portalAttachmentDto.setFileExt(fileExt);
-		portalAttachmentDto.setStage("apply");
-		if (uploadStage != null)
-			portalAttachmentDto.setStage(uploadStage);
-		if (StringUtil.isNotEmpty(attachmentState))
-			portalAttachmentDto.setAttachmentState(attachmentState.trim());
-		// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
-		if (aiText != null) {
-			portalAttachmentDto
-					.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
-		}
+		PortalAttachmentDTO portalAttachmentDto = null;
 		int attachmentId = 0;
 		try {
-			attachmentId = portalAttachmentService.addPortalAttachment(portalAttachmentDto);
-			if (attachmentId <= 0) {
-				super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
-				return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
+			// signature/956MA 属于 Mara 文件，只保存到 b_mara，不新增 b_portal_attachment。
+			if (!maraFileUpload) {
+				portalAttachmentDto = new PortalAttachmentDTO();
+				portalAttachmentDto.setPortalId(portalId);
+				portalAttachmentDto.setFileName(file.getOriginalFilename());
+				portalAttachmentDto.setFilePath(uploadResp.getData());
+				portalAttachmentDto.setFileSize(file.getSize());
+				portalAttachmentDto.setIp(getClientIp(request));
+				portalAttachmentDto.setUserAgent(request.getHeader("User-Agent"));
+				String fileExt = extractFileExtension(originalName);
+				// fileType是业务阶段，保存到stage；file_type只保存文件实际的MIME类型。
+				portalAttachmentDto.setFileType(normalizeStoredFileType(fileExt, file.getContentType()));
+				if (StringUtil.isNotEmpty(fileExt))
+					portalAttachmentDto.setFileExt(fileExt);
+				portalAttachmentDto.setStage("apply");
+				if (uploadStage != null)
+					portalAttachmentDto.setStage(uploadStage);
+				if (StringUtil.isNotEmpty(attachmentState))
+					portalAttachmentDto.setAttachmentState(attachmentState.trim());
+				// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
+				if (aiText != null) {
+					portalAttachmentDto
+							.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
+				}
+				attachmentId = portalAttachmentService.addPortalAttachment(portalAttachmentDto);
+				if (attachmentId <= 0) {
+					super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
+					return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
+				}
 			}
 			if (maraFileUpload) {
 				if (form956Upload)
@@ -324,7 +327,7 @@ public class PortalController extends BaseController {
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		result.put("attachmentId", attachmentId);
 		result.put("filePath", uploadResp.getData());
-		result.put("attachmentState", portalAttachmentDto.getAttachmentState());
+		result.put("attachmentState", portalAttachmentDto == null ? null : portalAttachmentDto.getAttachmentState());
 		if (aiText != null) {
 			result.put("aiText", portalAttachmentDto.getAiText());
 		}

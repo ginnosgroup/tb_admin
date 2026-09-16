@@ -125,6 +125,8 @@ public class VisaCompletionPhaseSettlementTest {
     @Test
     public void addInterfaceUpdatesServiceOrderAndSettlesEveryPhase() throws Exception {
         double[] gross = {110, 330, 440, 220};
+        double fullReceipt = 1100;
+        double fullCommissionBase = 1000;
         double[] base = {100, 300, 400, 200};
         double[] commission = {10, 30, 40, 20};
         for (VisaCompletionPhase phase : VisaCompletionPhase.values()) {
@@ -134,9 +136,12 @@ public class VisaCompletionPhaseSettlementTest {
             assertTrue(service.addVisa(dto, phase.name().toLowerCase(Locale.ENGLISH)) > 0);
             assertEquals(81, dto.getServiceOrderId());
             assertEquals(phase.name(), dto.getStage());
-            assertEquals(gross[i], dto.getAmount(), 0.001);
-            assertEquals(base[i], dto.getCommissionAmount(), 0.001);
+            assertEquals(fullReceipt, dto.getAmount(), 0.001);
+            assertEquals(fullReceipt, dto.getPerAmount(), 0.001);
+            assertEquals(fullCommissionBase, dto.getCommissionAmount(), 0.001);
+            assertEquals(fullCommissionBase, dto.getPredictCommissionAmount(), 0.001);
             assertEquals(commission[i], dto.getPredictCommission(), 0.001);
+            assertEquals(gross[i], dto.getExpectAmount(), 0.001);
         }
         assertEquals(4, saved.size());
         verify(orders, times(4)).updateCompletionPhase(eq(81), anyString());
@@ -195,7 +200,8 @@ public class VisaCompletionPhaseSettlementTest {
         when(officialVisaDao.updateVisaOfficial(any(VisaOfficialDO.class))).thenReturn(1);
         dto.setIsRefund(true);
         service.addVisa(dto);
-        assertEquals(300, dto.getCommissionAmount(), 0.001);
+        assertEquals(1000, dto.getCommissionAmount(), 0.001);
+        assertEquals(1000, dto.getPredictCommissionAmount(), 0.001);
         assertEquals(30, dto.getPredictCommission(), 0.001);
         verify(officialVisaDao, times(1)).addVisa(any(VisaOfficialDO.class));
         verify(officialVisaDao, times(1)).updateVisaOfficial(any(VisaOfficialDO.class));
@@ -221,8 +227,8 @@ public class VisaCompletionPhaseSettlementTest {
         VisaOfficialDTO dto = request(81);
         service.addVisa(dto, "PSA");
         assertEquals(4.8, dto.getExchangeRate(), 0.001);
-        assertEquals(528, dto.getAmount(), 0.001);
-        assertEquals(110, dto.getAmount() / dto.getExchangeRate(), 0.001);
+        assertEquals(5280, dto.getAmount(), 0.001);
+        assertEquals(1100, dto.getAmount() / dto.getExchangeRate(), 0.001);
         assertEquals(10, dto.getPredictCommission(), 0.001);
     }
 
