@@ -890,6 +890,8 @@ public class PortalController extends BaseController {
 		boolean customerActionRequest = "04".equals(strState) || "02C".equals(strState)
 				|| customerMaterialsFlow
 				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code);
+		// 合同确认进入04时保留原有状态流转和通知逻辑，但统一返回JSON，不再返回HTML页面。
+		boolean customerJsonResponse = "04".equals(strState);
 		if (StringUtil.isNotEmpty(idList))
 			return updatePortalBatch(idList, typeId, caseType, name, gender, birthday, passport, jsonStr,
 					contractStr, adviserId, officialId, maraId, serviceOrderId, strState, result, code, remark, filePath,
@@ -914,40 +916,44 @@ public class PortalController extends BaseController {
 			}
 			if (oldPortalDto != null && "013".equals(fromState)) {
 				if (customerActionRequest)
-					return customerResultPage(oldPortalDto, normalizedResult, false,
-							PortalWriteGuard.ARCHIVED_MESSAGE, response);
+					return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
+							PortalWriteGuard.ARCHIVED_MESSAGE, response, customerMaterialsFlow, customerSupplementAction);
 				return new Response<PortalDTO>(1, PortalWriteGuard.ARCHIVED_MESSAGE, null);
 			}
 			// 新增补料/结果流程按说明由文案或MARA操作，并沿用现有案件归属权限。
 			if (followUpState != null && followUpState.isFollowUp())
 				validateFollowUpRequest(followUpState, id, remark, filePath, request);
 			if (customerActionRequest && !customerResultRequest)
-				return customerResultPage(oldPortalDto, normalizedResult, false,
+				return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
 						customerSupplementAction ? "补充材料操作链接参数不完整，请联系您的顾问。"
 								: customerMaterialsAction ? "申请材料操作链接参数不完整，请联系您的顾问。"
-								: "合同操作链接参数不完整，请联系您的顾问。", response);
+								: "合同操作链接参数不完整，请联系您的顾问。", response, customerMaterialsFlow,
+						customerSupplementAction);
 			if ("confirmed".equals(normalizedResult)
 					&& !("04".equals(strState) || "07".equals(strState) || "010G".equals(strState)))
-				return customerResultPage(null, normalizedResult, false,
+				return customerUpdateResponse(customerJsonResponse, null, normalizedResult, false,
 						customerSupplementAction ? "确认补充材料链接参数不完整，请联系您的顾问。"
 								: "confirmed".equals(normalizedResult) && customerMaterialsAction
 								? "确认申请材料链接参数不完整，请联系您的顾问。"
-								: "确认签署链接参数不完整，请联系您的顾问。", response);
+								: "确认签署链接参数不完整，请联系您的顾问。", response, customerMaterialsFlow,
+						customerSupplementAction);
 			if ("returned".equals(normalizedResult)
 					&& !("02C".equals(strState) || "06A".equals(strState) || "010E".equals(strState)))
-				return customerResultPage(null, normalizedResult, false,
+				return customerUpdateResponse(customerJsonResponse, null, normalizedResult, false,
 						customerSupplementAction ? "退回补充材料链接参数不完整，请联系您的顾问。"
 								: "returned".equals(normalizedResult) && customerMaterialsAction
 								? "退回申请材料链接参数不完整，请联系您的顾问。"
-								: "退回修改链接参数不完整，请联系您的顾问。", response);
+								: "退回修改链接参数不完整，请联系您的顾问。", response, customerMaterialsFlow,
+						customerSupplementAction);
 			if (customerActionRequest) {
 				if (!isValidPortalActionCode(oldPortalDto, normalizedResult, code)) {
 					savePortalLog(id, "customer_action_code_invalid", fromState, fromState,
 							"客户合同操作链接code校验失败", request);
-					return customerResultPage(oldPortalDto, normalizedResult, false,
+					return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
 						customerSupplementAction ? "该补充材料操作链接无效或案件人员信息已经变更，请联系您的顾问。"
 								: customerMaterialsAction ? "该申请材料操作链接无效或案件人员信息已经变更，请联系您的顾问。"
-								: "该合同操作链接无效或案件人员信息已经变更，请联系您的顾问。", response);
+								: "该合同操作链接无效或案件人员信息已经变更，请联系您的顾问。", response, customerMaterialsFlow,
+						customerSupplementAction);
 				}
 				String targetState = strState;
 				String expectedFromState = customerSupplementAction ? "010F"
@@ -965,10 +971,10 @@ public class PortalController extends BaseController {
 								: (customerSupplementAction ? "该案件已经退回补充材料，无需重复操作。"
 										: customerMaterialsAction ? "该案件已经退回申请材料，无需重复操作。"
 										: "该案件已经提交退回修改，无需重复操作。");
-						return customerActionResultPage(oldPortalDto, normalizedResult, true, completedMessage, response,
-								customerMaterialsFlow, customerSupplementAction);
+						return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, true,
+								completedMessage, response, customerMaterialsFlow, customerSupplementAction);
 					}
-					return customerActionResultPage(oldPortalDto, normalizedResult, false,
+					return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
 							customerSupplementAction ? "补充材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
 									: customerMaterialsAction ? "申请材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
 									: "案件状态已经发生变化，本次操作未执行，请联系您的顾问。", response,
@@ -1075,8 +1081,9 @@ public class PortalController extends BaseController {
 						}
                     LOG.error("案件状态转为02B后生成合同和建议信失败，portalId={}", id, documentException);
 						if (customerResultRequest)
-							return customerResultPage(null, normalizedResult, false,
-									"合同、建议信和Form 956生成失败，请联系您的顾问。", response);
+							return customerUpdateResponse(customerJsonResponse, null, normalizedResult, false,
+									"合同、建议信和Form 956生成失败，请联系您的顾问。", response, customerMaterialsFlow,
+									customerSupplementAction);
 						return new Response<PortalDTO>(documentException.getCode(), documentException.getMessage(), portalDto);
 					}
 				}
@@ -1337,9 +1344,9 @@ public class PortalController extends BaseController {
 						LOG.error("客户已确认签署，但文案通知邮件发送失败，portalId={}", id,
 								notificationException);
 						if (customerResultRequest)
-							return customerResultPage(portalDto, normalizedResult, false,
+							return customerUpdateResponse(customerJsonResponse, portalDto, normalizedResult, false,
 									"您已完成确认，案件状态已更新为04，但系统暂时未能发送文案通知，请联系工作人员。",
-									response);
+									response, customerMaterialsFlow, customerSupplementAction);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为04，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
@@ -1414,26 +1421,29 @@ public class PortalController extends BaseController {
 										+ "顾问邮箱地址是：" + adviserEmail(resultPortalDto)
 										+ "。顾问会尽快与您联系，感谢您的理解与耐心。";
 					}
-					return customerActionResultPage(resultPortalDto, normalizedResult, true, message, response,
-							materialsResult, supplementaryResult);
+					return customerUpdateResponse(customerJsonResponse, resultPortalDto, normalizedResult, true, message,
+							response, materialsResult, supplementaryResult);
 				}
 				return new Response<PortalDTO>(0, portalDto);
 			} else {
 				if (customerResultRequest)
-					return customerResultPage(portalDto, normalizedResult, false,
-							"案件状态暂未更新成功，请稍后重试或联系您的顾问。", response);
+					return customerUpdateResponse(customerJsonResponse, portalDto, normalizedResult, false,
+							"案件状态暂未更新成功，请稍后重试或联系您的顾问。", response, customerMaterialsFlow,
+							customerSupplementAction);
 				return new Response<PortalDTO>(1, "修改失败.", null);
 			}
 		} catch (ServiceException e) {
 			if (customerResultRequest)
-				return customerResultPage(null, normalizedResult, false,
-						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
+				return customerUpdateResponse(customerJsonResponse, null, normalizedResult, false,
+						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response, customerMaterialsFlow,
+						customerSupplementAction);
 			return new Response<PortalDTO>(e.getCode(), e.getMessage(), null);
 		} catch (Exception e) {
 			LOG.error("更新案件发生异常，portalId={}", id, e);
 			if (customerResultRequest)
-				return customerResultPage(null, normalizedResult, false,
-						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response);
+				return customerUpdateResponse(customerJsonResponse, null, normalizedResult, false,
+						"系统暂时无法处理该操作，请稍后重试或联系您的顾问。", response, customerMaterialsFlow,
+						customerSupplementAction);
 			return new Response<PortalDTO>(1, e.getMessage(), null);
 		}
 	}
@@ -2175,6 +2185,18 @@ public class PortalController extends BaseController {
 		return "暂未配置，请联系工作人员获取";
 	}
 
+	/** 客户更新案件时，合同确认04按接口方式返回JSON；其他客户流程继续返回原有HTML结果页。 */
+	private Object customerUpdateResponse(boolean jsonResponse, PortalDTO portalDto, String result, boolean success,
+			String message, HttpServletResponse response, boolean materialsAction, boolean supplementaryAction) {
+		if (jsonResponse) {
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("application/json;charset=UTF-8");
+			return new Response<PortalDTO>(success ? 0 : 1, message, success ? portalDto : null);
+		}
+		return customerActionResultPage(portalDto, result, success, message, response, materialsAction,
+				supplementaryAction);
+	}
+
 	private String customerResultPage(PortalDTO portalDto, String result, boolean success, String message,
 			HttpServletResponse response) {
 		prepareCustomerActionResponse(response);
@@ -2230,6 +2252,14 @@ public class PortalController extends BaseController {
 				: materialsAction ? (confirmed ? "07" : "06A") : (confirmed ? "04" : "02C");
 		String result = confirmed ? "confirmed" : "returned";
 		String code = encryptPortalActionCode(portalDto, result);
+		// 合同“确认签署”按钮先进入客户案件页面，由客户页面携带code读取案件信息；
+		// 退回修改仍直接调用状态更新接口。
+		if ("confirm".equals(normalizedAction)) {
+			String customerPageUrl = StringUtil.isNotEmpty(portalCustomerFrontendUrl)
+					? portalCustomerFrontendUrl.trim().replaceAll("/+$", "")
+					: "http://127.0.0.1:8001/webroot_new/portalfront/customer";
+			return customerPageUrl + "?id=" + portalDto.getId() + "&code=" + code;
+		}
 		String baseUrl = StringUtil.isNotEmpty(portalCustomerActionBaseUrl)
 				? portalCustomerActionBaseUrl.trim().replaceAll("/+$", "")
 				: buildPortalPublicBaseUrl(request);
@@ -2460,11 +2490,16 @@ public class PortalController extends BaseController {
 	@ResponseBody
 	public Response<PortalDTO> getPortal(@RequestParam(value = "id") Integer id,
 			@RequestParam(value = "name", required = false) String name, HttpServletRequest request,
-			HttpServletResponse response) {
+			@RequestParam(value = "code", required = false) String code, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
 			// 此接口不需要验证登录，不做数据权限过滤
 			PortalDTO portalDto = portalService.getPortalByName(id, name, null, null, null, null, null);
+			// 客户合同确认邮件进入客户页面时，必须使用邮件中的确认code才能读取案件数据。
+			// 未携带code时保留后台现有的公开查询行为，避免影响已存在的管理端页面。
+			if (StringUtil.isNotEmpty(code)
+					&& (portalDto == null || !isValidPortalActionCode(portalDto, "confirmed", code)))
+				return new Response<PortalDTO>(1, "客户访问链接无效或已失效。", null);
 			if (portalDto != null) {
 				// 文案角色不能查看01、02阶段案件；未登录访问仍保持原有公开详情接口行为。
 				if (isOfficialRoleRequest(request) && isOfficialHiddenState(portalDto.getStrState()))
