@@ -446,7 +446,7 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 对 application/applicationWA/openAFile/supplementary/notice 阶段解析上传替换规则。 */
+	/** 对 application/applicationWA/openAFile/supplementary/notice/contractConfirmed 阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
@@ -462,6 +462,8 @@ public class PortalController extends BaseController {
 			return "notice";
 		if ("noticeWA".equalsIgnoreCase(fileType))
 			return "noticeWA";
+		if ("contractConfirmed".equalsIgnoreCase(fileType))
+			return "contractConfirmed";
 		return null;
 	}
 
