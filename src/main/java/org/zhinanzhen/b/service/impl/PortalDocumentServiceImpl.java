@@ -42,6 +42,8 @@ import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.b.utils.Form956PdfGenerator;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -98,6 +100,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	@Resource
 	private MaraService maraService;
+
+	@Resource
+	private AdviserDAO adviserDao;
 
 	@Override
 	public Map<String, String> generateDocuments(PortalDTO portalDto) throws ServiceException {
@@ -231,8 +236,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
 		Path form956Path = requireGeneratedFile(form956FilePath, "Form 956 PDF");
 		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
+		String adviserEmail = resolveAdviserEmail(portalDto);
 		String title = "【指南针留学移民】485签证合同、建议信和Form 956";
-		String content = build485ContractEmail(data.fullName, adviserName, confirmUrl, returnUrl);
+		String content = build485ContractEmail(data.fullName, adviserName, adviserEmail, confirmUrl, returnUrl);
 		try {
 			sendMailWithAttachments(data.email, title, content, contractPath.toFile(), advicePath.toFile(),
 				form956Path.toFile());
@@ -549,17 +555,23 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return resolveUploadDataRoot().resolve(relativePath).toAbsolutePath().normalize();
 	}
 
-	private String build485ContractEmail(String customerName, String adviserName, String confirmUrl,
+	private String build485ContractEmail(String customerName, String adviserName, String adviserEmail, String confirmUrl,
 			String returnUrl) {
 		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
 		String safeAdviserName = htmlEscape(firstNonEmpty(adviserName, "您的顾问"));
+		String safeAdviserEmail = htmlEscape(firstNonEmpty(adviserEmail, "暂未配置"));
 		StringBuilder content = new StringBuilder();
 		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
 		content.append("<p>感谢您对指南针留学移民的信任。我们已根据目前系统中登记的客户信息，为您生成了485签证服务合同、建议信和Form 956，并随本邮件一并发送。</p>");
-		content.append("<p>请您下载并仔细核对三份附件中的姓名、联系方式、护照及学习经历等信息。如发现任何信息有误或需要补充，请先退回修改，并及时联系您的顾问 <strong>")
+		content.append("<p>请您下载并仔细核对三份附件中的姓名、联系方式、护照及学习经历等信息。</p>");
+		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
+			content.append("<p>确认无误后，请点击下面的“确认签署”按钮，并将签好名的合同文件，电邮给我们的顾问（邮箱：")
+					.append(safeAdviserEmail).append("）。</p>");
+		}
+		content.append("<p>如发现任何信息有误或需要补充，请先退回修改，并及时联系您的顾问 <strong>")
 				.append(safeAdviserName).append("</strong>。</p>");
 		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
-			content.append("<p>确认无误后，请点击下面的“确认签署”按钮；如需修改，请点击“退回修改”按钮：</p>")
+			content.append("<p>如需修改，请点击下面的“退回修改”按钮。</p>")
 					.append("<p style=\"margin:24px 0;\">")
 					.append("<a href=\"").append(htmlEscape(confirmUrl))
 					.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
@@ -573,6 +585,19 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		}
 		content.append("<p>指南针留学移民</p>");
 		return content.toString();
+	}
+
+	private String resolveAdviserEmail(PortalDTO portalDto) {
+		if (portalDto == null || portalDto.getAdviserId() <= 0 || adviserDao == null)
+			return null;
+		try {
+			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+			if (adviserDo != null && StringUtil.isNotEmpty(adviserDo.getEmail()))
+				return adviserDo.getEmail().trim();
+		} catch (Exception ignored) {
+			// 邮箱查询失败时由邮件正文显示“暂未配置”，不影响合同附件发送流程。
+		}
+		return null;
 	}
 
 	private String buildApplicationMaterialsEmail(String customerName, String remark, String confirmUrl,
