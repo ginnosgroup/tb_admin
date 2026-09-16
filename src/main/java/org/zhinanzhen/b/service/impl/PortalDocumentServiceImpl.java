@@ -8,12 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -119,6 +121,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			CustomerDocumentData data = buildCustomerData(portalDto);
 			Path outputDir = resolveOutputDirectory();
 			Files.createDirectories(outputDir);
+			ensureGeneratedDirectoryReadable(outputDir);
 
 			String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date());
 			String customerSuffix = safeFileName(data.fullName);
@@ -146,6 +149,10 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			// Form 956 使用 b_mara.956path 指定的模板文件生成。
 			Form956PdfGenerator.generateFromPath(form956TemplatePath, form956Path,
 					portalDto.getJsonStr(), portalDto.getContractStr(), data.maraId);
+			// Nginx以nginx用户读取生成文件；避免服务器umask为077时新文件再次返回403。
+			ensureGeneratedFileReadable(contractPath);
+			ensureGeneratedFileReadable(advicePath);
+			ensureGeneratedFileReadable(form956Path);
 
 			Map<String, String> paths = new LinkedHashMap<String, String>();
 			// 与uploadAttachment保持一致，数据库保存访问路径而不是当前机器的物理绝对路径。
@@ -178,6 +185,35 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		}
 		// 允许通过配置继续指定自定义绝对目录。
 		return Paths.get(configuredDirectory).toAbsolutePath().normalize();
+	}
+
+	/** 让Nginx可以遍历生成文件目录；不支持POSIX权限的系统保持原有行为。 */
+	private void ensureGeneratedDirectoryReadable(Path directory) throws IOException {
+		if (directory == null)
+			return;
+		try {
+			Set<PosixFilePermission> permissions = EnumSet.of(PosixFilePermission.OWNER_READ,
+					PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE,
+					PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_EXECUTE,
+					PosixFilePermission.OTHERS_READ, PosixFilePermission.OTHERS_EXECUTE);
+			Files.setPosixFilePermissions(directory, permissions);
+		} catch (UnsupportedOperationException ignored) {
+			// Windows文件系统不支持POSIX权限设置。
+		}
+	}
+
+	/** 让Nginx可以读取新生成的合同、Letter和Form 956文件。 */
+	private void ensureGeneratedFileReadable(Path file) throws IOException {
+		if (file == null)
+			return;
+		try {
+			Set<PosixFilePermission> permissions = EnumSet.of(PosixFilePermission.OWNER_READ,
+					PosixFilePermission.OWNER_WRITE, PosixFilePermission.GROUP_READ,
+					PosixFilePermission.OTHERS_READ);
+			Files.setPosixFilePermissions(file, permissions);
+		} catch (UnsupportedOperationException ignored) {
+			// Windows文件系统不支持POSIX权限设置。
+		}
 	}
 
 	/** 将生成文件转换为与upload2相同格式的/uploads相对路径。 */
