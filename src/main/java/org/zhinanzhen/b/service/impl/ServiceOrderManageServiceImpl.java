@@ -751,10 +751,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         }
         if (serviceAssessDO != null) {
             serviceOrderDto.setServiceAssessDO(serviceAssessDO);
-            ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
-            if (categoryIdByServiceOrderId != null) {
-                serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
-            }
+        }
+        // 主订单的service_assess_id可能为0，但b_assess_category仍通过service_order_id关联，不能依赖职业信息是否存在。
+        ServiceCategory categoryIdByServiceOrderId = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+        if (categoryIdByServiceOrderId != null) {
+            serviceOrderDto.setServiceCategory(categoryIdByServiceOrderId);
         }
         if (serviceOrderDto.getServiceAssessId() != null && "0".equalsIgnoreCase(serviceOrderDto.getServiceAssessId())) {
             serviceOrderDto.setServiceAssessDO(new ServiceAssessDO());

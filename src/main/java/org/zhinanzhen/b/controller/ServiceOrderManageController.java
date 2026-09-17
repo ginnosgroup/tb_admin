@@ -6651,7 +6651,7 @@ public class ServiceOrderManageController extends BaseController {
                             if (StringUtil.isNotEmpty(officialId))
                                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
                             msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
-                                    serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
+                                    serviceOrderAndManage, adminUserLoginInfo, traServiceOrder, serviceOrderId);
                         }
                         if (serviceOrderApplicantList.size() == 1)
                             break;
@@ -6665,7 +6665,7 @@ public class ServiceOrderManageController extends BaseController {
                             serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
                             serviceOrderDto.setServiceAssessId(s);
                             msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
-                                    serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
+                                    serviceOrderAndManage, adminUserLoginInfo, traServiceOrder, serviceOrderId);
                         }
                     } else if (traServiceOrder && serviceAssessCategorysplit != null
                             && serviceAssessCategorysplit.length == 1) {
@@ -6675,7 +6675,7 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
                         serviceOrderDto.setServiceAssessId(serviceAssessCategorysplit[0]);
                         msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
-                                serviceOrderAndManage, adminUserLoginInfo, true);
+                                serviceOrderAndManage, adminUserLoginInfo, true, serviceOrderId);
                         serviceOrderDto.setId(serviceOrderId);
                         serviceOrderDto.setApplicantParentId(0);
                         serviceOrderDto.setCompletionPhase(null);
@@ -6684,7 +6684,7 @@ public class ServiceOrderManageController extends BaseController {
                         serviceOrderDto.setId(0);
                         serviceOrderDto.setVerifyCode(null);
                         msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
-                                serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
+                                serviceOrderAndManage, adminUserLoginInfo, traServiceOrder, serviceOrderId);
                     }
                 }
                 if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
@@ -6853,12 +6853,14 @@ public class ServiceOrderManageController extends BaseController {
      */
     private String addApplicantChildServiceOrders(ServiceOrderDTO order, ServiceOrderApplicantDTO applicant,
                                                   ServiceOrderAndManage relation, AdminUserLoginInfo operator,
-                                                  boolean traServiceOrder) throws ServiceException {
+                                                  boolean traServiceOrder, int parentOrderId) throws ServiceException {
         String[] phases = traServiceOrder
                 ? new String[]{"PSA", "JRE", "JRWA", "JRFA"} : new String[]{null};
         String message = "";
         for (String phase : phases) {
             order.setId(0);
+            if (traServiceOrder)
+                order.setParentId(parentOrderId);
             order.setCompletionPhase(phase);
             if (traServiceOrder)
                 order.setState(ServiceOrderController.ReviewAdviserStateEnum.REVIEW.toString());
