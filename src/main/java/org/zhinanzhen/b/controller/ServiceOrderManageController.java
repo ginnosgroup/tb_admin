@@ -3347,9 +3347,19 @@ public class ServiceOrderManageController extends BaseController {
                         }
 
                         sheet.addCell(new Label(15, i, so.getService().getCode() + tmp + servicepakageName, subRowFormat));
-                        if (so.getServiceAssessDO() != null)
-                            sheet.addCell(new Label(14, i,
-                                    so.getService().getCode() + " - " + so.getServiceAssessDO().getName(), subRowFormat));
+                        String assessName = so.getServiceAssessDO() == null ? null : so.getServiceAssessDO().getName();
+                        String categoryName = so.getServiceCategory() == null ? null : so.getServiceCategory().getName();
+                        if (StringUtil.isNotEmpty(assessName) || StringUtil.isNotEmpty(categoryName)
+                                || StringUtil.isNotEmpty(so.getCompletionPhase())) {
+                            // 与文案佣金导出保持一致，项目列包含职评类别、职业及该服务订单的结算阶段。
+                            VisaOfficialExportServiceDO exportService = new VisaOfficialExportServiceDO();
+                            exportService.setServiceName(so.getService().getName());
+                            exportService.setServiceCode(so.getService().getCode());
+                            exportService.setCategoryName(categoryName);
+                            exportService.setAssessName(assessName);
+                            exportService.setCompletionPhase(so.getCompletionPhase());
+                            sheet.addCell(new Label(15, i, exportService.serviceItem(), subRowFormat));
+                        }
                     }
                     if (so.getSchool() != null) {
                         sheet.addCell(new Label(14, i, " 留学 ", subRowFormat));
@@ -6510,6 +6520,39 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             }
 
+            // 单申请人、单职业且无服务包时，原来只生成一条订单；TRA直接生成四条同级阶段订单。
+            if (isTraServiceOrderRequest(serviceOrderJsonRequest)
+                    && StringUtil.isEmpty(servicePackageIds)
+                    && serviceAssessCategorysplit != null && serviceAssessCategorysplit.length == 1
+                    && serviceOrderApplicantList.size() == 1) {
+                ServiceOrderApplicantDTO applicant = serviceOrderApplicantList.get(0);
+                if (applicant.getApplicantId() <= 0)
+                    return new Response<Integer>(1, "申请人参数错误.", null);
+                ServiceOrderAndManage relation = new ServiceOrderAndManage();
+                relation.setServiceOrderManageId(manageId);
+                serviceOrderDto.setApplicantId(applicant.getApplicantId());
+                serviceOrderDto.setApplicantParentId(0);
+                serviceOrderDto.setParentId(0);
+                addApplicantChildServiceOrders(serviceOrderDto, applicant, relation, adminUserLoginInfo, true);
+                if (isUpdate) {
+                    ServiceOrderDTO manageOrder = serviceOrderManageService.getServiceOrderById(manageId);
+                    if (manageOrder == null)
+                        throw new IllegalStateException("管理订单不存在，无法新增TRA阶段订单。");
+                    // 四个阶段属于同一笔业务，追加到管理订单时金额只计入一次。
+                    manageOrder.setReceivable(manageOrder.getReceivable() + serviceOrderDto.getReceivable());
+                    manageOrder.setReceived(manageOrder.getReceived() + serviceOrderDto.getReceived());
+                    manageOrder.setAmount(manageOrder.getAmount() + serviceOrderDto.getAmount());
+                    manageOrder.setGst(manageOrder.getGst() + serviceOrderDto.getGst());
+                    manageOrder.setDeductGst(manageOrder.getDeductGst() + serviceOrderDto.getDeductGst());
+                    manageOrder.setBonus(manageOrder.getBonus() + serviceOrderDto.getBonus());
+                    manageOrder.setExpectAmount(manageOrder.getExpectAmount() + serviceOrderDto.getExpectAmount());
+                    manageOrder.setPerAmount(manageOrder.getPerAmount() + serviceOrderDto.getPerAmount());
+                    if (serviceOrderManageService.updateServiceOrderManage(manageOrder) <= 0)
+                        throw new IllegalStateException("管理订单金额更新失败。");
+                }
+                return new Response<Integer>(0, "创建四个TRA阶段订单成功.", serviceOrderDto.getId());
+            }
+
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
                 ServiceOrderAndManage serviceOrderAndManage = new ServiceOrderAndManage();
@@ -6823,7 +6866,7 @@ public class ServiceOrderManageController extends BaseController {
     }
 
     /**
-     * 只拆分实际子订单：每个职业/申请人的 TRA 子订单生成四个阶段，主订单不调用此方法。
+     * 每个职业/申请人的TRA生成四个阶段；单项目生成同级订单，多项目保留原父子关系。
      */
     private String addApplicantChildServiceOrders(ServiceOrderDTO order, ServiceOrderApplicantDTO applicant,
                                                   ServiceOrderAndManage relation, AdminUserLoginInfo operator,
@@ -6855,6 +6898,8 @@ public class ServiceOrderManageController extends BaseController {
                     throw new IllegalStateException("TRA阶段子订单申请人关联失败：" + phase);
                 message += "申请人子服务订单创建失败(" + applicant + "). ";
             }
+            // 同组阶段共享业务code，但银行对账code/refNo只能保存一份。
+            clearVerifyCodeAndRefNo(order);
         }
         return message;
     }

@@ -22,6 +22,7 @@ import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.VisaCompletionPhase;
+import org.zhinanzhen.b.service.TraPhaseOrderGroup;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -837,6 +838,7 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
 
         // applicant_parent_id指向父订单时，父订单的visa收款按逻辑子订单数均摊。
         List<VisaDO> receipts;
+        boolean standalonePhaseGroup = false;
         BigDecimal allocation = BigDecimal.ONE;
         if (order.getApplicantParentId() > 0) {
             List<ServiceOrderDO> children = serviceOrderDao.listByApplicantParentId(order.getApplicantParentId());
@@ -848,6 +850,22 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             receipts = visaDAO.listVisaByServiceOrderId(order.getApplicantParentId());
         } else {
             receipts = visaDAO.listVisaByServiceOrderId(serviceOrderId);
+            if (TraPhaseOrderGroup.isStandalone(order)) {
+                List<ServiceOrderDO> peers = serviceOrderDao.listStandaloneTraPhaseOrders(serviceOrderId);
+                standalonePhaseGroup = peers != null && peers.size() > 1;
+                if (standalonePhaseGroup) {
+                    // 无收款父订单的四个阶段，共享同一业务组下实际存在的visa收款。
+                    Map<Integer, VisaDO> groupReceipts = new LinkedHashMap<>();
+                    for (ServiceOrderDO peer : peers) {
+                        List<VisaDO> peerReceipts = peer.getId() == serviceOrderId ? receipts
+                                : visaDAO.listVisaByServiceOrderId(peer.getId());
+                        if (peerReceipts != null)
+                            for (VisaDO receipt : peerReceipts)
+                                groupReceipts.put(receipt.getId(), receipt);
+                    }
+                    receipts = new ArrayList<>(groupReceipts.values());
+                }
+            }
             if (CollectionUtils.isEmpty(receipts)) {
                 ServiceOrderAndManage relation = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderId);
                 if (relation != null && relation.getServiceOrderManageId() != null) {
@@ -919,6 +937,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             double parentCommissionAmount = parentReceivedAud.setScale(2, RoundingMode.HALF_UP).doubleValue();
             commission.setPredictCommissionAmount(parentCommissionAmount);
             commission.setCommissionAmount(parentCommissionAmount);
+        } else if (standalonePhaseGroup) {
+            double groupCommissionAmount = receivedAud.setScale(2, RoundingMode.HALF_UP).doubleValue();
+            commission.setPredictCommissionAmount(groupCommissionAmount);
+            commission.setCommissionAmount(groupCommissionAmount);
         }
         BigDecimal receiptCurrencyRate = BigDecimal.ONE;
         if ("CNY".equalsIgnoreCase(order.getCurrency())) {

@@ -13,6 +13,7 @@ import org.zhinanzhen.b.config.ServiceOrderBatchLoader;
 import org.zhinanzhen.b.dao.*;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
+import org.zhinanzhen.b.service.TraPhaseOrderGroup;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -489,7 +490,11 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 if (visaByServiceOrderId != null || !"PENDING".equalsIgnoreCase(serviceOrderById.getState())) {
                     return "该订单已生成佣金订单，不能删除，请核实";
                 }
-                if (serviceOrderById.getApplicantParentId() == 0) {
+                List<ServiceOrderDO> phasePeers = TraPhaseOrderGroup.isStandalone(serviceOrderById)
+                        ? serviceOrderDao.listStandaloneTraPhaseOrders(id) : Collections.emptyList();
+                // 删除同组中的一个阶段时，其他阶段仍承载该笔业务，不能减掉整笔金额。
+                if (serviceOrderById.getApplicantParentId() == 0
+                        && (phasePeers == null || phasePeers.size() <= 1)) {
                     serviceOrderManageDAOServiceOrderById.setReceivable(serviceOrderManageDAOServiceOrderById.getReceivable() - serviceOrderById.getReceivable());
                     serviceOrderManageDAOServiceOrderById.setReceived(serviceOrderManageDAOServiceOrderById.getReceived() - serviceOrderById.getReceived());
                     serviceOrderManageDAOServiceOrderById.setAmount(serviceOrderManageDAOServiceOrderById.getAmount() - serviceOrderById.getAmount());

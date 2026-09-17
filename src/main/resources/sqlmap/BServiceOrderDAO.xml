@@ -3,6 +3,25 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.ServiceOrderDAO">
 
+    <select id="listStandaloneTraPhaseOrders" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
+        SELECT peer.*, peer.completion_phase AS completionPhase,
+               peer.applicant_parent_id AS applicantParentId, peer.service_id AS serviceId
+        FROM b_service_order origin
+        JOIN b_service_order peer ON peer.code = origin.code AND peer.service_id = 24
+        JOIN b_service_order_and_manage original_relation ON original_relation.service_order_id = origin.id
+        JOIN b_service_order_and_manage peer_relation ON peer_relation.service_order_id = peer.id
+            AND peer_relation.service_order_manage_id = original_relation.service_order_manage_id
+        WHERE origin.id = #{id} AND origin.service_id = 24
+          AND origin.code IS NOT NULL AND origin.code != ''
+          AND COALESCE(origin.applicant_parent_id, 0) = 0
+          AND COALESCE(peer.applicant_parent_id, 0) = 0
+          AND origin.completion_phase IN ('PSA', 'JRE', 'JRWA', 'JRFA')
+          AND peer.completion_phase IN ('PSA', 'JRE', 'JRWA', 'JRFA')
+          AND EXISTS (SELECT 1 FROM b_assess_category category
+                      WHERE category.service_order_id = origin.id AND category.service_assess_category_id = 9)
+        ORDER BY peer.id
+    </select>
+
     <insert id="addServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO" useGeneratedKeys="true"
             keyProperty="id">
         INSERT
