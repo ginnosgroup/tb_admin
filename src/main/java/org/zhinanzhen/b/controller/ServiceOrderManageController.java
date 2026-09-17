@@ -6863,7 +6863,7 @@ public class ServiceOrderManageController extends BaseController {
                 order.setParentId(parentOrderId);
             order.setCompletionPhase(phase);
             if (traServiceOrder)
-                order.setState(ServiceOrderController.ReviewAdviserStateEnum.REVIEW.toString());
+                order.setState(ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString());
             int childId = serviceOrderService.addServiceOrder(order);
             if (childId <= 0) {
                 if (traServiceOrder)
