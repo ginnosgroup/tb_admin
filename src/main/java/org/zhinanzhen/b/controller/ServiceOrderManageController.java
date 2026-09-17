@@ -42,6 +42,7 @@ import org.zhinanzhen.b.controller.nodes.SONodeFactory;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServiceAssessDao;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.ContractPdfAnalysisCacheDAO;
 import org.zhinanzhen.b.dao.pojo.*;
@@ -176,6 +177,8 @@ public class ServiceOrderManageController extends BaseController {
     private MaraDAO maraDAO;
     @Autowired
     private ServiceDAO serviceDAO;
+    @Autowired
+    private ServiceAssessDao serviceAssessDao;
     @Autowired
     private ServiceOrderManageService serviceOrderManageService;
 
@@ -4745,7 +4748,7 @@ public class ServiceOrderManageController extends BaseController {
                             String.valueOf(serviceOrderDto.getServiceId()), id, serviceOrderDto.getInstallment(), serviceOrderDto.getPaymentVoucherImageUrl1(), serviceOrderDto.getPaymentVoucherImageUrl2(),
                             serviceOrderDto.getPaymentVoucherImageUrl3(), serviceOrderDto.getPaymentVoucherImageUrl4(), serviceOrderDto.getPaymentVoucherImageUrl5(), serviceOrderDto.getVisaVoucherImageUrl(),
                             String.valueOf(serviceOrderDto.getReceivable()), String.valueOf(serviceOrderDto.getReceived()), String.valueOf(serviceOrderDto.getPerAmount()), String.valueOf(serviceOrderDto.getAmount()), serviceOrderDto.getCurrency(),
-                            String.valueOf(serviceOrderDto.getExchangeRate()), null, String.valueOf(serviceOrderDto.getAdviserId()), String.valueOf(serviceOrderDto.getMaraId()), String.valueOf(serviceOrderDto.getOfficialId()), null, serviceOrderDto.getRemarks(),
+                             String.valueOf(serviceOrderDto.getExchangeRate()), null, String.valueOf(serviceOrderDto.getAdviserId()), String.valueOf(serviceOrderDto.getMaraId()), String.valueOf(serviceOrderDto.getOfficialId()), serviceOrderDto.getCompletionPhase(), serviceOrderDto.getRemarks(),
                             serviceOrderDto.getVerifyCode(), request, response);
                 }
             }
@@ -6136,7 +6139,9 @@ public class ServiceOrderManageController extends BaseController {
         return servicePackagePriceV2DTO;
     }
 
-    public Response<Integer> addServiceOrderForManage(ServiceOrderJsonRequest serviceOrderJsonRequest, AdminUserLoginInfo adminUserLoginInfo, boolean isUpdate) {
+    public Response<Integer> addServiceOrderForManage(ServiceOrderJsonRequest serviceOrderJsonRequest,
+                                                      AdminUserLoginInfo adminUserLoginInfo,
+                                                      boolean isUpdate) {
         try {
             Integer manageId = serviceOrderJsonRequest.getManageId();
             String type = serviceOrderJsonRequest.getType();
@@ -6554,6 +6559,7 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderService.deleteServiceOrderById(ids);
                     return new Response<Integer>(1, "申请人参数错误.", null);
                 }
+                boolean traServiceOrder = isTraServiceOrderRequest(serviceOrderJsonRequest);
                 for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
                     if (serviceOrderApplicantDto.getApplicantId() <= 0)
                         continue;
@@ -6579,8 +6585,7 @@ public class ServiceOrderManageController extends BaseController {
                         } else {
                             servicePackageIdsEOIList.addAll(servicePackageIdList);
                         }
-                        serviceOrderDto.setParentId(serviceOrderDto.getId());
-                        serviceOrderDto.setId(0);
+                        serviceOrderDto.setParentId(serviceOrderId);
                         int EOICount = 0;
                         for (String servicePackageId : servicePackageIdsEOIList) {
                             int id = 0;
@@ -6632,19 +6637,8 @@ public class ServiceOrderManageController extends BaseController {
                                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId)); // 独立技术移民子订单需要mara
                             if (StringUtil.isNotEmpty(officialId))
                                 serviceOrderDto.setOfficialId(StringUtil.toInt(officialId)); // 独立技术移民子订单需要文案
-                            int i = serviceOrderService.addServiceOrder(serviceOrderDto);
-                            if (i > 0
-                                    && adminUserLoginInfo != null) {
-                                serviceOrderAndManage.setServiceOrderId(i);
-                                int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-                                serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-                                        ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-                                serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-                                if (serviceOrderApplicantService
-                                        .addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
-                                    msg += "申请人子服务订单创建失败(" + serviceOrderApplicantDto + "). ";
-                            } else
-                                msg += "子服务订单创建失败(" + serviceOrderDto + "). ";
+                            msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
+                                    serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
                         }
                         if (serviceOrderApplicantList.size() == 1)
                             break;
@@ -6657,32 +6651,14 @@ public class ServiceOrderManageController extends BaseController {
                             }
                             serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
                             serviceOrderDto.setServiceAssessId(s);
-                            int i = serviceOrderService.addServiceOrder(serviceOrderDto);
-                            if (i > 0 && adminUserLoginInfo != null) {
-                                serviceOrderAndManage.setServiceOrderId(i);
-                                int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-                                serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-                                        ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-                                serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-                                if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
-                                    msg += "申请人子服务订单创建失败(" + serviceOrderApplicantDto + "). ";
-                            } else
-                                msg += "服务订单创建失败(" + serviceOrderDto + "). ";
+                            msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
+                                    serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
                         }
                     } else if (serviceOrderApplicantList.size() > 1) {
                         serviceOrderDto.setId(0);
                         serviceOrderDto.setVerifyCode(null);
-                        int i = serviceOrderService.addServiceOrder(serviceOrderDto);
-                        if (i > 0 && adminUserLoginInfo != null) {
-                            serviceOrderAndManage.setServiceOrderId(i);
-                            int t = serviceOrderManageService.addServiceOrderAndManage(serviceOrderAndManage);
-                            serviceOrderService.approval(serviceOrderDto.getId(), adminUserLoginInfo.getId(),
-                                    ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
-                            serviceOrderApplicantDto.setServiceOrderId(serviceOrderDto.getId());
-                            if (serviceOrderApplicantService.addServiceOrderApplicant(serviceOrderApplicantDto) == 0)
-                                msg += "申请人子服务订单创建失败(" + serviceOrderApplicantDto + "). ";
-                        } else
-                            msg += "服务订单创建失败(" + serviceOrderDto + "). ";
+                        msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
+                                serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
                     }
                 }
                 if ("OVST".equalsIgnoreCase(type) && (schoolId2 != null && schoolId2 > 0) || (courseId2 != null
@@ -6844,6 +6820,61 @@ public class ServiceOrderManageController extends BaseController {
         } catch (ServiceException e) {
             return new Response<Integer>(e.getCode(), e.getMessage(), 0);
         }
+    }
+
+    /**
+     * 只拆分实际子订单：每个职业/申请人的 TRA 子订单生成四个阶段，主订单不调用此方法。
+     */
+    private String addApplicantChildServiceOrders(ServiceOrderDTO order, ServiceOrderApplicantDTO applicant,
+                                                  ServiceOrderAndManage relation, AdminUserLoginInfo operator,
+                                                  boolean traServiceOrder) throws ServiceException {
+        String[] phases = traServiceOrder
+                ? new String[]{"PSA", "JRE", "JRWA", "JRFA"} : new String[]{null};
+        String message = "";
+        for (String phase : phases) {
+            order.setId(0);
+            order.setCompletionPhase(phase);
+            int childId = serviceOrderService.addServiceOrder(order);
+            if (childId <= 0) {
+                if (traServiceOrder)
+                    throw new IllegalStateException("TRA阶段子订单创建失败：" + phase);
+                message += "子服务订单创建失败(" + order + "). ";
+                continue;
+            }
+            if (traServiceOrder && !isTraServiceOrder(childId))
+                throw new IllegalStateException("TRA子订单类别校验失败：" + phase);
+            relation.setServiceOrderId(childId);
+            int relationResult = serviceOrderManageService.addServiceOrderAndManage(relation);
+            if (traServiceOrder && relationResult <= 0)
+                throw new IllegalStateException("TRA阶段子订单管理关联失败：" + phase);
+            serviceOrderService.approval(childId, operator.getId(),
+                    ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+            applicant.setServiceOrderId(childId);
+            if (serviceOrderApplicantService.addServiceOrderApplicant(applicant) <= 0) {
+                if (traServiceOrder)
+                    throw new IllegalStateException("TRA阶段子订单申请人关联失败：" + phase);
+                message += "申请人子服务订单创建失败(" + applicant + "). ";
+            }
+        }
+        return message;
+    }
+
+    private boolean isTraServiceOrderRequest(ServiceOrderJsonRequest request) {
+        return request != null
+                && StringUtil.isNotEmpty(request.getServiceId())
+                && StringUtil.isNotEmpty(request.getServiceAssessCategoryId())
+                && StringUtil.toInt(request.getServiceId()) == 24
+                && StringUtil.toInt(request.getServiceAssessCategoryId()) == 9;
+    }
+
+    private boolean isTraServiceOrder(Integer serviceOrderId) {
+        if (serviceOrderId == null || serviceOrderId <= 0) {
+            return false;
+        }
+        ServiceOrderDO order = serviceOrderDAO.getServiceOrderById(serviceOrderId);
+        ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderId);
+        return order != null && Integer.valueOf(24).equals(order.getServiceId())
+                && category != null && Integer.valueOf(9).equals(category.getId());
     }
 
 }

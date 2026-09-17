@@ -14,9 +14,6 @@ public interface ServiceOrderDAO {
 
     int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
-    int updateCompletionPhase(@Param("serviceOrderId") int serviceOrderId,
-                              @Param("completionPhase") String completionPhase);
-
     int setCommission(@Param("id") Integer id, @Param("commissionAmount") Double commissionAmount, @Param("predictCommission") Double predictCommission, @Param("predictCommission1") Double predictCommission1);
 
     int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);

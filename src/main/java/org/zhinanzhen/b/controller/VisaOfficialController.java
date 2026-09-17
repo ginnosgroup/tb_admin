@@ -141,15 +141,16 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderId);
             if (serviceOrderDto == null)
                 return new Response<>(1, "服务订单(ID:" + serviceOrderId + ")不存在!", null);
-            if (StringUtil.isNotEmpty(completionPhase)) {
+            String settlementPhase = StringUtil.isNotEmpty(serviceOrderDto.getCompletionPhase())
+                    ? serviceOrderDto.getCompletionPhase() : completionPhase;
+            boolean phaseSettlement = StringUtil.isNotEmpty(settlementPhase);
+            if (phaseSettlement) {
                 ServiceCategory serviceCategory = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderId);
                 boolean isTraService = serviceOrderDto.getServiceId() == 24
                         && serviceCategory != null && serviceCategory.getId() == 9;
                 if (!isTraService)
                     return new Response<>(1, "当前服务不是TRA，不能进行阶段结算。", null);
             }
-            boolean phaseSettlement = StringUtil.isNotEmpty(completionPhase)
-                    || StringUtil.isNotEmpty(serviceOrderDto.getCompletionPhase());
             List<VisaOfficialDTO> visaOfficialDTOList = new ArrayList<>();
             VisaOfficialDTO visaDto = new VisaOfficialDTO();
             double _receivable = 0.00;
@@ -248,7 +249,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                 visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
             visaDto.setKjApprovalDate(new Date());
 
-            int addResult = visaOfficialService.addVisa(visaDto, completionPhase);
+            int addResult = visaOfficialService.addVisa(visaDto, settlementPhase);
             if (addResult > 0) {
                 visaOfficialDTOList.add(visaDto);
             } else if (addResult == -2) {

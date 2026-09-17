@@ -628,18 +628,28 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         } catch (IllegalArgumentException e) {
             throw completionPhaseError(e.getMessage());
         }
-        if (phase == null)
+        if (phase == null) {
+            ServiceOrderDO order = visaOfficialDTO == null ? null
+                    : serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
+            if (order != null && StringUtil.isNotEmpty(order.getCompletionPhase())
+                    && isTraServiceOrder(order)) {
+                try {
+                    phase = VisaCompletionPhase.fromValue(order.getCompletionPhase());
+                } catch (IllegalArgumentException e) {
+                    throw completionPhaseError(e.getMessage());
+                }
+                return addCompletionPhaseVisa(visaOfficialDTO, phase);
+            }
             return addVisa(visaOfficialDTO);
+        }
         if (visaOfficialDTO == null || visaOfficialDTO.getServiceOrderId() <= 0)
             throw completionPhaseError("服务订单不能为空，无法生成阶段佣金订单。");
-        int serviceOrderId = visaOfficialDTO.getServiceOrderId();
-        if (visaOfficialDao.lockCompletionPhaseOrder(serviceOrderId) == null)
+        ServiceOrderDO order = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
+        if (order == null)
             throw completionPhaseError("服务订单不存在，无法生成阶段佣金订单。");
-        serviceOrderDao.updateCompletionPhase(serviceOrderId, phase.name());
-        int result = addVisa(visaOfficialDTO);
-        if (result <= 0)
-            throw completionPhaseError("阶段佣金订单生成失败。");
-        return result;
+        if (!isTraServiceOrder(order))
+            throw completionPhaseError("当前服务不是TRA，不能进行阶段结算。");
+        return addCompletionPhaseVisa(visaOfficialDTO, phase);
     }
 
     @Override
@@ -650,12 +660,17 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
             throw se;
         }
-        // 结算阶段从服务订单读取；公开新增接口会先在同一事务中更新该字段。
         ServiceOrderDO phaseOrder = serviceOrderDao.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
-        if (phaseOrder == null)
-            throw completionPhaseError("服务订单不存在。");
-        if (StringUtil.isNotEmpty(phaseOrder.getCompletionPhase()))
-            return addCompletionPhaseVisa(visaOfficialDTO);
+        if (phaseOrder != null && StringUtil.isNotEmpty(phaseOrder.getCompletionPhase())
+                && isTraServiceOrder(phaseOrder)) {
+            VisaCompletionPhase phase;
+            try {
+                phase = VisaCompletionPhase.fromValue(phaseOrder.getCompletionPhase());
+            } catch (IllegalArgumentException e) {
+                throw completionPhaseError(e.getMessage());
+            }
+            return addCompletionPhaseVisa(visaOfficialDTO, phase);
+        }
         if (visaOfficialDao.countVisaByServiceOrderIdAndExcludeCode(visaOfficialDTO.getServiceOrderId(), visaOfficialDTO.getCode()) > 0) {
             ServiceOrderDO serviceOrderById = serviceOrderDAO.getServiceOrderById(visaOfficialDTO.getServiceOrderId());
             if ("COMPLETE".equalsIgnoreCase(serviceOrderById.getState())) {
@@ -779,20 +794,22 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         return exception;
     }
 
-    /** 按服务订单自身的completion_phase生成一笔佣金，同一订单的同一阶段只能生成一次。 */
-    private int addCompletionPhaseVisa(VisaOfficialDTO dto) throws ServiceException {
+    private boolean isTraServiceOrder(ServiceOrderDO order) {
+        if (order == null || order.getServiceId() != 24) {
+            return false;
+        }
+        ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(order.getId());
+        return category != null && category.getId() == 9;
+    }
+
+    /** 按TRA子订单的完成阶段生成一笔文案佣金订单。 */
+    private int addCompletionPhaseVisa(VisaOfficialDTO dto, VisaCompletionPhase phase) throws ServiceException {
         int serviceOrderId = dto.getServiceOrderId();
         if (serviceOrderId <= 0 || visaOfficialDao.lockCompletionPhaseOrder(serviceOrderId) == null)
             throw completionPhaseError("服务订单不存在，无法生成阶段佣金订单。");
         ServiceOrderDO order = serviceOrderDao.getServiceOrderById(serviceOrderId);
-        VisaCompletionPhase phase;
-        try {
-            phase = VisaCompletionPhase.fromValue(order.getCompletionPhase());
-        } catch (IllegalArgumentException e) {
-            throw completionPhaseError(e.getMessage());
-        }
-        if (phase == null)
-            throw completionPhaseError("服务订单未设置completionPhase。");
+        if (!isTraServiceOrder(order))
+            throw completionPhaseError("当前服务不是TRA，不能进行阶段结算。");
         boolean refundUpdate = Boolean.TRUE.equals(dto.getIsRefund());
         if (refundUpdate) {
             VisaOfficialDO existing = visaOfficialDao.getOne(dto.getId());
@@ -818,20 +835,29 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             throw completionPhaseError("该文案等级未配置有效的服务佣金规则。");
         int region = officialRegion.getName().replaceAll("[^\\u4e00-\\u9fa5]", "").isEmpty() ? 0 : 1;
 
-        // 优先取本订单的visa收款；父订单收款、管理订单分摊沿用已有订单关系。
-        List<VisaDO> receipts = visaDAO.listVisaByServiceOrderId(serviceOrderId);
+        // applicant_parent_id指向父订单时，父订单的visa收款按逻辑子订单数均摊。
+        List<VisaDO> receipts;
         BigDecimal allocation = BigDecimal.ONE;
-        if (CollectionUtils.isEmpty(receipts) && order.getApplicantParentId() > 0)
+        if (order.getApplicantParentId() > 0) {
+            List<ServiceOrderDO> children = serviceOrderDao.listByApplicantParentId(order.getApplicantParentId());
+            int physicalChildCount = children == null ? 0 : children.size();
+            int logicalChildCount = physicalChildCount >= 4 ? physicalChildCount / 4 : physicalChildCount;
+            if (logicalChildCount <= 0)
+                throw completionPhaseError("父订单下没有有效的子订单，无法分摊visa收款。");
+            allocation = BigDecimal.ONE.divide(BigDecimal.valueOf(logicalChildCount), 10, RoundingMode.HALF_UP);
             receipts = visaDAO.listVisaByServiceOrderId(order.getApplicantParentId());
-        if (CollectionUtils.isEmpty(receipts)) {
-            ServiceOrderAndManage relation = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderId);
-            if (relation != null && relation.getServiceOrderManageId() != null) {
-                ServiceOrderDO parent = serviceOrderManageDAO.getServiceOrderById(relation.getServiceOrderManageId());
-                if (parent == null || parent.getAmount() <= 0)
-                    throw completionPhaseError("管理订单总金额无效，无法分摊visa收款。");
-                allocation = BigDecimal.valueOf(order.getAmount())
-                        .divide(BigDecimal.valueOf(parent.getAmount()), 10, RoundingMode.HALF_UP);
-                receipts = visaDAO.listVisaByServiceOrderId(parent.getId());
+        } else {
+            receipts = visaDAO.listVisaByServiceOrderId(serviceOrderId);
+            if (CollectionUtils.isEmpty(receipts)) {
+                ServiceOrderAndManage relation = serviceOrderManageDAO.getServiceOrderAndManageById(serviceOrderId);
+                if (relation != null && relation.getServiceOrderManageId() != null) {
+                    ServiceOrderDO parent = serviceOrderManageDAO.getServiceOrderById(relation.getServiceOrderManageId());
+                    if (parent == null || parent.getAmount() <= 0)
+                        throw completionPhaseError("管理订单总金额无效，无法分摊visa收款。");
+                    allocation = BigDecimal.valueOf(order.getAmount())
+                            .divide(BigDecimal.valueOf(parent.getAmount()), 10, RoundingMode.HALF_UP);
+                    receipts = visaDAO.listVisaByServiceOrderId(parent.getId());
+                }
             }
         }
         if (CollectionUtils.isEmpty(receipts))
@@ -840,10 +866,16 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         BigDecimal receivedAud = BigDecimal.ZERO;
         BigDecimal dueAud = BigDecimal.ZERO;
         BigDecimal netAud = BigDecimal.ZERO;
+        BigDecimal parentReceivedAud = BigDecimal.ZERO;
+        BigDecimal parentDueAud = BigDecimal.ZERO;
         for (VisaDO receipt : receipts) {
-            BigDecimal paid = receiptAmountAud(receipt.getAmount(), receipt).multiply(allocation);
+            BigDecimal receiptPaidAud = receiptAmountAud(receipt.getAmount(), receipt);
+            BigDecimal receiptDueAud = receiptAmountAud(receipt.getPerAmount(), receipt);
+            parentReceivedAud = parentReceivedAud.add(receiptPaidAud);
+            parentDueAud = parentDueAud.add(receiptDueAud);
+            BigDecimal paid = receiptPaidAud.multiply(allocation);
             receivedAud = receivedAud.add(paid);
-            dueAud = dueAud.add(receiptAmountAud(receipt.getPerAmount(), receipt).multiply(allocation));
+            dueAud = dueAud.add(receiptDueAud.multiply(allocation));
             RefundDO refund = refundDAO.getRefundByVisaId(receipt.getId());
             BigDecimal refunded = refund == null ? BigDecimal.ZERO
                     : receiptAmountAud(refund.getAmount(), receipt).multiply(allocation);
@@ -853,12 +885,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             throw completionPhaseError("visa总收款必须大于0，无法生成阶段佣金订单。");
 
         VisaOfficialDO commission = mapper.map(dto, VisaOfficialDO.class);
-        commission.setStage(phase.name()); // 复用现有stage展示生成时的阶段，不新增佣金表字段。
+        commission.setStage(phase.name());
         commission.setServiceId(order.getServiceId());
         commission.setOfficialRegion(region);
         commission.setCurrency(order.getCurrency());
         commission.setExchangeRate(order.getExchangeRate());
-        // 重新计算整单佣金，避免退款重算时再次对阶段金额乘比例。
         commission.setCommissionAmount(null);
         commission.setPredictCommissionAmount(0);
         double seasonalRate = 0;
@@ -870,26 +901,33 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         }
         ServiceOrderDO calculationOrder = mapper.map(order, ServiceOrderDO.class);
         calculationOrder.setOfficialId(official.getId());
-        // 四阶段使用完整收款基数，统一按阶段分摊，不叠加其他流程的阶段比例。
         visaOfficiaCalculate(calculationOrder, region, new CommissionAmountDTO(),
                 netAud.max(BigDecimal.ZERO).doubleValue(), seasonalRate, 1, grade, commission,
                 Collections.<ServiceOrderDTO>emptyList(), null, false, false, official,
                 1, false, false, 0, new ServiceOrderDO());
-        // 计入佣金提点金额(预估/确认)记录整笔visa收款对应的完整计算基数，不能按结算阶段拆分。
-        commission.setPredictCommission(phase.allocate(commission.getPredictCommission()));
-        commission.setPredictCommissionCNY(phase.allocate(commission.getPredictCommissionCNY()));
-        commission.setExtraAmount(phase.allocate(commission.getExtraAmount()));
+        // 预估佣金仍按逻辑子订单均摊金额和当前阶段比例计算。
+        commission.setPredictCommission(allocateNullable(phase, commission.getPredictCommission()));
+        commission.setPredictCommissionCNY(allocateNullable(phase, commission.getPredictCommissionCNY()));
+        commission.setExtraAmount(allocateNullable(phase, commission.getExtraAmount()));
+
+        // 子订单仅在保存展示金额时使用父订单完整收款，不能反向影响上面已经计算出的佣金。
+        BigDecimal savedReceivedAud = receivedAud;
+        BigDecimal savedDueAud = dueAud;
+        if (order.getApplicantParentId() > 0) {
+            savedReceivedAud = parentReceivedAud;
+            savedDueAud = parentDueAud;
+            double parentCommissionAmount = parentReceivedAud.setScale(2, RoundingMode.HALF_UP).doubleValue();
+            commission.setPredictCommissionAmount(parentCommissionAmount);
+            commission.setCommissionAmount(parentCommissionAmount);
+        }
         BigDecimal receiptCurrencyRate = BigDecimal.ONE;
         if ("CNY".equalsIgnoreCase(order.getCurrency())) {
             if (!Double.isFinite(commission.getExchangeRate()) || commission.getExchangeRate() <= 0)
                 throw completionPhaseError("佣金订单汇率必须大于0。");
             receiptCurrencyRate = BigDecimal.valueOf(commission.getExchangeRate());
         }
-        // 收款信息按对应 b_visa 的总收款保存；阶段比例只作用于佣金/预估业绩字段。
-        BigDecimal totalAmount = receivedAud.multiply(receiptCurrencyRate).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal totalPerAmount = dueAud.multiply(receiptCurrencyRate).setScale(2, RoundingMode.HALF_UP);
-        commission.setAmount(totalAmount.doubleValue());
-        commission.setPerAmount(totalPerAmount.doubleValue());
+        commission.setAmount(savedReceivedAud.multiply(receiptCurrencyRate).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        commission.setPerAmount(savedDueAud.multiply(receiptCurrencyRate).setScale(2, RoundingMode.HALF_UP).doubleValue());
         commission.setReceived(commission.getAmount());
         commission.setReceivable(commission.getPerAmount());
         commission.setDiscount(commission.getPerAmount() - commission.getAmount());
@@ -902,6 +940,10 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             return 0;
         mapper.map(commission, dto);
         return commission.getId();
+    }
+
+    private Double allocateNullable(VisaCompletionPhase phase, Double value) {
+        return value == null ? null : phase.allocate(value);
     }
 
     private BigDecimal receiptAmountAud(double amount, VisaDO receipt) throws ServiceException {
@@ -917,7 +959,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             throw completionPhaseError("阶段结算只支持AUD或CNY的visa收款。");
         return value;
     }
-
 
     @Override
     public int addVisaTmp(VisaOfficialDO visaOfficialDO) throws ServiceException {

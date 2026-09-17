@@ -2,13 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.VisaOfficialDao">
-    <select id="lockCompletionPhaseOrder" resultType="java.lang.Integer" useCache="false" flushCache="true">
-        SELECT id FROM b_service_order WHERE id = #{serviceOrderId} FOR UPDATE
-    </select>
-    <select id="countVisaForOrderAndStageExcludingId" resultType="java.lang.Integer" useCache="false">
-        SELECT count(*) FROM b_visa_official
-        WHERE service_order_id = #{serviceOrderId} AND stage = #{stage} AND id != #{excludeId}
-    </select>
     <select id="listAssessmentExportServices" resultType="org.zhinanzhen.b.dao.pojo.VisaOfficialExportServiceDO">
         SELECT so.id AS serviceOrderId, so.completion_phase AS completionPhase,
                s.name AS serviceName, s.code AS serviceCode,
@@ -25,6 +18,23 @@
             #{serviceOrderId}
         </foreach>
         GROUP BY so.id, so.completion_phase, s.name, s.code
+    </select>
+
+    <select id="lockCompletionPhaseOrder" resultType="java.lang.Integer">
+        SELECT id
+        FROM b_service_order
+        WHERE id = #{serviceOrderId}
+        FOR UPDATE
+    </select>
+
+    <select id="countVisaForOrderAndStageExcludingId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM b_visa_official
+        WHERE service_order_id = #{serviceOrderId}
+          AND stage = #{stage}
+        <if test="excludeId != null and excludeId > 0">
+            AND id != #{excludeId}
+        </if>
     </select>
     <insert id="addVisa" parameterType="org.zhinanzhen.b.dao.pojo.VisaOfficialDO" useGeneratedKeys="true" keyProperty="id">
         INSERT

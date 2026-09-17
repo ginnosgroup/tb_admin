@@ -17,13 +17,13 @@ public interface VisaOfficialDao {
 
     int countVisaByServiceOrderId(@Param("serviceOrderId") Integer serviceOrderId);
 
-    int addVisa(VisaOfficialDO visaOfficialDO);
+    Integer lockCompletionPhaseOrder(@Param("serviceOrderId") Integer serviceOrderId);
 
-    Integer lockCompletionPhaseOrder(@Param("serviceOrderId") int serviceOrderId);
-
-    int countVisaForOrderAndStageExcludingId(@Param("serviceOrderId") int serviceOrderId,
+    int countVisaForOrderAndStageExcludingId(@Param("serviceOrderId") Integer serviceOrderId,
                                              @Param("stage") String stage,
-                                             @Param("excludeId") int excludeId);
+                                             @Param("excludeId") Integer excludeId);
+
+    int addVisa(VisaOfficialDO visaOfficialDO);
 
     List<org.zhinanzhen.b.dao.pojo.VisaOfficialExportServiceDO> listAssessmentExportServices(
             @Param("serviceOrderIds") List<Integer> serviceOrderIds);

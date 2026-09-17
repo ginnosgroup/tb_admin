@@ -4744,7 +4744,7 @@ public class ServiceOrderController extends BaseController {
                             String.valueOf(serviceOrderDto.getServiceId()), id, serviceOrderDto.getInstallment(), serviceOrderDto.getPaymentVoucherImageUrl1(), serviceOrderDto.getPaymentVoucherImageUrl2(),
                             serviceOrderDto.getPaymentVoucherImageUrl3(), serviceOrderDto.getPaymentVoucherImageUrl4(), serviceOrderDto.getPaymentVoucherImageUrl5(), serviceOrderDto.getVisaVoucherImageUrl(),
                             String.valueOf(serviceOrderDto.getReceivable()), String.valueOf(serviceOrderDto.getReceived()), String.valueOf(serviceOrderDto.getPerAmount()), String.valueOf(serviceOrderDto.getAmount()), serviceOrderDto.getCurrency(),
-                            String.valueOf(serviceOrderDto.getExchangeRate()), null, String.valueOf(serviceOrderDto.getAdviserId()), String.valueOf(serviceOrderDto.getMaraId()), String.valueOf(serviceOrderDto.getOfficialId()), null, serviceOrderDto.getRemarks(),
+                             String.valueOf(serviceOrderDto.getExchangeRate()), null, String.valueOf(serviceOrderDto.getAdviserId()), String.valueOf(serviceOrderDto.getMaraId()), String.valueOf(serviceOrderDto.getOfficialId()), serviceOrderDto.getCompletionPhase(), serviceOrderDto.getRemarks(),
                             serviceOrderDto.getVerifyCode(), request, response);
                 }
             }

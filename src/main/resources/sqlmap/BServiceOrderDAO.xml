@@ -74,6 +74,7 @@
                 is_history,
                 nut_cloud,
                 service_assess_id,
+                completion_phase,
                 real_people_number,
                 verify_code,
                 ref_no,
@@ -163,6 +164,7 @@
                 #{isHistory},
                 #{nutCloud},
                 #{serviceAssessId},
+                #{completionPhase},
                 #{realPeopleNumber},
                 #{verifyCode},
                 #{refNo},
@@ -475,12 +477,6 @@
             , is_transfer = #{isTransfer}
         </if>
         WHERE id = #{id};
-    </update>
-
-    <update id="updateCompletionPhase">
-        UPDATE b_service_order
-        SET gmt_modify = now(), completion_phase = #{completionPhase}
-        WHERE id = #{serviceOrderId}
     </update>
 
     <update id="updateReviewState">
