@@ -6520,38 +6520,9 @@ public class ServiceOrderManageController extends BaseController {
                 serviceOrderDto.setInstallment(serviceOrderJsonRequest.getInstallment());
             }
 
-            // 单申请人、单职业且无服务包时，原来只生成一条订单；TRA直接生成四条同级阶段订单。
-            if (isTraServiceOrderRequest(serviceOrderJsonRequest)
-                    && StringUtil.isEmpty(servicePackageIds)
-                    && serviceAssessCategorysplit != null && serviceAssessCategorysplit.length == 1
-                    && serviceOrderApplicantList.size() == 1) {
-                ServiceOrderApplicantDTO applicant = serviceOrderApplicantList.get(0);
-                if (applicant.getApplicantId() <= 0)
-                    return new Response<Integer>(1, "申请人参数错误.", null);
-                ServiceOrderAndManage relation = new ServiceOrderAndManage();
-                relation.setServiceOrderManageId(manageId);
-                serviceOrderDto.setApplicantId(applicant.getApplicantId());
-                serviceOrderDto.setApplicantParentId(0);
-                serviceOrderDto.setParentId(0);
-                addApplicantChildServiceOrders(serviceOrderDto, applicant, relation, adminUserLoginInfo, true);
-                if (isUpdate) {
-                    ServiceOrderDTO manageOrder = serviceOrderManageService.getServiceOrderById(manageId);
-                    if (manageOrder == null)
-                        throw new IllegalStateException("管理订单不存在，无法新增TRA阶段订单。");
-                    // 四个阶段属于同一笔业务，追加到管理订单时金额只计入一次。
-                    manageOrder.setReceivable(manageOrder.getReceivable() + serviceOrderDto.getReceivable());
-                    manageOrder.setReceived(manageOrder.getReceived() + serviceOrderDto.getReceived());
-                    manageOrder.setAmount(manageOrder.getAmount() + serviceOrderDto.getAmount());
-                    manageOrder.setGst(manageOrder.getGst() + serviceOrderDto.getGst());
-                    manageOrder.setDeductGst(manageOrder.getDeductGst() + serviceOrderDto.getDeductGst());
-                    manageOrder.setBonus(manageOrder.getBonus() + serviceOrderDto.getBonus());
-                    manageOrder.setExpectAmount(manageOrder.getExpectAmount() + serviceOrderDto.getExpectAmount());
-                    manageOrder.setPerAmount(manageOrder.getPerAmount() + serviceOrderDto.getPerAmount());
-                    if (serviceOrderManageService.updateServiceOrderManage(manageOrder) <= 0)
-                        throw new IllegalStateException("管理订单金额更新失败。");
-                }
-                return new Response<Integer>(0, "创建四个TRA阶段订单成功.", serviceOrderDto.getId());
-            }
+            boolean traServiceOrder = isTraServiceOrderRequest(serviceOrderJsonRequest);
+            if (traServiceOrder)
+                serviceOrderDto.setServiceAssessId("0");
 
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
@@ -6602,7 +6573,6 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderService.deleteServiceOrderById(ids);
                     return new Response<Integer>(1, "申请人参数错误.", null);
                 }
-                boolean traServiceOrder = isTraServiceOrderRequest(serviceOrderJsonRequest);
                 for (ServiceOrderApplicantDTO serviceOrderApplicantDto : serviceOrderApplicantList) {
                     if (serviceOrderApplicantDto.getApplicantId() <= 0)
                         continue;
@@ -6697,6 +6667,19 @@ public class ServiceOrderManageController extends BaseController {
                             msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
                                     serviceOrderAndManage, adminUserLoginInfo, traServiceOrder);
                         }
+                    } else if (traServiceOrder && serviceAssessCategorysplit != null
+                            && serviceAssessCategorysplit.length == 1) {
+                        // 单申请人、单职业的TRA也保留一条PENDING主订单，四个阶段作为REVIEW子订单。
+                        serviceOrderDto.setId(0);
+                        serviceOrderDto.setParentId(0);
+                        serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
+                        serviceOrderDto.setServiceAssessId(serviceAssessCategorysplit[0]);
+                        msg += addApplicantChildServiceOrders(serviceOrderDto, serviceOrderApplicantDto,
+                                serviceOrderAndManage, adminUserLoginInfo, true);
+                        serviceOrderDto.setId(serviceOrderId);
+                        serviceOrderDto.setApplicantParentId(0);
+                        serviceOrderDto.setCompletionPhase(null);
+                        serviceOrderDto.setState(ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString());
                     } else if (serviceOrderApplicantList.size() > 1) {
                         serviceOrderDto.setId(0);
                         serviceOrderDto.setVerifyCode(null);
@@ -6866,7 +6849,7 @@ public class ServiceOrderManageController extends BaseController {
     }
 
     /**
-     * 每个职业/申请人的TRA生成四个阶段；单项目生成同级订单，多项目保留原父子关系。
+     * 每个职业/申请人的TRA生成四个阶段子订单，主订单保持PENDING，阶段子订单保存为REVIEW。
      */
     private String addApplicantChildServiceOrders(ServiceOrderDTO order, ServiceOrderApplicantDTO applicant,
                                                   ServiceOrderAndManage relation, AdminUserLoginInfo operator,
@@ -6877,6 +6860,8 @@ public class ServiceOrderManageController extends BaseController {
         for (String phase : phases) {
             order.setId(0);
             order.setCompletionPhase(phase);
+            if (traServiceOrder)
+                order.setState(ServiceOrderController.ReviewAdviserStateEnum.REVIEW.toString());
             int childId = serviceOrderService.addServiceOrder(order);
             if (childId <= 0) {
                 if (traServiceOrder)
@@ -6890,15 +6875,13 @@ public class ServiceOrderManageController extends BaseController {
             int relationResult = serviceOrderManageService.addServiceOrderAndManage(relation);
             if (traServiceOrder && relationResult <= 0)
                 throw new IllegalStateException("TRA阶段子订单管理关联失败：" + phase);
-            serviceOrderService.approval(childId, operator.getId(),
-                    ServiceOrderController.ReviewAdviserStateEnum.PENDING.toString(), null, null, null);
+            serviceOrderService.approval(childId, operator.getId(), order.getState(), null, null, null);
             applicant.setServiceOrderId(childId);
             if (serviceOrderApplicantService.addServiceOrderApplicant(applicant) <= 0) {
                 if (traServiceOrder)
                     throw new IllegalStateException("TRA阶段子订单申请人关联失败：" + phase);
                 message += "申请人子服务订单创建失败(" + applicant + "). ";
             }
-            // 同组阶段共享业务code，但银行对账code/refNo只能保存一份。
             clearVerifyCodeAndRefNo(order);
         }
         return message;

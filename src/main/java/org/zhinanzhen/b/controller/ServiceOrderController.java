@@ -4561,7 +4561,6 @@ public class ServiceOrderController extends BaseController {
             context.putParameter("offerUrl", offerUrl);
             context.putParameter("insuranceCompany", insuranceCompany);
             context.putParameter("hasInsurance", hasInsurance);
-
             LOG.info("Flow API Log : " + context.toString());
             LOG.info("serviceOrderDto : " + serviceOrderDto);
             

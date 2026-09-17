@@ -12,9 +12,6 @@ public interface ServiceOrderDAO {
 
     int addServiceOrder(ServiceOrderDO serviceOrderDo);
 
-    /** 同一个单项目TRA的四条同级阶段订单（按业务code及管理订单隔离）。 */
-    List<ServiceOrderDO> listStandaloneTraPhaseOrders(@Param("id") int id);
-
     int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
     int setCommission(@Param("id") Integer id, @Param("commissionAmount") Double commissionAmount, @Param("predictCommission") Double predictCommission, @Param("predictCommission1") Double predictCommission1);

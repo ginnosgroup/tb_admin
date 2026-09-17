@@ -119,7 +119,7 @@ public abstract class SODecisionNode extends AbstractDecisionNode {
 				return false;
 			}
 			log.info("context:" + context);
-			serviceOrderDtoT.setState(getName());
+            serviceOrderDtoT.setState(getName());
 			if (context.getParameter("refuseReason") != null) {
 				serviceOrderDtoT.setRefuseReason(context.getParameter("refuseReason").toString());
 				log.info("写入refuseReason:" + serviceOrderDtoT.getRefuseReason());

@@ -22,7 +22,6 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.dao.pojo.customer.CustomerInformationDO;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.TraPhaseOrderGroup;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
@@ -543,8 +542,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             int i = serviceOrderDao.updateServiceOrder(serviceOrderDo);
             ServiceOrderDTO serviceOrderManageDto = serviceOrderManageService.getserviceOrderManageByServiceOrderId(serviceOrderDo.getId());
             if (serviceOrderManageDto != null) {
-                List<ServiceOrderDTO> childrenServiceOrder = TraPhaseOrderGroup.financialOrders(
-                        serviceOrderManageService.listChildrenServiceOrder(serviceOrderManageDto.getId()));
+                List<ServiceOrderDTO> childrenServiceOrder = serviceOrderManageService.listChildrenServiceOrder(serviceOrderManageDto.getId());
                 serviceOrderManageDto.setAmount(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getAmount).sum());
                 serviceOrderManageDto.setExpectAmount(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getExpectAmount).sum());
                 serviceOrderManageDto.setBonus(childrenServiceOrder.stream().mapToDouble(ServiceOrderDTO::getBonus).sum());
@@ -3428,13 +3426,8 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             }
         }
         ViewBalanceDTO viewBalanceDTO = new ViewBalanceDTO();
-        List<ServiceOrderDO> financialOrders = TraPhaseOrderGroup.financialOrderDOs(serviceOrderDOS);
-        double sumVisaReceivable = financialOrders.stream().filter(order -> !"OVST".equals(order.getType()))
-                .filter(ServiceOrderDO::isPay).filter(order -> order.getBindingOrder() == null)
-                .filter(order -> order.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getPerAmount).sum();
-        double sumVisaReceivableTmp = financialOrders.stream().filter(order -> !"OVST".equals(order.getType()))
-                .filter(order -> order.getApplicantParentId() == 0).filter(order -> !order.isPay())
-                .mapToDouble(ServiceOrderDO::getReceivable).sum();
+        double sumVisaReceivable = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO::isPay).filter(ServiceOrderDO -> ServiceOrderDO.getBindingOrder() == null).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).mapToDouble(ServiceOrderDO::getPerAmount).sum();
+        double sumVisaReceivableTmp = serviceOrderDOS.stream().filter(ServiceOrderDO -> !"OVST".equals(ServiceOrderDO.getType())).filter(ServiceOrderDO -> ServiceOrderDO.getApplicantParentId() == 0).filter(ServiceOrderDO -> !ServiceOrderDO.isPay()).mapToDouble(ServiceOrderDO::getReceivable).sum();
         viewBalanceDTO.setVisaAggregateAmount(sumVisaReceivable / 1.1);
         viewBalanceDTO.setFreeOrderExpenditure(sumVisaReceivableTmp / 1.1);
         viewBalanceDTO.setAvailableBalance((sumVisaReceivable - sumVisaReceivableTmp) / 1.1);
