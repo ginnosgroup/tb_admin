@@ -3,6 +3,7 @@ package org.zhinanzhen.b.controller.nodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.zhinanzhen.b.dao.OfficialReviewRuleDAO;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 
@@ -21,17 +22,21 @@ public class SONodeFactory implements NodeFactory {
 
 	private final ServiceOrderManageService serviceOrderManageService;
 
+	private final OfficialReviewRuleDAO officialReviewRuleDAO;
+
 	@Autowired
-	public SONodeFactory(@Lazy ServiceOrderService serviceOrderService, ServiceOrderManageService serviceOrderManageService) {
+	public SONodeFactory(@Lazy ServiceOrderService serviceOrderService,
+			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO) {
 		this.serviceOrderService = serviceOrderService;
 		this.serviceOrderManageService = serviceOrderManageService;
+		this.officialReviewRuleDAO = officialReviewRuleDAO;
 	}
 
 
 	public Node getNode(String name) {
 		for (Node node : ListUtil.buildArrayList(
 				new ServiceOrderPendingNode(serviceOrderService),
-				new ServiceOrderReviewNode(serviceOrderService, serviceOrderManageService),
+				new ServiceOrderReviewNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO),
 				new ServiceOrderOfficialReviewNode(serviceOrderService), 
 				new ServiceOrderWaitNode(serviceOrderService),
 				new ServiceOrderRejectNode(serviceOrderService, serviceOrderManageService),

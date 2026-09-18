@@ -1,19 +1,14 @@
 package org.zhinanzhen.b.controller.nodes;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.OfficialController.OfficialWorkStateEnum;
-import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
+import org.zhinanzhen.b.dao.OfficialReviewRuleDAO;
+import org.zhinanzhen.b.dao.pojo.OfficialReviewRuleDO;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
-import org.zhinanzhen.b.service.ServicePackagePriceService;
 import org.zhinanzhen.b.service.pojo.ExchangeRateDTO;
 import org.zhinanzhen.b.service.pojo.OfficialDTO;
 import org.zhinanzhen.b.service.pojo.ServiceOrderDTO;
@@ -21,7 +16,6 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 
-import com.ikasoa.core.utils.MapUtil;
 import com.ikasoa.core.utils.ObjectUtil;
 import com.ikasoa.core.utils.StringUtil;
 import com.ikasoa.web.workflow.Context;
@@ -39,63 +33,13 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	@Resource
 	RegionService regionService;
 
-	@Resource
-	private ServicePackagePriceService servicePackagePriceService;
+	private final OfficialReviewRuleDAO officialReviewRuleDAO;
 
-	// 文案审核黑名单
-	private static Map<Integer, List<String>> bOfficialReviewPermissions = buildPermissions(
-			"7:1000003,1000036,1000037,1000012,1000043,1000046,1000043,1000239;" +
-					"9:1000003,1000036,1000037,1000012,1000043,1000046,1000043,1000239;" +
-					"10:1000003,1000036,1000037,1000009,1000012,1000239;" +
-					"11:1000003,1000036,1000037,1000011,1000009,1000012,1000043,1000046,1000043,1000239;" +
-					"14:1000003,1000036,1000037,1000011,1000038,1000009,1000012;" +
-					"19:1000003,1000036,1000037,1000009,1000012,1000239;" +
-					"1000125:1000003,1000036,1000037,1000009,1000012,1000239;" +
-					"1000126:1000003,1000036,1000037,1000009,1000012;" +
-					"1000127:1000003,1000036,1000037,1000009,1000012,1000239;" +
-					"1000131:1000003,1000036,1000037,1000009,1000012;" +
-					"1000106:1000003,1000036,1000037,1000009,1000012;" +
-					"1000014:1000003,1000036,1000037,1000009,1000012,1000239;" +
-					"1000052:1000003,1000036,1000037,1000009,1000012,1000239;" +
-					"1000081:1000043,1000046,1000043,1000239;" +
-					"1000115:1000043,1000046,1000043,1000239;" +
-					"1000133:1000043,1000046,1000043,1000239;" +
-					"1000106:1000239;" +
-					"1000145:1000239;" +
-					"1000146:1000239;" +
-					"1000155:1000239;" +
-					"1000156:1000239;" +
-					"1000157:1000239;" +
-					"1000139:1000239;" +
-					"1000140:1000239;" +
-					"1000154:1000043,1000046,1000043;");
-
-	// 文案审核白名单
-	private static Map<Integer, List<String>> wOfficialReviewPermissions = buildPermissions(
-			"1000005:1000003;" + "1000005:1000006;" + "1000005:1000039;" + "1000005:1000040;" + "1000005:1000041;" + "1000005:1000104;" + "1000005:1000105;");
-
-//	// 服务白名单
-//	private static Map<Integer, List<String>> fOfficialReviewPermissions = buildPermissions("10:1000043,1000046,1000002;" +
-//			"1000014:1000043,1000046,1000002;" + "1000052:1000043,1000046,1000002;" + "1000106:1000043,1000046,1000002;" + "1000125:1000043,1000046,1000002;" +
-//			"1000126:1000043,1000046,1000002;" + "1000127:1000043,1000046,1000002;" + "1000131:1000043,1000046,1000002;" + "1000132:1000043,1000046,1000002;");
-
-	private static Map<Integer, List<String>> buildPermissions(String value) {
-		Map<Integer, List<String>> map = MapUtil.newHashMap();
-		if (value == null || "".equals(value))
-			return map;
-		String[] _s1 = value.split(";");
-		for (String s1 : _s1) {
-			String[] _s2 = s1.split(":");
-			if (_s2.length != 2)
-				continue;
-			map.put(Integer.parseInt(_s2[0]), Arrays.asList(_s2[1].split(",")));
-		}
-		return map;
-	}
-
-	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService, ServiceOrderManageService serviceOrderManageService) {
+	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService,
+			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO) {
 		super.serviceOrderService = serviceOrderService;
 		super.serviceOrderManageService = serviceOrderManageService;
+		this.officialReviewRuleDAO = officialReviewRuleDAO;
 	}
 
 	@Override
@@ -139,40 +83,23 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 			// 判断文案服务项目匹配
 			if (ObjectUtil.isNotNull(officialDto)) {
 				int serviceId = serviceOrderDtoT.getServiceId();
-				String officialIdStr = officialDto.getId() + "";
-				List<String> blackList = bOfficialReviewPermissions.get(serviceId);
-				if (ObjectUtil.isNotNull(blackList) && blackList.contains(officialIdStr)) {
+				OfficialReviewRuleDO reviewRule = officialReviewRuleDAO
+						.getByOfficialIdAndServiceId(officialDto.getId(), serviceId);
+				if (reviewRule != null && Integer.valueOf(0).equals(reviewRule.getCanAccept())) {
 					context.putParameter("response",
 							new Response<ServiceOrderDTO>(1,
 									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
 									serviceOrderDtoT));
 					return null;
 				}
-				if (serviceOrderDtoT.getReceivable() <= 2000.00 && officialDto.getId() == 1000003) {
+				if (reviewRule != null && reviewRule.getMinReceivable() != null
+						&& serviceOrderDtoT.getReceivable() <= reviewRule.getMinReceivable()) {
 					context.putParameter("response",
 							new Response<ServiceOrderDTO>(1,
 									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案."),
 									serviceOrderDtoT));
 					return null;
 				}
-//				List<String> whiteList = wOfficialReviewPermissions.get(officialDto.getId());
-//				if (ObjectUtil.isNotNull(whiteList) && !whiteList.contains(String.valueOf(serviceId))) {
-//					context.putParameter("response",
-//							new Response<ServiceOrderDTO>(1,
-//									StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
-//									serviceOrderDto));
-//					return null;
-//				}
-//				List<String> fList = fOfficialReviewPermissions.get(serviceId);
-//				if (officialDto.getRegionId() == 1000034) {
-//					if (ObjectUtil.isNotNull(fList) && !fList.contains(String.valueOf(officialDto.getId()))) {
-//						context.putParameter("response",
-//								new Response<ServiceOrderDTO>(1,
-//										StringUtil.merge("您选择的文案[", officialDto.getName(), "]暂时不能为该项目提供支持,请更换文案.."),
-//										serviceOrderDto));
-//						return null;
-//					}
-//				}
 			}
 			// 提交审核时更新汇率
 			if (exchangeRateService != null) {
