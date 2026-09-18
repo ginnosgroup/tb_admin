@@ -918,7 +918,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             savedDueAud = parentDueAud;
             double parentCommissionAmount = parentReceivedAud.setScale(2, RoundingMode.HALF_UP).doubleValue();
             commission.setPredictCommissionAmount(parentCommissionAmount);
-            commission.setCommissionAmount(parentCommissionAmount);
+            // commissionAmount按父订单总收款和当前TRA阶段比例保存：PSA 10%、JRE 30%、JRWA 40%、JRFA 20%。
+            commission.setCommissionAmount(phase.allocate(parentReceivedAud).doubleValue());
         }
         BigDecimal receiptCurrencyRate = BigDecimal.ONE;
         if ("CNY".equalsIgnoreCase(order.getCurrency())) {
