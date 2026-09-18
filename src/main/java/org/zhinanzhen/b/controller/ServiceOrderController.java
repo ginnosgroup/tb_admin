@@ -44,6 +44,7 @@ import org.zhinanzhen.b.dao.ContractPdfAnalysisCacheDAO;
 import org.zhinanzhen.b.dao.InsuranceCompanyDAO;
 import org.zhinanzhen.b.dao.MaraDAO;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServiceAssessDao;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.dao.pojo.ServiceOrderExportDTO;
@@ -164,6 +165,8 @@ public class ServiceOrderController extends BaseController {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private ServiceOrderDAO serviceOrderDAO;
+    @Autowired
+    private ServiceAssessDao serviceAssessDao;
     @Autowired
     private AdminUserDAO adminUserDAO;
     @Autowired
@@ -4579,6 +4582,10 @@ public class ServiceOrderController extends BaseController {
             if (context.getParameter("response") != null)
                 return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {
+				// TRA职评主订单提交REVIEW时，同步其申请人子订单状态。
+				if ("REVIEW".equalsIgnoreCase(state) && isTraMainOrder(serviceOrderDto)) {
+					syncTraChildOrdersToReview(id);
+				}
 				// 发送消息到群聊PENGDING--->REVIEW
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
 						&& "REVIEW".equalsIgnoreCase(state)) {// 咨询不发群聊消息
@@ -4605,6 +4612,43 @@ public class ServiceOrderController extends BaseController {
         } catch (ServiceException e) {
             return new Response<ServiceOrderDTO>(1, "异常:" + e.getMessage(), null);
         }
+    }
+
+    /**
+     * TRA职评主订单的子订单通过 applicant_parent_id 关联，主订单本身两个父级字段都为0。
+     */
+    private boolean isTraMainOrder(ServiceOrderDTO serviceOrderDto) {
+        if (serviceOrderDto == null
+                || !"VISA".equalsIgnoreCase(serviceOrderDto.getType())
+                || serviceOrderDto.getParentId() != 0
+                || serviceOrderDto.getApplicantParentId() != 0
+                || serviceOrderDto.getServiceId() != 24) {
+            return false;
+        }
+        ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+        return category != null && category.getId() == 9;
+    }
+
+    private void syncTraChildOrdersToReview(int parentOrderId) throws ServiceException {
+        List<ServiceOrderDTO> childOrders = serviceOrderService.getZiServiceOrderById(parentOrderId);
+        if (childOrders == null || childOrders.isEmpty()) {
+            return;
+        }
+
+        int updatedCount = 0;
+        for (ServiceOrderDTO childOrder : childOrders) {
+            if (childOrder == null || childOrder.getId() <= 0
+                    || "REVIEW".equalsIgnoreCase(childOrder.getState())) {
+                continue;
+            }
+            childOrder.setState("REVIEW");
+            if (serviceOrderService.updateServiceOrder(childOrder) <= 0) {
+                throw new ServiceException("TRA职评子订单状态更新失败:" + childOrder.getId());
+            }
+            updatedCount++;
+        }
+        LOG.info("TRA职评主订单提交REVIEW，同步子订单状态完成: parentId=" + parentOrderId
+                + ", updated=" + updatedCount);
     }
 
     /**
