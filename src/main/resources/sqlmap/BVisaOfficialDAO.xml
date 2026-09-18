@@ -6,7 +6,8 @@
         SELECT so.id AS serviceOrderId, so.completion_phase AS completionPhase,
                s.name AS serviceName, s.code AS serviceCode,
                GROUP_CONCAT(DISTINCT category.name ORDER BY category.id SEPARATOR '/') AS categoryName,
-               GROUP_CONCAT(DISTINCT assess.name ORDER BY assess.id SEPARATOR '/') AS assessName
+               GROUP_CONCAT(DISTINCT assess.name ORDER BY assess.id SEPARATOR '/') AS assessName,
+               MAX(category.fix_price) AS fixPrice
         FROM b_service_order so
         LEFT JOIN b_service s ON s.id = so.service_id
         LEFT JOIN b_assess_category relation ON relation.service_order_id = so.id

@@ -620,9 +620,19 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     serviceItem = assessmentService.serviceItem(settlementPhase);
                 row.createCell(11).setCellValue(serviceItem);
                 servicePackageType = "";
-                ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
-                if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
-                    row.createCell(12).setCellValue(servicePackagePriceDO.getMaxPrice());
+                Double servicePrice = null;
+                if (assessmentService != null && assessmentService.hasAssessment()
+                        && assessmentService.getFixPrice() != null) {
+                    // 职评订单的服务定价取服务订单关联的职业分类固定价格。
+                    servicePrice = assessmentService.getFixPrice();
+                } else {
+                    ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceDOMap.get(visaDTO.getServiceId());
+                    if (ObjectUtil.isNotNull(servicePackagePriceDO)) {
+                        servicePrice = servicePackagePriceDO.getMaxPrice();
+                    }
+                }
+                if (servicePrice != null) {
+                    row.createCell(12).setCellValue(servicePrice);
                 }
                 row.createCell(13).setCellValue(visaDTO.getAdviserName());
                 row.createCell(14).setCellValue(visaDTO.getOfficialName());

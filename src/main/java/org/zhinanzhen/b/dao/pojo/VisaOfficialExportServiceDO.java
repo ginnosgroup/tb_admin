@@ -10,6 +10,8 @@ public class VisaOfficialExportServiceDO {
     private String serviceCode;
     private String categoryName;
     private String assessName;
+    /** 职评服务订单对应的 b_service_category.fix_price。 */
+    private Double fixPrice;
     private String completionPhase;
 
     public String serviceItem() {
