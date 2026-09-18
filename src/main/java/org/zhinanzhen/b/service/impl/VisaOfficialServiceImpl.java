@@ -1935,6 +1935,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                             if (sa != null) serviceOrderDto.setServiceAssessDO(sa);
                         } catch (NumberFormatException ignored) {}
                     }
+                    // service_assess_id可能为0，但职业分类仍通过b_assess_category关联服务订单。
+                    ServiceCategory serviceCategory = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
+                    if (serviceCategory != null) {
+                        serviceOrderDto.setServiceCategory(serviceCategory);
+                    }
                     if (serviceOrderDto.getServicePackageId() > 0) {
                         ServicePackageDO sp = ctx.servicePackageMap.get(serviceOrderDto.getServicePackageId());
                         if (sp != null && "EOI".equals(sp.getType())) {
