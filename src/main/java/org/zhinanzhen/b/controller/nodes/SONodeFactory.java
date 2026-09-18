@@ -39,7 +39,7 @@ public class SONodeFactory implements NodeFactory {
 				new ServiceOrderReviewNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO),
 				new ServiceOrderOfficialReviewNode(serviceOrderService), 
 				new ServiceOrderWaitNode(serviceOrderService),
-				new ServiceOrderRejectNode(serviceOrderService, serviceOrderManageService),
+				new ServiceOrderRejectNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO),
 				new ServiceOrderCloseNode(serviceOrderService),
 				new ServiceOrderFinishNode(serviceOrderService), 
 				new ServiceOrderCompleteNode(serviceOrderService),
