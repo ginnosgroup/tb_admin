@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.OfficialReviewRuleDAO">
+
+    <select id="getByOfficialIdAndServiceId"
+            resultType="org.zhinanzhen.b.dao.pojo.OfficialReviewRuleDO">
+        SELECT
+            id,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            official_id AS officialId,
+            service_id AS serviceId,
+            can_accept AS canAccept,
+            min_receivable AS minReceivable,
+            is_delete AS isDelete
+        FROM b_official_review_rule
+        WHERE official_id = #{officialId}
+          AND is_delete = 0
+          AND service_id IN (0, #{serviceId})
+        ORDER BY CASE WHEN service_id = #{serviceId} THEN 0 ELSE 1 END, id DESC
+        LIMIT 1
+    </select>
+
+</mapper>
