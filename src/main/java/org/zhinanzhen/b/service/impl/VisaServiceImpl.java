@@ -582,6 +582,11 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDTO.getServiceAssessId());
 			serviceOrderDTO.setServiceAssessDO(serviceAssessDO);
 		}
+		// service_assess_id可能为0，但职业分类仍通过b_assess_category关联服务订单。
+		ServiceCategory serviceCategory = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDTO.getId());
+		if (serviceCategory != null) {
+			serviceOrderDTO.setServiceCategory(serviceCategory);
+		}
 		// 查询子服务
 		if (serviceOrderDTO.getParentId() <= 0) {
 			List<ChildrenServiceOrderDTO> childrenServiceOrderList = new ArrayList<>();
