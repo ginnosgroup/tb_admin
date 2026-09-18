@@ -4626,26 +4626,36 @@ public class ServiceOrderController extends BaseController {
             return false;
         }
         ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
-        return category != null && category.getId() == 9;
+        if (category != null) {
+            return category.getId() == 9;
+        }
+
+        // 多职业TRA创建时，主订单没有写入职业分类中间表，分类保存在子订单上。
+        List<ServiceOrderDTO> childOrders = serviceOrderService.getZiServiceOrderById(serviceOrderDto.getId());
+        if (childOrders == null || childOrders.isEmpty()) {
+            return false;
+        }
+        for (ServiceOrderDTO childOrder : childOrders) {
+            if (childOrder == null || childOrder.getId() <= 0) {
+                continue;
+            }
+            ServiceCategory childCategory = serviceAssessDao.getCategoryIdByServiceOrderId(childOrder.getId());
+            if (childCategory != null && childCategory.getId() == 9) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void syncTraChildOrdersToReview(int parentOrderId) throws ServiceException {
-        List<ServiceOrderDTO> childOrders = serviceOrderService.getZiServiceOrderById(parentOrderId);
-        if (childOrders == null || childOrders.isEmpty()) {
-            return;
-        }
-
-        int updatedCount = 0;
-        for (ServiceOrderDTO childOrder : childOrders) {
-            if (childOrder == null || childOrder.getId() <= 0
-                    || "REVIEW".equalsIgnoreCase(childOrder.getState())) {
-                continue;
-            }
-            childOrder.setState("REVIEW");
-            if (serviceOrderService.updateServiceOrder(childOrder) <= 0) {
-                throw new ServiceException("TRA职评子订单状态更新失败:" + childOrder.getId());
-            }
-            updatedCount++;
+        final int updatedCount;
+        try {
+            // getZiOrder未映射gmt_create等字段，不能将其DTO传给整单更新方法。
+            // 一条SQL同步全部职业/阶段子订单，避免逐条更新时部分成功。
+            updatedCount = serviceOrderDAO.updateTraChildOrdersToReview(parentOrderId);
+        } catch (Exception e) {
+            LOG.error("TRA职评子订单状态同步失败: parentId=" + parentOrderId, e);
+            throw new ServiceException("TRA职评子订单状态同步失败:" + parentOrderId);
         }
         LOG.info("TRA职评主订单提交REVIEW，同步子订单状态完成: parentId=" + parentOrderId
                 + ", updated=" + updatedCount);

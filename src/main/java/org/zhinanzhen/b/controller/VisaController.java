@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.ServiceAssessDao;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.pojo.ServiceCategory;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialExportServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
@@ -117,6 +120,12 @@ public class VisaController extends BaseCommissionOrderController {
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private ServiceDAO serviceDAO;
+
+    @Resource
+    private ServiceAssessDao serviceAssessDao;
+
+    @Resource
+    private ServiceOrderDAO serviceOrderDAO;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -346,15 +355,17 @@ public class VisaController extends BaseCommissionOrderController {
 			if (serviceOrderById != null) {
 				serviceOrderManageService.updateServiceOrderManage(serviceOrderDtoT);
 			}
-			if (serviceOrderDtoT.getParentId() > 0) {
-				ServiceOrderDTO _serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getParentId());
-				if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
-					_serviceOrderDto.setSubmitted(true);
-					serviceOrderService.updateServiceOrder(_serviceOrderDto);
-				}
-			}
-			ApplicantDTO applicantDto = serviceOrderDtoT.getApplicant();
-			String msg = "";
+            if (serviceOrderDtoT.getParentId() > 0) {
+                ServiceOrderDTO _serviceOrderDto = serviceOrderService.getServiceOrderById(serviceOrderDto.getParentId());
+                if (_serviceOrderDto != null && !_serviceOrderDto.isSubmitted()) {
+                    _serviceOrderDto.setSubmitted(true);
+                    serviceOrderService.updateServiceOrder(_serviceOrderDto);
+                }
+            }
+            if (!visaDtoList.isEmpty())
+                syncTraPendingChildOrdersToReview(serviceOrderDtoT);
+            ApplicantDTO applicantDto = serviceOrderDtoT.getApplicant();
+            String msg = "";
 			if (applicantDto != null && applicantBirthday != null) {
 				applicantDto.setBirthday(new Date(Long.parseLong(applicantBirthday)));
 				if (applicantService.update(applicantDto) <= 0)
@@ -368,6 +379,60 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (ServiceException e) {
 			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
 		}
+	}
+
+	/**
+	 * 添加TRA签证佣金后，将对应主订单下仍为PENDING的子订单提交到REVIEW。
+	 * 已经是其他状态的子订单不做修改。
+	 */
+	private void syncTraPendingChildOrdersToReview(ServiceOrderDTO serviceOrderDto) {
+		if (!isTraVisaServiceOrder(serviceOrderDto))
+			return;
+
+		int parentOrderId = serviceOrderDto.getParentId() > 0
+				? serviceOrderDto.getParentId()
+				: serviceOrderDto.getApplicantParentId() > 0
+				? serviceOrderDto.getApplicantParentId()
+				: serviceOrderDto.getId();
+		if (parentOrderId <= 0)
+			return;
+
+		int updatedCount = serviceOrderDAO.updatePendingTraChildOrdersToReview(parentOrderId);
+		LOG.info("添加TRA签证佣金后同步PENDING子订单状态完成: parentId={}, updated={}",
+				parentOrderId, updatedCount);
+	}
+
+	private boolean isTraVisaServiceOrder(ServiceOrderDTO serviceOrderDto) {
+		if (serviceOrderDto == null
+				|| !"VISA".equalsIgnoreCase(serviceOrderDto.getType())
+				|| serviceOrderDto.getServiceId() != 24)
+			return false;
+
+		int parentOrderId = serviceOrderDto.getParentId() > 0
+				? serviceOrderDto.getParentId()
+				: serviceOrderDto.getApplicantParentId() > 0
+				? serviceOrderDto.getApplicantParentId()
+				: serviceOrderDto.getId();
+		if (isTraCategoryOrder(serviceOrderDto.getId())
+				|| (parentOrderId != serviceOrderDto.getId() && isTraCategoryOrder(parentOrderId)))
+			return true;
+
+		// 兼容历史多职业TRA主订单没有b_assess_category记录的情况。
+		List<ServiceOrderDTO> childOrders = serviceOrderService.getZiServiceOrderById(parentOrderId);
+		if (childOrders != null) {
+			for (ServiceOrderDTO childOrder : childOrders) {
+				if (childOrder != null && isTraCategoryOrder(childOrder.getId()))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isTraCategoryOrder(int serviceOrderId) {
+		if (serviceOrderId <= 0)
+			return false;
+		ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderId);
+		return category != null && category.getId() == 9;
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)

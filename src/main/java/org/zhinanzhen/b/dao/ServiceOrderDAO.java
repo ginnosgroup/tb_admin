@@ -14,6 +14,8 @@ public interface ServiceOrderDAO {
 
     int updateServiceOrder(ServiceOrderDO serviceOrderDo);
 
+    int updateTraChildOrdersToReview(@Param("parentOrderId") int parentOrderId);
+
     int setCommission(@Param("id") Integer id, @Param("commissionAmount") Double commissionAmount, @Param("predictCommission") Double predictCommission, @Param("predictCommission1") Double predictCommission1);
 
     int updateReviewState(@Param("id") Integer id, @Param("reviewState") String reviewState);
@@ -130,6 +132,11 @@ public interface ServiceOrderDAO {
 
     @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
     List<ServiceOrderDTO> getZiOrder(int id);
+
+    /**
+     * 将TRA主订单下仍处于PENDING的子订单提交到REVIEW，其他状态不变。
+     */
+    int updatePendingTraChildOrdersToReview(@Param("parentOrderId") int parentOrderId);
 
     @Select("SELECT service_id AS serviceId FROM b_service_order WHERE binding_order = #{id} AND applicant_parent_id = 0")
     List<Integer> listBybindingOrder(int id);

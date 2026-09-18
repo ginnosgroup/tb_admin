@@ -188,6 +188,28 @@
                 #{isTransfer});
     </insert>
 
+    <!-- 仅同步状态，不能将SELECT *映射不完整的子订单DTO用于整单更新。 -->
+    <update id="updateTraChildOrdersToReview">
+        UPDATE b_service_order
+        SET state = 'REVIEW', gmt_modify = NOW()
+        WHERE applicant_parent_id = #{parentOrderId}
+          AND #{parentOrderId} > 0
+          AND id != #{parentOrderId}
+          AND is_delete = 0
+          AND (state IS NULL OR state != 'REVIEW')
+    </update>
+
+    <!-- 添加TRA签证佣金后，仅将仍待提交的子订单改为REVIEW。 -->
+    <update id="updatePendingTraChildOrdersToReview">
+        UPDATE b_service_order
+        SET state = 'REVIEW', gmt_modify = NOW()
+        WHERE applicant_parent_id = #{parentOrderId}
+          AND #{parentOrderId} > 0
+          AND id != #{parentOrderId}
+          AND is_delete = 0
+          AND state = 'PENDING'
+    </update>
+
     <update id="updateServiceOrder" parameterType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         UPDATE b_service_order
         SET gmt_modify = now()

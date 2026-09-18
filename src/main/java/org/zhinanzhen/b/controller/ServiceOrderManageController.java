@@ -6527,6 +6527,10 @@ public class ServiceOrderManageController extends BaseController {
                         serviceAssessCategorysplit);
                 if (StringUtil.isNotEmpty(firstServiceAssessId))
                     serviceOrderDto.setServiceAssessId(firstServiceAssessId);
+                // 多职业TRA在前面的分支只给子订单设置职评分类，主订单也需要保存分类，
+                // 否则ServiceOrderServiceImpl不会写入b_assess_category。
+                if (StringUtil.isNotEmpty(serviceAssessCategoryId))
+                    serviceOrderDto.setServiceAssessCategoryId(StringUtil.toInt(serviceAssessCategoryId));
             }
 
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
