@@ -6521,8 +6521,13 @@ public class ServiceOrderManageController extends BaseController {
             }
 
             boolean traServiceOrder = isTraServiceOrderRequest(serviceOrderJsonRequest);
-            if (traServiceOrder)
-                serviceOrderDto.setServiceAssessId("0");
+            if (traServiceOrder) {
+                // TRA主订单也保存第一个阶段子订单对应的职业，不能再固定保存为0。
+                String firstServiceAssessId = getFirstTraServiceAssessId(serviceAssessId,
+                        serviceAssessCategorysplit);
+                if (StringUtil.isNotEmpty(firstServiceAssessId))
+                    serviceOrderDto.setServiceAssessId(firstServiceAssessId);
+            }
 
             int addResult = serviceOrderService.addServiceOrder(serviceOrderDto);
             if (addResult > 0) {
@@ -6895,6 +6900,21 @@ public class ServiceOrderManageController extends BaseController {
                 && StringUtil.isNotEmpty(request.getServiceAssessCategoryId())
                 && StringUtil.toInt(request.getServiceId()) == 24
                 && StringUtil.toInt(request.getServiceAssessCategoryId()) == 9;
+    }
+
+    private String getFirstTraServiceAssessId(String serviceAssessId, String[] serviceAssessCategorysplit) {
+        String firstServiceAssessId = null;
+        if (serviceAssessCategorysplit != null && serviceAssessCategorysplit.length > 0) {
+            firstServiceAssessId = serviceAssessCategorysplit[0];
+        } else if (StringUtil.isNotEmpty(serviceAssessId)) {
+            firstServiceAssessId = serviceAssessId.split(",")[0];
+        }
+        if (StringUtil.isNotEmpty(firstServiceAssessId) && firstServiceAssessId.contains("-")) {
+            String[] serviceAssessParts = firstServiceAssessId.split("-");
+            if (serviceAssessParts.length > 1 && StringUtil.isNotEmpty(serviceAssessParts[1]))
+                firstServiceAssessId = serviceAssessParts[1];
+        }
+        return firstServiceAssessId;
     }
 
     private boolean isTraServiceOrder(Integer serviceOrderId) {

@@ -1,4 +1,4 @@
-﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.sulei</groupId>
@@ -256,5 +256,19 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <!--
+            生产/线上构建专用：mvn clean package -Pprod
+            maven.test.skip=true 会同时跳过测试源码编译和测试执行，
+            避免 src/test 下的测试代码或测试依赖影响线上发布。
+        -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+    </profiles>
 </project>
 

@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
+import org.zhinanzhen.b.dao.pojo.VisaOfficialExportServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 import org.zhinanzhen.b.dao.pojo.SetupExcelDO;
@@ -1108,7 +1109,7 @@ public class VisaController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(6, i, visaDto.getReceiveTypeName(), cellFormat));
 					ServiceDTO serviceDTO = serviceMap.get(visaDto.getServiceId());
 					if (ObjectUtil.isNotNull(serviceDTO)) {
-						sheet.addCell(new Label(7, i, serviceDTO.getName() + "-" + serviceDTO.getCode(), cellFormat));
+						sheet.addCell(new Label(7, i, getVisaExportServiceItem(visaDto, serviceDTO), cellFormat));
 					}
 					sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
 					sheet.addCell(new Label(9, i, visaDto.getTotalAmountAUD() + "", cellFormat));
@@ -1180,7 +1181,7 @@ public class VisaController extends BaseCommissionOrderController {
 							sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
 						sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
 						sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-						sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+						sheet.addCell(new Label(5, i, getVisaExportServiceCode(visaDto), cellFormat));
 						sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
 						sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
 						sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
@@ -1248,7 +1249,7 @@ public class VisaController extends BaseCommissionOrderController {
 							sheet.addCell(new Label(2, i, sdf.format(visaDto.getReceiveDate()), cellFormat));
 						sheet.addCell(new Label(3, i, visaDto.getUserName(), cellFormat));
 						sheet.addCell(new Label(4, i, visaDto.getReceiveTypeName(), cellFormat));
-						sheet.addCell(new Label(5, i, visaDto.getServiceCode(), cellFormat));
+						sheet.addCell(new Label(5, i, getVisaExportServiceCode(visaDto), cellFormat));
 						sheet.addCell(new Label(6, i, visaDto.getTotalAmountCNY() + "", cellFormat));
 						sheet.addCell(new Label(7, i, visaDto.getTotalAmountAUD() + "", cellFormat));
 						sheet.addCell(new Label(8, i, visaDto.getTotalAmountCNY() + "", cellFormat));
@@ -2496,6 +2497,47 @@ public class VisaController extends BaseCommissionOrderController {
 		return excelTitle;
 	}
 
+	private String getVisaExportServiceItem(VisaDTO visaDto, ServiceDTO serviceDTO) {
+		if (serviceDTO == null)
+			return "";
+		String serviceItem = serviceDTO.getName() + "-" + serviceDTO.getCode();
+		if (visaDto == null || visaDto.getServiceOrder() == null
+				|| visaDto.getServiceOrder().getServiceCategory() == null
+				|| visaDto.getServiceOrder().getServiceCategory().getId() != 9)
+			return serviceItem;
+
+		ServiceOrderDTO serviceOrder = visaDto.getServiceOrder();
+		VisaOfficialExportServiceDO exportService = new VisaOfficialExportServiceDO();
+		exportService.setServiceName(serviceDTO.getName());
+		exportService.setServiceCode(serviceDTO.getCode());
+		exportService.setCategoryName(serviceOrder.getServiceCategory().getName());
+		exportService.setAssessName(serviceOrder.getServiceAssessDO() == null
+				? null : serviceOrder.getServiceAssessDO().getName());
+		exportService.setCompletionPhase(serviceOrder.getCompletionPhase());
+		return exportService.serviceItem();
+	}
+
+	private String getVisaExportServiceCode(VisaDTO visaDto) {
+		String serviceCode = visaDto == null ? null : visaDto.getServiceCode();
+		if (visaDto == null || visaDto.getServiceOrder() == null
+				|| visaDto.getServiceOrder().getServiceCategory() == null
+				|| visaDto.getServiceOrder().getServiceCategory().getId() != 9)
+			return serviceCode;
+
+		ServiceOrderDTO serviceOrder = visaDto.getServiceOrder();
+		StringBuilder serviceItem = new StringBuilder(serviceCode == null ? "" : serviceCode);
+		appendVisaExportServicePart(serviceItem, serviceOrder.getServiceCategory().getName());
+		if (serviceOrder.getServiceAssessDO() != null)
+			appendVisaExportServicePart(serviceItem, serviceOrder.getServiceAssessDO().getName());
+		appendVisaExportServicePart(serviceItem, serviceOrder.getCompletionPhase());
+		return serviceItem.toString();
+	}
+
+	private void appendVisaExportServicePart(StringBuilder serviceItem, String value) {
+		if (StringUtil.isNotEmpty(value))
+			serviceItem.append("-").append(value);
+	}
+
 	private JSONObject buileExcelJsonObject(VisaDTO so, Map<Integer, String> adviserMap, Map<Integer,ServiceDTO> serviceMap, AdminUserLoginInfo adminUserLoginInfo, int _regionId) throws ServiceException {
 		List<JSONObject> jsonObjectFILEDTITLEList = new ArrayList<>();
 		JSONObject jsonObjectFILEDTITLE = new JSONObject();
@@ -2517,7 +2559,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 		// 服务项目
 		ServiceDTO serviceDTO = serviceMap.get(so.getServiceId());
-		buildJsonobjectRow(serviceDTO.getName() + "-" + serviceDTO.getCode(), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
+		buildJsonobjectRow(getVisaExportServiceItem(so, serviceDTO), "服务项目", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);
 
 		// 总计应收人民币
 //		buildJsonobjectRow(String.valueOf(so.getTotalAmountCNY()), "总计应收人民币", jsonObject, jsonObjectFILEDTITLEList, jsonObjectFILEDTITLE);

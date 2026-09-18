@@ -23,7 +23,6 @@ import okhttp3.RequestBody;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -274,7 +273,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                         // 判断分片是否上传成功
                         if (!response1.isSuccessful()) {
                             System.out.println(response1.body().string() + "\n");
-                            Assert.fail("upload part failed, partNumber:" + number);
+                            throw new AssertionError("upload part failed, partNumber:" + number);
                         }
                     }
                     System.out.println("upload part success, partNumber:" + number);
@@ -488,7 +487,7 @@ public class CloudDiskServiceImpl implements CloudDiskService  {
                                 // 判断分片是否上传成功
                                 if (!response1.isSuccessful()) {
                                     System.out.println(response1.body().string() + "\n");
-                                    Assert.fail("upload part failed, partNumber:" + number);
+                                    throw new AssertionError("upload part failed, partNumber:" + number);
                                 }
                             }
                             System.out.println("upload part success, partNumber:" + number);

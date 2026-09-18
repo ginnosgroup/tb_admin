@@ -9,7 +9,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

@@ -26,10 +26,8 @@ hs_err_pid*
 /sql/
 /webroot/
 /target/
-/src/test/**
-!/src/test/**/
-!/src/test/java/org/zhinanzhen/b/service/impl/VisaCompletionPhaseSettlementTest.java
-!/src/test/java/org/zhinanzhen/b/controller/PortalAttachmentAuditFieldsTest.java
+# 测试代码只保留在本地，不提交、不部署到线上
+/src/test/
 /src/main/java/org/zhinanzhen/tb/utils/SimpleSendEmailTool.java
 
 # Tomcat 固定 base 目录（运行时生成）
