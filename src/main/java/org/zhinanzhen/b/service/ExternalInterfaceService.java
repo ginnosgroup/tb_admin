@@ -4,6 +4,8 @@ package org.zhinanzhen.b.service;
 import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.SyncBootstrapData;
+import org.zhinanzhen.b.service.pojo.SyncBootstrapRequest;
+import org.zhinanzhen.b.service.pojo.SyncLookupRequest;
 import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
@@ -21,6 +23,10 @@ public interface ExternalInterfaceService {
     Integer batchUpsertCloudDiskFiles(List<CloudDiskFile> cloudDiskFiles);
 
     SyncBootstrapData getSyncBootstrap(String username, String driveId, List<Integer> userIds);
+
+    SyncBootstrapData getSyncBootstrapPage(SyncBootstrapRequest request);
+
+    List<CloudDiskFile> lookupSyncFiles(SyncLookupRequest request);
 
     CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName, Integer userId);
 

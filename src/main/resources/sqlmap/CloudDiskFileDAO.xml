@@ -49,6 +49,16 @@
         )
     </insert>
 
+    <select id="countSyncUniqueIndex" resultType="int">
+        SELECT COUNT(*) FROM (
+            SELECT index_name FROM information_schema.statistics
+            WHERE table_schema = DATABASE() AND table_name = 'b_cloud_disk_file' AND non_unique = 0
+            GROUP BY index_name
+            HAVING GROUP_CONCAT(column_name ORDER BY seq_in_index) = 'drive_id,file_id'
+               AND SUM(sub_part IS NOT NULL) = 0
+        ) sync_unique_indexes
+    </select>
+
     <insert id="batchUpsert">
         INSERT INTO b_cloud_disk_file (
             gmt_create,
@@ -404,6 +414,41 @@
             </otherwise>
         </choose>
         ORDER BY id ASC
+    </select>
+
+    <!-- Deliberately excludes URLs and large/business-only fields. -->
+    <sql id="syncColumns">
+        id, drive_id AS driveId, domain_id AS domainId, user_id AS userId,
+        file_id AS fileId, parent_file_id AS parentFileId, name, type,
+        relative_path AS relativePath, file_size AS fileSize, hash_code AS hashCode,
+        is_delete AS isDelete, adviser_id AS adviserId, official_id AS officialId
+    </sql>
+
+    <select id="listForSyncPage" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        SELECT <include refid="syncColumns"/> FROM b_cloud_disk_file
+        WHERE drive_id = #{driveId} AND is_delete = 0 AND id &gt; #{afterId}
+        <choose>
+            <when test="userIds != null and userIds.size() > 0">
+                AND user_id IN
+                <foreach collection="userIds" item="userId" open="(" close=")" separator=",">#{userId}</foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        ORDER BY id ASC LIMIT #{limit}
+    </select>
+
+    <select id="lookupForSync" resultType="org.zhinanzhen.b.service.pojo.CloudDiskFile">
+        SELECT <include refid="syncColumns"/> FROM b_cloud_disk_file
+        WHERE drive_id = #{driveId} AND is_delete = 0
+        <choose>
+            <when test="keys != null and keys.size() > 0">
+                AND
+                <foreach collection="keys" item="key" open="(" close=")" separator=" OR ">
+                    (user_id = #{key.userId} AND relative_path = #{key.relativePath})
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
     </select>
 
     <update id="updateForMigration">

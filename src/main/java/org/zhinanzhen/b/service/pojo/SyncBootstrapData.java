@@ -21,4 +21,8 @@ public class SyncBootstrapData {
     private OfficialDO official;
     private List<UserDO> users;
     private List<CloudDiskFile> cloudDiskFiles;
+    private Integer protocolVersion;
+    private Integer nextId;
+    private Boolean complete;
+    private Boolean metadataUpsertReady;
 }

@@ -8,6 +8,7 @@ import org.zhinanzhen.b.service.ExternalInterfaceService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.SyncBootstrapData;
 import org.zhinanzhen.b.service.pojo.SyncBootstrapRequest;
+import org.zhinanzhen.b.service.pojo.SyncLookupRequest;
 import org.zhinanzhen.tb.controller.BaseController;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
@@ -16,6 +17,7 @@ import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.dao.pojo.UserDO;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -66,16 +68,40 @@ public class ExternalInterfaceController extends BaseController {
     @RequestMapping(value = "/syncBootstrap", method = RequestMethod.POST)
     @ResponseBody
     public Response<SyncBootstrapData> syncBootstrap(@RequestBody SyncBootstrapRequest request,
+                                                     HttpServletRequest httpRequest,
                                                      HttpServletResponse response) {
         try {
             super.setPostHeader(response);
-            SyncBootstrapData data = externalInterfaceService.getSyncBootstrap(
-                    request.getUsername(), request.getDriveId(), request.getUserIds());
+            SyncBootstrapData data;
+            if (Integer.valueOf(2).equals(request.getProtocolVersion())) {
+                AdminUserLoginInfo login = getAdminUserLoginInfo(httpRequest);
+                if (login == null) return new Response<SyncBootstrapData>(2, "未登录", null);
+                request.setUsername(login.getUsername());
+                data = externalInterfaceService.getSyncBootstrapPage(request);
+            } else {
+                data = externalInterfaceService.getSyncBootstrap(
+                        request.getUsername(), request.getDriveId(), request.getUserIds());
+            }
             return new Response<SyncBootstrapData>(0, "Sync bootstrap loaded", data);
         } catch (IllegalArgumentException e) {
             return new Response<SyncBootstrapData>(1, e.getMessage(), null);
         } catch (Exception e) {
             return new Response<SyncBootstrapData>(1, "Sync bootstrap failed: " + e.getMessage(), null);
+        }
+    }
+
+    @RequestMapping(value = "/syncLookup", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<List<CloudDiskFile>> syncLookup(@RequestBody SyncLookupRequest request,
+                                                   HttpServletRequest httpRequest) {
+        if (getAdminUserLoginInfo(httpRequest) == null) {
+            return new Response<List<CloudDiskFile>>(2, "未登录", null);
+        }
+        try {
+            return new Response<List<CloudDiskFile>>(0, "Lookup succeeded",
+                    externalInterfaceService.lookupSyncFiles(request));
+        } catch (IllegalArgumentException e) {
+            return new Response<List<CloudDiskFile>>(1, e.getMessage(), null);
         }
     }
 

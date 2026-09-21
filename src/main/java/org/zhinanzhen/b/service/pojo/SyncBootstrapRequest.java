@@ -13,4 +13,8 @@ public class SyncBootstrapRequest {
     private String username;
     private String driveId;
     private List<Integer> userIds;
+    private Integer protocolVersion;
+    private Integer afterId;
+    private Integer pageSize;
+    private Boolean includeContext;
 }

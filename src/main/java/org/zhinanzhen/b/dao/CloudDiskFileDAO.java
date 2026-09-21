@@ -3,6 +3,7 @@ package org.zhinanzhen.b.dao;
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.UserCloud;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
+import org.zhinanzhen.b.service.pojo.SyncLookupRequest;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,8 @@ public interface CloudDiskFileDAO {
     int add(CloudDiskFile cloudDiskFile);
 
     int batchUpsert(@Param("list") List<CloudDiskFile> list);
+
+    int countSyncUniqueIndex();
 
     CloudDiskFile getById(@Param("id") Integer id, @Param("parentFileId") String parentFileId, @Param("fileId") String fileId, @Param("folderName") String folderName, @Param("userId") Integer userId);
 
@@ -54,6 +57,12 @@ public interface CloudDiskFileDAO {
     List<CloudDiskFile> listByDriveId(@Param("driveId") String driveId);
 
     List<CloudDiskFile> listForSync(@Param("driveId") String driveId, @Param("userIds") List<Integer> userIds);
+
+    List<CloudDiskFile> listForSyncPage(@Param("driveId") String driveId,
+            @Param("userIds") List<Integer> userIds, @Param("afterId") int afterId, @Param("limit") int limit);
+
+    List<CloudDiskFile> lookupForSync(@Param("driveId") String driveId,
+            @Param("keys") List<SyncLookupRequest.Key> keys);
 
     List<CloudDiskFile> listByFileIds(@Param("fileIds") List<String> fileIds);
 

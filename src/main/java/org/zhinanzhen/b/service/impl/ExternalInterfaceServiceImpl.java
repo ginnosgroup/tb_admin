@@ -10,6 +10,8 @@ import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.b.service.ExternalInterfaceService;
 import org.zhinanzhen.b.service.pojo.CloudDiskFile;
 import org.zhinanzhen.b.service.pojo.SyncBootstrapData;
+import org.zhinanzhen.b.service.pojo.SyncBootstrapRequest;
+import org.zhinanzhen.b.service.pojo.SyncLookupRequest;
 import org.zhinanzhen.b.service.pojo.UserDTO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -25,6 +27,17 @@ import java.util.regex.Pattern;
 
 @Service
 public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
+
+    private volatile long uniqueIndexCheckedAt;
+    private volatile boolean uniqueIndexReady;
+
+    private synchronized boolean isSyncUniqueIndexReady() {
+        if (System.currentTimeMillis() - uniqueIndexCheckedAt > 60000L) {
+            uniqueIndexReady = cloudDiskFileDAO.countSyncUniqueIndex() > 0;
+            uniqueIndexCheckedAt = System.currentTimeMillis();
+        }
+        return uniqueIndexReady;
+    }
 
     @Autowired
     private CloudDiskFileDAO cloudDiskFileDAO;
@@ -113,6 +126,9 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
                 throw new IllegalArgumentException("driveId and fileId are required for every metadata record");
             }
         }
+        if (!isSyncUniqueIndexReady()) {
+            throw new IllegalArgumentException("Required unique index (drive_id,file_id) is missing; run sync index migration");
+        }
         cloudDiskFileDAO.batchUpsert(cloudDiskFiles);
         return cloudDiskFiles.size();
     }
@@ -168,6 +184,65 @@ public class ExternalInterfaceServiceImpl implements ExternalInterfaceService {
     @Override
     public CloudDiskFile getCloudDiskFileById(Integer id, Integer adviserId, String parentFileId, String fileId, String folderName, Integer userId) {
         return cloudDiskFileDAO.getById(id, parentFileId, fileId, folderName, userId);
+    }
+
+    @Override
+    public SyncBootstrapData getSyncBootstrapPage(SyncBootstrapRequest request) {
+        if (request == null || request.getDriveId() == null || request.getDriveId().trim().isEmpty()) {
+            throw new IllegalArgumentException("driveId is required");
+        }
+        List<Integer> ids = request.getUserIds() == null ? Collections.<Integer>emptyList() : request.getUserIds();
+        if (ids.size() > 200 || ids.contains(null)) {
+            throw new IllegalArgumentException("At most 200 valid userIds per page request");
+        }
+        for (Integer id : ids) {
+            if (id <= 0) throw new IllegalArgumentException("userId must be positive");
+        }
+        int afterId = request.getAfterId() == null ? 0 : request.getAfterId();
+        int pageSize = request.getPageSize() == null ? 1000 : request.getPageSize();
+        if (afterId < 0 || pageSize < 1 || pageSize > 1000) {
+            throw new IllegalArgumentException("afterId >= 0 and pageSize between 1 and 1000 required");
+        }
+        SyncBootstrapData result = new SyncBootstrapData();
+        if (!Boolean.FALSE.equals(request.getIncludeContext())) {
+            // An empty file scope keeps the legacy helper's unpaged file query bounded to zero rows.
+            result = getSyncBootstrap(request.getUsername(), request.getDriveId(), Collections.<Integer>emptyList());
+            List<UserDO> users = new ArrayList<UserDO>();
+            if (!ids.isEmpty()) {
+                for (UserDO user : userDAO.listByIds(ids)) {
+                    UserDO minimal = new UserDO();
+                    minimal.setId(user.getId());
+                    minimal.setName(user.getName());
+                    users.add(minimal);
+                }
+            }
+            result.setUsers(users);
+            result.setMetadataUpsertReady(isSyncUniqueIndexReady());
+        }
+        List<CloudDiskFile> rows = cloudDiskFileDAO.listForSyncPage(request.getDriveId(), ids, afterId, pageSize + 1);
+        boolean complete = rows.size() <= pageSize;
+        List<CloudDiskFile> page = complete ? rows : new ArrayList<CloudDiskFile>(rows.subList(0, pageSize));
+        result.setCloudDiskFiles(page);
+        result.setProtocolVersion(2);
+        result.setComplete(complete);
+        result.setNextId(page.isEmpty() ? afterId : page.get(page.size() - 1).getId());
+        return result;
+    }
+
+    @Override
+    public List<CloudDiskFile> lookupSyncFiles(SyncLookupRequest request) {
+        if (request == null || request.getDriveId() == null || request.getDriveId().trim().isEmpty()
+                || request.getKeys() == null || request.getKeys().isEmpty() || request.getKeys().size() > 300) {
+            throw new IllegalArgumentException("driveId and 1 to 300 lookup keys are required");
+        }
+        for (SyncLookupRequest.Key key : request.getKeys()) {
+            if (key == null || key.getUserId() == null || key.getUserId() <= 0
+                    || key.getRelativePath() == null || !key.getRelativePath().startsWith("/root/")
+                    || key.getRelativePath().length() > 4096) {
+                throw new IllegalArgumentException("Every lookup key requires a userId and /root/ relativePath");
+            }
+        }
+        return cloudDiskFileDAO.lookupForSync(request.getDriveId(), request.getKeys());
     }
 
     @Override
