@@ -44,6 +44,16 @@ import com.ikasoa.core.utils.StringUtil;
 public final class Form956PdfGenerator {
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final String[] FONT_RESOURCES = {
+			"fonts/simhei.ttf",
+			"fonts/arial.ttf",
+			"fonts/calibri.ttf",
+			"fonts/segoeui.ttf" };
+	private static final String[] SYSTEM_FONT_PATHS = {
+			"C:\\Windows\\Fonts\\simhei.ttf",
+			"C:\\Windows\\Fonts\\arial.ttf",
+			"C:\\Windows\\Fonts\\calibri.ttf",
+			"C:\\Windows\\Fonts\\segoeui.ttf" };
 
 	private Form956PdfGenerator() {
 	}
@@ -391,12 +401,21 @@ public final class Form956PdfGenerator {
 		} catch (IllegalArgumentException ignored) {
 			// 需要中文等字符时嵌入完整字体，便于浏览器重新编辑表单。
 		}
-		String[] fontPaths = {
-				"C:\\Windows\\Fonts\\simhei.ttf",
-				"C:\\Windows\\Fonts\\arial.ttf",
-				"C:\\Windows\\Fonts\\calibri.ttf",
-				"C:\\Windows\\Fonts\\segoeui.ttf" };
-		for (String fontPath : fontPaths) {
+		for (String fontResource : FONT_RESOURCES) {
+			ClassPathResource resource = new ClassPathResource(fontResource);
+			if (!resource.exists())
+				continue;
+			try (InputStream input = resource.getInputStream()) {
+				PDFont font = PDType0Font.load(document, input, false);
+				for (String value : values.values())
+					font.getStringWidth(value);
+				return font;
+			} catch (IllegalArgumentException ignored) {
+				// 当前资源字体缺少所需字符时尝试下一个字体。
+			}
+		}
+		// 兼容未重新打包资源的旧部署，最后再尝试操作系统字体。
+		for (String fontPath : SYSTEM_FONT_PATHS) {
 			Path path = Paths.get(fontPath);
 			if (Files.isRegularFile(path)) {
 				try (InputStream input = Files.newInputStream(path)) {
