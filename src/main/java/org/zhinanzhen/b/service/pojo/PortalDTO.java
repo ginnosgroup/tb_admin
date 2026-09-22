@@ -48,6 +48,9 @@ public class PortalDTO {
 	/** 生成后的 Form 956 文件访问路径，对应 b_portal_list.956path。 */
 	private String form956Path;
 
+	/** stage=application 附件打包后的 zip 访问路径，例如 /uploads/portal_attachment/xxx.zip。 */
+	private String applicationData;
+
 	/** 语聚AI返回的485方案咨询内容（updatePortal时保存）。 */
 	private String aiConsultContent;
 

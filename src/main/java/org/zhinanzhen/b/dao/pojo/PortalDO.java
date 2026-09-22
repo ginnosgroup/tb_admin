@@ -43,6 +43,9 @@ public class PortalDO implements Serializable {
 	/** 生成后的 Form 956 文件访问路径，对应 b_portal_list.956path。 */
 	private String form956Path;
 
+	/** stage=application 附件打包后的 zip 访问路径，例如 /uploads/portal_attachment/xxx.zip。 */
+	private String applicationData;
+
 	private String aiConsultContent;
 
 	private int adviserId;

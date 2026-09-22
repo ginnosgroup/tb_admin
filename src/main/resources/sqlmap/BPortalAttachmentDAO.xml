@@ -3,7 +3,6 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.PortalAttachmentDAO">
 
-    <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
 
     <insert id="addPortalAttachment" parameterType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
@@ -180,7 +179,7 @@
         ORDER BY gmt_create ASC, id ASC;
     </select>
 
-    <select id="listPortalAttachment" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
+    <select id="listPortalAttachment" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false">
         SELECT
             id,
             portal_id AS portalId,

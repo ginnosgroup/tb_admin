@@ -1,6 +1,9 @@
 package org.zhinanzhen.b.controller;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,6 +25,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 import javax.crypto.Cipher;
@@ -1104,6 +1109,33 @@ public class PortalController extends BaseController {
 						// 状态更新和日志仍保留，清理失败写日志便于后续补偿处理。
 						LOG.error("案件状态转为02A后清理合同、Letter和Form 956文件失败，portalId={}", id,
 								documentCleanupException);
+					}
+				}
+				// 状态转为06C时，将stage=application的附件打包为zip，并把路径写入applicationData。
+				// 若已有旧压缩包，先删除旧文件再覆盖新路径。
+				if ("06C".equals(strState)) {
+					try {
+						String oldApplicationData = oldPortalDto != null ? oldPortalDto.getApplicationData() : null;
+						if (oldPortalDto == null) {
+							PortalDTO currentPortalDto = portalService.getPortal(id, null, null, null, null, null);
+							if (currentPortalDto != null)
+								oldApplicationData = currentPortalDto.getApplicationData();
+						}
+						String applicationData = packageApplicationAttachments(id);
+						if (StringUtil.isNotEmpty(applicationData)) {
+							if (StringUtil.isNotEmpty(oldApplicationData)
+									&& !oldApplicationData.equals(applicationData))
+								deleteGeneratedPortalDocument("申请材料压缩包", oldApplicationData);
+							PortalDTO applicationDataDto = new PortalDTO();
+							applicationDataDto.setId(id);
+							applicationDataDto.setApplicationData(applicationData);
+							portalService.updatePortal(applicationDataDto);
+							portalDto.setApplicationData(applicationData);
+						}
+					} catch (Exception packageException) {
+						LOG.error("案件状态转为06C后打包申请材料失败，portalId={}", id, packageException);
+						return new Response<PortalDTO>(1,
+								"案件已更新为06C，但申请材料打包失败：" + packageException.getMessage(), portalDto);
 					}
 				}
 				// 操作日志：更新案件
@@ -2613,6 +2645,83 @@ public class PortalController extends BaseController {
 			}
 		}
 		return filePaths;
+	}
+
+	/**
+	 * 将指定案件 stage=application 的附件打包为 zip，放在附件同目录下，
+	 * 并返回与 upload2 相同格式的 /uploads/... 路径。
+	 */
+	private String packageApplicationAttachments(int portalId) throws ServiceException, IOException {
+		List<String> filePaths = listAttachmentPathsByStages(portalId, "application");
+		if (filePaths == null || filePaths.isEmpty())
+			return null;
+		List<File> files = new ArrayList<File>();
+		for (String filePath : filePaths) {
+			File file = resolveAttachmentPhysicalFile(filePath);
+			if (file != null && file.isFile())
+				files.add(file);
+		}
+		if (files.isEmpty())
+			return null;
+		File folder = files.get(0).getParentFile();
+		if (folder == null)
+			throw new IOException("无法确定申请材料所在目录，portalId=" + portalId);
+		if (!folder.isDirectory() && !folder.mkdirs())
+			throw new IOException("无法创建申请材料目录：" + folder.getAbsolutePath());
+		String zipName = "application_" + portalId + "_" + System.currentTimeMillis() + ".zip";
+		File zipFile = new File(folder, zipName);
+		ZipOutputStream zipOut = null;
+		try {
+			zipOut = new ZipOutputStream(new FileOutputStream(zipFile));
+			byte[] buffer = new byte[8192];
+			for (File file : files) {
+				zipOut.putNextEntry(new ZipEntry(file.getName()));
+				InputStream in = null;
+				try {
+					in = new FileInputStream(file);
+					int len;
+					while ((len = in.read(buffer)) > 0)
+						zipOut.write(buffer, 0, len);
+				} finally {
+					if (in != null)
+						in.close();
+				}
+				zipOut.closeEntry();
+			}
+			zipOut.finish();
+		} finally {
+			if (zipOut != null)
+				zipOut.close();
+		}
+		return toStoredUploadPath(zipFile);
+	}
+
+	/** 解析附件入库路径（/uploads/...）对应的本地物理文件。 */
+	private static File resolveAttachmentPhysicalFile(String filePath) {
+		String normalized = normalizeAttachmentFilePath(filePath);
+		if (normalized == null)
+			return null;
+		String relativePath = normalized.startsWith("/") ? normalized.substring(1) : normalized;
+		List<File> candidates = new ArrayList<File>();
+		candidates.add(new File("/data", relativePath));
+		String catalinaBase = System.getProperty("catalina.base");
+		if (StringUtil.isNotEmpty(catalinaBase))
+			candidates.add(new File(catalinaBase, "work/Tomcat/localhost/admin_v2.1/data/" + relativePath));
+		for (File candidate : candidates) {
+			if (candidate.isFile())
+				return candidate;
+		}
+		return null;
+	}
+
+	/** 将本地物理文件路径转换为与 upload2 一致的 /uploads/... 入库路径。 */
+	private static String toStoredUploadPath(File file) {
+		String path = file.getAbsolutePath().replace('\\', '/');
+		int uploadsIndex = path.indexOf("/uploads/");
+		if (uploadsIndex >= 0)
+			return path.substring(uploadsIndex);
+		String name = file.getName();
+		return "/uploads/portal_attachment/" + name;
 	}
 
 	/**

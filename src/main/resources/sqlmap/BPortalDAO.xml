@@ -3,8 +3,6 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.PortalDAO">
 
-    <cache eviction="LRU" flushInterval="120000" readOnly="false" size="100"></cache>
-
     <!-- 写入保护读取不能使用二级缓存；与归档状态更新共用同一行锁。 -->
     <select id="getPortalForUpdate" resultType="org.zhinanzhen.b.dao.pojo.PortalDO" useCache="false" flushCache="true">
         SELECT id, str_state AS strState FROM b_portal_list WHERE id = #{id} FOR UPDATE
@@ -94,6 +92,9 @@
         <if test='form956Path != null'>
             , `956path` = #{form956Path}
         </if>
+        <if test='applicationData != null'>
+            , application_data = #{applicationData}
+        </if>
         <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}
         </if>
@@ -152,6 +153,7 @@
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
+            application_data AS applicationData,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -288,7 +290,7 @@
         ;
     </select>
 
-    <select id="getPortalById" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">
+    <select id="getPortalById" resultType="org.zhinanzhen.b.dao.pojo.PortalDO" useCache="false">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -304,6 +306,7 @@
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
+            application_data AS applicationData,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,
@@ -340,7 +343,7 @@
         ;
     </select>
 
-    <select id="getPortalByTypeIdAndName" resultType="org.zhinanzhen.b.dao.pojo.PortalDO">
+    <select id="getPortalByTypeIdAndName" resultType="org.zhinanzhen.b.dao.pojo.PortalDO" useCache="false">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -356,6 +359,7 @@
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
+            application_data AS applicationData,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
             official_id AS officialId,

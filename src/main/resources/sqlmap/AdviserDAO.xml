@@ -3,7 +3,6 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.tb.dao.AdviserDAO">
     
-    <cache eviction="LRU" flushInterval="30000" readOnly="false" size="256"></cache>
 
     <insert id="addAdviser" parameterType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
@@ -54,7 +53,7 @@
         WHERE id = #{id};
     </update>
 
-    <select id="countAdviser" resultType="java.lang.Integer">
+    <select id="countAdviser" resultType="java.lang.Integer" useCache="false">
         SELECT count(*)
         FROM tb_adviser
         WHERE 1 = 1
@@ -70,7 +69,7 @@
         ;
     </select>
     
-    <select id="listAdviser" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="listAdviser" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         SELECT
             id,
             name,
@@ -94,7 +93,7 @@
         LIMIT #{offset}, #{rows};
     </select>
 
-    <select id="getAdviserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="getAdviserById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         SELECT
             a.id,
             a.gmt_create AS gmtCreate,
@@ -118,7 +117,7 @@
         WHERE a.id = #{id, jdbcType=INTEGER};
     </select>
 
-    <select id="listAdviserByRegionId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="listAdviserByRegionId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         SELECT
             id,
             gmt_create AS gmtCreate,
@@ -134,7 +133,7 @@
         </if>;
     </select>
 
-    <select id="listAdviserOperUserIdIsNull" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="listAdviserOperUserIdIsNull" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         SELECT
         id,
         gmt_create AS gmtCreate,
@@ -147,7 +146,7 @@
         oper_userid AS operUserId
         FROM tb_adviser WHERE oper_userid is not null;
     </select>
-    <select id="listAdviserWithOperUserId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="listAdviserWithOperUserId" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         SELECT
             a.id,
             a.name,
@@ -170,7 +169,7 @@
            AND operUserId != ''
         ORDER BY a.name, a.id
     </select>
-    <select id="getAdviserByEmail" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="getAdviserByEmail" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         select
             id,
             gmt_create AS gmtCreate,
@@ -183,7 +182,7 @@
             oper_userid AS operUserId
         from tb_adviser where email = #{userName}
     </select>
-    <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO">
+    <select id="listByIds" resultType="org.zhinanzhen.tb.dao.pojo.AdviserDO" useCache="false">
         SELECT id, gmt_create AS gmtCreate, name, phone, email, state, image_url AS imageUrl, region_id AS regionId, oper_userid AS operUserId FROM tb_adviser WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
