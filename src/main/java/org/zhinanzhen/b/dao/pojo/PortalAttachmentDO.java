@@ -28,6 +28,8 @@ public class PortalAttachmentDO implements Serializable {
 
 	private String fileExt;
 
+	private Integer fileSorting;
+
 	private String stage;
 
 	/** 附件状态。 */

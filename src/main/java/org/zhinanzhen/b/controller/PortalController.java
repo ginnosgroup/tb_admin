@@ -194,6 +194,7 @@ public class PortalController extends BaseController {
 	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
 			@RequestParam(value = "aiText", required = false) String aiText,
 			@RequestParam(value = "fileType", required = false) String fileType,
+			@RequestParam(value = "fileSorting", required = false) Integer fileSorting,
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "portalId", required = false) Integer portalId,
 			@RequestParam(value = "attachmentState", required = false) String attachmentState,
@@ -289,6 +290,8 @@ public class PortalController extends BaseController {
 				portalAttachmentDto.setFileType(normalizeStoredFileType(fileExt, file.getContentType()));
 				if (StringUtil.isNotEmpty(fileExt))
 					portalAttachmentDto.setFileExt(fileExt);
+				if (fileSorting != null)
+					portalAttachmentDto.setFileSorting(fileSorting);
 				portalAttachmentDto.setStage("apply");
 				if (uploadStage != null)
 					portalAttachmentDto.setStage(uploadStage);

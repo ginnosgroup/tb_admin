@@ -25,6 +25,8 @@ public class PortalAttachmentDTO {
 
 	private String fileExt;
 
+	private Integer fileSorting;
+
 	private String stage;
 
 	/** 附件状态。 */
