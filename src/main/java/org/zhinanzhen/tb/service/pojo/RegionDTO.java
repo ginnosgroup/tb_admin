@@ -18,5 +18,7 @@ public class RegionDTO {
 	
 	private int weight;
 
+	private String contractPath;
+
 	private List<RegionDO> regionList = new ArrayList<RegionDO>();
 }

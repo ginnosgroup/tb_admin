@@ -19,4 +19,6 @@ public class RegionDO implements Serializable {
 
 	private int financeBankId;
 
+	private String contractPath;
+
 }

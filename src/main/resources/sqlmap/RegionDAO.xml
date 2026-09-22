@@ -71,7 +71,8 @@
         name ,
         parent_id as parentId,
         weight ,
-        finance_bank_id as financeBankId
+        finance_bank_id as financeBankId,
+        contract_path as contractPath
         from `tb_region` where parent_id is not null ;
     </select>
 
