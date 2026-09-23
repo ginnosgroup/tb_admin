@@ -287,7 +287,8 @@ public final class Form956PdfGenerator {
 					continue;
 				COSDictionary widget = annotation.getCOSObject();
 				String name = fieldName(widget);
-				if (!values.containsKey(name))
+				// 客户确认时才填写的日期也必须出现在字段目录中；部分956模板把它留成孤立Widget。
+				if (!values.containsKey(name) && !"cc.dec date".equals(name))
 					continue;
 				PDField field = fields.get(name);
 				if (field == null) {

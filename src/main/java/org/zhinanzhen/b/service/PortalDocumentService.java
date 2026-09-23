@@ -11,6 +11,9 @@ public interface PortalDocumentService {
 
 	Map<String, String> generateDocuments(PortalDTO portalDto) throws ServiceException;
 
+	/** 将案件客户上传的签名写入已生成的合同、建议信和 Form 956。 */
+	void addCustomerSignatureToDocuments(PortalDTO portalDto) throws ServiceException;
+
 	/** 将本次生成的合同、建议信和 Form 956 作为附件发送给客户。 */
 	void sendGeneratedDocuments(PortalDTO portalDto, Map<String, String> generatedDocumentPaths)
 			throws ServiceException;

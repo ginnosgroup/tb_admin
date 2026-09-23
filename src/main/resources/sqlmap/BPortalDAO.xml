@@ -30,6 +30,7 @@
                 contract_file_path,
                 letter_file_path,
                 `956path`,
+                customer_signature,
                 adviser_id,
                 official_id,
                 mara_id,
@@ -49,6 +50,7 @@
                 #{contractFilePath},
                 #{letterFilePath},
                 #{form956Path},
+                #{customerSignature},
                 #{adviserId},
                 #{officialId},
                 #{maraId},
@@ -91,6 +93,9 @@
         </if>
         <if test='form956Path != null'>
             , `956path` = #{form956Path}
+        </if>
+        <if test='customerSignature != null'>
+            , customer_signature = #{customerSignature}
         </if>
         <if test='applicationData != null'>
             , application_data = #{applicationData}
@@ -153,6 +158,7 @@
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
+            customer_signature AS customerSignature,
             application_data AS applicationData,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
@@ -306,6 +312,7 @@
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
+            customer_signature AS customerSignature,
             application_data AS applicationData,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,
@@ -359,6 +366,7 @@
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
+            customer_signature AS customerSignature,
             application_data AS applicationData,
             ai_consult_content AS aiConsultContent,
             adviser_id AS adviserId,

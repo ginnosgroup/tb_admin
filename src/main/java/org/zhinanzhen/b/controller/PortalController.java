@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -215,8 +216,16 @@ public class PortalController extends BaseController {
 		String originalName = file == null ? null : file.getOriginalFilename();
 		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
 		String uploadStage = resolveApplicationStage(normalizedUploadFileType);
+		boolean signatureUpload = aiText == null && fileType != null
+				&& "signature".equalsIgnoreCase(fileType.trim());
+		boolean form956Upload = aiText == null && fileType != null
+				&& "956MA".equalsIgnoreCase(fileType.trim());
+		boolean customerSignatureUpload = aiText == null && fileType != null
+				&& "customerSignature".equalsIgnoreCase(fileType.trim());
+		boolean maraFileUpload = signatureUpload || form956Upload;
 		List<PortalAttachmentDTO> previousSameNameAttachments = Collections.emptyList();
-		if (portalId != null && uploadStage != null && StringUtil.isNotEmpty(originalName)) {
+		if (portalId != null && uploadStage != null && StringUtil.isNotEmpty(originalName)
+				&& !customerSignatureUpload) {
 			try {
 				// application/applicationWA 仅替换同一案件、同一阶段、同名的旧附件。
 				List<PortalAttachmentDTO> attachments = portalAttachmentService
@@ -227,11 +236,25 @@ public class PortalController extends BaseController {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
 		}
-		boolean signatureUpload = aiText == null && fileType != null
-				&& "signature".equalsIgnoreCase(fileType.trim());
-		boolean form956Upload = aiText == null && fileType != null
-				&& "956MA".equalsIgnoreCase(fileType.trim());
-		boolean maraFileUpload = signatureUpload || form956Upload;
+		List<PortalAttachmentDTO> previousCustomerSignatureAttachments = Collections.emptyList();
+		String previousCustomerSignaturePath = null;
+		if (customerSignatureUpload) {
+			if (portalId == null || portalId.intValue() <= 0)
+				return new Response<Map<String, Object>>(1,
+						"portalId不能为空且必须是有效数字，无法上传客户签名文件.", null);
+			try {
+				PortalDTO existingPortal = portalService.getPortal(portalId.intValue(), null, null, null, null, null);
+				if (existingPortal == null)
+					return new Response<Map<String, Object>>(1, "案件不存在，无法保存客户签名文件.", null);
+				previousCustomerSignaturePath = existingPortal.getCustomerSignature();
+				List<PortalAttachmentDTO> attachments = portalAttachmentService
+						.listPortalAttachmentByPortalIdAndStage(portalId, "customerSignature");
+				if (attachments != null)
+					previousCustomerSignatureAttachments = attachments;
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+		}
 		MaraDTO maraDto = null;
 		String oldMaraFilePath = null;
 		if (maraFileUpload) {
@@ -269,7 +292,8 @@ public class PortalController extends BaseController {
 		if (uploadResp.getCode() != 0) {
 			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
 		}
-		if (portalId != null && uploadStage != null && !previousSameNameAttachments.isEmpty()) {
+		if (portalId != null && uploadStage != null && !previousSameNameAttachments.isEmpty()
+				&& !customerSignatureUpload) {
 			try {
 				deletePreviousSameNameAttachments(previousSameNameAttachments, portalId, originalName, uploadStage);
 			} catch (ServiceException e) {
@@ -311,6 +335,18 @@ public class PortalController extends BaseController {
 				if (attachmentId <= 0) {
 					super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
 					return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
+				}
+				if (customerSignatureUpload) {
+					PortalDTO customerSignaturePortal = new PortalDTO();
+					customerSignaturePortal.setId(portalId.intValue());
+					customerSignaturePortal.setCustomerSignature(uploadResp.getData());
+					if (portalService.updatePortal(customerSignaturePortal) <= 0) {
+						cleanupUploadedAttachment(uploadResp.getData(), attachmentId);
+						return new Response<Map<String, Object>>(1, "客户签名文件路径保存失败.", null);
+					}
+					// 新附件和案件路径保存成功后，再删除该案件原有签名附件及文件。
+					deletePreviousCustomerSignatures(previousCustomerSignatureAttachments,
+							previousCustomerSignaturePath, uploadResp.getData(), portalId);
 				}
 			}
 			if (maraFileUpload) {
@@ -454,7 +490,7 @@ public class PortalController extends BaseController {
 		}
 	}
 
-	/** 对 application/applicationWA/openAFile/supplementary/notice/contractConfirmed 阶段解析上传替换规则。 */
+	/** 对 application/applicationWA/openAFile/supplementary/notice/customerSignature 等阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
@@ -472,6 +508,8 @@ public class PortalController extends BaseController {
 			return "noticeWA";
 		if ("contractConfirmed".equalsIgnoreCase(fileType))
 			return "contractConfirmed";
+		if ("customerSignature".equalsIgnoreCase(fileType))
+			return "customerSignature";
 		return null;
 	}
 
@@ -496,6 +534,46 @@ public class PortalController extends BaseController {
 				exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 				throw exception;
 			}
+		}
+	}
+
+	/** 新客户签名已保存后，清理该案件之前所有客户签名附件及其物理文件。 */
+	private void deletePreviousCustomerSignatures(List<PortalAttachmentDTO> attachments, String previousFilePath,
+			String newFilePath, Integer portalId) {
+		String normalizedNewFilePath = normalizeAttachmentFilePath(newFilePath);
+		Set<String> attachmentPaths = new LinkedHashSet<String>();
+		Set<String> oldFilePaths = new LinkedHashSet<String>();
+		if (attachments != null) {
+			for (PortalAttachmentDTO attachment : attachments) {
+				if (attachment == null || attachment.getId() <= 0)
+					continue;
+				String oldFilePath = normalizeAttachmentFilePath(attachment.getFilePath());
+				if (StringUtil.isNotEmpty(oldFilePath))
+					attachmentPaths.add(oldFilePath);
+				try {
+					if (portalAttachmentService.deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(
+							attachment.getId(), portalId, attachment.getFileName(), "customerSignature") > 0
+							&& StringUtil.isNotEmpty(oldFilePath)
+							&& !oldFilePath.equals(normalizedNewFilePath))
+						oldFilePaths.add(oldFilePath);
+				} catch (ServiceException e) {
+					LOG.warn("新客户签名已保存，但删除旧签名附件记录失败，portalId={}, attachmentId={}", portalId,
+							attachment.getId(), e);
+				}
+			}
+		}
+
+		String normalizedPreviousFilePath = normalizeAttachmentFilePath(previousFilePath);
+		if (StringUtil.isNotEmpty(normalizedPreviousFilePath)
+				&& !normalizedPreviousFilePath.equals(normalizedNewFilePath)
+				&& !attachmentPaths.contains(normalizedPreviousFilePath))
+			oldFilePaths.add(normalizedPreviousFilePath);
+
+		for (String oldFilePath : oldFilePaths) {
+			Response<String> deleteResponse = super.deleteFile(oldFilePath);
+			if (deleteResponse == null || deleteResponse.getCode() != 0)
+				LOG.warn("新客户签名已保存，但删除旧签名文件失败，portalId={}, filePath={}, message={}", portalId,
+						oldFilePath, deleteResponse == null ? "无删除结果" : deleteResponse.getMessage());
 		}
 	}
 
@@ -754,6 +832,80 @@ public class PortalController extends BaseController {
 			LOG.warn("删除案件{}文件失败，filePath={}，原因：{}", documentName, filePath, deleteResp.getMessage());
 	}
 
+	/** 将客户签署后的三份文件登记为案件的合同确认附件。 */
+	private void addSignedDocumentAttachments(PortalDTO portalDto, HttpServletRequest request) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0) {
+			ServiceException error = new ServiceException("案件信息无效，无法保存已签署文件附件。");
+			error.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw error;
+		}
+		List<PortalAttachmentDTO> existing = portalAttachmentService
+				.listPortalAttachmentByPortalIdAndStage(portalDto.getId(), "contractConfirmed");
+		List<Integer> addedIds = new ArrayList<Integer>();
+		try {
+			addSignedDocumentAttachment(portalDto.getId(), portalDto.getContractFilePath(), "合同PDF", "pdf",
+					"application/pdf", existing, addedIds, request);
+			addSignedDocumentAttachment(portalDto.getId(), portalDto.getLetterFilePath(), "建议信Word文件", "docx",
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document", existing, addedIds, request);
+			addSignedDocumentAttachment(portalDto.getId(), portalDto.getForm956Path(), "Form 956 PDF", "pdf",
+					"application/pdf", existing, addedIds, request);
+		} catch (ServiceException error) {
+			for (Integer attachmentId : addedIds) {
+				try {
+					portalAttachmentService.deletePortalAttachmentById(attachmentId);
+				} catch (ServiceException cleanupError) {
+					LOG.error("保存已签署文件附件失败后清理新增记录失败，portalId={}, attachmentId={}",
+							portalDto.getId(), attachmentId, cleanupError);
+				}
+			}
+			throw error;
+		}
+	}
+
+	private void addSignedDocumentAttachment(int portalId, String filePath, String documentName, String fileExt,
+			String mimeType, List<PortalAttachmentDTO> existing, List<Integer> addedIds, HttpServletRequest request)
+			throws ServiceException {
+		if (StringUtil.isEmpty(filePath)) {
+			ServiceException error = new ServiceException(documentName + "路径为空，无法保存附件记录。");
+			error.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw error;
+		}
+		if (existing != null) {
+			for (PortalAttachmentDTO attachment : existing) {
+				if (attachment != null && filePath.equals(attachment.getFilePath()))
+					return;
+			}
+		}
+		File file = resolveAttachmentPhysicalFile(filePath);
+		if (file == null) {
+			File absoluteFile = new File(filePath);
+			if (absoluteFile.isAbsolute() && absoluteFile.isFile())
+				file = absoluteFile;
+		}
+		if (file == null) {
+			ServiceException error = new ServiceException(documentName + "不存在，无法保存附件记录：" + filePath);
+			error.setCode(ErrorCodeEnum.DATA_ERROR.code());
+			throw error;
+		}
+		PortalAttachmentDTO attachment = new PortalAttachmentDTO();
+		attachment.setPortalId(portalId);
+		attachment.setFileName(file.getName());
+		attachment.setFilePath(filePath);
+		attachment.setFileSize(file.length());
+		attachment.setFileType(mimeType);
+		attachment.setFileExt(fileExt);
+		attachment.setStage("contractConfirmed");
+		attachment.setIp(getClientIp(request));
+		attachment.setUserAgent(request.getHeader("User-Agent"));
+		int attachmentId = portalAttachmentService.addPortalAttachment(attachment);
+		if (attachmentId <= 0) {
+			ServiceException error = new ServiceException(documentName + "附件记录保存失败。");
+			error.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw error;
+		}
+		addedIds.add(attachmentId);
+	}
+
 	/**
 	 * 规范化附件文件路径后再交给 deleteFile 拼接 /data 前缀：
 	 * 去掉 http(s)://域名 前缀、应用 context path（/admin_v2.1）前缀，
@@ -967,11 +1119,25 @@ public class PortalController extends BaseController {
 				String expectedFromState = customerSupplementAction ? "010F"
 						: customerMaterialsAction ? "06B" : "03A";
 				if (!expectedFromState.equals(fromState)) {
-					savePortalLog(id, "customer_action_ignored", fromState, fromState,
-							customerSupplementAction ? "客户重复点击补充材料操作链接，当前状态不允许处理"
-									: customerMaterialsAction ? "客户重复点击申请材料操作链接，当前状态不允许处理"
-									: "客户重复点击合同操作链接，当前状态不允许处理", request);
 					if (targetState.equals(fromState)) {
+						if ("04".equals(targetState) && "confirmed".equals(normalizedResult)) {
+							try {
+								// 已确认案件再次打开确认链接时，也能修复旧文件中遗漏的签名位置和日期。
+								portalDocumentService.addCustomerSignatureToDocuments(oldPortalDto);
+								addSignedDocumentAttachments(oldPortalDto, request);
+								LOG.info("已修复客户签署文件，portalId={}", id);
+							} catch (ServiceException signatureException) {
+								LOG.error("修复已确认案件的客户签署文件失败，portalId={}", id, signatureException);
+								return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
+										"案件已确认，但签署文件更新失败，请联系您的顾问。", response,
+										customerMaterialsFlow, customerSupplementAction);
+							}
+							savePortalLog(id, "customer_signed_documents_refreshed", fromState, fromState,
+									"已确认案件重新填充客户签名和日期", request);
+						} else {
+							savePortalLog(id, "customer_action_ignored", fromState, fromState,
+									"客户重复点击操作链接，案件已处于目标状态", request);
+						}
 						String completedMessage = "confirmed".equals(normalizedResult)
 								? (customerSupplementAction ? "该案件已经确认补充材料，无需重复操作。"
 										: customerMaterialsAction ? "该案件已经确认申请材料，无需重复操作。"
@@ -982,6 +1148,10 @@ public class PortalController extends BaseController {
 						return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, true,
 								completedMessage, response, customerMaterialsFlow, customerSupplementAction);
 					}
+					savePortalLog(id, "customer_action_ignored", fromState, fromState,
+							customerSupplementAction ? "客户重复点击补充材料操作链接，当前状态不允许处理"
+									: customerMaterialsAction ? "客户重复点击申请材料操作链接，当前状态不允许处理"
+									: "客户重复点击合同操作链接，当前状态不允许处理", request);
 					return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
 							customerSupplementAction ? "补充材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
 									: customerMaterialsAction ? "申请材料状态已经发生变化，本次操作未执行，请联系您的顾问。"
@@ -1060,6 +1230,32 @@ public class PortalController extends BaseController {
 			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
 				replace06AArchiveAttachments(id, updateFilePaths);
 			if (portalService.updatePortalWithAttachments(portalDto, portalAttachmentUpdateFilePaths, null) > 0) {
+				// 客户确认合同（03A -> 04）后，将已上传的签名写入三份最终文件。
+				if ("04".equals(strState) && !"04".equals(fromState)) {
+					try {
+						PortalDTO signingPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalDocumentService.addCustomerSignatureToDocuments(signingPortalDto);
+						addSignedDocumentAttachments(signingPortalDto, request);
+						LOG.info("客户签名已写入合同、Letter和Form 956，portalId={}", id);
+					} catch (ServiceException signatureException) {
+						if (StringUtil.isNotEmpty(fromState)) {
+							try {
+								PortalDTO rollbackPortalDto = new PortalDTO();
+								rollbackPortalDto.setId(id);
+								rollbackPortalDto.setStrState(fromState);
+								portalService.updatePortal(rollbackPortalDto);
+							} catch (ServiceException rollbackException) {
+								LOG.error("客户签名填入文件失败后回退案件状态失败，portalId={}", id, rollbackException);
+							}
+						}
+						LOG.error("案件状态转为04后处理客户签名文件失败，portalId={}", id, signatureException);
+						if (customerResultRequest)
+							return customerUpdateResponse(customerJsonResponse, null, normalizedResult, false,
+									"客户签名文件处理失败，案件状态已恢复，请联系您的顾问。", response, customerMaterialsFlow,
+									customerSupplementAction);
+						return new Response<PortalDTO>(signatureException.getCode(), signatureException.getMessage(), portalDto);
+					}
+				}
             // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
             if ("02B".equals(strState) && !"02B".equals(fromState)) {
                 try {
@@ -2127,7 +2323,7 @@ public class PortalController extends BaseController {
 	}
 
 	/**
-	 * 客户邮件中的合同操作链接。链接本身不依赖登录态，使用HMAC令牌校验，且只允许案件当前处于03A时变更状态。
+	 * 客户邮件中的旧版合同操作链接。使用HMAC令牌校验；03A时变更状态，已确认的04可重试修复签署文件。
 	 */
 	@RequestMapping(value = "/customer-action", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
 	@ResponseBody
@@ -2158,10 +2354,28 @@ public class PortalController extends BaseController {
 			String logContent = confirm ? "客户点击确认签署按钮" : "客户点击退回修改按钮";
 			String currentState = portalDto.getStrState();
 			if (!"03A".equals(currentState)) {
+				if (targetState.equals(currentState)) {
+					if (confirm) {
+						try {
+							portalDocumentService.addCustomerSignatureToDocuments(portalDto);
+							addSignedDocumentAttachments(portalDto, request);
+							LOG.info("已修复客户签署文件，portalId={}", portalId);
+							savePortalLog(portalId, "customer_signed_documents_refreshed", currentState,
+									currentState, "已确认案件重新填充客户签名和日期", request);
+						} catch (ServiceException signatureException) {
+							LOG.error("修复已确认案件的客户签署文件失败，portalId={}", portalId,
+									signatureException);
+							return customerActionPage(false, "文件更新失败",
+									"案件已确认，但签署文件更新失败，请联系您的顾问。");
+						}
+					} else {
+						savePortalLog(portalId, logAction + "_ignored", currentState, currentState,
+								logContent + "，当前状态不允许重复处理", request);
+					}
+					return customerActionPage(true, "操作已完成", "该案件已经处理过，无需重复操作。");
+				}
 				savePortalLog(portalId, logAction + "_ignored", currentState, currentState,
 						logContent + "，当前状态不允许重复处理", request);
-				if (targetState.equals(currentState))
-					return customerActionPage(true, "操作已完成", "该案件已经处理过，无需重复操作。");
 				return customerActionPage(false, "操作未执行", "该案件当前状态已发生变化，请联系您的顾问。");
 			}
 
@@ -2174,6 +2388,26 @@ public class PortalController extends BaseController {
 				return customerActionPage(false, "操作未执行", "该案件已经被处理或状态已发生变化，请联系您的顾问。");
 			}
 
+			if (confirm) {
+				try {
+					PortalDTO confirmedPortalDto = portalService.getPortal(portalId, null, null, null, null, null);
+					portalDocumentService.addCustomerSignatureToDocuments(confirmedPortalDto);
+					addSignedDocumentAttachments(confirmedPortalDto, request);
+					LOG.info("客户签名已写入合同、Letter和Form 956，portalId={}", portalId);
+				} catch (ServiceException signatureException) {
+					int restored = 0;
+					try {
+						restored = portalService.updatePortalStateIfCurrent(portalId, "04", "03A");
+					} catch (ServiceException rollbackException) {
+						LOG.error("客户签署文件处理失败后回退案件状态失败，portalId={}", portalId,
+								rollbackException);
+					}
+					LOG.error("客户签署文件处理失败，portalId={}，状态回退结果={}", portalId, restored,
+							signatureException);
+					return customerActionPage(false, "确认签署失败",
+							"签署文件未处理完成，请稍后重试或联系您的顾问。");
+				}
+			}
 			savePortalLog(portalId, logAction, "03A", targetState, logContent, request);
 			if (confirm) {
 				try {

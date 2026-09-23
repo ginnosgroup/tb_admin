@@ -1,5 +1,7 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,8 +9,10 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.PosixFilePermission;
+import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,7 +29,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
 
+import org.apache.poi.util.Units;
+import org.apache.poi.xwpf.usermodel.Document;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFHeaderFooter;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -58,8 +65,10 @@ import com.itextpdf.text.pdf.PdfAppearance;
 import com.itextpdf.text.pdf.PdfArray;
 import com.itextpdf.text.pdf.PdfDictionary;
 import com.itextpdf.text.pdf.PdfName;
+import com.itextpdf.text.pdf.PdfObject;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfString;
 
 @Service("PortalDocumentService")
 public class PortalDocumentServiceImpl extends BaseService implements PortalDocumentService {
@@ -75,6 +84,17 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					"Contract-CEM-TAS-13-Sep-2022.pdf")));
 	private static final String[] MODERN_SIGNATURE_FIELDS = { "agent_signature_p1", "agent_signature_p2",
 			"agent_signature_p3", "agent_signature_p4" };
+	private static final String[] MODERN_CLIENT_SIGNATURE_FIELDS = { "client_signature_p1", "client_signature_p2",
+			"client_signature_p3", "client_signature_p4" };
+	private static final String[] MODERN_CLIENT_DATE_FIELDS = { "client_date_p1", "client_date_p2",
+			"client_date_p3", "client_date_p4" };
+	private static final String CUSTOMER_SIGNATURE_PDF_INFO_KEY = "CustomerSignatureSHA256";
+	private static final String LEGACY_CLIENT_DATE_DAY_FIELD = "Text20";
+	private static final String LEGACY_CLIENT_DATE_MONTH_FIELD = "Text9";
+	private static final String LEGACY_CLIENT_DATE_YEAR_SUFFIX_FIELD = "Text10";
+	private static final String LEGACY_CARDHOLDER_DATE_FIELD_SUFFIX = "37_af_date";
+	private static final String MODERN_CARDHOLDER_SIGNATURE_FIELD = "Text25";
+	private static final String MODERN_CARDHOLDER_DATE_FIELD = "kJ6qdY23";
 	private static final String[] MODERN_SIGNATURE_DATE_FIELDS = { "agent_date_p1", "agent_date_p2",
 			"agent_date_p3", "agent_date_p4" };
 	/** 旧模板中的Text29在前四页各有一个控件，位置均为Signed by the Director。 */
@@ -168,6 +188,330 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw exception;
 		}
+	}
+
+	@Override
+	public void addCustomerSignatureToDocuments(PortalDTO portalDto) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw serviceException("案件信息无效，无法填入客户签名.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		if (StringUtil.isEmpty(portalDto.getCustomerSignature()))
+			throw serviceException("案件尚未上传客户签名文件.", ErrorCodeEnum.DATA_ERROR.code(), null);
+
+		Path contractPath = requireGeneratedFile(portalDto.getContractFilePath(), "合同PDF");
+		Path advicePath = requireGeneratedFile(portalDto.getLetterFilePath(), "建议信Word文件");
+		Path form956Path = requireGeneratedFile(portalDto.getForm956Path(), "Form 956 PDF");
+		Path contractTemporary = null;
+		Path adviceTemporary = null;
+		Path form956Temporary = null;
+		try {
+			byte[] signatureBytes = readSignatureFile(portalDto.getCustomerSignature(),
+					"案件 " + portalDto.getId() + " 的客户签名");
+			Date signingDate = portalDto.getGmtModify() == null ? new Date() : portalDto.getGmtModify();
+			String signingDateText = formatDate(signingDate);
+			String fingerprint = signatureFingerprint(signatureBytes);
+			int pictureType = detectPictureType(signatureBytes);
+			contractTemporary = Files.createTempFile(contractPath.getParent(), "customer-sign-contract-", ".pdf");
+			adviceTemporary = Files.createTempFile(advicePath.getParent(), "customer-sign-letter-", ".docx");
+			form956Temporary = Files.createTempFile(form956Path.getParent(), "customer-sign-956-", ".pdf");
+
+			stampCustomerSignatureOnContract(contractPath, contractTemporary, signatureBytes, fingerprint, signingDate);
+			addCustomerSignatureToAdvice(advicePath, adviceTemporary, signatureBytes, pictureType, signingDateText);
+			stampCustomerSignatureOnForm956(form956Path, form956Temporary, signatureBytes, fingerprint, signingDate);
+
+			// 三份文件先在临时文件中完成处理，再替换原件。
+			Files.move(contractTemporary, contractPath, StandardCopyOption.REPLACE_EXISTING);
+			Files.move(adviceTemporary, advicePath, StandardCopyOption.REPLACE_EXISTING);
+			Files.move(form956Temporary, form956Path, StandardCopyOption.REPLACE_EXISTING);
+			ensureGeneratedFileReadable(contractPath);
+			ensureGeneratedFileReadable(advicePath);
+			ensureGeneratedFileReadable(form956Path);
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("为客户合同、建议信和Form 956填入签名失败: " + e.getMessage(),
+					ErrorCodeEnum.OTHER_ERROR.code(), e);
+		} finally {
+			deleteGeneratedFile(contractTemporary);
+			deleteGeneratedFile(adviceTemporary);
+			deleteGeneratedFile(form956Temporary);
+		}
+	}
+
+	private void stampCustomerSignatureOnContract(Path source, Path destination, byte[] signatureBytes,
+			String fingerprint, Date signingDate) throws Exception {
+		PdfReader reader = new PdfReader(source.toString());
+		try {
+			boolean alreadySigned = isAlreadySignedPdf(reader, fingerprint);
+			try (OutputStream output = Files.newOutputStream(destination, StandardOpenOption.TRUNCATE_EXISTING,
+					StandardOpenOption.WRITE)) {
+				PdfStamper stamper = new PdfStamper(reader, output);
+				try {
+					AcroFields form = stamper.getAcroFields();
+					form.setGenerateAppearances(true);
+					if (!alreadySigned) {
+						String[] fields = resolveCustomerContractSignatureFields(form);
+						for (String field : fields)
+							addSignatureImageToField(stamper, form, field, signatureBytes);
+					}
+					// 旧版签署流程只处理新版合同的前四页，补上银行卡授权页的签名。
+					if (hasFieldPosition(form, MODERN_CARDHOLDER_SIGNATURE_FIELD)
+							&& hasPdfField(form, MODERN_CLIENT_DATE_FIELDS[0]))
+						addSignatureImageToField(stamper, form, MODERN_CARDHOLDER_SIGNATURE_FIELD, signatureBytes);
+					fillCustomerContractDates(form, signingDate);
+					Map<String, String> info = new LinkedHashMap<String, String>();
+					info.put(CUSTOMER_SIGNATURE_PDF_INFO_KEY, fingerprint);
+					stamper.setMoreInfo(info);
+					stamper.setFormFlattening(false);
+				} finally {
+					stamper.close();
+				}
+			}
+		} finally {
+			reader.close();
+		}
+	}
+
+	private void fillCustomerContractDates(AcroFields form, Date signingDate) throws Exception {
+		String dateText = formatDate(signingDate);
+		if (hasPdfField(form, MODERN_CLIENT_DATE_FIELDS[0])) {
+			for (String field : MODERN_CLIENT_DATE_FIELDS)
+				setRequiredPdfField(form, field, dateText, "合同客户签署日期");
+			setRequiredPdfField(form, MODERN_CARDHOLDER_DATE_FIELD, dateText, "合同持卡人签署日期");
+			return;
+		}
+		String[] dateParts = dateText.split("/");
+		setRequiredPdfField(form, LEGACY_CLIENT_DATE_DAY_FIELD, dateParts[0], "合同客户签署日期");
+		setRequiredPdfField(form, LEGACY_CLIENT_DATE_MONTH_FIELD, dateParts[1], "合同客户签署日期");
+		setRequiredPdfField(form, LEGACY_CLIENT_DATE_YEAR_SUFFIX_FIELD,
+				dateParts[2].substring(dateParts[2].length() - 1), "合同客户签署日期");
+		String cardholderDateField = null;
+		for (String field : form.getFields().keySet()) {
+			if (field.endsWith(LEGACY_CARDHOLDER_DATE_FIELD_SUFFIX)) {
+				cardholderDateField = field;
+				break;
+			}
+		}
+		if (cardholderDateField == null)
+			throw new IOException("合同模板缺少持卡人签署日期字段");
+		setRequiredPdfField(form, cardholderDateField,
+				new SimpleDateFormat("yy/M/d", Locale.ENGLISH).format(signingDate), "合同持卡人签署日期");
+	}
+
+	private void setRequiredPdfField(AcroFields form, String fieldName, String value, String label)
+			throws Exception {
+		if (!hasPdfField(form, fieldName) || !form.setField(fieldName, value))
+			throw new IOException(label + "字段无法填写: " + fieldName);
+	}
+
+	private String[] resolveCustomerContractSignatureFields(AcroFields form) throws IOException {
+		if (hasFieldPosition(form, MODERN_CLIENT_SIGNATURE_FIELDS[0])) {
+			for (String field : MODERN_CLIENT_SIGNATURE_FIELDS) {
+				if (!hasFieldPosition(form, field))
+					throw new IOException("合同模板缺少客户签名字段: " + field);
+			}
+			return MODERN_CLIENT_SIGNATURE_FIELDS;
+		}
+		String[] legacyFields = { "Signature21", "Signature22", "Signature23", "Signature25", "Signature38" };
+		List<String> available = new ArrayList<String>();
+		for (String field : legacyFields) {
+			if (hasFieldPosition(form, field))
+				available.add(field);
+		}
+		if (available.isEmpty())
+			throw new IOException("合同模板缺少客户签名字段");
+		return available.toArray(new String[available.size()]);
+	}
+
+	private void stampCustomerSignatureOnForm956(Path source, Path destination, byte[] signatureBytes,
+			String fingerprint, Date signingDate) throws Exception {
+		PdfReader reader = new PdfReader(source.toString());
+		try {
+			registerOrphanForm956CustomerDateField(reader);
+			boolean alreadySigned = isAlreadySignedPdf(reader, fingerprint);
+			try (OutputStream output = Files.newOutputStream(destination, StandardOpenOption.TRUNCATE_EXISTING,
+					StandardOpenOption.WRITE)) {
+				PdfStamper stamper = new PdfStamper(reader, output);
+				try {
+					AcroFields form = stamper.getAcroFields();
+					form.setGenerateAppearances(true);
+					List<AcroFields.FieldPosition> datePositions = form.getFieldPositions("cc.dec date");
+					if (datePositions == null || datePositions.isEmpty())
+						throw new IOException("Form 956模板缺少客户签名定位字段: cc.dec date");
+					if (!alreadySigned) {
+						for (AcroFields.FieldPosition datePosition : datePositions) {
+							Rectangle date = datePosition.position;
+							// Form 956客户声明签名框位于客户签名日期框正上方。
+							Rectangle signatureArea = new Rectangle(date.getLeft(), date.getTop() + 9f,
+									date.getLeft() + 188f, date.getTop() + 48f);
+							addSignatureImageAtPosition(stamper, datePosition.page, signatureArea, signatureBytes);
+						}
+					}
+					setRequiredPdfField(form, "cc.dec date",
+							new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH).format(signingDate),
+							"Form 956客户签署日期");
+					Map<String, String> info = new LinkedHashMap<String, String>();
+					info.put(CUSTOMER_SIGNATURE_PDF_INFO_KEY, fingerprint);
+					stamper.setMoreInfo(info);
+					stamper.setFormFlattening(false);
+				} finally {
+					stamper.close();
+				}
+			}
+		} finally {
+			reader.close();
+		}
+	}
+
+	/** 兼容旧版生成的Allison等956文件：页面有日期Widget，但AcroForm字段目录漏掉了它。 */
+	private void registerOrphanForm956CustomerDateField(PdfReader reader) {
+		PdfDictionary acroForm = reader.getCatalog().getAsDict(PdfName.ACROFORM);
+		if (acroForm == null)
+			return;
+		PdfArray fields = acroForm.getAsArray(PdfName.FIELDS);
+		if (fields == null)
+			return;
+		for (int pageNumber = 1; pageNumber <= reader.getNumberOfPages(); pageNumber++) {
+			PdfArray annotations = reader.getPageN(pageNumber).getAsArray(PdfName.ANNOTS);
+			if (annotations == null)
+				continue;
+			for (int index = 0; index < annotations.size(); index++) {
+				PdfDictionary annotation = annotations.getAsDict(index);
+				if (annotation == null || annotation.get(PdfName.PARENT) != null)
+					continue;
+				PdfString name = annotation.getAsString(PdfName.T);
+				if (name == null || !"cc.dec date".equals(name.toUnicodeString()))
+					continue;
+				for (int fieldIndex = 0; fieldIndex < fields.size(); fieldIndex++) {
+					if (fields.getAsDict(fieldIndex) == annotation)
+						return;
+				}
+				PdfObject reference = annotations.getPdfObject(index);
+				fields.add(reference);
+				return;
+			}
+		}
+	}
+
+	/** 已签过的PDF只补写日期，不重复叠加签名图片。 */
+	private boolean isAlreadySignedPdf(PdfReader reader, String fingerprint)
+			throws IOException {
+		String existingFingerprint = reader.getInfo().get(CUSTOMER_SIGNATURE_PDF_INFO_KEY);
+		if (StringUtil.isEmpty(existingFingerprint))
+			return false;
+		if (!fingerprint.equals(existingFingerprint))
+			throw new IOException("已签署文件使用的客户签名与当前上传的签名不同，请重新生成文件。");
+		return true;
+	}
+
+	private String signatureFingerprint(byte[] signatureBytes) throws Exception {
+		byte[] digest = MessageDigest.getInstance("SHA-256").digest(signatureBytes);
+		StringBuilder hex = new StringBuilder(digest.length * 2);
+		for (byte value : digest) {
+			hex.append(Character.forDigit((value >>> 4) & 0xf, 16));
+			hex.append(Character.forDigit(value & 0xf, 16));
+		}
+		return hex.toString();
+	}
+
+	private void addCustomerSignatureToAdvice(Path source, Path destination, byte[] signatureBytes, int pictureType,
+			String signingDateText)
+			throws Exception {
+		boolean[] found = { false, false };
+		try (InputStream input = Files.newInputStream(source); XWPFDocument document = new XWPFDocument(input)) {
+			addCustomerSignatureToTables(document.getTables(), signatureBytes, pictureType, signingDateText, found);
+			for (XWPFHeaderFooter header : document.getHeaderList()) {
+				addCustomerSignatureToTables(header.getTables(), signatureBytes, pictureType, signingDateText, found);
+			}
+			for (XWPFHeaderFooter footer : document.getFooterList()) {
+				addCustomerSignatureToTables(footer.getTables(), signatureBytes, pictureType, signingDateText, found);
+			}
+			if (!found[0])
+				throw new IOException("建议信模板缺少客户签名表格的右侧单元格");
+			if (!found[1])
+				throw new IOException("建议信模板缺少客户签署日期位置");
+			try (OutputStream output = Files.newOutputStream(destination, StandardOpenOption.TRUNCATE_EXISTING,
+					StandardOpenOption.WRITE)) {
+				document.write(output);
+			}
+		}
+	}
+
+	private void addCustomerSignatureToTables(List<XWPFTable> tables, byte[] signatureBytes, int pictureType,
+			String signingDateText, boolean[] found) throws Exception {
+		for (XWPFTable table : tables) {
+			boolean acknowledgementTable = false;
+			for (org.apache.poi.xwpf.usermodel.XWPFTableRow row : table.getRows()) {
+				if (row.getTableCells().size() >= 2
+						&& "Signature".equalsIgnoreCase(row.getCell(0).getText().trim())) {
+					acknowledgementTable = true;
+					break;
+				}
+			}
+			for (org.apache.poi.xwpf.usermodel.XWPFTableRow row : table.getRows()) {
+				if (acknowledgementTable && row.getTableCells().size() >= 2) {
+					String label = row.getCell(0).getText().trim();
+					if ("Signature".equalsIgnoreCase(label)) {
+						// 修复之前把签名图片误放在左侧标签单元格的文件。
+						removePictures(row.getCell(0));
+						addSignatureToCell(row.getCell(1), signatureBytes, pictureType);
+						found[0] = true;
+					} else if ("Date".equalsIgnoreCase(label)) {
+						replaceCellText(row.getCell(1), signingDateText);
+						found[1] = true;
+					}
+				}
+				for (XWPFTableCell cell : row.getTableCells()) {
+					addCustomerSignatureToTables(cell.getTables(), signatureBytes, pictureType,
+							signingDateText, found);
+				}
+			}
+		}
+	}
+
+	private void removePictures(XWPFTableCell cell) {
+		for (XWPFParagraph paragraph : cell.getParagraphs()) {
+			for (int index = paragraph.getRuns().size() - 1; index >= 0; index--) {
+				if (!paragraph.getRuns().get(index).getEmbeddedPictures().isEmpty())
+					paragraph.removeRun(index);
+			}
+		}
+	}
+
+	private void addSignatureToCell(XWPFTableCell cell, byte[] signatureBytes, int pictureType)
+			throws Exception {
+		// 重新写入可修复旧版本生成的极小图片，并确保重复确认时不会叠加签名。
+		removePictures(cell);
+		BufferedImage image = ImageIO.read(new ByteArrayInputStream(signatureBytes));
+		if (image == null)
+			throw new IOException("客户签名文件不是有效图片");
+		double scale = Math.min(1.8d / image.getWidth(), 0.42d / image.getHeight());
+		// scale 计算的是英寸；POI 的 toEMU 参数是磅，1 英寸 = 72 磅。
+		int width = Units.toEMU(image.getWidth() * scale * 72d);
+		int height = Units.toEMU(image.getHeight() * scale * 72d);
+		XWPFParagraph paragraph = cell.getParagraphs().isEmpty() ? cell.addParagraph() : cell.getParagraphs().get(0);
+		try (InputStream picture = new ByteArrayInputStream(signatureBytes)) {
+			paragraph.createRun().addPicture(picture, pictureType, "customer-signature", width, height);
+		}
+	}
+
+	private void replaceCellText(XWPFTableCell cell, String value) {
+		XWPFParagraph paragraph = cell.getParagraphs().isEmpty() ? cell.addParagraph() : cell.getParagraphs().get(0);
+		for (int index = paragraph.getRuns().size() - 1; index >= 0; index--)
+			paragraph.removeRun(index);
+		paragraph.createRun().setText(value);
+	}
+
+	private int detectPictureType(byte[] imageBytes) throws IOException {
+		if (imageBytes.length >= 8 && (imageBytes[0] & 0xff) == 0x89 && imageBytes[1] == 0x50
+				&& imageBytes[2] == 0x4e && imageBytes[3] == 0x47)
+			return Document.PICTURE_TYPE_PNG;
+		if (imageBytes.length >= 3 && (imageBytes[0] & 0xff) == 0xff && (imageBytes[1] & 0xff) == 0xd8)
+			return Document.PICTURE_TYPE_JPEG;
+		if (imageBytes.length >= 6 && imageBytes[0] == 'G' && imageBytes[1] == 'I' && imageBytes[2] == 'F')
+			return Document.PICTURE_TYPE_GIF;
+		if (imageBytes.length >= 2 && imageBytes[0] == 'B' && imageBytes[1] == 'M')
+			return Document.PICTURE_TYPE_BMP;
+		throw new IOException("客户签名文件只支持 PNG、JPG、GIF 或 BMP 图片");
 	}
 
 	/**
@@ -909,7 +1253,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			throw new IOException("未找到 Mara，maraId=" + maraId);
 		if (StringUtil.isEmpty(maraDto.getSignatureData()))
 			throw new IOException("Mara " + maraId + " 未配置签名文件路径(signature_data)");
-		byte[] signatureBytes = readSignatureFile(maraDto.getSignatureData(), maraId);
+		byte[] signatureBytes = readSignatureFile(maraDto.getSignatureData(), "Mara " + maraId);
 		String[] signatureFields = resolveSignatureFields(form);
 		for (String signatureField : signatureFields)
 			addMaraSignature(stamper, form, signatureField, signatureBytes);
@@ -930,31 +1274,47 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private void addMaraSignature(PdfStamper stamper, AcroFields form, String fieldName, byte[] signatureBytes)
 			throws Exception {
+		addSignatureImageToField(stamper, form, fieldName, signatureBytes, "Mara");
+	}
+
+	private void addSignatureImageToField(PdfStamper stamper, AcroFields form, String fieldName,
+			byte[] signatureBytes) throws Exception {
+		addSignatureImageToField(stamper, form, fieldName, signatureBytes, "客户");
+	}
+
+	private void addSignatureImageToField(PdfStamper stamper, AcroFields form, String fieldName,
+			byte[] signatureBytes, String signerLabel) throws Exception {
 		List<AcroFields.FieldPosition> positions = form.getFieldPositions(fieldName);
 		if (positions == null || positions.isEmpty())
-			throw new IOException("合同模板缺少签名字段: " + fieldName);
+			throw new IOException("合同模板缺少" + signerLabel + "签名字段: " + fieldName);
 
 		// Text29等字段在多页拥有多个控件，移除字段前先保留全部位置。
 		List<AcroFields.FieldPosition> fieldPositions = new ArrayList<AcroFields.FieldPosition>(positions);
 		if (!form.removeField(fieldName))
-			throw new IOException("无法移除合同签名字段: " + fieldName);
+			throw new IOException("无法移除合同" + signerLabel + "签名字段: " + fieldName);
 
 		for (AcroFields.FieldPosition fieldPosition : fieldPositions) {
-			Rectangle rectangle = fieldPosition.position;
-			Image signature = Image.getInstance(signatureBytes);
-			signature.scaleToFit(rectangle.getWidth() * 0.95f, rectangle.getHeight() * 0.95f);
-			signature.setAbsolutePosition(
-					rectangle.getLeft() + (rectangle.getWidth() - signature.getScaledWidth()) / 2f,
-					rectangle.getBottom() + (rectangle.getHeight() - signature.getScaledHeight()) / 2f);
-			stamper.getOverContent(fieldPosition.page).addImage(signature);
+			addSignatureImageAtPosition(stamper, fieldPosition.page, fieldPosition.position, signatureBytes);
 		}
+	}
+
+	private void addSignatureImageAtPosition(PdfStamper stamper, int page, Rectangle rectangle, byte[] signatureBytes)
+			throws Exception {
+		Image signature = Image.getInstance(signatureBytes);
+		signature.scaleToFit(rectangle.getWidth() * 0.95f, rectangle.getHeight() * 0.95f);
+		signature.setAbsolutePosition(
+				rectangle.getLeft() + (rectangle.getWidth() - signature.getScaledWidth()) / 2f,
+				rectangle.getBottom() + (rectangle.getHeight() - signature.getScaledHeight()) / 2f);
+		stamper.getOverContent(page).addImage(signature);
 	}
 
 	/**
 	 * signature_data 保存的是上传接口返回的路径，例如 /uploads/portal_attachment/xxx.png，
 	 * 实际文件位于 /data/uploads/portal_attachment/xxx.png。
 	 */
-	private byte[] readSignatureFile(String signatureData, int maraId) throws IOException {
+	private byte[] readSignatureFile(String signatureData, String signerDescription) throws IOException {
+		if (StringUtil.isEmpty(signatureData))
+			throw new IOException(signerDescription + "未配置签名文件路径");
 		String normalizedPath = signatureData.trim().replace('\\', '/');
 		List<Path> candidatePaths = new ArrayList<Path>();
 		if (normalizedPath.matches("^[A-Za-z]:/.*"))
@@ -1001,7 +1361,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			if (Files.isRegularFile(normalizedCandidate))
 				return Files.readAllBytes(normalizedCandidate);
 		}
-		throw new IOException("Mara " + maraId + " 的签名文件不存在: " + normalizedPath);
+		throw new IOException(signerDescription + "的签名文件不存在: " + normalizedPath);
 	}
 
 	private void setPdfField(AcroFields form, String fieldName, String value) throws Exception {
