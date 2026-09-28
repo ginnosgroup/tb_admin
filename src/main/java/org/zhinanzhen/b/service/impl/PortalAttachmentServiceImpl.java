@@ -145,6 +145,29 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 	}
 
 	@Override
+	public List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndFileSorting(Integer portalId,
+			Integer fileSorting) throws ServiceException {
+		if (portalId == null || portalId <= 0 || fileSorting == null) {
+			ServiceException se = new ServiceException("portalId或fileSorting error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			List<PortalAttachmentDO> attachments = portalAttachmentDao
+					.listPortalAttachmentByPortalIdAndFileSorting(portalId, fileSorting);
+			List<PortalAttachmentDTO> result = new ArrayList<PortalAttachmentDTO>();
+			if (attachments != null)
+				for (PortalAttachmentDO attachment : attachments)
+					result.add(mapper.map(attachment, PortalAttachmentDTO.class));
+			return result;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public List<PortalAttachmentDTO> listPortalAttachmentByPortalIdAndStage(Integer portalId, String stage)
 			throws ServiceException {
 		if (portalId == null || portalId <= 0 || StringUtil.isEmpty(stage)) {
@@ -376,6 +399,36 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 				portalWriteGuard.requireFileEditable(attachment.getFilePath());
 			return portalAttachmentDao.deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(id, portalId,
 					fileName.trim(), stage.trim());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int deletePortalAttachmentByIdAndPortalIdAndFileSorting(int id, int portalId, int fileSorting)
+			throws ServiceException {
+		if (id <= 0 || portalId <= 0) {
+			ServiceException se = new ServiceException("id或portalId error !");
+			se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw se;
+		}
+		try {
+			portalWriteGuard.requireEditable(portalId);
+			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentById(id);
+			if (attachment == null || attachment.getPortalId() == null
+					|| attachment.getPortalId().intValue() != portalId || attachment.getFileSorting() == null
+					|| attachment.getFileSorting().intValue() != fileSorting)
+				return 0;
+			requireAttachmentEditable(attachment);
+			if (StringUtil.isNotEmpty(attachment.getFilePath()))
+				portalWriteGuard.requireFileEditable(attachment.getFilePath());
+			return portalAttachmentDao.deletePortalAttachmentByIdAndPortalIdAndFileSorting(id, portalId,
+					fileSorting);
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {

@@ -223,6 +223,17 @@ public class PortalController extends BaseController {
 		boolean customerSignatureUpload = aiText == null && fileType != null
 				&& "customerSignature".equalsIgnoreCase(fileType.trim());
 		boolean maraFileUpload = signatureUpload || form956Upload;
+		List<PortalAttachmentDTO> previousSameSortingAttachments = Collections.emptyList();
+		if (portalId != null && portalId.intValue() > 0 && fileSorting != null && !maraFileUpload) {
+			try {
+				List<PortalAttachmentDTO> attachments = portalAttachmentService
+						.listPortalAttachmentByPortalIdAndFileSorting(portalId, fileSorting);
+				if (attachments != null)
+					previousSameSortingAttachments = attachments;
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+		}
 		List<PortalAttachmentDTO> previousSameNameAttachments = Collections.emptyList();
 		if (portalId != null && uploadStage != null && StringUtil.isNotEmpty(originalName)
 				&& !customerSignatureUpload) {
@@ -253,7 +264,8 @@ public class PortalController extends BaseController {
 					previousCustomerSignatureAttachments = attachments;
 				PortalAttachmentDTO currentSignature = findCurrentCustomerSignature(
 						previousCustomerSignatureAttachments, previousCustomerSignaturePath);
-				if (currentSignature != null && StringUtil.isNotEmpty(originalName)
+				if (currentSignature != null && previousSameSortingAttachments.isEmpty()
+						&& StringUtil.isNotEmpty(originalName)
 						&& originalName.trim().equalsIgnoreCase(currentSignature.getFileName() == null ? ""
 								: currentSignature.getFileName().trim())) {
 					String currentPath = normalizeAttachmentFilePath(currentSignature.getFilePath());
@@ -320,10 +332,14 @@ public class PortalController extends BaseController {
 		if (uploadResp.getCode() != 0) {
 			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
 		}
-		if (portalId != null && uploadStage != null && !previousSameNameAttachments.isEmpty()
-				&& !customerSignatureUpload) {
+		if (portalId != null && (!previousSameSortingAttachments.isEmpty()
+				|| !previousSameNameAttachments.isEmpty()) && !maraFileUpload) {
 			try {
-				deletePreviousSameNameAttachments(previousSameNameAttachments, portalId, originalName, uploadStage);
+				Set<Integer> deletedAttachmentIds = deletePreviousSameSortingAttachments(
+						previousSameSortingAttachments, portalId, fileSorting, uploadResp.getData());
+				if (uploadStage != null && !customerSignatureUpload)
+					deletePreviousSameNameAttachments(previousSameNameAttachments, portalId, originalName,
+							uploadStage, deletedAttachmentIds, uploadResp.getData());
 			} catch (ServiceException e) {
 				// 新文件尚未入库，替换失败时只清理本次上传文件，避免留下孤儿文件。
 				super.deleteFile(uploadResp.getData());
@@ -541,27 +557,48 @@ public class PortalController extends BaseController {
 		return null;
 	}
 
-	/** 删除同一案件、同一阶段、同名的旧附件记录和物理文件。 */
-	private void deletePreviousSameNameAttachments(List<PortalAttachmentDTO> attachments, Integer portalId,
-			String fileName, String stage) throws ServiceException {
+	/** 删除同一案件、同一排序值的旧附件记录和物理文件。 */
+	private Set<Integer> deletePreviousSameSortingAttachments(List<PortalAttachmentDTO> attachments,
+			Integer portalId, Integer fileSorting, String newFilePath) throws ServiceException {
+		Set<Integer> deletedIds = new LinkedHashSet<Integer>();
 		for (PortalAttachmentDTO attachment : attachments) {
 			if (attachment == null || attachment.getId() <= 0)
+				continue;
+			int deleted = portalAttachmentService.deletePortalAttachmentByIdAndPortalIdAndFileSorting(
+					attachment.getId(), portalId, fileSorting);
+			if (deleted <= 0)
+				continue;
+			deletedIds.add(attachment.getId());
+			deleteReplacedAttachmentFile(attachment.getFilePath(), newFilePath);
+		}
+		return deletedIds;
+	}
+
+	/** 删除同一案件、同一阶段、同名的旧附件记录和物理文件。 */
+	private void deletePreviousSameNameAttachments(List<PortalAttachmentDTO> attachments, Integer portalId,
+			String fileName, String stage, Set<Integer> deletedIds, String newFilePath) throws ServiceException {
+		for (PortalAttachmentDTO attachment : attachments) {
+			if (attachment == null || attachment.getId() <= 0 || deletedIds.contains(attachment.getId()))
 				continue;
 			// 删除时再次按完整条件校验，防止旧缓存或并发变更误删其他附件。
 			int deleted = portalAttachmentService.deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(
 					attachment.getId(), portalId, fileName, stage);
 			if (deleted <= 0)
 				continue;
-			String filePath = normalizeAttachmentFilePath(attachment.getFilePath());
-			if (StringUtil.isEmpty(filePath))
-				continue;
-			Response<String> deleteResponse = super.deleteFile(filePath);
-			if (deleteResponse != null && deleteResponse.getCode() != 0) {
-				ServiceException exception = new ServiceException(
-						"旧压缩包文件删除失败：" + deleteResponse.getMessage());
-				exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
-				throw exception;
-			}
+			deleteReplacedAttachmentFile(attachment.getFilePath(), newFilePath);
+		}
+	}
+
+	private void deleteReplacedAttachmentFile(String oldFilePath, String newFilePath) throws ServiceException {
+		String normalizedOldPath = normalizeAttachmentFilePath(oldFilePath);
+		if (StringUtil.isEmpty(normalizedOldPath)
+				|| normalizedOldPath.equals(normalizeAttachmentFilePath(newFilePath)))
+			return;
+		Response<String> deleteResponse = super.deleteFile(normalizedOldPath);
+		if (deleteResponse != null && deleteResponse.getCode() != 0) {
+			ServiceException exception = new ServiceException("旧附件文件删除失败：" + deleteResponse.getMessage());
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
 		}
 	}
 

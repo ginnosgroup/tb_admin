@@ -100,6 +100,30 @@
         ORDER BY gmt_create ASC, id ASC;
     </select>
 
+    <!-- 同一案件、同一排序值的附件替换查询，跨阶段匹配。 -->
+    <select id="listPortalAttachmentByPortalIdAndFileSorting" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false" flushCache="true">
+        SELECT
+            id,
+            portal_id AS portalId,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            file_name AS fileName,
+            file_path AS filePath,
+            file_size AS fileSize,
+            file_type AS fileType,
+            file_ext AS fileExt,
+            file_sorting AS fileSorting,
+            stage,
+            attachment_state AS attachmentState,
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
+        FROM b_portal_attachment
+        WHERE portal_id = #{portalId}
+          AND file_sorting = #{fileSorting}
+        ORDER BY gmt_create ASC, id ASC;
+    </select>
+
     <!-- 正式提交申请时只读取当前案件 stage=openAFile 的附件，关闭二级缓存。 -->
     <select id="listPortalAttachmentByPortalIdAndStage" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false">
         SELECT
@@ -283,6 +307,14 @@
           AND portal_id = #{portalId, jdbcType=INTEGER}
           AND LOWER(file_name) = LOWER(#{fileName})
           AND LOWER(stage) = LOWER(#{stage})
+    </delete>
+
+    <!-- 删除时再次校验案件和排序值，避免并发修改后误删。 -->
+    <delete id="deletePortalAttachmentByIdAndPortalIdAndFileSorting">
+        DELETE FROM b_portal_attachment
+        WHERE id = #{id, jdbcType=INTEGER}
+          AND portal_id = #{portalId, jdbcType=INTEGER}
+          AND file_sorting = #{fileSorting, jdbcType=INTEGER}
     </delete>
 
     <!-- 仅允许删除指定案件、指定阶段的ZIP/RAR，防止按错误附件ID跨案件删除。 -->
