@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -125,7 +126,8 @@ public class PortalController extends BaseController {
 					+ "1. 只能根据护照可见内容和机读区提取，不要猜测；缺失字段返回null。\n"
 					+ "2. 日期统一为yyyy-MM-dd。\n"
 					+ "3. fullName按givenNames在前、familyName在后的顺序生成。\n"
-					+ "4. 护照号码、姓名、出生日期和有效期必须优先核对机读区，避免字母和数字混淆。";
+					+ "4. 护照号码、姓名、出生日期和有效期必须优先核对机读区，避免字母和数字混淆。\n"
+					+ "5. issuingCountry必须使用英文国家或地区名称，例如中国写China、澳大利亚写Australia，不得使用中文。";
 
 	private static final String COMPLETION_JSON_PROMPT =
 			"请识别并解析这份课程完成信（Completion Letter），只提取完成日期并返回一个合法的JSON对象。\n"
@@ -510,7 +512,74 @@ public class PortalController extends BaseController {
 			}
 			return OBJECT_MAPPER.writeValueAsString(completionJson);
 		}
+		if ("passport".equals(fileType) && jsonNode.path("passportDetails").isObject()) {
+			normalizePassportIssuingCountry((ObjectNode) jsonNode.get("passportDetails"));
+		}
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
+	}
+
+	private void normalizePassportIssuingCountry(ObjectNode passportDetails) {
+		JsonNode issuingCountry = passportDetails.get("issuingCountry");
+		if (issuingCountry == null || issuingCountry.isNull())
+			return;
+		if (!issuingCountry.isTextual() || issuingCountry.asText().trim().isEmpty()) {
+			passportDetails.putNull("issuingCountry");
+			return;
+		}
+		String value = issuingCountry.asText().trim();
+		String englishName = resolveEnglishCountryName(value);
+		if (englishName == null && containsChineseCharacters(value))
+			englishName = resolveEnglishCountryName(passportDetails.path("countryCode").asText());
+		if (englishName != null) {
+			passportDetails.put("issuingCountry", englishName);
+		} else if (containsChineseCharacters(value)) {
+			LOG.warn("无法将护照签发国家转换为英文，countryCode={}", passportDetails.path("countryCode").asText());
+			passportDetails.putNull("issuingCountry");
+		} else {
+			passportDetails.put("issuingCountry", value);
+		}
+	}
+
+	private String resolveEnglishCountryName(String value) {
+		if (value == null || value.trim().isEmpty())
+			return null;
+		for (String part : value.split("[/／()（）]")) {
+			String candidate = part.trim();
+			if (candidate.isEmpty())
+				continue;
+			String aliasCode = null;
+			if ("中华人民共和国".equals(candidate) || "中華人民共和國".equals(candidate)
+					|| "中国大陆".equals(candidate) || "中國大陸".equals(candidate) || "PRC".equalsIgnoreCase(candidate))
+				aliasCode = "CN";
+			else if ("澳洲".equals(candidate))
+				aliasCode = "AU";
+			else if ("美国".equals(candidate) || "美利坚合众国".equals(candidate))
+				aliasCode = "US";
+			for (String code : Locale.getISOCountries()) {
+				Locale country = new Locale("", code);
+				String iso3Code;
+				try {
+					iso3Code = country.getISO3Country();
+				} catch (MissingResourceException e) {
+					iso3Code = "";
+				}
+				if (code.equalsIgnoreCase(candidate) || iso3Code.equalsIgnoreCase(candidate)
+						|| country.getDisplayCountry(Locale.ENGLISH).equalsIgnoreCase(candidate)
+						|| country.getDisplayCountry(Locale.SIMPLIFIED_CHINESE).equals(candidate)
+						|| country.getDisplayCountry(Locale.TRADITIONAL_CHINESE).equals(candidate)
+						|| code.equals(aliasCode))
+					return country.getDisplayCountry(Locale.ENGLISH);
+			}
+		}
+		return null;
+	}
+
+	private boolean containsChineseCharacters(String value) {
+		for (int i = 0; i < value.length(); i++) {
+			if (Character.UnicodeScript.of(value.charAt(i)) == Character.UnicodeScript.HAN)
+				return true;
+		}
+		return false;
 	}
 
 	@RequestMapping(value = "/attachment/list", method = RequestMethod.GET)
