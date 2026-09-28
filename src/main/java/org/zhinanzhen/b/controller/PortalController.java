@@ -72,6 +72,7 @@ import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Controller
@@ -172,6 +173,34 @@ public class PortalController extends BaseController {
 					+ "5. currency统一使用三位币种代码，例如AUD。\n"
 					+ "6. links中的网址必须是普通URL字符串，禁止返回Markdown链接、反斜杠或转义后的括号。\n"
 					+ "7. fullName按givenNames在前、familyName在后的顺序生成。";
+
+	private static final String AUTO_LANGUAGE_JSON_PROMPT =
+			"请识别这份语言考试成绩单，只返回一个合法的JSON对象，不要返回Markdown或解释。\n"
+					+ "严格按前端语言能力表单返回："
+					+ "{\"language\":[{\"langType\":null,\"listening\":null,\"reading\":null,"
+					+ "\"writing\":null,\"speaking\":null,\"overall\":null,\"testDate\":null,\"hkPassport\":0}]}\n"
+					+ "规则：一份文件有多次独立考试时，每次考试各占一个数组元素；没有可确认的考试时返回空数组。"
+					+ "langType只能是CAE、ESOL、IELTS、OET、Pearson Test、TOEFL iBT、TOEFL PBT、TOEIC、Other之一；"
+					+ "PTE Academic归为Pearson Test。四项分数和总分用不带单位的字符串，无法确认时为null；"
+					+ "testDate使用yyyy-MM-dd，不能用成绩单出具日期代替考试日期；"
+					+ "只有成绩单明确注明持有香港护照时hkPassport才返回数字1；未注明或不是香港护照时返回数字0（否）。"
+					+ "不要根据考试地点或国籍猜测是否持有香港护照。其他字段只能根据文件内容提取，不要猜测。";
+
+	private static final String AUTO_COURSE_JSON_PROMPT =
+			"请识别这份课程成绩单，只返回一个合法的JSON对象，不要返回Markdown或解释。\n"
+					+ "严格按前端学习经历表单返回："
+					+ "{\"education\":[{\"auSchoolName\":null,\"cricosName\":null,\"eduCourseType\":null,"
+					+ "\"eduStartDate\":null,\"eduEndDate\":null,\"eduCourseCompletionDate\":null,"
+					+ "\"skillAssessment\":null}]}\n"
+					+ "规则：每项独立学历/课程占一个数组元素，不要把单科成绩或学期拆成学习经历；无法确认课程时返回空数组。"
+					+ "auSchoolName是学校名称，cricosName是课程名称；eduCourseType只能是"
+					+ "Primary School、Middle School、Senior High School、High School、Trade Apprenticeship、"
+					+ "Training (External)、Training (On the Job)、Certificate I、Certificate II、Certificate III、"
+					+ "Certificate IV、Diploma、Advanced Diploma、Graduate Diploma、Associate Degree、"
+					+ "Bachelor Degree、Honours Degree、Postgraduate Certificate、Postgraduate Diploma、"
+					+ "Masters Degree、Doctoral Degree、Other之一。日期使用yyyy-MM-dd；"
+					+ "eduCourseCompletionDate只在成绩单明确写明课程完成日期时填写，不能用成绩发布日期代替；"
+					+ "skillAssessment不是成绩单信息，固定返回null。缺失字段返回null，只能根据文件内容提取，不要猜测。";
 
 	@Resource
 	PortalService portalService;
@@ -321,7 +350,7 @@ public class PortalController extends BaseController {
 			normalizedFileType = normalizeAttachmentFileType(fileType);
 			if (normalizedFileType == null) {
 				return new Response<Map<String, Object>>(1,
-						"调用AI识别时fileType必须是passport、completion或coe.", null);
+						"调用AI识别时fileType必须是passport、completion、coe、autoLanguage或autoCourse.", null);
 			}
 		}
 		// 只有传入aiText参数时才读取原始文件并调用AI。必须在upload2之前读取，
@@ -460,7 +489,8 @@ public class PortalController extends BaseController {
 	/** 规范化并校验附件类型；普通上传不调用本方法。 */
 	private String normalizeAttachmentFileType(String fileType) {
 		String value = fileType == null ? "" : fileType.trim().toLowerCase(Locale.ENGLISH);
-		if ("passport".equalsIgnoreCase(value) || "completion".equalsIgnoreCase(value) || "coe".equalsIgnoreCase(value)) {
+		if ("passport".equals(value) || "completion".equals(value) || "coe".equals(value)
+				|| "autolanguage".equals(value) || "autocourse".equals(value)) {
 			return value;
 		}
 		return null;
@@ -493,6 +523,12 @@ public class PortalController extends BaseController {
 		if ("completion".equals(fileType)) {
 			return COMPLETION_JSON_PROMPT;
 		}
+		if ("autolanguage".equals(fileType)) {
+			return AUTO_LANGUAGE_JSON_PROMPT;
+		}
+		if ("autocourse".equals(fileType)) {
+			return AUTO_COURSE_JSON_PROMPT;
+		}
 		return COE_JSON_PROMPT;
 	}
 
@@ -515,7 +551,105 @@ public class PortalController extends BaseController {
 		if ("passport".equals(fileType) && jsonNode.path("passportDetails").isObject()) {
 			normalizePassportIssuingCountry((ObjectNode) jsonNode.get("passportDetails"));
 		}
+		if ("autolanguage".equals(fileType))
+			return normalizeAiFormRecords(jsonNode, "language", new String[] {
+					"langType", "listening", "reading", "writing", "speaking", "overall", "testDate", "hkPassport" });
+		if ("autocourse".equals(fileType))
+			return normalizeAiFormRecords(jsonNode, "education", new String[] {
+					"auSchoolName", "cricosName", "eduCourseType", "eduStartDate", "eduEndDate",
+					"eduCourseCompletionDate", "skillAssessment" });
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
+	}
+
+	private String normalizeAiFormRecords(JsonNode source, String fieldName, String[] fields) throws IOException {
+		ObjectNode result = OBJECT_MAPPER.createObjectNode();
+		ArrayNode records = result.putArray(fieldName);
+		JsonNode input = source.path(fieldName);
+		if (input.isArray()) {
+			for (JsonNode item : input)
+				appendAiFormRecord(records, item, fields);
+		} else if (input.isObject()) {
+			appendAiFormRecord(records, input, fields);
+		} else if (source.has(fields[0])) {
+			appendAiFormRecord(records, source, fields);
+		}
+		return OBJECT_MAPPER.writeValueAsString(result);
+	}
+
+	private void appendAiFormRecord(ArrayNode records, JsonNode source, String[] fields) {
+		if (!source.isObject())
+			return;
+		ObjectNode record = records.addObject();
+		for (String field : fields) {
+			JsonNode value = source.path(field);
+			if ("hkPassport".equals(field)) {
+				record.put(field, isHongKongPassport(value) ? 1 : 0);
+			} else if ("skillAssessment".equals(field)
+					|| value.isMissingNode() || value.isNull() || !value.isValueNode()
+					|| value.asText().trim().isEmpty()) {
+				record.putNull(field);
+			} else {
+				String text = value.asText().trim();
+				if ("langType".equals(field))
+					text = normalizeLanguageType(text);
+				else if ("eduCourseType".equals(field))
+					text = normalizeCourseType(text);
+				record.put(field, text);
+			}
+		}
+	}
+
+	private boolean isHongKongPassport(JsonNode value) {
+		if (value.isBoolean())
+			return value.asBoolean();
+		if (value.isNumber())
+			return value.asInt() == 1;
+		String text = value.asText().trim();
+		return "1".equals(text) || "true".equalsIgnoreCase(text)
+				|| "yes".equalsIgnoreCase(text) || "是".equals(text);
+	}
+
+	private String normalizeLanguageType(String value) {
+		String lower = value.toLowerCase(Locale.ENGLISH);
+		if (lower.contains("pte") || lower.contains("pearson"))
+			return "Pearson Test";
+		if (lower.contains("ielts"))
+			return "IELTS";
+		if (lower.contains("toefl") && lower.contains("pbt"))
+			return "TOEFL PBT";
+		if (lower.contains("toefl"))
+			return "TOEFL iBT";
+		if (lower.contains("cambridge") || lower.contains("cae"))
+			return "CAE";
+		if (lower.contains("oet"))
+			return "OET";
+		if (lower.contains("toeic"))
+			return "TOEIC";
+		if (lower.contains("esol"))
+			return "ESOL";
+		return "Other";
+	}
+
+	private String normalizeCourseType(String value) {
+		String lower = value.toLowerCase(Locale.ENGLISH);
+		String[] types = { "Senior High School", "Primary School", "Middle School", "High School",
+				"Trade Apprenticeship", "Training (External)", "Training (On the Job)",
+				"Postgraduate Certificate", "Postgraduate Diploma", "Graduate Diploma", "Advanced Diploma",
+				"Associate Degree", "Honours Degree", "Bachelor Degree", "Masters Degree", "Doctoral Degree",
+				"Certificate IV", "Certificate III", "Certificate II", "Certificate I", "Diploma" };
+		for (String type : types) {
+			if (lower.contains(type.toLowerCase(Locale.ENGLISH)))
+				return type;
+		}
+		if (lower.contains("master"))
+			return "Masters Degree";
+		if (lower.contains("doctor") || lower.contains("phd"))
+			return "Doctoral Degree";
+		if (lower.contains("bachelor"))
+			return "Bachelor Degree";
+		if (lower.contains("graduate certificate"))
+			return "Postgraduate Certificate";
+		return "Other";
 	}
 
 	private void normalizePassportIssuingCountry(ObjectNode passportDetails) {
@@ -605,6 +739,10 @@ public class PortalController extends BaseController {
 
 	/** 对 application/applicationWA/openAFile/supplementary/notice/customerSignature 等阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
+		if ("autoLanguage".equalsIgnoreCase(fileType))
+			return "autoLanguage";
+		if ("autoCourse".equalsIgnoreCase(fileType))
+			return "autoCourse";
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
 		if ("applicationWA".equalsIgnoreCase(fileType))
