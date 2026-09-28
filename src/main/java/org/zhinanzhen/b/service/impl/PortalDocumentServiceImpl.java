@@ -340,9 +340,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					if (!alreadySigned) {
 						for (AcroFields.FieldPosition datePosition : datePositions) {
 							Rectangle date = datePosition.position;
-							// Form 956客户声明签名框位于客户签名日期框正上方。
-							Rectangle signatureArea = new Rectangle(date.getLeft(), date.getTop() + 9f,
-									date.getLeft() + 188f, date.getTop() + 48f);
+							// 模板的签名框位于日期框上方约13~53pt；四边留白，避免笔画压到框线。
+							Rectangle signatureArea = new Rectangle(date.getLeft() + 6f, date.getTop() + 17f,
+									date.getLeft() + 182f, date.getTop() + 49f);
 							addSignatureImageAtPosition(stamper, datePosition.page, signatureArea, signatureBytes);
 						}
 					}
@@ -755,9 +755,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		CustomerDocumentData data = buildCustomerData(portalDto);
 		if (StringUtil.isEmpty(data.email))
 			throw serviceException("客户邮箱为空，申请材料准备通知未发送.", ErrorCodeEnum.DATA_ERROR.code(), null);
-		PortalTypeDTO portalType = portalDto.getPortalType();
-		String materialListPath = portalType == null ? null : portalType.getFilePath();
-		Path materialList = requireGeneratedFile(materialListPath, "材料清单");
+		Path materialList = requireApplicationMaterialsList(portalDto.getPortalType());
 
 		String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		String officialName = firstNonEmpty(portalDto.getOfficialName(), "您的文案");
@@ -787,6 +785,15 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		} catch (Exception e) {
 			throw serviceException("发送申请材料准备通知失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
 		}
+	}
+
+	@Override
+	public void validateApplicationMaterialsList(PortalTypeDTO portalType) throws ServiceException {
+		requireApplicationMaterialsList(portalType);
+	}
+
+	private Path requireApplicationMaterialsList(PortalTypeDTO portalType) throws ServiceException {
+		return requireGeneratedFile(portalType == null ? null : portalType.getFilePath(), "材料清单");
 	}
 
 	@Override

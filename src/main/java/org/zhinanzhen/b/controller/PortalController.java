@@ -1274,6 +1274,14 @@ public class PortalController extends BaseController {
 			}
 			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
 				replace06AArchiveAttachments(id, updateFilePaths);
+			if ("06".equals(strState)) {
+				int targetTypeId = oldPortalDto == null ? 0 : oldPortalDto.getTypeId();
+				if (StringUtil.isNotEmpty(typeId))
+					targetTypeId = portalDto.getTypeId();
+				PortalTypeDTO targetPortalType = targetTypeId > 0
+						? portalTypeService.getPortalType(targetTypeId) : null;
+				portalDocumentService.validateApplicationMaterialsList(targetPortalType);
+			}
 			if (portalService.updatePortalWithAttachments(portalDto, portalAttachmentUpdateFilePaths, null) > 0) {
 				// 客户确认合同（03A -> 04）后，将已上传的签名写入三份最终文件。
 				if ("04".equals(strState) && !"04".equals(fromState)) {

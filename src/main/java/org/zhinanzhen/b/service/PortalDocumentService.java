@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.zhinanzhen.b.service.pojo.PortalDTO;
+import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.tb.service.ServiceException;
 
 /** 根据案件客户资料生成合同、建议信和 Form 956。 */
@@ -37,6 +38,9 @@ public interface PortalDocumentService {
 	/** 通知客户案件已进入申请材料准备阶段，并附加案件类型配置的材料清单文件。 */
 	void sendApplicationMaterialsPreparationNotification(PortalDTO portalDto, String caseUrl)
 			throws ServiceException;
+
+	/** 进入06前确认案件类型配置的材料清单文件可用。 */
+	void validateApplicationMaterialsList(PortalTypeDTO portalType) throws ServiceException;
 
 	/** 预先检查本次上传的补料或决定文件，防止文件缺失时仍推进状态。 */
 	void validateApplicationFiles(String filePath) throws ServiceException;
