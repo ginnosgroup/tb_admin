@@ -251,6 +251,34 @@ public class PortalController extends BaseController {
 						.listPortalAttachmentByPortalIdAndStage(portalId, "customerSignature");
 				if (attachments != null)
 					previousCustomerSignatureAttachments = attachments;
+				PortalAttachmentDTO currentSignature = findCurrentCustomerSignature(
+						previousCustomerSignatureAttachments, previousCustomerSignaturePath);
+				if (currentSignature != null && StringUtil.isNotEmpty(originalName)
+						&& originalName.trim().equalsIgnoreCase(currentSignature.getFileName() == null ? ""
+								: currentSignature.getFileName().trim())) {
+					String currentPath = normalizeAttachmentFilePath(currentSignature.getFilePath());
+					if (!currentPath.equals(normalizeAttachmentFilePath(previousCustomerSignaturePath))) {
+						PortalDTO customerSignaturePortal = new PortalDTO();
+						customerSignaturePortal.setId(portalId.intValue());
+						customerSignaturePortal.setCustomerSignature(currentPath);
+						if (portalService.updatePortal(customerSignaturePortal) <= 0)
+							return new Response<Map<String, Object>>(1, "客户签名文件路径保存失败.", null);
+					}
+					List<PortalAttachmentDTO> obsoleteSignatures = new ArrayList<PortalAttachmentDTO>();
+					for (PortalAttachmentDTO attachment : previousCustomerSignatureAttachments) {
+						if (attachment != null && attachment.getId() != currentSignature.getId())
+							obsoleteSignatures.add(attachment);
+					}
+					if (!obsoleteSignatures.isEmpty()
+							|| !currentPath.equals(normalizeAttachmentFilePath(previousCustomerSignaturePath)))
+						deletePreviousCustomerSignatures(obsoleteSignatures, previousCustomerSignaturePath,
+								currentPath, portalId);
+					Map<String, Object> result = new LinkedHashMap<String, Object>();
+					result.put("attachmentId", currentSignature.getId());
+					result.put("filePath", currentSignature.getFilePath());
+					result.put("attachmentState", currentSignature.getAttachmentState());
+					return new Response<Map<String, Object>>(0, "", result);
+				}
 			} catch (ServiceException e) {
 				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 			}
@@ -535,6 +563,23 @@ public class PortalController extends BaseController {
 				throw exception;
 			}
 		}
+	}
+
+	/** 优先使用案件当前指向的签名；无路径时使用最后一条有效签名记录。 */
+	private PortalAttachmentDTO findCurrentCustomerSignature(List<PortalAttachmentDTO> attachments, String currentPath) {
+		String normalizedCurrentPath = normalizeAttachmentFilePath(currentPath);
+		PortalAttachmentDTO latest = null;
+		for (PortalAttachmentDTO attachment : attachments) {
+			if (attachment == null || attachment.getId() <= 0)
+				continue;
+			String attachmentPath = normalizeAttachmentFilePath(attachment.getFilePath());
+			if (StringUtil.isEmpty(attachmentPath))
+				continue;
+			if (StringUtil.isNotEmpty(normalizedCurrentPath) && normalizedCurrentPath.equals(attachmentPath))
+				return attachment;
+			latest = attachment;
+		}
+		return StringUtil.isEmpty(normalizedCurrentPath) ? latest : null;
 	}
 
 	/** 新客户签名已保存后，清理该案件之前所有客户签名附件及其物理文件。 */
