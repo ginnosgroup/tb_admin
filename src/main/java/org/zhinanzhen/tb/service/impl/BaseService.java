@@ -3,6 +3,7 @@ package org.zhinanzhen.tb.service.impl;
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -69,22 +70,36 @@ public abstract class BaseService {
 	}
 
 	protected void sendMail(String mail, String title, String content) {
+		sendMailInternal(mail, title, content, true);
+	}
+
+	/** 每次调用都记录并发送，用于允许重复提交的业务通知。 */
+	protected void sendMailAlways(String mail, String title, String content) {
+		sendMailInternal(mail, title, content, false);
+	}
+
+	private void sendMailInternal(String mail, String title, String content, boolean deduplicate) {
 		if (StringUtil.isEmpty(mail) || StringUtil.isEmpty(title)) {
 			LOG.error("参数错误!");
 			return;
 		}
 		String code;
 		try {
-			code = MD5Util.getMD5(StringUtil.merge(mail, title, content));
+			String codeSource = StringUtil.merge(mail, title, content);
+			if (!deduplicate)
+				codeSource += UUID.randomUUID().toString();
+			code = MD5Util.getMD5(codeSource);
 		} catch (Exception e) {
 			LOG.error(StringUtil.merge("生成code异常:", e.getMessage()));
 			return;
 		}
-		MailLogDO mailLogDo = mailLogDao.getMailLogByCode(code);
-		if (mailLogDo != null) { // 避免发送重复的邮件
-			mailLogDao.refresh(mailLogDo.getId());
-			LOG.warn(StringUtil.merge("该邮件已发送过了,code=", code, ",date=", mailLogDo.getGmtCreate()));
-			return;
+		if (deduplicate) {
+			MailLogDO mailLogDo = mailLogDao.getMailLogByCode(code);
+			if (mailLogDo != null) { // 避免发送重复的邮件
+				mailLogDao.refresh(mailLogDo.getId());
+				LOG.warn(StringUtil.merge("该邮件已发送过了,code=", code, ",date=", mailLogDo.getGmtCreate()));
+				return;
+			}
 		}
 		if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) > 0)
 			SendEmailUtil.send(mail, title, content);

@@ -539,6 +539,71 @@ public class PortalServiceImpl extends BaseService implements PortalService {
 				"客户已确认补充材料通知 - ", "客户已确认补充材料，请及时处理。", "发送客户已确认补充材料通知邮件失败");
 	}
 
+	@Override
+	public void sendOfficialApplicationMaterialsUploadedNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException {
+		sendOfficialApplicationMaterialsNotification(portalDto, null, caseUrl, false);
+	}
+
+	@Override
+	public void sendOfficialApplicationMaterialsReturnedNotification(PortalDTO portalDto, String remark, String caseUrl)
+			throws ServiceException {
+		sendOfficialApplicationMaterialsNotification(portalDto, remark, caseUrl, true);
+	}
+
+	private void sendOfficialApplicationMaterialsNotification(PortalDTO portalDto, String remark, String caseUrl,
+			boolean returned) throws ServiceException {
+		try {
+			if (portalDto == null || portalDto.getId() <= 0)
+				throw notificationException("案件信息无效，无法发送文案通知邮件.",
+						ErrorCodeEnum.PARAMETER_ERROR.code());
+			if (portalDto.getOfficialId() <= 0)
+				throw notificationException("案件尚未分配文案，无法发送通知邮件.", ErrorCodeEnum.DATA_ERROR.code());
+
+			OfficialDO officialDo = officialDao.getOfficialById(portalDto.getOfficialId());
+			if (officialDo == null || StringUtil.isEmpty(officialDo.getEmail()))
+				throw notificationException("对应文案不存在或未配置邮箱，无法发送通知邮件.",
+						ErrorCodeEnum.DATA_ERROR.code());
+
+			String customerName = valueOrEmpty(portalDto.getName());
+			String adviserName = portalDto.getAdviserName();
+			if (StringUtil.isEmpty(adviserName) && portalDto.getAdviserId() > 0) {
+				AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
+				if (adviserDo != null)
+					adviserName = adviserDo.getName();
+			}
+
+			String title = (returned ? "客户退回申请材料通知 - " : "客户申请材料上传通知 - ")
+					+ customerName + "（案件编号：" + portalDto.getId() + "）";
+			String noticeDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			StringBuilder content = new StringBuilder();
+			content.append("<p>").append(escapeHtml(officialDo.getName())).append("，您好：</p>")
+					.append(returned ? "<p>客户已退回申请材料，请及时查看并处理。</p>"
+							: "<p>客户已上传申请材料，请及时查看并处理。</p>")
+					.append("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+							+ "style=\"width:100%;border-collapse:collapse;line-height:1.7;table-layout:auto;\">")
+					.append(mailRow("案件编号", String.valueOf(portalDto.getId())))
+					.append(mailRow("客户姓名", customerName))
+					.append(mailRow("顾问名称", adviserName));
+			if (returned && StringUtil.isNotEmpty(remark))
+				content.append(mailRow("退回说明", remark, true));
+			content.append(mailRow(returned ? "材料退回时间" : "材料上传时间", noticeDate))
+					.append("<tr><td width=\"120\" nowrap=\"nowrap\" "
+							+ "style=\"width:120px;padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap;\">")
+					.append("<strong>案件URL地址</strong></td>")
+					.append("<td style=\"padding:6px 0;\"><a href=\"").append(escapeHtml(caseUrl)).append("\">")
+					.append(escapeHtml(caseUrl)).append("</a></td></tr></table>")
+					.append("<p>请及时登录系统查看案件资料，谢谢。</p>");
+			sendMailAlways(officialDo.getEmail(), title, content.toString());
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException exception = new ServiceException("发送客户申请材料通知邮件失败: " + e.getMessage(), e);
+			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw exception;
+		}
+	}
+
 	private void sendOfficialSupplementaryMaterialsNotification(PortalDTO portalDto, List<String> attachmentPaths,
 			String caseUrl, String titlePrefix, String message, String failureMessage) throws ServiceException {
 		try {

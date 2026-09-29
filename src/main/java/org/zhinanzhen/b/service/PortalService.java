@@ -66,6 +66,14 @@ public interface PortalService {
 	void sendOfficialSupplementaryMaterialsConfirmedNotification(PortalDTO portalDto,
 			List<String> attachmentPaths, String caseUrl) throws ServiceException;
 
+	/** 客户上传申请材料后，通知案件对应的文案。 */
+	void sendOfficialApplicationMaterialsUploadedNotification(PortalDTO portalDto, String caseUrl)
+			throws ServiceException;
+
+	/** 客户退回申请材料后，通知案件对应的文案。 */
+	void sendOfficialApplicationMaterialsReturnedNotification(PortalDTO portalDto, String remark, String caseUrl)
+			throws ServiceException;
+
 	void sendOfficialPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
 
 	/** 服务订单下单后，通知案件对应的文案开始处理。 */

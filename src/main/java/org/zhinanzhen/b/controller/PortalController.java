@@ -1336,9 +1336,11 @@ public class PortalController extends BaseController {
 		boolean customerMaterialsAction = "07".equals(strState) || "06A".equals(strState);
 		boolean customerSupplementAction = "010G".equals(strState) || "010E".equals(strState);
 		boolean customerMaterialsFlow = customerMaterialsAction || customerSupplementAction;
-		boolean customerActionRequest = "04".equals(strState) || "02C".equals(strState)
+		boolean adminReturnFromUploadedMaterials = "06A".equals(strState)
+				&& StringUtil.isEmpty(normalizedResult) && StringUtil.isEmpty(code);
+		boolean customerActionRequest = !adminReturnFromUploadedMaterials && ("04".equals(strState) || "02C".equals(strState)
 				|| customerMaterialsFlow
-				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code);
+				|| StringUtil.isNotEmpty(normalizedResult) || StringUtil.isNotEmpty(code));
 		// 合同确认进入04时保留原有状态流转和通知逻辑，但统一返回JSON，不再返回HTML页面。
 		boolean customerJsonResponse = "04".equals(strState);
 		if (StringUtil.isNotEmpty(idList))
@@ -1368,6 +1370,11 @@ public class PortalController extends BaseController {
 					return customerUpdateResponse(customerJsonResponse, oldPortalDto, normalizedResult, false,
 							PortalWriteGuard.ARCHIVED_MESSAGE, response, customerMaterialsFlow, customerSupplementAction);
 				return new Response<PortalDTO>(1, PortalWriteGuard.ARCHIVED_MESSAGE, null);
+			}
+			if (adminReturnFromUploadedMaterials) {
+				if (!"06C".equals(fromState))
+					return new Response<PortalDTO>(1, "仅允许将06C状态的案件退回为06A。", null);
+				validateAdminApplicationMaterialsReturn(id, request);
 			}
 			// 新增补料/结果流程按说明由文案或MARA操作，并沿用现有案件归属权限。
 			if (followUpState != null && followUpState.isFollowUp())
@@ -1407,6 +1414,9 @@ public class PortalController extends BaseController {
 				String targetState = strState;
 				String expectedFromState = customerSupplementAction ? "010F"
 						: customerMaterialsAction ? "06B" : "03A";
+				if ("06A".equals(strState) && "06C".equals(fromState)
+						&& "returned".equals(normalizedResult))
+					expectedFromState = "06C";
 				if (!expectedFromState.equals(fromState)) {
 					if (targetState.equals(fromState)) {
 						if ("04".equals(targetState) && "confirmed".equals(normalizedResult)) {
@@ -1643,6 +1653,9 @@ public class PortalController extends BaseController {
 					logAction = "customer_return_supplement";
 				} else if ("confirmed".equals(normalizedResult) && "07".equals(strState)) {
 					logAction = "customer_confirm_application_materials";
+				} else if (adminReturnFromUploadedMaterials) {
+					logAction = "staff_return_application_materials";
+					logContent = "后台退回申请材料";
 				} else if ("returned".equals(normalizedResult) && "06A".equals(strState)) {
 					logAction = "customer_return_application_materials";
 				} else if ("confirmed".equals(normalizedResult)) {
@@ -1656,6 +1669,30 @@ public class PortalController extends BaseController {
 				}
 				// content只保存状态名称，备注单独保存到remark。
 				savePortalLog(portalDto.getId(), logAction, fromState, toState, logContent, adviserRemark, request);
+				if ("06C".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialApplicationMaterialsUploadedNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为06C，但客户申请材料上传通知文案邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为06C，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				if ("06C".equals(fromState) && "06A".equals(strState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialApplicationMaterialsReturnedNotification(savedPortalDto, adviserRemark,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已由06C更新为06A，但客户退回申请材料通知文案邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已由06C更新为06A，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
 				if (followUpState != null && followUpState.isFollowUp()
 						&& followUpState != PortalFollowUpState.ARCHIVE) {
 					try {
@@ -1668,6 +1705,19 @@ public class PortalController extends BaseController {
 						LOG.error("案件已更新为{}，但流程通知邮件发送失败，portalId={}", strState, id, notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为" + strState + "，但通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+					}
+				}
+				// 补料MARA审核通过后，通知对应文案安排正式提交。
+				if ("010C".equals(strState) && !"010C".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendOfficialSupplementReviewNotification(savedPortalDto, null,
+								buildPortalCaseUrl(request, id), true);
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为010C，但补料MARA审核通过通知文案邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为010C，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
 				}
 				// 客户上传补充材料后，通知对应文案及时处理，并附上补充材料。
@@ -2086,6 +2136,24 @@ public class PortalController extends BaseController {
 					? joinAttachmentPaths(listAttachmentPathsByStages(portalId, "noticeWA")) : filePath;
 			portalDocumentService.validateApplicationFiles(attachmentFilePath);
 		}
+	}
+
+	private void validateAdminApplicationMaterialsReturn(int portalId, HttpServletRequest request)
+			throws ServiceException {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null)
+			throw portalParameterError("请先登录。");
+		String roles = login.getApList() == null ? "" : login.getApList().toUpperCase(Locale.ENGLISH);
+		if (!roles.contains("SUPERAD") && !roles.contains("GW") && !roles.contains("WA")
+				&& !roles.contains("MA"))
+			throw portalParameterError("该操作需要后台顾问、文案、MARA或超管角色。");
+		if (roles.contains("SUPERAD"))
+			return;
+
+		PortalAccessFilter filter = buildAccessFilter(request);
+		if (portalService.getPortal(portalId, filter.adviserId, filter.adviserRegionId, filter.officialId,
+				filter.officialRegionId, filter.maraId) == null)
+			throw portalParameterError("案件不存在或您无权操作。");
 	}
 
 	private ServiceException portalParameterError(String message) {
@@ -3006,7 +3074,9 @@ public class PortalController extends BaseController {
 				// 未登录的操作视为客户
 				portalLogDto.setRole("客户");
 			}
-			if ("02".equals(toState) || isCustomerButtonTransition(fromState, toState)) {
+			if ("02".equals(toState) || isCustomerButtonTransition(fromState, toState)
+					|| ("06C".equals(fromState) && "06A".equals(toState)
+							&& "customer_return_application_materials".equals(action))) {
 				// 状态02及客户邮件按钮触发的状态流转，日志角色固定记录为客户。
 				portalLogDto.setRole("客户");
 			}
