@@ -175,5 +175,7 @@ public interface ServiceOrderDAO {
 
     List<ServiceOrderDO> listByIds(@Param("ids") List<Integer> ids);
 
+    List<ServiceOrderDO> listBindingOrderServiceIds(@Param("ids") List<Integer> ids);
+
     List<ServiceOrderDO> listBindingOrderReceivable(@Param("ids") List<Integer> ids);
 }

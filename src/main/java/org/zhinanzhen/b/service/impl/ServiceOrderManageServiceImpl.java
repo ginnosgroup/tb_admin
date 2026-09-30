@@ -361,15 +361,16 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
     }
 
     /**
-     * 计算子订单可分配金额：子订单 receivable * 0.6 - 服务成本价 - 绑定订单 receivable。
-     * 服务成本价和绑定订单金额均由批量上下文预加载，避免在子订单循环中产生 N+1 查询。
+     * 计算子订单可分配金额：子订单 receivable * 0.6 - 已绑定服务的成本价 - 已有绑定订单金额。
+     * 绑定服务成本价和绑定订单金额均由批量上下文预加载，避免在子订单循环中产生 N+1 查询。
      */
     private void setSubOrderDistributableAmount(ServiceOrderDO serviceOrderSub, ServiceOrderBatchContext batchContext) {
-        ServicePackagePriceDO servicePackagePrice = batchContext.servicePackagePriceMap.get(serviceOrderSub.getServiceId());
-        double costPrice = servicePackagePrice == null ? 0D : servicePackagePrice.getCostPrince();
+        double bindingOrderCostPrice = batchContext.bindingOrderCostPriceMap
+                .getOrDefault(serviceOrderSub.getId(), 0D);
         double bindingOrderReceivable = batchContext.bindingOrderReceivableMap
                 .getOrDefault(serviceOrderSub.getId(), 0D);
-        double distributableAmount = serviceOrderSub.getReceivable() * 0.6D - costPrice - bindingOrderReceivable;
+        double distributableAmount = serviceOrderSub.getReceivable() * 0.6D
+                - bindingOrderCostPrice - bindingOrderReceivable;
         serviceOrderSub.setDistributableAmount(roundHalfUp2(distributableAmount));
     }
 

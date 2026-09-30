@@ -131,6 +131,16 @@ public class ServiceOrderBatchLoader {
             if (order.getSchoolInstitutionLocationId() > 0) locationIds.add(order.getSchoolInstitutionLocationId());
         }
 
+        // Load services already bound to these orders so their configured cost prices can be deducted.
+        List<ServiceOrderDO> bindingOrderServices = serviceOrderDao
+                .listBindingOrderServiceIds(new ArrayList<>(serviceOrderIds));
+        if (bindingOrderServices != null) {
+            bindingOrderServices.stream()
+                    .map(ServiceOrderDO::getServiceId)
+                    .filter(serviceId -> serviceId > 0)
+                    .forEach(serviceIds::add);
+        }
+
         // 1. schools
         if (!schoolIds.isEmpty()) {
             List<SchoolDO> list = schoolDao.listByIds(new ArrayList<>(schoolIds));
@@ -241,6 +251,15 @@ public class ServiceOrderBatchLoader {
         if (!serviceIds.isEmpty()) {
             List<ServicePackagePriceDO> priceList = servicePackagePriceDAO.listByServiceIds(new ArrayList<>(serviceIds));
             priceList.forEach(p -> ctx.servicePackagePriceMap.put(p.getServiceId(), p));
+        }
+        if (bindingOrderServices != null) {
+            bindingOrderServices.forEach(bindingOrder -> {
+                ServicePackagePriceDO servicePackagePrice = ctx.servicePackagePriceMap.get(bindingOrder.getServiceId());
+                if (bindingOrder.getBindingOrder() != null && servicePackagePrice != null) {
+                    ctx.bindingOrderCostPriceMap.merge(bindingOrder.getBindingOrder(),
+                            servicePackagePrice.getCostPrince(), Double::sum);
+                }
+            });
         }
         // 20. 绑定订单收款金额
         if (!serviceOrderIds.isEmpty()) {
