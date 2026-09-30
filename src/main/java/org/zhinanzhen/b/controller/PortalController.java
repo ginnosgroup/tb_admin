@@ -740,9 +740,9 @@ public class PortalController extends BaseController {
 	/** 对 application/applicationWA/openAFile/supplementary/notice/customerSignature 等阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("autoLanguage".equalsIgnoreCase(fileType))
-			return "autoLanguage";
+			return "apply";
 		if ("autoCourse".equalsIgnoreCase(fileType))
-			return "autoCourse";
+			return "apply";
 		if ("application".equalsIgnoreCase(fileType))
 			return "application";
 		if ("applicationWA".equalsIgnoreCase(fileType))
