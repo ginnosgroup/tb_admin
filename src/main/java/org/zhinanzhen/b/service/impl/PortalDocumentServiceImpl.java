@@ -2,10 +2,13 @@ package org.zhinanzhen.b.service.impl;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,10 +48,12 @@ import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.PortalFollowUpState;
+import org.zhinanzhen.b.service.PortalTypeService;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.b.utils.Form956PdfGenerator;
+import org.zhinanzhen.b.utils.PortalLetterTemplateRenderer;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -102,7 +107,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	private static final String LEGACY_DIRECTOR_DATE_DAY_FIELD = "Text26";
 	private static final String LEGACY_DIRECTOR_DATE_MONTH_FIELD = "Text27";
 	private static final String LEGACY_DIRECTOR_DATE_YEAR_SUFFIX_FIELD = "Text28";
-	private static final String ADVICE_TEMPLATE = "MARA_Basic_Letter_of_Advice_Template.docx";
+	private static final int MAX_LETTER_TEMPLATE_BYTES = 20 * 1024 * 1024;
 	private static final String PRACTICE_NAME = "Compass Education and Migration Pty Ltd";
 	private static final String AGENT_NAME = "Tonglu Ge";
 	private static final String AGENT_MARN = "1687805";
@@ -124,6 +129,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	private MaraService maraService;
 
 	@Resource
+	private PortalTypeService portalTypeService;
+
+	@Resource
 	private AdviserDAO adviserDao;
 
 	@Override
@@ -138,6 +146,12 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		Path advicePath = null;
 		Path form956Path = null;
 		try {
+			if (portalDto.getTypeId() <= 0)
+				throw new IOException("案件未配置有效的案件类型，无法获取 Letter 模板");
+			PortalTypeDTO portalType = portalTypeService.getPortalType(portalDto.getTypeId());
+			if (portalType == null || StringUtil.isEmpty(portalType.getLetterUrl())
+					|| portalType.getLetterUrl().trim().isEmpty())
+				throw new IOException("案件类型 " + portalDto.getTypeId() + " 未配置 Letter 模板地址(letter_url)");
 			CustomerDocumentData data = buildCustomerData(portalDto);
 			Path outputDir = resolveOutputDirectory();
 			Files.createDirectories(outputDir);
@@ -165,7 +179,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			form956Path = outputDir.resolve(prefix + "_956_" + safeFileName(maraName) + ".pdf");
 
 			generateContractPdf(data, contractPath);
-			generateAdviceDocument(data, advicePath);
+			generateAdviceDocument(data, advicePath, portalType.getLetterUrl());
 			// Form 956 使用 b_mara.956path 指定的模板文件生成。
 			Form956PdfGenerator.generateFromPath(form956TemplatePath, form956Path,
 					portalDto.getJsonStr(), portalDto.getContractStr(), data.maraId);
@@ -1472,9 +1486,16 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return form != null && StringUtil.isNotEmpty(fieldName) && form.getFields().containsKey(fieldName);
 	}
 
-	private void generateAdviceDocument(CustomerDocumentData data, Path outputPath) throws Exception {
-		ClassPathResource resource = new ClassPathResource(ADVICE_TEMPLATE);
-		try (InputStream input = resource.getInputStream(); XWPFDocument document = new XWPFDocument(input)) {
+	private void generateAdviceDocument(CustomerDocumentData data, Path outputPath, String templateUrl) throws Exception {
+		try (InputStream input = openAdviceTemplate(templateUrl); XWPFDocument document = new XWPFDocument(input)) {
+			Map<String, String> fields = new LinkedHashMap<String, String>();
+			fields.put("DATE", new SimpleDateFormat("d MMMM yyyy", Locale.ENGLISH).format(data.generatedAt));
+			fields.put("CLIENT_NAME", data.fullName);
+			fields.put("MATTER_REFERENCE", data.reference);
+			fields.put("AGENT_NAME", AGENT_NAME);
+			fields.put("MARN", AGENT_MARN);
+			PortalLetterTemplateRenderer.fill(document, fields,
+					Arrays.asList(data.selectedOption, data.serviceType, data.visaSubclass), data.generatedAt);
 			fillAdviceTables(document, data);
 
 			Map<String, String> exactParagraphs = buildExactParagraphReplacements(data);
@@ -1489,6 +1510,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				processParagraphs(footer.getParagraphs(), exactParagraphs, tokens);
 				processTables(footer.getTables(), exactParagraphs, tokens);
 			}
+			ensureAdviceSignatureTable(document);
 
 			try (OutputStream output = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW)) {
 				document.write(output);
@@ -1496,31 +1518,113 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		}
 	}
 
-	private void fillAdviceTables(XWPFDocument document, CustomerDocumentData data) {
-		List<XWPFTable> tables = document.getTables();
-		if (tables.size() > 0) {
-			XWPFTable details = tables.get(0);
-			setTableCell(details, 0, 1, data.generatedDate);
-			setTableCell(details, 1, 1, data.fullName);
-			setTableCell(details, 2, 1, valueOrNotRecorded(data.dateOfBirth));
-			setTableCell(details, 3, 1, data.matter);
-			setTableCell(details, 4, 1, data.reference);
+	/** letter_url 与上传返回的路径兼容，也支持独立部署的 HTTP/HTTPS Word 模板。 */
+	private InputStream openAdviceTemplate(String templateUrl) throws IOException {
+		String location = templateUrl == null ? "" : templateUrl.trim();
+		if (location.isEmpty())
+			throw new IOException("Letter 模板地址(letter_url)为空");
+		if (location.toLowerCase(Locale.ENGLISH).startsWith("http://")
+				|| location.toLowerCase(Locale.ENGLISH).startsWith("https://")) {
+			HttpURLConnection connection = (HttpURLConnection) new URL(location).openConnection();
+			connection.setConnectTimeout(10000);
+			connection.setReadTimeout(30000);
+			try {
+				int status = connection.getResponseCode();
+				if (status < 200 || status >= 300)
+					throw new IOException("读取 Letter 模板失败，HTTP状态码=" + status);
+				if (connection.getContentLengthLong() > MAX_LETTER_TEMPLATE_BYTES)
+					throw new IOException("Letter 模板大小不能超过20MB");
+				try (InputStream input = connection.getInputStream(); ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
+					byte[] buffer = new byte[8192];
+					int count;
+					while ((count = input.read(buffer)) != -1) {
+						if (bytes.size() + count > MAX_LETTER_TEMPLATE_BYTES)
+							throw new IOException("Letter 模板大小不能超过20MB");
+						bytes.write(buffer, 0, count);
+					}
+					return new ByteArrayInputStream(bytes.toByteArray());
+				}
+			} finally {
+				connection.disconnect();
+			}
 		}
-		if (tables.size() > 1) {
-			XWPFTable acknowledgement = tables.get(1);
-			setTableCell(acknowledgement, 0, 1, data.fullName);
-			setTableCell(acknowledgement, 2, 1, data.generatedDate);
-			setTableCell(acknowledgement, 3, 1, "Not applicable");
+		Path path = resolveStoredFilePath(location);
+		if (!Files.isRegularFile(path))
+			throw new IOException("Letter 模板文件不存在: " + path);
+		if (Files.size(path) > MAX_LETTER_TEMPLATE_BYTES)
+			throw new IOException("Letter 模板大小不能超过20MB");
+		return Files.newInputStream(path);
+	}
+
+	private void fillAdviceTables(XWPFDocument document, CustomerDocumentData data) {
+		Map<String, String> labels = new LinkedHashMap<String, String>();
+		labels.put("date", data.generatedDate);
+		labels.put("client", data.fullName);
+		labels.put("client name", data.fullName);
+		labels.put("dob", valueOrNotRecorded(data.dateOfBirth));
+		labels.put("date of birth", valueOrNotRecorded(data.dateOfBirth));
+		labels.put("matter", data.matter);
+		labels.put("our reference", data.reference);
+		labels.put("matter reference", data.reference);
+		labels.put("interpreter (if any)", "Not applicable");
+		fillAdviceTableLabels(document.getTables(), labels);
+	}
+
+	private void fillAdviceTableLabels(List<XWPFTable> tables, Map<String, String> labels) {
+		for (XWPFTable table : tables) {
+			for (org.apache.poi.xwpf.usermodel.XWPFTableRow row : table.getRows()) {
+				if (row.getTableCells().size() >= 2) {
+					String label = row.getCell(0).getText().trim().toLowerCase(Locale.ENGLISH);
+					if (labels.containsKey(label) && !PortalLetterTemplateRenderer.hasContentControls(row.getCell(1)))
+						replaceCellText(row.getCell(1), labels.get(label));
+				}
+				for (XWPFTableCell cell : row.getTableCells())
+					fillAdviceTableLabels(cell.getTables(), labels);
+			}
 		}
 	}
 
-	private void setTableCell(XWPFTable table, int row, int column, String value) {
-		if (row >= table.getNumberOfRows() || column >= table.getRow(row).getTableCells().size())
+	/** 新模板只有确认说明，生成时补齐后续客户确认签署所需的 Signature/Date 单元格。 */
+	private void ensureAdviceSignatureTable(XWPFDocument document) {
+		XWPFTable table = findAdviceSignatureTable(document.getTables());
+		for (XWPFHeaderFooter header : document.getHeaderList()) {
+			if (table == null)
+				table = findAdviceSignatureTable(header.getTables());
+		}
+		for (XWPFHeaderFooter footer : document.getFooterList()) {
+			if (table == null)
+				table = findAdviceSignatureTable(footer.getTables());
+		}
+		if (table == null) {
+			table = document.createTable(2, 2);
+			table.setWidth("100%");
+			table.getRow(0).getCell(0).setText("Signature");
+			table.getRow(1).getCell(0).setText("Date");
 			return;
-		XWPFTableCell cell = table.getRow(row).getCell(column);
-		if (cell.getParagraphs().isEmpty())
-			cell.addParagraph();
-		setParagraphText(cell.getParagraphs().get(0), valueOrNotRecorded(value));
+		}
+		for (org.apache.poi.xwpf.usermodel.XWPFTableRow row : table.getRows()) {
+			if (row.getTableCells().size() >= 2 && "Date".equalsIgnoreCase(row.getCell(0).getText().trim()))
+				return;
+		}
+		org.apache.poi.xwpf.usermodel.XWPFTableRow dateRow = table.createRow();
+		while (dateRow.getTableCells().size() < 2)
+			dateRow.addNewTableCell();
+		dateRow.getCell(0).setText("Date");
+	}
+
+	private XWPFTable findAdviceSignatureTable(List<XWPFTable> tables) {
+		for (XWPFTable table : tables) {
+			for (org.apache.poi.xwpf.usermodel.XWPFTableRow row : table.getRows()) {
+				if (row.getTableCells().size() >= 2 && "Signature".equalsIgnoreCase(row.getCell(0).getText().trim()))
+					return table;
+				for (XWPFTableCell cell : row.getTableCells()) {
+					XWPFTable nested = findAdviceSignatureTable(cell.getTables());
+					if (nested != null)
+						return nested;
+				}
+			}
+		}
+		return null;
 	}
 
 	private Map<String, String> buildTokenReplacements(CustomerDocumentData data) {
@@ -1720,6 +1824,11 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		data.serviceType = firstNonEmpty(getDirectText(serviceCategory, "serviceType"),
 				getDirectText(formServiceCategory, "serviceType"), findText(contractData, "serviceType"),
 				findText(formData, "serviceType"));
+		data.selectedOption = firstNonEmpty(
+				getDirectText(serviceCategory, "selectedOption", "adviceSelected", "visaStream", "applicationLocation"),
+				getDirectText(formServiceCategory, "selectedOption", "adviceSelected", "visaStream", "applicationLocation"),
+				findText(contractData, "selectedOption", "adviceSelected", "visaStream", "applicationLocation"),
+				findText(formData, "selectedOption", "adviceSelected", "visaStream", "applicationLocation"));
 		data.visaSubclass = firstNonEmpty(getDirectText(serviceCategory, "visaSubclass"),
 				getDirectText(formServiceCategory, "visaSubclass"), findText(contractData, "visaSubclass"),
 				findText(formData, "visaSubclass"));
@@ -1740,7 +1849,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		data.matter = firstNonEmpty(data.serviceType, "Australian immigration matter");
 		data.reference = firstNonEmpty(findText(contractData, "fileReference", "ourReference"),
 				findText(formData, "fileReference", "ourReference"), "Portal-" + portalDto.getId());
-		data.generatedDate = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+		data.generatedAt = new Date();
+		data.generatedDate = new SimpleDateFormat("dd/MM/yyyy").format(data.generatedAt);
 
 		String education = firstNonEmpty(buildEducationSummary(contractData), buildEducationSummary(formData));
 		String language = firstNonEmpty(buildLanguageSummary(contractData), buildLanguageSummary(formData));
@@ -2197,6 +2307,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		private String visaExpiry;
 		private int maraId;
 		private String serviceType;
+		private String selectedOption;
 		private String visaSubclass;
 		private String otherImmigrationAssistance;
 		private String feeType;
@@ -2211,6 +2322,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		private String matter;
 		private String reference;
 		private String generatedDate;
+		private Date generatedAt;
 		private String currentVisaSummary;
 		private String objectiveSummary;
 		private String circumstancesSummary;

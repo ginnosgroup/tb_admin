@@ -49,6 +49,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.PortalAttachmentService;
+import org.zhinanzhen.b.service.PortalApplicationImageReviewService;
+import org.zhinanzhen.b.service.PortalApplicationContentService;
+import org.zhinanzhen.b.service.PortalApplicationImageReviewService.ReviewResult;
+import org.zhinanzhen.b.utils.ImageResolutionInspector;
 import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.PortalFollowUpState;
 import org.zhinanzhen.b.service.impl.PortalWriteGuard;
@@ -178,11 +182,15 @@ public class PortalController extends BaseController {
 			"请识别这份语言考试成绩单，只返回一个合法的JSON对象，不要返回Markdown或解释。\n"
 					+ "严格按前端语言能力表单返回："
 					+ "{\"language\":[{\"langType\":null,\"listening\":null,\"reading\":null,"
-					+ "\"writing\":null,\"speaking\":null,\"overall\":null,\"testDate\":null,\"hkPassport\":0}]}\n"
+					+ "\"writing\":null,\"speaking\":null,\"overall\":null,\"testDate\":null,\"hkPassport\":0,"
+					+ "\"testTakerId\":null,\"testReportFormNumber\":null,\"overallBandScore\":null}]}\n"
 					+ "规则：一份文件有多次独立考试时，每次考试各占一个数组元素；没有可确认的考试时返回空数组。"
 					+ "langType只能是CAE、ESOL、IELTS、OET、Pearson Test、TOEFL iBT、TOEFL PBT、TOEIC、Other之一；"
 					+ "PTE Academic归为Pearson Test。四项分数和总分用不带单位的字符串，无法确认时为null；"
 					+ "testDate使用yyyy-MM-dd，不能用成绩单出具日期代替考试日期；"
+					+ "testTakerId对应成绩单明确标注的Test Taker ID，testReportFormNumber对应Test Report Form Number，"
+					+ "overallBandScore对应Overall Band Score。这三个字段均使用字符串，编号保留前导零和字母；"
+					+ "只能按各自标签提取，无法识别或文件未提供时返回null，不能用其他编号替代或根据分项成绩推算总分；"
 					+ "只有成绩单明确注明持有香港护照时hkPassport才返回数字1；未注明或不是香港护照时返回数字0（否）。"
 					+ "不要根据考试地点或国籍猜测是否持有香港护照。其他字段只能根据文件内容提取，不要猜测。";
 
@@ -210,6 +218,12 @@ public class PortalController extends BaseController {
 
 	@Resource
 	PortalAttachmentService portalAttachmentService;
+
+	@Resource
+	PortalApplicationImageReviewService portalApplicationImageReviewService;
+
+	@Resource
+	PortalApplicationContentService portalApplicationContentService;
 
 	@Resource
 	PortalLogService portalLogService;
@@ -247,11 +261,12 @@ public class PortalController extends BaseController {
 		String originalName = file == null ? null : file.getOriginalFilename();
 		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
 		String uploadStage = resolveApplicationStage(normalizedUploadFileType);
-		boolean signatureUpload = aiText == null && fileType != null
+		boolean extractAiText = aiText != null && "yes".equalsIgnoreCase(aiText.trim());
+		boolean signatureUpload = !extractAiText && fileType != null
 				&& "signature".equalsIgnoreCase(fileType.trim());
-		boolean form956Upload = aiText == null && fileType != null
+		boolean form956Upload = !extractAiText && fileType != null
 				&& "956MA".equalsIgnoreCase(fileType.trim());
-		boolean customerSignatureUpload = aiText == null && fileType != null
+		boolean customerSignatureUpload = !extractAiText && fileType != null
 				&& "customerSignature".equalsIgnoreCase(fileType.trim());
 		boolean maraFileUpload = signatureUpload || form956Upload;
 		List<PortalAttachmentDTO> previousSameSortingAttachments = Collections.emptyList();
@@ -345,17 +360,51 @@ public class PortalController extends BaseController {
 			}
 			oldMaraFilePath = form956Upload ? maraDto.getForm956Path() : maraDto.getSignatureData();
 		}
+		boolean applicationUpload = "application".equalsIgnoreCase(normalizedUploadFileType);
+		boolean applicationImageUpload = applicationUpload
+				&& ImageResolutionInspector.isImageUpload(file);
 		String normalizedFileType = null;
-		if (aiText != null) {
+		if (extractAiText && !applicationUpload) {
 			normalizedFileType = normalizeAttachmentFileType(fileType);
 			if (normalizedFileType == null) {
 				return new Response<Map<String, Object>>(1,
 						"调用AI识别时fileType必须是passport、completion、coe、autoLanguage或autoCourse.", null);
 			}
 		}
-		// 只有传入aiText参数时才读取原始文件并调用AI。必须在upload2之前读取，
+		// 文字提取或申请材料图片审查需要原始文件。必须在upload2之前读取，
 		// 因为upload2内部transferTo会移动MultipartFile的临时文件。
-		byte[] fileBytes = aiText == null ? null : file.getBytes();
+		byte[] fileBytes = extractAiText || applicationImageUpload ? (file == null ? null : file.getBytes()) : null;
+		ReviewResult imageReview = null;
+		if (applicationImageUpload) {
+			try {
+				imageReview = portalApplicationImageReviewService.review(fileBytes);
+			} catch (IOException e) {
+				LOG.warn("申请材料图片审查失败", e);
+				return new Response<Map<String, Object>>(1, "图片清晰度审查失败，请稍后重试", null);
+			}
+			if (imageReview == null || !imageReview.isPassed()) {
+				Map<String, Object> reviewData = new LinkedHashMap<String, Object>();
+				reviewData.put("imageQuality", imageReview == null ? null : imageReview.toMap());
+				return new Response<Map<String, Object>>(1,
+						imageReview == null ? "图片清晰度审查未完成，请重试" : imageReview.getMessage(), reviewData);
+			}
+		}
+		ObjectNode applicationContent = null;
+		String applicationAiText = null;
+		if (applicationUpload && extractAiText) {
+			try {
+				applicationContent = portalApplicationContentService.extract(fileBytes, originalName,
+						file == null ? null : file.getContentType());
+				if (applicationContent == null)
+					return new Response<Map<String, Object>>(1, "申请材料内容提取未完成，请重试", null);
+				if (imageReview != null)
+					applicationContent.set("imageQuality", new ObjectMapper().valueToTree(imageReview.toMap()));
+				applicationAiText = applicationContent.toString();
+			} catch (IOException e) {
+				LOG.warn("申请材料内容提取失败，file={}", originalName, e);
+				return new Response<Map<String, Object>>(1, "申请材料内容提取失败：" + e.getMessage(), null);
+			}
+		}
 		Response<String> uploadResp = super.upload2(file, request.getSession(), "/uploads/portal_attachment/");
 		if (uploadResp == null) {
 			return new Response<Map<String, Object>>(1, "附件上传失败.", null);
@@ -401,8 +450,14 @@ public class PortalController extends BaseController {
 					portalAttachmentDto.setStage(uploadStage);
 				if (StringUtil.isNotEmpty(attachmentState))
 					portalAttachmentDto.setAttachmentState(attachmentState.trim());
-				// 传入aiText参数时才提取附件文字并随附件入库（AI失败不影响上传主流程）。
-				if (aiText != null) {
+				// 仅 aiText=yes 时提取文字并保存 JSON；图片审查结果独立保存。
+				if (applicationUpload && extractAiText) {
+					portalAttachmentDto.setAiText(applicationAiText);
+				} else if (imageReview != null) {
+					ObjectNode reviewContent = OBJECT_MAPPER.createObjectNode();
+					reviewContent.set("imageQuality", OBJECT_MAPPER.valueToTree(imageReview.toMap()));
+					portalAttachmentDto.setAiText(reviewContent.toString());
+				} else if (extractAiText) {
 					portalAttachmentDto
 							.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
 				}
@@ -447,7 +502,13 @@ public class PortalController extends BaseController {
 		result.put("attachmentId", attachmentId);
 		result.put("filePath", uploadResp.getData());
 		result.put("attachmentState", portalAttachmentDto == null ? null : portalAttachmentDto.getAttachmentState());
-		if (aiText != null) {
+		if (imageReview != null)
+			result.put("imageQuality", imageReview.toMap());
+		if (applicationUpload && extractAiText) {
+			// 新增 JSON 对象供前端直接使用；aiText 保留现有 JSON 字符串格式。
+			result.put("extractedContent", applicationContent);
+			result.put("aiText", portalAttachmentDto.getAiText());
+		} else if (extractAiText) {
 			result.put("aiText", portalAttachmentDto.getAiText());
 		}
 		return new Response<Map<String, Object>>(0, "", result);
@@ -553,7 +614,8 @@ public class PortalController extends BaseController {
 		}
 		if ("autolanguage".equals(fileType))
 			return normalizeAiFormRecords(jsonNode, "language", new String[] {
-					"langType", "listening", "reading", "writing", "speaking", "overall", "testDate", "hkPassport" });
+					"langType", "listening", "reading", "writing", "speaking", "overall", "testDate", "hkPassport",
+					"testTakerId", "testReportFormNumber", "overallBandScore" });
 		if ("autocourse".equals(fileType))
 			return normalizeAiFormRecords(jsonNode, "education", new String[] {
 					"auSchoolName", "cricosName", "eduCourseType", "eduStartDate", "eduEndDate",
@@ -1563,7 +1625,7 @@ public class PortalController extends BaseController {
 						return new Response<PortalDTO>(signatureException.getCode(), signatureException.getMessage(), portalDto);
 					}
 				}
-            // 状态首次转为02B时，使用更新后的完整客户资料生成合同和建议信，但不发送客户邮件。
+            // 状态首次转为02B时，使用更新后的完整客户资料及案件类型的letter_url生成建议信等文件。
             if ("02B".equals(strState) && !"02B".equals(fromState)) {
                 try {
                     PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
@@ -3428,6 +3490,7 @@ public class PortalController extends BaseController {
 	public Response<Integer> addPortalType(@RequestParam(value = "name") String name,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "filePath", required = false) String filePath,
+			@RequestParam(value = "letterUrl", required = false) String letterUrl,
 			@RequestParam(value = "documentList", required = false) String documentList,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletRequest request,
@@ -3440,6 +3503,8 @@ public class PortalController extends BaseController {
 				portalTypeDto.setDescription(description);
 			if (StringUtil.isNotEmpty(filePath))
 				portalTypeDto.setFilePath(filePath.trim());
+			if (letterUrl != null)
+				portalTypeDto.setLetterUrl(letterUrl.trim());
 			if (StringUtil.isNotEmpty(documentList))
 				portalTypeDto.setDocumentList(documentList.trim());
 			if (StringUtil.isNotEmpty(sort))
@@ -3462,6 +3527,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "filePath", required = false) String filePath,
+			@RequestParam(value = "letterUrl", required = false) String letterUrl,
 			@RequestParam(value = "documentList", required = false) String documentList,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "isDelete", required = false) String isDelete, HttpServletResponse response) {
@@ -3475,6 +3541,8 @@ public class PortalController extends BaseController {
 				portalTypeDto.setDescription(description);
 			if (filePath != null)
 				portalTypeDto.setFilePath(filePath.trim());
+			if (letterUrl != null)
+				portalTypeDto.setLetterUrl(letterUrl.trim());
 			if (documentList != null)
 				portalTypeDto.setDocumentList(documentList.trim());
 			if (StringUtil.isNotEmpty(sort))

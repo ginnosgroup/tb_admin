@@ -3,6 +3,7 @@ package org.zhinanzhen.b.service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * 低价申请审核凭证图片分析器。
@@ -18,6 +19,12 @@ public interface LowPriceApprovalImageAnalyzer {
      * 使用腾讯云通用 OCR 提取图片文字，供其他文件分析流程复用。
      */
     String extractText(byte[] imageBytes) throws IOException;
+
+    /** DeepSeek 直接分析图片的清晰度评分（0-100），不表示 PPI，也不调用 OCR。 */
+    long assessClarity(byte[] imageBytes) throws IOException;
+
+    /** 直接使用 DeepSeek 识别图片全文、标注字段和表格，返回经过校验的 JSON。 */
+    ObjectNode extractImageContent(byte[] imageBytes) throws IOException;
 
     AnalysisResult analyze(MultipartFile file, String requestSource,
                            Integer requestUserId) throws IOException;

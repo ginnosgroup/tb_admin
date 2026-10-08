@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -114,6 +115,8 @@ public final class Form956PdfGenerator {
 		if (isBlank(data.clientFamilyName) && isBlank(data.clientGivenNames))
 			throw new IOException("Form 956客户姓名为空，请检查案件json_str和contract_str中的basicInfo");
 		Map<String, String> values = fieldValues(data);
+		// 第23项代理人声明日期使用本次生成日期，覆盖模板中预填的旧日期。
+		values.put("mg.dec date", new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH).format(new Date()));
 		try (PDDocument document = PDDocument.load(templateInputStream)) {
 			PDAcroForm form = prepareForm(document, values);
 			PDFont font = loadFont(document, values);

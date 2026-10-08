@@ -12,6 +12,7 @@
                 name,
                 description,
                 file_path,
+                letter_url,
                 document_List,
                 sort,
                 is_delete)
@@ -21,6 +22,7 @@
                 #{name},
                 #{description},
                 #{filePath},
+                #{letterUrl},
                 #{documentList},
                 #{sort},
                 #{isDelete});
@@ -37,6 +39,9 @@
         </if>
         <if test='filePath != null'>
             , file_path = #{filePath}
+        </if>
+        <if test='letterUrl != null'>
+            , letter_url = #{letterUrl}
         </if>
         <if test='documentList != null'>
             , document_List = #{documentList}
@@ -58,6 +63,7 @@
             name,
             description,
             file_path AS filePath,
+            letter_url AS letterUrl,
             document_List AS documentList,
             sort,
             is_delete AS isDelete
@@ -81,6 +87,7 @@
             name,
             description,
             file_path AS filePath,
+            letter_url AS letterUrl,
             document_List AS documentList,
             sort,
             is_delete AS isDelete
