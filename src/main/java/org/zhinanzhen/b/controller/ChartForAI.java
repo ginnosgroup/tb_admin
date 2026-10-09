@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.LowPriceApprovalImageAnalyzer;
+import org.zhinanzhen.b.utils.ReportFormNumberExtractor;
 import org.zhinanzhen.tb.controller.Response;
 
 import javax.annotation.Resource;
@@ -184,6 +185,7 @@ public class ChartForAI {
 
         try {
             String result;
+            String sourceText;
             if (isImage(fileBytes)) {
                 String imageText = imageOcrService.extractText(fileBytes);
                 if (StringUtils.isBlank(imageText)) {
@@ -191,6 +193,7 @@ public class ChartForAI {
                 }
                 result = requestDeepSeek(resolveQuestion(question)
                         + "\n\n以下是从图片OCR中提取的文字内容：\n" + truncateOcrText(imageText), jsonMode);
+                sourceText = imageText;
             } else if (isPdf(fileBytes)) {
                 String pdfText = extractPdfText(fileBytes);
                 if (pdfText.isEmpty()) {
@@ -199,10 +202,13 @@ public class ChartForAI {
                 }
                 result = requestDeepSeek(resolveQuestion(question)
                         + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText, jsonMode);
+                sourceText = pdfText;
             } else {
                 return new Response<String>(1, "仅支持图片或PDF文件", null);
             }
 
+            if (jsonMode && resolveQuestion(question).contains("\"testReportFormNumber\""))
+                result = ReportFormNumberExtractor.supplementFromText(result, sourceText);
             log.info("DeepSeek文字提取结果: {}", result);
             return new Response<String>(0, "提取成功", result);
         } catch (Exception e) {
@@ -246,7 +252,7 @@ public class ChartForAI {
      * @param content user消息的纯文本内容
      * @param jsonMode 是否要求返回 JSON（response_format = json_object）
      */
-    private String requestDeepSeek(String content, boolean jsonMode) throws IOException {
+    protected String requestDeepSeek(String content, boolean jsonMode) throws IOException {
         JSONObject userMessage = new JSONObject();
         userMessage.put("role", "user");
         userMessage.put("content", content);

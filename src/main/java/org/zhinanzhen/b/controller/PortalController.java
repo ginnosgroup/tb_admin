@@ -53,6 +53,7 @@ import org.zhinanzhen.b.service.PortalApplicationImageReviewService;
 import org.zhinanzhen.b.service.PortalApplicationContentService;
 import org.zhinanzhen.b.service.PortalApplicationImageReviewService.ReviewResult;
 import org.zhinanzhen.b.utils.ImageResolutionInspector;
+import org.zhinanzhen.b.utils.ReportFormNumberExtractor;
 import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.PortalFollowUpState;
 import org.zhinanzhen.b.service.impl.PortalWriteGuard;
@@ -188,9 +189,11 @@ public class PortalController extends BaseController {
 					+ "langType只能是CAE、ESOL、IELTS、OET、Pearson Test、TOEFL iBT、TOEFL PBT、TOEIC、Other之一；"
 					+ "PTE Academic归为Pearson Test。四项分数和总分用不带单位的字符串，无法确认时为null；"
 					+ "testDate使用yyyy-MM-dd，不能用成绩单出具日期代替考试日期；"
-					+ "testTakerId对应成绩单明确标注的Test Taker ID，testReportFormNumber对应Test Report Form Number，"
+					+ "testTakerId对应成绩单明确标注的Test Taker ID；testReportFormNumber先查找文件中的Test Report Form Number，"
+					+ "没有可确认的对应编号时，再查找Score Report Code，并将其值返回到testReportFormNumber；"
 					+ "overallBandScore对应Overall Band Score。这三个字段均使用字符串，编号保留前导零和字母；"
-					+ "只能按各自标签提取，无法识别或文件未提供时返回null，不能用其他编号替代或根据分项成绩推算总分；"
+					+ "只能按上述标签及优先顺序提取，两种报告编号都未找到时testReportFormNumber返回null，"
+					+ "不能用Test Taker ID或其他编号替代，也不能根据分项成绩推算总分；"
 					+ "只有成绩单明确注明持有香港护照时hkPassport才返回数字1；未注明或不是香港护照时返回数字0（否）。"
 					+ "不要根据考试地点或国籍猜测是否持有香港护照。其他字段只能根据文件内容提取，不要猜测。";
 
@@ -199,7 +202,7 @@ public class PortalController extends BaseController {
 					+ "严格按前端学习经历表单返回："
 					+ "{\"education\":[{\"auSchoolName\":null,\"cricosName\":null,\"eduCourseType\":null,"
 					+ "\"eduStartDate\":null,\"eduEndDate\":null,\"eduCourseCompletionDate\":null,"
-					+ "\"skillAssessment\":null}]}\n"
+					+ "\"skillAssessment\":null,\"testReportFormNumber\":null}]}\n"
 					+ "规则：每项独立学历/课程占一个数组元素，不要把单科成绩或学期拆成学习经历；无法确认课程时返回空数组。"
 					+ "auSchoolName是学校名称，cricosName是课程名称；eduCourseType只能是"
 					+ "Primary School、Middle School、Senior High School、High School、Trade Apprenticeship、"
@@ -208,6 +211,9 @@ public class PortalController extends BaseController {
 					+ "Bachelor Degree、Honours Degree、Postgraduate Certificate、Postgraduate Diploma、"
 					+ "Masters Degree、Doctoral Degree、Other之一。日期使用yyyy-MM-dd；"
 					+ "eduCourseCompletionDate只在成绩单明确写明课程完成日期时填写，不能用成绩发布日期代替；"
+					+ "testReportFormNumber先查找文件中的Test Report Form Number，没有可确认的对应编号时，"
+					+ "再查找Score Report Code，并将其值返回到testReportFormNumber；使用字符串按原文返回，"
+					+ "保留前导零、字母和编号中的符号；未找到或无法确认时返回null，不能用学号、课程编码或其他编号替代；"
 					+ "skillAssessment不是成绩单信息，固定返回null。缺失字段返回null，只能根据文件内容提取，不要猜测。";
 
 	@Resource
@@ -619,7 +625,7 @@ public class PortalController extends BaseController {
 		if ("autocourse".equals(fileType))
 			return normalizeAiFormRecords(jsonNode, "education", new String[] {
 					"auSchoolName", "cricosName", "eduCourseType", "eduStartDate", "eduEndDate",
-					"eduCourseCompletionDate", "skillAssessment" });
+					"eduCourseCompletionDate", "skillAssessment", "testReportFormNumber" });
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
 	}
 
@@ -629,22 +635,25 @@ public class PortalController extends BaseController {
 		JsonNode input = source.path(fieldName);
 		if (input.isArray()) {
 			for (JsonNode item : input)
-				appendAiFormRecord(records, item, fields);
+				appendAiFormRecord(records, item, fields, input.size() == 1 ? source : null);
 		} else if (input.isObject()) {
-			appendAiFormRecord(records, input, fields);
+			appendAiFormRecord(records, input, fields, source);
 		} else if (source.has(fields[0])) {
-			appendAiFormRecord(records, source, fields);
+			appendAiFormRecord(records, source, fields, null);
 		}
 		return OBJECT_MAPPER.writeValueAsString(result);
 	}
 
-	private void appendAiFormRecord(ArrayNode records, JsonNode source, String[] fields) {
+	private void appendAiFormRecord(ArrayNode records, JsonNode source, String[] fields, JsonNode sharedSource) {
 		if (!source.isObject())
 			return;
 		ObjectNode record = records.addObject();
 		for (String field : fields) {
 			JsonNode value = source.path(field);
-			if ("hkPassport".equals(field)) {
+			if ("testReportFormNumber".equals(field)) {
+				// AI可能使用原始标签或scoreReportCode字段；统一按报告编号优先、成绩代码兜底。
+				record.put(field, ReportFormNumberExtractor.resolve(source, sharedSource));
+			} else if ("hkPassport".equals(field)) {
 				record.put(field, isHongKongPassport(value) ? 1 : 0);
 			} else if ("skillAssessment".equals(field)
 					|| value.isMissingNode() || value.isNull() || !value.isValueNode()
