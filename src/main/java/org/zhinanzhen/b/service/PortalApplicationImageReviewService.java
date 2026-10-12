@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** 申请材料图片上传前的 PPI 校验和 AI 清晰度审查。 */
+/** 申请材料图片上传前的像素尺寸校验（width*height > 800×600）和 AI 清晰度审查。 */
 public interface PortalApplicationImageReviewService {
     ReviewResult review(byte[] imageBytes) throws IOException;
 
