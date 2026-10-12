@@ -1,8 +1,11 @@
 package org.zhinanzhen.b.service.impl;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -12,6 +15,7 @@ import org.zhinanzhen.b.dao.PortalAttachmentDAO;
 import org.zhinanzhen.b.dao.pojo.PortalAttachmentDO;
 import org.zhinanzhen.b.service.PortalAttachmentService;
 import org.zhinanzhen.b.service.pojo.PortalAttachmentDTO;
+import org.zhinanzhen.b.service.pojo.PortalAttachmentUploadResult;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
 
@@ -74,6 +78,103 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public PortalAttachmentUploadResult addApplicationPortalAttachment(PortalAttachmentDTO attachment)
+			throws ServiceException {
+		if (attachment == null || !"application".equalsIgnoreCase(attachment.getStage())
+				|| StringUtil.isEmpty(attachment.getFileName())) {
+			ServiceException error = new ServiceException("申请材料附件参数错误.");
+			error.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw error;
+		}
+		try {
+			PortalAttachmentUploadResult result = new PortalAttachmentUploadResult();
+			Integer portalId = attachment.getPortalId();
+			if (portalId != null && portalId > 0) {
+				// 案件行锁串行化同一案件的上传，后缀分配、同名删除、新增共享一个事务。
+				portalWriteGuard.requireEditable(portalId);
+				List<PortalAttachmentDO> existing = portalAttachmentDao.listPortalAttachmentByPortalId(portalId);
+				List<PortalAttachmentDO> sameName = portalAttachmentDao
+						.listPortalAttachmentByPortalIdAndFileNameAndStage(portalId,
+								attachment.getFileName().trim(), "application");
+				Set<Integer> replacedIds = new HashSet<Integer>();
+				if (sameName != null) {
+					for (PortalAttachmentDO old : sameName) {
+						if (old == null || !attachment.getFileName().trim().equalsIgnoreCase(
+								old.getFileName() == null ? "" : old.getFileName().trim()))
+							continue;
+						portalWriteGuard.requireFileEditable(old.getFilePath());
+						if (portalAttachmentDao.deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(
+								old.getId(), portalId, attachment.getFileName().trim(), "application") <= 0)
+							throw applicationSaveFailure("旧同名附件已发生变更，请重试.");
+						replacedIds.add(old.getId());
+						if (StringUtil.isNotEmpty(old.getFilePath()))
+							result.getReplacedFilePaths().add(old.getFilePath());
+					}
+				}
+				String sorting = attachment.getFileSorting();
+				if (sorting != null && existing != null) {
+					List<PortalAttachmentDO> sameSortingGroup = new ArrayList<PortalAttachmentDO>();
+					BigInteger nextSuffix = BigInteger.ONE;
+					for (PortalAttachmentDO old : existing) {
+						if (replacedIds.contains(old.getId()))
+							continue;
+						BigInteger suffix = applicationSortingSuffix(old.getFileSorting(), sorting);
+						if (suffix != null) {
+							sameSortingGroup.add(old);
+							if (suffix.compareTo(nextSuffix) >= 0)
+								nextSuffix = suffix.add(BigInteger.ONE);
+						}
+					}
+					if (!sameSortingGroup.isEmpty()) {
+						// 已带后缀的附件保留编号；旧版留下的基础排序也接在最大后缀之后。
+						for (PortalAttachmentDO old : sameSortingGroup) {
+							if (!sorting.equals(old.getFileSorting()))
+								continue;
+							portalWriteGuard.requireFileEditable(old.getFilePath());
+							String oldSorting = sorting + "-" + nextSuffix;
+							nextSuffix = nextSuffix.add(BigInteger.ONE);
+							if (portalAttachmentDao.updatePortalAttachmentFileSorting(old.getId(), portalId,
+									sorting, oldSorting) <= 0)
+								throw applicationSaveFailure("旧附件排序已发生变更，请重试.");
+						}
+						// 首条仍使用基础排序；第二条起，新文件也分配顺序后缀。
+						attachment.setFileSorting(sorting + "-" + nextSuffix);
+					}
+				}
+			}
+			int id = addPortalAttachment(attachment);
+			if (id <= 0)
+				throw applicationSaveFailure("附件信息保存失败.");
+			result.setAttachmentId(id);
+			return result;
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException error = new ServiceException(e);
+			error.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw error;
+		}
+	}
+
+	/** 基础排序返回0；只匹配完整的同组正整数后缀，避免1与10等其他组混淆。 */
+	private BigInteger applicationSortingSuffix(String value, String baseSorting) {
+		if (baseSorting.equals(value))
+			return BigInteger.ZERO;
+		String prefix = baseSorting + "-";
+		if (value == null || !value.startsWith(prefix))
+			return null;
+		String suffix = value.substring(prefix.length());
+		return suffix.matches("[1-9][0-9]*") ? new BigInteger(suffix) : null;
+	}
+
+	private ServiceException applicationSaveFailure(String message) {
+		ServiceException error = new ServiceException(message);
+		error.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+		return error;
 	}
 
 	@Override
@@ -154,7 +255,7 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 		}
 		try {
 			List<PortalAttachmentDO> attachments = portalAttachmentDao
-					.listPortalAttachmentByPortalIdAndFileSorting(portalId, fileSorting);
+					.listPortalAttachmentByPortalIdAndFileSorting(portalId, fileSorting.toString());
 			List<PortalAttachmentDTO> result = new ArrayList<PortalAttachmentDTO>();
 			if (attachments != null)
 				for (PortalAttachmentDO attachment : attachments)
@@ -422,13 +523,13 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentById(id);
 			if (attachment == null || attachment.getPortalId() == null
 					|| attachment.getPortalId().intValue() != portalId || attachment.getFileSorting() == null
-					|| attachment.getFileSorting().intValue() != fileSorting)
+					|| !Integer.toString(fileSorting).equals(attachment.getFileSorting()))
 				return 0;
 			requireAttachmentEditable(attachment);
 			if (StringUtil.isNotEmpty(attachment.getFilePath()))
 				portalWriteGuard.requireFileEditable(attachment.getFilePath());
 			return portalAttachmentDao.deletePortalAttachmentByIdAndPortalIdAndFileSorting(id, portalId,
-					fileSorting);
+					Integer.toString(fileSorting));
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {

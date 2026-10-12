@@ -16,7 +16,10 @@ public interface PortalAttachmentDAO {
 	List<PortalAttachmentDO> listPortalAttachmentByPortalId(@Param("portalId") Integer portalId);
 
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndFileSorting(@Param("portalId") Integer portalId,
-			@Param("fileSorting") Integer fileSorting);
+			@Param("fileSorting") String fileSorting);
+
+	int updatePortalAttachmentFileSorting(@Param("id") int id, @Param("portalId") int portalId,
+			@Param("oldFileSorting") String oldFileSorting, @Param("newFileSorting") String newFileSorting);
 
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndStage(@Param("portalId") Integer portalId,
 			@Param("stage") String stage);
@@ -45,7 +48,7 @@ public interface PortalAttachmentDAO {
 			@Param("portalId") int portalId, @Param("fileName") String fileName, @Param("stage") String stage);
 
 	int deletePortalAttachmentByIdAndPortalIdAndFileSorting(@Param("id") int id,
-			@Param("portalId") int portalId, @Param("fileSorting") int fileSorting);
+			@Param("portalId") int portalId, @Param("fileSorting") String fileSorting);
 
 	int deletePortalArchiveAttachmentByIdAndPortalIdAndStage(@Param("id") int id, @Param("portalId") int portalId,
 			@Param("stage") String stage);

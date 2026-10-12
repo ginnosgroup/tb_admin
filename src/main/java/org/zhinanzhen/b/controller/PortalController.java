@@ -62,6 +62,7 @@ import org.zhinanzhen.b.service.PortalService;
 import org.zhinanzhen.b.service.PortalTypeService;
 import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.pojo.PortalAttachmentDTO;
+import org.zhinanzhen.b.service.pojo.PortalAttachmentUploadResult;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalLogDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
@@ -266,6 +267,7 @@ public class PortalController extends BaseController {
 		}
 		String originalName = file == null ? null : file.getOriginalFilename();
 		String normalizedUploadFileType = fileType == null ? null : fileType.trim();
+		boolean applicationUpload = "application".equalsIgnoreCase(normalizedUploadFileType);
 		String uploadStage = resolveApplicationStage(normalizedUploadFileType);
 		boolean extractAiText = aiText != null && "yes".equalsIgnoreCase(aiText.trim());
 		boolean signatureUpload = !extractAiText && fileType != null
@@ -276,7 +278,8 @@ public class PortalController extends BaseController {
 				&& "customerSignature".equalsIgnoreCase(fileType.trim());
 		boolean maraFileUpload = signatureUpload || form956Upload;
 		List<PortalAttachmentDTO> previousSameSortingAttachments = Collections.emptyList();
-		if (portalId != null && portalId.intValue() > 0 && fileSorting != null && !maraFileUpload) {
+		if (portalId != null && portalId.intValue() > 0 && fileSorting != null && !maraFileUpload
+				&& !applicationUpload) {
 			try {
 				List<PortalAttachmentDTO> attachments = portalAttachmentService
 						.listPortalAttachmentByPortalIdAndFileSorting(portalId, fileSorting);
@@ -288,9 +291,9 @@ public class PortalController extends BaseController {
 		}
 		List<PortalAttachmentDTO> previousSameNameAttachments = Collections.emptyList();
 		if (portalId != null && uploadStage != null && StringUtil.isNotEmpty(originalName)
-				&& !customerSignatureUpload) {
+				&& !customerSignatureUpload && !applicationUpload) {
 			try {
-				// application/applicationWA 仅替换同一案件、同一阶段、同名的旧附件。
+				// 其他阶段沿用同名替换；application由附件入库事务处理。
 				List<PortalAttachmentDTO> attachments = portalAttachmentService
 						.listPortalAttachmentByPortalIdAndFileNameAndStage(portalId, originalName, uploadStage);
 				if (attachments != null)
@@ -366,7 +369,6 @@ public class PortalController extends BaseController {
 			}
 			oldMaraFilePath = form956Upload ? maraDto.getForm956Path() : maraDto.getSignatureData();
 		}
-		boolean applicationUpload = "application".equalsIgnoreCase(normalizedUploadFileType);
 		boolean applicationImageUpload = applicationUpload
 				&& ImageResolutionInspector.isImageUpload(file);
 		String normalizedFileType = null;
@@ -419,7 +421,7 @@ public class PortalController extends BaseController {
 			return new Response<Map<String, Object>>(uploadResp.getCode(), uploadResp.getMessage(), null);
 		}
 		if (portalId != null && (!previousSameSortingAttachments.isEmpty()
-				|| !previousSameNameAttachments.isEmpty()) && !maraFileUpload) {
+				|| !previousSameNameAttachments.isEmpty()) && !maraFileUpload && !applicationUpload) {
 			try {
 				Set<Integer> deletedAttachmentIds = deletePreviousSameSortingAttachments(
 						previousSameSortingAttachments, portalId, fileSorting, uploadResp.getData());
@@ -434,6 +436,7 @@ public class PortalController extends BaseController {
 		}
 		PortalAttachmentDTO portalAttachmentDto = null;
 		int attachmentId = 0;
+		List<String> applicationReplacedFilePaths = Collections.emptyList();
 		try {
 			// signature/956MA 属于 Mara 文件，只保存到 b_mara，不新增 b_portal_attachment。
 			if (!maraFileUpload) {
@@ -450,7 +453,7 @@ public class PortalController extends BaseController {
 				if (StringUtil.isNotEmpty(fileExt))
 					portalAttachmentDto.setFileExt(fileExt);
 				if (fileSorting != null)
-					portalAttachmentDto.setFileSorting(fileSorting);
+					portalAttachmentDto.setFileSorting(fileSorting.toString());
 				portalAttachmentDto.setStage("apply");
 				if (uploadStage != null)
 					portalAttachmentDto.setStage(uploadStage);
@@ -467,7 +470,17 @@ public class PortalController extends BaseController {
 					portalAttachmentDto
 							.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
 				}
-				attachmentId = portalAttachmentService.addPortalAttachment(portalAttachmentDto);
+				if (applicationUpload) {
+					// application同名替换、旧排序追加后缀、新附件入库在同一事务中完成。
+					PortalAttachmentUploadResult saved = portalAttachmentService
+							.addApplicationPortalAttachment(portalAttachmentDto);
+					if (saved != null) {
+						attachmentId = saved.getAttachmentId();
+						applicationReplacedFilePaths = saved.getReplacedFilePaths();
+					}
+				} else {
+					attachmentId = portalAttachmentService.addPortalAttachment(portalAttachmentDto);
+				}
 				if (attachmentId <= 0) {
 					super.deleteFile(uploadResp.getData()); // 入库失败则删除已上传文件
 					return new Response<Map<String, Object>>(1, "附件信息保存失败.", null);
@@ -504,10 +517,21 @@ public class PortalController extends BaseController {
 			cleanupUploadedAttachment(uploadResp.getData(), attachmentId);
 			return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
 		}
+		// 数据库提交后才清理旧同名文件；同排序但不同名的旧文件始终保留。
+		for (String oldFilePath : applicationReplacedFilePaths) {
+			try {
+				deleteReplacedAttachmentFile(oldFilePath, uploadResp.getData());
+			} catch (ServiceException e) {
+				LOG.warn("新申请材料已保存，但旧同名文件清理失败，portalId={}, filePath={}", portalId,
+						oldFilePath, e);
+			}
+		}
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		result.put("attachmentId", attachmentId);
 		result.put("filePath", uploadResp.getData());
 		result.put("attachmentState", portalAttachmentDto == null ? null : portalAttachmentDto.getAttachmentState());
+		if (applicationUpload)
+			result.put("fileSorting", portalAttachmentDto.getFileSorting());
 		if (imageReview != null)
 			result.put("imageQuality", imageReview.toMap());
 		if (applicationUpload && extractAiText) {
@@ -1764,8 +1788,10 @@ public class PortalController extends BaseController {
 								"案件已由06C更新为06A，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
 				}
+				// 011仅更新等待最终决定状态和日志，不发送流程通知。
 				if (followUpState != null && followUpState.isFollowUp()
-						&& followUpState != PortalFollowUpState.ARCHIVE) {
+						&& followUpState != PortalFollowUpState.ARCHIVE
+						&& followUpState != PortalFollowUpState.WAIT_FINAL_DECISION) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						String notificationFilePath = followUpState == PortalFollowUpState.NOTIFY_RESULT
@@ -2237,7 +2263,6 @@ public class PortalController extends BaseController {
 			String filePath, HttpServletRequest request) throws ServiceException {
 		 switch (state) {
 		 case REQUEST_SUPPLEMENT:
-		 case WAIT_FINAL_DECISION:
 		 case SUBMIT_SUPPLEMENT:
 		 case NOTIFY_RESULT:
 			portalDocumentService.sendCustomerFollowUpNotification(portal, state, remark, filePath,

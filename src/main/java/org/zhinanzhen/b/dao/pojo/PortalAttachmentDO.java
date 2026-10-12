@@ -28,7 +28,8 @@ public class PortalAttachmentDO implements Serializable {
 
 	private String fileExt;
 
-	private Integer fileSorting;
+	/** 文件排序；同组申请材料可带 -1、-2 等顺序后缀。 */
+	private String fileSorting;
 
 	private String stage;
 

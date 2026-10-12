@@ -3,11 +3,16 @@ package org.zhinanzhen.b.service;
 import java.util.List;
 
 import org.zhinanzhen.b.service.pojo.PortalAttachmentDTO;
+import org.zhinanzhen.b.service.pojo.PortalAttachmentUploadResult;
 import org.zhinanzhen.tb.service.ServiceException;
 
 public interface PortalAttachmentService {
 
 	int addPortalAttachment(PortalAttachmentDTO portalAttachmentDto) throws ServiceException;
+
+	/** 保存申请材料：同名替换；同组多附件依次编号为1-1、1-2等。 */
+	PortalAttachmentUploadResult addApplicationPortalAttachment(PortalAttachmentDTO portalAttachmentDto)
+			throws ServiceException;
 
 	PortalAttachmentDTO getPortalAttachment(Integer id) throws ServiceException;
 

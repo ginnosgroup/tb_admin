@@ -30,7 +30,7 @@
                 #{fileSize},
                 #{fileType},
                 #{fileExt},
-                #{fileSorting},
+                #{fileSorting, jdbcType=VARCHAR},
                 #{stage},
                 #{attachmentState},
                 #{aiText},
@@ -120,7 +120,7 @@
             user_agent AS userAgent
         FROM b_portal_attachment
         WHERE portal_id = #{portalId}
-          AND file_sorting = #{fileSorting}
+          AND file_sorting = #{fileSorting, jdbcType=VARCHAR}
         ORDER BY gmt_create ASC, id ASC;
     </select>
 
@@ -245,6 +245,15 @@
         LIMIT #{offset}, #{rows};
     </select>
 
+    <!-- 保留旧文件，将基础排序移到未占用的顺序后缀；案件及原值再次校验。 -->
+    <update id="updatePortalAttachmentFileSorting">
+        UPDATE b_portal_attachment
+        SET file_sorting = #{newFileSorting, jdbcType=VARCHAR}, gmt_modify = now()
+        WHERE id = #{id, jdbcType=INTEGER}
+          AND portal_id = #{portalId, jdbcType=INTEGER}
+          AND file_sorting = #{oldFileSorting, jdbcType=VARCHAR}
+    </update>
+
     <update id="updatePortalAttachment" parameterType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO">
         UPDATE b_portal_attachment
         SET gmt_modify = now()
@@ -314,7 +323,7 @@
         DELETE FROM b_portal_attachment
         WHERE id = #{id, jdbcType=INTEGER}
           AND portal_id = #{portalId, jdbcType=INTEGER}
-          AND file_sorting = #{fileSorting, jdbcType=INTEGER}
+          AND file_sorting = #{fileSorting, jdbcType=VARCHAR}
     </delete>
 
     <!-- 仅允许删除指定案件、指定阶段的ZIP/RAR，防止按错误附件ID跨案件删除。 -->
