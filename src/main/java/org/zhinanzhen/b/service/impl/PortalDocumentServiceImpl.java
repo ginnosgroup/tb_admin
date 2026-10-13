@@ -127,6 +127,12 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	/** 客户邮件主题：系统邮件模板03（申请表草稿确认）。 */
 	private static final String MAIL_SUBJECT_DRAFT_REVIEW =
 			"Draft Visa Application – Review and Confirmation Required / 签证申请表草稿 – 请核对确认";
+	/** 客户邮件主题：补充材料确认（文档没有对应模板，沿用原中文主题并补英文）。 */
+	private static final String MAIL_SUBJECT_SUPPLEMENTARY_CONFIRM =
+			"Supplementary Materials Confirmation / 补充材料确认通知";
+	/** 客户邮件主题：补充材料已正式提交（文档没有对应模板，沿用原中文主题并补英文）。 */
+	private static final String MAIL_SUBJECT_SUPPLEMENT_SUBMITTED =
+			"Supplementary Documents Lodged / 补充材料已正式提交";
 	/** 客户邮件主题：系统邮件模板06A（获签/申请结果通知）。 */
 	private static final String MAIL_SUBJECT_DECISION = "Visa Application Decision Notification / 签证申请结果通知";
 	private static final String PENDING_AGENT_REVIEW = "To be completed by the registered migration agent after review.";
@@ -709,8 +715,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isEmpty(filePath))
 			throw serviceException("补充材料附件为空，补充材料确认邮件未发送.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 
-		String title = "【指南针留学移民】补充材料确认通知";
-		String content = buildSupplementaryMaterialsEmail(data.fullName, remark, confirmUrl, returnUrl);
+		String title = MAIL_SUBJECT_SUPPLEMENTARY_CONFIRM;
+		String content = buildSupplementaryMaterialsConfirmationMail(portalDto.getId(), data.fullName,
+				resolveMailSignerName(portalDto), remark, confirmUrl, returnUrl);
 		List<File> attachments = new ArrayList<File>();
 		for (String item : filePath.split("[,，]")) {
 			if (StringUtil.isNotEmpty(item == null ? null : item.trim()))
@@ -837,20 +844,15 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					resolveMailSignerName(portalDto), data.visaSubclass, remark);
 			break;
 		case SUBMIT_SUPPLEMENT:
+			// 文档没有对应模板：沿用原有中文文案并补英文，改造成中英对照。
+			title = MAIL_SUBJECT_SUPPLEMENT_SUBMITTED;
+			content = buildSupplementarySubmittedMail(portalDto.getId(), data.fullName,
+					resolveMailSignerName(portalDto), remark);
+			break;
 		case WAIT_FINAL_DECISION:
-			// 系统邮件模板里没有这两种状态的对应模板，沿用原有文案和主题。
-			String legacySubject;
-			String legacyMessage;
-			if (state == PortalFollowUpState.SUBMIT_SUPPLEMENT) {
-				legacySubject = "补充材料已正式提交";
-				legacyMessage = "您提供的补充材料已完成审核并正式提交至相关审理机构。您的申请现正等待最终审理决定。"
-						+ "审理时间以相关机构的实际安排为准；如有进一步的材料要求或审理结果，我们将及时通知您。"
-						+ "感谢您的信任与配合，请保持联系方式畅通并留意后续通知。";
-			} else {
-				legacySubject = "等待最终决定";
-				legacyMessage = "您的申请目前已进入最终决定等待阶段。相关审理机构正在进行最后的审核与评估，"
-						+ "最终决定确认后，我们将第一时间通知您。感谢您的耐心等待与理解；如有任何疑问，请及时与您的顾问联系。";
-			}
+			// 011不发送客户通知（见updatePortal的排除条件），此处保留原有文案以防后续放开。
+			String legacyMessage = "您的申请目前已进入最终决定等待阶段。相关审理机构正在进行最后的审核与评估，"
+					+ "最终决定确认后，我们将第一时间通知您。感谢您的耐心等待与理解；如有任何疑问，请及时与您的顾问联系。";
 			StringBuilder legacyContent = new StringBuilder();
 			legacyContent.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "客户")))
 					.append("同学，您好：</p><p>").append(legacyMessage).append("</p>")
@@ -861,7 +863,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			if (StringUtil.isNotEmpty(remark))
 				legacyContent.append(remarkBlock(remark, "备注说明："));
 			legacyContent.append("<p>指南针留学移民</p>");
-			title = "【指南针留学移民】" + legacySubject + "（案件编号：" + portalDto.getId() + "）";
+			title = "【指南针留学移民】等待最终决定（案件编号：" + portalDto.getId() + "）";
 			content = legacyContent.toString();
 			break;
 		default:
@@ -1244,29 +1246,63 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return null;
 	}
 
-	private String buildSupplementaryMaterialsEmail(String customerName, String remark, String confirmUrl,
-			String returnUrl) {
-		String safeCustomerName = htmlEscape(firstNonEmpty(customerName, "同学"));
-		StringBuilder content = new StringBuilder();
-		content.append("<p>亲爱的").append(safeCustomerName).append("同学，您好：</p>");
-		content.append("<p>您的补充材料已准备完成，请下载邮件中的附件文件。确认无误后，请点击“确认补充材料”；如需补充或修改，请点击“退回补充材料”。</p>");
-		if (StringUtil.isNotEmpty(remark)) {
-			String safeRemark = htmlEscape(remark).replace("\r\n", "<br>").replace("\n", "<br>")
-					.replace("\r", "<br>");
-			content.append("<p><strong>文案的备注说明：</strong><br><strong>")
-					.append(safeRemark).append("</strong></p>");
+	/**
+	 * 补充材料确认邮件：沿用原有中文文案并补英文，中英对照。
+	 * 模板正文之后保留客户操作入口：案件编号、备注说明和"确认补充材料/退回补充材料"按钮（按钮只在中文段给一组）。
+	 */
+	private String buildSupplementaryMaterialsConfirmationMail(int portalId, String customerName, String signerName,
+			String remark, String confirmUrl, String returnUrl) {
+		StringBuilder english = new StringBuilder();
+		english.append("<p>Your supplementary documents have been prepared. Please download the attached files "
+				+ "in this email.</p>");
+		english.append("<p>Thank you for your cooperation. If you have any questions, please contact your adviser "
+				+ "promptly.</p>");
+		StringBuilder chinese = new StringBuilder();
+		chinese.append("<p>您的补充材料已准备完成，请下载邮件中的附件文件。</p>");
+		chinese.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
+		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
+		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
+			englishAction.append("<p>If everything is correct, please click the “Confirm Supplementary Materials” "
+					+ "button below; if any additions or changes are required, please click the “Return "
+					+ "Supplementary Materials” button below.</p>");
+			chineseAction.append("<p>确认无误后，请点击下面的“确认补充材料”按钮；如需补充或修改，请点击“退回补充材料”按钮。</p>");
+			chineseAction.append(actionButtons("确认补充材料", confirmUrl, "退回补充材料", returnUrl));
 		}
-		content.append("<p style=\"margin:24px 0;\">")
-				.append("<a href=\"").append(htmlEscape(confirmUrl))
-				.append("\" style=\"display:inline-block;padding:12px 24px;margin-right:12px;"
-						+ "background:#198754;color:#fff;text-decoration:none;border-radius:4px;\">确认补充材料</a>")
-				.append("<a href=\"").append(htmlEscape(returnUrl))
-				.append("\" style=\"display:inline-block;padding:12px 24px;"
-						+ "background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;\">退回补充材料</a>")
-				.append("</p>");
-		content.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
-		content.append("<p>指南针留学移民</p>");
-		return content.toString();
+		englishAction.append(remarkBlock(remark, "Remarks:"));
+		chineseAction.append(remarkBlock(remark, "备注说明："));
+		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
+				chineseAction.toString(), customerName, signerName);
+	}
+
+	/** 补充材料已正式提交：沿用原有中文文案并补英文，中英对照；保留案件编号、通知时间和备注说明。 */
+	private String buildSupplementarySubmittedMail(int portalId, String customerName, String signerName,
+			String remark) {
+		StringBuilder english = new StringBuilder();
+		english.append("<p>The supplementary documents you provided have been reviewed and formally lodged with "
+				+ "the relevant assessing authority. Your application is now awaiting the final decision.</p>");
+		english.append("<p>Processing times are subject to the relevant authority's arrangements. Should any "
+				+ "further documents be required or a decision be made, we will notify you promptly.</p>");
+		english.append("<p>Thank you for your trust and cooperation. Please keep your contact details available "
+				+ "and watch for further notifications.</p>");
+		StringBuilder chinese = new StringBuilder();
+		chinese.append("<p>您提供的补充材料已完成审核并正式提交至相关审理机构。您的申请现正等待最终审理决定。</p>");
+		chinese.append("<p>审理时间以相关机构的实际安排为准；如有进一步的材料要求或审理结果，我们将及时通知您。</p>");
+		chinese.append("<p>感谢您的信任与配合，请保持联系方式畅通并留意后续通知。</p>");
+		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
+		englishAction.append(noticeTimeLine("Notice Time:"));
+		englishAction.append(remarkBlock(remark, "Remarks:"));
+		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		chineseAction.append(noticeTimeLine("通知时间："));
+		chineseAction.append(remarkBlock(remark, "备注说明："));
+		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
+				chineseAction.toString(), customerName, signerName);
+	}
+
+	/** 通知时间行，沿用原有邮件里的通知时间信息。 */
+	private String noticeTimeLine(String label) {
+		return "<p><strong>" + label + "</strong> "
+				+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "</p>";
 	}
 
 	private String htmlEscape(String value) {
