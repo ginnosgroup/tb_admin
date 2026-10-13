@@ -137,15 +137,30 @@ public class PortalController extends BaseController {
 					+ "5. issuingCountry必须使用英文国家或地区名称，例如中国写China、澳大利亚写Australia，不得使用中文。";
 
 	private static final String COMPLETION_JSON_PROMPT =
-			"请识别并解析这份课程完成信（Completion Letter），只提取完成日期并返回一个合法的JSON对象。\n"
+			"请识别并解析这份课程完成信（Completion Letter），只返回一个合法的JSON对象。\n"
 					+ "不要返回Markdown代码块、解释、原始全文或JSON之外的任何内容。\n"
 					+ "必须严格返回下面的结构，禁止增加其他字段：\n"
-					+ "{\"completionDate\":null}\n"
+					+ "{\"completionDate\":null,\"testTakerId\":null,\"auSchoolName\":null,\"cricosName\":null,"
+					+ "\"eduCourseType\":null,\"eduStartDate\":null,\"eduEndDate\":null,\"skillAssessment\":null}\n"
 					+ "规则：\n"
-					+ "1. completionDate必须始终出现在JSON中。\n"
+					+ "1. 上面每个字段都必须出现在JSON中，确实未找到时返回null。\n"
 					+ "2. completionDate应取学生正式完成课程或满足课程要求的日期；不要用信件签发日期代替。\n"
 					+ "3. 如果文件同时出现课程结束日期和明确的完成日期，优先使用明确的完成日期。\n"
-					+ "4. 日期统一为yyyy-MM-dd；只能根据文件内容提取，不要猜测，确实未找到时返回null。";
+					+ "4. testTakerId只取文件中明确标注的Registration ID；没有Registration ID时返回null，"
+					+ "不能用Student ID或学号等其他编号替代。\n"
+					+ "5. auSchoolName是学校名称，cricosName是课程名称，都按文件原文返回。\n"
+					+ "6. eduCourseType只能是Primary School、Middle School、Senior High School、High School、"
+					+ "Trade Apprenticeship、Training (External)、Training (On the Job)、Certificate I、Certificate II、"
+					+ "Certificate III、Certificate IV、Diploma、Advanced Diploma、Graduate Diploma、Associate Degree、"
+					+ "Bachelor Degree、Honours Degree、Postgraduate Certificate、Postgraduate Diploma、Masters Degree、"
+					+ "Doctoral Degree、Other之一；无法确认时返回null。\n"
+					+ "7. eduStartDate和eduEndDate取该课程的起止日期，不能用信件签发日期代替。\n"
+					+ "8. 完成信不包含职业评估信息，skillAssessment固定返回null。\n"
+					+ "9. 日期统一为yyyy-MM-dd；只能根据文件内容提取，不要猜测，确实未找到时返回null。";
+
+	/** 完成信返回给前端学习经历表单的字段，顺序固定；eduCourseCompletionDate由前端用completionDate填充。 */
+	private static final String[] COMPLETION_JSON_FIELDS = { "completionDate", "testTakerId", "auSchoolName",
+			"cricosName", "eduCourseType", "eduStartDate", "eduEndDate", "skillAssessment" };
 
 	private static final String COE_JSON_PROMPT =
 			"请识别并解析这份澳大利亚海外学生入学确认书（CoE），只返回一个合法的JSON对象。\n"
@@ -190,7 +205,9 @@ public class PortalController extends BaseController {
 					+ "langType只能是CAE、ESOL、IELTS、OET、Pearson Test、TOEFL iBT、TOEFL PBT、TOEIC、Other之一；"
 					+ "PTE Academic归为Pearson Test。四项分数和总分用不带单位的字符串，无法确认时为null；"
 					+ "testDate使用yyyy-MM-dd，不能用成绩单出具日期代替考试日期；"
-					+ "testTakerId对应成绩单明确标注的Test Taker ID；testReportFormNumber先查找文件中的Test Report Form Number，"
+					+ "testTakerId固定取文件中明确标注的Registration ID，没有Registration ID时返回null，"
+					+ "不能用Test Taker ID、Candidate Number或其他编号替代；"
+					+ "testReportFormNumber先查找文件中的Test Report Form Number，"
 					+ "没有可确认的对应编号时，再查找Score Report Code，并将其值返回到testReportFormNumber；"
 					+ "overallBandScore对应Overall Band Score。这三个字段均使用字符串，编号保留前导零和字母；"
 					+ "只能按上述标签及优先顺序提取，两种报告编号都未找到时testReportFormNumber返回null，"
@@ -216,6 +233,19 @@ public class PortalController extends BaseController {
 					+ "再查找Score Report Code，并将其值返回到testReportFormNumber；使用字符串按原文返回，"
 					+ "保留前导零、字母和编号中的符号；未找到或无法确认时返回null，不能用学号、课程编码或其他编号替代；"
 					+ "skillAssessment不是成绩单信息，固定返回null。缺失字段返回null，只能根据文件内容提取，不要猜测。";
+
+	/** fileType为空时的通用提取提示词：不限定业务类型，把文件里能确认的信息尽量都提取成JSON。 */
+	private static final String GENERIC_JSON_PROMPT =
+			"请识别这份文件，把文件中能够确认的信息尽可能完整地提取出来，只返回一个合法的JSON对象。\n"
+					+ "不要返回Markdown代码块、解释、原始全文或JSON之外的任何内容。\n"
+					+ "规则：\n"
+					+ "1. 键名使用文件中的原始字段标签：英文标签转为小驼峰（例如 Passport No 写作 passportNo），"
+					+ "中文标签保留中文；同一含义只保留一个键。\n"
+					+ "2. 值使用文件中的原文，保留前导零、字母和编号中的符号。\n"
+					+ "3. 日期统一为yyyy-MM-dd；时间使用yyyy-MM-dd HH:mm:ss。\n"
+					+ "4. 表格、清单类信息按数组返回，每个条目一个数组元素；文件有多份同类文件时每份一个数组元素。\n"
+					+ "5. 只能根据文件内容提取，不要猜测、补全或翻译；无法确认的字段不要输出。\n"
+					+ "6. 文件确实没有可提取信息时返回空JSON对象{}。";
 
 	@Resource
 	PortalService portalService;
@@ -249,7 +279,7 @@ public class PortalController extends BaseController {
 
 	@RequestMapping(value = "/attachment/upload", method = RequestMethod.POST)
 	@ResponseBody
-	public Response<Map<String, Object>> uploadAttachment(@RequestParam MultipartFile file,
+	public Response<Map<String, Object>> uploadAttachment(@RequestParam("file") MultipartFile file,
 			@RequestParam(value = "aiText", required = false) String aiText,
 			@RequestParam(value = "fileType", required = false) String fileType,
 			@RequestParam(value = "fileSorting", required = false) Integer fileSorting,
@@ -372,7 +402,8 @@ public class PortalController extends BaseController {
 		boolean applicationImageUpload = applicationUpload
 				&& ImageResolutionInspector.isImageUpload(file);
 		String normalizedFileType = null;
-		if (extractAiText && !applicationUpload) {
+		if (extractAiText && !applicationUpload && StringUtil.isNotEmpty(normalizedUploadFileType)) {
+			// fileType为空时用通用提示词做全量提取；传了值但不在白名单内仍按参数错误处理。
 			normalizedFileType = normalizeAttachmentFileType(fileType);
 			if (normalizedFileType == null) {
 				return new Response<Map<String, Object>>(1,
@@ -437,6 +468,7 @@ public class PortalController extends BaseController {
 		PortalAttachmentDTO portalAttachmentDto = null;
 		int attachmentId = 0;
 		List<String> applicationReplacedFilePaths = Collections.emptyList();
+		String aiTextError = null;
 		try {
 			// signature/956MA 属于 Mara 文件，只保存到 b_mara，不新增 b_portal_attachment。
 			if (!maraFileUpload) {
@@ -454,9 +486,11 @@ public class PortalController extends BaseController {
 					portalAttachmentDto.setFileExt(fileExt);
 				if (fileSorting != null)
 					portalAttachmentDto.setFileSorting(fileSorting.toString());
-				portalAttachmentDto.setStage("apply");
+				// fileType为空时属于未分类附件，stage留空；其余情况沿用原阶段（含默认apply）。
 				if (uploadStage != null)
 					portalAttachmentDto.setStage(uploadStage);
+				else if (StringUtil.isNotEmpty(normalizedUploadFileType))
+					portalAttachmentDto.setStage("apply");
 				if (StringUtil.isNotEmpty(attachmentState))
 					portalAttachmentDto.setAttachmentState(attachmentState.trim());
 				// 仅 aiText=yes 时提取文字并保存 JSON；图片审查结果独立保存。
@@ -467,8 +501,10 @@ public class PortalController extends BaseController {
 					reviewContent.set("imageQuality", OBJECT_MAPPER.valueToTree(imageReview.toMap()));
 					portalAttachmentDto.setAiText(reviewContent.toString());
 				} else if (extractAiText) {
-					portalAttachmentDto
-							.setAiText(extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType));
+					AttachmentAiTextResult aiResult = extractAttachmentText(fileBytes, file.getOriginalFilename(),
+							normalizedFileType);
+					portalAttachmentDto.setAiText(aiResult.aiText);
+					aiTextError = aiResult.errorMessage;
 				}
 				if (applicationUpload) {
 					// application同名替换、旧排序追加后缀、新附件入库在同一事务中完成。
@@ -540,6 +576,9 @@ public class PortalController extends BaseController {
 			result.put("aiText", portalAttachmentDto.getAiText());
 		} else if (extractAiText) {
 			result.put("aiText", portalAttachmentDto.getAiText());
+			// 识别失败时把原因回传前端，避免只看到空的aiText而不知道原因。
+			if (StringUtil.isEmpty(portalAttachmentDto.getAiText()) && StringUtil.isNotEmpty(aiTextError))
+				result.put("aiTextError", aiTextError);
 		}
 		return new Response<Map<String, Object>>(0, "", result);
 	}
@@ -560,21 +599,35 @@ public class PortalController extends BaseController {
 
 	/**
 	 * 根据附件类型调取 DeepSeek 解析图片/PDF，并规范为结构化JSON字符串。
-	 * 失败返回null，不影响附件上传主流程。
+	 * 失败时返回失败原因，不影响附件上传主流程。
 	 */
-	private String extractAttachmentText(byte[] fileBytes, String filename, String fileType) {
+	private AttachmentAiTextResult extractAttachmentText(byte[] fileBytes, String filename, String fileType) {
 		try {
 			Response<String> aiResponse = chartForAI.analyzeFile(fileBytes, filename,
 					resolveAttachmentAiPrompt(fileType), true);
 			if (aiResponse != null && aiResponse.getCode() == 0) {
-				return normalizeAttachmentTextJson(aiResponse.getData(), fileType);
+				return new AttachmentAiTextResult(normalizeAttachmentTextJson(aiResponse.getData(), fileType), null);
 			}
-			LOG.warn("附件AI文字提取失败，file={}，原因：{}", filename,
-					aiResponse == null ? "无响应" : aiResponse.getMessage());
+			String reason = aiResponse == null ? "附件AI识别无响应"
+					: (StringUtil.isEmpty(aiResponse.getMessage()) ? "附件AI识别失败" : aiResponse.getMessage());
+			LOG.warn("附件AI文字提取失败，file={}，原因：{}", filename, reason);
+			return new AttachmentAiTextResult(null, reason);
 		} catch (Exception e) {
 			LOG.error("附件AI文字提取异常，file={}", filename, e);
+			return new AttachmentAiTextResult(null,
+					StringUtil.isEmpty(e.getMessage()) ? "附件AI识别异常" : e.getMessage());
 		}
-		return null;
+	}
+
+	/** 附件AI识别结果：成功时携带结构化JSON，失败时携带回传前端的失败原因。 */
+	private static final class AttachmentAiTextResult {
+		private final String aiText;
+		private final String errorMessage;
+
+		private AttachmentAiTextResult(String aiText, String errorMessage) {
+			this.aiText = aiText;
+			this.errorMessage = errorMessage;
+		}
 	}
 
 	/** 规范化并校验附件类型；普通上传不调用本方法。 */
@@ -606,7 +659,7 @@ public class PortalController extends BaseController {
 		return originalName.substring(originalName.lastIndexOf('.') + 1);
 	}
 
-	/** 按附件类型选择独立的AI提示词。 */
+	/** 按附件类型选择独立的AI提示词；fileType为空时用通用提示词做全量提取。 */
 	private String resolveAttachmentAiPrompt(String fileType) {
 		if ("passport".equals(fileType)) {
 			return PASSPORT_JSON_PROMPT;
@@ -620,7 +673,10 @@ public class PortalController extends BaseController {
 		if ("autocourse".equals(fileType)) {
 			return AUTO_COURSE_JSON_PROMPT;
 		}
-		return COE_JSON_PROMPT;
+		if ("coe".equals(fileType)) {
+			return COE_JSON_PROMPT;
+		}
+		return GENERIC_JSON_PROMPT;
 	}
 
 	/** 校验AI结果是JSON对象，并序列化成格式稳定的JSON字符串。 */
@@ -629,13 +685,18 @@ public class PortalController extends BaseController {
 		if (jsonNode == null || !jsonNode.isObject()) {
 			throw new IOException("AI返回结果不是合法的JSON对象");
 		}
-		// 完成信只允许返回completionDate；即使AI增加其他字段，也不返回给前端。
+		// 完成信只返回前端学习经历表单需要的字段；即使AI增加其他字段，也不返回给前端。
 		if ("completion".equals(fileType)) {
 			ObjectNode completionJson = OBJECT_MAPPER.createObjectNode();
-			if (jsonNode.has("completionDate")) {
-				completionJson.set("completionDate", jsonNode.get("completionDate"));
-			} else {
-				completionJson.putNull("completionDate");
+			for (String field : COMPLETION_JSON_FIELDS) {
+				completionJson.putNull(field);
+			}
+			for (String field : COMPLETION_JSON_FIELDS) {
+				copyAiField(jsonNode, completionJson, field, field);
+			}
+			// AI可能使用registrationId字段名，统一归一到testTakerId。
+			if (completionJson.path("testTakerId").isNull()) {
+				copyAiField(jsonNode, completionJson, "registrationId", "testTakerId");
 			}
 			return OBJECT_MAPPER.writeValueAsString(completionJson);
 		}
@@ -651,6 +712,21 @@ public class PortalController extends BaseController {
 					"auSchoolName", "cricosName", "eduCourseType", "eduStartDate", "eduEndDate",
 					"eduCourseCompletionDate", "skillAssessment", "testReportFormNumber" });
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
+	}
+
+	/** 仅复制AI返回的非空字段，保持原JSON类型；缺失或为null时保留目标中的null占位。 */
+	private void copyAiField(JsonNode source, ObjectNode target, String sourceField, String targetField) {
+		JsonNode value = source.get(sourceField);
+		if (value != null && !value.isNull())
+			target.set(targetField, value);
+	}
+
+	/** 取节点的文本值并去掉首尾空格；缺失、null、非值节点或空串返回null。 */
+	private String textOrNull(JsonNode value) {
+		if (value == null || value.isMissingNode() || value.isNull() || !value.isValueNode())
+			return null;
+		String text = value.asText().trim();
+		return text.isEmpty() ? null : text;
 	}
 
 	private String normalizeAiFormRecords(JsonNode source, String fieldName, String[] fields) throws IOException {
@@ -677,6 +753,13 @@ public class PortalController extends BaseController {
 			if ("testReportFormNumber".equals(field)) {
 				// AI可能使用原始标签或scoreReportCode字段；统一按报告编号优先、成绩代码兜底。
 				record.put(field, ReportFormNumberExtractor.resolve(source, sharedSource));
+			} else if ("testTakerId".equals(field)) {
+				// testTakerId固定取Registration ID，不能取成绩单上的Test Taker ID；
+				// AI可能把Registration ID放在registrationId字段里，因此该字段优先。
+				String testTakerId = textOrNull(source.path("registrationId"));
+				if (testTakerId == null) testTakerId = textOrNull(value);
+				if (testTakerId == null) record.putNull(field);
+				else record.put(field, testTakerId);
 			} else if ("hkPassport".equals(field)) {
 				record.put(field, isHongKongPassport(value) ? 1 : 0);
 			} else if ("skillAssessment".equals(field)

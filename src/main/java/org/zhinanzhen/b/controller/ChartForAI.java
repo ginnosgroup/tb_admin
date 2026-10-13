@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.service.LowPriceApprovalImageAnalyzer;
+import org.zhinanzhen.b.service.PdfContentExtractor;
 import org.zhinanzhen.b.utils.ReportFormNumberExtractor;
 import org.zhinanzhen.tb.controller.Response;
 
@@ -71,8 +72,19 @@ public class ChartForAI {
     @Value("${deepseek.pdf.model:deepseek-v4-flash}")
     private String deepSeekModel;
 
+    /**
+     * 上传接口内一次同步识别最多渲染多少页PDF做视觉识别，
+     * 避免扫描件页数过多导致接口超时和模型费用失控；超出页数仍保留文字层内容。
+     */
+    @Value("${deepseek.pdf.max-vision-pages:10}")
+    private int maxVisionPages = 10;
+
     @Resource
     private LowPriceApprovalImageAnalyzer imageOcrService;
+
+    /** PDF内容统一提取组件：文字层优先，扫描页渲染成图片交给视觉模型。 */
+    @Resource
+    private PdfContentExtractor pdfContentExtractor;
 
     /**
      * 接收 PDF 并交给 AI 分析。
@@ -195,10 +207,10 @@ public class ChartForAI {
                         + "\n\n以下是从图片OCR中提取的文字内容：\n" + truncateOcrText(imageText), jsonMode);
                 sourceText = imageText;
             } else if (isPdf(fileBytes)) {
-                String pdfText = extractPdfText(fileBytes);
+                String pdfText = extractAiPdfText(fileBytes);
                 if (pdfText.isEmpty()) {
                     return new Response<String>(1,
-                            "未从PDF中提取到文字，文件可能是扫描件；DeepSeek API不能直接读取PDF，请先进行OCR", null);
+                            "未从PDF中识别到文字内容，文件可能是空白页或扫描质量过低，请重新上传", null);
                 }
                 result = requestDeepSeek(resolveQuestion(question)
                         + "\n\n以下是从PDF中提取的文字内容：\n" + pdfText, jsonMode);
@@ -228,6 +240,38 @@ public class ChartForAI {
             userQuestion = DEFAULT_TEXT_EXTRACT_PROMPT;
         }
         return userQuestion;
+    }
+
+    /**
+     * AI识别用的PDF文字提取：优先读取PDF文字层，没有文字层或页面含图片时由统一组件渲染页面图片交给视觉模型，
+     * 使护照、CoE、完成信、语言/课程成绩单的扫描件PDF也能识别。
+     * 整体视觉识别失败时，只要文字层有内容就回退到文字层，保持原有的文字层识别行为；
+     * 文字层也为空（纯扫描页且视觉识别失败）时抛出原始失败原因，便于前端提示和排查。
+     */
+    private String extractAiPdfText(byte[] pdfBytes) throws IOException {
+        if (pdfContentExtractor == null) {
+            return extractPdfText(pdfBytes);
+        }
+        try {
+            String text = pdfContentExtractor.extract(pdfBytes, maxVisionPages).path("fullText").asText();
+            if (text != null && !text.trim().isEmpty()) {
+                return text.trim();
+            }
+        } catch (IOException e) {
+            String nativeText = "";
+            try {
+                nativeText = extractPdfText(pdfBytes);
+            } catch (IOException fallbackError) {
+                // 文字层也读不出来时，保留视觉识别的失败原因，它更能说明问题。
+                log.warn("PDF文字层提取失败, maxVisionPages={}", maxVisionPages, fallbackError);
+            }
+            if (nativeText.isEmpty()) {
+                throw e;
+            }
+            log.warn("PDF视觉识别失败，改用文字层, maxVisionPages={}", maxVisionPages, e);
+            return nativeText;
+        }
+        return extractPdfText(pdfBytes);
     }
 
     private String extractPdfText(byte[] pdfBytes) throws IOException {

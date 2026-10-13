@@ -18,16 +18,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDResources;
-import org.apache.pdfbox.pdmodel.graphics.PDXObject;
-import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.ss.usermodel.*;
@@ -35,8 +25,10 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
 import org.zhinanzhen.b.service.LowPriceApprovalImageAnalyzer;
+import org.zhinanzhen.b.service.PdfContentExtractor;
 import org.zhinanzhen.b.service.PortalApplicationContentService;
 import org.zhinanzhen.b.utils.ImageResolutionInspector;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -50,6 +42,10 @@ public class PortalApplicationContentServiceImpl implements PortalApplicationCon
 
     @Resource
     private LowPriceApprovalImageAnalyzer imageAnalyzer;
+
+    /** PDF内容统一提取组件：文字层优先，扫描页渲染成图片交给视觉模型。 */
+    @Resource
+    private PdfContentExtractor pdfContentExtractor;
 
     @Override
     public ObjectNode extract(byte[] bytes, String name, String mime) throws IOException {
@@ -131,51 +127,17 @@ public class PortalApplicationContentServiceImpl implements PortalApplicationCon
         return result;
     }
 
+    /**
+     * PDF内容提取统一交给 PdfContentExtractor：文字层优先，扫描页渲染成图片交给视觉模型，
+     * 与护照、CoE、完成信、语言/课程成绩单等附件AI识别共用同一套PDF解析逻辑；
+     * 页数上限、加密校验、图片尺寸和文字总量限制都由该组件统一处理。
+     */
     private void extractPdf(byte[] bytes, ObjectNode result) throws IOException {
-        try (PDDocument document = PDDocument.load(bytes)) {
-            if (document.isEncrypted() && !document.getCurrentAccessPermission().canExtractContent())
-                throw new IOException("PDF禁止提取内容，请提供未加密且允许提取的文件");
-            if (document.getNumberOfPages() > 100) throw new IOException("PDF超过100页，请拆分文件后上传");
-            if (document.getDocumentCatalog().getAcroForm() != null) {
-                ObjectNode fields = result.putObject("formFields");
-                for (PDField field : document.getDocumentCatalog().getAcroForm().getFieldTree())
-                    fields.put(field.getFullyQualifiedName(), field.getValueAsString());
-                document.getDocumentCatalog().getAcroForm().flatten();
-            }
-            PDFTextStripper stripper = new PDFTextStripper();
-            stripper.setSortByPosition(true);
-            PDFRenderer renderer = new PDFRenderer(document);
-            for (int i = 0; i < document.getNumberOfPages(); i++) {
-                stripper.setStartPage(i + 1);
-                stripper.setEndPage(i + 1);
-                String nativeText = stripper.getText(document).trim();
-                PDPage page = document.getPage(i);
-                if (nativeText.isEmpty() || containsImage(page.getResources(), 0)) {
-                    double width = page.getCropBox().getWidth() / 72.0 * 150;
-                    double height = page.getCropBox().getHeight() / 72.0 * 150;
-                    checkImageSize(width, height);
-                    BufferedImage image = renderer.renderImageWithDPI(i, 150, ImageType.RGB);
-                    ObjectNode content = imageAnalyzer.extractImageContent(png(image));
-                    if (content == null) throw new IOException("DeepSeek未返回第" + (i + 1) + "页内容");
-                    if (!nativeText.isEmpty() && !content.path("text").asText().contains(nativeText)) {
-                        content = content.deepCopy();
-                        content.put("text", content.path("text").asText() + "\n" + nativeText);
-                    }
-                    addPage(result, i + 1, content, "deepseek");
-                } else addPage(result, i + 1, textContent(nativeText), "pdfText");
-            }
-        }
-    }
-
-    private boolean containsImage(PDResources resources, int depth) throws IOException {
-        if (resources == null || depth > 3) return false;
-        for (org.apache.pdfbox.cos.COSName name : resources.getXObjectNames()) {
-            PDXObject object = resources.getXObject(name);
-            if (object instanceof PDImageXObject) return true;
-            if (object instanceof PDFormXObject && containsImage(((PDFormXObject) object).getResources(), depth + 1))
-                return true;
-        }
-        return false;
+        ObjectNode extracted = pdfContentExtractor.extract(bytes);
+        result.set("pages", extracted.path("pages"));
+        result.put("fullText", extracted.path("fullText").asText());
+        JsonNode formFields = extracted.get("formFields");
+        if (formFields != null && formFields.isObject()) result.set("formFields", formFields);
     }
 
     private void extractWorkbook(byte[] bytes, ObjectNode result) throws IOException {
