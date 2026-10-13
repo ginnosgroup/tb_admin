@@ -18,9 +18,6 @@ public interface PortalAttachmentDAO {
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndFileSorting(@Param("portalId") Integer portalId,
 			@Param("fileSorting") String fileSorting);
 
-	int updatePortalAttachmentFileSorting(@Param("id") int id, @Param("portalId") int portalId,
-			@Param("oldFileSorting") String oldFileSorting, @Param("newFileSorting") String newFileSorting);
-
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndStage(@Param("portalId") Integer portalId,
 			@Param("stage") String stage);
 

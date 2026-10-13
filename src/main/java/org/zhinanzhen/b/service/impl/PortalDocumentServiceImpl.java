@@ -1140,10 +1140,10 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					+ "the signed contract to our adviser (email: ").append(safeAdviserEmail).append(").</p>");
 			englishAction.append("<p>If any changes are required, please click the “Return for Revision” button "
 					+ "below.</p>");
-			englishAction.append(actionButtons("Confirm", confirmUrl, "Return for Revision", returnUrl));
 			chineseAction.append("<p>确认无误后，请点击下面的“确认签署”按钮，并将签好名的合同文件，电邮给我们的顾问（邮箱：")
 					.append(safeAdviserEmail).append("）。</p>");
 			chineseAction.append("<p>如需修改，请点击下面的“退回修改”按钮。</p>");
+			// 按钮只在中文段给一组，英文段只保留文字说明。
 			chineseAction.append(actionButtons("确认签署", confirmUrl, "退回修改", returnUrl));
 		} else {
 			englishAction.append("<p>If everything is correct, please complete, sign and return the documents "
@@ -1221,9 +1221,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			englishAction.append("<p>If all the information is correct, please click the “Confirm Application "
 					+ "Materials” button below. If any changes or additions are required, please click the "
 					+ "“Return Application Materials” button below.</p>");
-			englishAction.append(actionButtons("Confirm Application Materials", confirmUrl,
-					"Return Application Materials", returnUrl));
 			chineseAction.append("<p>确认无误后，请点击下面的“确认申请材料”按钮；如需补充或修改，请点击“退回申请材料”按钮。</p>");
+			// 按钮只在中文段给一组，英文段只保留文字说明。
 			chineseAction.append(actionButtons("确认申请材料", confirmUrl, "退回申请材料", returnUrl));
 		}
 		englishAction.append(remarkBlock(remark, "Remarks:"));

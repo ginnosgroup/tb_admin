@@ -215,25 +215,6 @@ public class PortalController extends BaseController {
 					+ "只有成绩单明确注明持有香港护照时hkPassport才返回数字1；未注明或不是香港护照时返回数字0（否）。"
 					+ "不要根据考试地点或国籍猜测是否持有香港护照。其他字段只能根据文件内容提取，不要猜测。";
 
-	private static final String AUTO_COURSE_JSON_PROMPT =
-			"请识别这份课程成绩单，只返回一个合法的JSON对象，不要返回Markdown或解释。\n"
-					+ "严格按前端学习经历表单返回："
-					+ "{\"education\":[{\"auSchoolName\":null,\"cricosName\":null,\"eduCourseType\":null,"
-					+ "\"eduStartDate\":null,\"eduEndDate\":null,\"eduCourseCompletionDate\":null,"
-					+ "\"skillAssessment\":null,\"testReportFormNumber\":null}]}\n"
-					+ "规则：每项独立学历/课程占一个数组元素，不要把单科成绩或学期拆成学习经历；无法确认课程时返回空数组。"
-					+ "auSchoolName是学校名称，cricosName是课程名称；eduCourseType只能是"
-					+ "Primary School、Middle School、Senior High School、High School、Trade Apprenticeship、"
-					+ "Training (External)、Training (On the Job)、Certificate I、Certificate II、Certificate III、"
-					+ "Certificate IV、Diploma、Advanced Diploma、Graduate Diploma、Associate Degree、"
-					+ "Bachelor Degree、Honours Degree、Postgraduate Certificate、Postgraduate Diploma、"
-					+ "Masters Degree、Doctoral Degree、Other之一。日期使用yyyy-MM-dd；"
-					+ "eduCourseCompletionDate只在成绩单明确写明课程完成日期时填写，不能用成绩发布日期代替；"
-					+ "testReportFormNumber先查找文件中的Test Report Form Number，没有可确认的对应编号时，"
-					+ "再查找Score Report Code，并将其值返回到testReportFormNumber；使用字符串按原文返回，"
-					+ "保留前导零、字母和编号中的符号；未找到或无法确认时返回null，不能用学号、课程编码或其他编号替代；"
-					+ "skillAssessment不是成绩单信息，固定返回null。缺失字段返回null，只能根据文件内容提取，不要猜测。";
-
 	/** fileType为空时的通用提取提示词：不限定业务类型，把文件里能确认的信息尽量都提取成JSON。 */
 	private static final String GENERIC_JSON_PROMPT =
 			"请识别这份文件，把文件中能够确认的信息尽可能完整地提取出来，只返回一个合法的JSON对象。\n"
@@ -486,11 +467,10 @@ public class PortalController extends BaseController {
 					portalAttachmentDto.setFileExt(fileExt);
 				if (fileSorting != null)
 					portalAttachmentDto.setFileSorting(fileSorting.toString());
-				// fileType为空时属于未分类附件，stage留空；其余情况沿用原阶段（含默认apply）。
+				// fileType为空（只传id和aiText的通用提取）时同样按默认阶段apply保存。
+				portalAttachmentDto.setStage("apply");
 				if (uploadStage != null)
 					portalAttachmentDto.setStage(uploadStage);
-				else if (StringUtil.isNotEmpty(normalizedUploadFileType))
-					portalAttachmentDto.setStage("apply");
 				if (StringUtil.isNotEmpty(attachmentState))
 					portalAttachmentDto.setAttachmentState(attachmentState.trim());
 				// 仅 aiText=yes 时提取文字并保存 JSON；图片审查结果独立保存。
@@ -659,7 +639,7 @@ public class PortalController extends BaseController {
 		return originalName.substring(originalName.lastIndexOf('.') + 1);
 	}
 
-	/** 按附件类型选择独立的AI提示词；fileType为空时用通用提示词做全量提取。 */
+	/** 按附件类型选择AI提示词；fileType为空或autoCourse时用通用提示词做全量提取。 */
 	private String resolveAttachmentAiPrompt(String fileType) {
 		if ("passport".equals(fileType)) {
 			return PASSPORT_JSON_PROMPT;
@@ -670,12 +650,10 @@ public class PortalController extends BaseController {
 		if ("autolanguage".equals(fileType)) {
 			return AUTO_LANGUAGE_JSON_PROMPT;
 		}
-		if ("autocourse".equals(fileType)) {
-			return AUTO_COURSE_JSON_PROMPT;
-		}
 		if ("coe".equals(fileType)) {
 			return COE_JSON_PROMPT;
 		}
+		// autoCourse（课程成绩单）与fileType为空同样按全量提取，不再按学习经历表单裁剪字段。
 		return GENERIC_JSON_PROMPT;
 	}
 
@@ -707,10 +685,7 @@ public class PortalController extends BaseController {
 			return normalizeAiFormRecords(jsonNode, "language", new String[] {
 					"langType", "listening", "reading", "writing", "speaking", "overall", "testDate", "hkPassport",
 					"testTakerId", "testReportFormNumber", "overallBandScore" });
-		if ("autocourse".equals(fileType))
-			return normalizeAiFormRecords(jsonNode, "education", new String[] {
-					"auSchoolName", "cricosName", "eduCourseType", "eduStartDate", "eduEndDate",
-					"eduCourseCompletionDate", "skillAssessment", "testReportFormNumber" });
+		// autoCourse与fileType为空一样直接返回AI识别到的全部内容，不做字段白名单裁剪。
 		return OBJECT_MAPPER.writeValueAsString(jsonNode);
 	}
 
@@ -762,16 +737,13 @@ public class PortalController extends BaseController {
 				else record.put(field, testTakerId);
 			} else if ("hkPassport".equals(field)) {
 				record.put(field, isHongKongPassport(value) ? 1 : 0);
-			} else if ("skillAssessment".equals(field)
-					|| value.isMissingNode() || value.isNull() || !value.isValueNode()
+			} else if (value.isMissingNode() || value.isNull() || !value.isValueNode()
 					|| value.asText().trim().isEmpty()) {
 				record.putNull(field);
 			} else {
 				String text = value.asText().trim();
 				if ("langType".equals(field))
 					text = normalizeLanguageType(text);
-				else if ("eduCourseType".equals(field))
-					text = normalizeCourseType(text);
 				record.put(field, text);
 			}
 		}
@@ -805,28 +777,6 @@ public class PortalController extends BaseController {
 			return "TOEIC";
 		if (lower.contains("esol"))
 			return "ESOL";
-		return "Other";
-	}
-
-	private String normalizeCourseType(String value) {
-		String lower = value.toLowerCase(Locale.ENGLISH);
-		String[] types = { "Senior High School", "Primary School", "Middle School", "High School",
-				"Trade Apprenticeship", "Training (External)", "Training (On the Job)",
-				"Postgraduate Certificate", "Postgraduate Diploma", "Graduate Diploma", "Advanced Diploma",
-				"Associate Degree", "Honours Degree", "Bachelor Degree", "Masters Degree", "Doctoral Degree",
-				"Certificate IV", "Certificate III", "Certificate II", "Certificate I", "Diploma" };
-		for (String type : types) {
-			if (lower.contains(type.toLowerCase(Locale.ENGLISH)))
-				return type;
-		}
-		if (lower.contains("master"))
-			return "Masters Degree";
-		if (lower.contains("doctor") || lower.contains("phd"))
-			return "Doctoral Degree";
-		if (lower.contains("bachelor"))
-			return "Bachelor Degree";
-		if (lower.contains("graduate certificate"))
-			return "Postgraduate Certificate";
 		return "Other";
 	}
 
