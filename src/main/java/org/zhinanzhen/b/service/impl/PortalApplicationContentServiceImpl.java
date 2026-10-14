@@ -75,9 +75,10 @@ public class PortalApplicationContentServiceImpl implements PortalApplicationCon
         if (ImageResolutionInspector.isImageUpload(bytes, name, mime)) {
             result.put("fileFormat", "image");
             addPage(result, 1, imageAnalyzer.extractImageContent(prepareImage(bytes)), "deepseek");
-        } else if (startsWith(bytes, "%PDF-")) {
+        } else if (isPdf(bytes, extension)) {
             result.put("fileFormat", "pdf");
-            extractPdf(bytes, result);
+            // 个别导出工具会在%PDF-前写入UTF-8 BOM，PDFBox识别前先去掉。
+            extractPdf(stripUtf8Bom(bytes), result);
         } else if ("docx".equals(extension)) {
             try (XWPFDocument document = new XWPFDocument(new ByteArrayInputStream(bytes));
                     XWPFWordExtractor extractor = new XWPFWordExtractor(document)) {
@@ -294,6 +295,21 @@ public class PortalApplicationContentServiceImpl implements PortalApplicationCon
     private boolean startsWith(byte[] bytes, String prefix) {
         return bytes.length >= prefix.length()
                 && prefix.equals(new String(bytes, 0, prefix.length(), StandardCharsets.US_ASCII));
+    }
+
+    /** PDF识别：允许%PDF-前有UTF-8 BOM/空白，扩展名为pdf时也按PDF处理。 */
+    private boolean isPdf(byte[] bytes, String extension) {
+        return "pdf".equals(extension) || startsWith(stripUtf8Bom(bytes), "%PDF-");
+    }
+
+    private byte[] stripUtf8Bom(byte[] bytes) {
+        if (bytes != null && bytes.length >= 3 && (bytes[0] & 255) == 0xEF && (bytes[1] & 255) == 0xBB
+                && (bytes[2] & 255) == 0xBF) {
+            byte[] stripped = new byte[bytes.length - 3];
+            System.arraycopy(bytes, 3, stripped, 0, stripped.length);
+            return stripped;
+        }
+        return bytes;
     }
 
     private String extension(String name) {

@@ -86,4 +86,7 @@ public interface PortalService {
 
 	void sendAdviserPortalNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
 
+	/** 客户已提交资料后，通知案件对应的顾问。 */
+	void sendAdviserCustomerSubmittedNotification(PortalDTO portalDto, String caseUrl) throws ServiceException;
+
 }

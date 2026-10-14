@@ -54,10 +54,9 @@ import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.b.utils.Form956PdfGenerator;
 import org.zhinanzhen.b.utils.PortalLetterTemplateRenderer;
+import org.zhinanzhen.b.utils.WordPdfConverter;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.impl.BaseService;
-import org.zhinanzhen.tb.dao.AdviserDAO;
-import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -152,9 +151,6 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	@Resource
 	private PortalTypeService portalTypeService;
 
-	@Resource
-	private AdviserDAO adviserDao;
-
 	@Override
 	public Map<String, String> generateDocuments(PortalDTO portalDto) throws ServiceException {
 		if (portalDto == null || portalDto.getId() <= 0) {
@@ -165,6 +161,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 		Path contractPath = null;
 		Path advicePath = null;
+		Path adviceWordPath = null;
 		Path form956Path = null;
 		try {
 			if (portalDto.getTypeId() <= 0)
@@ -184,7 +181,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			String prefix = "portal_" + portalDto.getId() + "_" + timestamp;
 			contractPath = outputDir.resolve(prefix + "_Contract_" + customerSuffix + "_" + adviserSuffix + ".pdf");
 			advicePath = outputDir.resolve(
-					prefix + "_Letter_of_Advice_" + customerSuffix + "_" + adviserSuffix + ".docx");
+					prefix + "_Letter_of_Advice_" + customerSuffix + "_" + adviserSuffix + ".pdf");
+			adviceWordPath = adviceWordSourcePath(advicePath);
 			if (data.maraId <= 0)
 				throw new IOException("案件未配置有效的 Mara，无法获取 Form 956 模板");
 			MaraDTO maraDto = maraService.getMaraById(data.maraId);
@@ -199,25 +197,29 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 						+ form956TemplatePath);
 			form956Path = outputDir.resolve(prefix + "_956_" + safeFileName(maraName) + ".pdf");
 
-			generateContractPdf(data, contractPath);
-			generateAdviceDocument(data, advicePath, portalType.getLetterUrl());
+			// 合同中的 Visa subclass 使用当前案件类型名称（b_portal_type.name）。
+			generateContractPdf(data, contractPath, portalType.getName());
+			generateAdviceDocument(data, adviceWordPath, portalType.getLetterUrl());
+			WordPdfConverter.convert(adviceWordPath, advicePath);
 			// Form 956 使用 b_mara.956path 指定的模板文件生成。
 			Form956PdfGenerator.generateFromPath(form956TemplatePath, form956Path,
 					portalDto.getJsonStr(), portalDto.getContractStr(), data.maraId);
 			// Nginx以nginx用户读取生成文件；避免服务器umask为077时新文件再次返回403。
 			ensureGeneratedFileReadable(contractPath);
 			ensureGeneratedFileReadable(advicePath);
+			ensureGeneratedFileReadable(adviceWordPath);
 			ensureGeneratedFileReadable(form956Path);
 
 			Map<String, String> paths = new LinkedHashMap<String, String>();
 			// 与uploadAttachment保持一致，数据库保存访问路径而不是当前机器的物理绝对路径。
 			paths.put("contractPdf", toStoredFilePath(contractPath));
-			paths.put("letterOfAdviceDocx", toStoredFilePath(advicePath));
+			paths.put("letterOfAdvicePdf", toStoredFilePath(advicePath));
 			paths.put("form956Pdf", toStoredFilePath(form956Path));
 			return paths;
 		} catch (Exception e) {
 			deleteGeneratedFile(contractPath);
 			deleteGeneratedFile(advicePath);
+			deleteGeneratedFile(adviceWordPath);
 			deleteGeneratedFile(form956Path);
 			ServiceException exception = new ServiceException("生成客户合同、建议信和Form 956失败: " + e.getMessage(), e);
 			exception.setCode(ErrorCodeEnum.OTHER_ERROR.code());
@@ -233,10 +235,17 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			throw serviceException("案件尚未上传客户签名文件.", ErrorCodeEnum.DATA_ERROR.code(), null);
 
 		Path contractPath = requireGeneratedFile(portalDto.getContractFilePath(), "合同PDF");
-		Path advicePath = requireGeneratedFile(portalDto.getLetterFilePath(), "建议信Word文件");
+		Path advicePath = requireGeneratedFile(portalDto.getLetterFilePath(), "建议信文件");
 		Path form956Path = requireGeneratedFile(portalDto.getForm956Path(), "Form 956 PDF");
+		boolean advicePdf = advicePath.getFileName().toString().toLowerCase(Locale.ENGLISH).endsWith(".pdf");
+		// 新生成件保留同名Word源文件用于签署；历史Word生成件仍按原流程处理。
+		Path adviceWordPath = advicePdf ? adviceWordSourcePath(advicePath) : advicePath;
+		if (!Files.isRegularFile(adviceWordPath))
+			throw serviceException("Letter PDF缺少对应的Word源文件，请重新生成案件文件。",
+					ErrorCodeEnum.DATA_ERROR.code(), null);
 		Path contractTemporary = null;
 		Path adviceTemporary = null;
+		Path adviceWordTemporary = null;
 		Path form956Temporary = null;
 		try {
 			byte[] signatureBytes = readSignatureFile(portalDto.getCustomerSignature(),
@@ -246,19 +255,26 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			String fingerprint = signatureFingerprint(signatureBytes);
 			int pictureType = detectPictureType(signatureBytes);
 			contractTemporary = Files.createTempFile(contractPath.getParent(), "customer-sign-contract-", ".pdf");
-			adviceTemporary = Files.createTempFile(advicePath.getParent(), "customer-sign-letter-", ".docx");
+			adviceWordTemporary = Files.createTempFile(advicePath.getParent(), "customer-sign-letter-", ".docx");
+			if (advicePdf)
+				adviceTemporary = Files.createTempFile(advicePath.getParent(), "customer-sign-letter-", ".pdf");
 			form956Temporary = Files.createTempFile(form956Path.getParent(), "customer-sign-956-", ".pdf");
 
 			stampCustomerSignatureOnContract(contractPath, contractTemporary, signatureBytes, fingerprint, signingDate);
-			addCustomerSignatureToAdvice(advicePath, adviceTemporary, signatureBytes, pictureType, signingDateText);
+			addCustomerSignatureToAdvice(adviceWordPath, adviceWordTemporary, signatureBytes, pictureType, signingDateText);
+			if (advicePdf)
+				WordPdfConverter.convert(adviceWordTemporary, adviceTemporary);
 			stampCustomerSignatureOnForm956(form956Path, form956Temporary, signatureBytes, fingerprint, signingDate);
 
 			// 三份文件先在临时文件中完成处理，再替换原件。
 			Files.move(contractTemporary, contractPath, StandardCopyOption.REPLACE_EXISTING);
-			Files.move(adviceTemporary, advicePath, StandardCopyOption.REPLACE_EXISTING);
+			Files.move(adviceWordTemporary, adviceWordPath, StandardCopyOption.REPLACE_EXISTING);
+			if (advicePdf)
+				Files.move(adviceTemporary, advicePath, StandardCopyOption.REPLACE_EXISTING);
 			Files.move(form956Temporary, form956Path, StandardCopyOption.REPLACE_EXISTING);
 			ensureGeneratedFileReadable(contractPath);
 			ensureGeneratedFileReadable(advicePath);
+			ensureGeneratedFileReadable(adviceWordPath);
 			ensureGeneratedFileReadable(form956Path);
 		} catch (ServiceException e) {
 			throw e;
@@ -268,8 +284,15 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		} finally {
 			deleteGeneratedFile(contractTemporary);
 			deleteGeneratedFile(adviceTemporary);
+			deleteGeneratedFile(adviceWordTemporary);
 			deleteGeneratedFile(form956Temporary);
 		}
+	}
+
+	/** Word源文件与对外提供的Letter PDF同名，供客户确认签署时重新转换。 */
+	private Path adviceWordSourcePath(Path pdfPath) {
+		String filename = pdfPath.getFileName().toString();
+		return pdfPath.resolveSibling(filename.substring(0, filename.length() - 4) + ".docx");
 	}
 
 	private void stampCustomerSignatureOnContract(Path source, Path destination, byte[] signatureBytes,
@@ -641,19 +664,21 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (StringUtil.isEmpty(contractFilePath))
 			contractFilePath = portalDto.getContractFilePath();
 		String letterFilePath = generatedDocumentPaths == null ? null
-				: generatedDocumentPaths.get("letterOfAdviceDocx");
+				: generatedDocumentPaths.get("letterOfAdvicePdf");
+		if (StringUtil.isEmpty(letterFilePath) && generatedDocumentPaths != null)
+			letterFilePath = generatedDocumentPaths.get("letterOfAdviceDocx");
 		if (StringUtil.isEmpty(letterFilePath))
 			letterFilePath = portalDto.getLetterFilePath();
 		String form956FilePath = generatedDocumentPaths == null ? null : generatedDocumentPaths.get("form956Pdf");
 		if (StringUtil.isEmpty(form956FilePath))
 			form956FilePath = portalDto.getForm956Path();
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
-		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
+		Path advicePath = requireGeneratedFile(letterFilePath, "建议信文件");
 		Path form956Path = requireGeneratedFile(form956FilePath, "Form 956 PDF");
 		String adviserName = firstNonEmpty(portalDto.getAdviserName(), "您的顾问");
-		String adviserEmail = resolveAdviserEmail(portalDto);
+		String contactEmail = resolveForm956Email(data.maraId);
 		String title = MAIL_SUBJECT_CONTRACT;
-		String content = buildContractSignatureMail(portalDto.getId(), data.fullName, adviserName, adviserEmail,
+		String content = buildContractSignatureMail(portalDto.getId(), data.fullName, adviserName, contactEmail,
 				confirmUrl, returnUrl);
 		try {
 			sendMailWithAttachments(data.email, title, content, contractPath.toFile(), advicePath.toFile(),
@@ -856,14 +881,13 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			StringBuilder legacyContent = new StringBuilder();
 			legacyContent.append("<p>亲爱的").append(htmlEscape(firstNonEmpty(data.fullName, "客户")))
 					.append("同学，您好：</p><p>").append(legacyMessage).append("</p>")
-					.append("<p><strong>案件编号：</strong>").append(portalDto.getId()).append("<br>")
-					.append("<strong>通知时间：</strong>")
+					.append("<p><strong>通知时间：</strong>")
 					.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
 					.append("</p>");
 			if (StringUtil.isNotEmpty(remark))
 				legacyContent.append(remarkBlock(remark, "备注说明："));
 			legacyContent.append("<p>指南针留学移民</p>");
-			title = "【指南针留学移民】等待最终决定（案件编号：" + portalDto.getId() + "）";
+			title = "【指南针留学移民】等待最终决定";
 			content = legacyContent.toString();
 			break;
 		default:
@@ -897,10 +921,10 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		chinese.append("<p>请特别留意移民局补料通知中规定的回复截止日期，并尽早将所需材料发送给我们，"
 				+ "以确保我们有足够的时间审核并递交相关材料，避免因逾期而影响您的签证申请。</p>");
 		chinese.append("<p>如对补料要求有任何疑问，或部分材料无法及时取得，请尽快与我们联系，以便及时商讨处理方案。</p>");
-		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
+		StringBuilder englishAction = new StringBuilder();
 		englishAction.append(remarkBlock(remark, "Notes on the requested documents:"));
 		englishAction.append(englishSupplementLinkLine(customerUrl));
-		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		StringBuilder chineseAction = new StringBuilder();
 		chineseAction.append(remarkBlock(remark, "补料说明："));
 		chineseAction.append(chineseSupplementLinkLine(customerUrl));
 		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
@@ -926,9 +950,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		chinese.append("<p>附件为移民局正式签发的决定通知，请您仔细查阅并妥善保存。</p>");
 		chinese.append("<p>请特别留意通知中涉及的相关条件、要求或期限。</p>");
 		chinese.append("<p>如有任何疑问，欢迎随时与我们联系。</p>");
-		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
+		StringBuilder englishAction = new StringBuilder();
 		englishAction.append(remarkBlock(remark, "Remarks:"));
-		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		StringBuilder chineseAction = new StringBuilder();
 		chineseAction.append(remarkBlock(remark, "备注说明："));
 		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
 				chineseAction.toString(), customerName, signerName);
@@ -954,7 +978,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	public void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException {
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
-		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
+		Path advicePath = requireGeneratedFile(letterFilePath, "建议信文件");
 		sendMailWithAttachments(recipientEmail, subject, content, contractPath.toFile(), advicePath.toFile());
 	}
 
@@ -962,7 +986,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	public void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath, String form956FilePath) throws ServiceException {
 		Path contractPath = requireGeneratedFile(contractFilePath, "合同PDF");
-		Path advicePath = requireGeneratedFile(letterFilePath, "建议信Word文件");
+		Path advicePath = requireGeneratedFile(letterFilePath, "建议信文件");
 		Path form956Path = requireGeneratedFile(form956FilePath, "Form 956 PDF");
 		sendMailWithAttachments(recipientEmail, subject, content, contractPath.toFile(), advicePath.toFile(),
 				form956Path.toFile());
@@ -1048,7 +1072,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	/**
 	 * 中英对照邮件骨架：英文段（正文+落款+英文操作块）、分隔线、中文段（正文+落款+中文操作块）。
-	 * 操作块内容（案件编号、链接、按钮说明、备注）两种语言各给一份，英文收件人不必依赖中文段。
+	 * 操作块内容（链接、按钮说明、备注）两种语言各给一份，英文收件人不必依赖中文段。
 	 */
 	private String buildBilingualMail(String englishBody, String englishAction, String chineseBody,
 			String chineseAction, String customerName, String signerName) {
@@ -1059,16 +1083,6 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		content.append(chineseGreeting(customerName)).append(chineseBody).append(chineseSignature(signerName))
 				.append(chineseAction);
 		return content.toString();
-	}
-
-	/** 英文案件编号行。 */
-	private String englishCaseNumberLine(int portalId) {
-		return "<p><strong>Case No.:</strong> " + portalId + "</p>";
-	}
-
-	/** 中文案件编号行。 */
-	private String chineseCaseNumberLine(int portalId) {
-		return "<p><strong>案件编号：</strong> " + portalId + "</p>";
 	}
 
 	/** 英文案件链接行；链接为空时不输出。 */
@@ -1120,11 +1134,12 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	/**
 	 * 服务合同及Form 956邮件正文：采用系统邮件模板01（中英对照）。
-	 * 模板正文之后保留客户操作入口：案件编号、签署回传邮箱和"确认签署/退回修改"按钮。
+	 * 模板正文之后保留客户操作入口：签署回传邮箱和"确认签署/退回修改"按钮。
 	 */
 	private String buildContractSignatureMail(int portalId, String customerName, String signerName,
-			String adviserEmail, String confirmUrl, String returnUrl) {
-		String safeAdviserEmail = htmlEscape(firstNonEmpty(adviserEmail, "暂未配置"));
+			String contactEmail, String confirmUrl, String returnUrl) {
+		// 联系邮箱取 b_mara.956path；未配置时正文留空，不写占位文案。
+		String safeContactEmail = htmlEscape(contactEmail == null ? "" : contactEmail.trim());
 		StringBuilder english = new StringBuilder();
 		english.append("<p>Please find attached the Migration Services Agreement and Form 956 for your review and signature.</p>");
 		english.append("<p>Kindly review both documents and return the signed copies to us at your earliest "
@@ -1134,16 +1149,16 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		chinese.append("<p>附件为移民代理服务合同（Migration Services Agreement）及 Form 956（移民代理授权表），请您查阅并签署。</p>");
 		chinese.append("<p>请在签署后将文件发送给我们，以便我们继续办理您的签证申请。</p>");
 		chinese.append("<p>如有任何疑问，欢迎随时与我们联系。</p>");
-		// 客户操作入口：案件编号、签署回传邮箱和"确认签署/退回修改"按钮，中英文各一份。
-		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
-		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		// 客户操作入口：签署回传邮箱和"确认签署/退回修改"按钮，中英文各一份。
+		StringBuilder englishAction = new StringBuilder();
+		StringBuilder chineseAction = new StringBuilder();
 		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
 			englishAction.append("<p>If everything is correct, please click the “Confirm” button below and email "
-					+ "the signed contract to our adviser (email: ").append(safeAdviserEmail).append(").</p>");
+					+ "the signed contract to our adviser (email: ").append(safeContactEmail).append(").</p>");
 			englishAction.append("<p>If any changes are required, please click the “Return for Revision” button "
 					+ "below.</p>");
 			chineseAction.append("<p>确认无误后，请点击下面的“确认签署”按钮，并将签好名的合同文件，电邮给我们的顾问（邮箱：")
-					.append(safeAdviserEmail).append("）。</p>");
+					.append(safeContactEmail).append("）。</p>");
 			chineseAction.append("<p>如需修改，请点击下面的“退回修改”按钮。</p>");
 			// 按钮只在中文段给一组，英文段只保留文字说明。
 			chineseAction.append(actionButtons("确认签署", confirmUrl, "退回修改", returnUrl));
@@ -1156,51 +1171,49 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				chineseAction.toString(), customerName, signerName);
 	}
 
-	/** 系统邮件模板02：申请材料清单（中英对照），保留案件编号和案件链接。 */
+	/** 系统邮件模板02：申请材料清单（中英对照），含AFP代办说明，保留案件链接。 */
 	private String buildDocumentChecklistMail(int portalId, String customerName, String signerName, String caseUrl) {
 		StringBuilder english = new StringBuilder();
-		english.append("<p>Please find attached the document checklist for your visa application.</p>");
+		english.append("<p>Please find attached the documents required for preparing your visa application.</p>");
 		english.append("<p>Kindly prepare and provide the required documents as outlined in the checklist.</p>");
+		english.append("<p>If you would like us to assist with applying for an Australian Federal Police (AFP) "
+				+ "National Police Check on your behalf, please click the relevant link to complete the online form, "
+				+ "or download and complete the AFP information form and return it to us.</p>");
 		english.append("<p>If any documents are unavailable or you have questions regarding the requirements, "
 				+ "please let us know so that we can provide further guidance.</p>");
 		english.append("<p>We look forward to receiving your documents.</p>");
 		StringBuilder chinese = new StringBuilder();
-		chinese.append("<p>附件为您的签证申请材料清单，请根据清单要求准备并提供相关材料。</p>");
+		chinese.append("<p>附件为准备您的签证申请所需的相关文件，请查收。</p>");
+		chinese.append("<p>如需我们代为申请澳大利亚联邦警察（AFP）无犯罪记录证明，请点击相应链接填写在线申请信息，"
+				+ "或下载并填写 AFP 信息表后发回给我们。</p>");
 		chinese.append("<p>如有任何材料暂时无法提供，或对材料要求存在疑问，请及时与我们联系，以便我们进一步协助。</p>");
 		chinese.append("<p>期待收到您的材料。</p>");
 		return buildBilingualMail(english.toString(),
-				englishCaseNumberLine(portalId) + englishCaseLinkLine(caseUrl), chinese.toString(),
-				chineseCaseNumberLine(portalId) + chineseCaseLinkLine(caseUrl), customerName, signerName);
+				englishCaseLinkLine(caseUrl), chinese.toString(),
+				chineseCaseLinkLine(caseUrl), customerName, signerName);
 	}
 
-	/** 系统邮件模板04：签证递交通知（中英对照），保留案件编号和案件链接。 */
+	/** 系统邮件模板04：签证递交通知（中英对照），保留案件链接。 */
 	private String buildApplicationLodgedMail(int portalId, String customerName, String signerName, String caseUrl) {
 		StringBuilder english = new StringBuilder();
 		english.append("<p>We are pleased to confirm that your visa application has been successfully lodged with "
 				+ "the Department of Home Affairs.</p>");
-		english.append("<p>Please find attached the relevant documents issued by the Department, including:</p>");
-		english.append("<p>• Acknowledgement of Application Received<br>"
-				+ "• Bridging Visa Grant Notification (if applicable)<br>"
-				+ "• Other relevant correspondence (if applicable)</p>");
-		english.append("<p>Please retain these documents for your records.</p>");
+		english.append("<p>Please find attached the relevant documents issued by the Department.</p>");
 		english.append("<p>We will continue to monitor the progress of your application and keep you informed of any "
 				+ "updates or further requests from the Department.</p>");
 		StringBuilder chinese = new StringBuilder();
 		chinese.append("<p>您的签证申请已成功递交至澳大利亚内政部（Department of Home Affairs）。</p>");
-		chinese.append("<p>附件为移民局签发的相关文件，包括：</p>");
-		chinese.append("<p>• 签证申请确认信（Acknowledgement of Application Received）<br>"
-				+ "• 过桥签证批准通知（如适用）<br>"
-				+ "• 其他相关通知文件（如适用）</p>");
+		chinese.append("<p>附件为移民局签发的相关文件。</p>");
 		chinese.append("<p>请妥善保存上述文件，以备日后查阅。</p>");
 		chinese.append("<p>我们将继续跟进您的签证申请进展。如移民局有进一步通知或补充材料要求，我们会及时与您联系。</p>");
 		return buildBilingualMail(english.toString(),
-				englishCaseNumberLine(portalId) + englishCaseLinkLine(caseUrl), chinese.toString(),
-				chineseCaseNumberLine(portalId) + chineseCaseLinkLine(caseUrl), customerName, signerName);
+				englishCaseLinkLine(caseUrl), chinese.toString(),
+				chineseCaseLinkLine(caseUrl), customerName, signerName);
 	}
 
 	/**
 	 * 系统邮件模板03：申请表草稿确认（中英对照）。
-	 * 模板正文之后保留客户操作入口：案件编号、备注说明和"确认申请材料/退回申请材料"按钮。
+	 * 模板正文之后保留客户操作入口：备注说明和"确认申请材料/退回申请材料"按钮。
 	 */
 	private String buildDraftApplicationReviewMail(int portalId, String customerName, String signerName,
 			String remark, String confirmUrl, String returnUrl) {
@@ -1217,8 +1230,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		chinese.append("<p>如有任何信息需要修改、更新或调整，您可以直接回复本邮件，告知我们具体修改内容。</p>");
 		chinese.append("<p>如确认所有信息均准确无误，也请回复邮件予以确认。</p>");
 		chinese.append("<p>收到您的确认后，我们将继续后续申请流程。</p>");
-		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
-		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		StringBuilder englishAction = new StringBuilder();
+		StringBuilder chineseAction = new StringBuilder();
 		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
 			englishAction.append("<p>If all the information is correct, please click the “Confirm Application "
 					+ "Materials” button below. If any changes or additions are required, please click the "
@@ -1233,22 +1246,20 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				chineseAction.toString(), customerName, signerName);
 	}
 
-	private String resolveAdviserEmail(PortalDTO portalDto) {
-		if (portalDto == null || portalDto.getAdviserId() <= 0 || adviserDao == null)
+	/** 客户邮件正文中的联系邮箱读取当前案件MARA的956path；为null时返回空。 */
+	private String resolveForm956Email(int maraId) throws ServiceException {
+		if (maraId <= 0)
 			return null;
-		try {
-			AdviserDO adviserDo = adviserDao.getAdviserById(portalDto.getAdviserId());
-			if (adviserDo != null && StringUtil.isNotEmpty(adviserDo.getEmail()))
-				return adviserDo.getEmail().trim();
-		} catch (Exception ignored) {
-			// 邮箱查询失败时由邮件正文显示“暂未配置”，不影响合同附件发送流程。
-		}
-		return null;
+		MaraDTO maraDto = maraService.getMaraById(maraId);
+		if (maraDto == null)
+			return null;
+		String path = normalizeInputValue(maraDto.getForm956Path());
+		return StringUtil.isEmpty(path) ? null : path;
 	}
 
 	/**
 	 * 补充材料确认邮件：沿用原有中文文案并补英文，中英对照。
-	 * 模板正文之后保留客户操作入口：案件编号、备注说明和"确认补充材料/退回补充材料"按钮（按钮只在中文段给一组）。
+	 * 模板正文之后保留客户操作入口：备注说明和"确认补充材料/退回补充材料"按钮（按钮只在中文段给一组）。
 	 */
 	private String buildSupplementaryMaterialsConfirmationMail(int portalId, String customerName, String signerName,
 			String remark, String confirmUrl, String returnUrl) {
@@ -1260,8 +1271,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		StringBuilder chinese = new StringBuilder();
 		chinese.append("<p>您的补充材料已准备完成，请下载邮件中的附件文件。</p>");
 		chinese.append("<p>感谢您的配合。如有疑问，请及时联系您的顾问。</p>");
-		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
-		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		StringBuilder englishAction = new StringBuilder();
+		StringBuilder chineseAction = new StringBuilder();
 		if (StringUtil.isNotEmpty(confirmUrl) && StringUtil.isNotEmpty(returnUrl)) {
 			englishAction.append("<p>If everything is correct, please click the “Confirm Supplementary Materials” "
 					+ "button below; if any additions or changes are required, please click the “Return "
@@ -1275,7 +1286,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				chineseAction.toString(), customerName, signerName);
 	}
 
-	/** 补充材料已正式提交：沿用原有中文文案并补英文，中英对照；保留案件编号、通知时间和备注说明。 */
+	/** 补充材料已正式提交：沿用原有中文文案并补英文，中英对照；保留通知时间和备注说明。 */
 	private String buildSupplementarySubmittedMail(int portalId, String customerName, String signerName,
 			String remark) {
 		StringBuilder english = new StringBuilder();
@@ -1289,10 +1300,10 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		chinese.append("<p>您提供的补充材料已完成审核并正式提交至相关审理机构。您的申请现正等待最终审理决定。</p>");
 		chinese.append("<p>审理时间以相关机构的实际安排为准；如有进一步的材料要求或审理结果，我们将及时通知您。</p>");
 		chinese.append("<p>感谢您的信任与配合，请保持联系方式畅通并留意后续通知。</p>");
-		StringBuilder englishAction = new StringBuilder(englishCaseNumberLine(portalId));
+		StringBuilder englishAction = new StringBuilder();
 		englishAction.append(noticeTimeLine("Notice Time:"));
 		englishAction.append(remarkBlock(remark, "Remarks:"));
-		StringBuilder chineseAction = new StringBuilder(chineseCaseNumberLine(portalId));
+		StringBuilder chineseAction = new StringBuilder();
 		chineseAction.append(noticeTimeLine("通知时间："));
 		chineseAction.append(remarkBlock(remark, "备注说明："));
 		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
@@ -1318,7 +1329,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		return exception;
 	}
 
-	private void generateContractPdf(CustomerDocumentData data, Path outputPath) throws Exception {
+	private void generateContractPdf(CustomerDocumentData data, Path outputPath, String visaSubclass) throws Exception {
 		String contractTemplate = resolveContractTemplate(data.contractTemplate);
 		ClassPathResource resource = new ClassPathResource(contractTemplate);
 		try (InputStream input = resource.getInputStream();
@@ -1339,9 +1350,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 					setPdfField(form, "Text8", data.mobile);
 
 					if (hasPdfField(form, "fee_service_1"))
-						fillModernContractFields(stamper, form, data);
+						fillModernContractFields(stamper, form, data, visaSubclass);
 					else
-						fillLegacyContractFields(stamper, form, data);
+						fillLegacyContractFields(stamper, form, data, visaSubclass);
 					fillMaraSignatureDates(form, data.generatedDate);
 					addMaraSignatures(stamper, form, data.maraId);
 					stamper.setFormFlattening(false);
@@ -1355,7 +1366,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	}
 
 	/** 填写悉尼新版合同中的服务类别、费用明细、代付费用及付款页资料。 */
-	private void fillModernContractFields(PdfStamper stamper, AcroFields form, CustomerDocumentData data)
+	private void fillModernContractFields(PdfStamper stamper, AcroFields form, CustomerDocumentData data,
+			String visaSubclass)
 			throws Exception {
 		setPdfField(form, "Text10", data.firstName);
 		setPdfField(form, "Text11", data.lastName);
@@ -1367,7 +1379,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		String serviceType = normalizeForMatch(data.serviceType);
 		boolean preliminaryAdvice = containsAny(serviceType, "preliminary");
 		boolean visaApplication = containsAny(serviceType, "visa application", "visa applications")
-				|| (StringUtil.isEmpty(serviceType) && StringUtil.isNotEmpty(data.visaSubclass));
+				|| (StringUtil.isEmpty(serviceType) && StringUtil.isNotEmpty(visaSubclass));
 		boolean cancellationReview = containsAny(serviceType, "visa cancellation", "cancellation review");
 		boolean foi = containsAny(serviceType, "freedom of information", "foi");
 		boolean advice = containsAny(serviceType, "advice") && !preliminaryAdvice;
@@ -1385,7 +1397,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		setPdfCheckBox(stamper, form, "svc_nomination", nomination);
 		setPdfCheckBox(stamper, form, "svc_ministerial", ministerial);
 		setPdfCheckBox(stamper, form, "svc_other", other);
-		setPdfField(form, "visa_subclass", data.visaSubclass);
+		setPdfField(form, "visa_subclass", visaSubclass);
 		setPdfField(form, "service_other_detail", data.otherImmigrationAssistance);
 
 		String feeType = normalizeForMatch(data.feeType);
@@ -1418,12 +1430,13 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	/**
 	 * ACT/ADE/BNE/Mel/TAS 旧模板没有服务费和代付费用明细行，只填写模板现有的汇总字段。
 	 */
-	private void fillLegacyContractFields(PdfStamper stamper, AcroFields form, CustomerDocumentData data)
+	private void fillLegacyContractFields(PdfStamper stamper, AcroFields form, CustomerDocumentData data,
+			String visaSubclass)
 			throws Exception {
 		String serviceType = normalizeForMatch(data.serviceType);
 		boolean preliminaryAdvice = containsAny(serviceType, "preliminary");
 		boolean visaApplication = containsAny(serviceType, "visa application", "visa applications")
-				|| (StringUtil.isEmpty(serviceType) && StringUtil.isNotEmpty(data.visaSubclass));
+				|| (StringUtil.isEmpty(serviceType) && StringUtil.isNotEmpty(visaSubclass));
 		boolean cancellationReview = containsAny(serviceType, "visa cancellation", "cancellation review");
 		boolean foi = containsAny(serviceType, "freedom of information", "foi");
 		boolean advice = containsAny(serviceType, "advice") && !preliminaryAdvice;
@@ -1441,7 +1454,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		setPdfCheckBox(stamper, form, "Check Box15", mrt);
 		setPdfCheckBox(stamper, form, "Check Box16", ministerial);
 		setPdfCheckBox(stamper, form, "Check Box17", other);
-		setPdfField(form, "Text19", data.visaSubclass);
+		setPdfField(form, "Text19", visaSubclass);
 		setPdfField(form, "Text18", data.otherImmigrationAssistance);
 
 		String feeType = normalizeForMatch(data.feeType);
@@ -1765,6 +1778,8 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				processTables(footer.getTables(), exactParagraphs, tokens);
 			}
 			ensureAdviceSignatureTable(document);
+			// docx4j导出PDF时不渲染内容控件，填充完成后展开，避免Letter PDF空白。
+			PortalLetterTemplateRenderer.flattenContentControls(document);
 
 			try (OutputStream output = Files.newOutputStream(outputPath, StandardOpenOption.CREATE_NEW)) {
 				document.write(output);

@@ -11,6 +11,7 @@
                 name,
                 phone,
                 email,
+                `956email`,
                 state,
                 image_url,
                 signature_data,
@@ -21,6 +22,7 @@
                 #{name},
                 #{phone},
                 #{email},
+                #{form956Email},
                 'ENABLED',
                 #{imageUrl},
                 #{signatureData},
@@ -38,6 +40,9 @@
         </if>
         <if test='email != null and email != ""'>
             , email = #{email}
+        </if>
+        <if test='form956Email != null'>
+            , `956email` = #{form956Email}
         </if>
         <if test='state != null and state != ""'>
             , state = #{state}
@@ -76,6 +81,7 @@
             name,
             phone,
             email,
+            `956email` AS form956Email,
             state,
             image_url AS imageUrl,
             signature_data AS signatureData,
@@ -99,6 +105,7 @@
             name,
             phone,
             email,
+            `956email` AS form956Email,
             state,
             image_url AS imageUrl,
             signature_data AS signatureData,
@@ -108,7 +115,7 @@
     </select>
 
     <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.MaraDO">
-        SELECT id, gmt_create AS gmtCreate, name, phone, email, state, image_url AS imageUrl, signature_data AS signatureData, region_id AS regionId FROM b_mara WHERE id IN
+        SELECT id, gmt_create AS gmtCreate, name, phone, email, `956email` AS form956Email, state, image_url AS imageUrl, signature_data AS signatureData, region_id AS regionId FROM b_mara WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
 

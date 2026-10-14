@@ -36,7 +36,9 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 
 	private void validateAttachmentPaths(List<String> paths, int portalId) throws ServiceException {
 		portalWriteGuard.requireEditable(portalId);
-		for (String path : paths) {
+		// 请求可能携带重复路径，按路径去重后再查，避免重复校验。
+		java.util.Set<String> uniquePaths = new java.util.LinkedHashSet<String>(paths);
+		for (String path : uniquePaths) {
 			PortalAttachmentDO attachment = portalAttachmentDao.getPortalAttachmentByPath(path);
 			if (attachment == null) {
 				ServiceException error = new ServiceException("未找到已上传的附件：" + path);

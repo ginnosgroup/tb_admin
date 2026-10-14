@@ -10,6 +10,7 @@ import org.zhinanzhen.tb.service.ServiceException;
 /** 根据案件客户资料生成合同、建议信和 Form 956。 */
 public interface PortalDocumentService {
 
+	/** 返回contractPdf、letterOfAdvicePdf、form956Pdf；Letter保留同名Word源文件用于后续签署。 */
 	Map<String, String> generateDocuments(PortalDTO portalDto) throws ServiceException;
 
 	/** 将案件客户上传的签名写入已生成的合同、建议信和 Form 956。 */

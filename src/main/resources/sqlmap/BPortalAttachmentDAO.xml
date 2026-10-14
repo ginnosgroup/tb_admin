@@ -15,6 +15,7 @@
                 file_size,
                 file_type,
                 file_ext,
+                attachment_type,
                 file_sorting,
                 stage,
                 attachment_state,
@@ -30,6 +31,7 @@
                 #{fileSize},
                 #{fileType},
                 #{fileExt},
+                #{attachmentType, jdbcType=VARCHAR},
                 #{fileSorting, jdbcType=VARCHAR},
                 #{stage},
                 #{attachmentState},
@@ -49,6 +51,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -69,13 +72,15 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
             ai_text AS aiText,
             ip,
             user_agent AS userAgent
-        FROM b_portal_attachment WHERE file_path = #{filePath};
+        FROM b_portal_attachment WHERE file_path = #{filePath}
+        ORDER BY id DESC LIMIT 1;
     </select>
 
     <select id="listPortalAttachmentByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false">
@@ -89,6 +94,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -112,6 +118,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -136,6 +143,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -160,6 +168,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -185,6 +194,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -214,6 +224,7 @@
             file_size AS fileSize,
             file_type AS fileType,
             file_ext AS fileExt,
+            attachment_type AS attachmentType,
             file_sorting AS fileSorting,
             stage,
             attachment_state AS attachmentState,
@@ -262,6 +273,7 @@
         </if>
         <if test='fileExt != null'>
             , file_ext = #{fileExt}
+            , attachment_type = #{attachmentType, jdbcType=VARCHAR}
         </if>
         <if test='stage != null'>
             , stage = #{stage}

@@ -44,6 +44,7 @@ public class MaraController extends BaseController {
 	@ResponseBody
 	public Response<Integer> addMara(@RequestParam(value = "name") String name,
 			@RequestParam(value = "phone") String phone, @RequestParam(value = "email") String email,
+			@RequestParam(value = "956email", required = false) String form956Email,
 			@RequestParam(value = "password", required = false) String password,
 			@RequestParam(value = "imageUrl") String imageUrl,
 			@RequestParam(value = "signatureData", required = false) String signatureData,
@@ -66,6 +67,8 @@ public class MaraController extends BaseController {
 			maraDto.setName(name);
 			maraDto.setPhone(phone);
 			maraDto.setEmail(email);
+			if (form956Email != null)
+				maraDto.setForm956Email(form956Email.trim());
 			maraDto.setImageUrl(imageUrl);
 			if (signatureData != null)
 				maraDto.setSignatureData(signatureData);
@@ -89,6 +92,7 @@ public class MaraController extends BaseController {
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "phone", required = false) String phone,
 			@RequestParam(value = "email", required = false) String email,
+			@RequestParam(value = "956email", required = false) String form956Email,
 			@RequestParam(value = "state", required = false) String state,
 			@RequestParam(value = "imageUrl", required = false) String imageUrl,
 			@RequestParam(value = "signatureData", required = false) String signatureData,
@@ -106,6 +110,9 @@ public class MaraController extends BaseController {
 			}
 			if (StringUtil.isNotEmpty(email)) {
 				maraDto.setEmail(email);
+			}
+			if (form956Email != null) {
+				maraDto.setForm956Email(form956Email.trim());
 			}
 			if (StringUtil.isNotEmpty(state)) {
 				maraDto.setState(MaraStateEnum.get(state));

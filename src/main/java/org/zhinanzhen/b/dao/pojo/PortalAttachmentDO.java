@@ -28,6 +28,9 @@ public class PortalAttachmentDO implements Serializable {
 
 	private String fileExt;
 
+	/** 附件业务类型（passport/coe/completion/autoCourse/autoLanguage），其余场景为空。 */
+	private String attachmentType;
+
 	/** 文件排序；同组申请材料可带 -1、-2 等顺序后缀。 */
 	private String fileSorting;
 

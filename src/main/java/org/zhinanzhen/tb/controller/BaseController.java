@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -91,6 +92,13 @@ public class BaseController {
 		response.setHeader("Allow", "POST");
 	}
 
+	/** 同一毫秒并发上传会撞名，时间戳+进程内序列号保证唯一。 */
+	private static final AtomicLong UPLOAD_NAME_SEQ = new AtomicLong();
+
+	private static String uniqueUploadFileName() {
+		return System.currentTimeMillis() + "" + UPLOAD_NAME_SEQ.incrementAndGet();
+	}
+
 	public static Response<String> upload(MultipartFile file, HttpSession session, String dir)
 			throws IllegalStateException, IOException {
 		if (file != null) {
@@ -111,7 +119,7 @@ public class BaseController {
 					}
 					// 自定义的文件名称
 //					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
-					String newFileName = String.valueOf(System.currentTimeMillis());
+					String newFileName = uniqueUploadFileName();
 					// 设置存放图片文件的路径
 					path = realPath + newFileName;
 					LOG.info("存放图片文件的路径:" + path);
@@ -147,7 +155,7 @@ public class BaseController {
 				folder.mkdirs();
 			// 自定义的文件名称
 //			String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
-			String newFileName = String.valueOf(System.currentTimeMillis());
+			String newFileName = uniqueUploadFileName();
 			// 设置存放文件的路径
 			String path = StringUtil.merge(realPath, newFileName, ".", type);
 			LOG.info("存放文件的路径:" + path);
@@ -237,7 +245,7 @@ public class BaseController {
 					}
 					// 自定义的文件名称
 //					String newFileName = String.valueOf(System.currentTimeMillis()) + "_" + fileName.toLowerCase();
-					String newFileName = String.valueOf(System.currentTimeMillis());
+					String newFileName = uniqueUploadFileName();
 					// 设置存放图片文件的路径
 					path = realPath + newFileName + "." + type;
 					LOG.info("存放PDF文件的路径:" + path);

@@ -465,6 +465,10 @@ public class PortalController extends BaseController {
 				portalAttachmentDto.setFileType(normalizeStoredFileType(fileExt, file.getContentType()));
 				if (StringUtil.isNotEmpty(fileExt))
 					portalAttachmentDto.setFileExt(fileExt);
+				// 客户表单5类上传写入attachment_type，其他类型保持为空。
+				String attachmentType = resolveAttachmentType(normalizedUploadFileType);
+				if (attachmentType != null)
+					portalAttachmentDto.setAttachmentType(attachmentType);
 				if (fileSorting != null)
 					portalAttachmentDto.setFileSorting(fileSorting.toString());
 				// fileType为空（只传id和aiText的通用提取）时同样按默认阶段apply保存。
@@ -610,6 +614,26 @@ public class PortalController extends BaseController {
 		}
 	}
 
+	/** 客户表单5类上传的业务类型；其他上传不写attachment_type。 */
+	private String resolveAttachmentType(String fileType) {
+		if (fileType == null)
+			return null;
+		String value = fileType.trim();
+		if (value.isEmpty())
+			return null;
+		if ("passport".equalsIgnoreCase(value))
+			return "passport";
+		if ("coe".equalsIgnoreCase(value))
+			return "coe";
+		if ("completion".equalsIgnoreCase(value))
+			return "completion";
+		if ("autoCourse".equalsIgnoreCase(value))
+			return "autoCourse";
+		if ("autoLanguage".equalsIgnoreCase(value))
+			return "autoLanguage";
+		return null;
+	}
+
 	/** 规范化并校验附件类型；普通上传不调用本方法。 */
 	private String normalizeAttachmentFileType(String fileType) {
 		String value = fileType == null ? "" : fileType.trim().toLowerCase(Locale.ENGLISH);
@@ -662,6 +686,10 @@ public class PortalController extends BaseController {
 		JsonNode jsonNode = OBJECT_MAPPER.readTree(aiText);
 		if (jsonNode == null || !jsonNode.isObject()) {
 			throw new IOException("AI返回结果不是合法的JSON对象");
+		}
+		// 请求参数response_format被误当成识别结果时拒绝入库。
+		if (jsonNode.size() == 1 && "json_object".equals(jsonNode.path("type").asText())) {
+			throw new IOException("AI返回结果无效，请重试");
 		}
 		// 完成信只返回前端学习经历表单需要的字段；即使AI增加其他字段，也不返回给前端。
 		if ("completion".equals(fileType)) {
@@ -1238,6 +1266,9 @@ public class PortalController extends BaseController {
 			return;
 		deleteGeneratedPortalDocument("合同", portalDto.getContractFilePath());
 		deleteGeneratedPortalDocument("Letter", portalDto.getLetterFilePath());
+		String letterPath = portalDto.getLetterFilePath();
+		if (StringUtil.isNotEmpty(letterPath) && letterPath.toLowerCase(java.util.Locale.ENGLISH).endsWith(".pdf"))
+			deleteGeneratedPortalDocument("Letter Word源文件", letterPath.substring(0, letterPath.length() - 4) + ".docx");
 		deleteGeneratedPortalDocument("Form 956", portalDto.getForm956Path());
 	}
 
@@ -1699,7 +1730,7 @@ public class PortalController extends BaseController {
                     PortalDTO documentPathDto = new PortalDTO();
                     documentPathDto.setId(id);
                     documentPathDto.setContractFilePath(generatedDocumentPaths.get("contractPdf"));
-                    documentPathDto.setLetterFilePath(generatedDocumentPaths.get("letterOfAdviceDocx"));
+                    documentPathDto.setLetterFilePath(generatedDocumentPaths.get("letterOfAdvicePdf"));
                     documentPathDto.setForm956Path(generatedDocumentPaths.get("form956Pdf"));
                     portalService.updatePortal(documentPathDto);
                     portalDto.setContractFilePath(documentPathDto.getContractFilePath());
@@ -2097,6 +2128,21 @@ public class PortalController extends BaseController {
 								notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
 								"案件已更新为02D，但顾问通知邮件发送失败：" + notificationException.getMessage(),
+								portalDto);
+					}
+				}
+				// 客户提交资料进入02时，发邮件通知顾问处理。
+				// 02D回退到02是顾问退回合同时，不发送“客户已提交资料”通知。
+				if ("02".equals(strState) && !"02".equals(fromState) && !"02D".equals(fromState)) {
+					try {
+						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
+						portalService.sendAdviserCustomerSubmittedNotification(savedPortalDto,
+								buildPortalCaseUrl(request, id));
+					} catch (ServiceException notificationException) {
+						LOG.error("案件已更新为02，但顾问客户提交资料通知邮件发送失败，portalId={}", id,
+								notificationException);
+						return new Response<PortalDTO>(notificationException.getCode(),
+								"案件已更新为02，但顾问通知邮件发送失败：" + notificationException.getMessage(),
 								portalDto);
 					}
 				}

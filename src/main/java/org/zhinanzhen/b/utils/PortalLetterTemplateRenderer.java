@@ -81,6 +81,44 @@ public final class PortalLetterTemplateRenderer {
 		return !descendants(cell.getCTTc().getDomNode(), "sdt").isEmpty();
 	}
 
+	/**
+	 * 把内容控件（w:sdt）展开为普通内容。docx4j 的 FO 导出不渲染 sdt，
+	 * 填充后不展开会导致 Letter 转 PDF 页面空白。
+	 */
+	public static void flattenContentControls(XWPFDocument document) {
+		List<Node> roots = new ArrayList<Node>();
+		roots.add(document.getDocument().getDomNode());
+		for (XWPFHeaderFooter header : document.getHeaderList())
+			roots.add(header._getHdrFtr().getDomNode());
+		for (XWPFHeaderFooter footer : document.getFooterList())
+			roots.add(footer._getHdrFtr().getDomNode());
+		for (Node root : roots)
+			flattenIn(root);
+	}
+
+	private static void flattenIn(Node root) {
+		if (root == null)
+			return;
+		for (Node control : new ArrayList<Node>(descendants(root, "sdt"))) {
+			Node parent = control.getParentNode();
+			if (parent == null)
+				continue;
+			Node content = child(control, "sdtContent");
+			if (content == null) {
+				parent.removeChild(control);
+				continue;
+			}
+			List<Node> children = new ArrayList<Node>();
+			for (Node node = content.getFirstChild(); node != null; node = node.getNextSibling())
+				children.add(node);
+			for (Node node : children) {
+				content.removeChild(node);
+				parent.insertBefore(node, control);
+			}
+			parent.removeChild(control);
+		}
+	}
+
 	private static String selectOption(Node properties, List<String> candidates) {
 		List<String> options = new ArrayList<String>();
 		for (Node item : descendants(properties, "listItem")) {

@@ -20,6 +20,9 @@ public class MaraDO implements Serializable {
 
 	private String email;
 
+	/** 客户邮件中展示的联系邮箱，对应 b_mara.956email。 */
+	private String form956Email;
+
 	private String state;
 
 	private String imageUrl;

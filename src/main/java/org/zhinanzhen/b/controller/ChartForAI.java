@@ -346,13 +346,29 @@ public class ChartForAI {
                 JSONObject message = firstChoice == null ? null : firstChoice.getJSONObject("message");
                 String content = message == null ? null : message.getString("content");
                 if (content != null && !content.trim().isEmpty()) {
-                    return content.trim();
+                    String trimmed = content.trim();
+                    // 并发或异常响应下，content可能被写成请求里的response_format，不能当识别结果。
+                    if (isResponseFormatEcho(trimmed))
+                        throw new IOException("DeepSeek返回了无效的识别结果，请重试");
+                    return trimmed;
                 }
             }
+        } catch (IOException e) {
+            throw e;
         } catch (Exception e) {
             throw new IOException("DeepSeek返回了无法解析的数据", e);
         }
         throw new IOException("DeepSeek返回成功，但没有文本分析结果");
+    }
+
+    /** 请求参数 response_format={"type":"json_object"} 被原样返回时视为无效结果。 */
+    static boolean isResponseFormatEcho(String content) {
+        if (content == null)
+            return true;
+        String value = content.trim();
+        return "{\"type\":\"json_object\"}".equals(value)
+                || "{\"type\": \"json_object\"}".equals(value)
+                || value.matches("\\{\\s*\"type\"\\s*:\\s*\"json_object\"\\s*\\}");
     }
 
     private JSONObject parsePdfAnalysisResult(String result) throws IOException {
