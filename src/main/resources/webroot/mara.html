@@ -380,6 +380,7 @@
 														<th>登录密码</th>
 														<th>二维码</th>
 														<th>所属区域</th>														
+														<th>客户联系邮箱</th>
 														<th>Edit</th>
 														<th>Delete</th>
 													</tr>
@@ -393,6 +394,7 @@
 														<td v-html="item.password"></td>
 														<td v-html="item.imageUrl"></td>
 														<td v-html="item.regionName"></td>														
+														<td v-html="item.form956EmailHtml"></td>
 														<td><a v-if="item.id" class="edit" href="javascript:;" @click="table_modify($index)"><span class="label label-success">Edit</span></a>
 																<a v-else class="edit" href="javascript:;"><span class="label label-primary">Save</span></a>
 														</td>
@@ -672,6 +674,7 @@
 									name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="">',
 									phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="">',
 									email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="">',
+									form956EmailHtml: form956EmailCell('', true),
 									password: '<input type="password" autocomplete="off" class="form-control small" style="width:150px;" id="t5" value="">',
 									imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3"></textarea>',
 									regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',
@@ -698,6 +701,7 @@
 							name: '<input type="text" class="form-control small" style="width:150px;" id="t0" value="'+this.subject[index].name+'">',
 							phone: '<input type="text" class="form-control small" style="width:150px;" id="t1" value="'+this.subject[index].phone+'">',
 							email: '<input type="text" class="form-control small" style="width:200px;" id="t2" value="'+this.subject[index].email+'">',
+							form956EmailHtml: form956EmailCell(this.subject[index].form956Email, true),
 							imageUrl: '<textarea type="text" class="form-control small" style="width:200px;" id="t3">'+this.subject[index].imageUrl+'</textarea>',
 							regionName: '<select class="form-control" style="width:150px;" id="t4"></select>',							
 						});						
@@ -751,10 +755,16 @@
 				}
 			});
 			
+			function form956EmailCell(value, editing) {
+				var safeValue = $('<div>').text(value || '').html().replace(/"/g, '&quot;');
+				return editing ? '<input type="email" class="form-control small" style="width:200px;" id="t6" value="' + safeValue + '">' : safeValue;
+			}
+
 			function return_result(result)
 			{
 				for(var i = 0; i < result.data.length; i++) {
 						result.data[i].oid = result.data[i].id;
+						result.data[i].form956EmailHtml = form956EmailCell(result.data[i].form956Email, false);
 						result.data[i].password = '<label id="t5" style="width:150px;"><a href="javascript:;" onclick="passwdSet(\''+result.data[i].email+'\')">重置密码</a></label>';
 				};
 				return result.data;
@@ -783,9 +793,9 @@
               $("#id").val('0');
               
               var passwd = '';
-              if (jqInputs[3] != undefined) passwd = jqInputs[3].value;
+              if ($('#example input#t5').length) passwd = $('#example input#t5').val();
               
-              $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
+              $.post(str_url, { id: sa_id, name: jqInputs[0].value, phone: jqInputs[1].value, email: jqInputs[2].value, '956email': $('#example input#t6').val(), password: passwd, imageUrl: jqText[0].value, regionId: jqSelect[0].value},
 					   	function(data){
 					   			if (data.code == 0)
 					   			{
