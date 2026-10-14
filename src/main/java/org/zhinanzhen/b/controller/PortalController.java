@@ -1404,6 +1404,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "passport", required = false) String passport,
 			@RequestParam(value = "jsonStr", required = false) String jsonStr,
 			@RequestParam(value = "contractStr", required = false) String contractStr,
+			@RequestParam(value = "formStr", required = false) String formStr,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "maraId", required = false) String maraId,
@@ -1436,6 +1437,9 @@ public class PortalController extends BaseController {
 			// 合同表单由顾问或MARA填写，保留前端传入的JSON字符串。
 			if (contractStr != null)
 				portalDto.setContractStr(contractStr);
+			// 案件表单JSON由前端填写，保留原始字符串。
+			if (formStr != null)
+				portalDto.setFormStr(formStr);
 			// 顾问添加时取登录顾问的顾问id；超管添加时用前端传的adviserId
 			if (apList.contains("GW") && adminUserLoginInfo.getAdviserId() != null
 					&& adminUserLoginInfo.getAdviserId() > 0) {
@@ -1480,6 +1484,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "passport", required = false) String passport,
 			@RequestParam(value = "jsonStr", required = false) String jsonStr,
 			@RequestParam(value = "contractStr", required = false) String contractStr,
+			@RequestParam(value = "formStr", required = false) String formStr,
 			@RequestParam(value = "adviserId", required = false) String adviserId,
 			@RequestParam(value = "officialId", required = false) String officialId,
 			@RequestParam(value = "maraId", required = false) String maraId,
@@ -1504,8 +1509,8 @@ public class PortalController extends BaseController {
 		boolean customerJsonResponse = "04".equals(strState);
 		if (StringUtil.isNotEmpty(idList))
 			return updatePortalBatch(idList, typeId, caseType, name, gender, birthday, passport, jsonStr,
-					contractStr, adviserId, officialId, maraId, serviceOrderId, strState, result, code, remark, filePath,
-					customerActionRequest, request, response);
+					contractStr, formStr, adviserId, officialId, maraId, serviceOrderId, strState, result, code, remark,
+					filePath, customerActionRequest, request, response);
 		if (id <= 0)
 			return new Response<PortalDTO>(1, "案件id必须是有效数字。", null);
 		PortalFollowUpState followUpState = PortalFollowUpState.fromCode(strState);
@@ -1638,6 +1643,9 @@ public class PortalController extends BaseController {
 			// contractStr != null 才更新，允许前端传空字符串清空合同表单数据。
 			if (contractStr != null)
 				portalDto.setContractStr(contractStr);
+			// formStr != null 才更新，允许前端传空字符串清空案件表单数据。
+			if (formStr != null)
+				portalDto.setFormStr(formStr);
 			if (StringUtil.isNotEmpty(adviserId))
 				portalDto.setAdviserId(StringUtil.toInt(adviserId));
 			if (StringUtil.isNotEmpty(officialId))
@@ -2207,9 +2215,10 @@ public class PortalController extends BaseController {
 	 * 每个案件独立处理，某个案件失败不会阻止其他案件继续执行。
 	 */
 	private Object updatePortalBatch(String idList, String typeId, String caseType, String name, String gender,
-			String birthday, String passport, String jsonStr, String contractStr, String adviserId, String officialId,
-			String maraId, String serviceOrderId, String strState, String result, String code, String remark,
-			String filePath, boolean customerActionRequest, HttpServletRequest request, HttpServletResponse response) {
+			String birthday, String passport, String jsonStr, String contractStr, String formStr, String adviserId,
+			String officialId, String maraId, String serviceOrderId, String strState, String result, String code,
+			String remark, String filePath, boolean customerActionRequest, HttpServletRequest request,
+			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
 			if (customerActionRequest)
@@ -2224,8 +2233,8 @@ public class PortalController extends BaseController {
 				item.put("id", portalId);
 				try {
 					Object singleResult = updatePortal(portalId.intValue(), null, typeId, caseType, name, gender,
-							birthday, passport, jsonStr, contractStr, adviserId, officialId, maraId, serviceOrderId,
-							strState, result, code, remark, filePath, request, response);
+							birthday, passport, jsonStr, contractStr, formStr, adviserId, officialId, maraId,
+							serviceOrderId, strState, result, code, remark, filePath, request, response);
 					if (singleResult instanceof Response) {
 						Response<?> singleResponse = (Response<?>) singleResult;
 						int resultCode = singleResponse.getCode();

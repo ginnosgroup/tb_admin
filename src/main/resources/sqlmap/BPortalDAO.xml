@@ -27,6 +27,7 @@
                 passport,
                 json_str,
                 contract_str,
+                form_str,
                 contract_file_path,
                 letter_file_path,
                 `956path`,
@@ -47,6 +48,7 @@
                 #{passport},
                 #{jsonStr},
                 #{contractStr},
+                #{formStr},
                 #{contractFilePath},
                 #{letterFilePath},
                 #{form956Path},
@@ -84,6 +86,9 @@
         </if>
         <if test='contractStr != null'>
             , contract_str = #{contractStr}
+        </if>
+        <if test='formStr != null'>
+            , form_str = #{formStr}
         </if>
         <if test='contractFilePath != null'>
             , contract_file_path = #{contractFilePath}
@@ -155,6 +160,7 @@
             passport,
             json_str AS jsonStr,
             contract_str AS contractStr,
+            form_str AS formStr,
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
@@ -309,6 +315,7 @@
             passport,
             json_str AS jsonStr,
             contract_str AS contractStr,
+            form_str AS formStr,
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,
@@ -363,6 +370,7 @@
             passport,
             json_str AS jsonStr,
             contract_str AS contractStr,
+            form_str AS formStr,
             contract_file_path AS contractFilePath,
             letter_file_path AS letterFilePath,
             `956path` AS form956Path,

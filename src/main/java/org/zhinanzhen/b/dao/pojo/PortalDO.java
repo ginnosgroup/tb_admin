@@ -34,6 +34,9 @@ public class PortalDO implements Serializable {
 	/** 顾问、MARA填写的合同表单JSON数据。 */
 	private String contractStr;
 
+	/** 案件表单JSON数据，对应 b_portal_list.form_str。 */
+	private String formStr;
+
 	/** 生成后的合同文件访问路径，例如 /uploads/portal_document/xxx.pdf。 */
 	private String contractFilePath;
 
