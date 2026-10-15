@@ -734,8 +734,13 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         else
             visaList = ctx.visaMap.getOrDefault(serviceOrderDO.getId(), new ArrayList<>());
         if (visaList != null && visaList.size() > 0) {
-            for (VisaDO visaDo : visaList)
+            // 前端按签证行读取 applicant.id，VisaDO 原本没有该字段会取到 undefined，这里统一补充。
+            ApplicantDTO visaApplicant = serviceOrderDto.getApplicant() == null
+                    ? new ApplicantDTO() : serviceOrderDto.getApplicant();
+            for (VisaDO visaDo : visaList) {
                 cIds.add(visaDo.getId());
+                visaDo.setApplicant(visaApplicant);
+            }
         }
         serviceOrderDto.setVisaDOList(visaList);
         serviceOrderDto.setCIds(cIds);

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.zhinanzhen.b.service.pojo.ApplicantDTO;
 import org.zhinanzhen.b.service.pojo.ReceiveTypeDTO;
 
 @Data
@@ -102,6 +104,11 @@ public class VisaDO implements Serializable {
 	private Date invoiceCreate;
 
 	private ReceiveTypeDTO receiveTypeDTO;
+
+	/** 仅用于接口返回（服务订单详情里的 visaDOList 需要 applicant.id），不对应数据库字段。
+	 *  未填充时不输出该字段，保证其它直出 VisaDO 的接口 JSON 不变。 */
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private ApplicantDTO applicant;
 
 	private double rate; //文案等级
 

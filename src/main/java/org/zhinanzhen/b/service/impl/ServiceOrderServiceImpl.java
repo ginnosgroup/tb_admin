@@ -1274,8 +1274,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         else
             visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
         if (visaList != null && visaList.size() > 0) {
-            for (VisaDO visaDo : visaList)
+            // 前端按签证行读取 applicant.id，VisaDO 原本没有该字段会取到 undefined，这里统一补充。
+            ApplicantDTO visaApplicant = serviceOrderDto.getApplicant() == null
+                    ? new ApplicantDTO() : serviceOrderDto.getApplicant();
+            for (VisaDO visaDo : visaList) {
                 cIds.add(visaDo.getId());
+                visaDo.setApplicant(visaApplicant);
+            }
         }
 //			List<CommissionOrderDO> commissionOrderList = commissionOrderDao
 //					.listCommissionOrderByServiceOrderId(serviceOrderDto.getId());
@@ -1673,8 +1678,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         else
             visaList = ctx.visaMap.getOrDefault(serviceOrderDO.getId(), new ArrayList<>());
         if (visaList != null && visaList.size() > 0) {
-            for (VisaDO visaDo : visaList)
+            // 前端按签证行读取 applicant.id，VisaDO 原本没有该字段会取到 undefined，这里统一补充。
+            ApplicantDTO visaApplicant = serviceOrderDto.getApplicant() == null
+                    ? new ApplicantDTO() : serviceOrderDto.getApplicant();
+            for (VisaDO visaDo : visaList) {
                 cIds.add(visaDo.getId());
+                visaDo.setApplicant(visaApplicant);
+            }
         }
         serviceOrderDto.setVisaDOList(visaList);
         serviceOrderDto.setCIds(cIds);
@@ -3316,7 +3326,18 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Override
     public List<VisaDO> getCommissionOrderList(int id) {
         List<VisaDO> list = serviceOrderDao.getCommissionOrderList(id);
+        // 前端按签证行读取 applicant.id，这里统一补充该服务订单的申请人。
+        ApplicantDTO visaApplicant = null;
+        ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(id);
+        if (serviceOrderDO != null && serviceOrderDO.getApplicantId() > 0) {
+            ApplicantDO applicantDo = applicantDao.getById(serviceOrderDO.getApplicantId());
+            if (applicantDo != null)
+                visaApplicant = mapper.map(applicantDo, ApplicantDTO.class);
+        }
+        if (visaApplicant == null)
+            visaApplicant = new ApplicantDTO();
         for (VisaDO visa : list) {
+            visa.setApplicant(visaApplicant);
             // 查询收款方式
             ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visa.getReceiveTypeId());
             if (receiveTypeDo != null) {
