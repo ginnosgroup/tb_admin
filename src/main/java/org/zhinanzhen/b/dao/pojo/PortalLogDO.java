@@ -32,6 +32,8 @@ public class PortalLogDO implements Serializable {
 
 	private String remark;
 
+	private int crossProcess;
+
 	private String ip;
 
 	private String userAgent;

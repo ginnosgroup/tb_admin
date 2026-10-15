@@ -17,6 +17,7 @@
                 to_state,
                 content,
                 remark,
+                cross_process,
                 ip,
                 user_agent)
             VALUES (
@@ -30,6 +31,7 @@
                 #{toState},
                 #{content},
                 #{remark},
+                #{crossProcess},
                 #{ip},
                 #{userAgent});
     </insert>
@@ -47,6 +49,7 @@
             to_state AS toState,
             content,
             remark,
+            cross_process AS crossProcess,
             ip,
             user_agent AS userAgent
         FROM b_portal_log

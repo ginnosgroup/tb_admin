@@ -1624,6 +1624,21 @@ public class PortalController extends BaseController {
 							customerMaterialsFlow, customerSupplementAction);
 				}
 			}
+			// 010A -> 011A 是跨流程通知：只向客户发送补料已提交邮件并记录日志，
+			// 不更新 b_portal_list.str_state，也不更新案件或附件字段。
+			if (followUpState == PortalFollowUpState.SUBMIT_SUPPLEMENT && "010A".equals(fromState)) {
+				try {
+					savePortalLog(id, followUpState.getAction(), fromState, followUpState.getCode(),
+							followUpState.getLabel(), remark, request, 1);
+					sendFollowUpNotification(oldPortalDto, followUpState,
+							remark == null ? null : remark.trim(), null, request);
+					return new Response<PortalDTO>(0, "客户通知邮件已发送，案件列表状态仍为010A。", oldPortalDto);
+				} catch (ServiceException notificationException) {
+					LOG.error("010A跨流程通知邮件发送失败，portalId={}", id, notificationException);
+					return new Response<PortalDTO>(notificationException.getCode(),
+							"案件列表状态仍为010A，但客户通知邮件发送失败：" + notificationException.getMessage(), oldPortalDto);
+				}
+			}
 			String adviserRemark = remark == null ? null : remark.trim();
 			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
 				adviserRemark = "通知mara处理案件";
@@ -3252,6 +3267,12 @@ public class PortalController extends BaseController {
 	/** 保存案件操作日志，并记录本次 updatePortal 请求中的备注。 */
 	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
 			String remark, HttpServletRequest request) {
+		savePortalLog(portalId, action, fromState, toState, content, remark, request, 0);
+	}
+
+	/** 保存案件操作日志，并标识是否为跨流程操作。 */
+	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
+			String remark, HttpServletRequest request, int crossProcess) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			PortalLogDTO portalLogDto = new PortalLogDTO();
@@ -3262,6 +3283,7 @@ public class PortalController extends BaseController {
 			portalLogDto.setContent(content);
 			String normalizedRemark = remark == null ? null : remark.trim();
 			portalLogDto.setRemark(StringUtil.isEmpty(normalizedRemark) ? null : normalizedRemark);
+			portalLogDto.setCrossProcess(crossProcess);
 			portalLogDto.setIp(getClientIp(request));
 			portalLogDto.setUserAgent(request.getHeader("User-Agent"));
 			if (adminUserLoginInfo != null) {

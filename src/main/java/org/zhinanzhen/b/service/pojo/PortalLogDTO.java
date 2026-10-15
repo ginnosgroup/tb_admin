@@ -29,6 +29,8 @@ public class PortalLogDTO {
 
 	private String remark;
 
+	private int crossProcess;
+
 	private String ip;
 
 	private String userAgent;
