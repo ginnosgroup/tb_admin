@@ -17,6 +17,7 @@ CREATE TABLE `b_portal_list` (
   `has_completion_letter` tinyint(1) DEFAULT NULL COMMENT '是否有完成信 0否 1是',
   `json_str` text COMMENT '其他表单字段json，类似服务订单打分那种',
   `contract_str` mediumtext COMMENT '顾问、MARA填写的合同表单JSON数据',
+  `form_str` mediumtext COMMENT '案件表单JSON数据',
   `contract_file_path` varchar(500) DEFAULT NULL COMMENT '生成后的合同文件访问路径',
   `letter_file_path` varchar(500) DEFAULT NULL COMMENT '生成后的Letter文件访问路径',
   `ai_consult_content` MEDIUMTEXT DEFAULT NULL COMMENT '语聚AI返回的485方案咨询内容',

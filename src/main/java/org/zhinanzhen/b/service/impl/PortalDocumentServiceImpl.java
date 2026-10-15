@@ -893,7 +893,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		default:
 			throw serviceException("该状态不支持客户通知。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
-		if (state == PortalFollowUpState.NOTIFY_RESULT)
+		if (state == PortalFollowUpState.NOTIFY_RESULT || state == PortalFollowUpState.REQUEST_SUPPLEMENT)
 			sendMailWithAttachments(data.email, title, content, resolveApplicationAttachments(filePath));
 		else
 			sendMail(data.email, title, content);

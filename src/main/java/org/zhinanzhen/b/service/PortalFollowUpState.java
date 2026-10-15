@@ -41,7 +41,7 @@ public enum PortalFollowUpState {
 			false),
 
 	// 以下状态属于补料/申请结果通知流程，需要角色、备注或附件校验。
-	REQUEST_SUPPLEMENT("010", "已通知客户补料", "official_request_supplement", "WA", true, false, true),
+	REQUEST_SUPPLEMENT("010", "已通知客户补料", "official_request_supplement", "WA", true, true, true),
 	CUSTOMER_SUBMITTED_SUPPLEMENT("010D", "客户已上传补充材料", "customer_submit_supplement", null, false, false,
 			false),
 	CUSTOMER_RETURNED_SUPPLEMENT("010E", "客户退回补充材料", "customer_return_supplement", null, false, false,

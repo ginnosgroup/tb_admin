@@ -903,6 +903,8 @@ public class PortalController extends BaseController {
 			return "application";
 		if ("applicationWA".equalsIgnoreCase(fileType))
 			return "applicationWA";
+		if ("applicationWA_RFE".equalsIgnoreCase(fileType))
+			return "applicationWA_RFE";
 		if ("openAFile".equalsIgnoreCase(fileType))
 			return "openAFile";
 		if ("supplementary".equalsIgnoreCase(fileType))
@@ -1866,8 +1868,14 @@ public class PortalController extends BaseController {
 						&& followUpState != PortalFollowUpState.WAIT_FINAL_DECISION) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
-						String notificationFilePath = followUpState == PortalFollowUpState.NOTIFY_RESULT
-								? joinAttachmentPaths(updateFilePaths) : filePath;
+						String notificationFilePath;
+						if (followUpState == PortalFollowUpState.NOTIFY_RESULT) {
+							notificationFilePath = joinAttachmentPaths(updateFilePaths);
+						} else if (followUpState == PortalFollowUpState.REQUEST_SUPPLEMENT) {
+							notificationFilePath = joinAttachmentPaths(listAttachmentPathsByStages(id, "applicationWA_RFE"));
+						} else {
+							notificationFilePath = filePath;
+						}
 						sendFollowUpNotification(savedPortalDto, followUpState, adviserRemark, notificationFilePath,
 								request);
 					} catch (ServiceException notificationException) {
@@ -2317,8 +2325,14 @@ public class PortalController extends BaseController {
 			throw portalParameterError(state == PortalFollowUpState.REQUEST_SUPPLEMENT
 					? "请填写补料说明remark。" : "请填写补料审核驳回原因remark。");
 		if (state.isAttachmentsRequired()) {
-			String attachmentFilePath = state == PortalFollowUpState.NOTIFY_RESULT
-					? joinAttachmentPaths(listAttachmentPathsByStages(portalId, "noticeWA")) : filePath;
+			String attachmentFilePath;
+			if (state == PortalFollowUpState.NOTIFY_RESULT) {
+				attachmentFilePath = joinAttachmentPaths(listAttachmentPathsByStages(portalId, "noticeWA"));
+			} else if (state == PortalFollowUpState.REQUEST_SUPPLEMENT) {
+				attachmentFilePath = joinAttachmentPaths(listAttachmentPathsByStages(portalId, "applicationWA_RFE"));
+			} else {
+				attachmentFilePath = filePath;
+			}
 			portalDocumentService.validateApplicationFiles(attachmentFilePath);
 		}
 	}
