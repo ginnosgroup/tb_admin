@@ -41,5 +41,4 @@ public class PortalAttachmentDTO {
 	private String ip;
 
 	private String userAgent;
-
 }

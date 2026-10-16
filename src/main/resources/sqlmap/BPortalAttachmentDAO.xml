@@ -83,6 +83,19 @@
         ORDER BY id DESC LIMIT 1;
     </select>
 
+    <select id="getSupplementIdByPath" resultType="java.lang.Integer" useCache="false" flushCache="true">
+        SELECT supplement_id FROM b_portal_attachment
+        WHERE file_path = #{filePath}
+        ORDER BY id DESC LIMIT 1
+    </select>
+
+    <select id="listPortalAttachmentPathsBySupplementId" resultType="java.lang.String"
+            useCache="false" flushCache="true">
+        SELECT file_path FROM b_portal_attachment
+        WHERE supplement_id = #{supplementId}
+        ORDER BY id ASC
+    </select>
+
     <select id="listPortalAttachmentByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false">
         SELECT
             id,
@@ -306,6 +319,25 @@
         <foreach collection="filePathList" item="filePath" open="(" separator="," close=")">
             #{filePath}
         </foreach>;
+    </update>
+
+    <update id="updateSupplementIdByPathList">
+        UPDATE b_portal_attachment
+        SET gmt_modify = now(),
+            portal_id = #{portalId},
+            supplement_id = #{supplementId}
+        WHERE file_path IN
+        <foreach collection="filePathList" item="filePath" open="(" separator="," close=")">
+            #{filePath}
+        </foreach>
+          AND (portal_id IS NULL OR portal_id = #{portalId})
+          AND (supplement_id IS NULL OR supplement_id = #{supplementId});
+    </update>
+
+    <update id="clearSupplementIdByPortalIdAndSupplementId">
+        UPDATE b_portal_attachment
+        SET gmt_modify = now(), supplement_id = NULL
+        WHERE portal_id = #{portalId} AND supplement_id = #{supplementId}
     </update>
 
     <delete id="deletePortalAttachmentById" parameterType="java.lang.Integer">

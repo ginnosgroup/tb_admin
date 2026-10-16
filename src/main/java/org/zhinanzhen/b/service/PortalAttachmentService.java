@@ -42,6 +42,15 @@ public interface PortalAttachmentService {
 	int updatePortalIdAndStageByPathList(List<String> filePathList, int portalId, String stage)
 			throws ServiceException;
 
+	/** 将已上传附件挂到指定补料轮次；未关联案件的附件会同时挂到该案件。 */
+	int updateSupplementAttachmentPaths(List<String> filePathList, int portalId, int supplementId)
+			throws ServiceException;
+
+	/** 清除指定补料轮次所关联的附件。 */
+	int clearSupplementAttachmentPaths(int portalId, int supplementId) throws ServiceException;
+
+	List<String> listPortalAttachmentPathsBySupplementId(int supplementId) throws ServiceException;
+
 	int deletePortalAttachmentById(int id) throws ServiceException;
 
 	int deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(int id, int portalId, String fileName, String stage)

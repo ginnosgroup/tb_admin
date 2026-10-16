@@ -860,7 +860,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			// 系统邮件模板05：移民局补充材料通知。
 			title = MAIL_SUBJECT_SUPPLEMENT_REQUEST;
 			content = buildSupplementaryRequestMail(portalDto.getId(), data.fullName,
-					resolveMailSignerName(portalDto), data.visaSubclass, remark, customerUrl);
+					resolveMailSignerName(portalDto), data.visaSubclass, remark, customerUrl, null);
 			break;
 		case NOTIFY_RESULT:
 			// 系统邮件模板06A：获签/申请结果通知。
@@ -899,9 +899,23 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			sendMail(data.email, title, content);
 	}
 
+	@Override
+	public void sendCustomerSupplementRequestNotification(PortalDTO portalDto, String remark, String filePath,
+			String customerUrl, int roundNo) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0 || roundNo <= 0)
+			throw serviceException("补料通知参数无效。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，通知邮件未发送。", ErrorCodeEnum.DATA_ERROR.code(), null);
+		String content = buildSupplementaryRequestMail(portalDto.getId(), data.fullName,
+				resolveMailSignerName(portalDto), data.visaSubclass, remark, customerUrl, roundNo);
+		sendMailWithAttachmentsAlways(data.email, MAIL_SUBJECT_SUPPLEMENT_REQUEST, content,
+				resolveApplicationAttachments(filePath));
+	}
+
 	/** 系统邮件模板05：移民局补料通知（中英对照），保留补料说明和补料链接。 */
 	private String buildSupplementaryRequestMail(int portalId, String customerName, String signerName,
-			String visaSubclass, String remark, String customerUrl) {
+			String visaSubclass, String remark, String customerUrl, Integer roundNo) {
 		String subclass = normalizeVisaSubclass(visaSubclass);
 		StringBuilder english = new StringBuilder();
 		english.append("<p>We have received a request for further information from the Department of Home Affairs "
@@ -922,9 +936,13 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				+ "以确保我们有足够的时间审核并递交相关材料，避免因逾期而影响您的签证申请。</p>");
 		chinese.append("<p>如对补料要求有任何疑问，或部分材料无法及时取得，请尽快与我们联系，以便及时商讨处理方案。</p>");
 		StringBuilder englishAction = new StringBuilder();
+		if (roundNo != null)
+			englishAction.append("<p><strong>Supplement round:</strong> ").append(roundNo).append("</p>");
 		englishAction.append(remarkBlock(remark, "Notes on the requested documents:"));
 		englishAction.append(englishSupplementLinkLine(customerUrl));
 		StringBuilder chineseAction = new StringBuilder();
+		if (roundNo != null)
+			chineseAction.append("<p><strong>补料轮次：</strong>第").append(roundNo).append("轮</p>");
 		chineseAction.append(remarkBlock(remark, "补料说明："));
 		chineseAction.append(chineseSupplementLinkLine(customerUrl));
 		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),

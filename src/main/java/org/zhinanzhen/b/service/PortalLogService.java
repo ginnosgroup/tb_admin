@@ -11,6 +11,8 @@ public interface PortalLogService {
 
 	List<PortalLogDTO> listPortalLog(Integer portalId, int pageNum, int pageSize) throws ServiceException;
 
+	List<PortalLogDTO> listPortalLogBySupplementId(int supplementId) throws ServiceException;
+
 	int countPortalLog(Integer portalId) throws ServiceException;
 
 }

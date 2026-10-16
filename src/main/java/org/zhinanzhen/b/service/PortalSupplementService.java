@@ -1,0 +1,25 @@
+package org.zhinanzhen.b.service;
+
+import java.util.List;
+
+import org.zhinanzhen.b.service.pojo.PortalSupplementDTO;
+import org.zhinanzhen.tb.service.ServiceException;
+
+public interface PortalSupplementService {
+
+	PortalSupplementDTO addPortalSupplement(PortalSupplementDTO supplement, List<String> filePaths)
+			throws ServiceException;
+
+	PortalSupplementDTO getPortalSupplement(int id) throws ServiceException;
+
+	List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,
+			int pageNum, int pageSize)
+			throws ServiceException;
+
+	int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId) throws ServiceException;
+
+	int updatePortalSupplement(PortalSupplementDTO supplement, List<String> filePaths, boolean updateFilePaths)
+			throws ServiceException;
+
+	int deletePortalSupplement(int id) throws ServiceException;
+}

@@ -417,6 +417,63 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
+	public int updateSupplementAttachmentPaths(List<String> filePathList, int portalId, int supplementId)
+			throws ServiceException {
+		if (filePathList == null || filePathList.isEmpty() || portalId <= 0 || supplementId <= 0)
+			throw parameterError("filePathList, portalId或supplementId参数错误。");
+		try {
+			List<String> uniquePaths = new ArrayList<String>(new java.util.LinkedHashSet<String>(filePathList));
+			validateAttachmentPaths(uniquePaths, portalId);
+			for (String path : uniquePaths) {
+				Integer currentSupplementId = portalAttachmentDao.getSupplementIdByPath(path);
+				if (currentSupplementId != null && currentSupplementId.intValue() != supplementId)
+					throw parameterError("附件已经关联到其他补料轮次，不能重复关联：" + path);
+			}
+			return portalAttachmentDao.updateSupplementIdByPathList(uniquePaths, portalId, supplementId);
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int clearSupplementAttachmentPaths(int portalId, int supplementId) throws ServiceException {
+		if (portalId <= 0 || supplementId <= 0)
+			throw parameterError("portalId或supplementId参数错误。");
+		try {
+			return portalAttachmentDao.clearSupplementIdByPortalIdAndSupplementId(portalId, supplementId);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
+	public List<String> listPortalAttachmentPathsBySupplementId(int supplementId) throws ServiceException {
+		if (supplementId <= 0)
+			throw parameterError("supplementId参数错误。");
+		try {
+			return portalAttachmentDao.listPortalAttachmentPathsBySupplementId(supplementId);
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
+	private ServiceException parameterError(String message) {
+		ServiceException se = new ServiceException(message);
+		se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+		return se;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public int deletePortalAttachmentById(int id) throws ServiceException {
 		if (id <= 0) {
 			ServiceException se = new ServiceException("id error !");

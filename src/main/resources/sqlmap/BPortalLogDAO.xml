@@ -8,6 +8,7 @@
         INSERT
             INTO b_portal_log (
                 portal_id,
+                supplement_id,
                 gmt_create,
                 operator_id,
                 operator_name,
@@ -17,11 +18,11 @@
                 to_state,
                 content,
                 remark,
-                cross_process,
                 ip,
                 user_agent)
             VALUES (
                 #{portalId},
+                #{supplementId},
                 now(),
                 #{operatorId},
                 #{operatorName},
@@ -31,7 +32,6 @@
                 #{toState},
                 #{content},
                 #{remark},
-                #{crossProcess},
                 #{ip},
                 #{userAgent});
     </insert>
@@ -40,6 +40,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             operator_id AS operatorId,
             operator_name AS operatorName,
@@ -49,7 +50,6 @@
             to_state AS toState,
             content,
             remark,
-            cross_process AS crossProcess,
             ip,
             user_agent AS userAgent
         FROM b_portal_log
@@ -59,6 +59,28 @@
         </if>
         ORDER BY id DESC
         LIMIT #{offset}, #{rows};
+    </select>
+
+    <select id="listPortalLogBySupplementId" resultType="org.zhinanzhen.b.dao.pojo.PortalLogDO"
+            useCache="false" flushCache="true">
+        SELECT
+            id,
+            portal_id AS portalId,
+            supplement_id AS supplementId,
+            gmt_create AS gmtCreate,
+            operator_id AS operatorId,
+            operator_name AS operatorName,
+            role,
+            action,
+            from_state AS fromState,
+            to_state AS toState,
+            content,
+            remark,
+            ip,
+            user_agent AS userAgent
+        FROM b_portal_log
+        WHERE supplement_id = #{supplementId}
+        ORDER BY id DESC;
     </select>
 
     <select id="countPortalLog" resultType="java.lang.Integer" useCache="false">

@@ -64,6 +64,25 @@ public class PortalLogServiceImpl extends BaseService implements PortalLogServic
 	}
 
 	@Override
+	public List<PortalLogDTO> listPortalLogBySupplementId(int supplementId) throws ServiceException {
+		if (supplementId <= 0)
+			return new ArrayList<PortalLogDTO>();
+		try {
+			List<PortalLogDO> rows = portalLogDao.listPortalLogBySupplementId(supplementId);
+			List<PortalLogDTO> result = new ArrayList<PortalLogDTO>();
+			if (rows != null) {
+				for (PortalLogDO row : rows)
+					result.add(mapper.map(row, PortalLogDTO.class));
+			}
+			return result;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
+			throw se;
+		}
+	}
+
+	@Override
 	public int countPortalLog(Integer portalId) throws ServiceException {
 		try {
 			return portalLogDao.countPortalLog(portalId);

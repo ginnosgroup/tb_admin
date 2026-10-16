@@ -12,6 +12,8 @@ public interface PortalLogDAO {
 	List<PortalLogDO> listPortalLog(@Param("portalId") Integer portalId, @Param("offset") int offset,
 			@Param("rows") int rows);
 
+	List<PortalLogDO> listPortalLogBySupplementId(@Param("supplementId") int supplementId);
+
 	int countPortalLog(@Param("portalId") Integer portalId);
 
 }

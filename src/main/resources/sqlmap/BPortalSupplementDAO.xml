@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhinanzhen.b.dao.PortalSupplementDAO">
+
+    <insert id="addPortalSupplement" parameterType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO b_portal_supplement (
+            portal_id, round_no, status, official_id, requested_at,
+            customer_submitted_at, submitted_to_mara_at, mara_id, reviewed_at, review_remark
+        ) VALUES (
+            #{portalId}, #{roundNo}, #{status}, #{officialId}, #{requestedAt},
+            #{customerSubmittedAt}, #{submittedToMaraAt}, #{maraId}, #{reviewedAt}, #{reviewRemark}
+        )
+    </insert>
+
+    <select id="getPortalSupplementById" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
+            useCache="false" flushCache="true">
+        SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
+               requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
+               submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
+               review_remark AS reviewRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+        FROM b_portal_supplement
+        WHERE id = #{id}
+    </select>
+
+    <select id="getPortalSupplementForUpdate" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
+            useCache="false" flushCache="true">
+        SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
+               requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
+               submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
+               review_remark AS reviewRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+        FROM b_portal_supplement
+        WHERE id = #{id}
+        FOR UPDATE
+    </select>
+
+    <select id="listPortalSupplement" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
+            useCache="false" flushCache="true">
+        SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
+               requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
+               submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
+               review_remark AS reviewRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+        FROM b_portal_supplement
+        WHERE 1 = 1
+        <if test="portalId != null">
+            AND portal_id = #{portalId}
+        </if>
+        <if test="maraId != null">
+            AND mara_id = #{maraId}
+        </if>
+        <if test="officialId != null">
+            AND official_id = #{officialId}
+        </if>
+        ORDER BY round_no DESC, id DESC
+        LIMIT #{offset}, #{rows}
+    </select>
+
+    <select id="countPortalSupplement" resultType="int" useCache="false" flushCache="true">
+        SELECT COUNT(*) FROM b_portal_supplement
+        WHERE 1 = 1
+        <if test="portalId != null">
+            AND portal_id = #{portalId}
+        </if>
+        <if test="maraId != null">
+            AND mara_id = #{maraId}
+        </if>
+        <if test="officialId != null">
+            AND official_id = #{officialId}
+        </if>
+    </select>
+
+    <select id="getMaxRoundNoByPortalId" resultType="int" useCache="false" flushCache="true">
+        SELECT COALESCE(MAX(round_no), 0) FROM b_portal_supplement WHERE portal_id = #{portalId}
+    </select>
+
+    <update id="updatePortalSupplement" parameterType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO">
+        UPDATE b_portal_supplement
+        SET gmt_modify = NOW()
+        <if test="status != null and status != ''">, status = #{status}</if>
+        <if test="officialId != null">, official_id = #{officialId}</if>
+        <if test="requestedAt != null">, requested_at = #{requestedAt}</if>
+        <if test="customerSubmittedAt != null">, customer_submitted_at = #{customerSubmittedAt}</if>
+        <if test="submittedToMaraAt != null">, submitted_to_mara_at = #{submittedToMaraAt}</if>
+        <if test="maraId != null">, mara_id = #{maraId}</if>
+        <if test="reviewedAt != null">, reviewed_at = #{reviewedAt}</if>
+        <if test="reviewRemark != null">, review_remark = #{reviewRemark}</if>
+        WHERE id = #{id} AND portal_id = #{portalId}
+    </update>
+
+    <delete id="deletePortalSupplementById">
+        DELETE FROM b_portal_supplement WHERE id = #{id}
+    </delete>
+</mapper>

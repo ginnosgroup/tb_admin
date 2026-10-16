@@ -50,6 +50,10 @@ public interface PortalDocumentService {
 	void sendCustomerFollowUpNotification(PortalDTO portalDto, PortalFollowUpState state, String remark,
 			String filePath, String customerUrl) throws ServiceException;
 
+	/** 发送指定补料轮次的客户通知，沿用补料邮件模板并附上本轮附件。 */
+	void sendCustomerSupplementRequestNotification(PortalDTO portalDto, String remark, String filePath,
+			String customerUrl, int roundNo) throws ServiceException;
+
 	/** 将案件已经生成的合同和建议信作为附件发送给指定收件人。 */
 	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException;

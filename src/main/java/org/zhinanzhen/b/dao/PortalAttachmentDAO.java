@@ -13,6 +13,10 @@ public interface PortalAttachmentDAO {
 
 	PortalAttachmentDO getPortalAttachmentByPath(@Param("filePath") String filePath);
 
+	Integer getSupplementIdByPath(@Param("filePath") String filePath);
+
+	List<String> listPortalAttachmentPathsBySupplementId(@Param("supplementId") int supplementId);
+
 	List<PortalAttachmentDO> listPortalAttachmentByPortalId(@Param("portalId") Integer portalId);
 
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndFileSorting(@Param("portalId") Integer portalId,
@@ -38,6 +42,12 @@ public interface PortalAttachmentDAO {
 
 	int updatePortalIdAndStageByPathList(@Param("filePathList") List<String> filePathList,
 			@Param("portalId") int portalId, @Param("stage") String stage);
+
+	int updateSupplementIdByPathList(@Param("filePathList") List<String> filePathList,
+			@Param("portalId") int portalId, @Param("supplementId") int supplementId);
+
+	int clearSupplementIdByPortalIdAndSupplementId(@Param("portalId") int portalId,
+			@Param("supplementId") int supplementId);
 
 	int deletePortalAttachmentById(int id);
 

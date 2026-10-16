@@ -14,6 +14,8 @@ public class PortalLogDO implements Serializable {
 
 	private int portalId;
 
+	private Integer supplementId;
+
 	private Date gmtCreate;
 
 	private Integer operatorId;
@@ -31,8 +33,6 @@ public class PortalLogDO implements Serializable {
 	private String content;
 
 	private String remark;
-
-	private int crossProcess;
 
 	private String ip;
 

@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,12 +60,14 @@ import org.zhinanzhen.b.service.PortalFollowUpState;
 import org.zhinanzhen.b.service.impl.PortalWriteGuard;
 import org.zhinanzhen.b.service.PortalLogService;
 import org.zhinanzhen.b.service.PortalService;
+import org.zhinanzhen.b.service.PortalSupplementService;
 import org.zhinanzhen.b.service.PortalTypeService;
 import org.zhinanzhen.b.service.MaraService;
 import org.zhinanzhen.b.service.pojo.PortalAttachmentDTO;
 import org.zhinanzhen.b.service.pojo.PortalAttachmentUploadResult;
 import org.zhinanzhen.b.service.pojo.PortalDTO;
 import org.zhinanzhen.b.service.pojo.PortalLogDTO;
+import org.zhinanzhen.b.service.pojo.PortalSupplementDTO;
 import org.zhinanzhen.b.service.pojo.PortalTypeDTO;
 import org.zhinanzhen.b.service.pojo.MaraDTO;
 import org.zhinanzhen.tb.controller.BaseController;
@@ -248,6 +251,9 @@ public class PortalController extends BaseController {
 
 	@Resource
 	PortalDocumentService portalDocumentService;
+
+	@Resource
+	PortalSupplementService portalSupplementService;
 
 	@Resource
 	ChartForAI chartForAI;
@@ -1624,21 +1630,6 @@ public class PortalController extends BaseController {
 							customerMaterialsFlow, customerSupplementAction);
 				}
 			}
-			// 010A -> 011A 是跨流程通知：只向客户发送补料已提交邮件并记录日志，
-			// 不更新 b_portal_list.str_state，也不更新案件或附件字段。
-			if (followUpState == PortalFollowUpState.SUBMIT_SUPPLEMENT && "010A".equals(fromState)) {
-				try {
-					savePortalLog(id, followUpState.getAction(), fromState, followUpState.getCode(),
-							followUpState.getLabel(), remark, request, 1);
-					sendFollowUpNotification(oldPortalDto, followUpState,
-							remark == null ? null : remark.trim(), null, request);
-					return new Response<PortalDTO>(0, "客户通知邮件已发送，案件列表状态仍为010A。", oldPortalDto);
-				} catch (ServiceException notificationException) {
-					LOG.error("010A跨流程通知邮件发送失败，portalId={}", id, notificationException);
-					return new Response<PortalDTO>(notificationException.getCode(),
-							"案件列表状态仍为010A，但客户通知邮件发送失败：" + notificationException.getMessage(), oldPortalDto);
-				}
-			}
 			String adviserRemark = remark == null ? null : remark.trim();
 			if ("02A".equals(strState) && StringUtil.isEmpty(adviserRemark))
 				adviserRemark = "通知mara处理案件";
@@ -2350,6 +2341,58 @@ public class PortalController extends BaseController {
 			}
 			portalDocumentService.validateApplicationFiles(attachmentFilePath);
 		}
+	}
+
+	/** 补料轮次常规操作仅开放给负责文案和超级管理员，并沿用案件归属过滤。 */
+	private PortalDTO requireSupplementPortalAccess(int portalId, HttpServletRequest request)
+			throws ServiceException {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null)
+			throw portalParameterError("请先登录。");
+		String roles = login.getApList() == null ? "" : login.getApList().toUpperCase(Locale.ENGLISH);
+		if (roles.contains("SUPERAD"))
+			return portalService.getPortal(portalId, null, null, null, null, null);
+		if (!roles.contains("WA"))
+			throw portalParameterError("补料记录操作需要文案角色。");
+		Integer officialId = null;
+		Integer officialRegionId = null;
+		if (login.isOfficialAdmin()) {
+			officialRegionId = login.getRegionId();
+			if (officialRegionId == null || officialRegionId <= 0)
+				throw portalParameterError("文案管理员未配置所属地区。");
+		} else {
+			officialId = login.getOfficialId();
+			if (officialId == null || officialId <= 0)
+				throw portalParameterError("登录用户未关联文案信息。");
+		}
+		return portalService.getPortal(portalId, null, null, officialId, officialRegionId, null);
+	}
+
+	/** 补料驳回和通过由负责该案件的MARA操作；超级管理员仍可处理。 */
+	private void requireSupplementMaraAccess(PortalSupplementDTO supplement, HttpServletRequest request)
+			throws ServiceException {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null)
+			throw portalParameterError("请先登录。");
+		String roles = login.getApList() == null ? "" : login.getApList().toUpperCase(Locale.ENGLISH);
+		if (roles.contains("SUPERAD"))
+			return;
+		if (!roles.contains("MA"))
+			throw portalParameterError("该操作需要MARA角色。");
+		Integer maraId = login.getMaraId();
+		if (maraId == null || maraId <= 0)
+			throw portalParameterError("登录用户未关联MARA信息。");
+		if (supplement.getMaraId() == null || !maraId.equals(supplement.getMaraId()))
+			throw portalParameterError("补料记录不属于当前MARA，无法操作。");
+		if (portalService.getPortal(supplement.getPortalId(), null, null, null, null, maraId) == null)
+			throw portalParameterError("案件不存在或您无权操作该案件。");
+	}
+
+	private List<String> splitSupplementFilePaths(String filePath) {
+		if (filePath == null)
+			return Collections.emptyList();
+		return Arrays.stream(filePath.split(",")).map(String::trim).filter(StringUtil::isNotEmpty).distinct()
+				.collect(Collectors.toList());
 	}
 
 	private void validateAdminApplicationMaterialsReturn(int portalId, HttpServletRequest request)
@@ -3267,23 +3310,29 @@ public class PortalController extends BaseController {
 	/** 保存案件操作日志，并记录本次 updatePortal 请求中的备注。 */
 	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
 			String remark, HttpServletRequest request) {
-		savePortalLog(portalId, action, fromState, toState, content, remark, request, 0);
+		savePortalLog(portalId, action, fromState, toState, content, remark, request, null);
 	}
 
-	/** 保存案件操作日志，并标识是否为跨流程操作。 */
+	/** 保存案件操作日志，并在补料相关操作时关联补料轮次。 */
 	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
-			String remark, HttpServletRequest request, int crossProcess) {
+			String remark, HttpServletRequest request, Integer supplementId) {
+		savePortalLog(portalId, action, fromState, toState, content, remark, request, supplementId, null);
+	}
+
+	/** 支持补料客户操作使用“用户”角色写入日志。 */
+	private void savePortalLog(int portalId, String action, String fromState, String toState, String content,
+			String remark, HttpServletRequest request, Integer supplementId, String roleOverride) {
 		try {
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			PortalLogDTO portalLogDto = new PortalLogDTO();
 			portalLogDto.setPortalId(portalId);
+			portalLogDto.setSupplementId(supplementId);
 			portalLogDto.setAction(action);
 			portalLogDto.setFromState(fromState);
 			portalLogDto.setToState(toState);
 			portalLogDto.setContent(content);
 			String normalizedRemark = remark == null ? null : remark.trim();
 			portalLogDto.setRemark(StringUtil.isEmpty(normalizedRemark) ? null : normalizedRemark);
-			portalLogDto.setCrossProcess(crossProcess);
 			portalLogDto.setIp(getClientIp(request));
 			portalLogDto.setUserAgent(request.getHeader("User-Agent"));
 			if (adminUserLoginInfo != null) {
@@ -3300,7 +3349,9 @@ public class PortalController extends BaseController {
 				// 状态02及客户邮件按钮触发的状态流转，日志角色固定记录为客户。
 				portalLogDto.setRole("客户");
 			}
-			if ("客户".equals(portalLogDto.getRole())) {
+			if (StringUtil.isNotEmpty(roleOverride))
+				portalLogDto.setRole(roleOverride);
+			if ("客户".equals(portalLogDto.getRole()) || "用户".equals(portalLogDto.getRole())) {
 				// 客户操作不关联后台操作人，避免把登录用户信息写入客户日志。
 				portalLogDto.setOperatorId(null);
 				portalLogDto.setOperatorName(null);
@@ -3340,6 +3391,170 @@ public class PortalController extends BaseController {
 		String realIp = firstHeaderValue(request.getHeader("X-Real-IP"));
 		return StringUtil.isNotEmpty(realIp) && !"unknown".equalsIgnoreCase(realIp) ? realIp
 				: request.getRemoteAddr();
+	}
+
+	/** 创建一轮补料：自动分配round_no、关联本轮附件，并发送带轮次的补料通知邮件。 */
+	@RequestMapping(value = "/supplement/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<PortalSupplementDTO> addPortalSupplement(@RequestParam("portalId") int portalId,
+			@RequestParam(value = "remark", required = false) String remark,
+			@RequestParam("filePath") String filePath, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			if (portalId <= 0)
+				throw portalParameterError("portalId必须是有效数字。");
+			if (StringUtil.isEmpty(remark) || remark.trim().isEmpty())
+				throw portalParameterError("请填写补料说明remark。");
+			List<String> filePaths = splitSupplementFilePaths(filePath);
+			if (filePaths.isEmpty())
+				throw portalParameterError("请先上传本轮补料文件并传入file_path。");
+			PortalDTO portal = requireSupplementPortalAccess(portalId, request);
+			portalDocumentService.validateApplicationFiles(filePath);
+			PortalSupplementDTO supplement = new PortalSupplementDTO();
+			supplement.setPortalId(portalId);
+			Integer operatorOfficialId = getOfficialId(request);
+			supplement.setOfficialId(operatorOfficialId != null && operatorOfficialId > 0 ? operatorOfficialId : null);
+			supplement.setMaraId(portal.getMaraId() > 0 ? portal.getMaraId() : null);
+			PortalSupplementDTO created = portalSupplementService.addPortalSupplement(supplement, filePaths);
+			savePortalLog(portalId, "supplement_requested", null, null,
+					"发起第" + created.getRoundNo() + "轮补料", remark.trim(), request, created.getId());
+			try {
+				portalDocumentService.sendCustomerSupplementRequestNotification(portal, remark.trim(), filePath,
+						buildPortalCustomerUrl(portalId), created.getRoundNo());
+			} catch (ServiceException mailError) {
+				LOG.error("补料记录已创建，但客户补料邮件发送失败，portalId={}, supplementId={}, roundNo={}",
+						portalId, created.getId(), created.getRoundNo(), mailError);
+				return new Response<PortalSupplementDTO>(mailError.getCode(),
+						"补料记录已创建（第" + created.getRoundNo() + "轮），但客户邮件发送失败：" + mailError.getMessage(),
+						created);
+			}
+			return new Response<PortalSupplementDTO>(0, "第" + created.getRoundNo() + "轮补料已创建并通知客户。",
+					created);
+		} catch (ServiceException e) {
+			return new Response<PortalSupplementDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	/** 修改补料轮次字段；未登录客户仅可提交补料及本轮附件，其他修改仍要求后台权限。 */
+	@RequestMapping(value = "/supplement/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<PortalSupplementDTO> updatePortalSupplement(@RequestParam("id") int id,
+			@RequestParam(value = "status", required = false) String status,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "reviewRemark", required = false) String reviewRemark,
+			@RequestParam(value = "filePath", required = false) String filePath, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			PortalSupplementDTO current = portalSupplementService.getPortalSupplement(id);
+			if (current == null)
+				throw portalParameterError("补料记录不存在。");
+			String targetStatus = status == null ? null : status.trim();
+			AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+			boolean customerSubmission = login == null && "CUSTOMER_SUBMITTED".equals(targetStatus);
+			boolean maraReview = "REJECTED".equals(targetStatus) || "APPROVED".equals(targetStatus);
+			if (customerSubmission) {
+				if (splitSupplementFilePaths(filePath).isEmpty())
+					throw portalParameterError("客户提交补料时必须上传本轮附件。");
+			} else if (maraReview) {
+				requireSupplementMaraAccess(current, request);
+			} else {
+				requireSupplementPortalAccess(current.getPortalId(), request);
+			}
+			PortalSupplementDTO update = new PortalSupplementDTO();
+			update.setId(id);
+			update.setPortalId(current.getPortalId());
+			update.setStatus(targetStatus);
+			if (!customerSubmission) {
+			if (!maraReview) {
+				update.setOfficialId(officialId);
+				update.setMaraId(maraId);
+			}
+				update.setReviewRemark(reviewRemark);
+			}
+			List<String> filePaths = filePath == null ? null : splitSupplementFilePaths(filePath);
+			portalSupplementService.updatePortalSupplement(update, filePaths, filePath != null);
+			String logAction = customerSubmission ? "customer_supplement_submitted" : "supplement_updated";
+			String logContent;
+			if (customerSubmission) {
+				logContent = "客户提交第" + current.getRoundNo() + "轮补料";
+			} else if ("REVIEWING".equals(targetStatus)) {
+				logContent = "文案已将本轮补料提交给MARA";
+			} else if ("REJECTED".equals(targetStatus)) {
+				logContent = "审核后认为材料需要修改或补充";
+			} else if ("APPROVED".equals(targetStatus)) {
+				logContent = "已完成本轮审核";
+			} else if (targetStatus == null) {
+				logContent = "修改第" + current.getRoundNo() + "轮补料信息";
+			} else {
+				logContent = "第" + current.getRoundNo() + "轮补料状态由" + current.getStatus()
+						+ "更新为" + targetStatus;
+			}
+			savePortalLog(current.getPortalId(), logAction, current.getStatus(), targetStatus, logContent,
+					customerSubmission ? null : reviewRemark, request, current.getId(),
+					customerSubmission ? "用户" : null);
+			PortalSupplementDTO updated = portalSupplementService.getPortalSupplement(id);
+			return new Response<PortalSupplementDTO>(0, "补料记录更新成功。", updated);
+		} catch (ServiceException e) {
+			return new Response<PortalSupplementDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/supplement/get", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<PortalSupplementDTO> getPortalSupplement(@RequestParam("id") int id,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			PortalSupplementDTO supplement = portalSupplementService.getPortalSupplement(id);
+			if (supplement == null)
+				return new Response<PortalSupplementDTO>(0, "", null);
+			requireSupplementPortalAccess(supplement.getPortalId(), request);
+			return new Response<PortalSupplementDTO>(0, "", supplement);
+		} catch (ServiceException e) {
+			return new Response<PortalSupplementDTO>(e.getCode(), e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/supplement/list", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<PortalSupplementDTO>> listPortalSupplement(
+			@RequestParam(value = "portalId", required = false) Integer portalId,
+			@RequestParam(value = "maraId", required = false) Integer maraId,
+			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
+			@RequestParam(value = "pageSize", defaultValue = "20") int pageSize,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			super.setGetHeader(response);
+			if (pageSize > 200)
+				throw portalParameterError("pageSize不能超过200。");
+			int total = portalSupplementService.countPortalSupplement(portalId, maraId, officialId);
+			List<PortalSupplementDTO> supplements = portalSupplementService.listPortalSupplement(portalId, maraId,
+					officialId, pageNum, pageSize);
+			return new ListResponse<List<PortalSupplementDTO>>(true, pageSize, total, supplements, "");
+		} catch (ServiceException e) {
+			return new ListResponse<List<PortalSupplementDTO>>(false, pageSize, 0, null, e.getMessage());
+		}
+	}
+
+	@RequestMapping(value = "/supplement/delete", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Integer> deletePortalSupplement(@RequestParam("id") int id, HttpServletRequest request,
+			HttpServletResponse response) {
+		try {
+			super.setPostHeader(response);
+			PortalSupplementDTO supplement = portalSupplementService.getPortalSupplement(id);
+			if (supplement == null)
+				return new Response<Integer>(0, "补料记录不存在。", 0);
+			requireSupplementPortalAccess(supplement.getPortalId(), request);
+			return new Response<Integer>(0, "补料记录删除成功。",
+					portalSupplementService.deletePortalSupplement(id));
+		} catch (ServiceException e) {
+			return new Response<Integer>(e.getCode(), e.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/get", method = RequestMethod.GET)

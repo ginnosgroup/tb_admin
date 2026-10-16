@@ -11,6 +11,8 @@ public class PortalLogDTO {
 
 	private int portalId;
 
+	private Integer supplementId;
+
 	private Date gmtCreate;
 
 	private Integer operatorId;
@@ -28,8 +30,6 @@ public class PortalLogDTO {
 	private String content;
 
 	private String remark;
-
-	private int crossProcess;
 
 	private String ip;
 
