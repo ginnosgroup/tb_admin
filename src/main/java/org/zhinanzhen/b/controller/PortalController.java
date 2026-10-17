@@ -273,8 +273,35 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "maraId", required = false) String maraId,
 			@RequestParam(value = "portalId", required = false) Integer portalId,
 			@RequestParam(value = "attachmentState", required = false) String attachmentState,
+			@RequestParam(value = "supplementId", required = false) Integer supplementId,
 			HttpServletRequest request, HttpServletResponse response) throws IllegalStateException, IOException {
 		super.setPostHeader(response);
+		if (supplementId == null && request != null) {
+			String rawSupplementId = request.getParameter("supplementId");
+			if (StringUtil.isEmpty(rawSupplementId))
+				rawSupplementId = request.getParameter("supplementld");
+			if (StringUtil.isNotEmpty(rawSupplementId)) {
+				try {
+					supplementId = Integer.valueOf(rawSupplementId.trim());
+				} catch (NumberFormatException e) {
+					return new Response<Map<String, Object>>(1, "supplementId必须是有效数字。", null);
+				}
+			}
+		}
+		if (supplementId != null) {
+			if (supplementId.intValue() <= 0)
+				return new Response<Map<String, Object>>(1, "supplementId必须是有效数字。", null);
+			try {
+				PortalSupplementDTO supplement = portalSupplementService.getPortalSupplement(supplementId.intValue());
+				if (supplement == null)
+					return new Response<Map<String, Object>>(1, "补料记录不存在。", null);
+				if (portalId != null && portalId.intValue() != supplement.getPortalId())
+					return new Response<Map<String, Object>>(1, "supplementId不属于指定的portalId。", null);
+				portalId = supplement.getPortalId();
+			} catch (ServiceException e) {
+				return new Response<Map<String, Object>>(e.getCode(), e.getMessage(), null);
+			}
+		}
 		if (portalId != null) {
 			try {
 				portalService.requireEditablePortal(portalId);
@@ -461,6 +488,7 @@ public class PortalController extends BaseController {
 			if (!maraFileUpload) {
 				portalAttachmentDto = new PortalAttachmentDTO();
 				portalAttachmentDto.setPortalId(portalId);
+				portalAttachmentDto.setSupplementId(supplementId);
 				portalAttachmentDto.setFileName(file.getOriginalFilename());
 				portalAttachmentDto.setFilePath(uploadResp.getData());
 				portalAttachmentDto.setFileSize(file.getSize());
@@ -571,6 +599,14 @@ public class PortalController extends BaseController {
 				result.put("aiTextError", aiTextError);
 		}
 		return new Response<Map<String, Object>>(0, "", result);
+	}
+
+	/** 保留旧版Java调用签名；HTTP上传由上方带supplementId的映射方法处理。 */
+	public Response<Map<String, Object>> uploadAttachment(MultipartFile file, String aiText, String fileType,
+			Integer fileSorting, String maraId, Integer portalId, String attachmentState, HttpServletRequest request,
+			HttpServletResponse response) throws IllegalStateException, IOException {
+		return uploadAttachment(file, aiText, fileType, fileSorting, maraId, portalId, attachmentState, null, request,
+				response);
 	}
 
 	/** 上传后的附件入库或 Mara 更新失败时，清理文件和附件记录。 */
