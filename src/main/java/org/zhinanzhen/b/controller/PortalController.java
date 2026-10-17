@@ -2883,6 +2883,8 @@ public class PortalController extends BaseController {
 				for (PortalDTO portalDto : portalDtoList) {
 					portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
 					portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
+					portalDto.setPortalSupplementList(
+							portalSupplementService.listPortalSupplementByPortalId(portalDto.getId()));
 				}
 			}
 			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
@@ -3578,6 +3580,8 @@ public class PortalController extends BaseController {
 				// 按 portal_id 关联查询附件列表和操作日志，组装进 PortalDTO 一起返回
 				portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
 				portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
+				portalDto.setPortalSupplementList(
+						portalSupplementService.listPortalSupplementByPortalId(portalDto.getId()));
 			}
 			return new Response<PortalDTO>(0, "", portalDto);
 		} catch (ServiceException e) {

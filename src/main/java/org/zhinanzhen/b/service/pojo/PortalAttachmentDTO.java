@@ -11,6 +11,8 @@ public class PortalAttachmentDTO {
 
 	private Integer portalId;
 
+	private Integer supplementId;
+
 	private Date gmtCreate;
 
 	private Date gmtModify;

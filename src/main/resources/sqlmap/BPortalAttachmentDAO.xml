@@ -44,6 +44,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -65,6 +66,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -96,10 +98,36 @@
         ORDER BY id ASC
     </select>
 
+    <select id="listPortalAttachmentBySupplementId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO"
+            useCache="false" flushCache="true">
+        SELECT
+            id,
+            portal_id AS portalId,
+            supplement_id AS supplementId,
+            gmt_create AS gmtCreate,
+            gmt_modify AS gmtModify,
+            file_name AS fileName,
+            file_path AS filePath,
+            file_size AS fileSize,
+            file_type AS fileType,
+            file_ext AS fileExt,
+            attachment_type AS attachmentType,
+            file_sorting AS fileSorting,
+            stage,
+            attachment_state AS attachmentState,
+            ai_text AS aiText,
+            ip,
+            user_agent AS userAgent
+        FROM b_portal_attachment
+        WHERE supplement_id = #{supplementId}
+        ORDER BY gmt_create ASC, id ASC;
+    </select>
+
     <select id="listPortalAttachmentByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalAttachmentDO" useCache="false">
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -124,6 +152,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -149,6 +178,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -174,6 +204,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -200,6 +231,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,
@@ -230,6 +262,7 @@
         SELECT
             id,
             portal_id AS portalId,
+            supplement_id AS supplementId,
             gmt_create AS gmtCreate,
             gmt_modify AS gmtModify,
             file_name AS fileName,

@@ -51,6 +51,8 @@ public interface PortalAttachmentService {
 
 	List<String> listPortalAttachmentPathsBySupplementId(int supplementId) throws ServiceException;
 
+	List<PortalAttachmentDTO> listPortalAttachmentBySupplementId(int supplementId) throws ServiceException;
+
 	int deletePortalAttachmentById(int id) throws ServiceException;
 
 	int deletePortalAttachmentByIdAndPortalIdAndFileNameAndStage(int id, int portalId, String fileName, String stage)

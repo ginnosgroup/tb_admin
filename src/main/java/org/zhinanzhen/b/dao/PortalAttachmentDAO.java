@@ -17,6 +17,8 @@ public interface PortalAttachmentDAO {
 
 	List<String> listPortalAttachmentPathsBySupplementId(@Param("supplementId") int supplementId);
 
+	List<PortalAttachmentDO> listPortalAttachmentBySupplementId(@Param("supplementId") int supplementId);
+
 	List<PortalAttachmentDO> listPortalAttachmentByPortalId(@Param("portalId") Integer portalId);
 
 	List<PortalAttachmentDO> listPortalAttachmentByPortalIdAndFileSorting(@Param("portalId") Integer portalId,

@@ -13,6 +13,8 @@ public interface PortalSupplementDAO {
 
 	PortalSupplementDO getPortalSupplementForUpdate(@Param("id") int id);
 
+	List<PortalSupplementDO> listPortalSupplementByPortalId(@Param("portalId") int portalId);
+
 	List<PortalSupplementDO> listPortalSupplement(@Param("portalId") Integer portalId,
 			@Param("maraId") Integer maraId, @Param("officialId") Integer officialId,
 			@Param("offset") int offset, @Param("rows") int rows);

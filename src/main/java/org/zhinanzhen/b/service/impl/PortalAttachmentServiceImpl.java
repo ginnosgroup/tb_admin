@@ -466,6 +466,25 @@ public class PortalAttachmentServiceImpl extends BaseService implements PortalAt
 		}
 	}
 
+	@Override
+	public List<PortalAttachmentDTO> listPortalAttachmentBySupplementId(int supplementId) throws ServiceException {
+		if (supplementId <= 0)
+			throw parameterError("supplementId参数错误。");
+		try {
+			List<PortalAttachmentDO> attachments = portalAttachmentDao.listPortalAttachmentBySupplementId(supplementId);
+			List<PortalAttachmentDTO> result = new ArrayList<PortalAttachmentDTO>();
+			if (attachments != null) {
+				for (PortalAttachmentDO attachment : attachments)
+					result.add(mapper.map(attachment, PortalAttachmentDTO.class));
+			}
+			return result;
+		} catch (Exception e) {
+			ServiceException se = new ServiceException(e);
+			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+			throw se;
+		}
+	}
+
 	private ServiceException parameterError(String message) {
 		ServiceException se = new ServiceException(message);
 		se.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());

@@ -14,6 +14,8 @@ public class PortalAttachmentDO implements Serializable {
 
 	private Integer portalId;
 
+	private Integer supplementId;
+
 	private Date gmtCreate;
 
 	private Date gmtModify;

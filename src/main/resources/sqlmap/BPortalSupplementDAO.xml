@@ -35,6 +35,17 @@
         FOR UPDATE
     </select>
 
+    <select id="listPortalSupplementByPortalId" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
+            useCache="false" flushCache="true">
+        SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
+               requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
+               submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
+               review_remark AS reviewRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+        FROM b_portal_supplement
+        WHERE portal_id = #{portalId}
+        ORDER BY round_no DESC, id DESC
+    </select>
+
     <select id="listPortalSupplement" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
             useCache="false" flushCache="true">
         SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,

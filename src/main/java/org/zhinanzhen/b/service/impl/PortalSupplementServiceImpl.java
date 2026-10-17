@@ -81,6 +81,25 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 			result.setFilePath(joinFilePaths(portalAttachmentService
 					.listPortalAttachmentPathsBySupplementId(supplement.getId())));
 			result.setPortalLogList(portalLogService.listPortalLogBySupplementId(supplement.getId()));
+			result.setPortalAttachmentList(
+					portalAttachmentService.listPortalAttachmentBySupplementId(supplement.getId()));
+			return result;
+		} catch (Exception e) {
+			throw executeError(e);
+		}
+	}
+
+	@Override
+	public List<PortalSupplementDTO> listPortalSupplementByPortalId(int portalId) throws ServiceException {
+		if (portalId <= 0)
+			throw parameterError("portalId必须是有效数字。");
+		try {
+			List<PortalSupplementDO> rows = portalSupplementDao.listPortalSupplementByPortalId(portalId);
+			List<PortalSupplementDTO> result = new ArrayList<PortalSupplementDTO>();
+			if (rows != null) {
+				for (PortalSupplementDO row : rows)
+					result.add(mapper.map(row, PortalSupplementDTO.class));
+			}
 			return result;
 		} catch (Exception e) {
 			throw executeError(e);
@@ -102,6 +121,7 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 					item.setFilePath(joinFilePaths(portalAttachmentService
 							.listPortalAttachmentPathsBySupplementId(row.getId())));
 					item.setPortalLogList(portalLogService.listPortalLogBySupplementId(row.getId()));
+					item.setPortalAttachmentList(portalAttachmentService.listPortalAttachmentBySupplementId(row.getId()));
 					result.add(item);
 				}
 			}
