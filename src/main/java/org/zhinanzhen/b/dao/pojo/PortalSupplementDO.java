@@ -21,7 +21,7 @@ public class PortalSupplementDO implements Serializable {
 	private Integer maraId;
 	private Date reviewedAt;
 	private String reviewRemark;
-	private Date reopentAt;
+	private Date reopenAt;
 	private String reopenRemark;
 	/** 仅用于状态更新时通知Mapper清空后续节点时间，不映射数据库列。 */
 	private boolean clearSubsequentTimestamps;

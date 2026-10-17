@@ -179,7 +179,7 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 			return;
 		if (WAITING_CLIENT.equals(targetStatus)) {
 			update.setClearSubsequentTimestamps(true);
-			update.setReopentAt(new Date());
+			update.setReopenAt(new Date());
 			update.setReopenRemark(update.getReviewRemark() == null
 					? current.getReviewRemark() : update.getReviewRemark());
 			return;

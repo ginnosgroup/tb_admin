@@ -8,11 +8,11 @@
         INSERT INTO b_portal_supplement (
             portal_id, round_no, status, official_id, requested_at,
             customer_submitted_at, submitted_to_mara_at, mara_id, reviewed_at, review_remark,
-            reopent_at, reopen__remark
+            reopen_at, reopen_remark
         ) VALUES (
             #{portalId}, #{roundNo}, #{status}, #{officialId}, #{requestedAt},
             #{customerSubmittedAt}, #{submittedToMaraAt}, #{maraId}, #{reviewedAt}, #{reviewRemark},
-            #{reopentAt}, #{reopenRemark}
+            #{reopenAt}, #{reopenRemark}
         )
     </insert>
 
@@ -21,8 +21,8 @@
         SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
                requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
                submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
-               review_remark AS reviewRemark, reopent_at AS reopentAt,
-               reopen__remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+               review_remark AS reviewRemark, reopen_at AS reopenAt,
+               reopen_remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
         FROM b_portal_supplement
         WHERE id = #{id}
     </select>
@@ -32,8 +32,8 @@
         SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
                requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
                submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
-               review_remark AS reviewRemark, reopent_at AS reopentAt,
-               reopen__remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+               review_remark AS reviewRemark, reopen_at AS reopenAt,
+               reopen_remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
         FROM b_portal_supplement
         WHERE id = #{id}
         FOR UPDATE
@@ -44,8 +44,8 @@
         SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
                requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
                submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
-               review_remark AS reviewRemark, reopent_at AS reopentAt,
-               reopen__remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+               review_remark AS reviewRemark, reopen_at AS reopenAt,
+               reopen_remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
         FROM b_portal_supplement
         WHERE portal_id = #{portalId}
         ORDER BY round_no DESC, id DESC
@@ -56,8 +56,8 @@
         SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
                requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
                submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
-               review_remark AS reviewRemark, reopent_at AS reopentAt,
-               reopen__remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
+               review_remark AS reviewRemark, reopen_at AS reopenAt,
+               reopen_remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
         FROM b_portal_supplement
         WHERE 1 = 1
         <if test="portalId != null">
@@ -102,8 +102,8 @@
             , reviewed_at = NULL
         </if>
         <if test="clearReopenFields">
-            , reopent_at = NULL
-            , reopen__remark = NULL
+            , reopen_at = NULL
+            , reopen_remark = NULL
         </if>
         <if test="requestedAt != null">, requested_at = #{requestedAt}</if>
         <if test="!clearSubsequentTimestamps and customerSubmittedAt != null">, customer_submitted_at = #{customerSubmittedAt}</if>
@@ -111,8 +111,8 @@
         <if test="maraId != null">, mara_id = #{maraId}</if>
         <if test="!clearSubsequentTimestamps and reviewedAt != null">, reviewed_at = #{reviewedAt}</if>
         <if test="reviewRemark != null">, review_remark = #{reviewRemark}</if>
-        <if test="reopentAt != null">, reopent_at = #{reopentAt}</if>
-        <if test="reopenRemark != null">, reopen__remark = #{reopenRemark}</if>
+        <if test="reopenAt != null">, reopen_at = #{reopenAt}</if>
+        <if test="reopenRemark != null">, reopen_remark = #{reopenRemark}</if>
         WHERE id = #{id} AND portal_id = #{portalId}
     </update>
 

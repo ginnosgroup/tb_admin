@@ -20,7 +20,7 @@ public class PortalSupplementDTO {
 	private Integer maraId;
 	private Date reviewedAt;
 	private String reviewRemark;
-	private Date reopentAt;
+	private Date reopenAt;
 	private String reopenRemark;
 	/** 本轮附件路径，多个路径使用逗号分隔；仅查询返回，不落库。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
