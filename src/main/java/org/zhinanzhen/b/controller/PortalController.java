@@ -2455,6 +2455,20 @@ public class PortalController extends BaseController {
 		throw portalParameterError("案件不存在或您无权操作该案件。");
 	}
 
+	private boolean hasSupplementaryAttachment(PortalSupplementDTO supplement) throws ServiceException {
+		List<PortalAttachmentDTO> attachments = portalAttachmentService
+				.listPortalAttachmentBySupplementId(supplement.getId());
+		if (attachments == null)
+			return false;
+		for (PortalAttachmentDTO attachment : attachments) {
+			if (attachment != null && attachment.getPortalId() != null
+					&& attachment.getPortalId().intValue() == supplement.getPortalId()
+					&& "supplementary".equalsIgnoreCase(attachment.getStage()))
+				return true;
+		}
+		return false;
+	}
+
 	private List<String> splitSupplementFilePaths(String filePath) {
 		if (filePath == null)
 			return Collections.emptyList();
@@ -3527,8 +3541,8 @@ public class PortalController extends BaseController {
 			boolean notifyClientToReupload = "WAITING_CLIENT".equals(targetStatus);
 			PortalDTO notificationPortal = null;
 			if (customerSubmission) {
-				if (splitSupplementFilePaths(filePath).isEmpty())
-					throw portalParameterError("客户提交补料时必须上传本轮附件。");
+				if (!hasSupplementaryAttachment(current))
+					throw portalParameterError("客户提交补料时必须先上传本轮stage为supplementary的附件。");
 			} else {
 				notificationPortal = requireSupplementUpdateAccess(current, request);
 			}
@@ -3543,8 +3557,9 @@ public class PortalController extends BaseController {
 			}
 				update.setReviewRemark(reviewRemark);
 			}
-			List<String> filePaths = filePath == null ? null : splitSupplementFilePaths(filePath);
-			portalSupplementService.updatePortalSupplement(update, filePaths, filePath != null);
+			List<String> filePaths = customerSubmission || filePath == null ? null : splitSupplementFilePaths(filePath);
+			portalSupplementService.updatePortalSupplement(update, filePaths,
+					!customerSubmission && filePath != null);
 			String logAction = customerSubmission ? "customer_supplement_submitted" : "supplement_updated";
 			String logContent;
 			if (customerSubmission) {
