@@ -1159,12 +1159,50 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	/** 英文补料链接行；链接为空时不输出。 */
 	private String englishSupplementLinkLine(String customerUrl) {
-		return linkLine("Supplementary Documents Link:", customerUrl);
+		return linkLine("Supplementary Documents Link:", withSupplementFlag(customerUrl));
 	}
 
 	/** 中文补料链接行；链接为空时不输出。 */
 	private String chineseSupplementLinkLine(String customerUrl) {
-		return linkLine("补料链接：", customerUrl);
+		return linkLine("补料链接：", withSupplementFlag(customerUrl));
+	}
+
+	/** 为补料入口添加supplement=1，并保留其他查询参数和片段。 */
+	private String withSupplementFlag(String url) {
+		if (StringUtil.isEmpty(url))
+			return url;
+		int fragmentIndex = url.indexOf('#');
+		String fragment = fragmentIndex < 0 ? "" : url.substring(fragmentIndex);
+		String urlWithoutFragment = fragmentIndex < 0 ? url : url.substring(0, fragmentIndex);
+		int queryIndex = urlWithoutFragment.indexOf('?');
+		if (queryIndex < 0)
+			return urlWithoutFragment + "?supplement=1" + fragment;
+
+		String path = urlWithoutFragment.substring(0, queryIndex);
+		String query = urlWithoutFragment.substring(queryIndex + 1);
+		StringBuilder updatedQuery = new StringBuilder();
+		boolean supplementAdded = false;
+		for (String parameter : query.split("&", -1)) {
+			String name = parameter.contains("=") ? parameter.substring(0, parameter.indexOf('=')) : parameter;
+			if ("supplement".equals(name)) {
+				if (!supplementAdded) {
+					if (updatedQuery.length() > 0)
+						updatedQuery.append('&');
+					updatedQuery.append("supplement=1");
+					supplementAdded = true;
+				}
+			} else {
+				if (updatedQuery.length() > 0)
+					updatedQuery.append('&');
+				updatedQuery.append(parameter);
+			}
+		}
+		if (!supplementAdded) {
+			if (updatedQuery.length() > 0)
+				updatedQuery.append('&');
+			updatedQuery.append("supplement=1");
+		}
+		return path + "?" + updatedQuery.toString() + fragment;
 	}
 
 	private String linkLine(String label, String url) {
