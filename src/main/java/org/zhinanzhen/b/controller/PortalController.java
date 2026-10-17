@@ -2368,24 +2368,55 @@ public class PortalController extends BaseController {
 		return portalService.getPortal(portalId, null, null, officialId, officialRegionId, null);
 	}
 
-	/** 补料驳回和通过由负责该案件的MARA操作；超级管理员仍可处理。 */
-	private void requireSupplementMaraAccess(PortalSupplementDTO supplement, HttpServletRequest request)
+	/** 补料修改允许负责案件的文案或MARA操作；超级管理员仍可处理。 */
+	private PortalDTO requireSupplementUpdateAccess(PortalSupplementDTO supplement, HttpServletRequest request)
 			throws ServiceException {
 		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
 		if (login == null)
 			throw portalParameterError("请先登录。");
 		String roles = login.getApList() == null ? "" : login.getApList().toUpperCase(Locale.ENGLISH);
 		if (roles.contains("SUPERAD"))
-			return;
-		if (!roles.contains("MA"))
-			throw portalParameterError("该操作需要MARA角色。");
-		Integer maraId = login.getMaraId();
-		if (maraId == null || maraId <= 0)
-			throw portalParameterError("登录用户未关联MARA信息。");
-		if (supplement.getMaraId() == null || !maraId.equals(supplement.getMaraId()))
-			throw portalParameterError("补料记录不属于当前MARA，无法操作。");
-		if (portalService.getPortal(supplement.getPortalId(), null, null, null, null, maraId) == null)
-			throw portalParameterError("案件不存在或您无权操作该案件。");
+			return portalService.getPortal(supplement.getPortalId(), null, null, null, null, null);
+		boolean hasMaraRole = roles.contains("MA");
+		boolean hasOfficialRole = roles.contains("WA");
+		if (!hasMaraRole && !hasOfficialRole)
+			throw portalParameterError("补料记录修改需要文案或MARA角色。");
+
+		if (hasMaraRole) {
+			Integer maraId = login.getMaraId();
+			if (maraId == null || maraId <= 0) {
+				if (!hasOfficialRole)
+					throw portalParameterError("登录用户未关联MARA信息。");
+			} else if (supplement.getMaraId() == null || !maraId.equals(supplement.getMaraId())) {
+				if (!hasOfficialRole)
+					throw portalParameterError("补料记录不属于当前MARA，无法操作。");
+			} else {
+				PortalDTO portal = portalService.getPortal(supplement.getPortalId(), null, null, null, null, maraId);
+				if (portal != null)
+					return portal;
+				if (!hasOfficialRole)
+					throw portalParameterError("案件不存在或您无权操作该案件。");
+			}
+		}
+
+		if (hasOfficialRole) {
+			Integer officialId = null;
+			Integer officialRegionId = null;
+			if (login.isOfficialAdmin()) {
+				officialRegionId = login.getRegionId();
+				if (officialRegionId == null || officialRegionId <= 0)
+					throw portalParameterError("文案管理员未配置所属地区。");
+			} else {
+				officialId = login.getOfficialId();
+				if (officialId == null || officialId <= 0)
+					throw portalParameterError("登录用户未关联文案信息。");
+			}
+			PortalDTO portal = portalService.getPortal(supplement.getPortalId(), null, null, officialId,
+					officialRegionId, null);
+			if (portal != null)
+				return portal;
+		}
+		throw portalParameterError("案件不存在或您无权操作该案件。");
 	}
 
 	private List<String> splitSupplementFilePaths(String filePath) {
@@ -3457,13 +3488,13 @@ public class PortalController extends BaseController {
 			AdminUserLoginInfo login = getAdminUserLoginInfo(request);
 			boolean customerSubmission = login == null && "CUSTOMER_SUBMITTED".equals(targetStatus);
 			boolean maraReview = "REJECTED".equals(targetStatus) || "APPROVED".equals(targetStatus);
+			boolean notifyClientToReupload = "WAITING_CLIENT".equals(targetStatus);
+			PortalDTO notificationPortal = null;
 			if (customerSubmission) {
 				if (splitSupplementFilePaths(filePath).isEmpty())
 					throw portalParameterError("客户提交补料时必须上传本轮附件。");
-			} else if (maraReview) {
-				requireSupplementMaraAccess(current, request);
 			} else {
-				requireSupplementPortalAccess(current.getPortalId(), request);
+				notificationPortal = requireSupplementUpdateAccess(current, request);
 			}
 			PortalSupplementDTO update = new PortalSupplementDTO();
 			update.setId(id);
@@ -3498,6 +3529,17 @@ public class PortalController extends BaseController {
 					customerSubmission ? null : reviewRemark, request, current.getId(),
 					customerSubmission ? "用户" : null);
 			PortalSupplementDTO updated = portalSupplementService.getPortalSupplement(id);
+			if (notifyClientToReupload) {
+				try {
+					String notificationRemark = reviewRemark == null ? current.getReviewRemark() : reviewRemark;
+					portalDocumentService.sendCustomerSupplementReuploadNotification(notificationPortal,
+							notificationRemark, buildPortalCustomerUrl(current.getPortalId()), current.getRoundNo());
+				} catch (ServiceException mailError) {
+					return new Response<PortalSupplementDTO>(mailError.getCode(),
+							"补料状态已更新为WAITING_CLIENT，但重新上传通知邮件发送失败：" + mailError.getMessage(), updated);
+				}
+				return new Response<PortalSupplementDTO>(0, "补料状态已更新并通知客户重新上传。", updated);
+			}
 			return new Response<PortalSupplementDTO>(0, "补料记录更新成功。", updated);
 		} catch (ServiceException e) {
 			return new Response<PortalSupplementDTO>(e.getCode(), e.getMessage(), null);

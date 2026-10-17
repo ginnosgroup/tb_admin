@@ -123,6 +123,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	/** 客户邮件主题：系统邮件模板05（移民局补充材料通知）。 */
 	private static final String MAIL_SUBJECT_SUPPLEMENT_REQUEST =
 			"Request for Further Information – Visa Application / 签证申请 – 移民局补充材料通知";
+	/** 客户邮件主题：补料需修改或补充后重新上传。 */
+	private static final String MAIL_SUBJECT_SUPPLEMENT_REUPLOAD =
+			"Supplementary Documents Need to Be Re-uploaded / 补充材料需要重新上传";
 	/** 客户邮件主题：系统邮件模板03（申请表草稿确认）。 */
 	private static final String MAIL_SUBJECT_DRAFT_REVIEW =
 			"Draft Visa Application – Review and Confirmation Required / 签证申请表草稿 – 请核对确认";
@@ -913,6 +916,19 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				resolveApplicationAttachments(filePath));
 	}
 
+	@Override
+	public void sendCustomerSupplementReuploadNotification(PortalDTO portalDto, String remark, String customerUrl,
+			int roundNo) throws ServiceException {
+		if (portalDto == null || portalDto.getId() <= 0 || roundNo <= 0)
+			throw serviceException("补料重新上传通知参数无效。", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
+		CustomerDocumentData data = buildCustomerData(portalDto);
+		if (StringUtil.isEmpty(data.email))
+			throw serviceException("客户邮箱为空，通知邮件未发送。", ErrorCodeEnum.DATA_ERROR.code(), null);
+		String content = buildSupplementReuploadMail(data.fullName, resolveMailSignerName(portalDto),
+				portalDto.getCaseType(), remark, customerUrl, roundNo);
+		sendMailAlways(data.email, MAIL_SUBJECT_SUPPLEMENT_REUPLOAD, content);
+	}
+
 	/** 系统邮件模板05：移民局补料通知（中英对照），保留补料说明和补料链接。 */
 	private String buildSupplementaryRequestMail(int portalId, String customerName, String signerName,
 			String visaSubclass, String remark, String customerUrl, Integer roundNo) {
@@ -944,6 +960,34 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 		if (roundNo != null)
 			chineseAction.append("<p><strong>补料轮次：</strong>第").append(roundNo).append("轮</p>");
 		chineseAction.append(remarkBlock(remark, "补料说明："));
+		chineseAction.append(chineseSupplementLinkLine(customerUrl));
+		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
+				chineseAction.toString(), customerName, signerName);
+	}
+
+	/** 客户补料被要求修改或补充时，发送重新上传通知，不附加本轮旧文件。 */
+	private String buildSupplementReuploadMail(String customerName, String signerName, String visaSubclass,
+			String remark, String customerUrl, int roundNo) {
+		String subclass = normalizeVisaSubclass(visaSubclass);
+		StringBuilder english = new StringBuilder();
+		english.append("<p>After reviewing the supplementary documents for your ")
+				.append(subclass == null ? "visa application" : "Subclass " + subclass + " visa application")
+				.append(", some documents need to be corrected or provided again.</p>");
+		english.append("<p>Please review the notes below and upload the updated documents using the link provided.</p>");
+		english.append("<p>If you have any questions, please contact your adviser.</p>");
+		StringBuilder chinese = new StringBuilder();
+		chinese.append("<p>经审核，您的")
+				.append(subclass == null ? "签证申请" : subclass + "签证申请")
+				.append("补充材料中有部分文件需要修改或重新提供。</p>");
+		chinese.append("<p>请根据以下说明重新准备材料，并通过补料链接上传更新后的文件。</p>");
+		chinese.append("<p>如有疑问，请及时联系您的顾问。</p>");
+		StringBuilder englishAction = new StringBuilder();
+		englishAction.append("<p><strong>Supplement round:</strong> ").append(roundNo).append("</p>");
+		englishAction.append(remarkBlock(remark, "Review notes:"));
+		englishAction.append(englishSupplementLinkLine(customerUrl));
+		StringBuilder chineseAction = new StringBuilder();
+		chineseAction.append("<p><strong>补料轮次：</strong>第").append(roundNo).append("轮</p>");
+		chineseAction.append(remarkBlock(remark, "审核说明："));
 		chineseAction.append(chineseSupplementLinkLine(customerUrl));
 		return buildBilingualMail(english.toString(), englishAction.toString(), chinese.toString(),
 				chineseAction.toString(), customerName, signerName);

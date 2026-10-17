@@ -177,10 +177,12 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 		if (targetStatus == null || targetStatus.trim().isEmpty()
 				|| targetStatus.equals(current.getStatus()))
 			return;
-		Date now = new Date();
 		if (WAITING_CLIENT.equals(targetStatus)) {
-			update.setRequestedAt(now);
-		} else if (CUSTOMER_SUBMITTED.equals(targetStatus)) {
+			update.setClearSubsequentTimestamps(true);
+			return;
+		}
+		Date now = new Date();
+		if (CUSTOMER_SUBMITTED.equals(targetStatus)) {
 			update.setCustomerSubmittedAt(now);
 		} else if (REVIEWING.equals(targetStatus)) {
 			update.setSubmittedToMaraAt(now);

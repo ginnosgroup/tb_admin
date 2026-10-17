@@ -90,11 +90,16 @@
         SET gmt_modify = NOW()
         <if test="status != null and status != ''">, status = #{status}</if>
         <if test="officialId != null">, official_id = #{officialId}</if>
+        <if test="clearSubsequentTimestamps">
+            , customer_submitted_at = NULL
+            , submitted_to_mara_at = NULL
+            , reviewed_at = NULL
+        </if>
         <if test="requestedAt != null">, requested_at = #{requestedAt}</if>
-        <if test="customerSubmittedAt != null">, customer_submitted_at = #{customerSubmittedAt}</if>
-        <if test="submittedToMaraAt != null">, submitted_to_mara_at = #{submittedToMaraAt}</if>
+        <if test="!clearSubsequentTimestamps and customerSubmittedAt != null">, customer_submitted_at = #{customerSubmittedAt}</if>
+        <if test="!clearSubsequentTimestamps and submittedToMaraAt != null">, submitted_to_mara_at = #{submittedToMaraAt}</if>
         <if test="maraId != null">, mara_id = #{maraId}</if>
-        <if test="reviewedAt != null">, reviewed_at = #{reviewedAt}</if>
+        <if test="!clearSubsequentTimestamps and reviewedAt != null">, reviewed_at = #{reviewedAt}</if>
         <if test="reviewRemark != null">, review_remark = #{reviewRemark}</if>
         WHERE id = #{id} AND portal_id = #{portalId}
     </update>

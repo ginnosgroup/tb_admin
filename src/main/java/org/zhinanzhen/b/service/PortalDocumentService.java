@@ -54,6 +54,10 @@ public interface PortalDocumentService {
 	void sendCustomerSupplementRequestNotification(PortalDTO portalDto, String remark, String filePath,
 			String customerUrl, int roundNo) throws ServiceException;
 
+	/** 通知客户重新上传需要修改或补充的本轮补料文件，不附加旧文件。 */
+	void sendCustomerSupplementReuploadNotification(PortalDTO portalDto, String remark, String customerUrl,
+			int roundNo) throws ServiceException;
+
 	/** 将案件已经生成的合同和建议信作为附件发送给指定收件人。 */
 	void sendDocumentsToEmail(String recipientEmail, String subject, String content, String contractFilePath,
 			String letterFilePath) throws ServiceException;
