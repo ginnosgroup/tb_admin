@@ -179,11 +179,15 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 			return;
 		if (WAITING_CLIENT.equals(targetStatus)) {
 			update.setClearSubsequentTimestamps(true);
+			update.setReopentAt(new Date());
+			update.setReopenRemark(update.getReviewRemark() == null
+					? current.getReviewRemark() : update.getReviewRemark());
 			return;
 		}
 		Date now = new Date();
 		if (CUSTOMER_SUBMITTED.equals(targetStatus)) {
 			update.setCustomerSubmittedAt(now);
+			update.setClearReopenFields(true);
 		} else if (REVIEWING.equals(targetStatus)) {
 			update.setSubmittedToMaraAt(now);
 		} else if (REJECTED.equals(targetStatus) || APPROVED.equals(targetStatus)) {

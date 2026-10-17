@@ -3467,6 +3467,17 @@ public class PortalController extends BaseController {
 		return baseUrl + "?id=" + portalId;
 	}
 
+	/** 补料邮件链接沿用案件客户页面的加密code，并进入补料上传模式。 */
+	private String buildPortalSupplementCustomerUrl(PortalDTO portalDto) {
+		if (portalDto == null || portalDto.getId() <= 0)
+			throw new IllegalStateException("案件信息无效，无法生成补料链接.");
+		String baseUrl = StringUtil.isNotEmpty(portalCustomerFrontendUrl)
+				? portalCustomerFrontendUrl.trim().replaceAll("/+$", "")
+				: "http://127.0.0.1:8001/webroot_new/portalfront/customer";
+		String code = encryptPortalActionCode(portalDto, "confirmed");
+		return baseUrl + "?id=" + portalDto.getId() + "&code=" + code + "&supplement=1";
+	}
+
 	private String getClientIp(HttpServletRequest request) {
 		String forwarded = firstHeaderValue(request.getHeader("X-Forwarded-For"));
 		if (StringUtil.isNotEmpty(forwarded) && !"unknown".equalsIgnoreCase(forwarded))
@@ -3504,7 +3515,7 @@ public class PortalController extends BaseController {
 					"发起第" + created.getRoundNo() + "轮补料", remark.trim(), request, created.getId());
 			try {
 				portalDocumentService.sendCustomerSupplementRequestNotification(portal, remark.trim(), filePath,
-						buildPortalCustomerUrl(portalId), created.getRoundNo());
+						buildPortalSupplementCustomerUrl(portal), created.getRoundNo());
 			} catch (ServiceException mailError) {
 				LOG.error("补料记录已创建，但客户补料邮件发送失败，portalId={}, supplementId={}, roundNo={}",
 						portalId, created.getId(), created.getRoundNo(), mailError);
@@ -3527,7 +3538,8 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "reviewRemark", required = false) String reviewRemark,
-			@RequestParam(value = "filePath", required = false) String filePath, HttpServletRequest request,
+			@RequestParam(value = "filePath", required = false) String filePath,
+			@RequestParam(value = "code", required = false) String code, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
 			super.setPostHeader(response);
@@ -3541,6 +3553,11 @@ public class PortalController extends BaseController {
 			boolean notifyClientToReupload = "WAITING_CLIENT".equals(targetStatus);
 			PortalDTO notificationPortal = null;
 			if (customerSubmission) {
+				if (StringUtil.isEmpty(code))
+					throw portalParameterError("客户提交补料时必须提供有效的code。");
+				PortalDTO customerPortal = portalService.getPortal(current.getPortalId(), null, null, null, null, null);
+				if (!isValidPortalActionCode(customerPortal, "confirmed", code))
+					throw portalParameterError("客户补料链接无效或案件人员信息已变更，请联系文案重新发送。");
 				if (!hasSupplementaryAttachment(current))
 					throw portalParameterError("客户提交补料时必须先上传本轮stage为supplementary的附件。");
 			} else {
@@ -3584,7 +3601,7 @@ public class PortalController extends BaseController {
 				try {
 					String notificationRemark = reviewRemark == null ? current.getReviewRemark() : reviewRemark;
 					portalDocumentService.sendCustomerSupplementReuploadNotification(notificationPortal,
-							notificationRemark, buildPortalCustomerUrl(current.getPortalId()), current.getRoundNo());
+							notificationRemark, buildPortalSupplementCustomerUrl(notificationPortal), current.getRoundNo());
 				} catch (ServiceException mailError) {
 					return new Response<PortalSupplementDTO>(mailError.getCode(),
 							"补料状态已更新为WAITING_CLIENT，但重新上传通知邮件发送失败：" + mailError.getMessage(), updated);
