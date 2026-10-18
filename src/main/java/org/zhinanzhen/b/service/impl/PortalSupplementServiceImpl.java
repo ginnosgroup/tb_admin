@@ -108,12 +108,12 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 
 	@Override
 	public List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,
-			int pageNum, int pageSize)
+			String strState, int pageNum, int pageSize)
 			throws ServiceException {
 		validateListParameters(portalId, maraId, officialId, pageNum, pageSize);
 		try {
 			List<PortalSupplementDO> rows = portalSupplementDao.listPortalSupplement(portalId, maraId, officialId,
-					pageNum * pageSize, pageSize);
+					strState, pageNum * pageSize, pageSize);
 			List<PortalSupplementDTO> result = new ArrayList<PortalSupplementDTO>();
 			if (rows != null) {
 				for (PortalSupplementDO row : rows) {
@@ -132,13 +132,25 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 	}
 
 	@Override
-	public int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId) throws ServiceException {
+	public List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,
+			int pageNum, int pageSize) throws ServiceException {
+		return listPortalSupplement(portalId, maraId, officialId, null, pageNum, pageSize);
+	}
+
+	@Override
+	public int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId, String strState)
+			throws ServiceException {
 		validateFilterParameters(portalId, maraId, officialId);
 		try {
-			return portalSupplementDao.countPortalSupplement(portalId, maraId, officialId);
+			return portalSupplementDao.countPortalSupplement(portalId, maraId, officialId, strState);
 		} catch (Exception e) {
 			throw executeError(e);
 		}
+	}
+
+	@Override
+	public int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId) throws ServiceException {
+		return countPortalSupplement(portalId, maraId, officialId, null);
 	}
 
 	@Override

@@ -16,9 +16,17 @@ public interface PortalSupplementService {
 	List<PortalSupplementDTO> listPortalSupplementByPortalId(int portalId) throws ServiceException;
 
 	List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,
-			int pageNum, int pageSize)
+			String strState, int pageNum, int pageSize)
 			throws ServiceException;
 
+	int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId, String strState)
+			throws ServiceException;
+
+	/** Compatibility overload for callers that do not filter by supplement status. */
+	List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,
+			int pageNum, int pageSize) throws ServiceException;
+
+	/** Compatibility overload for callers that do not filter by supplement status. */
 	int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId) throws ServiceException;
 
 	int updatePortalSupplement(PortalSupplementDTO supplement, List<String> filePaths, boolean updateFilePaths)

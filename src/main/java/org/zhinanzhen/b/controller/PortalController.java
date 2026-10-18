@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -3579,8 +3580,10 @@ public class PortalController extends BaseController {
 					!customerSubmission && filePath != null);
 			String logAction = customerSubmission ? "customer_supplement_submitted" : "supplement_updated";
 			String logContent;
-			if (customerSubmission) {
-				logContent = "客户提交第" + current.getRoundNo() + "轮补料";
+			if ("WAITING_CLIENT".equals(targetStatus)) {
+				logContent = "文案已发送补料信，等待客户上传文件";
+			} else if ("CUSTOMER_SUBMITTED".equals(targetStatus)) {
+				logContent = "客户已上传本轮补料文件，等待文案处理";
 			} else if ("REVIEWING".equals(targetStatus)) {
 				logContent = "文案已将本轮补料提交给MARA";
 			} else if ("REJECTED".equals(targetStatus)) {
@@ -3623,7 +3626,8 @@ public class PortalController extends BaseController {
 			PortalSupplementDTO supplement = portalSupplementService.getPortalSupplement(id);
 			if (supplement == null)
 				return new Response<PortalSupplementDTO>(0, "", null);
-			requireSupplementPortalAccess(supplement.getPortalId(), request);
+			PortalDTO portal = requireSupplementPortalAccess(supplement.getPortalId(), request);
+			supplement.setPortal(portal);
 			return new Response<PortalSupplementDTO>(0, "", supplement);
 		} catch (ServiceException e) {
 			return new Response<PortalSupplementDTO>(e.getCode(), e.getMessage(), null);
@@ -3636,6 +3640,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "portalId", required = false) Integer portalId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
+			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
 			@RequestParam(value = "pageSize", defaultValue = "20") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -3643,12 +3648,36 @@ public class PortalController extends BaseController {
 			super.setGetHeader(response);
 			if (pageSize > 200)
 				throw portalParameterError("pageSize不能超过200。");
-			int total = portalSupplementService.countPortalSupplement(portalId, maraId, officialId);
+			if (strState != null) {
+				strState = strState.trim();
+				if (strState.isEmpty() || "ALL".equalsIgnoreCase(strState))
+					strState = null;
+			}
+			int total = portalSupplementService.countPortalSupplement(portalId, maraId, officialId, strState);
 			List<PortalSupplementDTO> supplements = portalSupplementService.listPortalSupplement(portalId, maraId,
-					officialId, pageNum, pageSize);
+					officialId, strState, pageNum, pageSize);
+			assembleSupplementPortalData(supplements);
 			return new ListResponse<List<PortalSupplementDTO>>(true, pageSize, total, supplements, "");
 		} catch (ServiceException e) {
 			return new ListResponse<List<PortalSupplementDTO>>(false, pageSize, 0, null, e.getMessage());
+		}
+	}
+
+	/** 仅补料专用列表接口展开案件信息；案件列表中的补料摘要保持精简。 */
+	private void assembleSupplementPortalData(List<PortalSupplementDTO> supplements) throws ServiceException {
+		if (supplements == null || supplements.isEmpty())
+			return;
+		Map<Integer, PortalDTO> portalsById = new HashMap<Integer, PortalDTO>();
+		for (PortalSupplementDTO supplement : supplements) {
+			if (supplement == null || supplement.getPortalId() <= 0)
+				continue;
+			Integer portalId = Integer.valueOf(supplement.getPortalId());
+			PortalDTO portal = portalsById.get(portalId);
+			if (portal == null) {
+				portal = portalService.getPortal(portalId, null, null, null, null, null);
+				portalsById.put(portalId, portal);
+			}
+			supplement.setPortal(portal);
 		}
 	}
 

@@ -31,6 +31,9 @@ public class PortalSupplementDTO {
 	/** 关联该补料轮次的附件列表。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private List<PortalAttachmentDTO> portalAttachmentList;
+	/** 补料记录所属的案件信息；仅补料详情和补料列表接口组装。 */
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private PortalDTO portal;
 	private Date gmtCreate;
 	private Date gmtModify;
 }

@@ -69,6 +69,9 @@
         <if test="officialId != null">
             AND official_id = #{officialId}
         </if>
+        <if test="strState != null and strState != ''">
+            AND status = #{strState}
+        </if>
         ORDER BY round_no DESC, id DESC
         LIMIT #{offset}, #{rows}
     </select>
@@ -84,6 +87,9 @@
         </if>
         <if test="officialId != null">
             AND official_id = #{officialId}
+        </if>
+        <if test="strState != null and strState != ''">
+            AND status = #{strState}
         </if>
     </select>
 
