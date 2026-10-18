@@ -3660,10 +3660,14 @@ public class PortalController extends BaseController {
 				if (strState.isEmpty() || "ALL".equalsIgnoreCase(strState))
 					strState = null;
 			}
+			AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+			String roles = login == null || login.getApList() == null ? ""
+					: login.getApList().toUpperCase(Locale.ENGLISH);
+			boolean maraVisibleOnly = roles.contains("MA");
 			int total = portalSupplementService.countPortalSupplement(id, portalId, maraId, officialId, strState,
-					name);
+					name, maraVisibleOnly);
 			List<PortalSupplementDTO> supplements = portalSupplementService.listPortalSupplement(id, portalId, maraId,
-					officialId, strState, name, pageNum, pageSize);
+					officialId, strState, name, maraVisibleOnly, pageNum, pageSize);
 			assembleSupplementPortalData(supplements);
 			return new ListResponse<List<PortalSupplementDTO>>(true, pageSize, total, supplements, "");
 		} catch (ServiceException e) {

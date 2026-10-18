@@ -21,11 +21,13 @@ public interface PortalSupplementDAO {
 	List<PortalSupplementDO> listPortalSupplement(@Param("id") Integer id, @Param("portalId") Integer portalId,
 			@Param("maraId") Integer maraId, @Param("officialId") Integer officialId,
 			@Param("strState") String strState, @Param("name") String name,
+			@Param("maraVisibleOnly") boolean maraVisibleOnly,
 			@Param("offset") int offset, @Param("rows") int rows);
 
 	int countPortalSupplement(@Param("id") Integer id, @Param("portalId") Integer portalId,
 			@Param("maraId") Integer maraId, @Param("officialId") Integer officialId,
-			@Param("strState") String strState, @Param("name") String name);
+			@Param("strState") String strState, @Param("name") String name,
+			@Param("maraVisibleOnly") boolean maraVisibleOnly);
 
 	int getMaxRoundNoByPortalId(@Param("portalId") int portalId);
 

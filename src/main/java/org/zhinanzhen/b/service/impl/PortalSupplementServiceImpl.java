@@ -122,10 +122,17 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 	@Override
 	public List<PortalSupplementDTO> listPortalSupplement(Integer id, Integer portalId, Integer maraId,
 			Integer officialId, String strState, String name, int pageNum, int pageSize) throws ServiceException {
+		return listPortalSupplement(id, portalId, maraId, officialId, strState, name, false, pageNum, pageSize);
+	}
+
+	@Override
+	public List<PortalSupplementDTO> listPortalSupplement(Integer id, Integer portalId, Integer maraId,
+			Integer officialId, String strState, String name, boolean maraVisibleOnly, int pageNum, int pageSize)
+			throws ServiceException {
 		validateListParameters(id, portalId, maraId, officialId, pageNum, pageSize);
 		try {
 			List<PortalSupplementDO> rows = portalSupplementDao.listPortalSupplement(id, portalId, maraId,
-					officialId, strState, name, pageNum * pageSize, pageSize);
+					officialId, strState, name, maraVisibleOnly, pageNum * pageSize, pageSize);
 			List<PortalSupplementDTO> result = new ArrayList<PortalSupplementDTO>();
 			if (rows != null) {
 				for (PortalSupplementDO row : rows) {
@@ -158,9 +165,16 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 	@Override
 	public int countPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId,
 			String strState, String name) throws ServiceException {
+		return countPortalSupplement(id, portalId, maraId, officialId, strState, name, false);
+	}
+
+	@Override
+	public int countPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId,
+			String strState, String name, boolean maraVisibleOnly) throws ServiceException {
 		validateFilterParameters(id, portalId, maraId, officialId);
 		try {
-			return portalSupplementDao.countPortalSupplement(id, portalId, maraId, officialId, strState, name);
+			return portalSupplementDao.countPortalSupplement(id, portalId, maraId, officialId, strState, name,
+					maraVisibleOnly);
 		} catch (Exception e) {
 			throw executeError(e);
 		}

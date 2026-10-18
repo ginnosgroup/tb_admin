@@ -24,11 +24,17 @@ public interface PortalSupplementService {
 	List<PortalSupplementDTO> listPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId,
 			String strState, String name, int pageNum, int pageSize) throws ServiceException;
 
+	List<PortalSupplementDTO> listPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId,
+			String strState, String name, boolean maraVisibleOnly, int pageNum, int pageSize) throws ServiceException;
+
 	int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId, String strState)
 			throws ServiceException;
 
 	int countPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId, String strState,
 			String name) throws ServiceException;
+
+	int countPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId, String strState,
+			String name, boolean maraVisibleOnly) throws ServiceException;
 
 	/** Compatibility overload for callers that do not filter by supplement status. */
 	List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,

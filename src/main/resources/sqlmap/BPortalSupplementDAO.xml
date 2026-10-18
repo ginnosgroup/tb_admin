@@ -99,6 +99,9 @@
         <if test="strState != null and strState != ''">
             AND ps.status = #{strState}
         </if>
+        <if test="maraVisibleOnly">
+            AND ps.status IN ('REVIEWING', 'REJECTED', 'APPROVED')
+        </if>
         <if test="name != null and name.trim() != ''">
             AND EXISTS (
                 SELECT 1 FROM b_portal_list pl
@@ -126,6 +129,9 @@
         </if>
         <if test="strState != null and strState != ''">
             AND ps.status = #{strState}
+        </if>
+        <if test="maraVisibleOnly">
+            AND ps.status IN ('REVIEWING', 'REJECTED', 'APPROVED')
         </if>
         <if test="name != null and name.trim() != ''">
             AND EXISTS (
