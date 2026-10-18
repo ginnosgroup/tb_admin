@@ -3585,9 +3585,9 @@ public class PortalController extends BaseController {
 			} else if ("CUSTOMER_SUBMITTED".equals(targetStatus)) {
 				logContent = "客户已上传本轮补料文件，等待文案处理";
 			} else if ("REVIEWING".equals(targetStatus)) {
-				logContent = "文案已将本轮补料提交给MARA";
+				logContent = "已将本轮补料提交给MARA";
 			} else if ("REJECTED".equals(targetStatus)) {
-				logContent = "审核后认为材料需要修改或补充";
+				logContent = "审核后认为材料需要修改或补充并进行退回";
 			} else if ("APPROVED".equals(targetStatus)) {
 				logContent = "已完成本轮审核";
 			} else if (targetStatus == null) {
