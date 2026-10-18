@@ -3539,6 +3539,7 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "reviewRemark", required = false) String reviewRemark,
+			@RequestParam(value = "remark", required = false) String remark,
 			@RequestParam(value = "filePath", required = false) String filePath,
 			@RequestParam(value = "code", required = false) String code, HttpServletRequest request,
 			HttpServletResponse response) {
@@ -3575,6 +3576,8 @@ public class PortalController extends BaseController {
 			}
 				update.setReviewRemark(reviewRemark);
 			}
+			if (notifyClientToReupload)
+				update.setReopenRemark(remark);
 			List<String> filePaths = customerSubmission || filePath == null ? null : splitSupplementFilePaths(filePath);
 			portalSupplementService.updatePortalSupplement(update, filePaths,
 					!customerSubmission && filePath != null);
