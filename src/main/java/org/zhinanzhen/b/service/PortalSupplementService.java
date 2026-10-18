@@ -12,6 +12,8 @@ public interface PortalSupplementService {
 
 	PortalSupplementDTO getPortalSupplement(int id) throws ServiceException;
 
+	PortalSupplementDTO getPortalSupplement(int id, Integer portalId, String name) throws ServiceException;
+
 	/** 查询案件补料记录的基础字段，不组装日志或附件。 */
 	List<PortalSupplementDTO> listPortalSupplementByPortalId(int portalId) throws ServiceException;
 
@@ -19,8 +21,14 @@ public interface PortalSupplementService {
 			String strState, int pageNum, int pageSize)
 			throws ServiceException;
 
+	List<PortalSupplementDTO> listPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId,
+			String strState, String name, int pageNum, int pageSize) throws ServiceException;
+
 	int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId, String strState)
 			throws ServiceException;
+
+	int countPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId, String strState,
+			String name) throws ServiceException;
 
 	/** Compatibility overload for callers that do not filter by supplement status. */
 	List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,

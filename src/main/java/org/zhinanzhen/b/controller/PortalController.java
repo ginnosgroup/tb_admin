@@ -3623,10 +3623,12 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/supplement/get", method = RequestMethod.GET)
 	@ResponseBody
 	public Response<PortalSupplementDTO> getPortalSupplement(@RequestParam("id") int id,
+			@RequestParam(value = "portalId", required = false) Integer portalId,
+			@RequestParam(value = "name", required = false) String name,
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			PortalSupplementDTO supplement = portalSupplementService.getPortalSupplement(id);
+			PortalSupplementDTO supplement = portalSupplementService.getPortalSupplement(id, portalId, name);
 			if (supplement == null)
 				return new Response<PortalSupplementDTO>(0, "", null);
 			PortalDTO portal = requireSupplementPortalAccess(supplement.getPortalId(), request);
@@ -3640,10 +3642,12 @@ public class PortalController extends BaseController {
 	@RequestMapping(value = "/supplement/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ListResponse<List<PortalSupplementDTO>> listPortalSupplement(
+			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "portalId", required = false) Integer portalId,
 			@RequestParam(value = "maraId", required = false) Integer maraId,
 			@RequestParam(value = "officialId", required = false) Integer officialId,
 			@RequestParam(value = "strState", required = false) String strState,
+			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "pageNum", defaultValue = "0") int pageNum,
 			@RequestParam(value = "pageSize", defaultValue = "20") int pageSize,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -3656,9 +3660,10 @@ public class PortalController extends BaseController {
 				if (strState.isEmpty() || "ALL".equalsIgnoreCase(strState))
 					strState = null;
 			}
-			int total = portalSupplementService.countPortalSupplement(portalId, maraId, officialId, strState);
-			List<PortalSupplementDTO> supplements = portalSupplementService.listPortalSupplement(portalId, maraId,
-					officialId, strState, pageNum, pageSize);
+			int total = portalSupplementService.countPortalSupplement(id, portalId, maraId, officialId, strState,
+					name);
+			List<PortalSupplementDTO> supplements = portalSupplementService.listPortalSupplement(id, portalId, maraId,
+					officialId, strState, name, pageNum, pageSize);
 			assembleSupplementPortalData(supplements);
 			return new ListResponse<List<PortalSupplementDTO>>(true, pageSize, total, supplements, "");
 		} catch (ServiceException e) {

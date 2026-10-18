@@ -11,17 +11,21 @@ public interface PortalSupplementDAO {
 
 	PortalSupplementDO getPortalSupplementById(@Param("id") int id);
 
+	PortalSupplementDO getPortalSupplementByFilters(@Param("id") int id, @Param("portalId") Integer portalId,
+			@Param("name") String name);
+
 	PortalSupplementDO getPortalSupplementForUpdate(@Param("id") int id);
 
 	List<PortalSupplementDO> listPortalSupplementByPortalId(@Param("portalId") int portalId);
 
-	List<PortalSupplementDO> listPortalSupplement(@Param("portalId") Integer portalId,
+	List<PortalSupplementDO> listPortalSupplement(@Param("id") Integer id, @Param("portalId") Integer portalId,
 			@Param("maraId") Integer maraId, @Param("officialId") Integer officialId,
-			@Param("strState") String strState,
+			@Param("strState") String strState, @Param("name") String name,
 			@Param("offset") int offset, @Param("rows") int rows);
 
-	int countPortalSupplement(@Param("portalId") Integer portalId, @Param("maraId") Integer maraId,
-			@Param("officialId") Integer officialId, @Param("strState") String strState);
+	int countPortalSupplement(@Param("id") Integer id, @Param("portalId") Integer portalId,
+			@Param("maraId") Integer maraId, @Param("officialId") Integer officialId,
+			@Param("strState") String strState, @Param("name") String name);
 
 	int getMaxRoundNoByPortalId(@Param("portalId") int portalId);
 

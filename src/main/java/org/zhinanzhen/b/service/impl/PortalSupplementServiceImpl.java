@@ -71,10 +71,16 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 
 	@Override
 	public PortalSupplementDTO getPortalSupplement(int id) throws ServiceException {
+		return getPortalSupplement(id, null, null);
+	}
+
+	@Override
+	public PortalSupplementDTO getPortalSupplement(int id, Integer portalId, String name) throws ServiceException {
 		if (id <= 0)
 			throw parameterError("id必须是有效数字。");
+		validateFilterParameters(null, portalId, null, null);
 		try {
-			PortalSupplementDO supplement = portalSupplementDao.getPortalSupplementById(id);
+			PortalSupplementDO supplement = portalSupplementDao.getPortalSupplementByFilters(id, portalId, name);
 			if (supplement == null)
 				return null;
 			PortalSupplementDTO result = mapper.map(supplement, PortalSupplementDTO.class);
@@ -110,10 +116,16 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 	public List<PortalSupplementDTO> listPortalSupplement(Integer portalId, Integer maraId, Integer officialId,
 			String strState, int pageNum, int pageSize)
 			throws ServiceException {
-		validateListParameters(portalId, maraId, officialId, pageNum, pageSize);
+		return listPortalSupplement(null, portalId, maraId, officialId, strState, null, pageNum, pageSize);
+	}
+
+	@Override
+	public List<PortalSupplementDTO> listPortalSupplement(Integer id, Integer portalId, Integer maraId,
+			Integer officialId, String strState, String name, int pageNum, int pageSize) throws ServiceException {
+		validateListParameters(id, portalId, maraId, officialId, pageNum, pageSize);
 		try {
-			List<PortalSupplementDO> rows = portalSupplementDao.listPortalSupplement(portalId, maraId, officialId,
-					strState, pageNum * pageSize, pageSize);
+			List<PortalSupplementDO> rows = portalSupplementDao.listPortalSupplement(id, portalId, maraId,
+					officialId, strState, name, pageNum * pageSize, pageSize);
 			List<PortalSupplementDTO> result = new ArrayList<PortalSupplementDTO>();
 			if (rows != null) {
 				for (PortalSupplementDO row : rows) {
@@ -140,9 +152,15 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 	@Override
 	public int countPortalSupplement(Integer portalId, Integer maraId, Integer officialId, String strState)
 			throws ServiceException {
-		validateFilterParameters(portalId, maraId, officialId);
+		return countPortalSupplement(null, portalId, maraId, officialId, strState, null);
+	}
+
+	@Override
+	public int countPortalSupplement(Integer id, Integer portalId, Integer maraId, Integer officialId,
+			String strState, String name) throws ServiceException {
+		validateFilterParameters(id, portalId, maraId, officialId);
 		try {
-			return portalSupplementDao.countPortalSupplement(portalId, maraId, officialId, strState);
+			return portalSupplementDao.countPortalSupplement(id, portalId, maraId, officialId, strState, name);
 		} catch (Exception e) {
 			throw executeError(e);
 		}
@@ -230,17 +248,18 @@ public class PortalSupplementServiceImpl extends BaseService implements PortalSu
 		}
 	}
 
-	private void validateListParameters(Integer portalId, Integer maraId, Integer officialId, int pageNum, int pageSize)
-			throws ServiceException {
-		validateFilterParameters(portalId, maraId, officialId);
+	private void validateListParameters(Integer id, Integer portalId, Integer maraId, Integer officialId,
+			int pageNum, int pageSize) throws ServiceException {
+		validateFilterParameters(id, portalId, maraId, officialId);
 		if (pageNum < 0 || pageSize <= 0)
 			throw parameterError("portalId、pageNum或pageSize参数错误。");
 	}
 
-	private void validateFilterParameters(Integer portalId, Integer maraId, Integer officialId) throws ServiceException {
-		if ((portalId != null && portalId <= 0) || (maraId != null && maraId <= 0)
+	private void validateFilterParameters(Integer id, Integer portalId, Integer maraId, Integer officialId)
+			throws ServiceException {
+		if ((id != null && id <= 0) || (portalId != null && portalId <= 0) || (maraId != null && maraId <= 0)
 				|| (officialId != null && officialId <= 0))
-			throw parameterError("portalId、maraId或officialId必须是有效数字。");
+			throw parameterError("id、portalId、maraId或officialId必须是有效数字。");
 	}
 
 	private String joinFilePaths(List<String> paths) {

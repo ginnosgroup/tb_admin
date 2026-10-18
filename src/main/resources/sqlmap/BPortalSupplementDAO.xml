@@ -27,6 +27,28 @@
         WHERE id = #{id}
     </select>
 
+    <select id="getPortalSupplementByFilters" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
+            useCache="false" flushCache="true">
+        SELECT ps.id, ps.portal_id AS portalId, ps.round_no AS roundNo, ps.status,
+               ps.official_id AS officialId, ps.requested_at AS requestedAt,
+               ps.customer_submitted_at AS customerSubmittedAt,
+               ps.submitted_to_mara_at AS submittedToMaraAt, ps.mara_id AS maraId,
+               ps.reviewed_at AS reviewedAt, ps.review_remark AS reviewRemark,
+               ps.reopen_at AS reopenAt, ps.reopen_remark AS reopenRemark,
+               ps.gmt_create AS gmtCreate, ps.gmt_modify AS gmtModify
+        FROM b_portal_supplement ps
+        WHERE ps.id = #{id}
+        <if test="portalId != null">
+            AND ps.portal_id = #{portalId}
+        </if>
+        <if test="name != null and name.trim() != ''">
+            AND EXISTS (
+                SELECT 1 FROM b_portal_list pl
+                WHERE pl.id = ps.portal_id AND pl.name LIKE CONCAT('%', #{name}, '%')
+            )
+        </if>
+    </select>
+
     <select id="getPortalSupplementForUpdate" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
             useCache="false" flushCache="true">
         SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
@@ -53,43 +75,63 @@
 
     <select id="listPortalSupplement" resultType="org.zhinanzhen.b.dao.pojo.PortalSupplementDO"
             useCache="false" flushCache="true">
-        SELECT id, portal_id AS portalId, round_no AS roundNo, status, official_id AS officialId,
-               requested_at AS requestedAt, customer_submitted_at AS customerSubmittedAt,
-               submitted_to_mara_at AS submittedToMaraAt, mara_id AS maraId, reviewed_at AS reviewedAt,
-               review_remark AS reviewRemark, reopen_at AS reopenAt,
-               reopen_remark AS reopenRemark, gmt_create AS gmtCreate, gmt_modify AS gmtModify
-        FROM b_portal_supplement
+        SELECT ps.id, ps.portal_id AS portalId, ps.round_no AS roundNo, ps.status,
+               ps.official_id AS officialId, ps.requested_at AS requestedAt,
+               ps.customer_submitted_at AS customerSubmittedAt,
+               ps.submitted_to_mara_at AS submittedToMaraAt, ps.mara_id AS maraId,
+               ps.reviewed_at AS reviewedAt, ps.review_remark AS reviewRemark,
+               ps.reopen_at AS reopenAt, ps.reopen_remark AS reopenRemark,
+               ps.gmt_create AS gmtCreate, ps.gmt_modify AS gmtModify
+        FROM b_portal_supplement ps
         WHERE 1 = 1
+        <if test="id != null">
+            AND ps.id = #{id}
+        </if>
         <if test="portalId != null">
-            AND portal_id = #{portalId}
+            AND ps.portal_id = #{portalId}
         </if>
         <if test="maraId != null">
-            AND mara_id = #{maraId}
+            AND ps.mara_id = #{maraId}
         </if>
         <if test="officialId != null">
-            AND official_id = #{officialId}
+            AND ps.official_id = #{officialId}
         </if>
         <if test="strState != null and strState != ''">
-            AND status = #{strState}
+            AND ps.status = #{strState}
         </if>
-        ORDER BY round_no DESC, id DESC
+        <if test="name != null and name.trim() != ''">
+            AND EXISTS (
+                SELECT 1 FROM b_portal_list pl
+                WHERE pl.id = ps.portal_id AND pl.name LIKE CONCAT('%', #{name}, '%')
+            )
+        </if>
+        ORDER BY ps.round_no DESC, ps.id DESC
         LIMIT #{offset}, #{rows}
     </select>
 
     <select id="countPortalSupplement" resultType="int" useCache="false" flushCache="true">
-        SELECT COUNT(*) FROM b_portal_supplement
+        SELECT COUNT(*) FROM b_portal_supplement ps
         WHERE 1 = 1
+        <if test="id != null">
+            AND ps.id = #{id}
+        </if>
         <if test="portalId != null">
-            AND portal_id = #{portalId}
+            AND ps.portal_id = #{portalId}
         </if>
         <if test="maraId != null">
-            AND mara_id = #{maraId}
+            AND ps.mara_id = #{maraId}
         </if>
         <if test="officialId != null">
-            AND official_id = #{officialId}
+            AND ps.official_id = #{officialId}
         </if>
         <if test="strState != null and strState != ''">
-            AND status = #{strState}
+            AND ps.status = #{strState}
+        </if>
+        <if test="name != null and name.trim() != ''">
+            AND EXISTS (
+                SELECT 1 FROM b_portal_list pl
+                WHERE pl.id = ps.portal_id AND pl.name LIKE CONCAT('%', #{name}, '%')
+            )
         </if>
     </select>
 
