@@ -52,6 +52,7 @@
             ref_no,
             official_data,
             adviser_id,
+            recommend_adviser_id,
             user_id,
             type,
             mara_id,
@@ -92,6 +93,7 @@
                    #{refNo},
                    #{officialData},
                    #{adviserId},
+                   #{recommendAdviserId},
                    #{userId},
                    #{type},
                    #{maraId},
@@ -415,7 +417,7 @@
         so.user_id AS userId,
         so.applicant_id AS applicantId,
         so.mara_id AS maraId,
-        so.adviser_id AS adviserId,
+        so.adviser_id AS adviserId, so.recommend_adviser_id AS recommendAdviserId,
         so.adviser_id_2 AS adviserId2,
         so.official_id AS officialId,
         so.remarks AS remarks,
@@ -582,7 +584,7 @@
     </select>
     <select id="listSub" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
-            bso.*
+            bso.*, bso.recommend_adviser_id AS recommendAdviserId
         FROM
             b_service_order_manage bm
                 LEFT JOIN b_service_order_and_manage bsm ON bm.id = bsm.service_order_manage_id
@@ -624,7 +626,7 @@
             verify_code AS verifyCode ,
             ref_no AS refNo,
             official_data AS officialData,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, recommend_adviser_id AS recommendAdviserId,
             user_id AS userId,
             type,
             mara_id AS maraId,
@@ -636,7 +638,7 @@
     </select>
     <select id="listChildrenServiceOrder" resultType="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         SELECT
-            *
+            *, recommend_adviser_id AS recommendAdviserId
         FROM
             b_service_order
         WHERE

@@ -6,6 +6,8 @@ import lombok.Data;
 public class ChildrenServiceOrderDTO {
 	
 	private int id;
+
+	private Integer recommendAdviserId;
 	
 	private String type;
 	

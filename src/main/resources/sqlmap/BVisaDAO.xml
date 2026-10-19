@@ -41,6 +41,7 @@
                 bonus,
                 bonus_date,
                 adviser_id,
+                performance_ratio,
                 mara_id,
                 official_id,
                 bank_check,
@@ -85,6 +86,7 @@
                 #{bonus},
                 #{bonusDate},
                 #{adviserId},
+                #{performanceRatio},
                 #{maraId},
                 #{officialId},
                 NULL,
@@ -325,7 +327,7 @@
             bv.deduct_gst AS deductGst,
             bv.bonus AS bonus,
             bv.bonus_date AS bonusDate,
-            bv.adviser_id AS adviserId,
+            bv.adviser_id AS adviserId, bv.performance_ratio AS performanceRatio,
             bv.mara_id AS maraId,
             bv.official_id AS officialId,
             bv.bank_check AS bankCheck,
@@ -439,7 +441,7 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, performance_ratio AS performanceRatio,
             mara_id AS maraId,
             official_id AS officialId,
             bank_check AS bankCheck,
@@ -490,7 +492,7 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, performance_ratio AS performanceRatio,
             mara_id AS maraId,
             official_id AS officialId,
             bank_check AS bankCheck,
@@ -572,160 +574,100 @@
         ORDER BY v.gmt_create DESC;
     </select>
     
-    <select id="getFirstVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
+    <!-- 按期读取款项时合并顾问份额，保持订单款项总额。 -->
+    <update id="checkFirstVisaReceipt">
+        UPDATE b_visa
+        SET bank_check = #{bankCheck}, is_checked = 1, gmt_modify = NOW()
+        WHERE service_order_id = #{serviceOrderId} AND installment_num = 1
+    </update>
+
+    <sql id="receiptColumns">
         SELECT
-            id,
-            gmt_create AS gmtCreate,
-            code,
-            handling_date AS handlingDate,
-            user_id AS userId,
-            state,
-            commission_state AS commissionState,
-            kj_approval_date AS kjApprovalDate,
-            receive_type_id AS receiveTypeId,
-            receive_date AS receiveDate,
-            service_id AS serviceId,
-            service_order_id AS serviceOrderId,
-            installment_num AS installmentNum,
-            installment,
-            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            visa_voucher_image_url AS visaVoucherImageUrl,
-            receivable,
-            received,
-            per_amount AS perAmount,
-            amount,
-            expect_amount AS expectAmount,
-            sure_expect_amount AS sureExpectAmount,
-            currency,
-            exchange_rate AS exchangeRate,
-            discount,
-            invoice_number AS invoiceNumber,
-            gst,
-            deduct_gst AS deductGst,
-            bonus,
-            bonus_date AS bonusDate,
-            adviser_id AS adviserId,
-            mara_id AS maraId,
-            official_id AS officialId,
-            bank_check AS bankCheck,
-            is_checked AS isChecked,
-            remarks,
-            refuse_reason AS refuseReason,
-            verify_code AS verifyCode,
-            bank_date AS bankDate,
-            is_close AS isClose,
-            invoice_create AS invoiceCreate
+            v.id,
+            v.gmt_create AS gmtCreate,
+            v.code,
+            v.handling_date AS handlingDate,
+            v.user_id AS userId,
+            v.state,
+            v.commission_state AS commissionState,
+            v.kj_approval_date AS kjApprovalDate,
+            v.receive_type_id AS receiveTypeId,
+            v.receive_date AS receiveDate,
+            v.service_id AS serviceId,
+            v.service_order_id AS serviceOrderId,
+            v.installment_num AS installmentNum,
+            v.installment,
+            v.payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
+            v.payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            v.payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            v.payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            v.payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            v.visa_voucher_image_url AS visaVoucherImageUrl,
+            totals.receivable,
+            totals.received,
+            totals.per_amount AS perAmount,
+            totals.amount,
+            totals.expect_amount AS expectAmount,
+            totals.sure_expect_amount AS sureExpectAmount,
+            v.currency,
+            v.exchange_rate AS exchangeRate,
+            totals.discount,
+            v.invoice_number AS invoiceNumber,
+            totals.gst,
+            totals.deduct_gst AS deductGst,
+            totals.bonus,
+            v.bonus_date AS bonusDate,
+            v.adviser_id AS adviserId,
+            1.00 AS performanceRatio,
+            v.mara_id AS maraId,
+            v.official_id AS officialId,
+            v.bank_check AS bankCheck,
+            v.is_checked AS isChecked,
+            v.remarks,
+            v.refuse_reason AS refuseReason,
+            v.verify_code AS verifyCode,
+            v.bank_date AS bankDate,
+            v.is_close AS isClose,
+            v.invoice_create AS invoiceCreate
+        FROM b_visa v
+    </sql>
+    <sql id="receiptTotals">
+        SELECT MIN(id) AS id,
+               SUM(receivable) AS receivable,
+               SUM(received) AS received,
+               SUM(per_amount) AS per_amount,
+               SUM(amount) AS amount,
+               SUM(expect_amount) AS expect_amount,
+               SUM(sure_expect_amount) AS sure_expect_amount,
+               SUM(discount) AS discount,
+               SUM(gst) AS gst,
+               SUM(deduct_gst) AS deduct_gst,
+               SUM(bonus) AS bonus
         FROM b_visa
-        WHERE installment_num = 1 AND service_order_id = #{serviceOrderId};
+        WHERE service_order_id = #{serviceOrderId}
+    </sql>
+
+    <select id="getFirstVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
+        <include refid="receiptColumns"/>
+        JOIN (
+            <include refid="receiptTotals"/>
+            AND installment_num = 1
+        ) totals ON v.id = totals.id
     </select>
 
     <select id="getSecondVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
-        SELECT
-            id,
-            gmt_create AS gmtCreate,
-            code,
-            handling_date AS handlingDate,
-            user_id AS userId,
-            state,
-            commission_state AS commissionState,
-            kj_approval_date AS kjApprovalDate,
-            receive_type_id AS receiveTypeId,
-            receive_date AS receiveDate,
-            service_id AS serviceId,
-            service_order_id AS serviceOrderId,
-            installment_num AS installmentNum,
-            installment,
-            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            visa_voucher_image_url AS visaVoucherImageUrl,
-            receivable,
-            received,
-            per_amount AS perAmount,
-            amount,
-            expect_amount AS expectAmount,
-            sure_expect_amount AS sureExpectAmount,
-            currency,
-            exchange_rate AS exchangeRate,
-            discount,
-            invoice_number AS invoiceNumber,
-            gst,
-            deduct_gst AS deductGst,
-            bonus,
-            bonus_date AS bonusDate,
-            adviser_id AS adviserId,
-            mara_id AS maraId,
-            official_id AS officialId,
-            bank_check AS bankCheck,
-            is_checked AS isChecked,
-            remarks,
-            refuse_reason AS refuseReason,
-            verify_code AS verifyCode,
-            bank_date AS bankDate,
-            is_close AS isClose,
-            invoice_create AS invoiceCreate
-        FROM b_visa
-        WHERE
-            installment_num = 2 AND
-            service_order_id = #{serviceOrderId};
+        <include refid="receiptColumns"/>
+        JOIN (
+            <include refid="receiptTotals"/>
+            AND installment_num = 2
+        ) totals ON v.id = totals.id
     </select>
 
     <select id="getVisaByServiceOrderId" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
-        SELECT
-            id,
-            gmt_create AS gmtCreate,
-            code,
-            handling_date AS handlingDate,
-            user_id AS userId,
-            state,
-            commission_state AS commissionState,
-            kj_approval_date AS kjApprovalDate,
-            receive_type_id AS receiveTypeId,
-            receive_date AS receiveDate,
-            service_id AS serviceId,
-            service_order_id AS serviceOrderId,
-            installment_num AS installmentNum,
-            installment,
-            payment_voucher_image_url_1 AS paymentVoucherImageUrl1,
-            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
-            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
-            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
-            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
-            visa_voucher_image_url AS visaVoucherImageUrl,
-            receivable,
-            received,
-            per_amount AS perAmount,
-            amount,
-            expect_amount AS expectAmount,
-            sure_expect_amount AS sureExpectAmount,
-            currency,
-            exchange_rate AS exchangeRate,
-            discount,
-            invoice_number AS invoiceNumber,
-            gst,
-            deduct_gst AS deductGst,
-            bonus,
-            bonus_date AS bonusDate,
-            adviser_id AS adviserId,
-            mara_id AS maraId,
-            official_id AS officialId,
-            bank_check AS bankCheck,
-            is_checked AS isChecked,
-            remarks,
-            refuse_reason AS refuseReason,
-            verify_code AS verifyCode,
-            bank_date AS bankDate,
-            is_close AS isClose,
-            invoice_create AS invoiceCreate
-        FROM b_visa
-        WHERE
-            service_order_id = #{serviceOrderId};
+        <include refid="receiptColumns"/>
+        JOIN (
+            <include refid="receiptTotals"/>
+        ) totals ON v.id = totals.id
     </select>
 
     <select id="sumBonusByThisMonth" resultType="java.lang.Double">
@@ -768,7 +710,7 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, performance_ratio AS performanceRatio,
             mara_id AS maraId,
             official_id AS officialId,
             bank_check AS bankCheck,
@@ -834,7 +776,7 @@
             deduct_gst AS deductGst,
             bonus,
             bonus_date AS bonusDate,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, performance_ratio AS performanceRatio,
             mara_id AS maraId,
             official_id AS officialId,
             bank_check AS bankCheck,
@@ -937,7 +879,7 @@
         bv.deduct_gst AS deductGst,
         bv.bonus AS bonus,
         bv.bonus_date AS bonusDate,
-        bv.adviser_id AS adviserId,
+        bv.adviser_id AS adviserId, bv.performance_ratio AS performanceRatio,
         bv.mara_id AS maraId,
         bv.official_id AS officialId,
         bv.bank_check AS bankCheck,
@@ -1041,7 +983,7 @@
     bv.deduct_gst AS deductGst,
     bv.bonus AS bonus,
     bv.bonus_date AS bonusDate,
-    bv.adviser_id AS adviserId,
+    bv.adviser_id AS adviserId, bv.performance_ratio AS performanceRatio,
     bv.mara_id AS maraId,
     bv.official_id AS officialId,
     bv.bank_check AS bankCheck,
@@ -1142,7 +1084,7 @@
         ORDER BY v.gmt_create DESC;
     </select>
     <select id="listByServiceOrderIds" resultType="org.zhinanzhen.b.dao.pojo.VisaDO">
-        SELECT id, gmt_create AS gmtCreate, code, handling_date AS handlingDate, user_id AS userId, state, commission_state AS commissionState, kj_approval_date AS kjApprovalDate, receive_type_id AS receiveTypeId, receive_date AS receiveDate, service_id AS serviceId, service_order_id AS serviceOrderId, installment_num AS installmentNum, installment, receivable, received, per_amount AS perAmount, amount, expect_amount AS expectAmount, sure_expect_amount AS sureExpectAmount, currency, exchange_rate AS exchangeRate, discount, invoice_number AS invoiceNumber, gst, deduct_gst AS deductGst, bonus, bonus_date AS bonusDate, adviser_id AS adviserId, mara_id AS maraId, official_id AS officialId, bank_check AS bankCheck, is_checked AS isChecked, remarks, refuse_reason AS refuseReason, verify_code AS verifyCode, bank_date AS bankDate, is_close AS isClose, invoice_create AS invoiceCreate FROM b_visa WHERE service_order_id IN
+        SELECT id, gmt_create AS gmtCreate, code, handling_date AS handlingDate, user_id AS userId, state, commission_state AS commissionState, kj_approval_date AS kjApprovalDate, receive_type_id AS receiveTypeId, receive_date AS receiveDate, service_id AS serviceId, service_order_id AS serviceOrderId, installment_num AS installmentNum, installment, receivable, received, per_amount AS perAmount, amount, expect_amount AS expectAmount, sure_expect_amount AS sureExpectAmount, currency, exchange_rate AS exchangeRate, discount, invoice_number AS invoiceNumber, gst, deduct_gst AS deductGst, bonus, bonus_date AS bonusDate, adviser_id AS adviserId, performance_ratio AS performanceRatio, mara_id AS maraId, official_id AS officialId, bank_check AS bankCheck, is_checked AS isChecked, remarks, refuse_reason AS refuseReason, verify_code AS verifyCode, bank_date AS bankDate, is_close AS isClose, invoice_create AS invoiceCreate FROM b_visa WHERE service_order_id IN
         <foreach collection="serviceOrderIds" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
 

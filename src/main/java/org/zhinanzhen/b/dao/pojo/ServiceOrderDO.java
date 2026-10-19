@@ -148,6 +148,8 @@ public class ServiceOrderDO implements Serializable {
 
 	private int adviserId;
 
+	private Integer recommendAdviserId;
+
 	private int adviserId2;
 
 	private int officialId;

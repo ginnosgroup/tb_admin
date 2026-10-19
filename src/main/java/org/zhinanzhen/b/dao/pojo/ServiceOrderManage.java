@@ -15,6 +15,7 @@ public class ServiceOrderManage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Integer id;
+    private Integer recommendAdviserId;
     private Date gmtCreate;
     private Date gmtModify;
     private String code;

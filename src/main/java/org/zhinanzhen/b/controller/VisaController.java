@@ -22,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -137,6 +140,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
+	@Transactional(rollbackFor = Exception.class)
 	public Response<List<VisaDTO>> addVisa(@RequestParam(value = "userId", required = false) String userId,
 										   @RequestParam(value = "applicantBirthday", required = false) String applicantBirthday,
 										   @RequestParam(value = "handlingDate") String handlingDate,
@@ -317,7 +321,7 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setDeductGst(commission - visaDto.getGst());
 					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 					visaDto.setExpectAmount(commission);
-					if ("VISA".equalsIgnoreCase(serviceOrderDto.getType()) && (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482"))) {
+					if ("VISA".equalsIgnoreCase(serviceOrderDtoT.getType()) && (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482"))) {
 						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.4);
 						visaDto.setBonus(visaDto.getBonus() * 0.4);
 					}
@@ -340,8 +344,8 @@ public class VisaController extends BaseCommissionOrderController {
 						visaDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
 					visaDto.setKjApprovalDate(new Date());
 				}
-				if (visaService.addVisa(visaDto) > 0)
-					visaDtoList.add(visaDto);
+				visaDtoList.addAll(visaService.addVisaWithRecommendation(visaDto,
+						serviceOrderDtoT.getRecommendAdviserId()));
 				if (installmentNum == 1) {
 					_perAmount += visaDto.getPerAmount();
 					_amount += visaDto.getAmount();
@@ -377,6 +381,8 @@ public class VisaController extends BaseCommissionOrderController {
 			}
 			return new Response<List<VisaDTO>>(0, msg, visaDtoList);
 		} catch (ServiceException e) {
+			if (TransactionSynchronizationManager.isActualTransactionActive())
+				TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			return new Response<List<VisaDTO>>(e.getCode(), e.getMessage(), null);
 		}
 	}
@@ -967,7 +973,7 @@ public class VisaController extends BaseCommissionOrderController {
 
 						ServicePackagePriceDO servicePackagePriceDO = servicePackagePriceMap.get(visaDTO.getServiceId());
 						if (servicePackagePriceDO != null) {
-							double thirdPrince = servicePackagePriceDO.getThirdPrince();
+							double thirdPrince = servicePackagePriceDO.getThirdPrince() * visaDTO.getPerformanceRatio();
 							BigDecimal third_prince = BigDecimal.valueOf(thirdPrince);
 							double expectAmountAUD = new BigDecimal(visaDTO.getAmountAUD()).subtract(third_prince).doubleValue();
 							visaDTO.setExpectAmount(expectAmountAUD > 0.0 ? expectAmountAUD : 0.0);

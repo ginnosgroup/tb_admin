@@ -51,6 +51,8 @@ public interface VisaDAO {
 
 	VisaDO getFirstVisaByServiceOrderId(int serviceOrderId);
 
+	int checkFirstVisaReceipt(@Param("serviceOrderId") int serviceOrderId, @Param("bankCheck") String bankCheck);
+
 	VisaDO getSecondVisaByServiceOrderId(int serviceOrderId);
 
 	VisaDO getVisaByServiceOrderId(int serviceOrderId);

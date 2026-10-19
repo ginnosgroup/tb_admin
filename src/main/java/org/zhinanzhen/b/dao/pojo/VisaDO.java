@@ -83,6 +83,8 @@ public class VisaDO implements Serializable {
 
 	private int adviserId;
 
+	private double performanceRatio = 1.00;
+
 	private int maraId;
 
 	private int officialId;

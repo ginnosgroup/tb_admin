@@ -72,6 +72,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -325,6 +326,7 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "refNo", required = false) String refNo,
                                              @RequestParam(value = "officialData", required = false) String officialData,
                                              @RequestParam(value = "adviserId", required = false) String adviserId,
+                                             @RequestParam(value = "recommendAdviserId", required = false) Integer recommendAdviserId,
                                              @RequestParam(value = "userId", required = false) String userId,
                                              @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
@@ -336,6 +338,10 @@ public class ServiceOrderManageController extends BaseController {
             return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
         }
         List<ServiceOrderJsonRequest> serviceOrderJson = new ArrayList<>();
+        if (recommendAdviserId != null && (recommendAdviserId <= 0
+                || adviserDAO.getAdviserById(recommendAdviserId) == null)) {
+            return new Response<Integer>(1, "推荐顾问不存在，请检查recommendAdviserId。", 0);
+        }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.findAndRegisterModules();
@@ -432,11 +438,12 @@ public class ServiceOrderManageController extends BaseController {
         if (StringUtil.isNotEmpty(contractData)) {
             serviceOrderDto.setContractData(contractData);
         }
+        // 子订单统一转换为外层（管理）订单的币种，通常是 AUD，并把收款金额按汇率同步换算。
+        // 原先是直接报错“创建失败，请确认支付币种是否一致”，导致“子项按人民币收款、主单为澳币”的订单无法提交。
+        String manageCurrency = StringUtil.isNotEmpty(serviceOrderDto.getCurrency()) ? serviceOrderDto.getCurrency() : "AUD";
+        serviceOrderDto.setCurrency(manageCurrency);
         for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
-            String currency1 = serviceOrderJsonRequest.getCurrency();
-            if (!currency.equalsIgnoreCase(currency1)) {
-                return new Response<Integer>(1, "创建失败，请确认支付币种是否一致", null);
-            }
+            convertChildOrderCurrency(serviceOrderJsonRequest, manageCurrency, serviceOrderDto.getExchangeRate());
         }
 
         if (StringUtil.isNotEmpty(contractData)) {
@@ -476,6 +483,7 @@ public class ServiceOrderManageController extends BaseController {
             }
         }
 
+        serviceOrderDto.setRecommendAdviserId(recommendAdviserId);
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
@@ -484,6 +492,7 @@ public class ServiceOrderManageController extends BaseController {
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
+                    serviceOrderJsonRequest.setRecommendAdviserId(recommendAdviserId);
                     serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
@@ -535,6 +544,76 @@ public class ServiceOrderManageController extends BaseController {
             return null;
         }
         return verifyCode.replace("$", "").replace("#", "").replace(" ", "");
+    }
+
+    /**
+     * 子订单币种统一：把子订单的收款金额换算成外层（管理）订单的币种。
+     * <p>exchangeRate 的口径是「1 个目标币种折算成多少子订单币种」（系统里 CNY/AUD≈4.98），
+     * 因此 CNY→AUD 用除法、AUD→CNY 用乘法；金额统一四舍五入保留 2 位小数。</p>
+     */
+    private void convertChildOrderCurrency(ServiceOrderJsonRequest child, String targetCurrency, double outerRate) {
+        if (child == null || StringUtil.isEmpty(targetCurrency))
+            return;
+        String childCurrency = child.getCurrency();
+        if (StringUtil.isEmpty(childCurrency)) {
+            child.setCurrency(targetCurrency);
+            return;
+        }
+        if (childCurrency.equalsIgnoreCase(targetCurrency))
+            return;
+        Double childRate = parseAmountOrNull(child.getExchangeRate());
+        double rate = childRate != null && childRate > 0 ? childRate : outerRate;
+        double factor;
+        if ("CNY".equalsIgnoreCase(childCurrency) && "AUD".equalsIgnoreCase(targetCurrency)) {
+            factor = rate > 0 ? 1d / rate : 0d;
+        } else if ("AUD".equalsIgnoreCase(childCurrency) && "CNY".equalsIgnoreCase(targetCurrency)) {
+            factor = rate > 0 ? rate : 0d;
+        } else {
+            LOG.warn("暂不支持的子订单币种换算，保持原样。childCurrency={}, targetCurrency={}, childId={}",
+                    childCurrency, targetCurrency, child.getId());
+            return;
+        }
+        if (factor <= 0) {
+            LOG.warn("子订单币种换算缺少有效汇率，仅修改币种字段。childCurrency={}, targetCurrency={}, childId={}",
+                    childCurrency, targetCurrency, child.getId());
+            child.setCurrency(targetCurrency);
+            return;
+        }
+        String originReceived = child.getReceived();
+        String originAmount = child.getAmount();
+        String originPerAmount = child.getPerAmount();
+        child.setReceived(convertAmount(child.getReceived(), factor));
+        child.setAmount(convertAmount(child.getAmount(), factor));
+        child.setPerAmount(convertAmount(child.getPerAmount(), factor));
+        child.setReceivable(convertAmount(child.getReceivable(), factor));
+        child.setExpectAmount(convertAmount(child.getExpectAmount(), factor));
+        child.setDiscount(convertAmount(child.getDiscount(), factor));
+        child.setGst(convertAmount(child.getGst(), factor));
+        child.setDeductGst(convertAmount(child.getDeductGst(), factor));
+        child.setBonus(convertAmount(child.getBonus(), factor));
+        child.setCurrency(targetCurrency);
+        LOG.info("子订单币种已换算 {} -> {}（汇率 {}）：received {} -> {}，amount {} -> {}，perAmount {} -> {}，childId={}",
+                childCurrency, targetCurrency, rate, originReceived, child.getReceived(),
+                originAmount, child.getAmount(), originPerAmount, child.getPerAmount(), child.getId());
+    }
+
+    /** 按比例换算金额字符串；空值或非数字时原样返回，避免把空串变成 0。 */
+    private String convertAmount(String value, double factor) {
+        Double amount = parseAmountOrNull(value);
+        if (amount == null)
+            return value;
+        return BigDecimal.valueOf(amount * factor).setScale(2, RoundingMode.HALF_UP).toPlainString();
+    }
+
+    /** 解析金额/汇率字符串，兼容带 $ 前缀与千分位逗号；无法解析时返回 null。 */
+    private Double parseAmountOrNull(String value) {
+        if (StringUtil.isEmpty(value))
+            return null;
+        try {
+            return Double.parseDouble(value.trim().replace("$", "").replace(",", ""));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     @RequestMapping(value = "/listContractPdfAnalysisCache", method = RequestMethod.GET)
@@ -6257,6 +6336,7 @@ public class ServiceOrderManageController extends BaseController {
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
             ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+            serviceOrderDto.setRecommendAdviserId(serviceOrderJsonRequest.getRecommendAdviserId());
             if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
                 serviceOrderDto.setMaraId(Integer.parseInt(maraId));
                 if (isPay.equalsIgnoreCase("false")) {

@@ -191,9 +191,7 @@ public class KjController extends BaseController {
 							VisaDTO visaDto = visaService.getFirstVisaByServiceOrderId(serviceOrderDto.getId());
 							if (visaDto != null)
 								if (visaDto.getAmount() == amount) {
-									visaDto.setBankCheck(_id);
-									visaDto.setChecked(true);
-									visaService.updateVisa(visaDto);
+									visaService.checkFirstVisaReceipt(serviceOrderDto.getId(), _id);
 									checkOrderList.add(new CheckOrderDTO(visaDto.getId(), visaDto.getGmtCreate(), "V",
 											_id, _amount, true, ""));
 								} else

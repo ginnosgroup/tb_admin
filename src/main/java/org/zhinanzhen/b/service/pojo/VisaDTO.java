@@ -122,6 +122,8 @@ public class VisaDTO {
 
 	private int adviserId;
 
+	private double performanceRatio = 1.00; // 本条业绩分配比例，普通订单为1
+
 	private int maraId;
 
 	private String adviserName;

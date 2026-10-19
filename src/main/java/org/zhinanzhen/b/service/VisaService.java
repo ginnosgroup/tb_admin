@@ -12,6 +12,11 @@ public interface VisaService {
 
 	public int addVisa(VisaDTO visaDto) throws ServiceException;
 
+	/** 按本期完整金额生成原顾问和推荐顾问的业绩记录。 */
+	List<VisaDTO> addVisaWithRecommendation(VisaDTO visaDto, Integer recommendAdviserId) throws ServiceException;
+
+	int checkFirstVisaReceipt(int serviceOrderId, String bankCheck) throws ServiceException;
+
 	public int updateVisa(VisaDTO visaDto) throws ServiceException;
 
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,

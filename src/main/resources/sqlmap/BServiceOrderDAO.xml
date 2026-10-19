@@ -64,6 +64,7 @@
                 applicant_id,
                 mara_id,
                 adviser_id,
+                recommend_adviser_id,
                 adviser_id_2,
                 official_id,
                 remarks,
@@ -154,6 +155,7 @@
                 #{applicantId},
                 #{maraId},
                 #{adviserId},
+                #{recommendAdviserId},
                 #{adviserId2},
                 #{officialId},
                 #{remarks},
@@ -716,7 +718,7 @@
         so.user_id AS userId,
         so.applicant_id AS applicantId,
         so.mara_id AS maraId,
-        so.adviser_id AS adviserId,
+        so.adviser_id AS adviserId, so.recommend_adviser_id AS recommendAdviserId,
         so.adviser_id_2 AS adviserId2,
         so.official_id AS officialId,
         so.remarks AS remarks,
@@ -904,6 +906,7 @@
         SELECT
         id,
         type,
+        recommend_adviser_id AS recommendAdviserId,
         service_package_id AS servicePackageId,
         state
         FROM b_service_order
@@ -918,6 +921,7 @@
         SELECT
         id,
         type,
+        recommend_adviser_id AS recommendAdviserId,
         state
         FROM b_service_order
         WHERE is_delete = 0
@@ -995,7 +999,7 @@
             user_id AS userId,
             applicant_id AS applicantId,
             mara_id AS maraId,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, recommend_adviser_id AS recommendAdviserId,
             adviser_id_2 AS adviserId2,
             official_id AS officialId,
             remarks,
@@ -1206,7 +1210,7 @@
             user_id AS userId,
             applicant_id AS applicantId,
             mara_id AS maraId,
-            adviser_id AS adviserId,
+            adviser_id AS adviserId, recommend_adviser_id AS recommendAdviserId,
             adviser_id_2 AS adviserId2,
             official_id AS officialId,
             remarks,
@@ -1321,7 +1325,7 @@
         so.user_id AS userId,
         so.applicant_id AS applicantId,
         so.mara_id AS maraId,
-        so.adviser_id AS adviserId,
+        so.adviser_id AS adviserId, so.recommend_adviser_id AS recommendAdviserId,
         so.adviser_id_2 AS adviserId2,
         so.official_id AS officialId,
         so.remarks AS remarks,
@@ -1492,7 +1496,7 @@
             bv.deduct_gst AS deductGst,
             bv.bonus AS bonus,
             bv.bonus_date AS bonusDate,
-            bv.adviser_id AS adviserId,
+            bv.adviser_id AS adviserId, bv.performance_ratio AS performanceRatio,
             bv.mara_id AS maraId,
             bv.official_id AS officialId,
             bv.bank_check AS bankCheck,
@@ -1625,7 +1629,7 @@
             so.user_id AS userId,
             so.applicant_id AS applicantId,
             so.mara_id AS maraId,
-            so.adviser_id AS adviserId,
+            so.adviser_id AS adviserId, so.recommend_adviser_id AS recommendAdviserId,
             so.adviser_id_2 AS adviserId2,
             so.official_id AS officialId,
             so.remarks AS remarks,
@@ -1826,6 +1830,7 @@
         <result column="applicantId" property="applicantId"></result>
         <result column="maraId" property="maraId"></result>
         <result column="adviserId" property="adviserId"></result>
+        <result column="recommendAdviserId" property="recommendAdviserId"></result>
         <result column="adviserId2" property="adviserId2"></result>
         <result column="officialId" property="officialId"></result>
         <result column="remarks" property="remarks"></result>
@@ -1851,12 +1856,12 @@
         </association>
     </resultMap>
     <select id="listByParentIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
-        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, code, finish_date AS finishDate, type, service_id AS serviceId, parent_id AS parentId, applicant_parent_id AS applicantParentId, service_package_id AS servicePackageId, school_id AS schoolId, course_id AS courseId, school_institution_location_id AS schoolInstitutionLocationId, institution_trading_name AS institutionTradingName, state, urgent_state AS urgentState, mara_approval_date AS maraApprovalDate, official_approval_date AS officialApprovalDate, is_settle AS isSettle, is_submitted AS isSubmitted, subagency_id AS subagencyId, is_pay AS isPay, receive_type_id AS receiveTypeId, receive_date AS receiveDate, receivable, discount, received, installment, per_amount AS perAmount, amount, expect_amount AS expectAmount, currency, exchange_rate AS exchangeRate, gst, deduct_gst AS deductGst, bonus, user_id AS userId, applicant_id AS applicantId, mara_id AS maraId, adviser_id AS adviserId, adviser_id_2 AS adviserId2, official_id AS officialId, remarks, refuse_reason AS refuseReason, information, nut_cloud AS nutCloud, service_assess_id AS serviceAssessId, completion_phase AS completionPhase, verify_code AS verifyCode, readcommitted_date AS readcommittedDate, ref_no AS refNo, EOI_number AS EOINumber, binding_order AS bindingOrder, offer_type AS offerType, offer_url AS offerUrl, is_insurance_company AS isInsuranceCompany, official_data AS officialData, score_options AS scoreOptions, score_state AS scoreState, score_mark AS scoreMark, eoi_type AS eoiType, is_COE AS isCOE, is_transfer AS isTransfer, con_current_coe AS conCurrentCoe FROM b_service_order WHERE parent_id IN
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, code, finish_date AS finishDate, type, service_id AS serviceId, parent_id AS parentId, applicant_parent_id AS applicantParentId, service_package_id AS servicePackageId, school_id AS schoolId, course_id AS courseId, school_institution_location_id AS schoolInstitutionLocationId, institution_trading_name AS institutionTradingName, state, urgent_state AS urgentState, mara_approval_date AS maraApprovalDate, official_approval_date AS officialApprovalDate, is_settle AS isSettle, is_submitted AS isSubmitted, subagency_id AS subagencyId, is_pay AS isPay, receive_type_id AS receiveTypeId, receive_date AS receiveDate, receivable, discount, received, installment, per_amount AS perAmount, amount, expect_amount AS expectAmount, currency, exchange_rate AS exchangeRate, gst, deduct_gst AS deductGst, bonus, user_id AS userId, applicant_id AS applicantId, mara_id AS maraId, adviser_id AS adviserId, recommend_adviser_id AS recommendAdviserId, adviser_id_2 AS adviserId2, official_id AS officialId, remarks, refuse_reason AS refuseReason, information, nut_cloud AS nutCloud, service_assess_id AS serviceAssessId, completion_phase AS completionPhase, verify_code AS verifyCode, readcommitted_date AS readcommittedDate, ref_no AS refNo, EOI_number AS EOINumber, binding_order AS bindingOrder, offer_type AS offerType, offer_url AS offerUrl, is_insurance_company AS isInsuranceCompany, official_data AS officialData, score_options AS scoreOptions, score_state AS scoreState, score_mark AS scoreMark, eoi_type AS eoiType, is_COE AS isCOE, is_transfer AS isTransfer, con_current_coe AS conCurrentCoe FROM b_service_order WHERE parent_id IN
         <foreach collection="parentIds" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
 
     <select id="listByIds" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
-        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, code, finish_date AS finishDate, type, service_id AS serviceId, parent_id AS parentId, applicant_parent_id AS applicantParentId, service_package_id AS servicePackageId, school_id AS schoolId, course_id AS courseId, school_institution_location_id AS schoolInstitutionLocationId, institution_trading_name AS institutionTradingName, state, urgent_state AS urgentState, mara_approval_date AS maraApprovalDate, official_approval_date AS officialApprovalDate, is_settle AS isSettle, is_submitted AS isSubmitted, subagency_id AS subagencyId, is_pay AS isPay, receive_type_id AS receiveTypeId, receive_date AS receiveDate, receivable, discount, received, installment, per_amount AS perAmount, amount, expect_amount AS expectAmount, currency, exchange_rate AS exchangeRate, gst, deduct_gst AS deductGst, bonus, user_id AS userId, applicant_id AS applicantId, mara_id AS maraId, adviser_id AS adviserId, adviser_id_2 AS adviserId2, official_id AS officialId, remarks, refuse_reason AS refuseReason, information, nut_cloud AS nutCloud, service_assess_id AS serviceAssessId, completion_phase AS completionPhase, verify_code AS verifyCode, readcommitted_date AS readcommittedDate, ref_no AS refNo, EOI_number AS EOINumber, binding_order AS bindingOrder, offer_type AS offerType, offer_url AS offerUrl, is_insurance_company AS isInsuranceCompany, official_data AS officialData, score_options AS scoreOptions, score_state AS scoreState, score_mark AS scoreMark, eoi_type AS eoiType, is_COE AS isCOE, is_transfer AS isTransfer, con_current_coe AS conCurrentCoe FROM b_service_order WHERE id IN
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, code, finish_date AS finishDate, type, service_id AS serviceId, parent_id AS parentId, applicant_parent_id AS applicantParentId, service_package_id AS servicePackageId, school_id AS schoolId, course_id AS courseId, school_institution_location_id AS schoolInstitutionLocationId, institution_trading_name AS institutionTradingName, state, urgent_state AS urgentState, mara_approval_date AS maraApprovalDate, official_approval_date AS officialApprovalDate, is_settle AS isSettle, is_submitted AS isSubmitted, subagency_id AS subagencyId, is_pay AS isPay, receive_type_id AS receiveTypeId, receive_date AS receiveDate, receivable, discount, received, installment, per_amount AS perAmount, amount, expect_amount AS expectAmount, currency, exchange_rate AS exchangeRate, gst, deduct_gst AS deductGst, bonus, user_id AS userId, applicant_id AS applicantId, mara_id AS maraId, adviser_id AS adviserId, recommend_adviser_id AS recommendAdviserId, adviser_id_2 AS adviserId2, official_id AS officialId, remarks, refuse_reason AS refuseReason, information, nut_cloud AS nutCloud, service_assess_id AS serviceAssessId, completion_phase AS completionPhase, verify_code AS verifyCode, readcommitted_date AS readcommittedDate, ref_no AS refNo, EOI_number AS EOINumber, binding_order AS bindingOrder, offer_type AS offerType, offer_url AS offerUrl, is_insurance_company AS isInsuranceCompany, official_data AS officialData, score_options AS scoreOptions, score_state AS scoreState, score_mark AS scoreMark, eoi_type AS eoiType, is_COE AS isCOE, is_transfer AS isTransfer, con_current_coe AS conCurrentCoe FROM b_service_order WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </select>
 

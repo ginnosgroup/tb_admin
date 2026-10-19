@@ -63,6 +63,7 @@ public class ServiceOrderJsonRequest {
     private String servicePackageIds;
     private String maraId;
     private String adviserId;
+    private Integer recommendAdviserId;
     private String officialId;
     private String remarks;
     private String information;

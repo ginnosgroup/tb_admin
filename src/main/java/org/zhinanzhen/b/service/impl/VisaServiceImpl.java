@@ -8,6 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.controller.BaseCommissionOrderController;
 import org.zhinanzhen.b.dao.*;
@@ -15,6 +16,7 @@ import org.zhinanzhen.b.dao.pojo.*;
 import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.VisaService;
+import org.zhinanzhen.b.service.VisaPerformanceAllocation;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.Response;
@@ -148,6 +150,37 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<VisaDTO> addVisaWithRecommendation(VisaDTO visaDto, Integer recommendAdviserId)
+			throws ServiceException {
+		if (visaDto == null || (recommendAdviserId != null && (recommendAdviserId <= 0
+				|| adviserDao.getAdviserById(recommendAdviserId) == null))) {
+			ServiceException error = new ServiceException("业绩数据或推荐顾问编号无效。");
+			error.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw error;
+		}
+		List<VisaDTO> allocated = VisaPerformanceAllocation.allocate(visaDto, recommendAdviserId);
+		for (VisaDTO record : allocated) {
+			if (addVisa(record) <= 0) {
+				ServiceException error = new ServiceException("顾问业绩分配保存失败。");
+				error.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+				throw error;
+			}
+		}
+		return allocated;
+	}
+
+	@Override
+	public int checkFirstVisaReceipt(int serviceOrderId, String bankCheck) throws ServiceException {
+		try {
+			// 按期对账只改对账标记，不能把合计金额写回某一顾问的份额。
+			return visaDao.checkFirstVisaReceipt(serviceOrderId, bankCheck);
+		} catch (Exception e) {
+			throw new ServiceException(e);
 		}
 	}
 
