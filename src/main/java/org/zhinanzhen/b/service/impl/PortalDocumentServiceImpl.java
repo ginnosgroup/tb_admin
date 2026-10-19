@@ -65,6 +65,7 @@ import com.ikasoa.core.utils.StringUtil;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfAppearance;
 import com.itextpdf.text.pdf.PdfArray;
 import com.itextpdf.text.pdf.PdfDictionary;
@@ -78,6 +79,11 @@ import com.itextpdf.text.pdf.PdfString;
 public class PortalDocumentServiceImpl extends BaseService implements PortalDocumentService {
 
 	private static final String CONTRACT_TEMPLATE = "Contract-CEM-SYD-Comp Final Version.pdf";
+	private static final String CONTRACT_CJK_FONT = "fonts/simhei.ttf";
+	private static final Object CONTRACT_CJK_FONT_LOCK = new Object();
+	private static volatile BaseFont embeddedContractCjkFont;
+	private static final String NPC_OFFLINE_FORM = "npc_offline_form.pdf";
+	private static final Object NPC_OFFLINE_FORM_LOCK = new Object();
 	private static final Set<String> CONTRACT_TEMPLATE_NAMES = Collections.unmodifiableSet(
 			new HashSet<String>(Arrays.asList(
 					"Contract-CEM-ACT-13-Sep-2022.pdf",
@@ -116,8 +122,9 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 	/** 客户邮件主题：系统邮件模板01（服务合同及Form 956）。 */
 	private static final String MAIL_SUBJECT_CONTRACT =
 			"Migration Services Agreement and Form 956 – Signature Required / 移民代理服务合同及 Form 956 – 请签署";
-	/** 客户邮件主题：系统邮件模板02（材料清单）。 */
-	private static final String MAIL_SUBJECT_CHECKLIST = "Document Checklist – Visa Application / 签证申请 – 材料清单";
+	/** 状态06给客户发送NPC线下申请表。 */
+	private static final String MAIL_SUBJECT_NPC_OFFLINE_FORM =
+			"AFP National Police Check – Offline Form / AFP 无犯罪记录证明线下申请表";
 	/** 客户邮件主题：系统邮件模板04（签证递交通知）。 */
 	private static final String MAIL_SUBJECT_LODGED = "Visa Application Lodged / 签证申请已成功递交";
 	/** 客户邮件主题：系统邮件模板05（移民局补充材料通知）。 */
@@ -804,26 +811,52 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 		CustomerDocumentData data = buildCustomerData(portalDto);
 		if (StringUtil.isEmpty(data.email))
-			throw serviceException("客户邮箱为空，申请材料准备通知未发送.", ErrorCodeEnum.DATA_ERROR.code(), null);
-		Path materialList = requireApplicationMaterialsList(portalDto.getPortalType());
+			throw serviceException("客户邮箱为空，NPC线下申请表未发送.", ErrorCodeEnum.DATA_ERROR.code(), null);
+		Path npcOfflineForm = requireNpcOfflineForm();
 
 		String signerName = resolveMailSignerName(portalDto);
-		String title = MAIL_SUBJECT_CHECKLIST;
-		String content = buildDocumentChecklistMail(portalDto.getId(), data.fullName, signerName, caseUrl);
+		String title = MAIL_SUBJECT_NPC_OFFLINE_FORM;
+		String content = buildNpcOfflineFormMail(data.fullName, signerName, caseUrl);
 		try {
-			sendMailWithAttachments(data.email, title, content.toString(), materialList.toFile());
+			sendMailWithAttachments(data.email, title, content, npcOfflineForm.toFile());
 		} catch (Exception e) {
-			throw serviceException("发送申请材料准备通知失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
+			throw serviceException("发送NPC线下申请表失败: " + e.getMessage(), ErrorCodeEnum.OTHER_ERROR.code(), e);
 		}
 	}
 
 	@Override
-	public void validateApplicationMaterialsList(PortalTypeDTO portalType) throws ServiceException {
-		requireApplicationMaterialsList(portalType);
+	public void validateNpcOfflineForm() throws ServiceException {
+		requireNpcOfflineForm();
 	}
 
-	private Path requireApplicationMaterialsList(PortalTypeDTO portalType) throws ServiceException {
-		return requireGeneratedFile(portalType == null ? null : portalType.getFilePath(), "材料清单");
+	/** 邮件异步发送，资源文件需保留在稳定路径，不能用发送方法结束即删除的临时文件。 */
+	private Path requireNpcOfflineForm() throws ServiceException {
+		ClassPathResource resource = new ClassPathResource(NPC_OFFLINE_FORM);
+		if (!resource.exists())
+			throw serviceException("NPC线下申请表不存在。", ErrorCodeEnum.DATA_ERROR.code(), null);
+		try (InputStream input = resource.getInputStream(); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[8192];
+			int length;
+			while ((length = input.read(buffer)) != -1)
+				output.write(buffer, 0, length);
+			byte[] content = output.toByteArray();
+			if (content.length < 4 || content[0] != '%' || content[1] != 'P'
+					|| content[2] != 'D' || content[3] != 'F')
+				throw serviceException("NPC线下申请表不是有效的PDF文件。", ErrorCodeEnum.DATA_ERROR.code(), null);
+			Path directory = resolveUploadDataRoot().resolve("mail-templates")
+					.resolve(signatureFingerprint(content));
+			Path staged = directory.resolve(NPC_OFFLINE_FORM);
+			synchronized (NPC_OFFLINE_FORM_LOCK) {
+				Files.createDirectories(directory);
+				if (!Files.isRegularFile(staged) || Files.size(staged) != content.length)
+					Files.write(staged, content);
+			}
+			return staged;
+		} catch (ServiceException e) {
+			throw e;
+		} catch (Exception e) {
+			throw serviceException("读取NPC线下申请表失败: " + e.getMessage(), ErrorCodeEnum.DATA_ERROR.code(), e);
+		}
 	}
 
 	@Override
@@ -1271,23 +1304,18 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 				chineseAction.toString(), customerName, signerName);
 	}
 
-	/** 系统邮件模板02：申请材料清单（中英对照），含AFP代办说明，保留案件链接。 */
-	private String buildDocumentChecklistMail(int portalId, String customerName, String signerName, String caseUrl) {
+	/** 状态06：请客户填写并回传NPC线下申请表，保留案件链接。 */
+	private String buildNpcOfflineFormMail(String customerName, String signerName, String caseUrl) {
 		StringBuilder english = new StringBuilder();
-		english.append("<p>Please find attached the documents required for preparing your visa application.</p>");
-		english.append("<p>Kindly prepare and provide the required documents as outlined in the checklist.</p>");
-		english.append("<p>If you would like us to assist with applying for an Australian Federal Police (AFP) "
-				+ "National Police Check on your behalf, please click the relevant link to complete the online form, "
-				+ "or download and complete the AFP information form and return it to us.</p>");
-		english.append("<p>If any documents are unavailable or you have questions regarding the requirements, "
-				+ "please let us know so that we can provide further guidance.</p>");
-		english.append("<p>We look forward to receiving your documents.</p>");
+		english.append("<p>Please find attached the Australian Federal Police (AFP) National Police Check "
+				+ "offline form.</p>");
+		english.append("<p>Please complete the attached form and return it to us so we can assist with "
+				+ "your application.</p>");
+		english.append("<p>If you have any questions, please contact us.</p>");
 		StringBuilder chinese = new StringBuilder();
-		chinese.append("<p>附件为准备您的签证申请所需的相关文件，请查收。</p>");
-		chinese.append("<p>如需我们代为申请澳大利亚联邦警察（AFP）无犯罪记录证明，请点击相应链接填写在线申请信息，"
-				+ "或下载并填写 AFP 信息表后发回给我们。</p>");
-		chinese.append("<p>如有任何材料暂时无法提供，或对材料要求存在疑问，请及时与我们联系，以便我们进一步协助。</p>");
-		chinese.append("<p>期待收到您的材料。</p>");
+		chinese.append("<p>附件为澳大利亚联邦警察（AFP）无犯罪记录证明线下申请表，请查收。</p>");
+		chinese.append("<p>请填写随附表格并回复给我们，以便协助您办理申请。</p>");
+		chinese.append("<p>如有疑问，请及时与我们联系。</p>");
 		return buildBilingualMail(english.toString(),
 				englishCaseLinkLine(caseUrl), chinese.toString(),
 				chineseCaseLinkLine(caseUrl), customerName, signerName);
@@ -1754,8 +1782,46 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 
 	private void setPdfField(AcroFields form, String fieldName, String value) throws Exception {
 		String normalizedValue = normalizeInputValue(value);
-		if (StringUtil.isNotEmpty(fieldName) && normalizedValue != null && hasPdfField(form, fieldName))
+		if (StringUtil.isNotEmpty(fieldName) && normalizedValue != null && hasPdfField(form, fieldName)) {
+			// 模板字段默认使用 Helvetica。它无法生成中文的外观流，Chrome 会显示为空白；
+			// 为含中文的字段嵌入字体后再设置值，确保 /V 与 /AP 都能被浏览器读取。
+			if (containsHanCharacter(normalizedValue))
+				form.setFieldProperty(fieldName, "textfont", embeddedContractCjkFont(), null);
 			form.setField(fieldName, normalizedValue);
+		}
+	}
+
+	private boolean containsHanCharacter(String value) {
+		for (int offset = 0; offset < value.length();) {
+			int codePoint = value.codePointAt(offset);
+			if (Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN)
+				return true;
+			offset += Character.charCount(codePoint);
+		}
+		return false;
+	}
+
+	private BaseFont embeddedContractCjkFont() throws Exception {
+		BaseFont font = embeddedContractCjkFont;
+		if (font != null)
+			return font;
+		synchronized (CONTRACT_CJK_FONT_LOCK) {
+			font = embeddedContractCjkFont;
+			if (font == null) {
+				ClassPathResource resource = new ClassPathResource(CONTRACT_CJK_FONT);
+				try (InputStream input = resource.getInputStream();
+						ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+					byte[] buffer = new byte[8192];
+					int length;
+					while ((length = input.read(buffer)) != -1)
+						output.write(buffer, 0, length);
+					font = BaseFont.createFont("simhei.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED,
+							true, output.toByteArray(), null);
+				}
+				embeddedContractCjkFont = font;
+			}
+		}
+		return font;
 	}
 
 	private void setPdfCheckBox(PdfStamper stamper, AcroFields form, String fieldName, boolean checked)

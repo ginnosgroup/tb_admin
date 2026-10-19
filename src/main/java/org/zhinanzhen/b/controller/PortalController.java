@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -936,6 +937,83 @@ public class PortalController extends BaseController {
 		}
 	}
 
+	/** 下载当前案件所有 stage=applicationWA 的附件。 */
+	@RequestMapping(value = "/attachment/applicationWADownload", method = RequestMethod.GET)
+	public void downloadApplicationWAAttachments(@RequestParam("portalId") Integer portalId,
+			HttpServletResponse response) throws IOException {
+		super.setGetHeader(response);
+		if (portalId == null || portalId <= 0) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "portalId必须是正整数。");
+			return;
+		}
+
+		List<PortalAttachmentDTO> attachments;
+		try {
+			attachments = portalAttachmentService.listPortalAttachmentByPortalIdAndStage(portalId, "applicationWA");
+		} catch (ServiceException e) {
+			LOG.error("查询applicationWA附件失败，portalId={}", portalId, e);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "查询案件附件失败。");
+			return;
+		}
+		if (attachments == null || attachments.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND, "该案件没有applicationWA附件。");
+			return;
+		}
+
+		// 先确认每份附件都可读取，避免下载到一半才发现压缩包不完整。
+		List<File> files = new ArrayList<File>(attachments.size());
+		for (PortalAttachmentDTO attachment : attachments) {
+			File file = attachment == null ? null : resolveAttachmentPhysicalFile(attachment.getFilePath());
+			if (file == null || !file.isFile() || !file.canRead()) {
+				LOG.warn("applicationWA附件文件不存在或不可读，portalId={}, attachmentId={}, filePath={}",
+						portalId, attachment == null ? null : attachment.getId(),
+						attachment == null ? null : attachment.getFilePath());
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "案件附件文件不存在或不可读。");
+				return;
+			}
+			files.add(file);
+		}
+
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition", "attachment; filename=applicationWA_" + portalId + ".zip");
+		response.setHeader("Cache-Control", "no-store");
+		Set<String> entryNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		try (ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream())) {
+			byte[] buffer = new byte[8192];
+			for (int i = 0; i < files.size(); i++) {
+				File file = files.get(i);
+				zipOut.putNextEntry(new ZipEntry(uniqueAttachmentZipName(attachments.get(i).getFileName(),
+						file.getName(), entryNames)));
+				try (InputStream in = new FileInputStream(file)) {
+					int length;
+					while ((length = in.read(buffer)) != -1)
+						zipOut.write(buffer, 0, length);
+				}
+				zipOut.closeEntry();
+			}
+		}
+	}
+
+	private static String uniqueAttachmentZipName(String originalName, String storedName, Set<String> usedNames) {
+		String name = originalName == null ? "" : originalName.replace('\\', '/');
+		name = name.substring(name.lastIndexOf('/') + 1).trim();
+		if (name.isEmpty() || ".".equals(name) || "..".equals(name))
+			name = storedName;
+		StringBuilder safeName = new StringBuilder(name.length());
+		for (int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			safeName.append(Character.isISOControl(c) || ":*?\"<>|".indexOf(c) >= 0 ? '_' : c);
+		}
+		name = safeName.toString();
+		int extensionIndex = name.lastIndexOf('.');
+		String stem = extensionIndex > 0 ? name.substring(0, extensionIndex) : name;
+		String extension = extensionIndex > 0 ? name.substring(extensionIndex) : "";
+		String uniqueName = name;
+		for (int suffix = 2; !usedNames.add(uniqueName); suffix++)
+			uniqueName = stem + " (" + suffix + ")" + extension;
+		return uniqueName;
+	}
+
 	/** 对 application/applicationWA/openAFile/supplementary/notice/customerSignature 等阶段解析上传替换规则。 */
 	private String resolveApplicationStage(String fileType) {
 		if ("autoLanguage".equalsIgnoreCase(fileType))
@@ -1741,12 +1819,7 @@ public class PortalController extends BaseController {
 			if ("06A".equals(strState) && !updateFilePaths.isEmpty())
 				replace06AArchiveAttachments(id, updateFilePaths);
 			if ("06".equals(strState)) {
-				int targetTypeId = oldPortalDto == null ? 0 : oldPortalDto.getTypeId();
-				if (StringUtil.isNotEmpty(typeId))
-					targetTypeId = portalDto.getTypeId();
-				PortalTypeDTO targetPortalType = targetTypeId > 0
-						? portalTypeService.getPortalType(targetTypeId) : null;
-				portalDocumentService.validateApplicationMaterialsList(targetPortalType);
+				portalDocumentService.validateNpcOfflineForm();
 			}
 			if (portalService.updatePortalWithAttachments(portalDto, portalAttachmentUpdateFilePaths, null) > 0) {
 				// 客户确认合同（03A -> 04）后，将已上传的签名写入三份最终文件。
@@ -2022,17 +2095,17 @@ public class PortalController extends BaseController {
 								"案件已更新为05，但文案通知邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
 				}
-				// 文案开始准备申请材料时，通知客户案件已进入准备阶段；不上传、不关联附件。
+				// 文案开始准备申请材料时，发送内置NPC线下申请表；不上传、不关联案件附件。
 				if ("06".equals(strState)) {
 					try {
 						PortalDTO savedPortalDto = portalService.getPortal(id, null, null, null, null, null);
 						portalDocumentService.sendApplicationMaterialsPreparationNotification(savedPortalDto,
 								buildPortalCustomerUrl(id));
 					} catch (ServiceException notificationException) {
-						LOG.error("案件已更新为06，但客户申请材料准备通知邮件发送失败，portalId={}", id,
+						LOG.error("案件已更新为06，但NPC线下申请表邮件发送失败，portalId={}", id,
 								notificationException);
 						return new Response<PortalDTO>(notificationException.getCode(),
-								"案件已更新为06，但客户通知邮件发送失败：" + notificationException.getMessage(), portalDto);
+								"案件已更新为06，但NPC线下申请表邮件发送失败：" + notificationException.getMessage(), portalDto);
 					}
 				}
 				if ("03A".equals(strState)) {
