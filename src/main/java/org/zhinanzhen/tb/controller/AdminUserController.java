@@ -1,6 +1,7 @@
 package org.zhinanzhen.tb.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -211,9 +212,18 @@ public class AdminUserController extends BaseController {
 	@ResponseBody
 	public Response<List<AdminUserRoleDO>> listRoles(HttpServletRequest request) {
 		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
-		if (login == null || !"SUPERAD".equalsIgnoreCase(login.getApList()))
-			return new Response<List<AdminUserRoleDO>>(1, "需要超级管理员权限。", null);
-		return new Response<List<AdminUserRoleDO>>(0, adminUserRoleService.list());
+		if (login == null || (!"SUPERAD".equalsIgnoreCase(login.getApList())
+				&& !"GW".equalsIgnoreCase(login.getApList())))
+			return new Response<List<AdminUserRoleDO>>(1, "需要超级管理员或顾问权限。", null);
+		try {
+			AdminUserRoleDO role = adminUserRoleService.get(login.getId());
+			List<AdminUserRoleDO> roles = new ArrayList<>();
+			if (role != null)
+				roles.add(role);
+			return new Response<List<AdminUserRoleDO>>(0, roles);
+		} catch (ServiceException e) {
+			return new Response<List<AdminUserRoleDO>>(1, e.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/roles/add", method = RequestMethod.POST)
