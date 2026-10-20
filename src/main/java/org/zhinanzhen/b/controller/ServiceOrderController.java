@@ -106,6 +106,9 @@ public class ServiceOrderController extends BaseController {
     ServiceOrderService serviceOrderService;
 
     @Resource
+    private org.zhinanzhen.b.service.impl.MultiRoleServiceOrderFlow multiRoleServiceOrderFlow;
+
+    @Resource
     VisaService visaService;
 
     @Resource
@@ -492,9 +495,17 @@ public class ServiceOrderController extends BaseController {
         try {
             super.setPostHeader(response);
             AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
+            boolean primaryAdviser = adminUserLoginInfo != null
+                    && ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    || "GW".equalsIgnoreCase(adminUserLoginInfo.getApList()));
+            Integer linkedAdviserId = adminUserLoginInfo == null || primaryAdviser ? null
+                    : multiRoleServiceOrderFlow.adviserIdOf(adminUserLoginInfo.getId());
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
-                    && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
+                    && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                    && linkedAdviserId == null))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+            if (linkedAdviserId != null)
+                adviserId = linkedAdviserId.toString();
             if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
                 if (isPay.equalsIgnoreCase("false")) {
                     return new Response<Integer>(1, "打包签证及雇主担保不能选择未支付，请核实.", 0);
@@ -2986,6 +2997,8 @@ public class ServiceOrderController extends BaseController {
             greenFormat.setBackground(Colour.GREEN);
             greenFormat.setAlignment(Alignment.CENTRE);
             greenFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+            sheet.addCell(new Label(21, 0, "是否推荐顾问订单", defaultFormat));
+            sheet.setColumnView(21, 20);
             int i = 1;
             for (ServiceOrderDTO so : serviceOrderLists) {
                 WritableCellFormat cellFormat;
@@ -3138,6 +3151,10 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(19, i, "否", cellFormat));
                 }
                 sheet.addCell(new Label(20, i, so.getRemarks() != null ? so.getRemarks() : "", cellFormat));
+                boolean hasRecommendation = so.getRecommendAdviserId() != null
+                        && so.getRecommendAdviserId() > 0
+                        && so.getRecommendAdviserId() != so.getAdviserId();
+                sheet.addCell(new Label(21, i, hasRecommendation ? "是" : "否", cellFormat));
                 i++;
             }
             wbe.write();
@@ -4582,9 +4599,10 @@ public class ServiceOrderController extends BaseController {
             if (context.getParameter("response") != null)
                 return (Response<ServiceOrderDTO>) context.getParameter("response");
 			else {
-				// TRA职评主订单提交REVIEW时，同步其申请人子订单状态。
-				if ("REVIEW".equalsIgnoreCase(state) && isTraMainOrder(serviceOrderDto)) {
-					syncTraChildOrdersToReview(id);
+				// 父订单提交REVIEW时，同步所有直接子订单，并按子订单ID通知文案。
+				boolean childOrdersNotified = false;
+				if ("REVIEW".equalsIgnoreCase(state)) {
+					childOrdersNotified = syncChildOrdersToReviewAndNotify(id);
 				}
 				// 发送消息到群聊PENGDING--->REVIEW
 				if ("GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"ZX".equals(serviceOrderDto.getType())
@@ -4605,7 +4623,7 @@ public class ServiceOrderController extends BaseController {
 						}
 					}
 				}
-				if (!"ZX".equals(serviceOrderDto.getType()) || ObjectUtil.isNotNull(serviceOrderDto.getOfficial()))// 咨询服务不用发邮件提醒
+				if (!childOrdersNotified && (!"ZX".equals(serviceOrderDto.getType()) || ObjectUtil.isNotNull(serviceOrderDto.getOfficial())))// 父子订单已按子订单发送文案邮件
 					serviceOrderService.sendRemind(id, state); // 发送提醒邮件
 				return new Response<ServiceOrderDTO>(0, id + "", null);
 			}
@@ -4614,51 +4632,53 @@ public class ServiceOrderController extends BaseController {
         }
     }
 
-    /**
-     * TRA职评主订单的子订单通过 applicant_parent_id 关联，主订单本身两个父级字段都为0。
-     */
-    private boolean isTraMainOrder(ServiceOrderDTO serviceOrderDto) {
-        if (serviceOrderDto == null
-                || !"VISA".equalsIgnoreCase(serviceOrderDto.getType())
-                || serviceOrderDto.getParentId() != 0
-                || serviceOrderDto.getApplicantParentId() != 0
-                || serviceOrderDto.getServiceId() != 24) {
-            return false;
-        }
-        ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderDto.getId());
-        if (category != null) {
-            return category.getId() == 9;
-        }
-
-        // 多职业TRA创建时，主订单没有写入职业分类中间表，分类保存在子订单上。
-        List<ServiceOrderDTO> childOrders = serviceOrderService.getZiServiceOrderById(serviceOrderDto.getId());
-        if (childOrders == null || childOrders.isEmpty()) {
-            return false;
-        }
-        for (ServiceOrderDTO childOrder : childOrders) {
-            if (childOrder == null || childOrder.getId() <= 0) {
-                continue;
-            }
-            ServiceCategory childCategory = serviceAssessDao.getCategoryIdByServiceOrderId(childOrder.getId());
-            if (childCategory != null && childCategory.getId() == 9) {
-                return true;
+    private boolean syncChildOrdersToReviewAndNotify(int parentOrderId) throws ServiceException {
+        Map<Integer, ServiceOrderDO> childOrders = new LinkedHashMap<>();
+        List<ServiceOrderDO> parentChildren = serviceOrderDAO.listByParentId(parentOrderId);
+        List<ServiceOrderDO> applicantChildren = serviceOrderDAO.listByApplicantParentId(parentOrderId);
+        if (parentChildren != null) {
+            for (ServiceOrderDO child : parentChildren) {
+                if (child != null && child.getId() > 0 && child.getId() != parentOrderId) {
+                    childOrders.put(child.getId(), child);
+                }
             }
         }
-        return false;
-    }
+        if (applicantChildren != null) {
+            for (ServiceOrderDO child : applicantChildren) {
+                if (child != null && child.getId() > 0 && child.getId() != parentOrderId) {
+                    childOrders.put(child.getId(), child);
+                }
+            }
+        }
 
-    private void syncTraChildOrdersToReview(int parentOrderId) throws ServiceException {
+        LOG.info("父订单REVIEW子单查询: parentId=" + parentOrderId
+                + ", parentIdChildren=" + (parentChildren == null ? 0 : parentChildren.size())
+                + ", applicantParentIdChildren=" + (applicantChildren == null ? 0 : applicantChildren.size())
+                + ", childIds=" + childOrders.keySet());
+        if (childOrders.isEmpty()) return false;
+
+        List<Integer> changedChildIds = new ArrayList<>();
+        for (ServiceOrderDO child : childOrders.values()) {
+            if (!"REVIEW".equalsIgnoreCase(child.getState())) changedChildIds.add(child.getId());
+        }
+
         final int updatedCount;
         try {
-            // getZiOrder未映射gmt_create等字段，不能将其DTO传给整单更新方法。
-            // 一条SQL同步全部职业/阶段子订单，避免逐条更新时部分成功。
-            updatedCount = serviceOrderDAO.updateTraChildOrdersToReview(parentOrderId);
+            // 仅更新 parent_id / applicant_parent_id 字段关联的直接子订单。
+            updatedCount = changedChildIds.isEmpty() ? 0
+                    : serviceOrderDAO.updateTraChildOrdersToReview(parentOrderId);
         } catch (Exception e) {
-            LOG.error("TRA职评子订单状态同步失败: parentId=" + parentOrderId, e);
-            throw new ServiceException("TRA职评子订单状态同步失败:" + parentOrderId);
+            LOG.error("父订单子订单状态同步失败: parentId=" + parentOrderId, e);
+            throw new ServiceException("父订单子订单状态同步失败:" + parentOrderId);
         }
-        LOG.info("TRA职评主订单提交REVIEW，同步子订单状态完成: parentId=" + parentOrderId
-                + ", updated=" + updatedCount);
+        LOG.info("父订单提交REVIEW，同步子订单状态完成: parentId=" + parentOrderId
+                + ", childIds=" + changedChildIds + ", updated=" + updatedCount);
+
+        // 复用原REVIEW邮件模板，用发生状态变化的子订单ID作为邮件订单号。
+        for (Integer childId : changedChildIds) {
+            serviceOrderService.sendRemind(childId, "REVIEW");
+        }
+        return true;
     }
 
     /**

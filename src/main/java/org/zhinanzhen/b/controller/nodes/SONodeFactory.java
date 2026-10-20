@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.OfficialReviewRuleDAO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 
@@ -24,22 +25,28 @@ public class SONodeFactory implements NodeFactory {
 
 	private final OfficialReviewRuleDAO officialReviewRuleDAO;
 
+	private final ServiceOrderDAO serviceOrderDAO;
+
 	@Autowired
 	public SONodeFactory(@Lazy ServiceOrderService serviceOrderService,
-			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO) {
+			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO,
+			ServiceOrderDAO serviceOrderDAO) {
 		this.serviceOrderService = serviceOrderService;
 		this.serviceOrderManageService = serviceOrderManageService;
 		this.officialReviewRuleDAO = officialReviewRuleDAO;
+		this.serviceOrderDAO = serviceOrderDAO;
 	}
 
 
 	public Node getNode(String name) {
 		for (Node node : ListUtil.buildArrayList(
 				new ServiceOrderPendingNode(serviceOrderService),
-				new ServiceOrderReviewNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO),
+				new ServiceOrderReviewNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO,
+						serviceOrderDAO),
 				new ServiceOrderOfficialReviewNode(serviceOrderService), 
 				new ServiceOrderWaitNode(serviceOrderService),
-				new ServiceOrderRejectNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO),
+				new ServiceOrderRejectNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO,
+						serviceOrderDAO),
 				new ServiceOrderCloseNode(serviceOrderService),
 				new ServiceOrderFinishNode(serviceOrderService), 
 				new ServiceOrderCompleteNode(serviceOrderService),

@@ -111,7 +111,10 @@ public class ServiceOrderManageController extends BaseController {
     private static WorkflowStarter workflowStarter = new WorkflowStarterImpl();
 
     @Resource
-    ServiceOrderService serviceOrderService;
+    ServiceOrderService serviceOrderService;    
+
+    @Resource
+    private org.zhinanzhen.b.service.impl.MultiRoleServiceOrderFlow multiRoleServiceOrderFlow;
 
     @Resource
     VisaService visaService;
@@ -334,9 +337,18 @@ public class ServiceOrderManageController extends BaseController {
                                              HttpServletRequest request, HttpServletResponse response) throws ServiceException {
         super.setPostHeader(response);
         AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
-        if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()) && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()))) {
+        boolean primaryAdviser = adminUserLoginInfo != null
+                && ("SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                || "GW".equalsIgnoreCase(adminUserLoginInfo.getApList()));
+        Integer linkedAdviserId = adminUserLoginInfo == null || primaryAdviser ? null
+                : multiRoleServiceOrderFlow.adviserIdOf(adminUserLoginInfo.getId());
+        if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList()) && linkedAdviserId == null)) {
             return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
         }
+        if (linkedAdviserId != null && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())
+                && !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
+            adviserId = linkedAdviserId.toString();
         List<ServiceOrderJsonRequest> serviceOrderJson = new ArrayList<>();
         if (recommendAdviserId != null && (recommendAdviserId <= 0
                 || adviserDAO.getAdviserById(recommendAdviserId) == null)) {
@@ -2651,6 +2663,25 @@ public class ServiceOrderManageController extends BaseController {
                     : null;
         } catch (ServiceException e) {
             return new Response<Integer>(1, e.getMessage(), -1);
+        }
+    }
+
+    @RequestMapping(value = "/commission/create", method = RequestMethod.POST)
+    @ResponseBody
+    public Response<ServiceOrderDTO> createCommissionOrders(@RequestParam(value = "id") int id,
+                                                             HttpServletRequest request,
+                                                             HttpServletResponse response) {
+        super.setPostHeader(response);
+        AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+        if (login == null)
+            return new Response<ServiceOrderDTO>(1, "请先登录.", null);
+        if (id <= 0)
+            return new Response<ServiceOrderDTO>(1, "id不正确:" + id, null);
+        try {
+            ServiceOrderDTO result = multiRoleServiceOrderFlow.createCommissions(id, login.getId());
+            return new Response<ServiceOrderDTO>(0, "顾问佣金订单和文案佣金订单创建成功。", result);
+        } catch (ServiceException e) {
+            return new Response<ServiceOrderDTO>(1, e.getMessage(), null);
         }
     }
 

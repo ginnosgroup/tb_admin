@@ -217,6 +217,26 @@
         WHERE id = #{id};
     </update>
 
+    <update id="updateRecommendationAmounts" parameterType="java.util.Map">
+        UPDATE b_visa SET gmt_modify = now()
+        <if test="receivable != null">, receivable = #{receivable}</if>
+        <if test="received != null">, received = #{received}</if>
+        <if test="perAmount != null">, per_amount = #{perAmount}</if>
+        <if test="amount != null">, amount = #{amount}</if>
+        <if test="expectAmount != null">, expect_amount = #{expectAmount}</if>
+        <if test="sureExpectAmount != null">, sure_expect_amount = #{sureExpectAmount}</if>
+        <if test="discount != null">, discount = #{discount}</if>
+        <if test="gst != null">, gst = #{gst}</if>
+        <if test="deductGst != null">, deduct_gst = #{deductGst}</if>
+        <if test="bonus != null">, bonus = #{bonus}</if>
+        WHERE id = #{id}
+    </update>
+
+    <update id="clearRecommendationVerifyCode">
+        UPDATE b_visa SET verify_code = NULL
+        WHERE id = #{id} AND performance_ratio = 0.30
+    </update>
+
     <select id="countVisa" resultType="java.lang.Integer">
         SELECT count(*)
         FROM b_visa bv, tb_user tbu, tb_adviser a, b_service_order so LEFT JOIN b_applicant ap ON ap.id = so.applicant_id

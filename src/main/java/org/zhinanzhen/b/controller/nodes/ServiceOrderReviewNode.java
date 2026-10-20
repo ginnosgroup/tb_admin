@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.controller.OfficialController.OfficialWorkStateEnum;
 import org.zhinanzhen.b.dao.OfficialReviewRuleDAO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.dao.pojo.OfficialReviewRuleDO;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
@@ -34,12 +35,15 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 	RegionService regionService;
 
 	private final OfficialReviewRuleDAO officialReviewRuleDAO;
+	private final ServiceOrderDAO serviceOrderDAO;
 
 	public ServiceOrderReviewNode(ServiceOrderService serviceOrderService,
-			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO) {
+			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO,
+			ServiceOrderDAO serviceOrderDAO) {
 		super.serviceOrderService = serviceOrderService;
 		super.serviceOrderManageService = serviceOrderManageService;
 		this.officialReviewRuleDAO = officialReviewRuleDAO;
+		this.serviceOrderDAO = serviceOrderDAO;
 	}
 
 	@Override
@@ -66,9 +70,11 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 				return null;
 			}
 			serviceOrderDtoT = serviceOrderDto != null ? serviceOrderDto : serviceorderManageDto;
-			if (serviceOrderDtoT.getParentId() == 0 && ("SIV".equalsIgnoreCase(serviceOrderDtoT.getType())
+			if ("REVIEW".equalsIgnoreCase(getName()) && serviceOrderDtoT.getParentId() == 0
+					&& ("SIV".equalsIgnoreCase(serviceOrderDtoT.getType())
 					|| "NSV".equalsIgnoreCase(serviceOrderDtoT.getType())
-					|| "MT".equalsIgnoreCase(serviceOrderDtoT.getType()))) {
+					|| "MT".equalsIgnoreCase(serviceOrderDtoT.getType()))
+					&& !hasChildOrders(serviceOrderDtoT.getId())) {
 				context.putParameter("response", new Response<ServiceOrderDTO>(1, "该订单不支持审核.", serviceOrderDto));
 				return null;
 			}
@@ -130,6 +136,11 @@ public class ServiceOrderReviewNode extends SODecisionNode {
 		}
 		
 		return state;
+	}
+
+	private boolean hasChildOrders(int parentOrderId) {
+		return !serviceOrderDAO.listByParentId(parentOrderId).isEmpty()
+				|| !serviceOrderDAO.listByApplicantParentId(parentOrderId).isEmpty();
 	}
 	
 	@Override

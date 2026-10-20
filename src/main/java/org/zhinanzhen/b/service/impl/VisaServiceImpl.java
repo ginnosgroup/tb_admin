@@ -388,6 +388,109 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int updateVisaWithRecommendation(VisaDTO visaDto) throws ServiceException {
+		if (visaDto == null || visaDto.getId() <= 0) {
+			ServiceException error = new ServiceException("签证佣金订单编号无效。");
+			error.setCode(ErrorCodeEnum.PARAMETER_ERROR.code());
+			throw error;
+		}
+		VisaDO before = visaDao.getVisaById(visaDto.getId());
+		if (before == null)
+			return 0;
+		if (!isRecommendationRatio(before.getPerformanceRatio()))
+			return updateVisa(visaDto);
+
+		// 更新接口传入的是当前顾问的份额，按该份额反推同一期另一位顾问的份额。
+		roundRecommendationAmounts(visaDto);
+		Map<String, Object> counterpartChanges = recommendationAmountChanges(before, visaDto);
+		VisaDO counterpart = null;
+		if (!counterpartChanges.isEmpty()) {
+			for (VisaDO candidate : visaDao.listVisaByServiceOrderId(before.getServiceOrderId())) {
+				if (candidate.getId() != before.getId()
+						&& candidate.getInstallmentNum() == before.getInstallmentNum()
+						&& Objects.equals(candidate.getCode(), before.getCode())
+						&& isRecommendationRatio(candidate.getPerformanceRatio())
+						&& Math.abs(candidate.getPerformanceRatio() + before.getPerformanceRatio() - 1) < 0.000001) {
+					if (counterpart != null) {
+						ServiceException error = new ServiceException("同一期推荐顾问佣金订单不唯一，无法同步金额。");
+						error.setCode(ErrorCodeEnum.DATA_ERROR.code());
+						throw error;
+					}
+					counterpart = candidate;
+				}
+			}
+			if (counterpart == null) {
+				ServiceException error = new ServiceException("同一期推荐顾问佣金订单不存在，无法同步金额。");
+				error.setCode(ErrorCodeEnum.DATA_ERROR.code());
+				throw error;
+			}
+		}
+
+		// 推荐顾问记录不得重新写入对账 code；旧记录在被修改时一并清理。
+		if (Math.abs(before.getPerformanceRatio() - 0.30) < 0.000001)
+			visaDto.setVerifyCode(null);
+		int updated = updateVisa(visaDto);
+		if (updated > 0) {
+			if (counterpart != null) {
+				counterpartChanges.put("id", counterpart.getId());
+				if (visaDao.updateRecommendationAmounts(counterpartChanges) != 1) {
+					ServiceException error = new ServiceException("推荐顾问佣金订单金额同步失败。");
+					error.setCode(ErrorCodeEnum.OTHER_ERROR.code());
+					throw error;
+				}
+			}
+			int recommendationId = Math.abs(before.getPerformanceRatio() - 0.30) < 0.000001
+					? before.getId() : counterpart == null ? 0 : counterpart.getId();
+			if (recommendationId > 0)
+				visaDao.clearRecommendationVerifyCode(recommendationId);
+		}
+		return updated;
+	}
+
+	private boolean isRecommendationRatio(double ratio) {
+		return Math.abs(ratio - 0.70) < 0.000001 || Math.abs(ratio - 0.30) < 0.000001;
+	}
+
+	private void roundRecommendationAmounts(VisaDTO visaDto) {
+		visaDto.setReceivable(roundMoney(visaDto.getReceivable()));
+		visaDto.setReceived(roundMoney(visaDto.getReceived()));
+		visaDto.setPerAmount(roundMoney(visaDto.getPerAmount()));
+		visaDto.setAmount(roundMoney(visaDto.getAmount()));
+		visaDto.setExpectAmount(roundMoney(visaDto.getExpectAmount()));
+		visaDto.setSureExpectAmount(roundMoney(visaDto.getSureExpectAmount()));
+		visaDto.setDiscount(roundMoney(visaDto.getDiscount()));
+		visaDto.setGst(roundMoney(visaDto.getGst()));
+		visaDto.setDeductGst(roundMoney(visaDto.getDeductGst()));
+		visaDto.setBonus(roundMoney(visaDto.getBonus()));
+	}
+
+	private double roundMoney(double amount) {
+		return BigDecimal.valueOf(amount).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+	}
+
+	private Map<String, Object> recommendationAmountChanges(VisaDO before, VisaDTO after) {
+		Map<String, Object> changes = new HashMap<>();
+		addRecommendationAmount(changes, "receivable", before.getReceivable(), after.getReceivable(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "received", before.getReceived(), after.getReceived(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "perAmount", before.getPerAmount(), after.getPerAmount(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "amount", before.getAmount(), after.getAmount(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "expectAmount", before.getExpectAmount(), after.getExpectAmount(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "sureExpectAmount", before.getSureExpectAmount(), after.getSureExpectAmount(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "discount", before.getDiscount(), after.getDiscount(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "gst", before.getGst(), after.getGst(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "deductGst", before.getDeductGst(), after.getDeductGst(), before.getPerformanceRatio());
+		addRecommendationAmount(changes, "bonus", before.getBonus(), after.getBonus(), before.getPerformanceRatio());
+		return changes;
+	}
+
+	private void addRecommendationAmount(Map<String, Object> changes, String field, double before, double after,
+			double ratio) {
+		if (Double.compare(roundMoney(before), after) != 0)
+			changes.put(field, VisaPerformanceAllocation.counterpartAmount(after, ratio));
+	}
+
+	@Override
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
                          List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
                          String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate, String endInvoiceCreate, List<Integer> regionIdList, Integer adviserId,

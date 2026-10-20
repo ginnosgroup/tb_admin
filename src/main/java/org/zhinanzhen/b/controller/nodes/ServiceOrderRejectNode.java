@@ -2,6 +2,7 @@ package org.zhinanzhen.b.controller.nodes;
 
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.OfficialReviewRuleDAO;
+import org.zhinanzhen.b.dao.ServiceOrderDAO;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 
@@ -10,8 +11,9 @@ import org.zhinanzhen.b.service.ServiceOrderService;
 public class ServiceOrderRejectNode extends ServiceOrderReviewNode {
 
 	public ServiceOrderRejectNode(ServiceOrderService serviceOrderService,
-			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO) {
-		super(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO);
+			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO,
+			ServiceOrderDAO serviceOrderDAO) {
+		super(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO, serviceOrderDAO);
 	}
 
 	@Override

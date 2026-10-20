@@ -79,6 +79,13 @@ public interface ServiceOrderDAO {
 
     ServiceOrderDO getServiceOrderById(int id);
 
+    @Select("SELECT id FROM b_service_order WHERE id = #{id} AND is_delete = 0 FOR UPDATE")
+    Integer lockForCommissionSubmission(@Param("id") int id);
+
+    int markMultiRoleSubmitted(@Param("id") int id, @Param("state") String state,
+                               @Param("reviewState") String reviewState,
+                               @Param("completed") boolean completed);
+
     int countServiceOrderByApplicantId(int applicantId);
 
     int deleteServiceOrderById(int id);
@@ -133,10 +140,8 @@ public interface ServiceOrderDAO {
     @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
     List<ServiceOrderDTO> getZiOrder(int id);
 
-    /**
-     * 将TRA主订单下仍处于PENDING的子订单提交到REVIEW，其他状态不变。
-     */
-    int updatePendingTraChildOrdersToReview(@Param("parentOrderId") int parentOrderId);
+    /** 将仍处于PENDING的直接子订单提交到REVIEW。 */
+    int updatePendingChildOrderToReview(@Param("childOrderId") int childOrderId);
 
     @Select("SELECT service_id AS serviceId FROM b_service_order WHERE binding_order = #{id} AND applicant_parent_id = 0")
     List<Integer> listBybindingOrder(int id);

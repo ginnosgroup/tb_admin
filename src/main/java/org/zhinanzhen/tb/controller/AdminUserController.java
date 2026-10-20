@@ -43,6 +43,8 @@ import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdviserDTO;
+import org.zhinanzhen.tb.service.impl.AdminUserRoleService;
+import org.zhinanzhen.tb.dao.pojo.AdminUserRoleDO;
 import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 @Controller
@@ -65,6 +67,9 @@ public class AdminUserController extends BaseController {
 	
 	@Resource
 	RegionService regionService;
+
+	@Resource
+	private AdminUserRoleService adminUserRoleService;
 	
 	@Autowired
     private RestTemplate restTemplate;
@@ -186,6 +191,38 @@ public class AdminUserController extends BaseController {
 			return new Response<AdminUserLoginInfo>(1, "未登录", null);
 		}
 		return new Response<AdminUserLoginInfo>(0, loginInfo);
+	}
+
+	@RequestMapping(value = "/roles", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<AdminUserRoleDO> roles(@RequestParam(value = "adminUserId") int adminUserId,
+			HttpServletRequest request) {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null || !"SUPERAD".equalsIgnoreCase(login.getApList()))
+			return new Response<AdminUserRoleDO>(1, "需要超级管理员权限。", null);
+		try {
+			return new Response<AdminUserRoleDO>(0, adminUserRoleService.get(adminUserId));
+		} catch (ServiceException e) {
+			return new Response<AdminUserRoleDO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/roles/update", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<AdminUserRoleDO> updateRoles(
+			@RequestParam(value = "adminUserId") int adminUserId,
+			@RequestParam(value = "adviserId") int adviserId,
+			@RequestParam(value = "officialId") int officialId,
+			@RequestParam(value = "maraId") int maraId, HttpServletRequest request) {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null || !"SUPERAD".equalsIgnoreCase(login.getApList()))
+			return new Response<AdminUserRoleDO>(1, "需要超级管理员权限。", null);
+		try {
+			return new Response<AdminUserRoleDO>(0,
+					adminUserRoleService.save(adminUserId, adviserId, officialId, maraId));
+		} catch (ServiceException e) {
+			return new Response<AdminUserRoleDO>(1, e.getMessage(), null);
+		}
 	}
 
 	@RequestMapping(value = "/updatePassword", method = RequestMethod.POST)

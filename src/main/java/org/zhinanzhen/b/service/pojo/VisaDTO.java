@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
-import org.eclipse.core.internal.resources.MarkerAttributeMap;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
 
 @Data

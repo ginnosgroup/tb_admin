@@ -190,24 +190,33 @@
                 #{isTransfer});
     </insert>
 
-    <!-- 仅同步状态，不能将SELECT *映射不完整的子订单DTO用于整单更新。 -->
+    <!-- 父订单进入审核时，同步 parent_id / applicant_parent_id 关联的直接子订单。 -->
     <update id="updateTraChildOrdersToReview">
         UPDATE b_service_order
         SET state = 'REVIEW', gmt_modify = NOW()
-        WHERE applicant_parent_id = #{parentOrderId}
+        WHERE (parent_id = #{parentOrderId} OR applicant_parent_id = #{parentOrderId})
           AND #{parentOrderId} > 0
           AND id != #{parentOrderId}
           AND is_delete = 0
           AND (state IS NULL OR state != 'REVIEW')
     </update>
 
-    <!-- 添加TRA签证佣金后，仅将仍待提交的子订单改为REVIEW。 -->
-    <update id="updatePendingTraChildOrdersToReview">
+    <update id="markMultiRoleSubmitted">
+        UPDATE b_service_order
+        SET state = #{state}, review_state = #{reviewState},
+            is_submitted = 1,
+            <if test="completed">finish_date = COALESCE(finish_date, NOW()),
+                mara_approval_date = COALESCE(mara_approval_date, NOW()),
+                official_approval_date = COALESCE(official_approval_date, NOW()),</if>
+            gmt_modify = NOW()
+        WHERE id = #{id} AND is_delete = 0
+    </update>
+
+    <!-- 添加签证佣金后，仅将仍待提交的直接子订单改为REVIEW。 -->
+    <update id="updatePendingChildOrderToReview">
         UPDATE b_service_order
         SET state = 'REVIEW', gmt_modify = NOW()
-        WHERE applicant_parent_id = #{parentOrderId}
-          AND #{parentOrderId} > 0
-          AND id != #{parentOrderId}
+        WHERE id = #{childOrderId}
           AND is_delete = 0
           AND state = 'PENDING'
     </update>

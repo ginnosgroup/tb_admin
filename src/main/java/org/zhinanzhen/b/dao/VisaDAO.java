@@ -1,6 +1,7 @@
 package org.zhinanzhen.b.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhinanzhen.b.dao.pojo.VisaDO;
@@ -13,6 +14,10 @@ public interface VisaDAO {
 	public int addVisa(VisaDO visaDo);
 
 	public int updateVisa(VisaDO visaDo);
+
+	int updateRecommendationAmounts(Map<String, Object> amountChanges);
+
+	int clearRecommendationVerifyCode(@Param("id") int id);
 
 	public int countVisa(@Param("id") Integer id, @Param("keyword") String keyword,
 			@Param("startHandlingDate") String startHandlingDate, @Param("endHandlingDate") String endHandlingDate,

@@ -27,6 +27,8 @@ public final class VisaPerformanceAllocation {
 
         VisaDTO recommended = copy(source);
         recommended.setAdviserId(recommendAdviserId);
+        // 推荐顾问记录只承载业绩份额，银行对账 code 只保留在原顾问记录上。
+        recommended.setVerifyCode(null);
         primary.setPerformanceRatio(0.70);
         recommended.setPerformanceRatio(0.30);
         split(source.getReceivable(), primary::setReceivable, recommended::setReceivable);
@@ -40,6 +42,14 @@ public final class VisaPerformanceAllocation {
         split(source.getDeductGst(), primary::setDeductGst, recommended::setDeductGst);
         split(source.getBonus(), primary::setBonus, recommended::setBonus);
         return Arrays.asList(primary, recommended);
+    }
+
+    /** 按当前记录的 70% 或 30% 份额反推同一期另一条记录的金额。 */
+    public static double counterpartAmount(double editedShare, double editedRatio) {
+        BigDecimal share = BigDecimal.valueOf(editedShare).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal ratio = BigDecimal.valueOf(editedRatio);
+        BigDecimal total = share.divide(ratio, 2, RoundingMode.HALF_UP);
+        return total.subtract(share).doubleValue();
     }
 
     private static VisaDTO copy(VisaDTO source) {

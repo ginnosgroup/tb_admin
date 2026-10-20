@@ -51,6 +51,8 @@ public interface ServiceOrderService {
 
 	void sendRemind(int id, String state) throws ServiceException;
 
+	void sendReviewRemindForOrders(List<Integer> serviceOrderIds) throws ServiceException;
+
 	@Deprecated
 	List<ServiceOrderReviewDTO> reviews(int serviceOrderId) throws ServiceException;
 

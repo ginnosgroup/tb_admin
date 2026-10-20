@@ -2274,6 +2274,75 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         }
     }
 
+    /**
+     * 合并提醒文案审核多条子订单。此方法仅供签证佣金创建时的父子订单同步流程使用，
+     * 通用的 sendRemind 和其他流程的邮件发送保持原样。
+     */
+    @Override
+    public void sendReviewRemindForOrders(List<Integer> serviceOrderIds) throws ServiceException {
+        if (serviceOrderIds == null || serviceOrderIds.isEmpty())
+            return;
+
+        Map<Integer, List<ServiceOrderDO>> ordersByOfficialId = new LinkedHashMap<>();
+        for (Integer serviceOrderId : serviceOrderIds) {
+            if (serviceOrderId == null || serviceOrderId <= 0)
+                continue;
+            ServiceOrderDO order = serviceOrderDao.getServiceOrderById(serviceOrderId);
+            if (order == null || order.getOfficialId() <= 0)
+                continue;
+            ordersByOfficialId.computeIfAbsent(order.getOfficialId(), key -> new ArrayList<>()).add(order);
+        }
+
+        for (Map.Entry<Integer, List<ServiceOrderDO>> entry : ordersByOfficialId.entrySet()) {
+            OfficialDO official = officialDao.getOfficialById(entry.getKey());
+            if (official == null || StringUtils.isBlank(official.getEmail()))
+                continue;
+
+            String title = null;
+            StringBuilder content = new StringBuilder(StringUtil.merge("亲爱的", official.getName(),
+                    ":<br/>您有以下新的服务订单任务请及时处理。"));
+            int includedOrderCount = 0;
+            for (ServiceOrderDO order : entry.getValue()) {
+                AdviserDO adviser = adviserDao.getAdviserById(order.getAdviserId());
+                ApplicantDTO applicant = null;
+                if (order.getApplicantId() > 0) {
+                    ApplicantDO applicantDO = applicantDao.getById(order.getApplicantId());
+                    if (applicantDO != null)
+                        applicant = mapper.map(applicantDO, ApplicantDTO.class);
+                }
+                if (adviser == null || applicant == null)
+                    continue;
+
+                applicant = buildApplicant(applicant, order.getId(), order.getNutCloud(), order.getInformation());
+                ServiceOrderMailDetail mailDetail = getServiceOrderMailDetail(order, "新任务提醒:");
+                if (title == null) {
+                    title = mailDetail.getTitle();
+                    if ("VISA".equalsIgnoreCase(order.getType())) {
+                        ServiceAssessDO assess = serviceAssessDao.seleteAssessById(order.getServiceAssessId());
+                        if (assess != null)
+                            title = StringUtil.merge(title, " -", assess.getName());
+                    }
+                }
+
+                content.append("<br/><br/>订单号:").append(order.getId())
+                        .append("<br/>服务类型:").append(mailDetail.getType()).append(mailDetail.getDetail())
+                        .append("/顾问:").append(adviser.getName()).append("/文案:").append(official.getName())
+                        .append("<br/>属性:").append(getPeopleTypeStr(order.getPeopleType()))
+                        .append("<br/>客户的资料地址: https://yongjinbiao.zhinanzhen.org/webroot_new/attachments/serviceOrder/get?id=")
+                        .append(order.getId())
+                        .append("<br/>客户基本信息:").append(applicant.getContent())
+                        .append("<br/>备注:").append(order.getRemarks())
+                        .append("<br/>驳回原因:").append(order.getRefuseReason())
+                        .append("<br/>创建时间:").append(order.getGmtCreate())
+                        .append(mailDetail.getServiceOrderUrl());
+                includedOrderCount++;
+            }
+
+            if (includedOrderCount > 0)
+                sendMail(official.getEmail() + ",maggie@zhinanzhen.org", title, content.toString());
+        }
+    }
+
     @Deprecated
     public void sendRemind(int id, String adviserState, String maraState, String officialState) {
         ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(id);

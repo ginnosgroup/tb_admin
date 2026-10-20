@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1066,6 +1067,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount());
             }
         }
+        // 推荐业绩会让同一期产生两条 b_visa；文案佣金按收款期数计算，不能把两条当作两期。
+        visaDOS = mergeRecommendationSharesByInstallment(visaDOS);
         // EOI数量判断
         int EOICount = 0;
         List<ServiceOrderDTO> deriveOrder = new ArrayList<>();
@@ -1217,6 +1220,38 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         }
         return visaOfficialDO;
+    }
+
+    static List<VisaDO> mergeRecommendationSharesByInstallment(List<VisaDO> receipts) {
+        Map<String, VisaDO> merged = new LinkedHashMap<>();
+        for (VisaDO receipt : receipts) {
+            double ratio = receipt.getPerformanceRatio();
+            boolean recommendationShare = Math.abs(ratio - 0.70) < 0.000001
+                    || Math.abs(ratio - 0.30) < 0.000001;
+            String key = recommendationShare
+                    ? receipt.getServiceOrderId() + "|" + receipt.getCode() + "|" + receipt.getInstallmentNum()
+                    : "id|" + receipt.getId();
+            VisaDO total = merged.get(key);
+            if (total == null) {
+                total = new VisaDO();
+                BeanUtils.copyProperties(receipt, total);
+                if (recommendationShare)
+                    total.setPerformanceRatio(1.00);
+                merged.put(key, total);
+                continue;
+            }
+            total.setReceivable(total.getReceivable() + receipt.getReceivable());
+            total.setReceived(total.getReceived() + receipt.getReceived());
+            total.setPerAmount(total.getPerAmount() + receipt.getPerAmount());
+            total.setAmount(total.getAmount() + receipt.getAmount());
+            total.setExpectAmount(total.getExpectAmount() + receipt.getExpectAmount());
+            total.setSureExpectAmount(total.getSureExpectAmount() + receipt.getSureExpectAmount());
+            total.setDiscount(total.getDiscount() + receipt.getDiscount());
+            total.setGst(total.getGst() + receipt.getGst());
+            total.setDeductGst(total.getDeductGst() + receipt.getDeductGst());
+            total.setBonus(total.getBonus() + receipt.getBonus());
+        }
+        return new ArrayList<>(merged.values());
     }
 
 

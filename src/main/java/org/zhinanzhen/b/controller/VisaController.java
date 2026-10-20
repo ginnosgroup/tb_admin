@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,9 +35,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.zhinanzhen.b.config.GlobalThreadPool;
 import org.zhinanzhen.b.dao.ServiceDAO;
-import org.zhinanzhen.b.dao.ServiceAssessDao;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
-import org.zhinanzhen.b.dao.pojo.ServiceCategory;
+import org.zhinanzhen.b.dao.pojo.ServiceOrderDO;
 import org.zhinanzhen.b.dao.pojo.VisaOfficialExportServiceDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackageListDO;
 import org.zhinanzhen.b.dao.pojo.ServicePackagePriceDO;
@@ -67,6 +67,7 @@ import jxl.read.biff.BiffException;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
 import jxl.write.WritableSheet;
+import jxl.write.WriteException;
 import org.zhinanzhen.tb.utils.WXWorkAPI;
 
 @Controller
@@ -123,9 +124,6 @@ public class VisaController extends BaseCommissionOrderController {
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     @Autowired
     private ServiceDAO serviceDAO;
-
-    @Resource
-    private ServiceAssessDao serviceAssessDao;
 
     @Resource
     private ServiceOrderDAO serviceOrderDAO;
@@ -366,8 +364,8 @@ public class VisaController extends BaseCommissionOrderController {
                     serviceOrderService.updateServiceOrder(_serviceOrderDto);
                 }
             }
-            if (!visaDtoList.isEmpty())
-                syncTraPendingChildOrdersToReview(serviceOrderDtoT);
+            if (!visaDtoList.isEmpty() && serviceOrderDto != null)
+                syncPendingChildOrdersToReview(serviceOrderDtoT);
             ApplicantDTO applicantDto = serviceOrderDtoT.getApplicant();
             String msg = "";
 			if (applicantDto != null && applicantBirthday != null) {
@@ -388,11 +386,11 @@ public class VisaController extends BaseCommissionOrderController {
 	}
 
 	/**
-	 * 添加TRA签证佣金后，将对应主订单下仍为PENDING的子订单提交到REVIEW。
-	 * 已经是其他状态的子订单不做修改。
+	 * 创建签证佣金后，将父订单下仍处于PENDING的直接子订单提交到REVIEW。
+	 * 仅按 parent_id / applicant_parent_id 关联处理，不依赖TRA职评分类或管理中间表。
 	 */
-	private void syncTraPendingChildOrdersToReview(ServiceOrderDTO serviceOrderDto) {
-		if (!isTraVisaServiceOrder(serviceOrderDto))
+	private void syncPendingChildOrdersToReview(ServiceOrderDTO serviceOrderDto) throws ServiceException {
+		if (serviceOrderDto == null)
 			return;
 
 		int parentOrderId = serviceOrderDto.getParentId() > 0
@@ -403,42 +401,34 @@ public class VisaController extends BaseCommissionOrderController {
 		if (parentOrderId <= 0)
 			return;
 
-		int updatedCount = serviceOrderDAO.updatePendingTraChildOrdersToReview(parentOrderId);
-		LOG.info("添加TRA签证佣金后同步PENDING子订单状态完成: parentId={}, updated={}",
-				parentOrderId, updatedCount);
-	}
+		Map<Integer, ServiceOrderDO> pendingChildOrders = new LinkedHashMap<>();
+		List<ServiceOrderDO> parentChildren = serviceOrderDAO.listByParentId(parentOrderId);
+		List<ServiceOrderDO> applicantChildren = serviceOrderDAO.listByApplicantParentId(parentOrderId);
+		addPendingChildOrders(pendingChildOrders, parentChildren, parentOrderId);
+		addPendingChildOrders(pendingChildOrders, applicantChildren, parentOrderId);
 
-	private boolean isTraVisaServiceOrder(ServiceOrderDTO serviceOrderDto) {
-		if (serviceOrderDto == null
-				|| !"VISA".equalsIgnoreCase(serviceOrderDto.getType())
-				|| serviceOrderDto.getServiceId() != 24)
-			return false;
-
-		int parentOrderId = serviceOrderDto.getParentId() > 0
-				? serviceOrderDto.getParentId()
-				: serviceOrderDto.getApplicantParentId() > 0
-				? serviceOrderDto.getApplicantParentId()
-				: serviceOrderDto.getId();
-		if (isTraCategoryOrder(serviceOrderDto.getId())
-				|| (parentOrderId != serviceOrderDto.getId() && isTraCategoryOrder(parentOrderId)))
-			return true;
-
-		// 兼容历史多职业TRA主订单没有b_assess_category记录的情况。
-		List<ServiceOrderDTO> childOrders = serviceOrderService.getZiServiceOrderById(parentOrderId);
-		if (childOrders != null) {
-			for (ServiceOrderDTO childOrder : childOrders) {
-				if (childOrder != null && isTraCategoryOrder(childOrder.getId()))
-					return true;
+		List<Integer> updatedChildOrderIds = new ArrayList<>();
+		for (Integer childOrderId : pendingChildOrders.keySet()) {
+			if (serviceOrderDAO.updatePendingChildOrderToReview(childOrderId) > 0) {
+				updatedChildOrderIds.add(childOrderId);
 			}
 		}
-		return false;
+		if (!updatedChildOrderIds.isEmpty())
+			serviceOrderService.sendReviewRemindForOrders(updatedChildOrderIds);
+		LOG.info("添加签证佣金后同步PENDING子订单状态完成: parentId={}, updated={}",
+				parentOrderId, updatedChildOrderIds.size());
 	}
 
-	private boolean isTraCategoryOrder(int serviceOrderId) {
-		if (serviceOrderId <= 0)
-			return false;
-		ServiceCategory category = serviceAssessDao.getCategoryIdByServiceOrderId(serviceOrderId);
-		return category != null && category.getId() == 9;
+	private void addPendingChildOrders(Map<Integer, ServiceOrderDO> childOrders,
+			List<ServiceOrderDO> candidates, int parentOrderId) {
+		if (candidates == null)
+			return;
+		for (ServiceOrderDO child : candidates) {
+			if (child != null && child.getId() > 0 && child.getId() != parentOrderId
+					&& "PENDING".equalsIgnoreCase(child.getState())) {
+				childOrders.put(child.getId(), child);
+			}
+		}
 	}
 
 	@RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -479,9 +469,14 @@ public class VisaController extends BaseCommissionOrderController {
 			super.setPostHeader(response);
 			AdminUserLoginInfo adminUserLoginInfo = getAdminUserLoginInfo(request);
 			VisaDTO _visaDto = visaService.getVisaById(id);
+			if (_visaDto == null)
+				return new Response<VisaDTO>(1, "签证佣金订单不存在,修改失败.", null);
 			ServiceOrderDTO serviceOrderDto = serviceOrderService.getServiceOrderById(_visaDto.getServiceOrderId());
 			VisaDTO visaDto = new VisaDTO();
-			visaDto.setId(id);
+			// 金额字段是基本类型；保留未提交的旧值，避免局部修改把金额写成 0。
+			BeanUtils.copyProperties(_visaDto, visaDto);
+			// 未提交对账 code 时不重复触发校验，也不覆盖数据库里的原值。
+			visaDto.setVerifyCode(null);
 			if (adminUserLoginInfo != null && "KJ".equalsIgnoreCase(adminUserLoginInfo.getApList())
 					&& commissionState != null) // 只有会计能修改佣金状态
 				visaDto.setCommissionState(CommissionStateEnum.get(commissionState.toUpperCase()).toString());
@@ -597,14 +592,33 @@ public class VisaController extends BaseCommissionOrderController {
 
 			List<VisaDTO> visaDtoList = visaService.listVisaByServiceOrderId(serviceOrderDto.getId());
 			double sum = visaDtoList.stream().mapToDouble(VisaDTO::getAmount).sum();
+			sum += visaDto.getAmount() - _visaDto.getAmount();
+			if (Math.abs(_visaDto.getPerformanceRatio() - 0.70) < 0.000001
+					|| Math.abs(_visaDto.getPerformanceRatio() - 0.30) < 0.000001) {
+				for (VisaDTO other : visaDtoList) {
+					if (other.getId() != id
+							&& other.getInstallmentNum() == _visaDto.getInstallmentNum()
+							&& Objects.equals(other.getCode(), _visaDto.getCode())
+							&& Math.abs(other.getPerformanceRatio() + _visaDto.getPerformanceRatio() - 1) < 0.000001) {
+						sum += VisaPerformanceAllocation.counterpartAmount(visaDto.getAmount(),
+								_visaDto.getPerformanceRatio()) - other.getAmount();
+						break;
+					}
+				}
+			}
 			ServicePackagePriceDO servicePackagePriceDo = servicePackagePriceService.getServicePackagePriceByServiceId(serviceOrderDto.getServiceId());
 			if ((servicePackagePriceDo != null && sum < servicePackagePriceDo.getMinPrice()) && serviceOrderDto.getLowPriceImageUrl() == null) {
 				return new Response<VisaDTO>(1, "两次实收金额小于本地区最低价格，请修正本次实收金额后再提交。", null);
 			}
-			if (visaService.updateVisa(visaDto) > 0) {
+			if (visaService.updateVisaWithRecommendation(visaDto) > 0) {
 				VisaDTO _visaDTO = visaService.getVisaById(visaDto.getId());
 				serviceOrderDto.setReceivable(_visaDTO.getTotalPerAmount());
 				serviceOrderDto.setReceived(_visaDTO.getTotalAmount());
+				if (Math.abs(_visaDTO.getPerformanceRatio() - 0.70) < 0.000001
+						|| Math.abs(_visaDTO.getPerformanceRatio() - 0.30) < 0.000001) {
+					serviceOrderDto.setPerAmount(_visaDTO.getTotalPerAmount());
+					serviceOrderDto.setAmount(_visaDTO.getTotalAmount());
+				}
 				serviceOrderService.updateServiceOrder(serviceOrderDto); // 同步修改服务订单
 				ApplicantDTO applicantDto = serviceOrderDto.getApplicant();
 				String msg = "";
@@ -743,7 +757,7 @@ public class VisaController extends BaseCommissionOrderController {
 				visaOfficialService.updateMerged(visaOfficialDto.getId(), Boolean.TRUE);
 			}
 		}
-		return visaService.updateVisa(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
+		return visaService.updateVisaWithRecommendation(visaDto) > 0 ? new Response<VisaDTO>(0, visaDto)
 				: new Response<VisaDTO>(1, "修改失败.", null);
 	}
 
@@ -1160,6 +1174,7 @@ public class VisaController extends BaseCommissionOrderController {
 				}
 				WritableSheet sheet = wbe.getSheet(0);
 				WritableCellFormat cellFormat = new WritableCellFormat();
+				addRecommendationExportHeaders(sheet, 26);
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
 				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
@@ -1207,6 +1222,7 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 					sheet.addCell(new Label(24, i, visaDto.getState() + "", cellFormat));
 					sheet.addCell(new Label(25, i, visaDto.getRemarks() + "", cellFormat));
+					addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat);
 					i++;
 				}
 				wbe.write();
@@ -1243,6 +1259,7 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 					WritableSheet sheet = wbe.getSheet(0);
 					WritableCellFormat cellFormat = new WritableCellFormat();
+					addRecommendationExportHeaders(sheet, 24);
 
 					int i = 1;
 					for (VisaDTO visaDto : list) {
@@ -1274,6 +1291,7 @@ public class VisaController extends BaseCommissionOrderController {
 						if (visaDto.getKjApprovalDate() != null)
 							sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
 						sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
+						addRecommendationExportRow(sheet, i, 24, visaDto, cellFormat);
 						i++;
 					}
 					wbe.write();
@@ -1311,6 +1329,7 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 					WritableSheet sheet = wbe.getSheet(0);
 					WritableCellFormat cellFormat = new WritableCellFormat();
+					addRecommendationExportHeaders(sheet, 26);
 
 					int i = 1;
 					for (VisaDTO visaDto : list) {
@@ -1344,6 +1363,7 @@ public class VisaController extends BaseCommissionOrderController {
 						if (visaDto.getKjApprovalDate() != null)
 							sheet.addCell(new Label(24, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
 						sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
+						addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat);
 						i++;
 					}
 					wbe.write();
@@ -1359,6 +1379,22 @@ public class VisaController extends BaseCommissionOrderController {
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	private void addRecommendationExportHeaders(WritableSheet sheet, int firstColumn) throws WriteException {
+		sheet.addCell(new Label(firstColumn, 0, "是否推荐顾问订单"));
+		sheet.addCell(new Label(firstColumn + 1, 0, "业绩比例"));
+		sheet.setColumnView(firstColumn, 20);
+		sheet.setColumnView(firstColumn + 1, 12);
+	}
+
+	private void addRecommendationExportRow(WritableSheet sheet, int row, int firstColumn,
+			VisaDTO visaDto, WritableCellFormat cellFormat) throws WriteException {
+		boolean recommended = Math.abs(visaDto.getPerformanceRatio() - 0.30) < 0.000001;
+		sheet.addCell(new Label(firstColumn, row, recommended ? "是" : "否", cellFormat));
+		String ratio = BigDecimal.valueOf(visaDto.getPerformanceRatio())
+				.multiply(BigDecimal.valueOf(100)).stripTrailingZeros().toPlainString() + "%";
+		sheet.addCell(new Label(firstColumn + 1, row, ratio, cellFormat));
 	}
 
 	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)

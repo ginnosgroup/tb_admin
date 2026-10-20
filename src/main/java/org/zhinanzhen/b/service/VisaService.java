@@ -19,6 +19,9 @@ public interface VisaService {
 
 	public int updateVisa(VisaDTO visaDto) throws ServiceException;
 
+	/** 修改推荐顾问订单的金额时，同步同一期的另一条业绩记录。 */
+	int updateVisaWithRecommendation(VisaDTO visaDto) throws ServiceException;
+
 	public int countVisa(Integer id, String keyword, String startHandlingDate, String endHandlingDate,
 			List<String> stateList, List<String> commissionStateList, String startKjApprovalDate,
 			String endKjApprovalDate, String startDate, String endDate, String startInvoiceCreate,
