@@ -207,6 +207,33 @@ public class AdminUserController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/roles/list", method = RequestMethod.GET)
+	@ResponseBody
+	public Response<List<AdminUserRoleDO>> listRoles(HttpServletRequest request) {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null || !"SUPERAD".equalsIgnoreCase(login.getApList()))
+			return new Response<List<AdminUserRoleDO>>(1, "需要超级管理员权限。", null);
+		return new Response<List<AdminUserRoleDO>>(0, adminUserRoleService.list());
+	}
+
+	@RequestMapping(value = "/roles/add", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<AdminUserRoleDO> addRole(
+			@RequestParam(value = "adminUserId") int adminUserId,
+			@RequestParam(value = "adviserId") int adviserId,
+			@RequestParam(value = "officialId") int officialId,
+			@RequestParam(value = "maraId") int maraId, HttpServletRequest request) {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null || !"SUPERAD".equalsIgnoreCase(login.getApList()))
+			return new Response<AdminUserRoleDO>(1, "需要超级管理员权限。", null);
+		try {
+			return new Response<AdminUserRoleDO>(0,
+					adminUserRoleService.create(adminUserId, adviserId, officialId, maraId));
+		} catch (ServiceException e) {
+			return new Response<AdminUserRoleDO>(1, e.getMessage(), null);
+		}
+	}
+
 	@RequestMapping(value = "/roles/update", method = RequestMethod.POST)
 	@ResponseBody
 	public Response<AdminUserRoleDO> updateRoles(
@@ -222,6 +249,20 @@ public class AdminUserController extends BaseController {
 					adminUserRoleService.save(adminUserId, adviserId, officialId, maraId));
 		} catch (ServiceException e) {
 			return new Response<AdminUserRoleDO>(1, e.getMessage(), null);
+		}
+	}
+
+	@RequestMapping(value = "/roles/delete", method = RequestMethod.POST)
+	@ResponseBody
+	public Response<Boolean> deleteRole(@RequestParam(value = "adminUserId") int adminUserId,
+			HttpServletRequest request) {
+		AdminUserLoginInfo login = getAdminUserLoginInfo(request);
+		if (login == null || !"SUPERAD".equalsIgnoreCase(login.getApList()))
+			return new Response<Boolean>(1, "需要超级管理员权限。", false);
+		try {
+			return new Response<Boolean>(0, adminUserRoleService.delete(adminUserId));
+		} catch (ServiceException e) {
+			return new Response<Boolean>(1, e.getMessage(), false);
 		}
 	}
 
