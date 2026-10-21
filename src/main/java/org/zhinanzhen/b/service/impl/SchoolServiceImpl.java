@@ -305,6 +305,12 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Override
 	public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException {
+		return updateSchoolSetting(commissionOrderListDto, true);
+	}
+
+	@Override
+	public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto, boolean persistCommissionOrder)
+			throws ServiceException {
 		if (commissionOrderListDto == null || commissionOrderListDto.getSchool() == null)
 			return -1;
 		listSchoolSetting(null, null); // 初始化
@@ -319,20 +325,21 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		if (commissionOrderListDto.getGmtCreate().before(startDate)
 				|| commissionOrderListDto.getGmtCreate().after(endDate))
 			return -3;
+		CommissionOrderListDTO calculationTarget = persistCommissionOrder ? null : commissionOrderListDto;
 		if (type == 1)
-			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+			schoolSetting1(schoolSettingDo.getSchoolName(), startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		else if (type == 2)
-			schoolSetting2(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+			schoolSetting2(schoolSettingDo.getSchoolName(), startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		else if (type == 3)
-			schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+			schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		else if (type == 4)
-			schoolSetting4(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
+			schoolSetting4(schoolSettingDo.getSchoolName(), startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		else if (type == 5)
-			schoolSetting5(schoolSettingDo, startDate, endDate, parameters);
+			schoolSetting5(schoolSettingDo, startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		else if (type == 6)
-			schoolSetting6(schoolSettingDo, startDate, endDate, parameters);
+			schoolSetting6(schoolSettingDo, startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		else if (type == 7)
-			schoolSetting7(schoolSettingDo, startDate, endDate, parameters);
+			schoolSetting7(schoolSettingDo, startDate, endDate, parameters, calculationTarget, persistCommissionOrder);
 		return 1;
 	}
 
@@ -535,7 +542,21 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 		return schoolSettingDtoList;
 	}
 
+	private void updateCommissionOrderOrCaptureRefundCalculation(CommissionOrderListDO commissionOrder,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
+		if (persistCommissionOrder) {
+			commissionOrderDao.updateCommissionOrder(commissionOrder);
+		} else if (calculationTarget != null && commissionOrder.getId() == calculationTarget.getId()) {
+			calculationTarget.setExpectAmount(commissionOrder.getExpectAmount());
+		}
+	}
+
 	private void schoolSetting1(String schoolName, Date startDate, Date endDate, String parameters) {
+		schoolSetting1(schoolName, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting1(String schoolName, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderBySchool(startDate, endDate,
 				schoolName);
 		list.forEach(co -> {
@@ -543,16 +564,21 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 			co.setCommission(fee * (Double.parseDouble(parameters.trim()) * 0.01));
 			System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*设置参数[" + parameters + "]*0.01=" + co.getCommission());
 			updateGST(co);
-			commissionOrderDao.updateCommissionOrder(co);
+			updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 		});
 	}
 
 	private void schoolSetting2(String schoolName, Date startDate, Date endDate, String parameters) {
+		schoolSetting2(schoolName, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting2(String schoolName, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		if (StringUtil.isEmpty(parameters))
 			return;
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1) {
-			schoolSetting1(schoolName, startDate, endDate, _parameters[0]);
+			schoolSetting1(schoolName, startDate, endDate, _parameters[0], calculationTarget, persistCommissionOrder);
 			return;
 		}
 		double proportion = Double.parseDouble(_parameters[0].trim());
@@ -575,7 +601,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
 								+ "]=" + co.getCommission());
 						updateGST(co);
-						commissionOrderDao.updateCommissionOrder(co);
+						updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 					});
 					break;
 				}
@@ -585,11 +611,16 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Deprecated
 	private void schoolSetting3(String schoolName, Date startDate, Date endDate, String parameters) {
+		schoolSetting3(schoolName, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting3(String schoolName, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		if (StringUtil.isEmpty(parameters))
 			return;
 		String[] _parameters = parameters.split("[|]");
 		if (_parameters.length == 1) {
-			schoolSetting1(schoolName, startDate, endDate, _parameters[0]);
+			schoolSetting1(schoolName, startDate, endDate, _parameters[0], calculationTarget, persistCommissionOrder);
 			return;
 		}
 		double proportion = Double.parseDouble(_parameters[0].trim());
@@ -608,7 +639,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)+设置金额[" + _fee
 								+ "]=" + co.getCommission());
 						updateGST(co);
-						commissionOrderDao.updateCommissionOrder(co);
+						updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 					});
 					break;
 				}
@@ -617,6 +648,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 	}
 
 	private void schoolSetting4(String schoolName, Date startDate, Date endDate, String parameters) {
+		schoolSetting4(schoolName, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting4(String schoolName, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		if (StringUtil.isEmpty(parameters))
 			return;
 		String[] _parameters = parameters.split("[|]");
@@ -636,7 +672,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						System.out.println(co.getId() + "学校设置计算=本次收款金额[" + fee + "]*(设置比例[" + proportion + "]*0.01)="
 								+ co.getCommission());
 						updateGST(co);
-						commissionOrderDao.updateCommissionOrder(co);
+						updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 					});
 					break;
 				}
@@ -646,6 +682,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Deprecated
 	private void schoolSetting5(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
+		schoolSetting5(schoolSetting, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting5(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		if (StringUtil.isEmpty(parameters))
 			return;
 		if (schoolSetting == null)
@@ -686,7 +727,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 						else
 							System.out.println(co.getId() + "学校设置计算=0.00=" + co.getCommission());
 						updateGST(co);
-						commissionOrderDao.updateCommissionOrder(co);
+						updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 					});
 					break;
 				}
@@ -696,6 +737,11 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 
 	@Deprecated
 	private void schoolSetting6(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
+		schoolSetting6(schoolSetting, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting6(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		if (StringUtil.isEmpty(parameters))
 			return;
 		if (schoolSetting == null)
@@ -732,13 +778,18 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 					else
 						System.out.println(co.getId() + "学校设置计算=0.00=" + co.getCommission());
 					updateGST(co);
-					commissionOrderDao.updateCommissionOrder(co);
+					updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 				});
 			}
 		}
 	}
 
 	private void schoolSetting7(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters) {
+		schoolSetting7(schoolSetting, startDate, endDate, parameters, null, true);
+	}
+
+	private void schoolSetting7(SchoolSettingDO schoolSetting, Date startDate, Date endDate, String parameters,
+			CommissionOrderListDTO calculationTarget, boolean persistCommissionOrder) {
 		if (schoolSetting == null)
 			return;
 //		try {
@@ -763,7 +814,7 @@ public class SchoolServiceImpl extends BaseService implements SchoolService {
 				System.out.println(co.getId() + "学校设置计算=本次收款金额[" + co.getAmount() + "]=" + co.getCommission());
 			}
 			updateGST(co);
-			commissionOrderDao.updateCommissionOrder(co);
+			updateCommissionOrderOrCaptureRefundCalculation(co, calculationTarget, persistCommissionOrder);
 		});
 	}
 

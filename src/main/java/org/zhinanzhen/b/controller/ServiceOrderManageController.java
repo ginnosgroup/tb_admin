@@ -3363,6 +3363,8 @@ public class ServiceOrderManageController extends BaseController {
             greenFormat.setBackground(Colour.GREEN);
             greenFormat.setAlignment(Alignment.CENTRE);
             greenFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
+            sheet.addCell(new Label(21, 0, "是否推荐顾问订单", cellFormat));
+            sheet.setColumnView(21, 20);
             int i = 1;
             for (ServiceOrderDTO orderList : serviceOrderLists) {
                 if (!"OVST".equalsIgnoreCase(orderList.getType())) {
@@ -3408,6 +3410,10 @@ public class ServiceOrderManageController extends BaseController {
                         sheet.addCell(new Label(19, i, "否", redFormat));
                     }
                     sheet.addCell(new Label(20, i, orderList.getRemarks() != null ? orderList.getRemarks() : "", redFormat));
+                    boolean hasRecommendation = orderList.getRecommendAdviserId() != null
+                            && orderList.getRecommendAdviserId() > 0
+                            && !orderList.getRecommendAdviserId().equals(orderList.getAdviserId());
+                    sheet.addCell(new Label(21, i, hasRecommendation ? "是" : "否", redFormat));
                     sheet.setRowView(i, 600);
                     i++;
                 }
@@ -3525,6 +3531,10 @@ public class ServiceOrderManageController extends BaseController {
                         sheet.addCell(new Label(19, i, "否", subRowFormat));
                     }
                     sheet.addCell(new Label(20, i, so.getRemarks() != null ? so.getRemarks() : "", subRowFormat));
+                    boolean hasRecommendation = so.getRecommendAdviserId() != null
+                            && so.getRecommendAdviserId() > 0
+                            && !so.getRecommendAdviserId().equals(so.getAdviserId());
+                    sheet.addCell(new Label(21, i, hasRecommendation ? "是" : "否", subRowFormat));
                     i++;
                 }
             }

@@ -205,9 +205,11 @@
         UPDATE b_service_order
         SET state = #{state}, review_state = #{reviewState},
             is_submitted = 1,
+            readcommitted_date = COALESCE(readcommitted_date, NOW()),
+            submit_mara_approval_date = COALESCE(submit_mara_approval_date, NOW()),
+            official_approval_date = COALESCE(official_approval_date, NOW()),
             <if test="completed">finish_date = COALESCE(finish_date, NOW()),
-                mara_approval_date = COALESCE(mara_approval_date, NOW()),
-                official_approval_date = COALESCE(official_approval_date, NOW()),</if>
+                mara_approval_date = COALESCE(mara_approval_date, NOW()),</if>
             gmt_modify = NOW()
         WHERE id = #{id} AND is_delete = 0
     </update>

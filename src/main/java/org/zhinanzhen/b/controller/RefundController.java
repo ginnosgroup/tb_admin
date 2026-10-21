@@ -165,13 +165,12 @@ public class RefundController extends BaseController {
 						.getCommissionOrderById(refundDto.getCommissionOrderId());
 				if (commissionOrderListDto != null) {
 					commissionOrderListDto.setAmount(refundDto.getAmount());
+					// 退款只需要计算本次退款的预收业绩，不应将结果写回佣金订单。
 					if (commissionOrderListDto.getSchoolId() > 0) {
-						schoolService.updateSchoolSetting(commissionOrderListDto);
+						schoolService.updateSchoolSetting(commissionOrderListDto, false);
 					} else {
-						schoolInstitutionService.updateSchoolSetting(commissionOrderListDto);
+						schoolInstitutionService.updateSchoolSetting(commissionOrderListDto, false);
 					}
-					commissionOrderListDto = commissionOrderService
-							.getCommissionOrderById(refundDto.getCommissionOrderId());
 					refundDto.setExpectAmount(commissionOrderListDto.getExpectAmount());
 				}
 			}

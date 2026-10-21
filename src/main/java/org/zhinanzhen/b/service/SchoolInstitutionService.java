@@ -45,6 +45,9 @@ public interface SchoolInstitutionService {
 
     public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException;
 
+    int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto, boolean persistCommissionOrder)
+            throws ServiceException;
+
     SchoolSettingNewDTO getSchoolSettingNewById(int id);
 
     int deleteSchoolAttachments(int providerId, boolean isDeleteFile1, boolean isDeleteFile2, boolean isDeleteFile3) throws ServiceException;

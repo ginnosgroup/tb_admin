@@ -398,6 +398,11 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 
     @Override
     public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto) throws ServiceException {
+        return updateSchoolSetting(commissionOrderListDto, true);
+    }
+
+    @Override
+    public int updateSchoolSetting(CommissionOrderListDTO commissionOrderListDto, boolean persistCommissionOrder) throws ServiceException {
         if (commissionOrderListDto == null || commissionOrderListDto.getCourseId() == 0)
             return -1;
 //        SchoolSettingNewDO schoolSettingNewDO = returnSetting(commissionOrderListDto.getCourseId(),commissionOrderListDto.getGmtCreate());
@@ -430,12 +435,12 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         CommissionOrderListDO co = mapper.map(commissionOrderListDto,CommissionOrderListDO.class);
         if (type == 1){
             //schoolSetting1(providerId, courseLevel, courseId,level, startDate, endDate, parameters);
-            schoolSetting1(co, schoolSettingNewDO);
+            schoolSetting1(co, schoolSettingNewDO, persistCommissionOrder);
         }
         else if (type == 2){
             //schoolSetting2(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
             //       schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
-            schoolSetting2(co, schoolSettingNewDO, list.size());
+            schoolSetting2(co, schoolSettingNewDO, list.size(), persistCommissionOrder);
         }
         else if (type == 3){
             //schoolSetting3(schoolSettingDo.getSchoolName(), startDate, endDate, parameters);
@@ -443,7 +448,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         else if (type == 4){
             //schoolSetting4(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
             //        schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
-            schoolSetting4(co, schoolSettingNewDO, list.size());
+            schoolSetting4(co, schoolSettingNewDO, list.size(), persistCommissionOrder);
         }
 
         else if (type == 5){
@@ -455,8 +460,9 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
         else if (type == 7){
             //schoolSetting7(providerId, courseLevel, courseId,level, startDate, endDate , parameters ,
              //       schoolSettingNewDO.getRegisterFee().doubleValue(),schoolSettingNewDO.getBookFee().doubleValue());
-            schoolSetting7(co, schoolSettingNewDO);
+            schoolSetting7(co, schoolSettingNewDO, persistCommissionOrder);
         }
+        commissionOrderListDto.setExpectAmount(co.getExpectAmount());
         return 1;
     }
 
@@ -697,6 +703,11 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     private void schoolSetting1(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO) {
+        schoolSetting1(co, schoolSettingNewDO, true);
+    }
+
+    private void schoolSetting1(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO,
+                                boolean persistCommissionOrder) {
         //List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
         //for(CommissionOrderListDO co : list) {
         //   SchoolSettingNewDO schoolSettingNewDO = returnSetting(co.getCourseId(), co.getGmtCreate());
@@ -710,7 +721,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
 								: 0.00,
 						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
-				commissionOrderDao.updateCommissionOrder(co);
+				if (persistCommissionOrder)
+					commissionOrderDao.updateCommissionOrder(co);
             }
         //}
     }
@@ -756,6 +768,11 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     private void schoolSetting2(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size) {
+        schoolSetting2(co, schoolSettingNewDO, size, true);
+    }
+
+    private void schoolSetting2(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size,
+                                boolean persistCommissionOrder) {
         if (schoolSettingNewDO == null)
             return;
         int installment = co.getInstallment() > 0 ? co.getInstallment() : 1;
@@ -764,7 +781,7 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             return;
         String[] _parameters = parameters.split("[|]");
         if (_parameters.length == 1) {
-            schoolSetting1(co , schoolSettingNewDO);
+            schoolSetting1(co, schoolSettingNewDO, persistCommissionOrder);
             return;
         }
         double proportion = Double.parseDouble(_parameters[0].trim());
@@ -792,7 +809,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
                                             : 0.00,
                                     schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00,
                                     installmentSettingAmount);
-                            commissionOrderDao.updateCommissionOrder(co);
+                            if (persistCommissionOrder)
+                                commissionOrderDao.updateCommissionOrder(co);
 
                     //});
                     break;
@@ -833,6 +851,11 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     private void schoolSetting4(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size) {
+        schoolSetting4(co, schoolSettingNewDO, size, true);
+    }
+
+    private void schoolSetting4(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ,int size,
+                                boolean persistCommissionOrder) {
         if (schoolSettingNewDO == null )
             return;
         String parameters = schoolSettingNewDO.getParameters();
@@ -858,7 +881,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
             						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
             								: 0.00,
             						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
-                            commissionOrderDao.updateCommissionOrder(co);
+                            if (persistCommissionOrder)
+                                commissionOrderDao.updateCommissionOrder(co);
                     //});
                     break;
                 }
@@ -894,6 +918,11 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
     }
 
     private void schoolSetting7(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO ) {
+        schoolSetting7(co, schoolSettingNewDO, true);
+    }
+
+    private void schoolSetting7(CommissionOrderListDO co, SchoolSettingNewDO schoolSettingNewDO,
+                                boolean persistCommissionOrder) {
 
         //List<CommissionOrderListDO> list = commissionOrderDao.listCommissionOrderByCourse(providerId, courseLevel , courseId,startDate, endDate);
         //list.forEach(co -> {
@@ -918,7 +947,8 @@ public class SchoolInstitutionServiceImpl extends BaseService implements SchoolI
 						schoolSettingNewDO.getRegisterFee() != null ? schoolSettingNewDO.getRegisterFee().doubleValue()
 								: 0.00,
 						schoolSettingNewDO.getBookFee() != null ? schoolSettingNewDO.getBookFee().doubleValue() : 0.00);
-                commissionOrderDao.updateCommissionOrder(co);
+                if (persistCommissionOrder)
+                    commissionOrderDao.updateCommissionOrder(co);
             }
         //});
     }
