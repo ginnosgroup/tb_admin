@@ -83,9 +83,12 @@ public abstract class BaseService {
 			LOG.error("参数错误!");
 			return;
 		}
+		String cc = SendEmailUtil.getCurrentCc();
 		String code;
 		try {
 			String codeSource = StringUtil.merge(mail, title, content);
+			if (StringUtil.isNotEmpty(cc))
+				codeSource = StringUtil.merge(codeSource, "cc:", cc);
 			if (!deduplicate)
 				codeSource += UUID.randomUUID().toString();
 			code = MD5Util.getMD5(codeSource);
@@ -101,8 +104,12 @@ public abstract class BaseService {
 				return;
 			}
 		}
-		if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) > 0)
-			SendEmailUtil.send(mail, title, content);
+		if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) > 0) {
+			if (StringUtil.isNotEmpty(cc))
+				SendEmailUtil.sendWithCc(mail, title, content, cc);
+			else
+				SendEmailUtil.send(mail, title, content);
+		}
 	}
 
 	/**
@@ -111,7 +118,9 @@ public abstract class BaseService {
 	 */
 	protected void sendMailWithAttachments(String mail, String title, String content, File... attachments)
 			throws ServiceException {
-		sendMailWithAttachmentsInternal(mail, title, content, true, attachments);
+		// updatePortal 会在当前请求中设置进度邮件抄送；此类邮件允许重复发送。
+		boolean deduplicate = StringUtil.isEmpty(SendEmailUtil.getCurrentCc());
+		sendMailWithAttachmentsInternal(mail, title, content, deduplicate, attachments);
 	}
 
 	/** 发送允许重复的多附件邮件，仍保留每次发送的邮件日志。 */
@@ -140,6 +149,9 @@ public abstract class BaseService {
 
 		try {
 			String codeSource = StringUtil.merge(mail, title, content, attachmentSignature.toString());
+			String cc = SendEmailUtil.getCurrentCc();
+			if (StringUtil.isNotEmpty(cc))
+				codeSource = StringUtil.merge(codeSource, "cc:", cc);
 			if (!deduplicate)
 				codeSource = codeSource + System.currentTimeMillis() + System.nanoTime();
 			String code = MD5Util.getMD5(codeSource);
@@ -154,7 +166,10 @@ public abstract class BaseService {
 			if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) <= 0) {
 				throw mailServiceException("保存邮件发送日志失败.", ErrorCodeEnum.EXECUTE_ERROR.code(), null);
 			}
-			SendEmailUtil.sendAttachments(mail, title, content, attachments);
+			if (StringUtil.isNotEmpty(cc))
+				SendEmailUtil.sendAttachmentsWithCc(mail, title, content, cc, attachments);
+			else
+				SendEmailUtil.sendAttachments(mail, title, content, attachments);
 		} catch (ServiceException e) {
 			throw e;
 		} catch (Exception e) {

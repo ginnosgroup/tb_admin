@@ -28,6 +28,10 @@ public class EmailService {
 
 	// 发送带多个附件的邮件
 	public void send(String mail, String title, String text, File... attachments) throws Exception {
+		this.sendWithCc(mail, null, title, text, attachments);
+	}
+
+	public void sendWithCc(String mail, String cc, String title, String text, File... attachments) throws Exception {
         Properties prop = new Properties();
         prop.setProperty("mail.host", smtpServer.getHost());
         prop.setProperty("mail.transport.protocol", "smtp");
@@ -42,7 +46,7 @@ public class EmailService {
         ts.connect(smtpServer.getHost(), from, password);
 
         // 调用新的方法创建带附件的邮件
-        Message message = createAttachmentMail(session, from, mail, title, text, attachments);
+        Message message = createAttachmentMail(session, from, mail, cc, title, text, attachments);
         ts.sendMessage(message, message.getAllRecipients());
         ts.close();
     }
@@ -53,11 +57,13 @@ public class EmailService {
     }
 
     // 创建带附件的邮件内容
-    private MimeMessage createAttachmentMail(Session session, String mailFrom, String mailTo, String title,
+    private MimeMessage createAttachmentMail(Session session, String mailFrom, String mailTo, String cc, String title,
 												String text, File... attachments) throws Exception {
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress(mailFrom));
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mailTo));
+		if (cc != null && !cc.trim().isEmpty())
+			message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(cc.trim()));
 		message.setSubject(title, "UTF-8");
 
         // 创建 Multipart 容器（文本 + 附件）

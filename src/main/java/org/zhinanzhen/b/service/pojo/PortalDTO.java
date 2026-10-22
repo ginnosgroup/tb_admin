@@ -57,7 +57,7 @@ public class PortalDTO {
 	/** stage=application 附件打包后的 zip 访问路径，例如 /uploads/portal_attachment/xxx.zip。 */
 	private String applicationData;
 
-	/** 语聚AI返回的485方案咨询内容（updatePortal时保存）。 */
+	/** 485方案咨询内容历史字段，对应 b_portal_list.ai_consult_content。 */
 	private String aiConsultContent;
 
 	private int adviserId;
@@ -90,10 +90,6 @@ public class PortalDTO {
 
 	/** 案件关联的补料轮次列表；此处只返回补料表字段，不展开日志和附件。 */
 	private List<PortalSupplementDTO> portalSupplementList;
-
-	/** 仅在更新案件并调用语聚AI时返回，不参与数据库持久化。 */
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private Map<String, Object> yujuAiResult;
 
 	/** 状态转为02B时本次生成的合同、建议信和 Form 956 路径。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)

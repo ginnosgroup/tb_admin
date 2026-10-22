@@ -1,16 +1,11 @@
 package org.zhinanzhen.b.controller;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -19,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -78,6 +72,7 @@ import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.ServiceException;
+import org.zhinanzhen.tb.utils.SendEmailUtil;
 
 import com.ikasoa.core.ErrorCodeEnum;
 import com.ikasoa.core.utils.StringUtil;
@@ -92,18 +87,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class PortalController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PortalController.class);
+	private static final String PORTAL_UPDATE_PROGRESS_CC_EMAIL = "client.notifications@zhinanzhen.com.au";
 	private static final int PORTAL_ACTION_CODE_IV_BYTES = 12;
 	private static final int PORTAL_ACTION_CODE_TAG_BITS = 128;
 
-	/**
-	 * 语聚 AI 会话配置。API Key 在 application.properties 的 yuju.ai.api-key 中填写，
-	 * ibotID 使用语聚 AI 助手 ID。
-	 */
-	@Value("${yuju.ai.ibot-id:2133_2622_jjyibotID_c67b59bc9fed4c4e9c6cf3a950b84f8e}")
-	private String yujuAiIbotId;
-
+	/** 兼容现有部署：客户操作链接未单独配置密钥时，仍使用旧配置作为签名密钥。 */
 	@Value("${yuju.ai.api-key:}")
-	private String yujuAiApiKey;
+	private String legacyPortalActionSecret;
 
 	/** 客户合同操作链接加密密钥；生产环境建议通过 portal.customer-action-secret 单独配置。 */
 	@Value("${portal.customer-action-secret:}")
@@ -1371,6 +1361,14 @@ public class PortalController extends BaseController {
 		}
 	}
 
+	/** 读取JSON，并兼容前端把JSON整体再次转义的提交格式。 */
+	private JsonNode readPortalFormData(String jsonStr) throws IOException {
+		JsonNode node = OBJECT_MAPPER.readTree(jsonStr);
+		if (node != null && node.isTextual() && StringUtil.isNotEmpty(node.asText()))
+			return OBJECT_MAPPER.readTree(node.asText());
+		return node;
+	}
+
 	/** 解析合同表单JSON，并兼容前端提交的转义JSON字符串。 */
 	private JsonNode readContractFormData(String contractStr) throws IOException {
 		try {
@@ -1637,7 +1635,7 @@ public class PortalController extends BaseController {
 		if (id <= 0)
 			return new Response<PortalDTO>(1, "案件id必须是有效数字。", null);
 		PortalFollowUpState followUpState = PortalFollowUpState.fromCode(strState);
-		try {
+		try (SendEmailUtil.CcScope ccScope = SendEmailUtil.withCc(PORTAL_UPDATE_PROGRESS_CC_EMAIL)) {
 			super.setPostHeader(response);
 			if (customerActionRequest)
 				prepareCustomerActionResponse(response);
@@ -2278,10 +2276,6 @@ public class PortalController extends BaseController {
 								portalDto);
 					}
 				}
-				// 只有本次请求明确将状态更新为02时，才调用语聚AI进行485方案咨询。
-				// AI调用失败不影响案件主流程，调用结果随案件数据一起返回。
-				if ("02".equals(strState))
-					portalDto.setYujuAiResult(requestYujuAiAfterPortalUpdate(portalDto));
 				if (customerResultRequest) {
 					PortalDTO resultPortalDto = portalService.getPortal(id, null, null, null, null, null);
 					boolean supplementaryResult = "010G".equals(strState) || "010E".equals(strState);
@@ -2593,414 +2587,6 @@ public class PortalController extends BaseController {
 		default:
 			break;
 		}
-	}
-
-	/**
-	 * 案件更新后调用语聚AI创建会话消息。这里重新查询一次数据库，确保使用的是更新后的完整案件资料，
-	 * 而不是本次请求中可能只携带部分字段的 portalDto。
-	 */
-	private Map<String, Object> requestYujuAiAfterPortalUpdate(PortalDTO updatedPortalDto) {
-		Map<String, Object> result = new LinkedHashMap<String, Object>();
-		if (updatedPortalDto == null || updatedPortalDto.getId() <= 0) {
-			result.put("success", false);
-			result.put("error", "案件信息无效，未调用语聚AI");
-			return result;
-		}
-		try {
-			PortalDTO portalDto = updatedPortalDto;
-			try {
-				PortalDTO savedPortalDto = portalService.getPortal(updatedPortalDto.getId(), null, null, null, null, null);
-				if (savedPortalDto != null)
-					portalDto = savedPortalDto;
-			} catch (Exception e) {
-				LOG.warn("查询更新后的案件资料失败，将使用本次更新字段继续请求语聚AI，portalId={}",
-						updatedPortalDto.getId(), e);
-			}
-			if (StringUtil.isEmpty(yujuAiApiKey)) {
-				LOG.warn("未配置 yuju.ai.api-key，跳过语聚AI请求，portalId={}", portalDto.getId());
-				result.put("success", false);
-				result.put("error", "未配置语聚AI API Key");
-				return result;
-			}
-			if (StringUtil.isEmpty(yujuAiIbotId)) {
-				LOG.warn("未配置 yuju.ai.ibot-id，跳过语聚AI请求，portalId={}", portalDto.getId());
-				result.put("success", false);
-				result.put("error", "未配置语聚AI助手ID");
-				return result;
-			}
-
-			String instructions = buildYujuAiInstructions(portalDto);
-			// 组装好的语聚AI请求content打印到控制台，便于联调核对
-			System.out.println("语聚AI请求content: " + instructions);
-			Map<String, Object> requestBody = new LinkedHashMap<String, Object>();
-			requestBody.put("content", instructions);
-			requestBody.put("ibotID", yujuAiIbotId.trim());
-			requestBody.put("stream", false);
-			String apiUrl = "https://chat.jijyun.cn/v1/openapi/chat?apiKey="
-					+ URLEncoder.encode(yujuAiApiKey.trim(), "UTF-8");
-
-			HttpURLConnection connection = null;
-			try {
-				connection = (HttpURLConnection) new URL(apiUrl).openConnection();
-				connection.setRequestMethod("POST");
-				connection.setConnectTimeout(15000);
-				connection.setReadTimeout(30000);
-				connection.setDoOutput(true);
-				connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-				byte[] body = OBJECT_MAPPER.writeValueAsBytes(requestBody);
-				LOG.info("语聚AI案件咨询请求，portalId={}，method=POST，requestHeaders={}，requestBody={}",
-						portalDto.getId(), connection.getRequestProperties(),
-						new String(body, StandardCharsets.UTF_8));
-				OutputStream outputStream = null;
-				try {
-					outputStream = connection.getOutputStream();
-					outputStream.write(body);
-					outputStream.flush();
-				} finally {
-					if (outputStream != null)
-						outputStream.close();
-				}
-
-				int responseCode = connection.getResponseCode();
-				InputStream inputStream = responseCode >= 400 ? connection.getErrorStream() : connection.getInputStream();
-				String responseBody = readYujuAiResponse(inputStream);
-				Object parsedResponse = parseYujuAiResponse(responseBody);
-				result.put("success", responseCode >= 200 && responseCode < 300);
-				result.put("httpCode", responseCode);
-				result.put("response", parsedResponse);
-				// 提取返回结果中的 content 存入数据库（保存失败不影响主流程）
-				String aiContent = extractYujuAiContent(parsedResponse);
-				if (StringUtil.isNotEmpty(aiContent)) {
-					try {
-						portalService.updateAiConsultContent(portalDto.getId(), aiContent);
-						result.put("contentSaved", true);
-					} catch (Exception e) {
-						LOG.warn("保存语聚AI返回内容失败，portalId={}", portalDto.getId(), e);
-						result.put("contentSaved", false);
-					}
-				} else {
-					result.put("contentSaved", false);
-				}
-				if (responseCode >= 200 && responseCode < 300) {
-					LOG.info("语聚AI案件咨询请求成功，portalId={}，httpCode={}，responseHeaders={}，response={}",
-							portalDto.getId(), responseCode, connection.getHeaderFields(), responseBody);
-				} else {
-					LOG.warn("语聚AI案件咨询请求失败，portalId={}，httpCode={}，responseHeaders={}，response={}",
-							portalDto.getId(), responseCode, connection.getHeaderFields(), responseBody);
-				}
-			} finally {
-				if (connection != null)
-					connection.disconnect();
-			}
-		} catch (Exception e) {
-			LOG.error("调用语聚AI案件咨询接口异常，portalId={}", updatedPortalDto.getId(), e);
-			result.put("success", false);
-			result.put("error", "调用语聚AI案件咨询接口异常");
-		}
-		return result;
-	}
-
-	/**
-	 * 从案件资料（PortalDTO + 前端提交的 jsonStr）中提取关键字段，
-	 * 拼成"字段：值"形式的文本作为语聚AI的提问内容，例如：
-	 * 出生：23/06/1984，出生国家：China，婚姻：Married，学签到期：25/12/2027，完成信：是，语言考试：IELTS。
-	 * 请给我485申请方案及材料清单。
-	 */
-	private String buildYujuAiInstructions(PortalDTO portalDto) {
-		JsonNode formData = parsePortalFormData(portalDto);
-		StringBuilder text = new StringBuilder();
-
-//		appendAiField(text, "姓名", portalDto == null ? null : portalDto.getName());
-//		appendAiField(text, "性别", portalDto == null ? null : portalDto.getGender());
-		appendAiField(text, "出生", portalDto == null ? null : formatAiDate(portalDto.getBirthday()));
-		appendAiField(text, "出生国家", getJsonValue(formData, "basicInfo", "birthCountry"));
-		appendAiField(text, "婚姻", getJsonValue(formData, "basicInfo", "maritalStatus"));
-		appendAiField(text, "学签到期", resolveStudentVisaExpirationDate(formData));
-		appendAiField(text, "完成信", hasEducationData(formData) ? "是" : "否");
-		appendAiField(text, "语言考试", joinLangTypes(getSectionNode(formData, "language")));
-
-		// jsonStr 解析失败时，兜底把原始 jsonStr 附上，避免信息丢失
-		if (formData == null && portalDto != null && StringUtil.isNotEmpty(portalDto.getJsonStr()))
-			appendAiField(text, "原始表单数据", portalDto.getJsonStr().trim());
-
-		String content = text.toString().trim();
-		if (content.isEmpty())
-			return "请给我485申请方案及材料清单。";
-		return content + "。请给我485申请方案及材料清单。";
-	}
-
-	/**
-	 * 学签到期时间：从 jsonStr.basicInfo.studentVisaExpirationDate（时间戳/日期字符串）读取。
-	 */
-	private String resolveStudentVisaExpirationDate(JsonNode formData) {
-		Date date = dateFromNode(getJsonNode(formData, "basicInfo", "studentVisaExpirationDate"));
-		return formatAiDate(date);
-	}
-
-	/** 是否有完成信：jsonStr.education 有数据（数组非空/对象有字段）即为"有"。 */
-	private boolean hasEducationData(JsonNode formData) {
-		JsonNode node = getSectionNode(formData, "education");
-		if (node == null)
-			return false;
-		if (node.isArray())
-			return node.size() > 0;
-		if (node.isObject())
-			return node.size() > 0;
-		return StringUtil.isNotEmpty(node.asText());
-	}
-
-	/** 取 jsonStr 的顶层分组节点（如 basicInfo / education / language）。 */
-	private JsonNode getSectionNode(JsonNode formData, String section) {
-		if (formData == null || !formData.isObject())
-			return null;
-		JsonNode node = formData.get(section);
-		return (node == null || node.isNull()) ? null : node;
-	}
-
-	/** 语言考试：取 language[].langType，多门用顿号连接，如 "ESOL、AAA"。 */
-	private String joinLangTypes(JsonNode languageNode) {
-		if (languageNode == null)
-			return null;
-		List<String> types = new ArrayList<String>();
-		if (languageNode.isArray()) {
-			for (JsonNode item : languageNode) {
-				String type = getText(item, "langType");
-				if (StringUtil.isNotEmpty(type))
-					types.add(type);
-			}
-		} else {
-			String type = getText(languageNode, "langType");
-			if (StringUtil.isNotEmpty(type))
-				types.add(type);
-		}
-		return types.isEmpty() ? null : String.join("、", types);
-	}
-
-	/** 取节点文本值（字符串/数字/布尔），null 或空返回 null。 */
-	private String getText(JsonNode node, String field) {
-		JsonNode value = node == null ? null : node.get(field);
-		if (value == null || value.isNull())
-			return null;
-		if (value.isTextual())
-			return value.asText();
-		if (value.isNumber() || value.isBoolean())
-			return value.asText();
-		return null;
-	}
-
-	/** 把 jsonStr 里的日期节点（毫秒/秒时间戳、yyyy-MM-dd、dd/MM/yyyy）转成 Date。 */
-	private Date dateFromNode(JsonNode node) {
-		if (node == null || node.isNull())
-			return null;
-		if (node.isNumber()) {
-			long timestamp = node.asLong();
-			if (timestamp <= 0)
-				return null; // 0/负数视为未填，避免解析成 1970-01-01
-			if (timestamp < 100000000000L)
-				timestamp *= 1000L;
-			return new Date(timestamp);
-		}
-		if (node.isTextual()) {
-			String text = node.asText().trim();
-			if (text.matches("-?\\d{10,13}")) {
-				long timestamp = Long.parseLong(text);
-				if (timestamp <= 0)
-					return null; // 0/负数视为未填
-				if (text.replace("-", "").length() <= 10)
-					timestamp *= 1000L;
-				return new Date(timestamp);
-			}
-			return tryParseDateText(text);
-		}
-		return null;
-	}
-
-	/** 简单兼容 yyyy-MM-dd / dd/MM/yyyy 两种文本日期。 */
-	private Date tryParseDateText(String text) {
-		try {
-			if (text.matches("\\d{4}-\\d{2}-\\d{2}"))
-				return new java.text.SimpleDateFormat("yyyy-MM-dd").parse(text);
-			if (text.matches("\\d{2}/\\d{2}/\\d{4}"))
-				return new java.text.SimpleDateFormat("dd/MM/yyyy").parse(text);
-		} catch (Exception e) {
-			// 忽略无法解析的文本日期
-		}
-		return null;
-	}
-
-	private JsonNode parsePortalFormData(PortalDTO portalDto) {
-		if (portalDto == null || StringUtil.isEmpty(portalDto.getJsonStr()))
-			return null;
-		String jsonStr = portalDto.getJsonStr().trim();
-		try {
-			return readPortalFormData(jsonStr);
-		} catch (Exception firstException) {
-			// 兼容前端把整个 JSON 再次转义后提交的 {\"field\":\"value\"} 格式。
-			String unescapedJson = jsonStr.replace("\\\"", "\"");
-			if (!jsonStr.equals(unescapedJson)) {
-				try {
-					return readPortalFormData(unescapedJson);
-				} catch (Exception secondException) {
-					LOG.warn("解析案件jsonStr失败，将原始数据提交给语聚AI，portalId={}", portalDto.getId(),
-							secondException);
-					return null;
-				}
-			}
-			LOG.warn("解析案件jsonStr失败，将原始数据提交给语聚AI，portalId={}", portalDto.getId(),
-					firstException);
-			return null;
-		}
-	}
-
-	private JsonNode readPortalFormData(String jsonStr) throws IOException {
-		JsonNode node = OBJECT_MAPPER.readTree(jsonStr);
-		if (node != null && node.isTextual() && StringUtil.isNotEmpty(node.asText()))
-			return OBJECT_MAPPER.readTree(node.asText());
-		return node;
-	}
-
-	private Object getJsonValue(JsonNode root, String section, String field, String... flatAliases) {
-		JsonNode node = getJsonNode(root, section, field, flatAliases);
-		if (node == null || node.isNull())
-			return null;
-		if (node.isTextual())
-			return node.asText();
-		if (node.isNumber())
-			return node.numberValue();
-		if (node.isBoolean())
-			return node.asBoolean();
-		return node.toString();
-	}
-
-	private String getJsonDateValue(JsonNode root, String section, String field, String... flatAliases) {
-		JsonNode node = getJsonNode(root, section, field, flatAliases);
-		if (node == null || node.isNull())
-			return null;
-		String value = node.asText();
-		if (value != null && value.matches("-?\\d{10,13}")) {
-			try {
-				long timestamp = Long.parseLong(value);
-				if (value.replace("-", "").length() <= 10)
-					timestamp *= 1000L;
-				return formatDate(new Date(timestamp));
-			} catch (NumberFormatException e) {
-				// 非时间戳格式时保留前端提交的原值。
-			}
-		}
-		return value;
-	}
-
-	private JsonNode getJsonNode(JsonNode root, String section, String field, String... flatAliases) {
-		if (root == null)
-			return null;
-		JsonNode sectionNode = root.get(section);
-		if (sectionNode != null && !sectionNode.isNull()) {
-			JsonNode nestedNode = sectionNode.get(field);
-			if (nestedNode != null && !nestedNode.isNull())
-				return nestedNode;
-		}
-		JsonNode flatNode = root.get(field);
-		if (flatNode != null && !flatNode.isNull())
-			return flatNode;
-		if (flatAliases != null) {
-			for (String alias : flatAliases) {
-				JsonNode aliasNode = root.get(alias);
-				if (aliasNode != null && !aliasNode.isNull())
-					return aliasNode;
-			}
-		}
-		return null;
-	}
-
-	private String formatDate(Date date) {
-		return date == null ? null : new java.text.SimpleDateFormat("yyyy-MM-dd").format(date);
-	}
-
-	/** 语聚AI提问内容里的日期格式，与示例保持一致。 */
-	private String formatAiDate(Date date) {
-		return date == null ? null : new java.text.SimpleDateFormat("dd/MM/yyyy").format(date);
-	}
-
-	/** 拼接"字段：值"，多个字段用中文逗号分隔。 */
-	private void appendAiField(StringBuilder text, String label, Object value) {
-		if (value == null || StringUtil.isEmpty(String.valueOf(value)))
-			return;
-		if (text.length() > 0)
-			text.append("，");
-		text.append(label).append("：").append(value);
-	}
-
-	/**
-	 * 从语聚AI返回结果中提取 content 字段（兼容 {"content":...}、{"data":{"content":...}}、
-	 * {"choices":[{"message":{"content":...}}]} 等结构，递归查找第一个文本 content）。
-	 */
-	private String extractYujuAiContent(Object response) {
-		if (response == null)
-			return null;
-		try {
-			JsonNode node = OBJECT_MAPPER.valueToTree(response);
-			return findFirstContentText(node);
-		} catch (Exception e) {
-			LOG.warn("解析语聚AI返回的content失败", e);
-			return null;
-		}
-	}
-
-	/** 递归查找第一个文本类型的 content 字段值。 */
-	private String findFirstContentText(JsonNode node) {
-		if (node == null || node.isNull())
-			return null;
-		if (node.isObject()) {
-			Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
-			while (iterator.hasNext()) {
-				Map.Entry<String, JsonNode> entry = iterator.next();
-				if ("content".equals(entry.getKey()) && entry.getValue() != null
-						&& entry.getValue().isTextual()
-						&& StringUtil.isNotEmpty(entry.getValue().asText()))
-					return entry.getValue().asText();
-			}
-			iterator = node.fields();
-			while (iterator.hasNext()) {
-				Map.Entry<String, JsonNode> entry = iterator.next();
-				String found = findFirstContentText(entry.getValue());
-				if (found != null)
-					return found;
-			}
-		} else if (node.isArray()) {
-			for (JsonNode item : node) {
-				String found = findFirstContentText(item);
-				if (found != null)
-					return found;
-			}
-		}
-		return null;
-	}
-
-	private Object parseYujuAiResponse(String responseBody) {
-		if (StringUtil.isEmpty(responseBody))
-			return "";
-		try {
-			return OBJECT_MAPPER.readValue(responseBody, Object.class);
-		} catch (Exception e) {
-			return responseBody;
-		}
-	}
-
-	private String readYujuAiResponse(InputStream inputStream) throws IOException {
-		if (inputStream == null)
-			return "";
-		StringBuilder response = new StringBuilder();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-			String line;
-			while ((line = reader.readLine()) != null)
-				response.append(line);
-		} finally {
-			if (reader != null)
-				reader.close();
-		}
-		return response.toString();
 	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -3415,9 +3001,9 @@ public class PortalController extends BaseController {
 	private String portalActionSecret() {
 		if (StringUtil.isNotEmpty(portalCustomerActionSecret))
 			return portalCustomerActionSecret.trim();
-		// 兼容现有部署：未单独配置时暂使用已有的语聚AI密钥作为签名密钥；生产环境建议单独配置。
-		if (StringUtil.isNotEmpty(yujuAiApiKey))
-			return yujuAiApiKey.trim();
+		// 兼容现有部署：未单独配置时沿用旧签名密钥配置，避免影响已有客户操作链接。
+		if (StringUtil.isNotEmpty(legacyPortalActionSecret))
+			return legacyPortalActionSecret.trim();
 		throw new IllegalStateException("未配置客户确认链接密钥，请设置 portal.customer-action-secret.");
 	}
 
