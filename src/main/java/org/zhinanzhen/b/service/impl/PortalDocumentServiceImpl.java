@@ -945,7 +945,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			throw serviceException("客户邮箱为空，通知邮件未发送。", ErrorCodeEnum.DATA_ERROR.code(), null);
 		String content = buildSupplementaryRequestMail(portalDto.getId(), data.fullName,
 				resolveMailSignerName(portalDto), data.visaSubclass, remark, customerUrl, roundNo);
-		sendMailWithAttachmentsAlways(data.email, MAIL_SUBJECT_SUPPLEMENT_REQUEST, content,
+		sendMailWithAttachmentsFromPortalUpdateMailboxAlways(data.email, MAIL_SUBJECT_SUPPLEMENT_REQUEST, content,
 				resolveApplicationAttachments(filePath));
 	}
 
@@ -959,7 +959,7 @@ public class PortalDocumentServiceImpl extends BaseService implements PortalDocu
 			throw serviceException("客户邮箱为空，通知邮件未发送。", ErrorCodeEnum.DATA_ERROR.code(), null);
 		String content = buildSupplementReuploadMail(data.fullName, resolveMailSignerName(portalDto),
 				portalDto.getCaseType(), remark, customerUrl, roundNo);
-		sendMailAlways(data.email, MAIL_SUBJECT_SUPPLEMENT_REUPLOAD, content);
+		sendMailFromPortalUpdateMailboxAlways(data.email, MAIL_SUBJECT_SUPPLEMENT_REUPLOAD, content);
 	}
 
 	/** 系统邮件模板05：移民局补料通知（中英对照），保留补料说明和补料链接。 */

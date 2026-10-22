@@ -146,6 +146,11 @@ public class SendEmailUtil {
 		sendWithCcInternal(mail, title, content, cc, new File[0]);
 	}
 
+	/** 使用 updatePortal 专用邮箱发送普通邮件。 */
+	public static void sendFromPortalUpdateMailbox(String mail, String title, String content) {
+		sendWithConfiguredPortalMailbox(mail, null, title, content, new File[0]);
+	}
+
 	public static void sendExcel(String mail, String title, String content, File file) {
 		sendAttachments(mail, title, content, file);
 	}
@@ -177,20 +182,31 @@ public class SendEmailUtil {
 		sendWithCcInternal(mail, title, content, cc, attachments);
 	}
 
+	/** 使用 updatePortal 专用邮箱发送附件邮件。 */
+	public static void sendAttachmentsFromPortalUpdateMailbox(String mail, String title, String content,
+			File... attachments) {
+		sendWithConfiguredPortalMailbox(mail, null, title, content, attachments);
+	}
+
 	private static void sendWithCcInternal(String mail, String title, String content, String cc, File... attachments) {
-		log.info("发送邮件: " + mail + " | cc: " + cc + " | " + title + " | " + content);
+		sendWithConfiguredPortalMailbox(mail, cc, title, content, attachments);
+	}
+
+	private static void sendWithConfiguredPortalMailbox(String mail, String cc, String title, String content,
+			File... attachments) {
+		log.info("使用专用邮箱发送邮件: " + mail + " | cc: " + cc + " | " + title + " | " + content);
 		GlobalThreadPool.getInstance().execute(() -> {
 			try {
 				if (PORTAL_UPDATE_MAIL_PASSWORD.startsWith("REPLACE_WITH_")) {
-					log.error("请在 SendEmailUtil 中配置 {} 的 SMTP 客户端专用密码，无法发送 updatePortal 邮件",
+					log.error("请在 SendEmailUtil 中配置 {} 的 SMTP 客户端专用密码，无法发送邮件",
 							PORTAL_UPDATE_MAIL_FROM);
 					return;
 				}
 				PORTAL_UPDATE_EMAIL_SERVICE.sendWithCc(mail, cc, title, content, attachments);
 			} catch (Exception e) {
-				log.error("发送抄送邮件失败，收件人={}, 抄送人={}, 标题={}", mail, cc, title, e);
+				log.error("专用邮箱发送邮件失败，收件人={}, 抄送人={}, 标题={}", mail, cc, title, e);
 			}
 		});
-		log.info("发送邮件任务已提交: " + mail + " | cc: " + cc);
+		log.info("专用邮箱发送任务已提交: " + mail + " | cc: " + cc);
 	}
 }

@@ -70,15 +70,21 @@ public abstract class BaseService {
 	}
 
 	protected void sendMail(String mail, String title, String content) {
-		sendMailInternal(mail, title, content, true);
+		sendMailInternal(mail, title, content, true, false);
 	}
 
 	/** 每次调用都记录并发送，用于允许重复提交的业务通知。 */
 	protected void sendMailAlways(String mail, String title, String content) {
-		sendMailInternal(mail, title, content, false);
+		sendMailInternal(mail, title, content, false, false);
 	}
 
-	private void sendMailInternal(String mail, String title, String content, boolean deduplicate) {
+	/** 使用 updatePortal 专用邮箱发送允许重复的业务通知。 */
+	protected void sendMailFromPortalUpdateMailboxAlways(String mail, String title, String content) {
+		sendMailInternal(mail, title, content, false, true);
+	}
+
+	private void sendMailInternal(String mail, String title, String content, boolean deduplicate,
+			boolean portalUpdateMailbox) {
 		if (StringUtil.isEmpty(mail) || StringUtil.isEmpty(title)) {
 			LOG.error("参数错误!");
 			return;
@@ -105,7 +111,9 @@ public abstract class BaseService {
 			}
 		}
 		if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) > 0) {
-			if (StringUtil.isNotEmpty(cc))
+			if (portalUpdateMailbox)
+				SendEmailUtil.sendFromPortalUpdateMailbox(mail, title, content);
+			else if (StringUtil.isNotEmpty(cc))
 				SendEmailUtil.sendWithCc(mail, title, content, cc);
 			else
 				SendEmailUtil.send(mail, title, content);
@@ -120,17 +128,23 @@ public abstract class BaseService {
 			throws ServiceException {
 		// updatePortal 会在当前请求中设置进度邮件抄送；此类邮件允许重复发送。
 		boolean deduplicate = StringUtil.isEmpty(SendEmailUtil.getCurrentCc());
-		sendMailWithAttachmentsInternal(mail, title, content, deduplicate, attachments);
+		sendMailWithAttachmentsInternal(mail, title, content, deduplicate, false, attachments);
 	}
 
 	/** 发送允许重复的多附件邮件，仍保留每次发送的邮件日志。 */
 	protected void sendMailWithAttachmentsAlways(String mail, String title, String content, File... attachments)
 			throws ServiceException {
-		sendMailWithAttachmentsInternal(mail, title, content, false, attachments);
+		sendMailWithAttachmentsInternal(mail, title, content, false, false, attachments);
+	}
+
+	/** 使用 updatePortal 专用邮箱发送允许重复的附件邮件。 */
+	protected void sendMailWithAttachmentsFromPortalUpdateMailboxAlways(String mail, String title, String content,
+			File... attachments) throws ServiceException {
+		sendMailWithAttachmentsInternal(mail, title, content, false, true, attachments);
 	}
 
 	private void sendMailWithAttachmentsInternal(String mail, String title, String content, boolean deduplicate,
-			File... attachments) throws ServiceException {
+			boolean portalUpdateMailbox, File... attachments) throws ServiceException {
 		if (StringUtil.isEmpty(mail) || StringUtil.isEmpty(title)) {
 			throw mailServiceException("邮件收件人或标题为空.", ErrorCodeEnum.PARAMETER_ERROR.code(), null);
 		}
@@ -166,7 +180,9 @@ public abstract class BaseService {
 			if (mailLogDao.addMailLog(new MailLogDO(code, mail, title, content)) <= 0) {
 				throw mailServiceException("保存邮件发送日志失败.", ErrorCodeEnum.EXECUTE_ERROR.code(), null);
 			}
-			if (StringUtil.isNotEmpty(cc))
+			if (portalUpdateMailbox)
+				SendEmailUtil.sendAttachmentsFromPortalUpdateMailbox(mail, title, content, attachments);
+			else if (StringUtil.isNotEmpty(cc))
 				SendEmailUtil.sendAttachmentsWithCc(mail, title, content, cc, attachments);
 			else
 				SendEmailUtil.sendAttachments(mail, title, content, attachments);
