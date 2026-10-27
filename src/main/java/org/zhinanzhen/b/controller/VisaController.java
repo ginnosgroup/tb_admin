@@ -47,6 +47,8 @@ import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
+import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -127,6 +129,9 @@ public class VisaController extends BaseCommissionOrderController {
 
     @Resource
     private ServiceOrderDAO serviceOrderDAO;
+
+    @Resource
+    private AdviserDAO adviserDAO;
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -1133,6 +1138,35 @@ public class VisaController extends BaseCommissionOrderController {
 			List<VisaDTO> list = visaService.listVisa(id, keyword, startHandlingDate, endHandlingDate, stateList,
 					commissionStateList, startKjApprovalDate, endKjApprovalDate, startDate, endDate, startInvoiceCreate,
 					endInvoiceCreate, regionIdList, adviserId, userId, userName, applicantName, state, 0, 9999, null);
+			Set<Integer> serviceOrderIds = list.stream().map(VisaDTO::getServiceOrderId)
+					.filter(serviceOrderId -> serviceOrderId > 0).collect(Collectors.toSet());
+			Map<Integer, ServiceOrderDO> serviceOrderById = new HashMap<>();
+			if (!serviceOrderIds.isEmpty()) {
+				for (ServiceOrderDO serviceOrder : serviceOrderDAO.listByIds(new ArrayList<>(serviceOrderIds))) {
+					serviceOrderById.put(serviceOrder.getId(), serviceOrder);
+				}
+			}
+			Set<Integer> recommendAdviserIds = serviceOrderById.values().stream()
+					.filter(serviceOrder -> serviceOrder.getRecommendAdviserId() != null
+							&& serviceOrder.getRecommendAdviserId() > 0
+							&& serviceOrder.getRecommendAdviserId() != serviceOrder.getAdviserId())
+					.map(ServiceOrderDO::getRecommendAdviserId).collect(Collectors.toSet());
+			Map<Integer, String> adviserNameById = new HashMap<>();
+			if (!recommendAdviserIds.isEmpty()) {
+				for (AdviserDO adviser : adviserDAO.listByIds(new ArrayList<>(recommendAdviserIds))) {
+					adviserNameById.put(adviser.getId(), adviser.getName() != null ? adviser.getName() : "");
+				}
+			}
+			Map<Integer, String> recommendationAdviserNameByServiceOrderId = new HashMap<>();
+			for (ServiceOrderDO serviceOrder : serviceOrderById.values()) {
+				Integer recommendAdviserId = serviceOrder.getRecommendAdviserId();
+				if (recommendAdviserId != null && recommendAdviserId > 0
+						&& recommendAdviserId != serviceOrder.getAdviserId()
+						&& recommendAdviserIds.contains(recommendAdviserId)) {
+					recommendationAdviserNameByServiceOrderId.put(serviceOrder.getId(),
+							adviserNameById.getOrDefault(recommendAdviserId, ""));
+				}
+			}
 
 //			list.forEach(v -> {
 //				if (v.getServiceOrderId() > 0)
@@ -1222,7 +1256,8 @@ public class VisaController extends BaseCommissionOrderController {
 					}
 					sheet.addCell(new Label(24, i, visaDto.getState() + "", cellFormat));
 					sheet.addCell(new Label(25, i, visaDto.getRemarks() + "", cellFormat));
-					addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat);
+					addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat,
+							recommendationAdviserNameByServiceOrderId);
 					i++;
 				}
 				wbe.write();
@@ -1291,7 +1326,8 @@ public class VisaController extends BaseCommissionOrderController {
 						if (visaDto.getKjApprovalDate() != null)
 							sheet.addCell(new Label(22, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
 						sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
-						addRecommendationExportRow(sheet, i, 24, visaDto, cellFormat);
+						addRecommendationExportRow(sheet, i, 24, visaDto, cellFormat,
+								recommendationAdviserNameByServiceOrderId);
 						i++;
 					}
 					wbe.write();
@@ -1363,7 +1399,8 @@ public class VisaController extends BaseCommissionOrderController {
 						if (visaDto.getKjApprovalDate() != null)
 							sheet.addCell(new Label(24, i, sdf.format(visaDto.getKjApprovalDate()), cellFormat));
 						sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
-						addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat);
+						addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat,
+								recommendationAdviserNameByServiceOrderId);
 						i++;
 					}
 					wbe.write();
@@ -1384,17 +1421,27 @@ public class VisaController extends BaseCommissionOrderController {
 	private void addRecommendationExportHeaders(WritableSheet sheet, int firstColumn) throws WriteException {
 		sheet.addCell(new Label(firstColumn, 0, "是否推荐顾问订单"));
 		sheet.addCell(new Label(firstColumn + 1, 0, "业绩比例"));
+		sheet.addCell(new Label(firstColumn + 2, 0, "推荐顾问名字"));
 		sheet.setColumnView(firstColumn, 20);
 		sheet.setColumnView(firstColumn + 1, 12);
+		sheet.setColumnView(firstColumn + 2, 20);
 	}
 
 	private void addRecommendationExportRow(WritableSheet sheet, int row, int firstColumn,
-			VisaDTO visaDto, WritableCellFormat cellFormat) throws WriteException {
-		boolean recommended = Math.abs(visaDto.getPerformanceRatio() - 0.30) < 0.000001;
+			VisaDTO visaDto, WritableCellFormat cellFormat,
+			Map<Integer, String> recommendationAdviserNameByServiceOrderId) throws WriteException {
+		boolean recommended = isRecommendationVisa(visaDto);
 		sheet.addCell(new Label(firstColumn, row, recommended ? "是" : "否", cellFormat));
 		String ratio = BigDecimal.valueOf(visaDto.getPerformanceRatio())
 				.multiply(BigDecimal.valueOf(100)).stripTrailingZeros().toPlainString() + "%";
 		sheet.addCell(new Label(firstColumn + 1, row, ratio, cellFormat));
+		String recommendationAdviserName = recommendationAdviserNameByServiceOrderId
+				.getOrDefault(visaDto.getServiceOrderId(), "");
+		sheet.addCell(new Label(firstColumn + 2, row, recommendationAdviserName, cellFormat));
+	}
+
+	private boolean isRecommendationVisa(VisaDTO visaDto) {
+		return Math.abs(visaDto.getPerformanceRatio() - 0.30) < 0.000001;
 	}
 
 	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)

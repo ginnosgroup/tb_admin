@@ -2999,6 +2999,22 @@ public class ServiceOrderController extends BaseController {
             greenFormat.setVerticalAlignment(VerticalAlignment.CENTRE);
             sheet.addCell(new Label(21, 0, "是否推荐顾问订单", defaultFormat));
             sheet.setColumnView(21, 20);
+            Set<Integer> recommendAdviserIds = new HashSet<>();
+            for (ServiceOrderDTO serviceOrder : serviceOrderLists) {
+                Integer recommendAdviserId = serviceOrder.getRecommendAdviserId();
+                if (recommendAdviserId != null && recommendAdviserId > 0
+                        && recommendAdviserId != serviceOrder.getAdviserId()) {
+                    recommendAdviserIds.add(recommendAdviserId);
+                }
+            }
+            Map<Integer, String> recommendAdviserNameMap = new HashMap<>();
+            if (!recommendAdviserIds.isEmpty()) {
+                for (AdviserDO adviser : adviserDAO.listByIds(new ArrayList<>(recommendAdviserIds))) {
+                    recommendAdviserNameMap.put(adviser.getId(), adviser.getName() != null ? adviser.getName() : "");
+                }
+            }
+            sheet.addCell(new Label(22, 0, "推荐顾问名字", defaultFormat));
+            sheet.setColumnView(22, 20);
             int i = 1;
             for (ServiceOrderDTO so : serviceOrderLists) {
                 WritableCellFormat cellFormat;
@@ -3155,6 +3171,9 @@ public class ServiceOrderController extends BaseController {
                         && so.getRecommendAdviserId() > 0
                         && so.getRecommendAdviserId() != so.getAdviserId();
                 sheet.addCell(new Label(21, i, hasRecommendation ? "是" : "否", cellFormat));
+                String recommendAdviserName = hasRecommendation
+                        ? recommendAdviserNameMap.getOrDefault(so.getRecommendAdviserId(), "") : "";
+                sheet.addCell(new Label(22, i, recommendAdviserName, cellFormat));
                 i++;
             }
             wbe.write();
