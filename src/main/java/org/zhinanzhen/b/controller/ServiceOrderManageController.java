@@ -329,7 +329,6 @@ public class ServiceOrderManageController extends BaseController {
                                              @RequestParam(value = "refNo", required = false) String refNo,
                                              @RequestParam(value = "officialData", required = false) String officialData,
                                              @RequestParam(value = "adviserId", required = false) String adviserId,
-                                             @RequestParam(value = "recommendAdviserId", required = false) Integer recommendAdviserId,
                                              @RequestParam(value = "userId", required = false) String userId,
                                              @RequestParam(value = "maraId", required = false) String maraId,
                                              @RequestParam(value = "serviceOrderJson", required = false) String serviceOrderJsons,
@@ -350,10 +349,6 @@ public class ServiceOrderManageController extends BaseController {
                 && !"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList()))
             adviserId = linkedAdviserId.toString();
         List<ServiceOrderJsonRequest> serviceOrderJson = new ArrayList<>();
-        if (recommendAdviserId != null && (recommendAdviserId <= 0
-                || adviserDAO.getAdviserById(recommendAdviserId) == null)) {
-            return new Response<Integer>(1, "推荐顾问不存在，请检查recommendAdviserId。", 0);
-        }
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.findAndRegisterModules();
@@ -495,7 +490,6 @@ public class ServiceOrderManageController extends BaseController {
             }
         }
 
-        serviceOrderDto.setRecommendAdviserId(recommendAdviserId);
         int addResult = serviceOrderManageService.add(serviceOrderDto);
         if (addResult > 0) {
             if (serviceOrderJson != null && !serviceOrderJson.isEmpty()) {
@@ -504,7 +498,6 @@ public class ServiceOrderManageController extends BaseController {
                 for (ServiceOrderJsonRequest serviceOrderJsonRequest : serviceOrderJson) {
                     serviceOrderJsonRequest.setManageId(serviceOrderDto.getId());
                     serviceOrderJsonRequest.setAdviserId(adviserId);
-                    serviceOrderJsonRequest.setRecommendAdviserId(recommendAdviserId);
                     serviceOrderJsonRequest.setReceiveTypeId(receiveTypeId);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl1(paymentVoucherImageUrl1);
                     serviceOrderJsonRequest.setPaymentVoucherImageUrl2(paymentVoucherImageUrl2);
@@ -6376,8 +6369,13 @@ public class ServiceOrderManageController extends BaseController {
             if (adminUserLoginInfo == null || (!"SUPERAD".equalsIgnoreCase(adminUserLoginInfo.getApList())
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
+            Integer recommendAdviserId = serviceOrderJsonRequest.getRecommendAdviserId();
+            if (recommendAdviserId != null && (recommendAdviserId <= 0
+                    || adviserDAO.getAdviserById(recommendAdviserId) == null)) {
+                return new Response<Integer>(1, "推荐顾问不存在，请检查子订单recommendAdviserId。", 0);
+            }
             ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
-            serviceOrderDto.setRecommendAdviserId(serviceOrderJsonRequest.getRecommendAdviserId());
+            serviceOrderDto.setRecommendAdviserId(recommendAdviserId);
             if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
                 serviceOrderDto.setMaraId(Integer.parseInt(maraId));
                 if (isPay.equalsIgnoreCase("false")) {
