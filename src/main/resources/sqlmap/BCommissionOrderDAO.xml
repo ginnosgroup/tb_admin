@@ -199,7 +199,7 @@
                 payment_voucher_image_url_5,
                 school_payment_amount,
                 school_payment_date,
-                invoice_number,
+                NULL,
                 start_date,
                 end_date,
                 commission,

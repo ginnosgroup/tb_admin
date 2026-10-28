@@ -557,6 +557,8 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
 
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO, ServiceOrderBatchContext ctx) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+        // 显式回填，确保列表接口组装的主订单和子订单都包含推荐顾问ID。
+        serviceOrderDto.setRecommendAdviserId(serviceOrderDO.getRecommendAdviserId());
         //获取旧文案信息
         Integer oldOfficialId = ctx.oldOfficialMap.get(serviceOrderDto.getId());
         if (oldOfficialId != null) {
