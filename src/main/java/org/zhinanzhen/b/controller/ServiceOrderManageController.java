@@ -369,6 +369,16 @@ public class ServiceOrderManageController extends BaseController {
         if (serviceOrderJson.isEmpty()) {
             return new Response<Integer>(1, "服务项目未选定，请选定服务", 0);
         }
+        if (StringUtil.isNotEmpty(adviserId)) {
+            int orderAdviserId = StringUtil.toInt(adviserId);
+            boolean sameRecommendAdviser = serviceOrderJson.stream().anyMatch(order ->
+                    order.getRecommendAdviserId() != null
+                            && order.getRecommendAdviserId() > 0
+                            && order.getRecommendAdviserId() == orderAdviserId);
+            if (sameRecommendAdviser) {
+                return new Response<Integer>(1, "推荐顾问不能与订单顾问相同，请重新选择。", 0);
+            }
+        }
         ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
         serviceOrderDto.setCode(UUID.randomUUID().toString());
         serviceOrderDto.setState(ReviewAdviserStateEnum.PENDING.toString());
@@ -1492,6 +1502,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "type", required = false) String type,
                                                 @RequestParam(value = "eoiType", required = false) String eoiType,
                                                 @RequestParam(value = "isCOE", required = false) String isCOE,
+                                                @RequestParam(value = "recommendAdviserId", required = false) Integer recommendAdviserId,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
@@ -1499,6 +1510,15 @@ public class ServiceOrderManageController extends BaseController {
             serviceOrderDto = serviceOrderService.getServiceOrderById(id);
             if (serviceOrderDto == null)
                 return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
+            if (recommendAdviserId != null) {
+                if (recommendAdviserId < 0 || (recommendAdviserId > 0
+                        && adviserDAO.getAdviserById(recommendAdviserId) == null)) {
+                    return new Response<Integer>(1, "推荐顾问不存在，请检查推荐顾问id。", 0);
+                }
+                if (recommendAdviserId > 0 && recommendAdviserId == serviceOrderDto.getAdviserId()) {
+                    return new Response<Integer>(1, "本来顾问和推荐顾问不能是同一个人。", 0);
+                }
+            }
             if (officialId != null && !StringUtil.equals(officialId, serviceOrderDto.getOfficialId() + ""))
                 LOG.warn("文案ID不一致，可能有修改! (id:" + id + ",officialId:" + officialId + ",soOfficialId:"
                         + serviceOrderDto.getOfficialId() + ")");
@@ -1540,7 +1560,7 @@ public class ServiceOrderManageController extends BaseController {
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
                     isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
-                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions);
+                    hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions, recommendAdviserId);
             if (res != null && res.getCode() == 0) {
                 List<ServiceOrderDTO> cList = new ArrayList<>();
                 if ("SIV".equalsIgnoreCase(serviceOrderDto.getType())
@@ -1565,7 +1585,7 @@ public class ServiceOrderManageController extends BaseController {
                             null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
                             isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
                             schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions, null);
                     if (cRes.getCode() > 0)
                         res.setMessage(res.getMessage() + ";" + cRes.getMessage());
                 });
@@ -1858,7 +1878,7 @@ public class ServiceOrderManageController extends BaseController {
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
-                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String eoiType, String isCOE, String zeroScoreOptions) {
+                                        String offerType, String officialData, String scoreOptions, String scoreState, String scoreMark, String eoiType, String isCOE, String zeroScoreOptions, Integer recommendAdviserId) {
         try {
             if (StringUtil.isNotEmpty(type))
                 serviceOrderDto.setType(type);
@@ -1956,6 +1976,8 @@ public class ServiceOrderManageController extends BaseController {
             }
             if (StringUtil.isNotEmpty(maraId) && !"0".equals(maraId))
                 serviceOrderDto.setMaraId(StringUtil.toInt(maraId));
+            if (recommendAdviserId != null)
+                serviceOrderDto.setRecommendAdviserId(recommendAdviserId);
 //            if (StringUtil.isNotEmpty(adviserId))
 //                serviceOrderDto.setAdviserId(StringUtil.toInt(adviserId));
             int officialId1 = serviceOrderDto.getOfficialId();
@@ -3501,8 +3523,6 @@ public class ServiceOrderManageController extends BaseController {
                         sheet.addCell(new Label(16, i, "申请成功", subRowFormat));
                         if (so.getType().equalsIgnoreCase("ZX"))
                             sheet.addCell(new Label(16, i, "订单完成", subRowFormat));
-                        if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
-                            sheet.addCell(new Label(16, i, "等待财务转账", subRowFormat));
                     } else if (so.getState().equalsIgnoreCase("RECEIVED"))
                         sheet.addCell(new Label(16, i, "已收款凭证已提交", subRowFormat));
                     else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
@@ -6370,6 +6390,11 @@ public class ServiceOrderManageController extends BaseController {
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
             Integer recommendAdviserId = serviceOrderJsonRequest.getRecommendAdviserId();
+            if (recommendAdviserId != null && recommendAdviserId > 0
+                    && StringUtil.isNotEmpty(adviserId)
+                    && recommendAdviserId == StringUtil.toInt(adviserId)) {
+                return new Response<Integer>(1, "推荐顾问不能与订单顾问相同，请重新选择。", 0);
+            }
             if (recommendAdviserId != null && (recommendAdviserId <= 0
                     || adviserDAO.getAdviserById(recommendAdviserId) == null)) {
                 return new Response<Integer>(1, "推荐顾问不存在，请检查子订单recommendAdviserId。", 0);

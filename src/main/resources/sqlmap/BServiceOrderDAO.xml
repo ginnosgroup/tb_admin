@@ -412,6 +412,9 @@
         <if test='adviserId != null and adviserId > 0'>
             , adviser_id = #{adviserId}
         </if>
+        <if test='recommendAdviserId != null'>
+            , recommend_adviser_id = NULLIF(#{recommendAdviserId}, 0)
+        </if>
         <if test='adviserId2 != null and adviserId2 > 0'>
             , adviser_id_2 = #{adviserId2}
         </if>

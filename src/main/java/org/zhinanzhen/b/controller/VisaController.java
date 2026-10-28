@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.dozer.DozerBeanMapper;
+import org.dozer.Mapper;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +50,9 @@ import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.controller.ListResponse;
 import org.zhinanzhen.tb.controller.Response;
 import org.zhinanzhen.tb.dao.AdviserDAO;
+import org.zhinanzhen.tb.dao.RegionDAO;
 import org.zhinanzhen.tb.dao.pojo.AdviserDO;
+import org.zhinanzhen.tb.dao.pojo.RegionDO;
 import org.zhinanzhen.tb.service.AdviserService;
 import org.zhinanzhen.tb.service.RegionService;
 import org.zhinanzhen.tb.service.ServiceException;
@@ -132,6 +136,11 @@ public class VisaController extends BaseCommissionOrderController {
 
     @Resource
     private AdviserDAO adviserDAO;
+
+    @Resource
+    private RegionDAO regionDAO;
+
+    private Mapper mapper = new DozerBeanMapper();
 
 	@RequestMapping(value = "/upload_img", method = RequestMethod.POST)
 	@ResponseBody
@@ -924,6 +933,7 @@ public class VisaController extends BaseCommissionOrderController {
 			if (list == null) {
 				list = new ArrayList<>();
 			}
+			populateRecommendAdvisers(list);
 
 			List<Integer> visaIds = list.stream().map(VisaDTO::getId).collect(Collectors.toList());
 			Map<Integer, List<MailRemindDTO>> mailRemindMap;
@@ -1011,6 +1021,52 @@ public class VisaController extends BaseCommissionOrderController {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			return new ListResponse<List<VisaDTO>>(false, pageSize, 0, null, "线程被中断");
+		}
+	}
+
+	private void populateRecommendAdvisers(List<VisaDTO> visaList) {
+		Set<Integer> recommendAdviserIds = visaList.stream()
+				.map(VisaDTO::getServiceOrder)
+				.filter(Objects::nonNull)
+				.map(ServiceOrderDTO::getRecommendAdviserId)
+				.filter(id -> id != null && id > 0)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+		if (recommendAdviserIds.isEmpty()) {
+			return;
+		}
+
+		List<AdviserDO> recommendAdvisers = adviserDAO.listByIds(new ArrayList<>(recommendAdviserIds));
+		if (recommendAdvisers == null || recommendAdvisers.isEmpty()) {
+			return;
+		}
+		Set<Integer> regionIds = recommendAdvisers.stream()
+				.map(AdviserDO::getRegionId)
+				.filter(id -> id > 0)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+		Map<Integer, RegionDO> regionById = new HashMap<>();
+		if (!regionIds.isEmpty()) {
+			List<RegionDO> regions = regionDAO.listByIds(new ArrayList<>(regionIds));
+			if (regions != null) {
+				regionById = regions.stream().collect(Collectors.toMap(RegionDO::getId, region -> region, (a, b) -> a));
+			}
+		}
+
+		Map<Integer, AdviserDTO> recommendAdviserById = new HashMap<>();
+		for (AdviserDO adviser : recommendAdvisers) {
+			AdviserDTO adviserDTO = mapper.map(adviser, AdviserDTO.class);
+			RegionDO region = regionById.get(adviser.getRegionId());
+			if (region != null) {
+				adviserDTO.setRegionName(region.getName());
+				adviserDTO.setRegionDo(region);
+			}
+			recommendAdviserById.put(adviser.getId(), adviserDTO);
+		}
+
+		for (VisaDTO visaDTO : visaList) {
+			ServiceOrderDTO serviceOrder = visaDTO.getServiceOrder();
+			if (serviceOrder != null && serviceOrder.getRecommendAdviserId() != null) {
+				serviceOrder.setRecommendAdviser(recommendAdviserById.get(serviceOrder.getRecommendAdviserId()));
+			}
 		}
 	}
 

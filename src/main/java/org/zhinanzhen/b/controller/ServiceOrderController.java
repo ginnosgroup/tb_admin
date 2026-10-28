@@ -3104,8 +3104,6 @@ public class ServiceOrderController extends BaseController {
                     sheet.addCell(new Label(16, i, "申请成功", cellFormat));
                     if (so.getType().equalsIgnoreCase("ZX"))
                         sheet.addCell(new Label(16, i, "订单完成", cellFormat));
-                    if (so.getType().equalsIgnoreCase("OVST") && so.isSettle())
-                        sheet.addCell(new Label(16, i, "等待财务转账", cellFormat));
                 } else if (so.getState().equalsIgnoreCase("RECEIVED"))
                     sheet.addCell(new Label(16, i, "已收款凭证已提交", cellFormat));
                 else if (so.getState().equalsIgnoreCase("COMPLETE_FD"))
