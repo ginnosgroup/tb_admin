@@ -696,6 +696,20 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
             serviceOrderDto.getAdviser().setRegionDo(regionDO);
         }
+        // 推荐顾问信息与顾问信息共用批量查询结果，避免在子订单循环中单独查库。
+        Integer recommendAdviserId = serviceOrderDto.getRecommendAdviserId();
+        if (recommendAdviserId != null && recommendAdviserId > 0) {
+            AdviserDO recommendAdviserDo = ctx.adviserMap.get(recommendAdviserId);
+            if (recommendAdviserDo != null) {
+                AdviserDTO recommendAdviserDto = mapper.map(recommendAdviserDo, AdviserDTO.class);
+                RegionDO recommendAdviserRegion = ctx.regionMap.get(recommendAdviserDo.getRegionId());
+                if (recommendAdviserRegion != null) {
+                    recommendAdviserDto.setRegionName(recommendAdviserRegion.getName());
+                    recommendAdviserDto.setRegionDo(recommendAdviserRegion);
+                }
+                serviceOrderDto.setRecommendAdviser(recommendAdviserDto);
+            }
+        }
         // 查询顾问2
         if (serviceOrderDto.getAdviserId2() > 0) {
             AdviserDO adviserDo2 = ctx.adviserMap.get(serviceOrderDto.getAdviserId2());

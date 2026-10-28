@@ -183,6 +183,8 @@ public class ServiceOrderDTO {
 
 	private Integer recommendAdviserId; // 推荐顾问ID
 
+	private AdviserDTO recommendAdviser;
+
 	private AdviserDTO adviser;
 
 	private int adviserId2;

@@ -121,6 +121,9 @@ public class ServiceOrderBatchLoader {
             if (order.getUserId() > 0) userIds.add(order.getUserId());
             if (order.getMaraId() > 0) maraIds.add(order.getMaraId());
             if (order.getAdviserId() > 0) adviserIds.add(order.getAdviserId());
+            if (order.getRecommendAdviserId() != null && order.getRecommendAdviserId() > 0) {
+                adviserIds.add(order.getRecommendAdviserId());
+            }
             if (order.getOfficialId() > 0) officialIds.add(order.getOfficialId());
             if (order.getApplicantId() > 0) applicantIds.add(order.getApplicantId());
             if (order.getCourseId() > 0) schoolCourseIds.add(order.getCourseId());
