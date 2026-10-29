@@ -1120,6 +1120,38 @@ public class ServiceOrderManageController extends BaseController {
         }
     }
 
+    private Integer parseRecommendAdviserId(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        String idValue = value.trim();
+        if (idValue.startsWith("{")) {
+            try {
+                JSONObject option = JSONObject.parseObject(idValue);
+                Object rawId = option.get("value");
+                if (rawId == null) {
+                    rawId = option.get("key");
+                }
+                if (rawId == null) {
+                    rawId = option.get("id");
+                }
+                if (rawId == null) {
+                    throw new IllegalArgumentException("推荐顾问选项中缺少value或key。");
+                }
+                idValue = String.valueOf(rawId).trim();
+            } catch (RuntimeException e) {
+                throw new IllegalArgumentException("推荐顾问参数格式错误，请传数字ID或包含value的选项对象。", e);
+            }
+        }
+
+        try {
+            return Integer.valueOf(idValue);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("推荐顾问参数格式错误，请传数字ID或包含value的选项对象。", e);
+        }
+    }
+
     private Set<Integer> getApplicantIds(ServiceOrderJsonRequest childOrder) {
         Set<Integer> applicantIds = new LinkedHashSet<>();
 
@@ -1502,11 +1534,17 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "type", required = false) String type,
                                                 @RequestParam(value = "eoiType", required = false) String eoiType,
                                                 @RequestParam(value = "isCOE", required = false) String isCOE,
-                                                @RequestParam(value = "recommendAdviserId", required = false) Integer recommendAdviserId,
+                                                @RequestParam(value = "recommendAdviserId", required = false) String recommendAdviserIdParam,
                                                 HttpServletResponse response) {
         super.setPostHeader(response);
         ServiceOrderDTO serviceOrderDto;
         try {
+            Integer recommendAdviserId;
+            try {
+                recommendAdviserId = parseRecommendAdviserId(recommendAdviserIdParam);
+            } catch (IllegalArgumentException e) {
+                return new Response<Integer>(1, e.getMessage(), 0);
+            }
             serviceOrderDto = serviceOrderService.getServiceOrderById(id);
             if (serviceOrderDto == null)
                 return new Response<Integer>(1, "服务订单不存在,修改失败.", 0);
@@ -1585,7 +1623,7 @@ public class ServiceOrderManageController extends BaseController {
                             null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
                             isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
                             schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
-                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions, null);
+                            insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions, recommendAdviserId);
                     if (cRes.getCode() > 0)
                         res.setMessage(res.getMessage() + ";" + cRes.getMessage());
                 });

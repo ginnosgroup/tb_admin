@@ -557,6 +557,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 				});
 			}
 			latch.await();
+			populateRecommendationRefundAllocations(visaDtoList);
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.EXECUTE_ERROR.code());
@@ -1039,6 +1040,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			visaDto.setRemindDateList(remindDateList);
 			visaDtoList.add(visaDto);
 		}
+		populateRecommendationRefundAllocations(visaDtoList);
 		for (VisaDTO adviserRateCommissionOrderDO : visaDtoList) {
 			BigDecimal receivedAUD = BigDecimal.valueOf(adviserRateCommissionOrderDO.getTotalAmountAUD());//总计实收澳币
 			BigDecimal refund = BigDecimal.valueOf(adviserRateCommissionOrderDO.getRefund());//退款
@@ -1062,6 +1064,31 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 
 		return visaDtoList;
+	}
+
+	/** 对推荐顾问的70/30签证佣金记录分别返回应承担的退款金额。 */
+	private void populateRecommendationRefundAllocations(List<VisaDTO> visaDtos) {
+		if (visaDtos == null || visaDtos.isEmpty())
+			return;
+		List<Integer> serviceOrderIds = visaDtos.stream().map(VisaDTO::getServiceOrderId).distinct()
+				.collect(Collectors.toList());
+		List<VisaDO> commissionOrders = visaDao.listByServiceOrderIds(serviceOrderIds);
+		if (commissionOrders == null || commissionOrders.isEmpty())
+			return;
+		List<Integer> visaIds = commissionOrders.stream().map(VisaDO::getId).distinct().collect(Collectors.toList());
+		List<RefundDO> refunds = refundDao.listAllByVisaIds(visaIds);
+		if (refunds == null || refunds.isEmpty())
+			return;
+		Map<Integer, Double> refundByVisaId = VisaPerformanceAllocation.allocateRefundAmounts(commissionOrders, refunds);
+		Map<Integer, Double> paidRefundByVisaId = VisaPerformanceAllocation.allocateRefundAmounts(commissionOrders,
+				refunds, "PAID");
+		for (VisaDTO visaDto : visaDtos) {
+			if (refundByVisaId.containsKey(visaDto.getId())) {
+				visaDto.setRefund(refundByVisaId.get(visaDto.getId()));
+				if (paidRefundByVisaId.containsKey(visaDto.getId()))
+					visaDto.setRefunded(true);
+			}
+		}
 	}
 
 	@Override

@@ -3,6 +3,76 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.RefundDAO">
 
+    <!-- 匹配同一期的主顾问70%和推荐顾问30%佣金单。 -->
+    <sql id="hasRecommendationCounterpart">
+        EXISTS (
+            SELECT 1 FROM b_visa counterpart
+            WHERE counterpart.service_order_id = sourceVisa.service_order_id
+              AND counterpart.code = sourceVisa.code
+              AND counterpart.installment_num = sourceVisa.installment_num
+              AND counterpart.id != sourceVisa.id
+              AND counterpart.performance_ratio IN (0.70, 0.30)
+              AND counterpart.performance_ratio != sourceVisa.performance_ratio
+        )
+    </sql>
+
+    <!-- 新流程为同一期的两条佣金单分别建退款单；历史数据可能仍只有一条整额退款单。 -->
+    <sql id="hasPairedRefund">
+        EXISTS (
+            SELECT 1 FROM b_refund pairedRefund
+            JOIN b_visa counterpart ON counterpart.id = pairedRefund.visa_id
+            WHERE pairedRefund.type = 'VISA'
+              AND counterpart.service_order_id = sourceVisa.service_order_id
+              AND counterpart.code = sourceVisa.code
+              AND counterpart.installment_num = sourceVisa.installment_num
+              AND counterpart.id != sourceVisa.id
+              AND counterpart.performance_ratio IN (0.70, 0.30)
+              AND counterpart.performance_ratio != sourceVisa.performance_ratio
+        )
+    </sql>
+
+    <sql id="refundAdviserAllocationJoin">
+        LEFT JOIN b_visa sourceVisa ON sourceVisa.id = rf.visa_id
+        LEFT JOIN b_visa targetVisa ON sourceVisa.id IS NOT NULL AND (
+            (
+                COALESCE(sourceVisa.performance_ratio, 1.00) IN (0.70, 0.30)
+                AND <include refid="hasRecommendationCounterpart"/>
+                AND (
+                    (
+                        <include refid="hasPairedRefund"/>
+                        AND targetVisa.id = sourceVisa.id
+                    )
+                    OR (
+                        NOT (<include refid="hasPairedRefund"/>)
+                        AND targetVisa.service_order_id = sourceVisa.service_order_id
+                        AND targetVisa.code = sourceVisa.code
+                        AND targetVisa.installment_num = sourceVisa.installment_num
+                        AND targetVisa.performance_ratio IN (0.70, 0.30)
+                    )
+                )
+            )
+            OR (
+                (COALESCE(sourceVisa.performance_ratio, 1.00) NOT IN (0.70, 0.30)
+                 OR NOT (<include refid="hasRecommendationCounterpart"/>))
+                AND targetVisa.id = sourceVisa.id
+            )
+        )
+    </sql>
+
+    <sql id="allocatedRefundAmount">
+        CASE
+            WHEN sourceVisa.id IS NOT NULL
+             AND COALESCE(sourceVisa.performance_ratio, 1.00) IN (0.70, 0.30)
+             AND <include refid="hasRecommendationCounterpart"/>
+             AND NOT (<include refid="hasPairedRefund"/>)
+            THEN CASE WHEN targetVisa.performance_ratio = 0.30
+                      THEN ROUND(rf.amount * 0.30, 2)
+                      ELSE rf.amount - ROUND(rf.amount * 0.30, 2)
+                 END
+            ELSE rf.amount
+        END
+    </sql>
+
     <insert id="addRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO" useGeneratedKeys="true" keyProperty="id">
         INSERT
         INTO b_refund (
@@ -343,6 +413,29 @@
         </foreach>;
     </select>
 
+    <select id="listAllByVisaIds" resultType="org.zhinanzhen.b.dao.pojo.RefundDO">
+        SELECT id, gmt_create AS gmtCreate, gmt_modify AS gmtModify, reviewed_date AS reviewedDate,
+            completed_date AS completedDate, state, type, visa_id AS visaId,
+            commission_order_id AS commissionOrderId, user_id AS userId, applicant_id AS applicantId,
+            adviser_id AS adviserId, mara_id AS maraId, official_id AS officialId,
+            school_id AS schoolId, course_id AS courseId, receive_date AS receiveDate,
+            received, amount, payment_voucher_image_url AS paymentVoucherImageUrl,
+            payment_voucher_image_url_2 AS paymentVoucherImageUrl2,
+            payment_voucher_image_url_3 AS paymentVoucherImageUrl3,
+            payment_voucher_image_url_4 AS paymentVoucherImageUrl4,
+            payment_voucher_image_url_5 AS paymentVoucherImageUrl5,
+            refund_voucher_image_url AS refundVoucherImageUrl, refund_detail_id AS refundDetailId,
+            refund_detail AS refundDetail, currency_type AS currencyType,
+            account_name AS accountName, bank_name AS bankName, bsb,
+            rmb_remarks AS rmbRemarks, reason AS reason, remarks, note,
+            expect_amount AS expectAmount
+        FROM b_refund
+        WHERE visa_id IN
+        <foreach collection="visaIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>;
+    </select>
+
     <update id="updateRefund" parameterType="org.zhinanzhen.b.dao.pojo.RefundDO">
         UPDATE b_refund
         SET gmt_modify = now()
@@ -467,10 +560,13 @@
         r.name AS area,
         a.id AS adviserId,
         a.name AS consultant,
-        SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
-        SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
-        FROM b_refund rf, tb_adviser a, tb_region r
-        WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
+        SUM(IF(rf.state = 'COMPLETE', IFNULL(IF(rf.currency_type='CNY',(<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),<include refid="allocatedRefundAmount"/>), 0.00), 0.00)) AS refunding,
+        SUM(IF(rf.state = 'PAID', IFNULL(IF(rf.currency_type='CNY',(<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),<include refid="allocatedRefundAmount"/>), 0.00), 0.00)) AS refunded
+        FROM b_refund rf
+        <include refid="refundAdviserAllocationJoin"/>
+        JOIN tb_adviser a ON a.id = COALESCE(targetVisa.adviser_id, rf.adviser_id)
+        JOIN tb_region r ON a.region_id = r.id
+        WHERE rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND rf.gmt_create > #{startDate} AND rf.gmt_create < #{endDate} ]]>
         </if>
@@ -504,7 +600,7 @@
                 DATE_FORMAT(rf.gmt_create, '%Y-%m-%d'),
             </otherwise>
         </choose>
-        adviser_id
+        a.id
         ORDER BY rf.gmt_create DESC;
     </select>
 
@@ -531,10 +627,13 @@
         r.name AS area,
         a.id AS adviserId,
         a.name AS consultant,
-        SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunding,
-        SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),rf.amount), 0.00) , 0.00), 0.00)) AS refunded
-        FROM b_refund rf, tb_adviser a, tb_region r
-        WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
+        SUM(IF(rf.state = 'COMPLETE', IFNULL(IF(rf.currency_type='CNY',(<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),<include refid="allocatedRefundAmount"/>), 0.00), 0.00)) AS refunding,
+        SUM(IF(rf.state = 'PAID', IFNULL(IF(rf.currency_type='CNY',(<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1),<include refid="allocatedRefundAmount"/>), 0.00), 0.00)) AS refunded
+        FROM b_refund rf
+        <include refid="refundAdviserAllocationJoin"/>
+        JOIN tb_adviser a ON a.id = COALESCE(targetVisa.adviser_id, rf.adviser_id)
+        JOIN tb_region r ON a.region_id = r.id
+        WHERE rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
 --         AND rf.visa_id IS NULL
         AND (rf.visa_id IS NOT NULL OR rf.commission_order_id IS NOT NULL)
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
@@ -570,7 +669,7 @@
                 DATE_FORMAT(rf.completed_date, '%Y-%m-%d'),
             </otherwise>
         </choose>
-        adviser_id
+        a.id
         ORDER BY rf.gmt_create DESC;
     </select>
     <select id="listRefundReportSubtractGst" resultType="org.zhinanzhen.b.dao.pojo.RefoundReportDO">
@@ -596,10 +695,13 @@
         r.name AS area,
         a.id AS adviserId,
         a.name AS consultant,
-        SUM(IF(rf.state = 'COMPLETE', IFNULL(IFNULL(IF(rf.currency_type='CNY',  (rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1)) - (rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1)) / 11,(rf.amount) - (rf.amount / 11)), 0.00) , 0.00), 0.00)) AS refunding,
-        SUM(IF(rf.state = 'PAID', IFNULL(IFNULL(IF(rf.currency_type='CNY',    (rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1)) - (rf.amount/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1)) / 11,(rf.amount) - (rf.amount / 11)), 0.00) , 0.00), 0.00)) AS refunded
-        FROM b_refund rf, tb_adviser a, tb_region r
-        WHERE a.region_id = r.id AND rf.adviser_id = a.id AND rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
+        SUM(IF(rf.state = 'COMPLETE', IFNULL(IF(rf.currency_type='CNY',(<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1) - ((<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1)) / 11,<include refid="allocatedRefundAmount"/> - (<include refid="allocatedRefundAmount"/> / 11)), 0.00), 0.00)) AS refunding,
+        SUM(IF(rf.state = 'PAID', IFNULL(IF(rf.currency_type='CNY',(<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1) - ((<include refid="allocatedRefundAmount"/>)/(SELECT znz_exchange_rate FROM b_everyday_exchange_rate ORDER BY gmt_create DESC LIMIT 1)) / 11,<include refid="allocatedRefundAmount"/> - (<include refid="allocatedRefundAmount"/> / 11)), 0.00), 0.00)) AS refunded
+        FROM b_refund rf
+        <include refid="refundAdviserAllocationJoin"/>
+        JOIN tb_adviser a ON a.id = COALESCE(targetVisa.adviser_id, rf.adviser_id)
+        JOIN tb_region r ON a.region_id = r.id
+        WHERE rf.state IN ('REVIEW', 'COMPLETE', 'PAID', 'CLOSE')
         AND (rf.visa_id IS NOT NULL OR rf.commission_order_id IS NOT NULL)
         <if test='startDate != null and startDate != "" and endDate != null and endDate != ""'>
             <![CDATA[ AND rf.completed_date > #{startDate} AND rf.completed_date < #{endDate} ]]>
@@ -634,7 +736,7 @@
                 DATE_FORMAT(rf.completed_date, '%Y-%m-%d'),
             </otherwise>
         </choose>
-        adviser_id
+        a.id
         ORDER BY rf.completed_date DESC;
     </select>
 </mapper>

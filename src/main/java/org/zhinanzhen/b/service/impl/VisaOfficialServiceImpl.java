@@ -23,6 +23,7 @@ import org.zhinanzhen.b.service.AbleStateEnum;
 import org.zhinanzhen.b.service.ExchangeRateService;
 import org.zhinanzhen.b.service.VisaOfficialService;
 import org.zhinanzhen.b.service.VisaCompletionPhase;
+import org.zhinanzhen.b.service.VisaPerformanceAllocation;
 import org.zhinanzhen.b.service.pojo.*;
 import org.zhinanzhen.b.service.pojo.ant.Sorter;
 import org.zhinanzhen.tb.dao.AdviserDAO;
@@ -869,6 +870,11 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
         BigDecimal netAud = BigDecimal.ZERO;
         BigDecimal parentReceivedAud = BigDecimal.ZERO;
         BigDecimal parentDueAud = BigDecimal.ZERO;
+        List<Integer> receiptIds = receipts.stream().map(VisaDO::getId).distinct().collect(Collectors.toList());
+        List<RefundDO> receiptRefunds = receiptIds.isEmpty() ? Collections.<RefundDO>emptyList()
+                : refundDAO.listAllByVisaIds(receiptIds);
+        Map<Integer, Double> refundAmountsByVisaId = VisaPerformanceAllocation.allocateRefundAmounts(receipts,
+                receiptRefunds);
         for (VisaDO receipt : receipts) {
             BigDecimal receiptPaidAud = receiptAmountAud(receipt.getAmount(), receipt);
             BigDecimal receiptDueAud = receiptAmountAud(receipt.getPerAmount(), receipt);
@@ -877,9 +883,8 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             BigDecimal paid = receiptPaidAud.multiply(allocation);
             receivedAud = receivedAud.add(paid);
             dueAud = dueAud.add(receiptDueAud.multiply(allocation));
-            RefundDO refund = refundDAO.getRefundByVisaId(receipt.getId());
-            BigDecimal refunded = refund == null ? BigDecimal.ZERO
-                    : receiptAmountAud(refund.getAmount(), receipt).multiply(allocation);
+            double allocatedRefund = refundAmountsByVisaId.getOrDefault(receipt.getId(), 0.00);
+            BigDecimal refunded = receiptAmountAud(allocatedRefund, receipt).multiply(allocation);
             netAud = netAud.add(paid.subtract(refunded));
         }
         if (receivedAud.signum() <= 0)
@@ -1042,7 +1047,6 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
             }
         }
         // 设置amount金额
-        List<RefundDO> refundDOS = new ArrayList<>();
         boolean isSIV = false;
         boolean isNSV = false;
         String code = serviceDao.getServiceById(serviceOrderById.getServiceId()).getCode();
@@ -1060,12 +1064,13 @@ public class VisaOfficialServiceImpl extends BaseService implements VisaOfficial
                 serviceList = serviceDao.listExtraAmount();
             }
         }
-        // 计算退款
+        // 按推荐顾问佣金订单份额分摊退款，再进入文案佣金计算。
+        List<Integer> visaIds = visaDOS.stream().map(VisaDO::getId).distinct().collect(Collectors.toList());
+        List<RefundDO> refunds = visaIds.isEmpty() ? Collections.<RefundDO>emptyList()
+                : refundDAO.listAllByVisaIds(visaIds);
+        Map<Integer, Double> refundAmountsByVisaId = VisaPerformanceAllocation.allocateRefundAmounts(visaDOS, refunds);
         for (VisaDO visaDO : visaDOS) {
-            RefundDO refundByVisaId = refundDAO.getRefundByVisaId(visaDO.getId());
-            if (ObjectUtil.isNotNull(refundByVisaId)) {
-                visaDO.setAmount(visaDO.getAmount() - refundByVisaId.getAmount());
-            }
+            visaDO.setAmount(visaDO.getAmount() - refundAmountsByVisaId.getOrDefault(visaDO.getId(), 0.00));
         }
         // 推荐业绩会让同一期产生两条 b_visa；文案佣金按收款期数计算，不能把两条当作两期。
         visaDOS = mergeRecommendationSharesByInstallment(visaDOS);
