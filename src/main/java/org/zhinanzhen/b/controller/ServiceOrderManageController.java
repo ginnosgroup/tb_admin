@@ -6428,6 +6428,10 @@ public class ServiceOrderManageController extends BaseController {
                     && !"GW".equalsIgnoreCase(adminUserLoginInfo.getApList())))
                 return new Response<Integer>(1, "仅限顾问和超级管理员能创建服务订单.", 0);
             Integer recommendAdviserId = serviceOrderJsonRequest.getRecommendAdviserId();
+            // 前端未选择推荐顾问时可能提交 0；将其视为未设置，订单推荐顾问保持为空。
+            if (recommendAdviserId != null && recommendAdviserId == 0) {
+                recommendAdviserId = null;
+            }
             if (recommendAdviserId != null && recommendAdviserId > 0
                     && StringUtil.isNotEmpty(adviserId)
                     && recommendAdviserId == StringUtil.toInt(adviserId)) {

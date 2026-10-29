@@ -1101,6 +1101,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     public ServiceOrderDTO putServiceOrderDTOV2(ServiceOrderDO serviceOrderDO) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+        serviceOrderDto.setRecommendAdviserId(serviceOrderDO.getRecommendAdviserId());
         //获取旧文案信息
         Integer oldOfficialId = officialHandoverLogDao.getOldOfficial(serviceOrderDto.getId());
         if (oldOfficialId != null) {
@@ -1236,6 +1237,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (regionDO != null)
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
             serviceOrderDto.getAdviser().setRegionDo(regionDO);
+        }
+        // 按推荐顾问ID补充推荐顾问信息，供 /serviceOrder/list 的单条查询返回。
+        Integer recommendAdviserId = serviceOrderDto.getRecommendAdviserId();
+        if (recommendAdviserId != null && recommendAdviserId > 0) {
+            AdviserDO recommendAdviserDo = adviserDao.getAdviserById(recommendAdviserId);
+            if (recommendAdviserDo != null) {
+                AdviserDTO recommendAdviserDto = mapper.map(recommendAdviserDo, AdviserDTO.class);
+                RegionDO recommendAdviserRegion = regionDAO.getRegionById(recommendAdviserDo.getRegionId());
+                if (recommendAdviserRegion != null) {
+                    recommendAdviserDto.setRegionName(recommendAdviserRegion.getName());
+                    recommendAdviserDto.setRegionDo(recommendAdviserRegion);
+                }
+                serviceOrderDto.setRecommendAdviser(recommendAdviserDto);
+            }
         }
         // 查询顾问2
         if (serviceOrderDto.getAdviserId2() > 0) {
@@ -1507,6 +1522,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
 
     public ServiceOrderDTO putServiceOrderDTO(ServiceOrderDO serviceOrderDO, ServiceOrderBatchContext ctx) {
         ServiceOrderDTO serviceOrderDto = mapper.map(serviceOrderDO, ServiceOrderDTO.class);
+        serviceOrderDto.setRecommendAdviserId(serviceOrderDO.getRecommendAdviserId());
         //获取旧文案信息
         Integer oldOfficialId = ctx.oldOfficialMap.get(serviceOrderDto.getId());
         if (oldOfficialId != null) {
@@ -1640,6 +1656,20 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             if (regionDO != null)
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
             serviceOrderDto.getAdviser().setRegionDo(regionDO);
+        }
+        // 列表使用批量预加载的顾问数据，避免逐条查询推荐顾问。
+        Integer recommendAdviserId = serviceOrderDto.getRecommendAdviserId();
+        if (recommendAdviserId != null && recommendAdviserId > 0) {
+            AdviserDO recommendAdviserDo = ctx.adviserMap.get(recommendAdviserId);
+            if (recommendAdviserDo != null) {
+                AdviserDTO recommendAdviserDto = mapper.map(recommendAdviserDo, AdviserDTO.class);
+                RegionDO recommendAdviserRegion = ctx.regionMap.get(recommendAdviserDo.getRegionId());
+                if (recommendAdviserRegion != null) {
+                    recommendAdviserDto.setRegionName(recommendAdviserRegion.getName());
+                    recommendAdviserDto.setRegionDo(recommendAdviserRegion);
+                }
+                serviceOrderDto.setRecommendAdviser(recommendAdviserDto);
+            }
         }
         // 查询顾问2
         if (serviceOrderDto.getAdviserId2() > 0) {
