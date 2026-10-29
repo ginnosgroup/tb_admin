@@ -107,8 +107,16 @@ public class VisaDO implements Serializable {
 
 	private ReceiveTypeDTO receiveTypeDTO;
 
+	/** 申请人ID：取自所属服务订单 b_service_order.applicant_id。
+	 *  b_visa 表本身没有该列，服务层在组装签证行时统一填充；少数 SQL
+	 *  （如 BServiceOrderDAO.getCommissionOrderList）已 SELECT so.applicant_id AS applicantId，可直接映射进来。
+	 *  用基本类型是为了保证该字段一定会出现在 JSON 里（0 表示未关联申请人），
+	 *  前端按签证行归并/展示申请人时直接读它，不再依赖 applicant 对象是否存在。 */
+	private int applicantId;
+
 	/** 仅用于接口返回（服务订单详情里的 visaDOList 需要 applicant.id），不对应数据库字段。
-	 *  未填充时不输出该字段，保证其它直出 VisaDO 的接口 JSON 不变。 */
+	 *  未填充时不输出该字段，保证其它直出 VisaDO 的接口 JSON 不变。
+	 *  注意：新代码请优先用上面的 applicantId，本字段仅作旧前端展示兼容。 */
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private ApplicantDTO applicant;
 

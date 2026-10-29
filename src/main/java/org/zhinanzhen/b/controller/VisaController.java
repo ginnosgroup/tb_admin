@@ -975,6 +975,8 @@ public class VisaController extends BaseCommissionOrderController {
 							if (serviceOrderDto != null) {
 								visaDTO.setServiceOrder(serviceOrderDto);
 								List<ApplicantDTO> applicant = visaDTO.getApplicant();
+								if (applicant == null) // 签证行可能没有申请人，避免线程内 NPE 被线程池吞掉后返回残缺数据
+									applicant = new ArrayList<>();
 								for (ApplicantDTO applicantDto : applicant) {
 									if (applicantDto != null) {
 										if (StringUtil.isEmpty(applicantDto.getUrl()))

@@ -787,7 +787,9 @@ public class UserServiceImpl extends BaseService implements UserService {
 			if(!buildUserAdviserDto(userDto, adviserId))
 				return null;
 			List<ApplicantDTO> applicantList = listApplicantDto(userDo.getId(), adviserId);
-			if (applicantList != null && applicantList.size() < 0)
+			// 原来写成 size() < 0（永远不成立），导致 /user/get 从不返回申请人；空数组也不要返回，
+			// 前端会把 [] 当 truthy 后取 applicantList[0].id 而报错。
+			if (applicantList != null && !applicantList.isEmpty())
 				userDto.setApplicantList(applicantList);
 			if (userDto.getAdviserId() > 0) {
 				AdviserDO adviserDo = adviserDao.getAdviserById(userDto.getAdviserId());

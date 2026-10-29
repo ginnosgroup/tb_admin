@@ -589,6 +589,17 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		if (visaDoList == null)
 			return null;
 		visaDoList.forEach(visaDo -> visaDtoList.add(mapper.map(visaDo, VisaDTO.class)));
+		// 签证行统一带出申请人ID，并保证 applicant 数组非 null，前端无需再依赖 applicant 对象。
+		int applicantId = 0;
+		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(serviceOrderId);
+		if (serviceOrderDo != null && serviceOrderDo.getApplicantId() > 0)
+			applicantId = serviceOrderDo.getApplicantId();
+		for (VisaDTO visaDto : visaDtoList) {
+			if (visaDto.getApplicantId() <= 0 && applicantId > 0)
+				visaDto.setApplicantId(applicantId);
+			if (visaDto.getApplicant() == null)
+				visaDto.setApplicant(new ArrayList<>());
+		}
 		return visaDtoList;
 	}
 	
@@ -707,14 +718,19 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		ServiceOrderDO serviceOrderDo = serviceOrderDao.getServiceOrderById(visaDto.getServiceOrderId());
 		ServiceOrderDTO serviceOrderDTO = mapper.map(serviceOrderDo, ServiceOrderDTO.class);
 		visaDto.setServiceOrder(serviceOrderDTO);
+		// 签证行统一带出申请人ID（VisaDTO.applicantId），且 applicant 数组始终非 null，
+		// 避免前端按签证行读取申请人时拿到 undefined / null。
+		List<ApplicantDTO> applicantDTOS = new ArrayList<>();
+		visaDto.setApplicantId(serviceOrderDo.getApplicantId() > 0 ? serviceOrderDo.getApplicantId() : 0);
 		if (serviceOrderDo.getApplicantId() > 0) {
-			List<ApplicantDTO> applicantDTOS = new ArrayList<>();
 			ApplicantDO applicantDO = applicantDao.getById(serviceOrderDo.getApplicantId());
-			applicantDTOS.add(mapper.map(applicantDO, ApplicantDTO.class));
-			visaDto.setApplicant(applicantDTOS);
-			visaDto.setApplicantId(applicantDO.getId());
-			visaDto.setServiceOrder(serviceOrderDTO);
+			if (applicantDO != null) {
+				applicantDTOS.add(mapper.map(applicantDO, ApplicantDTO.class));
+				visaDto.setApplicantId(applicantDO.getId());
+			}
 		}
+		visaDto.setApplicant(applicantDTOS);
+		visaDto.setServiceOrder(serviceOrderDTO);
 		if (serviceOrderDTO.getServiceAssessId() != null) {
 			ServiceAssessDO serviceAssessDO = serviceAssessDao.seleteAssessById(serviceOrderDTO.getServiceAssessId());
 			serviceOrderDTO.setServiceAssessDO(serviceAssessDO);

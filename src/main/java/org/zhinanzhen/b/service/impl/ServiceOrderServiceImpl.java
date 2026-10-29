@@ -1205,9 +1205,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
                     }
                 });
-				if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
-					applicantDtoList.add(serviceOrderDto.getApplicant());
-                userDto.setApplicantList(applicantDtoList);
+                // 前端用 user.applicantList[0] 取申请人，[] 是 truthy 会取到 undefined；没有申请关联记录时用主申请人兜底
+                addPrimaryApplicantFallback(applicantDtoList, serviceOrderDto);
+                userDto.setApplicantList(applicantDtoList.isEmpty() ? null : applicantDtoList);
             }
             List<CloudDiskFile> cloudDiskFileList = cloudDiskFileDAO.listByUserIds(Collections.singletonList(userDto.getId()));
             if (cloudDiskFileList != null && !cloudDiskFileList.isEmpty()) {
@@ -1223,7 +1223,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         serviceOrderDto.getInformation());
                 serviceOrderDto.setApplicantId(applicantDto.getId());
                 serviceOrderDto.setApplicant(applicantDto);
+            } else {
+                // 申请人记录已不存在（脏数据/被删），兜底空对象，避免前端读取 applicant.id 报错；
+                // 行上的 applicantId 仍保留原值，前端可直接使用。
+                serviceOrderDto.setApplicant(new ApplicantDTO());
             }
+        } else {
+            // applicantId 为 0（父订单/管理订单）时同样返回空对象，避免前端空指针
+            serviceOrderDto.setApplicant(new ApplicantDTO());
         }
         // 查询Mara
         MaraDO maraDo = maraDao.getMaraById(serviceOrderDto.getMaraId());
@@ -1289,11 +1296,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         else
             visaList = visaDao.listVisaByServiceOrderId(serviceOrderDO.getId());
         if (visaList != null && visaList.size() > 0) {
-            // 前端按签证行读取 applicant.id，VisaDO 原本没有该字段会取到 undefined，这里统一补充。
+            // 前端按签证行读取申请人：applicantId 为权威字段（基本类型，JSON 里必定存在），
+            // applicant 对象仅作旧前端展示兼容，缺失时兜底空对象，避免字段被 @JsonInclude(NON_NULL) 吞掉。
             ApplicantDTO visaApplicant = serviceOrderDto.getApplicant() == null
                     ? new ApplicantDTO() : serviceOrderDto.getApplicant();
+            int visaApplicantId = visaApplicant.getId() > 0 ? visaApplicant.getId()
+                    : serviceOrderDto.getApplicantId();
             for (VisaDO visaDo : visaList) {
                 cIds.add(visaDo.getId());
+                visaDo.setApplicantId(visaApplicantId);
                 visaDo.setApplicant(visaApplicant);
             }
         }
@@ -1628,9 +1639,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         applicantDtoList.add(mapper.map(applicantDo, ApplicantDTO.class));
                     }
                 });
-                if (applicantDtoList.size() == 0 && serviceOrderDto.getApplicant() != null)
-                    applicantDtoList.add(serviceOrderDto.getApplicant());
-                userDto.setApplicantList(applicantDtoList);
+                // 前端用 user.applicantList[0] 取申请人，[] 是 truthy 会取到 undefined；没有申请关联记录时用主申请人兜底
+                addPrimaryApplicantFallback(applicantDtoList, serviceOrderDto);
+                userDto.setApplicantList(applicantDtoList.isEmpty() ? null : applicantDtoList);
             }
             serviceOrderDto.setUser(userDto);
         }
@@ -1642,7 +1653,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                         serviceOrderDto.getInformation());
                 serviceOrderDto.setApplicantId(applicantDto.getId());
                 serviceOrderDto.setApplicant(applicantDto);
+            } else {
+                // 申请人记录已不存在（脏数据/被删），兜底空对象，避免前端读取 applicant.id 报错；
+                // 行上的 applicantId 仍保留原值，前端可直接使用。
+                serviceOrderDto.setApplicant(new ApplicantDTO());
             }
+        } else {
+            // applicantId 为 0（父订单/管理订单）时同样返回空对象，避免前端空指针
+            serviceOrderDto.setApplicant(new ApplicantDTO());
         }
         // 查询Mara
         MaraDO maraDo = ctx.maraMap.get(serviceOrderDto.getMaraId());
@@ -1708,11 +1726,15 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         else
             visaList = ctx.visaMap.getOrDefault(serviceOrderDO.getId(), new ArrayList<>());
         if (visaList != null && visaList.size() > 0) {
-            // 前端按签证行读取 applicant.id，VisaDO 原本没有该字段会取到 undefined，这里统一补充。
+            // 前端按签证行读取申请人：applicantId 为权威字段（基本类型，JSON 里必定存在），
+            // applicant 对象仅作旧前端展示兼容，缺失时兜底空对象，避免字段被 @JsonInclude(NON_NULL) 吞掉。
             ApplicantDTO visaApplicant = serviceOrderDto.getApplicant() == null
                     ? new ApplicantDTO() : serviceOrderDto.getApplicant();
+            int visaApplicantId = visaApplicant.getId() > 0 ? visaApplicant.getId()
+                    : serviceOrderDto.getApplicantId();
             for (VisaDO visaDo : visaList) {
                 cIds.add(visaDo.getId());
+                visaDo.setApplicantId(visaApplicantId);
                 visaDo.setApplicant(visaApplicant);
             }
         }
@@ -3361,7 +3383,13 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                             serviceOrderDto.getInformation());
 //                    serviceOrderDto.setApplicantId(applicantDto.getId());
                     serviceOrderDto.setApplicant(applicantDto);
+                } else {
+                    // 申请人记录已不存在（脏数据/被删），兜底空对象，避免前端读取 applicant.id 报错
+                    serviceOrderDto.setApplicant(new ApplicantDTO());
                 }
+            } else {
+                // applicantId 为 0（父订单/管理订单）时同样返回空对象，避免前端空指针
+                serviceOrderDto.setApplicant(new ApplicantDTO());
             }
 
 
@@ -3425,10 +3453,14 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
     @Override
     public List<VisaDO> getCommissionOrderList(int id) {
         List<VisaDO> list = serviceOrderDao.getCommissionOrderList(id);
-        // 前端按签证行读取 applicant.id，这里统一补充该服务订单的申请人。
+        if (list == null)
+            list = new ArrayList<>();
+        // 前端按签证行读取申请人：applicantId 为权威字段，applicant 对象仅作旧前端展示兼容。
+        int visaApplicantId = 0;
         ApplicantDTO visaApplicant = null;
         ServiceOrderDO serviceOrderDO = serviceOrderDao.getServiceOrderById(id);
         if (serviceOrderDO != null && serviceOrderDO.getApplicantId() > 0) {
+            visaApplicantId = serviceOrderDO.getApplicantId();
             ApplicantDO applicantDo = applicantDao.getById(serviceOrderDO.getApplicantId());
             if (applicantDo != null)
                 visaApplicant = mapper.map(applicantDo, ApplicantDTO.class);
@@ -3436,6 +3468,9 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (visaApplicant == null)
             visaApplicant = new ApplicantDTO();
         for (VisaDO visa : list) {
+            // SQL 已带出 so.applicant_id（applicantId），缺失时用服务订单的申请人兜底。
+            if (visa.getApplicantId() <= 0)
+                visa.setApplicantId(visaApplicantId);
             visa.setApplicant(visaApplicant);
             // 查询收款方式
             ReceiveTypeDO receiveTypeDo = receiveTypeDao.getReceiveTypeById(visa.getReceiveTypeId());
@@ -3642,6 +3677,25 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
             return "签证申请";
         else
             return "";
+    }
+
+    /** 前端（服务订单列表、附件页等）用 user.applicantList[0] 取申请人，
+     *  而空数组 [] 在 JS 里是 truthy，会让 applicantList[0] 变成 undefined，
+     *  报 "Cannot read properties of undefined (reading 'id')"。
+     *  b_service_order_applicant 没有关联记录时，用服务订单的主申请人兜底，保证列表非空。 */
+    private void addPrimaryApplicantFallback(List<ApplicantDTO> applicantDtoList, ServiceOrderDTO serviceOrderDto) {
+        if (applicantDtoList == null || applicantDtoList.size() > 0 || serviceOrderDto.getApplicantId() <= 0)
+            return;
+        ApplicantDO primaryDo = applicantDao.getById(serviceOrderDto.getApplicantId());
+        if (primaryDo != null) {
+            List<ServiceOrderApplicantDO> list = serviceOrderApplicantDao.list(serviceOrderDto.getId(),
+                    primaryDo.getId());
+            if (list != null && list.size() > 0) {
+                primaryDo.setFileUrl(list.get(0).getUrl());
+                primaryDo.setFirstControllerContents(list.get(0).getContent());
+            }
+            applicantDtoList.add(mapper.map(primaryDo, ApplicantDTO.class));
+        }
     }
 
     private ApplicantDTO buildApplicant(ApplicantDTO applicantDto, Integer serviceOrderId, String notCloud,
