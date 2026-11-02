@@ -668,7 +668,10 @@ public class CommissionOrderController extends BaseCommissionOrderController {
 				commissionOrderDto.setRemarks(remarks);
 			if (StringUtil.isNotEmpty(verifyCode))
 				commissionOrderDto.setVerifyCode(verifyCode.replace("$", "").replace("#", "").replace(" ", ""));
-			if (commissionOrderDto.getKjApprovalDate() == null || commissionOrderDto.getKjApprovalDate().getTime() == 0)
+			// 重新提交审核时刷新审核日期，其他状态仅补齐空日期。
+			if (ReviewKjStateEnum.REVIEW.toString().equalsIgnoreCase(commissionOrderDto.getState())
+					|| commissionOrderDto.getKjApprovalDate() == null
+					|| commissionOrderDto.getKjApprovalDate().getTime() == 0)
 				commissionOrderDto.setKjApprovalDate(new Date());
 
 			// SubagencyDTO subagencyDto =
