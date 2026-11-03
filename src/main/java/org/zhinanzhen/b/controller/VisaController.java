@@ -296,12 +296,15 @@ public class VisaController extends BaseCommissionOrderController {
 			ServiceDTO serviceDTO = serviceService.getServiceById(Integer.parseInt(serviceId));
 			if ("签证".equalsIgnoreCase(serviceDTO.getName()) && (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482"))) {
 				visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
-				visaDto.setBonus(visaDto.getBonus() * 0.4);
+				visaDto.setBonus(visaDto.getExpectAmount() * 0.1);
 			}
 			if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.4);
-				visaDto.setPerAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.4);
-				visaDto.setBonus(visaDto.getBonus() * 0.4);
+				// 预收业绩 = 本次收款(含GST) × 40%；月奖 = 预收业绩 × 10%
+				// 注意：这里不能改 per_amount！per_amount 表示"本期应收"，是下面循环里
+				// _perAmount 累计、再反推下一期金额（_receivable - _perAmount）的基数。
+				// 一旦被覆盖成 40% 业绩值，第 2 期就会把差额全部吃掉，导致各期合计大于订单应收。
+				visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
+				visaDto.setBonus(visaDto.getExpectAmount() * 0.1);
 			}
 //			if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
 //				visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
@@ -334,12 +337,14 @@ public class VisaController extends BaseCommissionOrderController {
 					visaDto.setBonus(visaDto.getDeductGst() * 0.1);
 					visaDto.setExpectAmount(commission);
 					if ("VISA".equalsIgnoreCase(serviceOrderDtoT.getType()) && (serviceDTO.getCode().contains("186") || serviceDTO.getCode().contains("407") || serviceDTO.getCode().contains("482"))) {
-						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.4);
-						visaDto.setBonus(visaDto.getBonus() * 0.4);
+						// 与第 1 期（:298）保持一致：预收业绩 = 本次收款(含GST) × 40%，不再先除 1.1
+						visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
+						visaDto.setBonus(visaDto.getExpectAmount() * 0.1);
 					}
 					if ("雇主担保".equalsIgnoreCase(serviceDTO.getName())) {
-						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.4);
-						visaDto.setBonus(visaDto.getBonus() * 0.4);
+						// 与第 1 期保持一致：预收业绩 = 本次收款(含GST) × 40%，月奖 = 预收业绩 × 10%
+						visaDto.setExpectAmount(visaDto.getAmount() * 0.4);
+						visaDto.setBonus(visaDto.getExpectAmount() * 0.1);
 					}
 //					if (serviceDTO.getId() == 26 || serviceDTO.getId() == 1000023 || serviceDTO.getId() == 1000030) {
 //						visaDto.setExpectAmount((visaDto.getAmount() - visaDto.getAmount() / 11) * 0.25);
