@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.zhinanzhen.b.dao.OfficialReviewRuleDAO;
 import org.zhinanzhen.b.dao.ServiceOrderDAO;
+import org.zhinanzhen.b.dao.VisaDAO;
 import org.zhinanzhen.b.service.ServiceOrderManageService;
 import org.zhinanzhen.b.service.ServiceOrderService;
 
@@ -27,20 +28,23 @@ public class SONodeFactory implements NodeFactory {
 
 	private final ServiceOrderDAO serviceOrderDAO;
 
+	private final VisaDAO visaDao;
+
 	@Autowired
 	public SONodeFactory(@Lazy ServiceOrderService serviceOrderService,
 			ServiceOrderManageService serviceOrderManageService, OfficialReviewRuleDAO officialReviewRuleDAO,
-			ServiceOrderDAO serviceOrderDAO) {
+			ServiceOrderDAO serviceOrderDAO, VisaDAO visaDao) {
 		this.serviceOrderService = serviceOrderService;
 		this.serviceOrderManageService = serviceOrderManageService;
 		this.officialReviewRuleDAO = officialReviewRuleDAO;
 		this.serviceOrderDAO = serviceOrderDAO;
+		this.visaDao = visaDao;
 	}
 
 
 	public Node getNode(String name) {
 		for (Node node : ListUtil.buildArrayList(
-				new ServiceOrderPendingNode(serviceOrderService),
+				new ServiceOrderPendingNode(serviceOrderService, visaDao),
 				new ServiceOrderReviewNode(serviceOrderService, serviceOrderManageService, officialReviewRuleDAO,
 						serviceOrderDAO),
 				new ServiceOrderOfficialReviewNode(serviceOrderService), 

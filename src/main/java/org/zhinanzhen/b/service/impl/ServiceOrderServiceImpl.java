@@ -2155,8 +2155,16 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
                                     "<br/>创建时间:", date, "<br/>", serviceOrderMailDetail.getServiceOrderUrl());
                     }
                 }
-                sendMail(officialDo.getEmail() + ",maggie@zhinanzhen.org", title,
-                        content);
+                // 撤回/被驳回后重新提交时，邮件正文与上次完全相同（订单号、申请人、备注、创建时间都没变），
+                // 会被 BaseService.sendMail 的 MD5(收件人+标题+正文) 去重逻辑拦掉，导致"重新提交不发邮件"。
+                // 这里对"重新提交"(stateMark2=Retracted) 强制发送，sendMailAlways 不走去重。
+                String reviewMailTo = officialDo.getEmail() + ",maggie@zhinanzhen.org";
+                if ("Retracted".equalsIgnoreCase(serviceOrderDoT.getStateMark2())) {
+                    LOG.info("重新提交,强制发送文案提醒邮件:serviceOrderId=" + serviceOrderDoT.getId());
+                    sendMailAlways(reviewMailTo, title, content);
+                } else {
+                    sendMail(reviewMailTo, title, content);
+                }
                 // 写入文案审核时间
                 if (serviceOrderDoT.getOfficialApprovalDate() == null)
                     serviceOrderDoT.setOfficialApprovalDate(new Date());
