@@ -217,7 +217,7 @@
         LIMIT #{offset}, #{rows};
     </select>
 
-    <select id="getOfficialById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO">
+    <select id="getOfficialById" parameterType="java.lang.Integer" resultType="org.zhinanzhen.b.dao.pojo.OfficialDO" useCache="false">
         SELECT
             id,
             gmt_create AS gmtCreate,

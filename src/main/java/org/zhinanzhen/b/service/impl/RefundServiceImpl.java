@@ -98,14 +98,14 @@ public class RefundServiceImpl extends BaseService implements RefundService {
 					refundDo.setCourseId(commissionOrderListDo.getCourseId());
 			}
 			RefundDO counterpartRefundDo = null;
-			// 推荐顾问佣金单退款时，把完整申请金额按70%/30%拆成两张退款单。
+			// 按佣金单已保存的实际比例拆分退款，原顾问和推荐顾问都可能承担30%或70%。
 			if (sourceVisa != null && counterpartVisa != null) {
 				BigDecimal total = BigDecimal.valueOf(refundDo.getAmount()).setScale(2, RoundingMode.HALF_UP);
-				BigDecimal recommendedAmount = total.multiply(new BigDecimal("0.30")).setScale(2, RoundingMode.HALF_UP);
-				BigDecimal primaryAmount = total.subtract(recommendedAmount);
-				boolean sourceIsPrimary = Math.abs(sourceVisa.getPerformanceRatio() - 0.70) < 0.000001;
-				BigDecimal sourceAmount = sourceIsPrimary ? primaryAmount : recommendedAmount;
-				BigDecimal counterpartAmount = sourceIsPrimary ? recommendedAmount : primaryAmount;
+				BigDecimal thirtyPercentAmount = total.multiply(new BigDecimal("0.30")).setScale(2, RoundingMode.HALF_UP);
+				BigDecimal seventyPercentAmount = total.subtract(thirtyPercentAmount);
+				boolean sourceHasSeventyPercent = Math.abs(sourceVisa.getPerformanceRatio() - 0.70) < 0.000001;
+				BigDecimal sourceAmount = sourceHasSeventyPercent ? seventyPercentAmount : thirtyPercentAmount;
+				BigDecimal counterpartAmount = sourceHasSeventyPercent ? thirtyPercentAmount : seventyPercentAmount;
 
 				refundDo.setVisaId(sourceVisa.getId());
 				refundDo.setAdviserId(sourceVisa.getAdviserId());

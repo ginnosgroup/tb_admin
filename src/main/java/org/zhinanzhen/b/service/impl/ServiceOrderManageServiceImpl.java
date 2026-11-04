@@ -696,6 +696,7 @@ public class ServiceOrderManageServiceImpl extends BaseService implements Servic
         if (adviserDo != null) {
             RegionDO regionDO = ctx.regionMap.get(adviserDo.getRegionId());
             serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+            serviceOrderDto.setAdviserName(adviserDo.getName());
             if (regionDO != null)
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
             serviceOrderDto.getAdviser().setRegionDo(regionDO);

@@ -3,8 +3,16 @@ package org.zhinanzhen.tb.service.impl;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.zhinanzhen.b.dao.KjDAO;
+import org.zhinanzhen.b.dao.MaraDAO;
+import org.zhinanzhen.b.dao.OfficialDAO;
+import org.zhinanzhen.b.dao.pojo.KjDO;
+import org.zhinanzhen.b.dao.pojo.MaraDO;
+import org.zhinanzhen.b.dao.pojo.OfficialDO;
 import org.zhinanzhen.tb.dao.AdminUserDAO;
+import org.zhinanzhen.tb.dao.AdviserDAO;
 import org.zhinanzhen.tb.dao.pojo.AdminUserDO;
+import org.zhinanzhen.tb.dao.pojo.AdviserDO;
 import org.zhinanzhen.tb.service.AdminUserService;
 import org.zhinanzhen.tb.service.ServiceException;
 import org.zhinanzhen.tb.service.pojo.AdminUserDTO;
@@ -18,6 +26,18 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 
 	@Resource
 	private AdminUserDAO adminUserDao;
+
+	@Resource
+	private AdviserDAO adviserDao;
+
+	@Resource
+	private MaraDAO maraDao;
+
+	@Resource
+	private OfficialDAO officialDao;
+
+	@Resource
+	private KjDAO kjDao;
 
 	@Override
 	public int add(String username, String password, String apList, Integer adviserId, Integer maraId,
@@ -86,12 +106,54 @@ public class AdminUserServiceImpl extends BaseService implements AdminUserServic
 					return -1;
 				return 0;
 			}
+			if (!areLoginRolesEnabled(adminUserDo))
+				return -1;
 		} catch (Exception e) {
 			ServiceException se = new ServiceException(e);
 			se.setCode(ErrorCodeEnum.OTHER_ERROR.code());
 			throw se;
 		}
 		return adminUserDo.getId();
+	}
+
+	private boolean areLoginRolesEnabled(AdminUserDO adminUser) {
+		String apList = adminUser.getApList();
+		if (apList == null)
+			return true;
+		// 按实际登录角色校验；多角色账号必须全部启用。
+		if (apList.contains("GW")) {
+			Integer adviserId = adminUser.getAdviserId();
+			if (adviserId == null || adviserId <= 0)
+				return false;
+			AdviserDO adviser = adviserDao.getAdviserById(adviserId);
+			if (adviser == null || !"ENABLED".equalsIgnoreCase(adviser.getState()))
+				return false;
+		}
+		if (apList.contains("MA")) {
+			Integer maraId = adminUser.getMaraId();
+			if (maraId == null || maraId <= 0)
+				return false;
+			MaraDO mara = maraDao.getMaraById(maraId);
+			if (mara == null || !"ENABLED".equalsIgnoreCase(mara.getState()))
+				return false;
+		}
+		if (apList.contains("WA")) {
+			Integer officialId = adminUser.getOfficialId();
+			if (officialId == null || officialId <= 0)
+				return false;
+			OfficialDO official = officialDao.getOfficialById(officialId);
+			if (official == null || !"ENABLED".equalsIgnoreCase(official.getState()))
+				return false;
+		}
+		if (apList.contains("KJ")) {
+			Integer kjId = adminUser.getKjId();
+			if (kjId == null || kjId <= 0)
+				return false;
+			KjDO kj = kjDao.getKjById(kjId);
+			if (kj == null || !"ENABLED".equalsIgnoreCase(kj.getState()))
+				return false;
+		}
+		return true;
 	}
 
 	@Override

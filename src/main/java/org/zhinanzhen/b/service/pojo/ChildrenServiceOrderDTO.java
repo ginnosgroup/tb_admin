@@ -7,6 +7,8 @@ public class ChildrenServiceOrderDTO {
 	
 	private int id;
 
+	private String adviserName;
+
 	private Integer recommendAdviserId;
 	
 	private String type;

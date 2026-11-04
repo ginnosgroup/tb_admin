@@ -400,6 +400,11 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 			return 0;
 		if (!isRecommendationRatio(before.getPerformanceRatio()))
 			return updateVisa(visaDto);
+		ServiceOrderDO serviceOrder = serviceOrderDao.getServiceOrderById(before.getServiceOrderId());
+		if (serviceOrder == null)
+			throw new ServiceException("关联服务订单不存在，无法确认顾问分成身份。");
+		boolean isRecommended = VisaPerformanceAllocation.isRecommendedAdviser(before.getAdviserId(),
+				serviceOrder.getAdviserId(), serviceOrder.getRecommendAdviserId());
 
 		// 更新接口传入的是当前顾问的份额，按该份额反推同一期另一位顾问的份额。
 		roundRecommendationAmounts(visaDto);
@@ -428,7 +433,7 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		}
 
 		// 推荐顾问记录不得重新写入对账 code；旧记录在被修改时一并清理。
-		if (Math.abs(before.getPerformanceRatio() - 0.30) < 0.000001)
+		if (isRecommended)
 			visaDto.setVerifyCode(null);
 		int updated = updateVisa(visaDto);
 		if (updated > 0) {
@@ -440,8 +445,9 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 					throw error;
 				}
 			}
-			int recommendationId = Math.abs(before.getPerformanceRatio() - 0.30) < 0.000001
-					? before.getId() : counterpart == null ? 0 : counterpart.getId();
+			int recommendationId = isRecommended ? before.getId()
+					: counterpart != null && VisaPerformanceAllocation.isRecommendedAdviser(counterpart.getAdviserId(),
+							serviceOrder.getAdviserId(), serviceOrder.getRecommendAdviserId()) ? counterpart.getId() : 0;
 			if (recommendationId > 0)
 				visaDao.clearRecommendationVerifyCode(recommendationId);
 		}
@@ -764,6 +770,12 @@ public class VisaServiceImpl extends BaseService implements VisaService {
 		AdviserDO adviserDo = adviserDao.getAdviserById(visaListDo.getAdviserId());
 		if (adviserDo != null) {
 			visaDto.setAdviserName(adviserDo.getName());
+		}
+		if (serviceOrderDo.getAdviserId() > 0) {
+			AdviserDO orderAdviser = serviceOrderDo.getAdviserId() == visaListDo.getAdviserId()
+					? adviserDo : adviserDao.getAdviserById(serviceOrderDo.getAdviserId());
+			if (orderAdviser != null)
+				serviceOrderDTO.setAdviserName(orderAdviser.getName());
 		}
 		OfficialDO officialDo = officialDao.getOfficialById(visaListDo.getOfficialId());
 		if (officialDo != null) {

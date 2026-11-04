@@ -140,7 +140,7 @@ public class AdminUserController extends BaseController {
 		if (id == 0)
 			return new Response<Boolean>(0, "账户或者密码不正确。", false);
 		if (id == -1)
-			return new Response<Boolean>(-1, "该帐号可能已被禁用！", false);
+			return new Response<Boolean>(1, "该帐号可能已被禁用！", false);
 		String uid = (String) session.getAttribute("uid");
 		if (StringUtil.isNotEmpty(uid) && adminUserService.getAdminUserByOpenUserId(uid) == null) {
 			adminUserService.updateOperUserId(id, uid); // 绑定企业微信号

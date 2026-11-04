@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhinanzhen.b.dao.RefundDAO">
 
-    <!-- 匹配同一期的主顾问70%和推荐顾问30%佣金单。 -->
+    <!-- 匹配同一期按70%/30%拆分的两条佣金单，顾问身份不由比例决定。 -->
     <sql id="hasRecommendationCounterpart">
         EXISTS (
             SELECT 1 FROM b_visa counterpart

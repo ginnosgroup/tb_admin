@@ -1241,6 +1241,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (adviserDo != null) {
             RegionDO regionDO = regionDAO.getRegionById(adviserDo.getRegionId());
             serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+            serviceOrderDto.setAdviserName(adviserDo.getName());
             if (regionDO != null)
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
             serviceOrderDto.getAdviser().setRegionDo(regionDO);
@@ -1671,6 +1672,7 @@ public class ServiceOrderServiceImpl extends BaseService implements ServiceOrder
         if (adviserDo != null) {
             RegionDO regionDO = ctx.regionMap.get(adviserDo.getRegionId());
             serviceOrderDto.setAdviser(mapper.map(adviserDo, AdviserDTO.class));
+            serviceOrderDto.setAdviserName(adviserDo.getName());
             if (regionDO != null)
                 serviceOrderDto.getAdviser().setRegionName(regionDO.getName());
             serviceOrderDto.getAdviser().setRegionDo(regionDO);

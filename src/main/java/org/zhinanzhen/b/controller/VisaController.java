@@ -1504,7 +1504,9 @@ public class VisaController extends BaseCommissionOrderController {
 	}
 
 	private boolean isRecommendationVisa(VisaDTO visaDto) {
-		return Math.abs(visaDto.getPerformanceRatio() - 0.30) < 0.000001;
+		ServiceOrderDTO serviceOrder = visaDto.getServiceOrder();
+		return serviceOrder != null && VisaPerformanceAllocation.isRecommendedAdviser(visaDto.getAdviserId(),
+				serviceOrder.getAdviserId(), serviceOrder.getRecommendAdviserId());
 	}
 
 	@RequestMapping(value = "/down_V2", method = RequestMethod.GET)

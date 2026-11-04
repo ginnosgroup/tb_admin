@@ -234,7 +234,13 @@
 
     <update id="clearRecommendationVerifyCode">
         UPDATE b_visa SET verify_code = NULL
-        WHERE id = #{id} AND performance_ratio = 0.30
+        WHERE id = #{id} AND performance_ratio IN (0.30, 0.70)
+          AND EXISTS (
+            SELECT 1 FROM b_service_order so
+            WHERE so.id = b_visa.service_order_id
+              AND so.recommend_adviser_id = b_visa.adviser_id
+              AND so.recommend_adviser_id != so.adviser_id
+          )
     </update>
 
     <select id="countVisa" resultType="java.lang.Integer">
