@@ -50,6 +50,7 @@ import org.zhinanzhen.b.service.PortalApplicationImageReviewService;
 import org.zhinanzhen.b.service.PortalApplicationContentService;
 import org.zhinanzhen.b.service.PortalApplicationImageReviewService.ReviewResult;
 import org.zhinanzhen.b.utils.ImageResolutionInspector;
+import org.zhinanzhen.b.utils.PassportNameNormalizer;
 import org.zhinanzhen.b.utils.ReportFormNumberExtractor;
 import org.zhinanzhen.b.service.PortalDocumentService;
 import org.zhinanzhen.b.service.PortalFollowUpState;
@@ -127,7 +128,8 @@ public class PortalController extends BaseController {
 					+ "规则：\n"
 					+ "1. 只能根据护照可见内容和机读区提取，不要猜测；缺失字段返回null。\n"
 					+ "2. 日期统一为yyyy-MM-dd。\n"
-					+ "3. fullName按givenNames在前、familyName在后的顺序生成。\n"
+					+ "3. familyName和givenNames只提取护照上的英文/拉丁字母姓名，优先使用机读区对应的姓和名，"
+					+ "不得混入中文姓名，不要自行将中文翻译或转写为拼音；fullName按givenNames在前、familyName在后的顺序生成。\n"
 					+ "4. 护照号码、姓名、出生日期和有效期必须优先核对机读区，避免字母和数字混淆。\n"
 					+ "5. issuingCountry必须使用英文国家或地区名称，例如中国写China、澳大利亚写Australia，不得使用中文。";
 
@@ -450,6 +452,13 @@ public class PortalController extends BaseController {
 				return new Response<Map<String, Object>>(1, "申请材料内容提取失败：" + e.getMessage(), null);
 			}
 		}
+		// 前端直接拼接familyName和givenNames；护照识别必须先通过姓名校验，避免回填错误姓名。
+		AttachmentAiTextResult passportAiResult = null;
+		if (extractAiText && "passport".equals(normalizedFileType)) {
+			passportAiResult = extractAttachmentText(fileBytes, originalName, normalizedFileType);
+			if (StringUtil.isEmpty(passportAiResult.aiText))
+				return new Response<Map<String, Object>>(1, "护照信息提取失败：" + passportAiResult.errorMessage, null);
+		}
 		Response<String> uploadResp = super.upload2(file, request.getSession(), "/uploads/portal_attachment/");
 		if (uploadResp == null) {
 			return new Response<Map<String, Object>>(1, "附件上传失败.", null);
@@ -511,8 +520,8 @@ public class PortalController extends BaseController {
 					reviewContent.set("imageQuality", OBJECT_MAPPER.valueToTree(imageReview.toMap()));
 					portalAttachmentDto.setAiText(reviewContent.toString());
 				} else if (extractAiText) {
-					AttachmentAiTextResult aiResult = extractAttachmentText(fileBytes, file.getOriginalFilename(),
-							normalizedFileType);
+					AttachmentAiTextResult aiResult = passportAiResult != null ? passportAiResult
+							: extractAttachmentText(fileBytes, file.getOriginalFilename(), normalizedFileType);
 					portalAttachmentDto.setAiText(aiResult.aiText);
 					aiTextError = aiResult.errorMessage;
 				}
@@ -617,7 +626,7 @@ public class PortalController extends BaseController {
 
 	/**
 	 * 根据附件类型调取 DeepSeek 解析图片/PDF，并规范为结构化JSON字符串。
-	 * 失败时返回失败原因，不影响附件上传主流程。
+	 * 失败时返回失败原因；护照在上传前校验，其他类型不影响附件上传主流程。
 	 */
 	private AttachmentAiTextResult extractAttachmentText(byte[] fileBytes, String filename, String fileType) {
 		try {
@@ -740,7 +749,8 @@ public class PortalController extends BaseController {
 			}
 			return OBJECT_MAPPER.writeValueAsString(completionJson);
 		}
-		if ("passport".equals(fileType) && jsonNode.path("passportDetails").isObject()) {
+		if ("passport".equals(fileType)) {
+			PassportNameNormalizer.normalize((ObjectNode) jsonNode);
 			normalizePassportIssuingCountry((ObjectNode) jsonNode.get("passportDetails"));
 		}
 		if ("autolanguage".equals(fileType))

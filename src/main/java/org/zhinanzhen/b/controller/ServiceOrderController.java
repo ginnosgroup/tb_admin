@@ -3015,6 +3015,8 @@ public class ServiceOrderController extends BaseController {
             }
             sheet.addCell(new Label(22, 0, "推荐顾问名字", defaultFormat));
             sheet.setColumnView(22, 20);
+            sheet.addCell(new Label(23, 0, "服务费", defaultFormat));
+            sheet.setColumnView(23, 20);
             int i = 1;
             for (ServiceOrderDTO so : serviceOrderLists) {
                 WritableCellFormat cellFormat;
@@ -3172,6 +3174,7 @@ public class ServiceOrderController extends BaseController {
                 String recommendAdviserName = hasRecommendation
                         ? recommendAdviserNameMap.getOrDefault(so.getRecommendAdviserId(), "") : "";
                 sheet.addCell(new Label(22, i, recommendAdviserName, cellFormat));
+                sheet.addCell(new jxl.write.Number(23, i, so.getReceivable(), cellFormat));
                 i++;
             }
             wbe.write();
