@@ -25,12 +25,12 @@ public interface PortalService {
 
 	List<PortalDTO> listPortal(Integer typeId, Integer id, String caseType, String strState, String keyword, String name, int pageNum, int pageSize,
 			Integer adviserId, Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId,
-			boolean officialStateRange)
+			boolean officialStateRange, String startCreateDate, String endCreateDate)
 			throws ServiceException;
 
 	int countPortal(Integer typeId, Integer id, String caseType, String strState, String keyword, String name, Integer adviserId,
 			Integer adviserRegionId, Integer officialId, Integer officialRegionId, Integer maraId,
-			boolean officialStateRange)
+			boolean officialStateRange, String startCreateDate, String endCreateDate)
 			throws ServiceException;
 
 	PortalDTO getPortal(Integer id, Integer adviserId, Integer adviserRegionId, Integer officialId,

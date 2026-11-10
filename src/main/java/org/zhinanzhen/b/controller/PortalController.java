@@ -2615,7 +2615,7 @@ public class PortalController extends BaseController {
 			super.setGetHeader(response);
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
 			return queryPortalList(typeId, id, caseType, strState, keyword, name, pageNum, pageSize,
-					buildAccessFilter(request));
+					buildAccessFilter(request), null, null);
 		} catch (ServiceException e) {
 			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
@@ -2631,6 +2631,8 @@ public class PortalController extends BaseController {
 			@RequestParam(value = "strState", required = false) String strState,
 			@RequestParam(value = "keyword", required = false) String keyword,
 			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "startCreateDate", required = false) String startCreateDate,
+			@RequestParam(value = "endCreateDate", required = false) String endCreateDate,
 			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
 			@RequestParam(value = "token", required = false) String token,
 			HttpServletRequest request, HttpServletResponse response) {
@@ -2641,7 +2643,7 @@ public class PortalController extends BaseController {
 			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, "token无效，无权查询案件列表。");
 		try {
 			return queryPortalList(typeId, id, caseType, strState, keyword, name, pageNum, pageSize,
-					new PortalAccessFilter());
+					new PortalAccessFilter(), startCreateDate, endCreateDate);
 		} catch (ServiceException e) {
 			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
@@ -2649,7 +2651,8 @@ public class PortalController extends BaseController {
 
 	/** 共用筛选、分页与关联数据组装，访问权限由各入口确定。 */
 	private ListResponse<List<PortalDTO>> queryPortalList(Integer typeId, Integer id, String caseType,
-			String strState, String keyword, String name, int pageNum, int pageSize, PortalAccessFilter filter)
+			String strState, String keyword, String name, int pageNum, int pageSize, PortalAccessFilter filter,
+			String startCreateDate, String endCreateDate)
 			throws ServiceException {
 		// 状态筛选支持：ALL查询全部，PROCESSING查询01-012，COMPLETED只查询013。
 		if (strState != null) {
@@ -2661,12 +2664,14 @@ public class PortalController extends BaseController {
 			else if ("COMPLETED".equalsIgnoreCase(strState))
 				strState = "COMPLETED";
 		}
+		startCreateDate = startCreateDate == null ? null : startCreateDate.trim();
+		endCreateDate = endCreateDate == null ? null : endCreateDate.trim();
 		int total = portalService.countPortal(typeId, id, caseType, strState, keyword, name, filter.adviserId,
 				filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId,
-				filter.officialStateRange);
+				filter.officialStateRange, startCreateDate, endCreateDate);
 		List<PortalDTO> portalDtoList = portalService.listPortal(typeId, id, caseType, strState, keyword, name, pageNum,
 				pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
-				filter.maraId, filter.officialStateRange);
+				filter.maraId, filter.officialStateRange, startCreateDate, endCreateDate);
 		// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
 		if (portalDtoList != null) {
 			for (PortalDTO portalDto : portalDtoList) {

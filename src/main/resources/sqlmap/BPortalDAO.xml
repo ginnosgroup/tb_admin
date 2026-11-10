@@ -147,6 +147,13 @@
         WHERE id = #{id} AND (str_state IS NULL OR str_state != '013');
     </update>
 
+    <!-- 与服务订单时间范围保持一致：起止时间均非空才筛选，区间两端不包含。 -->
+    <sql id="portalCreateDateFilter">
+        <if test='startCreateDate != null and startCreateDate != "" and endCreateDate != null and endCreateDate != ""'>
+            <![CDATA[ AND gmt_create > #{startCreateDate} AND gmt_create < #{endCreateDate} ]]>
+        </if>
+    </sql>
+
     <select id="listPortal" resultType="org.zhinanzhen.b.dao.pojo.PortalDO" useCache="false">
         SELECT
             id,
@@ -174,6 +181,7 @@
             str_state AS strState
         FROM b_portal_list
         WHERE 1 = 1
+        <include refid="portalCreateDateFilter"/>
         <if test='id != null'>
             AND id = #{id}
         </if>
@@ -243,6 +251,7 @@
         SELECT count(*)
         FROM b_portal_list
         WHERE 1 = 1
+        <include refid="portalCreateDateFilter"/>
         <if test='id != null'>
             AND id = #{id}
         </if>

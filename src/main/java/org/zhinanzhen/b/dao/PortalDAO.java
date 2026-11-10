@@ -27,7 +27,8 @@ public interface PortalDAO {
 			@Param("rows") int rows,
 			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
 			@Param("officialId") Integer officialId, @Param("officialRegionId") Integer officialRegionId,
-			@Param("maraId") Integer maraId, @Param("officialStateRange") boolean officialStateRange);
+			@Param("maraId") Integer maraId, @Param("officialStateRange") boolean officialStateRange,
+			@Param("startCreateDate") String startCreateDate, @Param("endCreateDate") String endCreateDate);
 
 	int countPortal(@Param("typeId") Integer typeId, @Param("id") Integer id,
 			@Param("caseType") String caseType,
@@ -36,7 +37,8 @@ public interface PortalDAO {
 			@Param("adviserId") Integer adviserId,
 			@Param("adviserRegionId") Integer adviserRegionId, @Param("officialId") Integer officialId,
 			@Param("officialRegionId") Integer officialRegionId, @Param("maraId") Integer maraId,
-			@Param("officialStateRange") boolean officialStateRange);
+			@Param("officialStateRange") boolean officialStateRange,
+			@Param("startCreateDate") String startCreateDate, @Param("endCreateDate") String endCreateDate);
 
 	PortalDO getPortalById(@Param("id") int id, @Param("name") String name,
 			@Param("adviserId") Integer adviserId, @Param("adviserRegionId") Integer adviserRegionId,
