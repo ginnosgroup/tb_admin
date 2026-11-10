@@ -4601,6 +4601,9 @@ public class ServiceOrderController extends BaseController {
             context.putParameter("offerUrl", offerUrl);
             context.putParameter("insuranceCompany", insuranceCompany);
             context.putParameter("hasInsurance", hasInsurance);
+            if ("PENDING".equals(state)) {
+                context.putParameter("isSubmitted", 0);
+            }
             LOG.info("Flow API Log : " + context.toString());
             LOG.info("serviceOrderDto : " + serviceOrderDto);
             
