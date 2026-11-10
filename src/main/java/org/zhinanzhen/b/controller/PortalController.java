@@ -89,6 +89,8 @@ public class PortalController extends BaseController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PortalController.class);
 	private static final String PORTAL_UPDATE_PROGRESS_CC_EMAIL = "client.notifications@zhinanzhen.com.au";
+	/** 案件列表新接口的固定访问token，区分大小写，长度18位。 */
+	private static final String PORTAL_LIST_TOKEN = "JHDcJebx8NZ3rXeFri";
 	private static final int PORTAL_ACTION_CODE_IV_BYTES = 12;
 	private static final int PORTAL_ACTION_CODE_TAG_BITS = 128;
 
@@ -2611,37 +2613,70 @@ public class PortalController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response) {
 		try {
 			super.setGetHeader(response);
-			// 状态筛选支持：ALL查询全部，PROCESSING查询01-012，COMPLETED只查询013。
-			if (strState != null) {
-				strState = strState.trim();
-				if ("ALL".equalsIgnoreCase(strState))
-					strState = null;
-				else if ("PROCESSING".equalsIgnoreCase(strState))
-					strState = "PROCESSING";
-				else if ("COMPLETED".equalsIgnoreCase(strState))
-					strState = "COMPLETED";
-			}
 			// 数据权限过滤：顾问查自己名下，顾问管理员查同地区所有顾问，文案同理，mara查自己名下，超管查全部
-			PortalAccessFilter filter = buildAccessFilter(request);
-			int total = portalService.countPortal(typeId, id, caseType, strState, keyword, name, filter.adviserId,
-					filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId,
-					filter.officialStateRange);
-			List<PortalDTO> portalDtoList = portalService.listPortal(typeId, id, caseType, strState, keyword, name, pageNum,
-					pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
-					filter.maraId, filter.officialStateRange);
-			// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
-			if (portalDtoList != null) {
-				for (PortalDTO portalDto : portalDtoList) {
-					portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
-					portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
-					portalDto.setPortalSupplementList(
-							portalSupplementService.listPortalSupplementByPortalId(portalDto.getId()));
-				}
-			}
-			return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
+			return queryPortalList(typeId, id, caseType, strState, keyword, name, pageNum, pageSize,
+					buildAccessFilter(request));
 		} catch (ServiceException e) {
 			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
 		}
+	}
+
+	/** 仅校验token，不依赖登录会话；按请求条件查询全部案件。 */
+	@RequestMapping(value = "/listByToken", method = RequestMethod.GET)
+	@ResponseBody
+	public ListResponse<List<PortalDTO>> listPortalByToken(
+			@RequestParam(value = "typeId", required = false) Integer typeId,
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "caseType", required = false) String caseType,
+			@RequestParam(value = "strState", required = false) String strState,
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "pageNum") int pageNum, @RequestParam(value = "pageSize") int pageSize,
+			@RequestParam(value = "token", required = false) String token,
+			HttpServletRequest request, HttpServletResponse response) {
+		super.setGetHeader(response);
+		if (token == null || token.trim().isEmpty())
+			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, "token不能为空。");
+		if (!PORTAL_LIST_TOKEN.equals(token))
+			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, "token无效，无权查询案件列表。");
+		try {
+			return queryPortalList(typeId, id, caseType, strState, keyword, name, pageNum, pageSize,
+					new PortalAccessFilter());
+		} catch (ServiceException e) {
+			return new ListResponse<List<PortalDTO>>(false, pageSize, 0, null, e.getMessage());
+		}
+	}
+
+	/** 共用筛选、分页与关联数据组装，访问权限由各入口确定。 */
+	private ListResponse<List<PortalDTO>> queryPortalList(Integer typeId, Integer id, String caseType,
+			String strState, String keyword, String name, int pageNum, int pageSize, PortalAccessFilter filter)
+			throws ServiceException {
+		// 状态筛选支持：ALL查询全部，PROCESSING查询01-012，COMPLETED只查询013。
+		if (strState != null) {
+			strState = strState.trim();
+			if ("ALL".equalsIgnoreCase(strState))
+				strState = null;
+			else if ("PROCESSING".equalsIgnoreCase(strState))
+				strState = "PROCESSING";
+			else if ("COMPLETED".equalsIgnoreCase(strState))
+				strState = "COMPLETED";
+		}
+		int total = portalService.countPortal(typeId, id, caseType, strState, keyword, name, filter.adviserId,
+				filter.adviserRegionId, filter.officialId, filter.officialRegionId, filter.maraId,
+				filter.officialStateRange);
+		List<PortalDTO> portalDtoList = portalService.listPortal(typeId, id, caseType, strState, keyword, name, pageNum,
+				pageSize, filter.adviserId, filter.adviserRegionId, filter.officialId, filter.officialRegionId,
+				filter.maraId, filter.officialStateRange);
+		// 与 /get 保持一致：按 portal_id 关联查询附件列表和操作日志，组装进每个案件一起返回
+		if (portalDtoList != null) {
+			for (PortalDTO portalDto : portalDtoList) {
+				portalDto.setPortalAttachmentList(listPortalAttachmentsForDisplay(portalDto));
+				portalDto.setPortalLogList(listPortalDetailLogs(portalDto));
+				portalDto.setPortalSupplementList(
+						portalSupplementService.listPortalSupplementByPortalId(portalDto.getId()));
+			}
+		}
+		return new ListResponse<List<PortalDTO>>(true, pageSize, total, portalDtoList, "");
 	}
 
 	@RequestMapping(value = "/delete", method = RequestMethod.GET)
