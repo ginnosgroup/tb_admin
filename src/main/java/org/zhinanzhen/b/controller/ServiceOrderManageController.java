@@ -1430,7 +1430,16 @@ public class ServiceOrderManageController extends BaseController {
                     }
                 }
                 List<ServiceOrderDTO> serviceOrderDTOS = serviceOrderManageService.listChildrenServiceOrder(serviceOrderDto.getId());
+                Map<Integer, String> assessmentInstitutions = new HashMap<>();
+                if (serviceOrderJson != null) {
+                    for (ServiceOrderJsonRequest item : serviceOrderJson) {
+                        if (item.getId() != null && item.getAssessmentInstitution() != null)
+                            assessmentInstitutions.put(item.getId(), item.getAssessmentInstitution().trim());
+                    }
+                }
                 for (ServiceOrderDTO serviceOrderDTOC : serviceOrderDTOS) {
+                    if (assessmentInstitutions.containsKey(serviceOrderDTOC.getId()))
+                        serviceOrderDTOC.setAssessmentInstitution(assessmentInstitutions.get(serviceOrderDTOC.getId()));
                     if (serviceOrderDto.getPaymentVoucherImageUrl1() != null && !serviceOrderDto.getPaymentVoucherImageUrl1().equalsIgnoreCase(serviceOrderDTOC.getPaymentVoucherImageUrl1())) {
                         serviceOrderDTOC.setPaymentVoucherImageUrl1(serviceOrderDto.getPaymentVoucherImageUrl1());
                     }
@@ -1511,6 +1520,7 @@ public class ServiceOrderManageController extends BaseController {
                                                 @RequestParam(value = "isHistory", required = false) String isHistory,
                                                 @RequestParam(value = "nutCloud", required = false) String nutCloud,
                                                 @RequestParam(value = "serviceAssessId", required = false) String serviceAssessId,
+                                                @RequestParam(value = "assessmentInstitution", required = false) String assessmentInstitution,
                                                 @RequestParam(value = "verifyCode", required = false) String verifyCode,
                                                 @RequestParam(value = "refNo", required = false) String refNo,
                                                 @RequestParam(value = "courseId", required = false) Integer courseId,
@@ -1596,7 +1606,7 @@ public class ServiceOrderManageController extends BaseController {
                     kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl, perAmount, amount, expectAmount, currency,
                     exchangeRate, gst, deductGst, bonus, userId, applicantId, applicantBirthday,
                     serviceOrderApplicantList, maraId, adviserId, officialId, remarks, closedReason, information,
-                    isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId, schoolInstitutionLocationId,
+                    isHistory, nutCloud, serviceAssessId, assessmentInstitution, verifyCode, refNo, courseId, schoolInstitutionLocationId,
                     institutionTradingName, bindingOrder, expectTimeEnrollment, isApplyVisa, visaNumber, insuranceCompany,
                     hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions, recommendAdviserId);
             if (res != null && res.getCode() == 0) {
@@ -1621,7 +1631,7 @@ public class ServiceOrderManageController extends BaseController {
                             invoiceVoucherImageUrl5, kjPaymentImageUrl1, kjPaymentImageUrl2, lowPriceImageUrl,
                             perAmount, amount, expectAmount, currency, exchangeRate, gst, deductGst, bonus, userId,
                             null, null, null, maraId, adviserId, officialId, remarks, closedReason, information,
-                            isHistory, nutCloud, serviceAssessId, verifyCode, refNo, courseId,
+                            isHistory, nutCloud, serviceAssessId, assessmentInstitution, verifyCode, refNo, courseId,
                             schoolInstitutionLocationId, institutionTradingName, null, null, null, null,
                             insuranceCompany, hasInsurance, isTransfer, transferRemarks, servicePackageIds, offerUrl, offerType, officialData, scoreOptions, scoreState, scoreMark, eoiType, isCOE, zeroScoreOptions, recommendAdviserId);
                     if (cRes.getCode() > 0)
@@ -1912,7 +1922,7 @@ public class ServiceOrderManageController extends BaseController {
                                         String exchangeRate, String gst, String deductGst, String bonus, String userId, String applicantId,
                                         String applicantBirthday, List<ServiceOrderApplicantDTO> serviceOrderApplicantList, String maraId,
                                         String adviserId, String officialId, String remarks, String closedReason, String information,
-                                        String isHistory, String nutCloud, String serviceAssessId, String verifyCode, String refNo,
+                                        String isHistory, String nutCloud, String serviceAssessId, String assessmentInstitution, String verifyCode, String refNo,
                                         Integer courseId, Integer schoolInstitutionLocationId, String institutionTradingName, Integer bindingOrderId,
                                         String expectTimeEnrollment,Boolean isApplyVisa,String visaNumber, String insuranceCompany, String hasInsurance,
                                         String isTransfer, String transferRemarks, String servicePackageIds, String offerUrl,
@@ -2050,6 +2060,8 @@ public class ServiceOrderManageController extends BaseController {
             serviceOrderDto.setHistory(isHistory != null && "true".equalsIgnoreCase(isHistory));
             if (StringUtil.isNotEmpty(nutCloud))
                 serviceOrderDto.setNutCloud(nutCloud);
+            if (assessmentInstitution != null)
+                serviceOrderDto.setAssessmentInstitution(assessmentInstitution.trim());
             if (StringUtil.isNotEmpty(serviceAssessId)) {
                 serviceOrderDto.setServiceAssessId(serviceAssessId);
             } else
@@ -3420,6 +3432,8 @@ public class ServiceOrderManageController extends BaseController {
             sheet.setColumnView(21, 20);
             sheet.addCell(new Label(22, 0, "服务费", cellFormat));
             sheet.setColumnView(22, 20);
+            sheet.addCell(new Label(23, 0, "职评评估机构", cellFormat));
+            sheet.setColumnView(23, 25);
             int i = 1;
             for (ServiceOrderDTO orderList : serviceOrderLists) {
                 if (!"OVST".equalsIgnoreCase(orderList.getType())) {
@@ -3470,6 +3484,7 @@ public class ServiceOrderManageController extends BaseController {
                             && !orderList.getRecommendAdviserId().equals(orderList.getAdviserId());
                     sheet.addCell(new Label(21, i, hasRecommendation ? "是" : "否", redFormat));
                     sheet.addCell(new jxl.write.Number(22, i, orderList.getReceivable(), redFormat));
+                    sheet.addCell(new Label(23, i, "", redFormat));
                     sheet.setRowView(i, 600);
                     i++;
                 }
@@ -3590,6 +3605,8 @@ public class ServiceOrderManageController extends BaseController {
                             && !so.getRecommendAdviserId().equals(so.getAdviserId());
                     sheet.addCell(new Label(21, i, hasRecommendation ? "是" : "否", subRowFormat));
                     sheet.addCell(new jxl.write.Number(22, i, so.getReceivable(), subRowFormat));
+                    sheet.addCell(new Label(23, i,
+                            so.getAssessmentInstitution() == null ? "" : so.getAssessmentInstitution(), subRowFormat));
                     i++;
                 }
             }
@@ -6446,6 +6463,8 @@ public class ServiceOrderManageController extends BaseController {
                 return new Response<Integer>(1, "推荐顾问不存在，请检查子订单recommendAdviserId。", 0);
             }
             ServiceOrderDTO serviceOrderDto = new ServiceOrderDTO();
+            if (serviceOrderJsonRequest.getAssessmentInstitution() != null)
+                serviceOrderDto.setAssessmentInstitution(serviceOrderJsonRequest.getAssessmentInstitution().trim());
             serviceOrderDto.setRecommendAdviserId(recommendAdviserId);
             if ("SIV".equalsIgnoreCase(type) || "NSV".equalsIgnoreCase(type)) {
                 serviceOrderDto.setMaraId(Integer.parseInt(maraId));

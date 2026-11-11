@@ -584,7 +584,7 @@
     </select>
     <select id="listSub" resultType="org.zhinanzhen.b.dao.pojo.ServiceOrderDO">
         SELECT
-            bso.*, bso.recommend_adviser_id AS recommendAdviserId
+            bso.*, bso.recommend_adviser_id AS recommendAdviserId, bso.assessment_institution AS assessmentInstitution
         FROM
             b_service_order_manage bm
                 LEFT JOIN b_service_order_and_manage bsm ON bm.id = bsm.service_order_manage_id
@@ -638,7 +638,7 @@
     </select>
     <select id="listChildrenServiceOrder" resultType="org.zhinanzhen.b.service.pojo.ServiceOrderDTO">
         SELECT
-            *, recommend_adviser_id AS recommendAdviserId
+            *, recommend_adviser_id AS recommendAdviserId, assessment_institution AS assessmentInstitution
         FROM
             b_service_order
         WHERE

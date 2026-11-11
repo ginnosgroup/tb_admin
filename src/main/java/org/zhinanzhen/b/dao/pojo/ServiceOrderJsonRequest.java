@@ -71,6 +71,8 @@ public class ServiceOrderJsonRequest {
     private String isHistory;
     private String nutCloud;
     private String serviceAssessId;
+    /** 评估机构，保存到服务订单。 */
+    private String assessmentInstitution;
     private String verifyCode;
     private String refNo;
     private Integer courseId;

@@ -474,6 +474,8 @@ public class VisaOfficialController extends BaseCommissionOrderController {
             }
             headerRow.createCell(29).setCellValue("保险公司名称");
             headerRow.createCell(36).setCellValue("结算阶段");
+            headerRow.createCell(37).setCellValue("职评评估机构");
+            sheet.setColumnWidth(37, 25 * 256);
 
             String servicePackageType = "";
             List<ServicePackagePriceDO> servicePackagePriceDOS = servicePackagePriceDAO.list(null, null, 0, 999);
@@ -688,6 +690,7 @@ public class VisaOfficialController extends BaseCommissionOrderController {
                     states = "待确认";
                 row.createCell(35).setCellValue(states.equalsIgnoreCase("COMPLETE") ? "已确认" : states);
                 row.createCell(36).setCellValue(settlementPhase == null ? "" : settlementPhase);
+                row.createCell(37).setCellValue(so.getAssessmentInstitution() == null ? "" : so.getAssessmentInstitution());
                 i++;
             }
             wb.write(os);

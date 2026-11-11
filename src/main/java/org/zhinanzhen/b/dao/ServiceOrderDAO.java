@@ -137,7 +137,7 @@ public interface ServiceOrderDAO {
     // 根据父订单获取子订单
     List<ServiceOrderDTO> getDeriveOrder(@Param("id") int id);
 
-    @Select("SELECT * FROM b_service_order WHERE applicant_parent_id = #{id}")
+    @Select("SELECT *, assessment_institution AS assessmentInstitution FROM b_service_order WHERE applicant_parent_id = #{id}")
     List<ServiceOrderDTO> getZiOrder(int id);
 
     /** 将仍处于PENDING的直接子订单提交到REVIEW。 */

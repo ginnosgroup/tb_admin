@@ -170,6 +170,9 @@ public class ServiceOrderDO implements Serializable {
 
 	private String serviceAssessId;
 
+	/** 评估机构。 */
+	private String assessmentInstitution;
+
 	private  Integer realPeopleNumber;
 
 	//对账使用的code

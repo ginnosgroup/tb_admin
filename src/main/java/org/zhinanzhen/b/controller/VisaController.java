@@ -1272,6 +1272,8 @@ public class VisaController extends BaseCommissionOrderController {
 				WritableSheet sheet = wbe.getSheet(0);
 				WritableCellFormat cellFormat = new WritableCellFormat();
 				addRecommendationExportHeaders(sheet, 26);
+				sheet.addCell(new Label(29, 0, "职评评估机构", cellFormat));
+				sheet.setColumnView(29, 25);
 				List<AdviserDTO> adviserDTOS = adviserService.listAdviser(null, null, 0, 1000);
 				Map<Integer, String> adviserMap = adviserDTOS.stream().collect(Collectors.toMap(AdviserDTO::getId, AdviserDTO::getName, (v1, v2) -> v2));
 				List<ServiceDTO> serviceDTOS = serviceService.listAllService(null, 0, 999);
@@ -1321,6 +1323,9 @@ public class VisaController extends BaseCommissionOrderController {
 					sheet.addCell(new Label(25, i, visaDto.getRemarks() + "", cellFormat));
 					addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat,
 							recommendationAdviserNameByServiceOrderId);
+					ServiceOrderDO serviceOrder = serviceOrderById.get(visaDto.getServiceOrderId());
+					sheet.addCell(new Label(29, i, serviceOrder == null || serviceOrder.getAssessmentInstitution() == null
+							? "" : serviceOrder.getAssessmentInstitution(), cellFormat));
 					i++;
 				}
 				wbe.write();
@@ -1358,6 +1363,8 @@ public class VisaController extends BaseCommissionOrderController {
 					WritableSheet sheet = wbe.getSheet(0);
 					WritableCellFormat cellFormat = new WritableCellFormat();
 					addRecommendationExportHeaders(sheet, 24);
+					sheet.addCell(new Label(27, 0, "职评评估机构", cellFormat));
+					sheet.setColumnView(27, 25);
 
 					int i = 1;
 					for (VisaDTO visaDto : list) {
@@ -1391,6 +1398,9 @@ public class VisaController extends BaseCommissionOrderController {
 						sheet.addCell(new Label(23, i, visaDto.getRemarks(), cellFormat));
 						addRecommendationExportRow(sheet, i, 24, visaDto, cellFormat,
 								recommendationAdviserNameByServiceOrderId);
+						ServiceOrderDO serviceOrder = serviceOrderById.get(visaDto.getServiceOrderId());
+						sheet.addCell(new Label(27, i, serviceOrder == null || serviceOrder.getAssessmentInstitution() == null
+								? "" : serviceOrder.getAssessmentInstitution(), cellFormat));
 						i++;
 					}
 					wbe.write();
@@ -1429,6 +1439,8 @@ public class VisaController extends BaseCommissionOrderController {
 					WritableSheet sheet = wbe.getSheet(0);
 					WritableCellFormat cellFormat = new WritableCellFormat();
 					addRecommendationExportHeaders(sheet, 26);
+					sheet.addCell(new Label(29, 0, "职评评估机构", cellFormat));
+					sheet.setColumnView(29, 25);
 
 					int i = 1;
 					for (VisaDTO visaDto : list) {
@@ -1464,6 +1476,9 @@ public class VisaController extends BaseCommissionOrderController {
 						sheet.addCell(new Label(25, i, visaDto.getRemarks(), cellFormat));
 						addRecommendationExportRow(sheet, i, 26, visaDto, cellFormat,
 								recommendationAdviserNameByServiceOrderId);
+						ServiceOrderDO serviceOrder = serviceOrderById.get(visaDto.getServiceOrderId());
+						sheet.addCell(new Label(29, i, serviceOrder == null || serviceOrder.getAssessmentInstitution() == null
+								? "" : serviceOrder.getAssessmentInstitution(), cellFormat));
 						i++;
 					}
 					wbe.write();

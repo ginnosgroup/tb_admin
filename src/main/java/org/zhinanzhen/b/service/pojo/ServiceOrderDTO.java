@@ -213,6 +213,9 @@ public class ServiceOrderDTO {
 
 	private String serviceAssessId;
 
+	/** 评估机构。 */
+	private String assessmentInstitution;
+
 	private Integer realPeopleNumber;
 
 	private String verifyCode;//会计自动对账code

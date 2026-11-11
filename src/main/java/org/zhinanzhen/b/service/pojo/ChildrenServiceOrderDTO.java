@@ -19,4 +19,6 @@ public class ChildrenServiceOrderDTO {
 	
 	private String state;
 
+	private String assessmentInstitution;
+
 }
