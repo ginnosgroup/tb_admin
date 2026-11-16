@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSDictionary;
@@ -45,6 +47,13 @@ import com.ikasoa.core.utils.StringUtil;
 public final class Form956PdfGenerator {
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final Pattern ADDRESS_POSTCODE = Pattern.compile("(?:^|[\\s,]+)(\\d{4})$");
+	private static final Pattern ADDRESS_STATE = Pattern.compile(
+			"(?:^|[\\s,]+)(ACT|NSW|NT|QLD|SA|TAS|VIC|WA)$", Pattern.CASE_INSENSITIVE);
+	private static final Pattern ADDRESS_STREET_AND_SUBURB = Pattern.compile(
+			"^(.+?\\s+\\S+\\s+(?:street|st|road|rd|avenue|ave|drive|dr|lane|ln|court|ct|terrace|tce"
+					+ "|place|pl|crescent|cres|close|cl|circuit|cct|highway|hwy|parade|pde|boulevard|blvd|way)\\.?)\\s+(.+)$",
+			Pattern.CASE_INSENSITIVE);
 	private static final String[] FONT_RESOURCES = {
 			"fonts/simhei.ttf",
 			"fonts/arial.ttf",
@@ -244,7 +253,7 @@ public final class Form956PdfGenerator {
 		put(values, "cc.name giv", data.clientGivenNames);
 		put(values, "cc.dob", data.clientBirthday);
 		put(values, "cc.org name", data.clientOrganisation);
-		put(values, "cc.resadd str", data.clientAddress);
+		putClientAddress(values, data.clientAddress);
 		put(values, "cc.off ph", data.clientPhone);
 		put(values, "cc.mob", data.clientMobile);
 		put(values, "cc.diac id", data.clientId);
@@ -261,6 +270,48 @@ public final class Form956PdfGenerator {
 		put(values, "mg.email", data.agentEmail);
 		put(values, "mg.marn", data.marn);
 		return values;
+	}
+
+	/** 清除模板中的客户地址，再按街道、区域、州和邮编分别填写；缺少的部分保持空白。 */
+	private static void putClientAddress(Map<String, String> values, String address) {
+		values.put("cc.resadd str", "");
+		values.put("cc.resadd sub", "");
+		values.put("cc.resadd cntry", "");
+		values.put("cc.resadd pc", "");
+		if (isBlank(address))
+			return;
+
+		String remaining = trimAddressSeparators(address.replace('\uFF0C', ',').replaceAll("\\s+", " "));
+		Matcher postcode = ADDRESS_POSTCODE.matcher(remaining);
+		if (postcode.find()) {
+			put(values, "cc.resadd pc", postcode.group(1));
+			remaining = trimAddressSeparators(remaining.substring(0, postcode.start()));
+		}
+		Matcher state = ADDRESS_STATE.matcher(remaining);
+		if (state.find()) {
+			put(values, "cc.resadd cntry", state.group(1).toUpperCase(Locale.ENGLISH));
+			remaining = trimAddressSeparators(remaining.substring(0, state.start()));
+		}
+
+		int separator = remaining.lastIndexOf(',');
+		if (separator >= 0) {
+			put(values, "cc.resadd str", trimAddressSeparators(remaining.substring(0, separator)));
+			put(values, "cc.resadd sub", trimAddressSeparators(remaining.substring(separator + 1)));
+		} else {
+			// 没有逗号时，仅在存在州/邮编且能识别街道类型时拆分，避免猜测区域。
+			Matcher streetAndSuburb = ADDRESS_STREET_AND_SUBURB.matcher(remaining);
+			if ((!values.get("cc.resadd cntry").isEmpty() || !values.get("cc.resadd pc").isEmpty())
+					&& streetAndSuburb.matches()) {
+				put(values, "cc.resadd str", streetAndSuburb.group(1));
+				put(values, "cc.resadd sub", streetAndSuburb.group(2));
+			} else {
+				put(values, "cc.resadd str", remaining);
+			}
+		}
+	}
+
+	private static String trimAddressSeparators(String value) {
+		return value.replaceAll("^[\\s,]+|[\\s,]+$", "");
 	}
 
 	private static void put(Map<String, String> values, String field, String value) {
